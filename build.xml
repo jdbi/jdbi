@@ -1,0 +1,129 @@
+<project name="jDBI" default="jar" basedir=".">
+
+    <property name="debug" value="true"/>
+    <property name="version" value="1.2.1"/>
+    <property name="username" value="johan"/>
+    <property name="password" value="doe"/>
+    <property name="release-url" value="${username}:${password}@beaver.codehaus.org:/home/projects/jdbi/public_html"/>
+
+    <target name="compile" description="Compile all Source Files">
+        <mkdir dir="build"/>
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src/java" destdir="build/classes" debug="${debug}">
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="compile-tests" depends="compile" description="Build source for unit tests">
+        <mkdir dir="build"/>
+        <mkdir dir="build/test-classes"/>
+        <javac srcdir="src/test" destdir="build/test-classes" debug="${debug}">
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+                <pathelement location="build/classes"/>
+            </classpath>
+        </javac>
+        <copy todir="build/test-classes">
+            <fileset dir="src/test-etc">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="jar" depends="compile" description="Build Jar Library">
+        <mkdir dir="build"/>
+        <jar jarfile="build/jdbi-${version}.jar">
+            <fileset dir="build/classes">
+                <include name="**/*.class"/>
+            </fileset>
+        </jar>
+        <echo message="built library: build/jdbi-${version}.jar"/>
+    </target>
+
+    <target name="clean" description="Remove All Artifacts">
+        <delete quiet="true" dir="build"/>
+        <delete quiet="true" dir="report"/>
+    </target>
+
+    <target name="test" depends="compile-tests" description="Run all junit tests">
+        <mkdir dir="report"/>
+        <junit>
+            <formatter type="plain"/>
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+                <pathelement location="build/classes"/>
+                <pathelement location="build/test-classes"/>
+            </classpath>
+            <batchtest todir="report">
+                <fileset dir="src/test">
+                    <include name="**/Test*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="javadoc" description="Generate API Documentation">
+        <javadoc
+            destdir="build/doc/api"
+            author="true"
+            windowtitle="jDBI"
+            access="protected"
+            overview="src/doc/api/overview.html">
+            <fileset dir="src/java"/>
+        </javadoc>
+    </target>
+
+    <target name="release" depends="jar, javadoc">
+        <mkdir dir="build/site"/>
+        <copy todir="build/site/api">
+            <fileset dir="build/doc/api"/>
+        </copy>
+        <copy file="build/jdbi-${version}.jar" todir="build/site/"/>
+        <copy file="src/doc/index.html" todir="build/site/">
+            <filterset>
+                <filter token="version" value="${version}"/>
+            </filterset>
+        </copy>
+
+        <copy file="RELEASE_NOTES" todir="build/site/" />
+
+        <mkdir dir="build/staging/jdbi-${version}"/>
+        <copy todir="build/staging/jdbi-${version}/src">
+            <fileset dir="src">
+                <exclude name="**/.svn"/>
+            </fileset>
+        </copy>
+        <copy todir="build/staging/jdbi-${version}/lib">
+            <fileset dir="lib">
+                <exclude name="**/.svn"/>
+            </fileset>
+        </copy>
+
+        <copy todir="build/staging/jdbi-${version}">
+            <fileset file="CONTRIBUTORS"/>
+            <fileset file="build.xml"/>
+            <fileset file="LICENSE"/>
+            <fileset file="NOTICE"/>
+            <fileset file="README"/>
+            <fileset file="RELEASE_NOTES"/>
+        </copy>
+        <tar tarfile="build/site/jdbi-${version}.tar.gz" basedir="build/staging" compression="gzip"/>
+        <zip zipfile="build/site/jdbi-${version}.zip" basedir="build/staging"/>
+    </target>
+
+    <target name="site" depends="release">
+        <scp todir="${release-url}/">
+            <fileset dir="build/site"/>
+        </scp>
+    </target>
+</project>
+
+

@@ -1,0 +1,1 @@
+insert into something (id, name) values (3, 'three')

@@ -1,0 +1,8 @@
+Developers:
+    Brian McCallister  - brianm@apache.org
+
+Thank you to:
+    maniax for finding a nasty bug in named parameter substitution
+    Robert Sfeir for batch processing feature requests
+    Henry Yandell for in clause expansion feature request
+    Patrick Burleson for showing that DBIException should extend RuntimeException

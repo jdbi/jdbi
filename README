@@ -1,0 +1,19 @@
+Building requires Apache Ant ( http://ant.apache.org/ )
+
+If ant complains that it cannot find the JUnit task, copy
+the junit-3.8.1.jar into the $ANT_HOME/lib directory, or into
+$HOME/.ant/lib and try again.
+
+To build the runtime library, use "ant jar"
+
+    This will produce a jdbi-<version>.jar in the build/ directory
+
+    There are no library dependencies for jDBI
+
+To run the unit/regression test suite use "ant test"
+
+    Test report will be in the report/ directory
+
+    The test suite requires the libraries in the lib/test/ directory
+    and uses the Apache Derby ( http://www.apache.org/ ) embedded
+    database for its tests.

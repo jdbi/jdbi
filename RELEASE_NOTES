@@ -1,0 +1,97 @@
+TODO:
+    SQL in-clause expansion    
+
+1.2.1
+    Via the Spring DBIBean, IDBI#open(HandleCallback) now uses the transactionally bound handle
+    if there is one.
+
+1.2.0
+    DBIException now extends RuntimeException. The 7 character change major release =)
+
+    Added DBIUtils.closeHandleIfNecessary(Handle, IDBI) to allow for transparently managing
+    transactions and connections in Spring whteher tx's are enabled or not.    
+
+1.1.2
+    Handle#query(String, RowCallback): void no longer starts a transaction
+    automagically
+
+1.1.1
+    Support full-line comments in external sql and sql scripts. Full line comments
+    must begin with # or // or -- as the first character(s) on the line. 
+
+1.1.0
+    Added handle#first(..): Map convenience functions to query for individual rows
+
+    Removed DBITransactionFailedException and used plain old DBIException
+    in its place
+
+    Added unstable package for holding elements subject to API changes
+    during a major release cycle.
+
+    Handle decorator functionality added to unstable feature set
+
+    JavaBean mapped named parameter support
+
+    Renamed Handle#preparedBatch to Handle#prepareBatch
+
+    Queries return java.util.List instead of java.util.Collection
+
+    Much more sophisticated auto-configuration
+
+    Broke backwards compatibility on handle.query(String, Object) method behavior
+        (this is reason why 1.1.0 version increment)
+        (read the javadocs if you use this method)
+
+    Removed method Handle#query(String, Object, Object)
+        Could lea to confusion with changed behavior mentioned above
+
+1.0.10
+    Batch and PreparedBatch Support
+
+    Removed an unused exception
+
+    Fixed bug in named parameter extractor (would miss named params not preceeded by whitespace)
+
+1.0.9
+    Better auto-detection of statement type (named, raw sql, etc)
+
+1.0.8
+    Spring integration tools
+
+1.0.7
+    Provide an interface for the DBI class in order to play nicer with proxies
+
+1.0.6
+    Prepared statement re-use was failing on Oracle, fixed.
+
+1.0.5
+    Fleshed out the execute(..) methods to take full array of arguments, like
+    query.
+
+    Added update(..): int which return number of rows affected
+
+    Lots of internal refactoring
+
+1.0.4
+    Was swallowing an exception in one place for the (brief) 1.0.3 release. 
+    Definately upgrade if using 1.0.3
+
+1.0.3
+    Fixed a bug where quoted text could be interpreted as named tokens, bad me.
+
+    Added HandleCallback methods to DBI to manage handle db resources etc for
+    clients.
+
+    Removed test dependency on Jakarta commons-io, which had been used, previously,
+    for deleting the test database. Tests now depend only on derby and junit, still
+    with no runtime dependencies (other than the JDBC driver for your database).
+
+1.0.2
+    Added facility for loading connection info from properties file 
+    for convenience. Totally optional, thankfully.
+
+1.0.1
+    Added overloaded argument signatures to callback-based queries
+    
+1.0 
+    Initial Release
