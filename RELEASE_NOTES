@@ -1,5 +1,4 @@
-TODO:
-    SQL in-clause expansion
+1.2.6
 
 1.2.5
     Change Handle#script to batch the statements in the script    
