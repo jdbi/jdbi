@@ -36,6 +36,7 @@ class Script
     {
         final ClassLoader loader = ClasspathStatementLocator.selectClassLoader();
         BufferedReader reader = null;
+        Batch batch = handle.batch();
         try
         {
             final InputStream in = loader.getResourceAsStream(name + ".sql");
@@ -51,8 +52,9 @@ class Script
 
             for (int i = 0; i != statements.length; i++)
             {
-                if (!statements[i].trim().equals("")) handle.execute(statements[i]);
+                if (!statements[i].trim().equals("")) batch.add(statements[i]);
             }
+            batch.execute();
         }
         finally
         {

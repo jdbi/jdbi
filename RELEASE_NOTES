@@ -2,7 +2,7 @@ TODO:
     SQL in-clause expansion
 
 1.2.5
-    ???    
+    Change Handle#script to batch the statements in the script    
 
 1.2.4
     Bug fix in named parameter handling with quotes (would ignore some named params incorrectly)
