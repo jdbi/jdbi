@@ -151,7 +151,7 @@
       </entry>
       <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="25" column="67" selection-start="959" selection-end="959" vertical-scroll-proportion="-0.046511628">
+          <state line="155" column="39" selection-start="4179" selection-end="4179" vertical-scroll-proportion="3.2558138">
             <folding>
               <element signature="imports" expanded="true" />
               <element signature="docComment;class#BMTTransactionHandler#0" expanded="true" />
@@ -606,7 +606,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="67" selection-start="959" selection-end="959" vertical-scroll-proportion="-0.046511628">
+        <state line="155" column="39" selection-start="4179" selection-end="4179" vertical-scroll-proportion="3.2558138">
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="docComment;class#BMTTransactionHandler#0" expanded="true" />

@@ -18,8 +18,9 @@ import org.skife.jdbi.DBIException;
 import org.skife.jdbi.Handle;
 
 import javax.naming.InitialContext;
-import javax.transaction.UserTransaction;
+import javax.naming.NamingException;
 import javax.transaction.Status;
+import javax.transaction.UserTransaction;
 
 /**
  * Transaction Handler which uses a JNDI lookup for an explicitely managed
@@ -42,15 +43,28 @@ public class BMTTransactionHandler implements TransactionHandler
      */
     public void begin(Handle handle)
     {
+        InitialContext ctx = null;
         try
         {
-            final InitialContext ctx = new InitialContext();
+            ctx = new InitialContext();
             final UserTransaction tx = (UserTransaction) ctx.lookup(jndi);
             tx.begin();
         }
         catch (Exception e)
         {
             throw new DBIException(e.getMessage(), e);
+        }
+        finally
+        {
+            if (ctx != null)
+                try
+                {
+                    ctx.close();
+                }
+                catch (NamingException e)
+                {
+                    throw new DBIException(e.getMessage(), e);
+                }
         }
     }
 
@@ -59,15 +73,28 @@ public class BMTTransactionHandler implements TransactionHandler
      */
     public void commit(Handle handle)
     {
+        InitialContext ctx = null;
         try
         {
-            final InitialContext ctx = new InitialContext();
+            ctx = new InitialContext();
             final UserTransaction tx = (UserTransaction) ctx.lookup(jndi);
             tx.commit();
         }
         catch (Exception e)
         {
             throw new DBIException(e.getMessage(), e);
+        }
+        finally
+        {
+            if (ctx != null)
+                try
+                {
+                    ctx.close();
+                }
+                catch (NamingException e)
+                {
+                    throw new DBIException(e.getMessage(), e);
+                }
         }
     }
 
@@ -76,15 +103,28 @@ public class BMTTransactionHandler implements TransactionHandler
      */
     public void rollback(Handle handle)
     {
+        InitialContext ctx = null;
         try
         {
-            final InitialContext ctx = new InitialContext();
+            ctx = new InitialContext();
             final UserTransaction tx = (UserTransaction) ctx.lookup(jndi);
             tx.rollback();
         }
         catch (Exception e)
         {
             throw new DBIException(e.getMessage(), e);
+        }
+        finally
+        {
+            if (ctx != null)
+                try
+                {
+                    ctx.close();
+                }
+                catch (NamingException e)
+                {
+                    throw new DBIException(e.getMessage(), e);
+                }
         }
     }
 
@@ -93,15 +133,28 @@ public class BMTTransactionHandler implements TransactionHandler
      */
     public boolean isInTransaction(Handle handle)
     {
+       InitialContext ctx = null;
         try
         {
-            final InitialContext ctx = new InitialContext();
+            ctx = new InitialContext();
             final UserTransaction tx = (UserTransaction) ctx.lookup(jndi);
-            return ! (tx.getStatus() == Status.STATUS_NO_TRANSACTION);
+            return !(tx.getStatus() == Status.STATUS_NO_TRANSACTION);
         }
         catch (Exception e)
         {
             throw new DBIException(e.getMessage(), e);
+        }
+        finally
+        {
+            if (ctx != null)
+                try
+                {
+                    ctx.close();
+                }
+                catch (NamingException e)
+                {
+                    throw new DBIException(e.getMessage(), e);
+                }
         }
     }
 }
