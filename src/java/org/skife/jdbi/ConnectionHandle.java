@@ -14,8 +14,8 @@
  */
 package org.skife.jdbi;
 
-import org.skife.jdbi.unstable.tweak.TransactionHandler;
-import org.skife.jdbi.unstable.tweak.ConnectionTransactionHandler;
+import org.skife.jdbi.tweak.ConnectionTransactionHandler;
+import org.skife.jdbi.tweak.TransactionHandler;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -32,10 +32,8 @@ import java.util.Map;
 class ConnectionHandle implements Handle
 {
     private final Connection conn;
-    private boolean autoCommitBase = true;
-    //private boolean inTransaction = false;
     private final StatementCache cache;
-    private TransactionHandler transactionHandler = new ConnectionTransactionHandler();
+    private final TransactionHandler transactionHandler;
 
     ConnectionHandle(final Connection conn)
     {
@@ -44,7 +42,13 @@ class ConnectionHandle implements Handle
 
     ConnectionHandle(final Connection conn, NamedStatementRepository repository)
     {
+        this(conn, repository, new ConnectionTransactionHandler());
+    }
+
+    ConnectionHandle(final Connection conn, NamedStatementRepository repository, TransactionHandler transactionHandler)
+    {
         this.conn = conn;
+        this.transactionHandler = transactionHandler;
         this.cache = new StatementCache(conn, repository);
     }
 
