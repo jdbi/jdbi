@@ -153,4 +153,25 @@ public class TestParams extends TestCase
         assertEquals("id", params[0]);
         assertEquals("name", params[1]);
     }
+
+    public void testThingAfterQuoteBug1() throws Exception
+    {
+        String q = "pre 'quoted' post :a between :b";
+        final StatementParser p = new StatementParser(q);
+        assertEquals("pre 'quoted' post ? between ?", p.getSubstitutedSql());
+    }
+
+    public void testThingAfterQuoteBug2() throws Exception
+    {
+        String q = "pre 'quoted' post :a between :b";
+        final StatementParser p = new StatementParser(q);
+        assertEquals("a", p.getNamedParams()[0]);
+    }
+
+    public void testThingAfterQuoteBug3() throws Exception
+    {
+        String q = "pre 'quoted' post :a between :b";
+        final StatementParser p = new StatementParser(q);
+        assertEquals("b", p.getNamedParams()[1]);
+    }
 }

@@ -26,7 +26,9 @@ final class StatementParser
     private static final Pattern TOKEN_PATTERN = Pattern.compile(":(\\w+)");
     private static final Pattern QUOTE_PATTERN = Pattern.compile("'.*'");
 
-    /** @todo vastly improve plz */
+    /**
+     * @todo vastly improve plz
+     */
     private static final Pattern IN_PARAM_PATTERN = Pattern.compile("\\sin\\s*\\(\\?\\)");
 
     private static final String[] EMPTY = new String[]{};
@@ -98,6 +100,7 @@ final class StatementParser
                         // token is before the quote
                         // append ? and stuff to start of quote
                         replaced.append("?");
+                        tokens.add(token_matcher.group().substring(1, token_matcher.group().length()));
                         replaced.append(sql.substring(token_matcher.end(), quote_matcher.start()));
                         last_token = token_matcher.find();
                         continue;
@@ -131,8 +134,12 @@ final class StatementParser
                 else if (last_token)
                 {
                     // found a token, but no more quotes
+
                     replaced.append("?");
+                    tokens.add(token_matcher.group().substring(1, token_matcher.group().length()));
+                    int index = token_matcher.end();
                     last_token = token_matcher.find();
+                    replaced.append(sql.substring(index, (last_token ? token_matcher.start() : sql.length())));
                 }
                 else if (last_quote)
                 {
