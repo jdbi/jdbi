@@ -139,7 +139,7 @@
     <option name="HIDE_WARNINGS" value="false" />
   </component>
   <component name="FileEditorManager" split-orientation="horizontal" split-proportion="0.5">
-    <first-group selected-file="file://$PROJECT_DIR$/build.xml">
+    <first-group selected-file="file://$PROJECT_DIR$/src/doc/index.html">
       <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
           <state line="34" column="46" selection-start="1178" selection-end="1178" vertical-scroll-proportion="0.7906977">
@@ -164,14 +164,14 @@
       </entry>
       <entry file="file://$PROJECT_DIR$/build.xml" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="21" column="32" selection-start="868" selection-end="868" vertical-scroll-proportion="0.4883721">
+          <state line="3" column="41" selection-start="132" selection-end="132" vertical-scroll-proportion="0.069767445">
             <folding />
           </state>
         </provider>
       </entry>
       <entry file="file://$PROJECT_DIR$/src/doc/index.html" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="248" column="97" selection-start="10428" selection-end="10428" vertical-scroll-proportion="0.3255814">
+          <state line="261" column="43" selection-start="10949" selection-end="10949" vertical-scroll-proportion="0.627907">
             <folding />
           </state>
         </provider>
@@ -410,11 +410,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1280" height="850" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32956153" order="7" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.18861789" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.18861789" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33013698" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.2495935" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32876712" order="8" />
@@ -609,7 +609,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/doc/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="248" column="97" selection-start="10428" selection-end="10428" vertical-scroll-proportion="0.3255814">
+        <state line="261" column="43" selection-start="10949" selection-end="10949" vertical-scroll-proportion="0.627907">
           <folding />
         </state>
       </provider>
@@ -643,7 +643,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="32" selection-start="868" selection-end="868" vertical-scroll-proportion="0.4883721">
+        <state line="3" column="41" selection-start="132" selection-end="132" vertical-scroll-proportion="0.069767445">
           <folding />
         </state>
       </provider>
