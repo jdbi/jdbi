@@ -37,6 +37,16 @@ public class TestParams extends TestCase
         assertEquals("wom_blat", params[1]);
     }
 
+    public void testReportedErrorString() throws Exception
+    {
+        final StatementParser cache
+                = new StatementParser("select * from page_summary where summary_date >= :startDate and summary_date <= :endDate");
+        final String[] params = cache.getNamedParams();
+        assertEquals(2, params.length);
+        assertEquals("startDate", params[0]);
+        assertEquals("endDate", params[1]);
+    }
+
     public void testReplaceParams() throws Exception
     {
         final StatementParser cache
