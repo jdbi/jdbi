@@ -23,7 +23,7 @@ import org.skife.jdbi.unstable.Unstable;
  * The builder will be instantiated once per DBI, and the decorate(..) called
  * for each handle opened.
  */
-public interface HandleDecoratorBuilder extends Unstable
+public interface HandleDecorator extends Unstable
 {
     /**
      * Called when a handle is created

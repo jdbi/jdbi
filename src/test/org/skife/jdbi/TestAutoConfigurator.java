@@ -25,7 +25,7 @@ import java.util.Properties;
 import java.util.Map;
 
 import org.skife.jdbi.unstable.decorator.BaseHandleDecorator;
-import org.skife.jdbi.unstable.decorator.HandleDecoratorBuilder;
+import org.skife.jdbi.unstable.decorator.HandleDecorator;
 import org.skife.jdbi.derby.Tools;
 
 public class TestAutoConfigurator extends TestCase

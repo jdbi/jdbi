@@ -18,6 +18,7 @@ import org.skife.jdbi.IDBI;
 import org.skife.jdbi.Handle;
 import org.skife.jdbi.DBIException;
 import org.skife.jdbi.HandleCallback;
+import org.skife.jdbi.tweak.TransactionHandler;
 
 import java.util.Map;
 import java.io.IOException;
@@ -29,11 +30,12 @@ class SpringDBIAdaptor implements IDBI
     SpringDBIAdaptor(IDBI real)
     {
         this.real = real;
+        real.setTransactionHandler(new SpringTransactionHandler(this));
     }
 
     public Handle open() throws DBIException
     {
-        return new SpringHandleAdaptor(real.open(), this);
+        return real.open();
     }
 
     public void open(HandleCallback callback) throws DBIException
@@ -66,5 +68,12 @@ class SpringDBIAdaptor implements IDBI
     public void load(String name) throws DBIException, IOException
     {
         real.load(name);
+    }
+
+    public void setTransactionHandler(TransactionHandler handler)
+    {
+        throw new UnsupportedOperationException("jDBI requires a special transaction handler in " +
+                                                "Spring in order to participate in Spring's transaction " +
+                                                "system, you are not allowed to override this. Sorry.");
     }
 }

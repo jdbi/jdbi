@@ -14,7 +14,9 @@
  */
 package org.skife.jdbi;
 
-import org.skife.jdbi.unstable.decorator.HandleDecoratorBuilder;
+import org.skife.jdbi.tweak.ConnectionTransactionHandler;
+import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.unstable.decorator.HandleDecorator;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -34,11 +36,12 @@ public class DBI implements IDBI
 {
     private final NamedStatementRepository repository;
     private final ConnectionFactory factory;
-    private HandleDecoratorBuilder handleDecorator;
+    private HandleDecorator handleDecorator = new NullHandleDecorator();
+    private TransactionHandler transactionHandler = new ConnectionTransactionHandler();
 
     /**
      * Attempt to auto-configure a DBi instance
-     * <p>
+     * <p/>
      * It first looks for an <code>org.skife.jdbi.properties-file</code> system property which
      * represents a properties file to be loaded via the classpath. If that is not found, it looks
      * for <code>jdbi.properties</code>, then <code>jdbc.properties</code>, then
@@ -116,7 +119,7 @@ public class DBI implements IDBI
      * </ul>
      * </td>
      * <td>
-     * <b>Unstable Feature</b> class name of a <code>HandleDecoratorBuilder</code>
+     * <b>Unstable Feature</b> class name of a <code>HandleDecorator</code>
      * to be used to decorate <code>Handle</code> instances obtained from the
      * <code>DBI</code> instance instantiated. This feature is functionally stable,
      * but the specific api may change somewhat while it remains offically unstable.
@@ -288,14 +291,9 @@ public class DBI implements IDBI
     {
         try
         {
-            if (handleDecorator == null)
-            {
-                return new ConnectionHandle(factory.getConnection(), repository);
-            }
-            else
-            {
-                return handleDecorator.decorate(this, new ConnectionHandle(factory.getConnection(), repository));
-            }
+            return handleDecorator.decorate(this, new ConnectionHandle(factory.getConnection(),
+                                                                       repository,
+                                                                       transactionHandler));
         }
         catch (SQLException e)
         {
@@ -420,10 +418,15 @@ public class DBI implements IDBI
         }
     }
 
+    public void setTransactionHandler(TransactionHandler handler)
+    {
+        this.transactionHandler = handler;
+    }
+
     /**
      * Specify a decorator builder to decorate all handles created by this DBI instance
      */
-    public void setHandleDecoratorBuilder(HandleDecoratorBuilder builder)
+    public void setHandleDecorator(HandleDecorator builder)
     {
         this.handleDecorator = builder;
     }

@@ -14,7 +14,7 @@
  */
 package org.skife.jdbi;
 
-import org.skife.jdbi.unstable.decorator.HandleDecoratorBuilder;
+import org.skife.jdbi.unstable.decorator.HandleDecorator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -176,12 +176,12 @@ class AutoConfigurator
         return null;
     }
 
-    public HandleDecoratorBuilder getHandleDecoratorBuilder()
+    public HandleDecorator getHandleDecoratorBuilder()
             throws ClassNotFoundException, IllegalAccessException, InstantiationException
     {
         if (handleDecoratorBuilder == null) return null;
         Class clazz = Class.forName(handleDecoratorBuilder);
-        HandleDecoratorBuilder builder = (HandleDecoratorBuilder) clazz.newInstance();
+        HandleDecorator builder = (HandleDecorator) clazz.newInstance();
         return builder;
     }
 }

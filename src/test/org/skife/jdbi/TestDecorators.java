@@ -16,7 +16,7 @@ package org.skife.jdbi;
 
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.unstable.decorator.HandleDecoratorBuilder;
+import org.skife.jdbi.unstable.decorator.HandleDecorator;
 import org.skife.jdbi.unstable.decorator.BaseHandleDecorator;
 
 import java.util.Map;
@@ -49,7 +49,7 @@ public class TestDecorators extends TestCase
     {
         DBI dbi = new DBI(Tools.CONN_STRING);
 
-        dbi.setHandleDecoratorBuilder(new MyHandleDecoratorBuilder());
+        dbi.setHandleDecorator(new MyHandleDecorator());
 
         final Handle h = dbi.open();
         h.execute("insert into something (id, name) values (:id, :name)", new Something(1, "one"));

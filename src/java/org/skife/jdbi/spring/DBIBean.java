@@ -17,7 +17,7 @@ package org.skife.jdbi.spring;
 import org.skife.jdbi.ConnectionFactory;
 import org.skife.jdbi.DBI;
 import org.skife.jdbi.IDBI;
-import org.skife.jdbi.unstable.decorator.HandleDecoratorBuilder;
+import org.skife.jdbi.unstable.decorator.HandleDecorator;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -66,7 +66,7 @@ import java.sql.Connection;
 public class DBIBean implements FactoryBean, InitializingBean
 {
     private DataSource dataSource;
-    private HandleDecoratorBuilder handleDecorator;
+    private HandleDecorator handleDecorator;
 
     public DataSource getDataSource()
     {
@@ -86,7 +86,7 @@ public class DBIBean implements FactoryBean, InitializingBean
     /**
      * Specify a decorator builder to decorate all handles created by this DBI instance
      */
-    public void setHandleDecoratorBuilder(HandleDecoratorBuilder builder)
+    public void setHandleDecoratorBuilder(HandleDecorator builder)
     {
         this.handleDecorator = builder;
     }
@@ -101,7 +101,7 @@ public class DBIBean implements FactoryBean, InitializingBean
             }
         });
 
-        if (handleDecorator != null) dbi.setHandleDecoratorBuilder(handleDecorator);
+        if (handleDecorator != null) dbi.setHandleDecorator(handleDecorator);
 
         return new SpringDBIAdaptor(dbi);
     }

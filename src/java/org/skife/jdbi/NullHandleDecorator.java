@@ -14,24 +14,15 @@
  */
 package org.skife.jdbi;
 
-import org.skife.jdbi.unstable.decorator.BaseHandleDecorator;
-import org.skife.jdbi.unstable.decorator.HandleDecoratorBuilder;
+import org.skife.jdbi.unstable.decorator.HandleDecorator;
 
-import java.util.Map;
-
-public class MyHandleDecoratorBuilder implements HandleDecoratorBuilder
+/**
+ * Doesn't do anything
+ */
+class NullHandleDecorator implements HandleDecorator
 {
     public Handle decorate(IDBI dbi, Handle base)
     {
-        return new BaseHandleDecorator(base)
-        {
-            public Map first(String statement) throws DBIException
-            {
-                final Map row = super.first(statement);
-                row.put("wombat", "hello");
-                return row;
-            }
-        };
+        return base;
     }
 }
-

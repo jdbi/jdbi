@@ -21,7 +21,7 @@
     provides a no-argument constructor under the property <code>jdbi.handle-decorator-builder</code>.
 </pre>
 <pre><code>
-jdbi.handle-decorator-builder=org.skife.jdbi.MyHandleDecoratorBuilder
+jdbi.handle-decorator-builder=org.skife.jdbi.MyHandleDecorator
 </code></pre>
 <p>
     Finally, the Spring <code>DBIBean</code> supports setting handle decorator builder
@@ -31,7 +31,7 @@ jdbi.handle-decorator-builder=org.skife.jdbi.MyHandleDecoratorBuilder
     &lt;bean id="dbi" class="org.skife.jdbi.spring.DBIBean"&gt;
         &lt;property name="dataSource"&gt;&lt;ref bean="dataSource" /&gt;&lt;/property&gt;
         &lt;property name="handleDecoratorBuilder"&gt;
-            &lt;bean class="org.skife.jdbi.MyHandleDecoratorBuilder"/&gt;
+            &lt;bean class="org.skife.jdbi.MyHandleDecorator"/&gt;
         &lt;/property&gt;
     &lt;/bean&gt;
 </code></pre>
