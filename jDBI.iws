@@ -139,7 +139,7 @@
     <option name="HIDE_WARNINGS" value="false" />
   </component>
   <component name="FileEditorManager" split-orientation="horizontal" split-proportion="0.5">
-    <first-group selected-file="file://$PROJECT_DIR$/src/doc/index.html">
+    <first-group selected-file="file://$PROJECT_DIR$/build.xml">
       <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestNamedQueries.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
           <state line="21" column="13" selection-start="734" selection-end="734" vertical-scroll-proportion="0.07874016">
@@ -163,21 +163,14 @@
       </entry>
       <entry file="file://$PROJECT_DIR$/build.xml" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="3" column="40" selection-start="131" selection-end="131" vertical-scroll-proportion="0.047244094">
+          <state line="3" column="41" selection-start="132" selection-end="132" vertical-scroll-proportion="0.047244094">
             <folding />
           </state>
         </provider>
       </entry>
       <entry file="file://$PROJECT_DIR$/RELEASE_NOTES" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="27" column="22" selection-start="917" selection-end="917" vertical-scroll-proportion="0.42519686">
-            <folding />
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/doc/index.html" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="283" column="75" selection-start="11654" selection-end="11654" vertical-scroll-proportion="0.22834645">
+          <state line="4" column="7" selection-start="48" selection-end="48" vertical-scroll-proportion="0.062992126">
             <folding />
           </state>
         </provider>
@@ -626,7 +619,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="40" selection-start="131" selection-end="131" vertical-scroll-proportion="0.047244094">
+        <state line="3" column="41" selection-start="132" selection-end="132" vertical-scroll-proportion="0.047244094">
           <folding />
         </state>
       </provider>
@@ -638,16 +631,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="283" column="75" selection-start="11654" selection-end="11654" vertical-scroll-proportion="0.22834645">
+        <state line="4" column="7" selection-start="48" selection-end="48" vertical-scroll-proportion="0.062992126">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="22" selection-start="917" selection-end="917" vertical-scroll-proportion="0.42519686">
+        <state line="302" column="74" selection-start="12610" selection-end="12610" vertical-scroll-proportion="0.52755904">
           <folding />
         </state>
       </provider>
