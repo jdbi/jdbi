@@ -14,6 +14,8 @@
  */
 package org.skife.jdbi;
 
+
+
 /**
  * Used by {@see AutoConfigurator} to hold found config values
  */
@@ -25,6 +27,8 @@ class Configuration
     private String user;
     private String pass;
     private String handleDecoratorBuilder;
+    private String transactionHandler;
+    private String statementLocator;
 
     String getUsername()
     {
@@ -85,5 +89,25 @@ class Configuration
     public String getHandleDecoratorBuilder()
     {
         return handleDecoratorBuilder;
+    }
+
+    public String getTransactionHandler()
+    {
+        return transactionHandler;
+    }
+
+    public void setTransactionHandler(String transactionHandler)
+    {
+        this.transactionHandler = transactionHandler;
+    }
+
+    public void setStatementLocator(String property)
+    {
+        this.statementLocator = property;
+    }
+
+    public String getStatementLocator()
+    {
+        return statementLocator;
     }
 }

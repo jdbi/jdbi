@@ -14,6 +14,10 @@
  */
 package org.skife.jdbi;
 
+import org.skife.jdbi.tweak.StatementLocator;
+import org.skife.jdbi.tweak.ClasspathStatementLocator;
+import org.skife.jdbi.tweak.CachingStatementLocator;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,6 +26,8 @@ import java.util.Map;
 class NamedStatementRepository
 {
     private final Map store = new HashMap();
+
+    private StatementLocator locator = new CachingStatementLocator(new ClasspathStatementLocator());
 
     public Collection getNames()
     {
@@ -35,7 +41,12 @@ class NamedStatementRepository
 
     public String get(String statement)
     {
-        return (String) store.get(statement);
+        String sql = (String) store.get(statement);
+        if (sql == null)
+        {
+            sql = locator.load(statement);
+        }
+        return sql;
     }
 
     public void store(String statement, String sql)
@@ -49,5 +60,15 @@ class NamedStatementRepository
     public Map getStore()
     {
         return new HashMap(store);
+    }
+
+    public StatementLocator getLocator()
+    {
+        return locator;
+    }
+
+    public void setLocator(StatementLocator locator)
+    {
+        this.locator = locator;
     }
 }

@@ -140,53 +140,32 @@
   </component>
   <component name="FileEditorManager" split-orientation="horizontal" split-proportion="0.5">
     <first-group selected-file="file://$PROJECT_DIR$/src/doc/index.html">
-      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java" pinned="false">
+      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/DBI.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="34" column="46" selection-start="1178" selection-end="1178" vertical-scroll-proportion="0.7906977">
+          <state line="153" column="102" selection-start="4890" selection-end="5066" vertical-scroll-proportion="0.5059055">
             <folding>
-              <element signature="imports" expanded="true" />
-              <element signature="docComment;class#BMTTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#BMTTransactionHandler#0;class#BMTTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#begin#0;class#BMTTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#commit#0;class#BMTTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#rollback#0;class#BMTTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#isInTransaction#0;class#BMTTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#DBI#0;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#open#1;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#getNamedStatements#0;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#name#0;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#load#0;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#setStatementLocator#0;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#setHandleDecorator#0;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#open#2;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#open#3;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#open#5;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#open#6;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#open#7;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#open#8;class#DBI#0" expanded="true" />
+              <element signature="docComment;method#open#9;class#DBI#0" expanded="true" />
             </folding>
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/RELEASE_NOTES" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="5" column="57" selection-start="186" selection-end="186" vertical-scroll-proportion="0.11627907">
-            <folding />
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/build.xml" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="3" column="41" selection-start="132" selection-end="132" vertical-scroll-proportion="0.069767445">
-            <folding />
           </state>
         </provider>
       </entry>
       <entry file="file://$PROJECT_DIR$/src/doc/index.html" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="261" column="43" selection-start="10949" selection-end="10949" vertical-scroll-proportion="0.627907">
+          <state line="218" column="59" selection-start="8756" selection-end="8756" vertical-scroll-proportion="0.49901575">
             <folding />
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/ConnectionTransactionHandler.java" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="83" column="61" selection-start="2315" selection-end="2315" vertical-scroll-proportion="0.7906977">
-            <folding>
-              <element signature="imports" expanded="true" />
-              <element signature="docComment;class#ConnectionTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#begin#0;class#ConnectionTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#commit#0;class#ConnectionTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#rollback#0;class#ConnectionTransactionHandler#0" expanded="true" />
-              <element signature="docComment;method#isInTransaction#0;class#ConnectionTransactionHandler#0" expanded="true" />
-            </folding>
           </state>
         </provider>
       </entry>
@@ -210,10 +189,10 @@
   </component>
   <component name="NamedScopeManager" />
   <component name="PackagesPane">
-    <expanded_node url="org.skife" module="jDBI" type="package" />
-    <expanded_node url="" module="jDBI" type="module" />
-    <expanded_node url="org.skife.jdbi" module="jDBI" type="package" />
     <expanded_node url="org" module="jDBI" type="package" />
+    <expanded_node url="org.skife.jdbi" module="jDBI" type="package" />
+    <expanded_node url="" module="jDBI" type="module" />
+    <expanded_node url="org.skife" module="jDBI" type="package" />
   </component>
   <component name="PerforceDirect.Settings">
     <option name="useP4CONFIG" value="true" />
@@ -232,15 +211,15 @@
     <option name="useCustomPathToExec" value="false" />
   </component>
   <component name="ProjectPane">
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/src/java" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/java/org" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak" module="jDBI" type="directory" />
+    <expanded_node url="" module="jDBI" type="module" />
     <expanded_node url="file://$PROJECT_DIR$/lib" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/src" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi" module="jDBI" type="directory" />
-    <expanded_node url="" module="jDBI" type="module" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife" module="jDBI" type="directory" />
   </component>
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
@@ -270,7 +249,7 @@
   <component name="RunManager">
     <activeType name="JUnit" />
     <tempConfiguration selected="true" default="false" name="org.skife.jdbi" type="JUnit" factoryName="JUnit">
-      <module name="jDBI" />
+      <module name="" />
       <option name="PACKAGE_NAME" value="org.skife.jdbi" />
       <option name="MAIN_CLASS_NAME" />
       <option name="METHOD_NAME" />
@@ -285,26 +264,26 @@
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
     </tempConfiguration>
+    <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
+      <module name="" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
+    </configuration>
     <configuration selected="false" default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
-    </configuration>
-    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="7001" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DOMAIN_PATH" value="" />
-      <option name="USER" value="weblogic" />
-      <option name="PASSWORD" value="weblogic" />
-      <option name="SERVER_NAME" value="myserver" />
-      <option name="DOMAIN_NAME" value="mydomain" />
     </configuration>
     <configuration selected="false" default="true" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" />
@@ -323,19 +302,19 @@
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <option name="VM_PARAMETERS" />
     </configuration>
-    <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
-      <module name="" />
-      <option name="PACKAGE_NAME" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ADDITIONAL_CLASS_PATH" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="wholeProject" />
-      </option>
+    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="7001" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DOMAIN_PATH" value="" />
+      <option name="USER" value="weblogic" />
+      <option name="PASSWORD" value="weblogic" />
+      <option name="SERVER_NAME" value="myserver" />
+      <option name="DOMAIN_NAME" value="mydomain" />
     </configuration>
   </component>
   <component name="SelectInManager" />
@@ -409,20 +388,20 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="22" width="1280" height="850" extended-state="0" />
+    <frame x="0" y="22" width="1600" height="1178" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32956153" order="7" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.18861789" order="0" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33013698" order="1" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.1851613" order="0" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33081284" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.2495935" order="1" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32876712" order="8" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3289225" order="8" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3997175" order="6" />
       <window_info id="SvnUp" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32967034" order="8" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="1" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3780822" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.37807184" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="2" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.36864406" order="4" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="sliding" type="sliding" visible="false" weight="0.4" order="0" />
@@ -505,51 +484,135 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/package.html">
+    <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="25" selection-start="121" selection-end="121" vertical-scroll-proportion="0.093023255">
+        <state line="3" column="41" selection-start="132" selection-end="132" vertical-scroll-proportion="0.069767445">
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/CMTConnectionTransactionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="43" selection-start="1286" selection-end="1286" vertical-scroll-proportion="0.30232558">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="docComment;class#CMTConnectionTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#begin#0;class#CMTConnectionTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#commit#0;class#CMTConnectionTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#rollback#0;class#CMTConnectionTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#isInTransaction#0;class#CMTConnectionTransactionHandler#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/ConnectionHandle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="11" selection-start="1494" selection-end="1494" vertical-scroll-proportion="0.4651163">
+        <state line="437" column="40" selection-start="12286" selection-end="12286" vertical-scroll-proportion="0.5748032">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/NullHandleDecorator.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/StatementCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="22" selection-start="713" selection-end="713" vertical-scroll-proportion="0.44186047">
+        <state line="117" column="13" selection-start="3614" selection-end="3614" vertical-scroll-proportion="1.4330709">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/ClasspathStatementLocator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="57" column="60" selection-start="1875" selection-end="1875" vertical-scroll-proportion="0.33858266">
           <folding>
-            <element signature="docComment;class#NullHandleDecorator#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="docComment;class#ClasspathStatementLocator#0" expanded="true" />
+            <element signature="docComment;method#load#0;class#ClasspathStatementLocator#0" expanded="true" />
+            <element signature="docComment;method#selectClassLoader#0;class#ClasspathStatementLocator#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestGlobalRepository.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="26" selection-start="1265" selection-end="1265" vertical-scroll-proportion="0.3464567">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="73" column="9" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.63779527">
+          <folding>
+            <element signature="docComment;method#setStatementLocator#0;class#SpringDBIAdaptor#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/IDBI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="70" column="4" selection-start="2344" selection-end="2781" vertical-scroll-proportion="0.36220473">
+          <folding>
+            <element signature="docComment;method#setStatementLocator#0;class#IDBI#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/StatementLocator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="12" selection-start="890" selection-end="890" vertical-scroll-proportion="0.39370078">
+          <folding>
+            <element signature="docComment;class#StatementLocator#0" expanded="true" />
+            <element signature="docComment;method#load#0;class#StatementLocator#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/CachingStatementLocator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="57" column="35" selection-start="1647" selection-end="1647" vertical-scroll-proportion="0.8976378">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="docComment;class#CachingStatementLocator#0" expanded="true" />
+            <element signature="docComment;method#CachingStatementLocator#0;class#CachingStatementLocator#0" expanded="true" />
+            <element signature="docComment;method#load#0;class#CachingStatementLocator#0" expanded="true" />
+            <element signature="docComment;method#clear#0;class#CachingStatementLocator#0" expanded="true" />
+            <element signature="docComment;method#remove#0;class#CachingStatementLocator#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/NamedStatementRepository.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="29" column="99" selection-start="1067" selection-end="1067" vertical-scroll-proportion="0.14173229">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="16" selection-start="795" selection-end="795" vertical-scroll-proportion="0.36220473">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/Configuration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="35" selection-start="980" selection-end="980" vertical-scroll-proportion="0.23622048">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/AutoConfigurator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="213" column="33" selection-start="7956" selection-end="7956" vertical-scroll-proportion="0.62204725">
+          <folding>
+            <element signature="docComment;class#AutoConfigurator#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="218" column="59" selection-start="8756" selection-end="8756" vertical-scroll-proportion="0.49901575">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/DBI.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="80" selection-start="1201" selection-end="1201" vertical-scroll-proportion="0.1627907">
+        <state line="153" column="102" selection-start="4890" selection-end="5066" vertical-scroll-proportion="0.5059055">
           <folding>
+            <element signature="docComment;method#DBI#0;class#DBI#0" expanded="true" />
             <element signature="docComment;method#open#1;class#DBI#0" expanded="true" />
             <element signature="docComment;method#getNamedStatements#0;class#DBI#0" expanded="true" />
             <element signature="docComment;method#name#0;class#DBI#0" expanded="true" />
             <element signature="docComment;method#load#0;class#DBI#0" expanded="true" />
+            <element signature="docComment;method#setStatementLocator#0;class#DBI#0" expanded="true" />
             <element signature="docComment;method#setHandleDecorator#0;class#DBI#0" expanded="true" />
             <element signature="docComment;method#open#2;class#DBI#0" expanded="true" />
             <element signature="docComment;method#open#3;class#DBI#0" expanded="true" />
@@ -559,92 +622,6 @@
             <element signature="docComment;method#open#8;class#DBI#0" expanded="true" />
             <element signature="docComment;method#open#9;class#DBI#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/IDBI.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="35" selection-start="1403" selection-end="1403" vertical-scroll-proportion="0.43537414">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="49" selection-start="1051" selection-end="1051" vertical-scroll-proportion="0.27906978">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringTransactionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="96" column="15" selection-start="2731" selection-end="2731" vertical-scroll-proportion="2.2325583">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="57" selection-start="186" selection-end="186" vertical-scroll-proportion="0.11627907">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="46" selection-start="1178" selection-end="1178" vertical-scroll-proportion="0.7906977">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="docComment;class#BMTTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#BMTTransactionHandler#0;class#BMTTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#begin#0;class#BMTTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#commit#0;class#BMTTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#rollback#0;class#BMTTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#isInTransaction#0;class#BMTTransactionHandler#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="261" column="43" selection-start="10949" selection-end="10949" vertical-scroll-proportion="0.627907">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/TransactionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="4" selection-start="1527" selection-end="1592" vertical-scroll-proportion="0.74418604">
-          <folding>
-            <element signature="docComment;class#TransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#begin#0;class#TransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#commit#0;class#TransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#rollback#0;class#TransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#isInTransaction#0;class#TransactionHandler#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/ConnectionTransactionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="83" column="61" selection-start="2315" selection-end="2315" vertical-scroll-proportion="0.7906977">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="docComment;class#ConnectionTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#begin#0;class#ConnectionTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#commit#0;class#ConnectionTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#rollback#0;class#ConnectionTransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#isInTransaction#0;class#ConnectionTransactionHandler#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="41" selection-start="132" selection-end="132" vertical-scroll-proportion="0.069767445">
-          <folding />
         </state>
       </provider>
     </entry>

@@ -19,6 +19,7 @@ import org.skife.jdbi.Handle;
 import org.skife.jdbi.DBIException;
 import org.skife.jdbi.HandleCallback;
 import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.tweak.StatementLocator;
 
 import java.util.Map;
 import java.io.IOException;
@@ -75,5 +76,15 @@ class SpringDBIAdaptor implements IDBI
         throw new UnsupportedOperationException("jDBI requires a special transaction handler in " +
                                                 "Spring in order to participate in Spring's transaction " +
                                                 "system, you are not allowed to override this. Sorry.");
+    }
+
+    /**
+     * Specify a non-standard statement locator.
+     *
+     * @param locator used to find externalized sql
+     */
+    public void setStatementLocator(StatementLocator locator)
+    {
+        real.setStatementLocator(locator);
     }
 }

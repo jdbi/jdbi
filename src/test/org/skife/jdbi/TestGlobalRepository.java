@@ -52,10 +52,10 @@ public class TestGlobalRepository extends TestCase
         assertFalse(repo.contains("select id, name from something"));
     }
 
-    public void testAdHocLoadedQueriesInRep() throws Exception
+    public void testOnlyCacheNamedNotLoaded() throws Exception
     {
         handle.execute("all-something");
-        assertTrue(repo.contains("all-something"));
+        assertFalse(repo.contains("all-something"));
     }
 
     public void testExplicitLoadedQueriesInRep() throws Exception

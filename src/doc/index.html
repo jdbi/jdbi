@@ -213,8 +213,34 @@ The <code>DBI</code> instance provides convenience methods for manipulating the 
     <tr>
         <td>
             <ul>
+                <li>jdbi.transaction-handler</li>
+                <li>jdbc.transaction-handler</li>
+                <li>transaction-handler</li>
+            </ul>
+        </td>
+        <td>
+            <b>OPTIONAL</b> class name of a <code>TransactionHandler</code> which should
+            be used to override default transaction handling. Must supply a no-arg constructor. Optional.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <ul>
+                <li>jdbi.statement-locator</li>
+                <li>jdbc.statement-locator</li>
+                <li>statement-locator</li>
+            </ul>
+        </td>
+        <td>
+            <b>OPTIONAL</b> class name of a <code>StatementLocator</code> which should
+            be used to override default (cached from classpath) external sql statement locating. Optional.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <ul>
                 <li>jdbi.handle-decorator-builder</li>
-                <li>jdbi.handle-decorator-builder</li>
+                <li>jdbc.handle-decorator-builder</li>
                 <li>handle-decorator-builder</li>
             </ul>
         </td>

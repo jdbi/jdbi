@@ -14,6 +14,8 @@
  */
 package org.skife.jdbi;
 
+import org.skife.jdbi.tweak.ClasspathStatementLocator;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,9 +74,25 @@ class StatementCache
         {
             return (StatementEnvelope) this.envelopes.get(statement);
         }
-        if (repository.contains(statement))
+        final String lower_case = statement.toLowerCase().trim();
+        if (lower_case.startsWith("select ")
+            || lower_case.startsWith("update ")
+            || lower_case.startsWith("insert ")
+            || lower_case.startsWith("delete ")
+            || lower_case.startsWith("call "))
         {
-            final String sql = repository.get(statement);
+            try
+            {
+                return this.store(statement, statement);
+            }
+            catch (SQLException e)
+            {
+                // may be a very weird named statement
+            }
+        }
+        String sql = null;
+        if ((sql = repository.get(statement)) != null)
+        {
             try
             {
                 final StatementEnvelope stmt = this.store(statement, sql);
@@ -86,90 +104,13 @@ class StatementCache
                                        e1.getMessage(), e1);
             }
         }
-        final String lower_case = statement.toLowerCase().trim();
-        if (lower_case.startsWith("select ")
-            || lower_case.startsWith("update ")
-            || lower_case.startsWith("insert ")
-            || lower_case.startsWith("delete ")
-            || lower_case.startsWith("call "))
-        {
-            try
-            {
-                return  this.store(statement, statement);
-            }
-            catch (SQLException e)
-            {
-                // may be a very weird named statement
-            }
-        }
-        try
-        {
-            final String sql = load(statement);
-            final StatementEnvelope stmt = this.store(statement, sql);
-            repository.store(statement, sql);
-            return stmt;
-        }
-        catch (Exception er)
-        {
-            throw new DBIException("unable to parse, or findInternal, statement [" + statement + "]", er);
-        }
 
+        throw new DBIException("Unable to parse, or find an external representation of [" + statement + "]");
     }
 
-    /**
-     * @return the sql string loaded from the file
-     */
     String load(final String name) throws IOException
     {
-        final ClassLoader loader;
-        loader = selectClassLoader();
-        InputStream in_stream;
-        in_stream = loader.getResourceAsStream(name + ".sql");
-        if (in_stream == null)
-        {
-            in_stream = loader.getResourceAsStream(name);
-        }
-        if (in_stream == null)
-        {
-            throw new IllegalArgumentException("unable to locate external sql [" + name + ".sql]");
-        }
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(in_stream));
-        final StringBuffer buffer = new StringBuffer();
-        String line;
-        while ((line = reader.readLine()) != null)
-        {
-            if (isComment(line))
-            {
-                // comment
-                continue;
-            }
-            buffer.append(line).append(" ");
-        }
-        reader.close();
-        final String sql = buffer.toString();
-        return sql;
-    }
-
-    static boolean isComment(final String line)
-    {
-        return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
-    }
-
-    /**
-     * There *must* be a better place to put this without creating a util class just for it
-     */
-    static ClassLoader selectClassLoader()
-    {
-        ClassLoader loader;
-        if (Thread.currentThread().getContextClassLoader() != null)
-        {
-            loader = Thread.currentThread().getContextClassLoader();
-        }
-        else
-        {
-            loader = StatementCache.class.getClassLoader();
-        }
-        return loader;
+        return repository.get(name);
     }
 
     void name(final String name, final String sql) throws DBIException

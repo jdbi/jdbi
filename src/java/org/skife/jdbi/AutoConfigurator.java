@@ -15,6 +15,9 @@
 package org.skife.jdbi;
 
 import org.skife.jdbi.unstable.decorator.HandleDecorator;
+import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.tweak.ClasspathStatementLocator;
+import org.skife.jdbi.tweak.StatementLocator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,8 +68,24 @@ class AutoConfigurator
         "handle-decorator-builder"
     };
 
+    private static final String[] TRANSACTION_HANDLER = new String[]
+    {
+        "jdbi.transaction-handler",
+        "jdbc.transaction-handler",
+        "transaction-handler"
+    };
+
+    private static final String[] STATEMENT_LOCATOR = new String[]
+    {
+        "jdbi.statement-locator",
+        "jdbc.statement-locator",
+        "statement-locator"
+    };
+
     private static ConnectionFactory factory = null;
     private static String handleDecoratorBuilder = null;
+    private static String transactionHandler = null;
+    private static String statementLocator = null;
 
     /**
      * will return the cached connection factory, or try to build a new one
@@ -115,7 +134,8 @@ class AutoConfigurator
         }
 
         handleDecoratorBuilder = config.getHandleDecoratorBuilder();
-
+        transactionHandler = config.getTransactionHandler();
+        statementLocator = config.getStatementLocator();
         return factory;
     }
 
@@ -128,6 +148,8 @@ class AutoConfigurator
         config.setUrl(props.getProperty(JDBC_URL_PROPS[0]));
         config.setUsername(props.getProperty(USERNAME_PROPS[0]));
         config.setHandleDecoratorBuilder(props.getProperty(HANDLE_DECORATOR_BUIDLER[0]));
+        config.setTransactionHandler(props.getProperty(TRANSACTION_HANDLER[0]));
+        config.setStatementLocator(props.getProperty(STATEMENT_LOCATOR[0]));
         return config;
     }
 
@@ -138,7 +160,7 @@ class AutoConfigurator
         for (int i = 0; i < PROPERTIES_FILE_NAMES.length; i++)
         {
             final String name = PROPERTIES_FILE_NAMES[i];
-            final InputStream in = StatementCache.selectClassLoader().getResourceAsStream(name);
+            final InputStream in = ClasspathStatementLocator.selectClassLoader().getResourceAsStream(name);
             if (in != null)
             {
                 props.load(in);
@@ -162,6 +184,10 @@ class AutoConfigurator
         if (password != null) starting.setProperty(PASSWORD_PROPS[0], password);
         final String decorator = selectFirst(HANDLE_DECORATOR_BUIDLER, starting);
         if (decorator != null) starting.setProperty(HANDLE_DECORATOR_BUIDLER[0], decorator);
+        final String txHandler = selectFirst(TRANSACTION_HANDLER, starting);
+        if (txHandler != null) starting.setProperty(TRANSACTION_HANDLER[0], txHandler);
+        final String locator = selectFirst(STATEMENT_LOCATOR, starting);
+        if (locator != null) starting.setProperty(STATEMENT_LOCATOR[0], locator);
         return starting;
     }
 
@@ -183,5 +209,23 @@ class AutoConfigurator
         Class clazz = Class.forName(handleDecoratorBuilder);
         HandleDecorator builder = (HandleDecorator) clazz.newInstance();
         return builder;
+    }
+
+    public TransactionHandler getTransactionHandler()
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException
+    {
+        if (transactionHandler == null) return null;
+        Class clazz = Class.forName(transactionHandler);
+        TransactionHandler handler = (TransactionHandler) clazz.newInstance();
+        return handler;
+    }
+
+    public StatementLocator getStatementLocator()
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException
+    {
+        if (statementLocator == null) return null;
+        Class clazz = Class.forName(statementLocator);
+        StatementLocator locator = (StatementLocator) clazz.newInstance();
+        return locator;
     }
 }

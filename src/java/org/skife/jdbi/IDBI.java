@@ -15,6 +15,7 @@
 package org.skife.jdbi;
 
 import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.tweak.StatementLocator;
 
 import java.io.IOException;
 import java.util.Map;
@@ -78,4 +79,11 @@ public interface IDBI
      * @see org.skife.jdbi.tweak.CMTConnectionTransactionHandler
      */
     void setTransactionHandler(TransactionHandler handler);
+
+    /**
+     * Specify a non-standard statement locator.
+     *
+     * @param locator used to find externalized sql
+     */
+    void setStatementLocator(StatementLocator locator);
 }

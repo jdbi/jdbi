@@ -14,6 +14,8 @@
  */
 package org.skife.jdbi;
 
+import org.skife.jdbi.tweak.ClasspathStatementLocator;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +34,7 @@ class Script
 
     public void run() throws DBIException, IOException
     {
-        final ClassLoader loader = StatementCache.selectClassLoader();
+        final ClassLoader loader = ClasspathStatementLocator.selectClassLoader();
         BufferedReader reader = null;
         try
         {
@@ -42,7 +44,7 @@ class Script
             final StringBuffer buffer = new StringBuffer();
             while ((line = reader.readLine()) != null)
             {
-                if (StatementCache.isComment(line)) continue;
+                if (ClasspathStatementLocator.isComment(line)) continue;
                 buffer.append(line).append(" ");
             }
             final String[] statements = buffer.toString().replaceAll("\n", " ").split(";");

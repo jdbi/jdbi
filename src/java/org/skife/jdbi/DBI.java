@@ -15,6 +15,7 @@
 package org.skife.jdbi;
 
 import org.skife.jdbi.tweak.ConnectionTransactionHandler;
+import org.skife.jdbi.tweak.StatementLocator;
 import org.skife.jdbi.tweak.TransactionHandler;
 import org.skife.jdbi.unstable.decorator.HandleDecorator;
 
@@ -114,7 +115,7 @@ public class DBI implements IDBI
      * <td>
      * <ul>
      * <li>jdbi.handle-decorator-builder</li>
-     * <li>jdbi.handle-decorator-builder</li>
+     * <li>jdbc.handle-decorator-builder</li>
      * <li>handle-decorator-builder</li>
      * </ul>
      * </td>
@@ -125,6 +126,32 @@ public class DBI implements IDBI
      * but the specific api may change somewhat while it remains offically unstable.
      * Please read the notes regarding the <code>org.skife.jdbi.unstable</code> package
      * before using this. Optional.
+     * </td>
+     * </tr>
+     * <tr>
+     * <td>
+     * <ul>
+     * <li>jdbi.transaction-handler</li>
+     * <li>jdbc.transaction-handler</li>
+     * <li>transaction-handler</li>
+     * </ul>
+     * </td>
+     * <td>
+     * <b>OPTIONAL</b> class name of a <code>TransactionHandler</code> which should
+     * be used to override default transaction handling. Must supply a no-arg constructor. Optional.
+     * </td>
+     * </tr>
+     * <tr>
+     * <td>
+     * <ul>
+     * <li>jdbi.statement-locator</li>
+     * <li>jdbc.statement-locator</li>
+     * <li>statement-locator</li>
+     * </ul>
+     * </td>
+     * <td>
+     * <b>OPTIONAL</b> class name of a <code>StatementLocator</code> which should
+     * be used to override default (cached from classpath) external sql statement locating. Optional.
      * </td>
      * </tr>
      * </table>
@@ -139,7 +166,21 @@ public class DBI implements IDBI
         factory = auto.getConnectionFactory();
         try
         {
-            handleDecorator = auto.getHandleDecoratorBuilder();
+            final HandleDecorator d = auto.getHandleDecoratorBuilder();
+            if (d != null)
+            {
+                handleDecorator = d;
+            }
+            final TransactionHandler h = auto.getTransactionHandler();
+            if (h != null)
+            {
+                transactionHandler = h;
+            }
+            final StatementLocator l = auto.getStatementLocator();
+            if (l != null)
+            {
+                repository.setLocator(l);
+            }
         }
         catch (Exception e)
         {
@@ -418,9 +459,29 @@ public class DBI implements IDBI
         }
     }
 
+    /**
+     * Specify a non-standard <code>TransactionHandler</code> which should be
+     * used for all <code>Handle</code> instances created from this dbi.
+     * <p />
+     * The default handler, if you specify none, will explicitely manage
+     * transactions on the underlying JDBC connection.
+     *
+     * @see org.skife.jdbi.tweak.ConnectionTransactionHandler
+     * @see org.skife.jdbi.tweak.CMTConnectionTransactionHandler
+     */
     public void setTransactionHandler(TransactionHandler handler)
     {
         this.transactionHandler = handler;
+    }
+
+    /**
+     * Specify a non-standard statement locator.
+     *
+     * @param locator used to find externalized sql
+     */
+    public void setStatementLocator(StatementLocator locator)
+    {
+        this.repository.setLocator(locator);
     }
 
     /**
