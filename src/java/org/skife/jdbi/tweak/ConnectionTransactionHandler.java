@@ -20,8 +20,17 @@ import org.skife.jdbi.Handle;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Provide explicit local transaction management directly on the the JDBC <code>Connection</code>
+ * <p />
+ * This is the default transaction handler.
+ */
 public class ConnectionTransactionHandler implements TransactionHandler
 {
+
+    /**
+     * Called when a transaction is started
+     */
     public void begin(Handle handle)
     {
         final Connection conn = handle.getConnection();
@@ -35,6 +44,9 @@ public class ConnectionTransactionHandler implements TransactionHandler
         }
     }
 
+    /**
+     * Called when a transaction is committed
+     */
     public void commit(Handle handle)
     {
         final Connection conn = handle.getConnection();
@@ -49,6 +61,9 @@ public class ConnectionTransactionHandler implements TransactionHandler
         }
     }
 
+    /**
+     * Called when a transaction is rolled back
+     */
     public void rollback(Handle handle)
     {
         final Connection conn = handle.getConnection();
@@ -63,6 +78,9 @@ public class ConnectionTransactionHandler implements TransactionHandler
         }
     }
 
+    /**
+     * Called to test if a handle is in a transaction
+     */
     public boolean isInTransaction(Handle handle)
     {
         final Connection conn = handle.getConnection();

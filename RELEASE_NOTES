@@ -1,6 +1,10 @@
 TODO:
     SQL in-clause expansion    
 
+1.2.2
+    Add callback based transaction handling in order to cleanly support the various
+    transactional contexts (CMT, BMT, Spring, Local) etc.
+
 1.2.1
     Via the Spring DBIBean, IDBI#open(HandleCallback) now uses the transactionally bound handle
     if there is one.

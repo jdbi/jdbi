@@ -139,19 +139,10 @@
     <option name="HIDE_WARNINGS" value="false" />
   </component>
   <component name="FileEditorManager" split-orientation="horizontal" split-proportion="0.5">
-    <first-group selected-file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java">
-      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="31" column="33" selection-start="1075" selection-end="1075" vertical-scroll-proportion="0.41860464">
-            <folding>
-              <element signature="imports" expanded="true" />
-            </folding>
-          </state>
-        </provider>
-      </entry>
+    <first-group selected-file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/ConnectionTransactionHandler.java">
       <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="155" column="39" selection-start="4179" selection-end="4179" vertical-scroll-proportion="3.2558138">
+          <state line="34" column="46" selection-start="1178" selection-end="1178" vertical-scroll-proportion="0.7906977">
             <folding>
               <element signature="imports" expanded="true" />
               <element signature="docComment;class#BMTTransactionHandler#0" expanded="true" />
@@ -160,6 +151,54 @@
               <element signature="docComment;method#commit#0;class#BMTTransactionHandler#0" expanded="true" />
               <element signature="docComment;method#rollback#0;class#BMTTransactionHandler#0" expanded="true" />
               <element signature="docComment;method#isInTransaction#0;class#BMTTransactionHandler#0" expanded="true" />
+            </folding>
+          </state>
+        </provider>
+      </entry>
+      <entry file="file://$PROJECT_DIR$/RELEASE_NOTES" pinned="false">
+        <provider selected="true" editor-type-id="text-editor">
+          <state line="5" column="57" selection-start="186" selection-end="186" vertical-scroll-proportion="0.11627907">
+            <folding />
+          </state>
+        </provider>
+      </entry>
+      <entry file="file://$PROJECT_DIR$/build.xml" pinned="false">
+        <provider selected="true" editor-type-id="text-editor">
+          <state line="6" column="116" selection-start="342" selection-end="342" vertical-scroll-proportion="0.13953489">
+            <folding />
+          </state>
+        </provider>
+      </entry>
+      <entry file="file://$PROJECT_DIR$/src/doc/index.html" pinned="false">
+        <provider selected="true" editor-type-id="text-editor">
+          <state line="248" column="97" selection-start="10428" selection-end="10428" vertical-scroll-proportion="0.3255814">
+            <folding />
+          </state>
+        </provider>
+      </entry>
+      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/ConnectionTransactionHandler.java" pinned="false">
+        <provider selected="true" editor-type-id="text-editor">
+          <state line="82" column="7" selection-start="2265" selection-end="2265" vertical-scroll-proportion="0.76744187">
+            <folding>
+              <element signature="imports" expanded="true" />
+              <element signature="docComment;class#ConnectionTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#begin#0;class#ConnectionTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#commit#0;class#ConnectionTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#rollback#0;class#ConnectionTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#isInTransaction#0;class#ConnectionTransactionHandler#0" expanded="true" />
+            </folding>
+          </state>
+        </provider>
+      </entry>
+      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/TransactionHandler.java" pinned="false">
+        <provider selected="true" editor-type-id="text-editor">
+          <state line="45" column="4" selection-start="1527" selection-end="1592" vertical-scroll-proportion="0.74418604">
+            <folding>
+              <element signature="docComment;class#TransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#begin#0;class#TransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#commit#0;class#TransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#rollback#0;class#TransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#isInTransaction#0;class#TransactionHandler#0" expanded="true" />
             </folding>
           </state>
         </provider>
@@ -206,16 +245,9 @@
     <option name="useCustomPathToExec" value="false" />
   </component>
   <component name="ProjectPane">
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/test-etc" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/lib" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/test" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/src" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi" module="jDBI" type="directory" />
     <expanded_node url="" module="jDBI" type="module" />
   </component>
   <component name="ProjectReloadState">
@@ -481,53 +513,10 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestDBI.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="46" selection-start="1979" selection-end="1979" vertical-scroll-proportion="0.6861862">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestAutoConfigurator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="104" column="39" selection-start="3589" selection-end="3589" vertical-scroll-proportion="0.6306306">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestSQLOperations.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="184" column="8" selection-start="7028" selection-end="7028" vertical-scroll-proportion="0.22522523">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/ConnectionTransactionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="23" selection-start="626" selection-end="626" vertical-scroll-proportion="0.023255814">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/package.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="4" column="25" selection-start="121" selection-end="121" vertical-scroll-proportion="0.093023255">
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/TransactionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="39" selection-start="1173" selection-end="1173" vertical-scroll-proportion="0.30232558">
-          <folding>
-            <element signature="docComment;class#TransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#begin#0;class#TransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#commit#0;class#TransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#rollback#0;class#TransactionHandler#0" expanded="true" />
-            <element signature="docComment;method#isInTransaction#0;class#TransactionHandler#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -604,9 +593,25 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="31" column="33" selection-start="1075" selection-end="1075" vertical-scroll-proportion="0.41860464">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="57" selection-start="186" selection-end="186" vertical-scroll-proportion="0.11627907">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="155" column="39" selection-start="4179" selection-end="4179" vertical-scroll-proportion="3.2558138">
+        <state line="34" column="46" selection-start="1178" selection-end="1178" vertical-scroll-proportion="0.7906977">
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="docComment;class#BMTTransactionHandler#0" expanded="true" />
@@ -619,11 +624,43 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java">
+    <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="33" selection-start="1075" selection-end="1075" vertical-scroll-proportion="0.41860464">
+        <state line="6" column="116" selection-start="342" selection-end="342" vertical-scroll-proportion="0.13953489">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="248" column="97" selection-start="10428" selection-end="10428" vertical-scroll-proportion="0.3255814">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/ConnectionTransactionHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="82" column="7" selection-start="2265" selection-end="2265" vertical-scroll-proportion="0.76744187">
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="docComment;class#ConnectionTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#begin#0;class#ConnectionTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#commit#0;class#ConnectionTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#rollback#0;class#ConnectionTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#isInTransaction#0;class#ConnectionTransactionHandler#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/TransactionHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="4" selection-start="1527" selection-end="1592" vertical-scroll-proportion="0.74418604">
+          <folding>
+            <element signature="docComment;class#TransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#begin#0;class#TransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#commit#0;class#TransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#rollback#0;class#TransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#isInTransaction#0;class#TransactionHandler#0" expanded="true" />
           </folding>
         </state>
       </provider>
