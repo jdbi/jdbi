@@ -139,7 +139,7 @@
     <option name="HIDE_WARNINGS" value="false" />
   </component>
   <component name="FileEditorManager" split-orientation="horizontal" split-proportion="0.5">
-    <first-group selected-file="file://$PROJECT_DIR$/src/doc/index.html">
+    <first-group selected-file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/DBI.java">
       <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/DBI.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
           <state line="153" column="102" selection-start="4890" selection-end="5066" vertical-scroll-proportion="0.5059055">
@@ -159,13 +159,6 @@
               <element signature="docComment;method#open#8;class#DBI#0" expanded="true" />
               <element signature="docComment;method#open#9;class#DBI#0" expanded="true" />
             </folding>
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/doc/index.html" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="218" column="59" selection-start="8756" selection-end="8756" vertical-scroll-proportion="0.49901575">
-            <folding />
           </state>
         </provider>
       </entry>
@@ -573,13 +566,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="16" selection-start="795" selection-end="795" vertical-scroll-proportion="0.36220473">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/Configuration.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="30" column="35" selection-start="980" selection-end="980" vertical-scroll-proportion="0.23622048">
@@ -593,13 +579,6 @@
           <folding>
             <element signature="docComment;class#AutoConfigurator#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="218" column="59" selection-start="8756" selection-end="8756" vertical-scroll-proportion="0.49901575">
-          <folding />
         </state>
       </provider>
     </entry>
@@ -622,6 +601,20 @@
             <element signature="docComment;method#open#8;class#DBI#0" expanded="true" />
             <element signature="docComment;method#open#9;class#DBI#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="41" selection-start="809" selection-end="809" vertical-scroll-proportion="0.37795275">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="221" column="26" selection-start="8810" selection-end="8810" vertical-scroll-proportion="0.5462598">
+          <folding />
         </state>
       </provider>
     </entry>

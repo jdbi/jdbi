@@ -1,6 +1,5 @@
 TODO:
     SQL in-clause expansion
-    Externalize named statement locator so can use things other than classpath
 
 1.2.3
     Allow configuring transaction handlers in properties
