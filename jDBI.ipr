@@ -199,6 +199,7 @@
         <root url="jar://$PROJECT_DIR$/lib/test/junit-3.8.1.jar!/" />
         <root url="jar://$PROJECT_DIR$/lib/test/derby.jar!/" />
         <root url="jar://$PROJECT_DIR$/lib/test/spring-mock.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/test/geronimo-spec-jta-1.0.1B-rc2.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

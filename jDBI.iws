@@ -139,28 +139,27 @@
     <option name="HIDE_WARNINGS" value="false" />
   </component>
   <component name="FileEditorManager" split-orientation="horizontal" split-proportion="0.5">
-    <first-group selected-file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringTransactionHandler.java">
-      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringTransactionHandler.java" pinned="false">
+    <first-group selected-file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java">
+      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="96" column="44" selection-start="2760" selection-end="2760" vertical-scroll-proportion="0.7906977">
+          <state line="31" column="33" selection-start="1075" selection-end="1075" vertical-scroll-proportion="0.41860464">
             <folding>
               <element signature="imports" expanded="true" />
             </folding>
           </state>
         </provider>
       </entry>
-      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java" pinned="false">
+      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="32" column="49" selection-start="1051" selection-end="1051" vertical-scroll-proportion="0.27906978">
-            <folding />
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="45" column="14" selection-start="1137" selection-end="1505" vertical-scroll-proportion="0.74418604">
+          <state line="25" column="67" selection-start="959" selection-end="959" vertical-scroll-proportion="-0.046511628">
             <folding>
               <element signature="imports" expanded="true" />
+              <element signature="docComment;class#BMTTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#BMTTransactionHandler#0;class#BMTTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#begin#0;class#BMTTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#commit#0;class#BMTTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#rollback#0;class#BMTTransactionHandler#0" expanded="true" />
+              <element signature="docComment;method#isInTransaction#0;class#BMTTransactionHandler#0" expanded="true" />
             </folding>
           </state>
         </provider>
@@ -215,9 +214,9 @@
     <expanded_node url="file://$PROJECT_DIR$/lib" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/src/test" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/src" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi" module="jDBI" type="directory" />
     <expanded_node url="" module="jDBI" type="module" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring" module="jDBI" type="directory" />
   </component>
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
@@ -482,13 +481,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring/TestSpringIntegration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="22" selection-start="2677" selection-end="2677" vertical-scroll-proportion="0.6621622">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestDBI.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="68" column="46" selection-start="1979" selection-end="1979" vertical-scroll-proportion="0.6861862">
@@ -596,28 +588,43 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="14" selection-start="1137" selection-end="1505" vertical-scroll-proportion="0.74418604">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="32" column="49" selection-start="1051" selection-end="1051" vertical-scroll-proportion="0.27906978">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringTransactionHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="96" column="44" selection-start="2760" selection-end="2760" vertical-scroll-proportion="0.7906977">
+        <state line="96" column="15" selection-start="2731" selection-end="2731" vertical-scroll-proportion="2.2325583">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/BMTTransactionHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="49" selection-start="1051" selection-end="1051" vertical-scroll-proportion="0.27906978">
-          <folding />
+        <state line="25" column="67" selection-start="959" selection-end="959" vertical-scroll-proportion="-0.046511628">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="docComment;class#BMTTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#BMTTransactionHandler#0;class#BMTTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#begin#0;class#BMTTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#commit#0;class#BMTTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#rollback#0;class#BMTTransactionHandler#0" expanded="true" />
+            <element signature="docComment;method#isInTransaction#0;class#BMTTransactionHandler#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="31" column="33" selection-start="1075" selection-end="1075" vertical-scroll-proportion="0.41860464">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
