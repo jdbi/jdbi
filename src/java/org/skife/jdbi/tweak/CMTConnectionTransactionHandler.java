@@ -15,36 +15,54 @@
 package org.skife.jdbi.tweak;
 
 import org.skife.jdbi.Handle;
+import org.skife.jdbi.DBIException;
+
+import java.sql.SQLException;
 
 /**
- * Interface which defines callbacks to be used when transaction methods are called on a handle.
- * Used by specifying on an <code>IDBI</code> instance. All <code>Handle</code> instances
- * opened from that <code>IDBI</code> will use the handler specified.
- * <p />
- * The default implementation, <code>ConnectionTransactionHandler</code>, explicitely manages
- * the transactions on the underlying JDBC <code>Connection</code>.
- * @see ConnectionTransactionHandler
- * @see CMTConnectionTransactionHandler
+ * Handler designed to behave properly in a J2EE CMT environment. It will never
+ * explicitely begin or commit a transaction, and will throw a runtime exception
+ * when rollback is called to force rollback.
  */
-public interface TransactionHandler
+public class CMTConnectionTransactionHandler implements TransactionHandler
 {
     /**
      * Called when a transaction is started
      */
-    public void begin(Handle handle);
+    public void begin(Handle handle)
+    {
+        // noop
+    }
 
     /**
      * Called when a transaction is committed
      */
-    public void commit(Handle handle);
+    public void commit(Handle handle)
+    {
+        // noop
+    }
 
     /**
      * Called when a transaction is rolled back
+     * Will throw a RuntimeException to force transactional rollback
      */
-    public void rollback(Handle handle);
+    public void rollback(Handle handle)
+    {
+        throw new DBIException("failing transaction");
+    }
 
     /**
      * Called to test if a handle is in a transaction
      */
-    public boolean isInTransaction(Handle handle);
+    public boolean isInTransaction(Handle handle)
+    {
+        try
+        {
+            return ! handle.getConnection().getAutoCommit();
+        }
+        catch (SQLException e)
+        {
+            throw new DBIException(e.getMessage(), e);
+        }
+    }
 }

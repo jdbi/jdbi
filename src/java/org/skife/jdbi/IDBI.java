@@ -14,6 +14,8 @@
  */
 package org.skife.jdbi;
 
+import org.skife.jdbi.tweak.TransactionHandler;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -64,4 +66,16 @@ public interface IDBI
      * @throws IOException
      */
     void load(String name) throws DBIException, IOException;
+
+    /**
+     * Specify a non-standard <code>TransactionHandler</code> which should be
+     * used for all <code>Handle</code> instances created from this dbi.
+     * <p />
+     * The default handler, if you specify none, will explicitely manage
+     * transactions on the underlying JDBC connection.
+     *
+     * @see org.skife.jdbi.tweak.ConnectionTransactionHandler
+     * @see org.skife.jdbi.tweak.CMTConnectionTransactionHandler
+     */
+    void setTransactionHandler(TransactionHandler handler);
 }
