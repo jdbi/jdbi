@@ -14,6 +14,9 @@
  */
 package org.skife.jdbi;
 
+import org.skife.jdbi.unstable.tweak.TransactionHandler;
+import org.skife.jdbi.unstable.tweak.ConnectionTransactionHandler;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,8 +33,9 @@ class ConnectionHandle implements Handle
 {
     private final Connection conn;
     private boolean autoCommitBase = true;
-    private boolean inTransaction = false;
+    //private boolean inTransaction = false;
     private final StatementCache cache;
+    private TransactionHandler transactionHandler = new ConnectionTransactionHandler();
 
     ConnectionHandle(final Connection conn)
     {
@@ -97,20 +101,7 @@ class ConnectionHandle implements Handle
 
     public void begin() throws DBIException
     {
-        if (inTransaction) return;
-        try
-        {
-            autoCommitBase = conn.getAutoCommit();
-            if (autoCommitBase)
-            {
-                conn.setAutoCommit(false);
-            }
-            inTransaction = true;
-        }
-        catch (SQLException e)
-        {
-            throw new DBIException("unable to begin a transaction: " + e.getMessage(), e);
-        }
+        transactionHandler.begin(this);
     }
 
     public void close()
@@ -175,36 +166,12 @@ class ConnectionHandle implements Handle
 
     public void commit() throws DBIException
     {
-        try
-        {
-            conn.commit();
-            if (autoCommitBase)
-            {
-                conn.setAutoCommit(true);
-            }
-            inTransaction = false;
-        }
-        catch (SQLException e)
-        {
-            throw new DBIException("unable to commit transaction: " + e.getMessage(), e);
-        }
+        transactionHandler.commit(this);
     }
 
     public void rollback() throws DBIException
     {
-        try
-        {
-            conn.rollback();
-            if (autoCommitBase)
-            {
-                conn.setAutoCommit(true);
-            }
-            inTransaction = false;
-        }
-        catch (SQLException e)
-        {
-            throw new DBIException("unable to roll back transaction: " + e.getMessage(), e);
-        }
+        transactionHandler.rollback(this);
     }
 
     public void inTransaction(final TransactionCallback callback) throws DBIException
@@ -234,7 +201,7 @@ class ConnectionHandle implements Handle
 
     public boolean isInTransaction()
     {
-        return inTransaction;
+        return transactionHandler.isInTransaction(this);
     }
 
     /* executes */

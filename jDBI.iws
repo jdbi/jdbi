@@ -139,50 +139,27 @@
     <option name="HIDE_WARNINGS" value="false" />
   </component>
   <component name="FileEditorManager" split-orientation="horizontal" split-proportion="0.5">
-    <first-group selected-file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring/TestSpringIntegration.java">
-      <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring/TestSpringIntegration.java" pinned="false">
+    <first-group selected-file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/unstable/tweak/ConnectionTransactionHandler.java">
+      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/unstable/tweak/TransactionHandler.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="219" column="39" selection-start="7741" selection-end="7741" vertical-scroll-proportion="0.6396396">
+          <state line="23" column="49" selection-start="879" selection-end="879" vertical-scroll-proportion="0.5525526">
             <folding />
           </state>
         </provider>
       </entry>
-      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java" pinned="false">
+      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/ConnectionHandle.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="39" column="30" selection-start="1149" selection-end="1149" vertical-scroll-proportion="0.4804805">
+          <state line="173" column="42" selection-start="4593" selection-end="4593" vertical-scroll-proportion="0.5015015">
+            <folding />
+          </state>
+        </provider>
+      </entry>
+      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/unstable/tweak/ConnectionTransactionHandler.java" pinned="false">
+        <provider selected="true" editor-type-id="text-editor">
+          <state line="44" column="10" selection-start="1358" selection-end="1358" vertical-scroll-proportion="0.5915916">
             <folding>
               <element signature="imports" expanded="true" />
             </folding>
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="40" column="13" selection-start="1432" selection-end="1432" vertical-scroll-proportion="0.6636637">
-            <folding>
-              <element signature="imports" expanded="true" />
-            </folding>
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/test-etc/applicationContext.xml" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="31" column="47" selection-start="1263" selection-end="1263" vertical-scroll-proportion="0.5045045">
-            <folding />
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring/Service.java" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="20" column="17" selection-start="708" selection-end="708" vertical-scroll-proportion="0.4804805">
-            <folding />
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring/ServiceImpl.java" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="30" column="26" selection-start="879" selection-end="879" vertical-scroll-proportion="0.7207207">
-            <folding />
           </state>
         </provider>
       </entry>
@@ -206,9 +183,9 @@
   </component>
   <component name="NamedScopeManager" />
   <component name="PackagesPane">
+    <expanded_node url="org" module="jDBI" type="package" />
     <expanded_node url="org.skife.jdbi" module="jDBI" type="package" />
     <expanded_node url="" module="jDBI" type="module" />
-    <expanded_node url="org" module="jDBI" type="package" />
     <expanded_node url="org.skife" module="jDBI" type="package" />
   </component>
   <component name="PerforceDirect.Settings">
@@ -228,16 +205,22 @@
     <option name="useCustomPathToExec" value="false" />
   </component>
   <component name="ProjectPane">
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/unstable" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/test/org" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/src/java" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/lib/test" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/test-etc" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/java/org" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/test/org/skife/jdbi" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/lib" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/test" module="jDBI" type="directory" />
     <expanded_node url="" module="jDBI" type="module" />
     <expanded_node url="file://$PROJECT_DIR$/src" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/lib/test" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$" module="jDBI" type="directory" />
+    <expanded_node url="file://$PROJECT_DIR$/src/test/org/skife" module="jDBI" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife" module="jDBI" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/java/org/skife/jdbi" module="jDBI" type="directory" />
   </component>
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
@@ -266,12 +249,12 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="TestSpringIntegration.testRollbackOnException" type="JUnit" factoryName="JUnit">
-      <module name="jDBI" />
-      <option name="PACKAGE_NAME" value="org.skife.jdbi.spring" />
-      <option name="MAIN_CLASS_NAME" value="org.skife.jdbi.spring.TestSpringIntegration" />
-      <option name="METHOD_NAME" value="testRollbackOnException" />
-      <option name="TEST_OBJECT" value="method" />
+    <tempConfiguration selected="true" default="false" name="org.skife.jdbi" type="JUnit" factoryName="JUnit">
+      <module name="" />
+      <option name="PACKAGE_NAME" value="org.skife.jdbi" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="package" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -282,20 +265,6 @@
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
     </tempConfiguration>
-    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="7001" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DOMAIN_PATH" value="" />
-      <option name="USER" value="weblogic" />
-      <option name="PASSWORD" value="weblogic" />
-      <option name="SERVER_NAME" value="myserver" />
-      <option name="DOMAIN_NAME" value="mydomain" />
-    </configuration>
     <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
       <module name="" />
       <option name="PACKAGE_NAME" />
@@ -310,12 +279,33 @@
         <value defaultName="wholeProject" />
       </option>
     </configuration>
+    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
     <configuration selected="false" default="true" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" />
       <option name="PROGRAM_PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <module name="" />
+    </configuration>
+    <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="7001" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DOMAIN_PATH" value="" />
+      <option name="USER" value="weblogic" />
+      <option name="PASSWORD" value="weblogic" />
+      <option name="SERVER_NAME" value="myserver" />
+      <option name="DOMAIN_NAME" value="mydomain" />
     </configuration>
     <configuration selected="false" default="true" type="Applet" factoryName="Applet">
       <module name="" />
@@ -326,13 +316,6 @@
       <option name="HEIGHT" value="300" />
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <option name="VM_PARAMETERS" />
-    </configuration>
-    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
     </configuration>
   </component>
   <component name="SelectInManager" />
@@ -411,10 +394,10 @@
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32956153" order="7" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.20081301" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.19268292" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33050847" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.2495935" order="1" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3289225" order="8" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32909605" order="8" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3997175" order="6" />
       <window_info id="SvnUp" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32967034" order="8" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
@@ -502,109 +485,109 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/unstable/package.html">
+    <entry file="file://$PROJECT_DIR$/src/test-etc/insert-with-comment.sql">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="0" selection-start="685" selection-end="685" vertical-scroll-proportion="0.28346458">
+        <state line="3" column="45" selection-start="97" selection-end="97" vertical-scroll-proportion="0.047244094">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/Handle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="46" selection-start="529" selection-end="529" vertical-scroll-proportion="0.26276276" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="35" selection-start="613" selection-end="613" vertical-scroll-proportion="0.22222222">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="255" column="43" selection-start="10658" selection-end="10658" vertical-scroll-proportion="0.4114114">
+        <state line="89" column="27" selection-start="3125" selection-end="3125" vertical-scroll-proportion="0.09448819">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestBatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="76" column="64" selection-start="2572" selection-end="2572" vertical-scroll-proportion="0.2987988">
+        <state line="23" column="13" selection-start="797" selection-end="797" vertical-scroll-proportion="-0.062992126">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/ConnectionHandle.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestFirst.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="216" column="48" selection-start="5542" selection-end="5542" vertical-scroll-proportion="0.8138138">
+        <state line="46" column="0" selection-start="1315" selection-end="1315" vertical-scroll-proportion="0.4566929">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/DBI.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestInExpressions.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="142" column="70" selection-start="4617" selection-end="4617" vertical-scroll-proportion="-0.2882883">
+        <state line="57" column="72" selection-start="1652" selection-end="1652" vertical-scroll-proportion="0.61417323">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring/ServiceImpl.java">
+    <entry file="file://$PROJECT_DIR$/src/test-etc/sample-script.sql">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="26" selection-start="879" selection-end="879" vertical-scroll-proportion="0.7207207">
+        <state line="2" column="0" selection-start="55" selection-end="55" vertical-scroll-proportion="0.031496063">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring/Service.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestDecorators.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="17" selection-start="708" selection-end="708" vertical-scroll-proportion="0.4804805">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test-etc/applicationContext.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="47" selection-start="1263" selection-end="1263" vertical-scroll-proportion="0.5045045">
+        <state line="51" column="44" selection-start="1584" selection-end="1584" vertical-scroll-proportion="0.6156156">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/spring/TestSpringIntegration.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="219" column="39" selection-start="7741" selection-end="7741" vertical-scroll-proportion="0.6396396">
+        <state line="75" column="22" selection-start="2677" selection-end="2677" vertical-scroll-proportion="0.6621622">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/DBIBean.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestDBI.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="65" column="13" selection-start="2489" selection-end="2489" vertical-scroll-proportion="-0.14414415">
+        <state line="68" column="46" selection-start="1979" selection-end="1979" vertical-scroll-proportion="0.6861862">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/DBIUtils.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestAutoConfigurator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="33" selection-start="2997" selection-end="2997" vertical-scroll-proportion="0.5825826">
-          <folding>
-            <element signature="docComment;method#closeHandleIfNecessary#0;class#DBIUtils#0" expanded="true" />
-          </folding>
+        <state line="104" column="39" selection-start="3589" selection-end="3589" vertical-scroll-proportion="0.6306306">
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="30" selection-start="1149" selection-end="1149" vertical-scroll-proportion="0.4804805">
+        <state line="46" column="24" selection-start="1511" selection-end="1511" vertical-scroll-proportion="0.7927928">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringHandleAdaptor.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestSQLOperations.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="13" selection-start="1432" selection-end="1432" vertical-scroll-proportion="0.6636637">
+        <state line="184" column="8" selection-start="7028" selection-end="7028" vertical-scroll-proportion="0.22522523">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/ConnectionHandle.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="173" column="42" selection-start="4593" selection-end="4593" vertical-scroll-proportion="0.5015015">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/unstable/tweak/TransactionHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="49" selection-start="879" selection-end="879" vertical-scroll-proportion="0.5525526">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/unstable/tweak/ConnectionTransactionHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="44" column="10" selection-start="1358" selection-end="1358" vertical-scroll-proportion="0.5915916">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
