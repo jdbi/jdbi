@@ -14,29 +14,38 @@
  */
 package org.skife.jdbi.spring;
 
-import org.skife.jdbi.IDBI;
-import org.skife.jdbi.Handle;
 import org.skife.jdbi.DBIException;
+import org.skife.jdbi.Handle;
 import org.skife.jdbi.HandleCallback;
-import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.IDBI;
 import org.skife.jdbi.tweak.StatementLocator;
+import org.skife.jdbi.tweak.TransactionHandler;
+import org.springframework.aop.framework.ProxyFactory;
 
-import java.util.Map;
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.Map;
 
 class SpringDBIAdaptor implements IDBI
 {
     private final IDBI real;
+    private DataSource dataSource;
 
-    SpringDBIAdaptor(IDBI real)
+    SpringDBIAdaptor(IDBI real, DataSource dataSource)
     {
         this.real = real;
+        this.dataSource = dataSource;
         real.setTransactionHandler(new SpringTransactionHandler(this));
     }
 
     public Handle open() throws DBIException
     {
-        return real.open();
+        ProxyFactory pf = new ProxyFactory();
+        pf.setProxyTargetClass(false);
+        pf.setInterfaces(new Class[]{Handle.class});
+        pf.setTarget(real.open());
+        pf.addAdvice(new SQLExceptionTranslatingThrowsAdvice(dataSource));
+        return (Handle) pf.getProxy();
     }
 
     public void open(HandleCallback callback) throws DBIException

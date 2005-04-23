@@ -102,8 +102,7 @@ public class DBIBean implements FactoryBean, InitializingBean
         });
 
         if (handleDecorator != null) dbi.setHandleDecorator(handleDecorator);
-
-        return new SpringDBIAdaptor(dbi);
+        return new SpringDBIAdaptor(dbi, dataSource);
     }
 
     public Class getObjectType()

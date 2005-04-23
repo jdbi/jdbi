@@ -17,6 +17,7 @@ package org.skife.jdbi.spring;
 import org.skife.jdbi.DBIException;
 import org.skife.jdbi.Handle;
 import org.skife.jdbi.IDBI;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -38,12 +39,14 @@ public class DBIUtils
         if (handle == null)
         {
             handle = dbi.open();
+
             if (TransactionSynchronizationManager.isSynchronizationActive())
             {
                 TransactionSynchronizationManager.bindResource(dbi, handle);
                 TransactionSynchronizationManager.registerSynchronization(new HandleSynchronization(handle, dbi));
             }
         }
+
         return handle;
     }
 
@@ -53,7 +56,7 @@ public class DBIUtils
      * transaction then the Handle will be closed when the transaction completes
      * and this will noop.
      *
-     * @param h Handle to consider closing
+     * @param h   Handle to consider closing
      * @param dbi DBI handle was obtained from
      */
     public static void closeHandleIfNecessary(final Handle h, final IDBI dbi)

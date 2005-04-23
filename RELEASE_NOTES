@@ -1,4 +1,6 @@
 1.2.6
+    Wrap exceptions thrown from handle in Spring DataAccessExceptions for the
+    Spring adaptor. Thank you Thomas Risberg.
 
 1.2.5
     Change Handle#script to batch the statements in the script    

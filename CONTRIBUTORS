@@ -6,3 +6,4 @@ Thank you to:
     Robert Sfeir for batch processing feature requests
     Henry Yandell for in clause expansion feature request
     Patrick Burleson for showing that DBIException should extend RuntimeException
+    Thomas Risberg for the Spring DataAccessException wrapping code

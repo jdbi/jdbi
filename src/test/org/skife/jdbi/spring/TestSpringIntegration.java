@@ -30,6 +30,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.dao.DataAccessException;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -227,5 +228,27 @@ public class TestSpringIntegration extends TestCase
                 assertEquals(0, all.size());
             }
         });
+    }
+
+    public void testExceptionsWrappedWithSpringExceptions() throws Exception
+    {
+        final Service service = (Service) ctx.getBean("service");
+        try
+        {
+            service.execute(new Service.Job()
+            {
+                public Object execute(IDBI dbi)
+                {
+                    final Handle h = DBIUtils.getHandle(dbi);
+                    h.execute("select wombat, george from something");
+                    return null;
+                }
+            });
+            fail("should have excepted");
+        }
+        catch (Exception e)
+        {
+            assertTrue(e instanceof DataAccessException);
+        }
     }
 }
