@@ -14,12 +14,7 @@
  */
 package org.skife.jdbi;
 
-import org.skife.jdbi.tweak.ClasspathStatementLocator;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -33,20 +28,21 @@ class StatementCache
 {
     private final Connection conn;
     private final Map envelopes;
+    private final Map globals;
     private final NamedStatementRepository repository;
 
-    StatementCache(final Connection conn)
-    {
-        this(conn, new NamedStatementRepository());
-    }
-
-    StatementCache(final Connection conn, final NamedStatementRepository repository)
+    StatementCache(final Connection conn, final NamedStatementRepository repository, Map globals)
     {
         this.conn = conn;
         envelopes = new HashMap();
+        this.globals = globals;
         this.repository = repository;
     }
 
+    Map getGlobals()
+    {
+        return globals;
+    }
 
     Collection close()
     {
@@ -143,7 +139,7 @@ class StatementCache
         {
             public Object[] objects()
             {
-                return ParamTool.getParamsFromMap(parametersFor(statement), params);
+                return ParamTool.getParamsFromMap(parametersFor(statement), params, globals);
             }
         });
     }
@@ -166,7 +162,7 @@ class StatementCache
             public Object[] objects()
             {
                 final String[] param_names = parametersFor(statement);
-                return ParamTool.getParamsForBean(param_names, bean);
+                return ParamTool.getParamsForBean(param_names, bean, globals);
             }
         });
     }

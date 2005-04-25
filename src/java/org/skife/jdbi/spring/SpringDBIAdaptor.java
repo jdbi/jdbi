@@ -96,4 +96,14 @@ class SpringDBIAdaptor implements IDBI
     {
         real.setStatementLocator(locator);
     }
+
+    /**
+     * Obtain a map containing globally set named parameter values. All handles obtained
+     * from this DBI instance will use these named parameters. Named parametrs added to a handle
+     * will not be added to the DBI globals though.
+     */
+    public Map getGlobalParameters()
+    {
+        return real.getGlobalParameters();
+    }
 }

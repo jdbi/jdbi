@@ -228,4 +228,9 @@ public class BaseHandleDecorator implements Handle, Unstable
     {
         return handle.prepareBatch(statement);
     }
+
+    public Map getGlobalParameters()
+    {
+        return handle.getGlobalParameters();
+    }
 }

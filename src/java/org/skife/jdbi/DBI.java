@@ -39,6 +39,7 @@ public class DBI implements IDBI
     private final ConnectionFactory factory;
     private HandleDecorator handleDecorator = new NullHandleDecorator();
     private TransactionHandler transactionHandler = new ConnectionTransactionHandler();
+    private Map globals = new HashMap();
 
     /**
      * Attempt to auto-configure a DBi instance
@@ -320,6 +321,18 @@ public class DBI implements IDBI
         this.factory = factory;
     }
 
+    /**
+     * Obtain a map containing globally set named parameter values. All handles obtained
+     * from this DBI instance will use these named parameters.
+     * <p>
+     * Named parameters added to a handle will not be added to the DBI globals, and DBI globals added
+     * after a handle is opened will not be added to the already open handles.
+     */
+    public Map getGlobalParameters()
+    {
+        return globals;
+    }
+
     /* Operational methods */
 
     /**
@@ -334,7 +347,8 @@ public class DBI implements IDBI
         {
             return handleDecorator.decorate(this, new ConnectionHandle(factory.getConnection(),
                                                                        repository,
-                                                                       transactionHandler));
+                                                                       transactionHandler,
+                                                                       globals));
         }
         catch (SQLException e)
         {

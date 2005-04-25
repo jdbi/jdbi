@@ -40,18 +40,22 @@ final class ParamTool
         return objects;
     }
 
-    final static Object[] getParamsFromMap(final String[] param_names, final Map map)
+    final static Object[] getParamsFromMap(final String[] param_names, final Map map, final Map globals)
     {
         final Object[] objects = new Object[param_names.length];
         for (int i = 0; i < param_names.length; i++)
         {
             final String name = param_names[i];
             objects[i] = map.get(name);
+            if (objects[i] == null)
+            {
+                objects[i] = globals.get(name);
+            }
         }
         return objects;
     }
 
-    final static Object[] getParamsForBean(final String[] param_names, final Object bean)
+    final static Object[] getParamsForBean(final String[] param_names, final Object bean, final Map globals)
     {
         try
         {
@@ -72,18 +76,17 @@ final class ParamTool
                 }
             }
 
-            for (int i = 0; i < getters.length; i++)
-            {
-                final Method getter = getters[i];
-                if (getter == null)
-                {
-                    throw new DBIError("Unable to findInternal bean property for [" + param_names[i] + "]");
-                }
-            }
             final Object[] params = new Object[getters.length];
             for (int i = 0; i < getters.length; i++)
             {
-                params[i] = getters[i].invoke(bean, EMPTY_OBJECT_ARRAY);
+                if (getters[i] != null)
+                {
+                    params[i] = getters[i].invoke(bean, EMPTY_OBJECT_ARRAY);
+                }
+                else
+                {
+                    params[i] = globals.get(param_names[i]);
+                }
             }
             return params;
         }

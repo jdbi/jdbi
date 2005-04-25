@@ -26,12 +26,14 @@ class QueueingPreparedBatch implements PreparedBatch
 {
     private final PreparedStatement stmt;
     private final String[] params;
+    private Map globals;
     private List args = new ArrayList();
 
-    QueueingPreparedBatch(PreparedStatement stmt, String[] params)
+    QueueingPreparedBatch(PreparedStatement stmt, String[] params, Map globals)
     {
         this.stmt = stmt;
         this.params = params;
+        this.globals = globals;
     }
 
     public PreparedBatch add(Object[] objects)
@@ -158,7 +160,7 @@ class QueueingPreparedBatch implements PreparedBatch
 
         public BeanHolder(Object bean)
         {
-            args = ParamTool.getParamsForBean(params, bean);
+            args = ParamTool.getParamsForBean(params, bean, globals);
         }
 
         public Object[] objects()
@@ -173,7 +175,7 @@ class QueueingPreparedBatch implements PreparedBatch
 
         MapHolder(Map map)
         {
-            args = ParamTool.getParamsFromMap(params, map);
+            args = ParamTool.getParamsFromMap(params, map, globals);
         }
 
         public Object[] objects()

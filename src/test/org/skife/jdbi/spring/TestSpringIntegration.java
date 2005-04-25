@@ -31,6 +31,9 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.dao.DataAccessException;
+import org.apache.commons.logging.impl.NoOpLog;
+import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.apache.commons.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -44,6 +47,7 @@ public class TestSpringIntegration extends TestCase
 
     public void setUp() throws Exception
     {
+        System.setProperty(LogFactoryImpl.LOG_PROPERTY, NoOpLog.class.getName());
         Tools.start();
         Tools.dropAndCreateSomething();
         if (ctx == null)

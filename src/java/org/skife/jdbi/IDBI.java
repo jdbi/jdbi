@@ -86,4 +86,13 @@ public interface IDBI
      * @param locator used to find externalized sql
      */
     void setStatementLocator(StatementLocator locator);
+
+    /**
+     * Obtain a map containing globally set named parameter values. All handles obtained
+     * from this DBI instance will use these named parameters.
+     * <p>
+     * Named parameters added to a handle will not be added to the DBI globals, and DBI globals added
+     * after a handle is opened will not be added to the already open handles.
+     */
+    Map getGlobalParameters();
 }

@@ -354,4 +354,13 @@ public interface Handle
      * Create a new PreparedBatch instance from arbitrary SQL or a named statement
      */
     PreparedBatch prepareBatch(String statement);
+
+    /**
+     * Obtain a map containing globally set named parameter values. All statements with named parameters will
+     * be able to make use of the global named params. Parameters passed in will overlay global params.
+     * <p>
+     * Handles create a local copy of global parameters specified on the DBI instance used to create the handle.
+     * Global parameters added to the Handle will not be added to the DBI instance's globals, however.
+     */
+    Map getGlobalParameters();
 }

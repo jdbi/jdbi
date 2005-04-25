@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.HashMap;
 
 class ConnectionHandle implements Handle
 {
@@ -42,14 +44,17 @@ class ConnectionHandle implements Handle
 
     ConnectionHandle(final Connection conn, NamedStatementRepository repository)
     {
-        this(conn, repository, new ConnectionTransactionHandler());
+        this(conn, repository, new ConnectionTransactionHandler(), new HashMap());
     }
 
-    ConnectionHandle(final Connection conn, NamedStatementRepository repository, TransactionHandler transactionHandler)
+    ConnectionHandle(final Connection conn, 
+                     NamedStatementRepository repository, 
+                     TransactionHandler transactionHandler,
+                     Map globals)
     {
         this.conn = conn;
         this.transactionHandler = transactionHandler;
-        this.cache = new StatementCache(conn, repository);
+        this.cache = new StatementCache(conn, repository, new HashMap(globals));
     }
 
     public int updateInternal(final PreparedStatement stmt) throws DBIException
@@ -266,7 +271,7 @@ class ConnectionHandle implements Handle
 
     public List query(String query) throws DBIException
     {
-        return this.queryCollectingResults(cache.find(query));
+        return this.queryCollectingResults(cache.find(query, Collections.EMPTY_MAP));
     }
 
     public void query(String statement, RowCallback callback) throws DBIException
@@ -306,7 +311,7 @@ class ConnectionHandle implements Handle
 
     public Map first(String statement) throws DBIException
     {
-        return extractFirst(this.query(statement));
+        return extractFirst(this.query(statement, Collections.EMPTY_MAP));
     }
 
     public Map first(String statement, Object bean) throws DBIException
@@ -448,11 +453,16 @@ class ConnectionHandle implements Handle
     {
         try
         {
-            return new QueueingPreparedBatch(cache.find(statement), cache.parametersFor(statement));
+            return new QueueingPreparedBatch(cache.find(statement), cache.parametersFor(statement), cache.getGlobals());
         }
         catch (DBIException e)
         {
             throw new DBIError(e.getMessage(), e);
         }
+    }
+
+    public Map getGlobalParameters()
+    {
+        return cache.getGlobals();
     }
 }
