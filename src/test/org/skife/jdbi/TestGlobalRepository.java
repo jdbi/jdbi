@@ -18,8 +18,10 @@ import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.ConnectionHandle;
 import org.skife.jdbi.NamedStatementRepository;
+import org.skife.jdbi.tweak.ConnectionTransactionHandler;
 
 import java.util.Map;
+import java.util.HashMap;
 
 public class TestGlobalRepository extends TestCase
 {
@@ -31,7 +33,11 @@ public class TestGlobalRepository extends TestCase
         Tools.start();
         Tools.dropAndCreateSomething();
         repo = new NamedStatementRepository();
-        handle = new ConnectionHandle(Tools.getConnection(), repo);
+        handle = new ConnectionHandle(Tools.getConnection(),
+                                      repo,
+                                      new ConnectionTransactionHandler(),
+                                      new HashMap(),
+                                      new DefaultRowMapper());
     }
 
     public void tearDown() throws Exception

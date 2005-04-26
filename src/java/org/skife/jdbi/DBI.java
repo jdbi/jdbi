@@ -17,6 +17,7 @@ package org.skife.jdbi;
 import org.skife.jdbi.tweak.ConnectionTransactionHandler;
 import org.skife.jdbi.tweak.StatementLocator;
 import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.unstable.RowMapper;
 import org.skife.jdbi.unstable.decorator.HandleDecorator;
 
 import javax.naming.InitialContext;
@@ -40,6 +41,7 @@ public class DBI implements IDBI
     private HandleDecorator handleDecorator = new NullHandleDecorator();
     private TransactionHandler transactionHandler = new ConnectionTransactionHandler();
     private Map globals = new HashMap();
+    private RowMapper mapper = new DefaultRowMapper();
 
     /**
      * Attempt to auto-configure a DBi instance
@@ -348,7 +350,8 @@ public class DBI implements IDBI
             return handleDecorator.decorate(this, new ConnectionHandle(factory.getConnection(),
                                                                        repository,
                                                                        transactionHandler,
-                                                                       globals));
+                                                                       globals,
+                                                                       mapper));
         }
         catch (SQLException e)
         {
@@ -504,6 +507,14 @@ public class DBI implements IDBI
     public void setHandleDecorator(HandleDecorator builder)
     {
         this.handleDecorator = builder;
+    }
+
+    /**
+     * Specify a row mapper to be used for all handles obtained from this DBI instance
+     */
+    public void setRowMapper(RowMapper mapper)
+    {
+        this.mapper = mapper;
     }
 
     /**

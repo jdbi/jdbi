@@ -16,6 +16,7 @@ package org.skife.jdbi;
 
 import org.skife.jdbi.tweak.ConnectionTransactionHandler;
 import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.unstable.RowMapper;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -36,24 +37,17 @@ class ConnectionHandle implements Handle
     private final Connection conn;
     private final StatementCache cache;
     private final TransactionHandler transactionHandler;
+    private final RowMapper mapper;
 
-    ConnectionHandle(final Connection conn)
-    {
-        this(conn, new NamedStatementRepository());
-    }
-
-    ConnectionHandle(final Connection conn, NamedStatementRepository repository)
-    {
-        this(conn, repository, new ConnectionTransactionHandler(), new HashMap());
-    }
-
-    ConnectionHandle(final Connection conn, 
+    ConnectionHandle(final Connection conn,
                      NamedStatementRepository repository, 
                      TransactionHandler transactionHandler,
-                     Map globals)
+                     Map globals,
+                     RowMapper mapper)
     {
         this.conn = conn;
         this.transactionHandler = transactionHandler;
+        this.mapper = mapper;
         this.cache = new StatementCache(conn, repository, new HashMap(globals));
     }
 
@@ -376,13 +370,7 @@ class ConnectionHandle implements Handle
             }
             while (results.next())
             {
-                final Map row = new RowMap();
-                for (int i = 0; i != columns.length; i++)
-                {
-                    final String column = columns[i];
-                    final Object value = results.getObject(i + 1);
-                    row.put(column, value);
-                }
+                final Map row = mapper.map(columns, results);
                 try
                 {
                     callback.eachRow(this, row);

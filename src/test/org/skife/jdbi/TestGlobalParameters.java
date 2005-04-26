@@ -18,7 +18,6 @@ import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
 
 import java.util.Map;
-import java.math.BigDecimal;
 
 public class TestGlobalParameters extends TestCase
 {
@@ -62,6 +61,19 @@ public class TestGlobalParameters extends TestCase
         handle.getGlobalParameters().put("name", "Robert");
         handle.execute("insert into something (id, name) values (:id, :name)", Args.with("id", new Integer(1)));
 
+        Map robbie = handle.first("select * from something where name = :name");
+        assertNotNull(robbie);
+        assertEquals(new Integer("1"), robbie.get("id"));
+    }
+
+    public void testOnDBI() throws Exception
+    {
+        handle.close();
+        DBI dbi = new DBI(Tools.CONN_STRING);
+        dbi.getGlobalParameters().put("name", "Robert");
+        handle = dbi.open();
+
+        handle.execute("insert into something (id, name) values (:id, :name)", Args.with("id", new Integer(1)));
         Map robbie = handle.first("select * from something where name = :name");
         assertNotNull(robbie);
         assertEquals(new Integer("1"), robbie.get("id"));
