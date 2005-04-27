@@ -15,6 +15,7 @@
 package org.skife.jdbi;
 
 import org.skife.jdbi.unstable.decorator.HandleDecorator;
+import org.skife.jdbi.unstable.RowMapper;
 import org.skife.jdbi.tweak.TransactionHandler;
 import org.skife.jdbi.tweak.ClasspathStatementLocator;
 import org.skife.jdbi.tweak.StatementLocator;
@@ -44,6 +45,11 @@ class AutoConfigurator
     private static final String[] JDBC_URL_PROPS = new String[]
     {
         "jdbi.url", "jdbc.url", "connection.string"
+    };
+    
+    private static final String[] ROW_MAPPER_PROPS = new String[]
+    {
+        "jdbi.row-mapper", "", "row-mapper"
     };
 
     private static final String[] DRIVER_NAME_PROPS = new String[]
@@ -86,6 +92,7 @@ class AutoConfigurator
     private static String handleDecoratorBuilder = null;
     private static String transactionHandler = null;
     private static String statementLocator = null;
+    private static String rowMapper = null;
 
     /**
      * will return the cached connection factory, or try to build a new one
@@ -136,6 +143,7 @@ class AutoConfigurator
         handleDecoratorBuilder = config.getHandleDecoratorBuilder();
         transactionHandler = config.getTransactionHandler();
         statementLocator = config.getStatementLocator();
+        rowMapper = config.getRowMapper();
         return factory;
     }
 
@@ -150,6 +158,7 @@ class AutoConfigurator
         config.setHandleDecoratorBuilder(props.getProperty(HANDLE_DECORATOR_BUIDLER[0]));
         config.setTransactionHandler(props.getProperty(TRANSACTION_HANDLER[0]));
         config.setStatementLocator(props.getProperty(STATEMENT_LOCATOR[0]));
+        config.setRowMapper(props.getProperty(ROW_MAPPER_PROPS[0]));
         return config;
     }
 
@@ -188,6 +197,8 @@ class AutoConfigurator
         if (txHandler != null) starting.setProperty(TRANSACTION_HANDLER[0], txHandler);
         final String locator = selectFirst(STATEMENT_LOCATOR, starting);
         if (locator != null) starting.setProperty(STATEMENT_LOCATOR[0], locator);
+        final String rowMapper = selectFirst(ROW_MAPPER_PROPS, starting);
+        if (rowMapper != null) starting.setProperty(ROW_MAPPER_PROPS[0], rowMapper);
         return starting;
     }
 
@@ -218,6 +229,14 @@ class AutoConfigurator
         Class clazz = Class.forName(transactionHandler);
         TransactionHandler handler = (TransactionHandler) clazz.newInstance();
         return handler;
+    }
+
+    public RowMapper getRowMapper() throws ClassNotFoundException, IllegalAccessException, InstantiationException
+    {
+        if (rowMapper == null) return null;
+        Class clazz = Class.forName(rowMapper);
+        RowMapper mapper = (RowMapper)clazz.newInstance();
+        return mapper;
     }
 
     public StatementLocator getStatementLocator()

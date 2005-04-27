@@ -147,6 +147,19 @@ public class DBI implements IDBI
      * <tr>
      * <td>
      * <ul>
+     * <li>jdbi.row-mapper</li>
+     * <li>jdbc.row-mapper</li>
+     * <li>row-mapper</li>
+     * </ul>
+     * </td>
+     * <td>
+     * <b>OPTIONAL</b> <b>Unstable Feature</b> class name of a <code>RowMapper</code> which should
+     * be used to override default row mapping facility. Optional.
+     * </td>
+     * </tr>
+     * <tr>
+     * <td>
+     * <ul>
      * <li>jdbi.statement-locator</li>
      * <li>jdbc.statement-locator</li>
      * <li>statement-locator</li>
@@ -183,6 +196,11 @@ public class DBI implements IDBI
             if (l != null)
             {
                 repository.setLocator(l);
+            }
+            final RowMapper m = auto.getRowMapper();
+            if (m != null)
+            {
+                this.setRowMapper(mapper);
             }
         }
         catch (Exception e)
