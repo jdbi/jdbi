@@ -14,7 +14,6 @@
  */
 package org.skife.jdbi;
 
-import org.skife.jdbi.tweak.ConnectionTransactionHandler;
 import org.skife.jdbi.tweak.TransactionHandler;
 import org.skife.jdbi.unstable.RowMapper;
 
@@ -452,5 +451,10 @@ class ConnectionHandle implements Handle
     public Map getGlobalParameters()
     {
         return cache.getGlobals();
+    }
+
+    public DatabaseMetadata getDatabaseMetadata()
+    {
+        return new MetadataExtractor(this.getConnection()).buildDatabaseMetadata();
     }
 }

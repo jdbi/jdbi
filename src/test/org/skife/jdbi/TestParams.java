@@ -174,4 +174,34 @@ public class TestParams extends TestCase
         final StatementParser p = new StatementParser(q);
         assertEquals("b", p.getNamedParams()[1]);
     }
+
+    public void testPatricksBug() throws Exception
+    {
+        String q = "select users.summary_date as \"Date\", unique_users as unique_users,\n" +
+                   "hit_count as total_hits, url as \"URL\" from\n" +
+                   "(select summary_date, count(unique(user_id)) as unique_users from\n" +
+                   "session_summary group by summary_date) users\n" +
+                   "join (select summary_date, sum(hit_count) as hit_count from\n" +
+                   "page_summary group by summary_date) hits on\n" +
+                   "users.summary_date = hits.summary_date\n" +
+                   "join (\n" +
+                   "select ps.summary_date, ps.URL from page_summary ps \n" +
+                   "join (select  summary_date, max(hit_count) as hit_count from\n" +
+                   "pagE_summary group by summary_date) foo on\n" +
+                   "ps.summary_date = foo.summary_date \n" +
+                   "and ps.hit_count = foo.hit_count ) urls on\n" +
+                   "hits.summary_date = urls.summary_date\n" +
+                   "where \n" +
+                   "users.summary_date >= :startDate\n" +
+                   "and\n" +
+                   "users.summary_date <= :endDate";
+        final StatementParser p = new StatementParser(q);
+        System.out.println("Number of Parameters: " + p.getNamedParams().length);
+        for (int i = 0; i < p.getNamedParams().length; i++)
+        {
+            String s = p.getNamedParams()[i];
+            System.out.println("    " + s);
+        }
+        System.out.println(p.getSubstitutedSql() );
+    }
 }

@@ -363,4 +363,9 @@ public interface Handle
      * Global parameters added to the Handle will not be added to the DBI instance's globals, however.
      */
     Map getGlobalParameters();
+
+    /**
+     * Obtain the top-level database metadata
+     */
+    DatabaseMetadata getDatabaseMetadata();
 }

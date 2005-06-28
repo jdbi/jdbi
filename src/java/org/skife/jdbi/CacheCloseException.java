@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 class CacheCloseException extends DBIException
 {
+    
     private List exceptions = new ArrayList();
 
     public List getExceptions()
