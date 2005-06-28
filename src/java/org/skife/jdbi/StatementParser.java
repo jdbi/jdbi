@@ -71,6 +71,7 @@ final class StatementParser
         {
             // we have no quotes, just replace tokens if there are any and exit
             this.replaced = token_matcher.replaceAll("?");
+            token_matcher.reset();
             final List tokens = new ArrayList();
             while (token_matcher.find())
             {
