@@ -1,9 +1,9 @@
-package org.skife.jdbi;
+package org.skife.jdbi.unstable.metadata;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-class MetadataExtractor
+public class MetadataExtractor
 {
     private Connection conn;
 

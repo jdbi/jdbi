@@ -25,11 +25,12 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ListIterator;
 
 class ConnectionHandle implements Handle
 {
@@ -37,9 +38,10 @@ class ConnectionHandle implements Handle
     private final StatementCache cache;
     private final TransactionHandler transactionHandler;
     private final RowMapper mapper;
+    private final List openQueries = new ArrayList();
 
     ConnectionHandle(final Connection conn,
-                     NamedStatementRepository repository, 
+                     NamedStatementRepository repository,
                      TransactionHandler transactionHandler,
                      Map globals,
                      RowMapper mapper)
@@ -139,12 +141,10 @@ class ConnectionHandle implements Handle
         }
     }
 
-    public void clearStatementCacheInternal() throws CacheCloseException
+    void clearStatementCacheInternal() throws CacheCloseException
     {
         final Collection exceptions = cache.close();
-        if (exceptions.isEmpty())
-            return;
-        else
+        if (!exceptions.isEmpty())
         {
             CacheCloseException e = new CacheCloseException();
             e.getExceptions().addAll(exceptions);
@@ -453,8 +453,28 @@ class ConnectionHandle implements Handle
         return cache.getGlobals();
     }
 
-    public DatabaseMetadata getDatabaseMetadata()
+    public Query createQuery(String sql)
     {
-        return new MetadataExtractor(this.getConnection()).buildDatabaseMetadata();
+        HandleQuery query = new HandleQuery(this.mapper, this.cache.find(sql));
+        this.openQueries.add(query);
+        return query;
+    }
+
+    public void close(Iterator i)
+    {
+        if (i instanceof ResultSetIterator)
+        {
+            ResultSetIterator ri = (ResultSetIterator)i;
+            ri.close();
+        }
+    }
+
+    public void close(ListIterator i)
+    {
+        if (i instanceof ResultSetListIterator)
+        {
+            ResultSetListIterator ri = (ResultSetListIterator)i;
+            ri.close();
+        }
     }
 }

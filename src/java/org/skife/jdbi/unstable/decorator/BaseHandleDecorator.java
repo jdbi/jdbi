@@ -20,7 +20,7 @@ import org.skife.jdbi.Handle;
 import org.skife.jdbi.PreparedBatch;
 import org.skife.jdbi.RowCallback;
 import org.skife.jdbi.TransactionCallback;
-import org.skife.jdbi.DatabaseMetadata;
+import org.skife.jdbi.Query;
 import org.skife.jdbi.unstable.Unstable;
 
 import java.io.IOException;
@@ -28,6 +28,8 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 /**
  * Convenience class implementing Handle which delegates all
@@ -235,8 +237,18 @@ public class BaseHandleDecorator implements Handle, Unstable
         return handle.getGlobalParameters();
     }
 
-    public DatabaseMetadata getDatabaseMetadata()
+    public Query createQuery(String sql)
     {
-        return handle.getDatabaseMetadata();
+        return handle.createQuery(sql);
+    }
+
+    public void close(Iterator i)
+    {
+        handle.close(i);
+    }
+
+    public void close(ListIterator i)
+    {
+        handle.close(i);
     }
 }

@@ -1,8 +1,9 @@
-package org.skife.jdbi;
+package org.skife.jdbi.unstable.metadata;
 
 import junit.framework.TestCase;
+import org.skife.jdbi.DBI;
+import org.skife.jdbi.Handle;
 import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.DatabaseMetadata;
 
 public class TestMetadata extends TestCase
 {
@@ -21,12 +22,6 @@ public class TestMetadata extends TestCase
     {
         conn.close();
         Tools.stop();
-    }
-
-    public void testGetDBMetadataFromHandle() throws Exception
-    {
-        DatabaseMetadata m = conn.getDatabaseMetadata();
-        assertNotNull(m);
     }
 
     public void testGetTableNames() throws Exception

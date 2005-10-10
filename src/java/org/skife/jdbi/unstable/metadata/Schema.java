@@ -1,4 +1,7 @@
-package org.skife.jdbi;
+package org.skife.jdbi.unstable.metadata;
+
+import org.skife.jdbi.unstable.metadata.Table;
+import org.skife.jdbi.unstable.metadata.DatabaseMetadata;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

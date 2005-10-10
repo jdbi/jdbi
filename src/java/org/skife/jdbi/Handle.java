@@ -17,8 +17,10 @@ package org.skife.jdbi;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.Collection;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 /**
  * Represents a connection to the RDBMS.
@@ -365,7 +367,21 @@ public interface Handle
     Map getGlobalParameters();
 
     /**
-     * Obtain the top-level database metadata
+     * Create a new <code>Query</code> instance bound to this Handle.
+     * @param sql a named query or raw sql
+     * @return an open Query instance
      */
-    DatabaseMetadata getDatabaseMetadata();
+    Query createQuery(String sql);
+
+    /**
+     * Used to close Iterator instances obtained via createQuery
+     * @param i Iterator obtained via createQuery
+     */
+    void close(Iterator i);
+
+    /**
+     * Used to close ListIterator instances obtained via createQuery
+     * @param i ListIterator obtained via createQuery
+     */
+    void close(ListIterator i);
 }
