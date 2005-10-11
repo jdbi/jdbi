@@ -38,7 +38,6 @@ class ConnectionHandle implements Handle
     private final StatementCache cache;
     private final TransactionHandler transactionHandler;
     private final RowMapper mapper;
-    private final List openQueries = new ArrayList();
 
     ConnectionHandle(final Connection conn,
                      NamedStatementRepository repository,
@@ -455,16 +454,14 @@ class ConnectionHandle implements Handle
 
     public Query createQuery(String sql)
     {
-        HandleQuery query = new HandleQuery(this.mapper, this.cache.find(sql));
-        this.openQueries.add(query);
-        return query;
+        return new HandleQuery(mapper, cache.find(sql));
     }
 
     public void close(Iterator i)
     {
-        if (i instanceof ResultSetIterator)
+        if (i instanceof ResultSetListIterator)
         {
-            ResultSetIterator ri = (ResultSetIterator)i;
+            ResultSetListIterator ri = (ResultSetListIterator)i;
             ri.close();
         }
     }

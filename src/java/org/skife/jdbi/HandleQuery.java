@@ -37,7 +37,7 @@ class HandleQuery implements Query
         try
         {
             ResultSet results = statement.executeQuery();
-            return new ResultSetIterator(this, mapper, results);
+            return new ResultSetListIterator(this, mapper, results);
         }
         catch (SQLException e)
         {

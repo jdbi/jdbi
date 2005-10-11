@@ -18,8 +18,8 @@ import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.ListIterator;
+import java.util.Map;
 
 public class TestQueryAPI extends TestCase
 {
@@ -69,6 +69,17 @@ public class TestQueryAPI extends TestCase
         handle.close(i);
     }
 
+    public void testCallHasNextTwice() throws Exception
+    {
+        handle.execute("insert into something (id, name) values (:id, :name)",
+                       new Something(1, "one"));
+
+        Iterator i = handle.createQuery("select * from something").iterator();
+        assertTrue(i.hasNext());
+        assertTrue(i.hasNext());
+        handle.close(i);
+    }
+
     public void testListIterator() throws Exception
     {
         handle.prepareBatch("insert into something (id, name) values (:id, :name)")
@@ -77,12 +88,29 @@ public class TestQueryAPI extends TestCase
                 .add(new Something(3, "three"))
                 .execute();
 
-
         ListIterator i = handle.createQuery("select * from something order by id").listIterator();
-//        Map row = (Map) i.next();
-//        // result set should advance on the next
-//        assertEquals(new Integer(1), row.get("id"));
+        Map row = (Map) i.next();
+        assertEquals(new Integer(1), row.get("id"));
+        assertTrue(i.hasNext());
+        row = (Map) i.next();
+        assertEquals("two", row.get("name"));
         handle.close(i);
     }
 
+    public void _testListIteratorPrevious() throws Exception
+    {
+        handle.prepareBatch("insert into something (id, name) values (:id, :name)")
+                .add(new Something(1, "one"))
+                .add(new Something(2, "two"))
+                .add(new Something(3, "three"))
+                .execute();
+
+        ListIterator i = handle.createQuery("select * from something order by id").listIterator();
+        i.next();
+        i.next();
+        assertTrue(i.hasPrevious());
+        Map first = (Map)i.previous();
+        assertEquals("one", first.get("name"));
+        handle.close(i);
+    }
 }

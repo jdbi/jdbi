@@ -16,42 +16,79 @@ package org.skife.jdbi;
 
 import org.skife.jdbi.unstable.RowMapper;
 
-import java.util.ListIterator;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.ListIterator;
 
-public class ResultSetListIterator implements ListIterator
+public class ResultSetListIterator implements ListIterator, Iterator
 {
-    private final HandleQuery query;
+    private final Query query;
     private final RowMapper mapper;
     private final ResultSet results;
+    private final String[] columns;
 
-    public ResultSetListIterator(HandleQuery query, RowMapper mapper, ResultSet results)
+
+    private boolean lastNext;
+    private boolean lastPrevious;
+    private boolean hasNextCalled = false;
+    private boolean hasPreviousCalled = false;
+
+
+    public ResultSetListIterator(HandleQuery query, RowMapper mapper, ResultSet results) throws SQLException
     {
         this.query = query;
         this.mapper = mapper;
-
         this.results = results;
-    }
-
-    public boolean hasNext()
-    {
-        return false;
-    }
-
-    public Object next()
-    {
-        return null;
+        final ResultSetMetaData metadata = results.getMetaData();
+        final int count = metadata.getColumnCount();
+        columns = new String[count];
+        for (int i = 1; i != count + 1; ++i)
+        {
+            final String column_name = metadata.getColumnName(i);
+            final String column_label = metadata.getColumnLabel(i);
+            columns[i - 1] = column_label != null ? column_label : column_name;
+        }
     }
 
     public boolean hasPrevious()
     {
-        return false;
+        hasPreviousCalled = true;
+        try
+        {
+            lastPrevious = results.previous();
+        }
+        catch (SQLException e)
+        {
+            throw new DBIException("Exception while moving to previous row in result set", e);
+        }
+        return lastPrevious;
     }
 
     public Object previous()
     {
-        return null;
+        if (!hasPreviousCalled)
+        {
+            try
+            {
+                results.previous();
+            }
+            catch (SQLException e)
+            {
+                throw new DBIException("Exception while moving to previous row of resultset", e);
+            }
+        }
+        hasNextCalled = false;
+        hasPreviousCalled = false;
+        try
+        {
+            return mapper.map(columns, results);
+        }
+        catch (SQLException e)
+        {
+            throw new DBIException("Exception while extracting row values", e);
+        }
     }
 
     public int nextIndex()
@@ -64,18 +101,6 @@ public class ResultSetListIterator implements ListIterator
         return 0;
     }
 
-    public void remove()
-    {
-        try
-        {
-            results.deleteRow();
-        }
-        catch (SQLException e)
-        {
-            throw new DBIException("Error trying to delete a row in a result set", e);
-        }
-    }
-
     public void set(Object o)
     {
         throw new UnsupportedOperationException("Cannot insert into result set");
@@ -86,16 +111,74 @@ public class ResultSetListIterator implements ListIterator
         throw new UnsupportedOperationException("Cannot insert into a result set");
     }
 
-    public void close()
+    public boolean hasNext()
     {
+        if (hasNextCalled)
+        {
+            return lastNext;
+        }
+        else
+        {
+            hasNextCalled = true;
+            try
+            {
+                lastNext = results.next();
+                return lastNext;
+            }
+            catch (SQLException e)
+            {
+                throw new DBIException(e.getMessage(), e);
+            }
+        }
+    }
+
+    public Object next()
+    {
+        if (!hasNextCalled)
+        {
+            try
+            {
+                results.next();
+            }
+            catch (SQLException e)
+            {
+                throw new DBIException("Exception while trying to advance result set", e);
+            }
+        }
+        hasNextCalled = false;
+
         try
         {
-            results.close();
+            return mapper.map(columns, results);
         }
         catch (SQLException e)
         {
-            throw new DBIException("Exception closing result set in list iterator", e);
+            throw new DBIException("Exception while extracting data from a row", e);
         }
-        query.close();
+    }
+
+    public void remove()
+    {
+        try
+        {
+            results.deleteRow();
+        }
+        catch (SQLException e)
+        {
+            throw new DBIException(e.getMessage(), e);
+        }
+    }
+
+    public void close()
+    {
+        this.query.close();
+        try
+        {
+            this.results.close();
+        }
+        catch (SQLException e)
+        {
+            throw new DBIException("Error while closing result set from an iterator", e);
+        }
     }
 }
