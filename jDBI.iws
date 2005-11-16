@@ -168,10 +168,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/doc/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="70" selection-start="707" selection-end="707" vertical-scroll-proportion="0.24378586">
+            <state line="25" column="21" selection-start="1031" selection-end="1031" vertical-scroll-proportion="0.35850862">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="12" column="39" selection-start="578" selection-end="578" vertical-scroll-proportion="0.15105163">
               <folding />
             </state>
           </provider>
@@ -716,13 +725,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="41" selection-start="132" selection-end="132" vertical-scroll-proportion="0.02173913">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/StatementCache.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="105" column="13" selection-start="3327" selection-end="3327" vertical-scroll-proportion="0.6500956">
@@ -755,7 +757,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/doc/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="70" selection-start="707" selection-end="707" vertical-scroll-proportion="0.24378586">
+        <state line="25" column="21" selection-start="1031" selection-end="1031" vertical-scroll-proportion="0.35850862">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="39" selection-start="578" selection-end="578" vertical-scroll-proportion="0.15105163">
           <folding />
         </state>
       </provider>
