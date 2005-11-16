@@ -1,3 +1,7 @@
+1.3.2
+    Save SQLException to provide more information to the DBIException on
+    statement execution
+
 1.3.1
     Issue with a matcher not being reset which only showed up under jdk 1.5. Thank you Patrick!
 
