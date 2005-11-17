@@ -148,7 +148,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TestExceptionHandling.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="TestExceptionHandling.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestExceptionHandling.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="41" column="38" selection-start="1218" selection-end="1218" vertical-scroll-proportion="0.40152964">
@@ -168,10 +168,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/doc/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="21" selection-start="1031" selection-end="1031" vertical-scroll-proportion="0.014340344">
+            <state line="287" column="43" selection-start="11838" selection-end="11838" vertical-scroll-proportion="0.30975142">
               <folding />
             </state>
           </provider>
@@ -772,13 +772,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="21" selection-start="1031" selection-end="1031" vertical-scroll-proportion="0.014340344">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
       <provider selected="true" editor-type-id="text-editor">
         <state line="41" column="27" selection-start="1363" selection-end="1363" vertical-scroll-proportion="0.014340344">
@@ -792,6 +785,13 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="287" column="43" selection-start="11838" selection-end="11838" vertical-scroll-proportion="0.30975142">
+          <folding />
         </state>
       </provider>
     </entry>
