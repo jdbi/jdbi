@@ -42,8 +42,7 @@ public class TestExceptionHandling extends TestCase
         }
         catch (DBIException e)
         {
-            e.printStackTrace();
-            System.err.println(e.getMessage());
+            assertTrue( e.getMessage().startsWith("Column 'WOMBATS' is not in any table in the FROM list") );
         }
     }
 }
