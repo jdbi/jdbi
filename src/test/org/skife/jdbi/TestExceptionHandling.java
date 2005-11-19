@@ -33,7 +33,7 @@ public class TestExceptionHandling extends TestCase
         Tools.stop();
     }
 
-    public void testSomething() throws Exception
+    public void testSqlErrorAvailableInExceptions() throws Exception
     {
         try
         {

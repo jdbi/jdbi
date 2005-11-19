@@ -14,7 +14,7 @@
  */
 package org.skife.jdbi;
 
-import org.skife.jdbi.tweak.ConnectionTransactionHandler;
+import org.skife.jdbi.tweak.ScriptLocator;
 import org.skife.jdbi.tweak.TransactionHandler;
 
 import java.io.IOException;
@@ -25,35 +25,28 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
-import java.util.HashMap;
 
 class ConnectionHandle implements Handle
 {
     private final Connection conn;
     private final StatementCache cache;
     private final TransactionHandler transactionHandler;
-
-    ConnectionHandle(final Connection conn)
-    {
-        this(conn, new NamedStatementRepository());
-    }
-
-    ConnectionHandle(final Connection conn, NamedStatementRepository repository)
-    {
-        this(conn, repository, new ConnectionTransactionHandler(), new HashMap());
-    }
+    private final ScriptLocator scriptLocator;
 
     ConnectionHandle(final Connection conn, 
-                     NamedStatementRepository repository, 
-                     TransactionHandler transactionHandler,
-                     Map globals)
+                     final NamedStatementRepository repository,
+                     final TransactionHandler transactionHandler,
+                     final Map globals,
+                     final ScriptLocator scriptLocator)
     {
         this.conn = conn;
         this.transactionHandler = transactionHandler;
+        this.scriptLocator = scriptLocator;
         this.cache = new StatementCache(conn, repository, new HashMap(globals));
     }
 
@@ -430,7 +423,7 @@ class ConnectionHandle implements Handle
 
     public void script(final String name) throws DBIException, IOException
     {
-        new Script(this, name).run();
+        new Script(this, this.scriptLocator, name).run();
     }
 
     public void name(final String name, final String sql) throws DBIException

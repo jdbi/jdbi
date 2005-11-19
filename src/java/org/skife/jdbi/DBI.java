@@ -15,8 +15,13 @@
 package org.skife.jdbi;
 
 import org.skife.jdbi.tweak.ConnectionTransactionHandler;
+import org.skife.jdbi.tweak.ScriptLocator;
 import org.skife.jdbi.tweak.StatementLocator;
 import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.tweak.ChainedScriptLocator;
+import org.skife.jdbi.tweak.ClasspathScriptLocator;
+import org.skife.jdbi.tweak.FileSystemScriptLocator;
+import org.skife.jdbi.tweak.URLScriptLocator;
 import org.skife.jdbi.unstable.decorator.HandleDecorator;
 
 import javax.naming.InitialContext;
@@ -40,6 +45,12 @@ public class DBI implements IDBI
     private HandleDecorator handleDecorator = new NullHandleDecorator();
     private TransactionHandler transactionHandler = new ConnectionTransactionHandler();
     private Map globals = new HashMap();
+    private ScriptLocator scriptLocator = new ChainedScriptLocator(new ScriptLocator[]
+            {
+                    new ClasspathScriptLocator(),
+                    new FileSystemScriptLocator(),
+                    new URLScriptLocator()
+            });
 
     /**
      * Attempt to auto-configure a DBi instance
@@ -324,7 +335,7 @@ public class DBI implements IDBI
     /**
      * Obtain a map containing globally set named parameter values. All handles obtained
      * from this DBI instance will use these named parameters.
-     * <p>
+     * <p/>
      * Named parameters added to a handle will not be added to the DBI globals, and DBI globals added
      * after a handle is opened will not be added to the already open handles.
      */
@@ -348,7 +359,8 @@ public class DBI implements IDBI
             return handleDecorator.decorate(this, new ConnectionHandle(factory.getConnection(),
                                                                        repository,
                                                                        transactionHandler,
-                                                                       globals));
+                                                                       globals,
+                                                                       scriptLocator));
         }
         catch (SQLException e)
         {
@@ -476,7 +488,7 @@ public class DBI implements IDBI
     /**
      * Specify a non-standard <code>TransactionHandler</code> which should be
      * used for all <code>Handle</code> instances created from this dbi.
-     * <p />
+     * <p/>
      * The default handler, if you specify none, will explicitely manage
      * transactions on the underlying JDBC connection.
      *
@@ -504,6 +516,19 @@ public class DBI implements IDBI
     public void setHandleDecorator(HandleDecorator builder)
     {
         this.handleDecorator = builder;
+    }
+
+    /**
+     * Specify a script locator which will be used when the {@link Handle#script(String)} method
+     * is used for handles created from this DBI instance.
+     * <p>
+     * The default script locater uses a {@link ChainedScriptLocator} which first attempts a
+     * {@link ClasspathScriptLocator}, then {@link FileSystemScriptLocator}, then finally a
+     * {@link URLScriptLocator}.
+     */
+    public void setScriptLocator(ScriptLocator locator)
+    {
+        this.scriptLocator = locator;
     }
 
     /**

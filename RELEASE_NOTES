@@ -1,3 +1,8 @@
+1.3.3
+    Expose the handle decorator functionality on the IDBI interface
+
+    Add a script locator mechanism analogous to the statement locator
+
 1.3.2
     Save SQLException to provide more information to the DBIException on
     statement execution
