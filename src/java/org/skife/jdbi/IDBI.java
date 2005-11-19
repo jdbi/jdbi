@@ -14,8 +14,10 @@
  */
 package org.skife.jdbi;
 
+import org.skife.jdbi.tweak.ScriptLocator;
 import org.skife.jdbi.tweak.StatementLocator;
 import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.unstable.decorator.HandleDecorator;
 
 import java.io.IOException;
 import java.util.Map;
@@ -96,18 +98,18 @@ public interface IDBI
      */
     Map getGlobalParameters();
 
-//    /**
-//     * Specify a script locator which will be used when the {@link Handle#script(String)} method
-//     * is used for handles created from this DBI instance.
-//     * <p/>
-//     * The default script locater uses a {@link ChainedScriptLocator} which first attempts a
-//     * {@link ClasspathScriptLocator}, then {@link FileSystemScriptLocator}, then finally a
-//     * {@link URLScriptLocator}.
-//     */
-//    void setScriptLocator(ScriptLocator locator);
-//
-//    /**
-//     * Specify a decorator builder to decorate all handles created by this DBI instance
-//     */
-//    void setHandleDecorator(HandleDecorator builder);
+    /**
+     * Specify a script locator which will be used when the {@link Handle#script(String)} method
+     * is used for handles created from this DBI instance.
+     * <p/>
+     * The default script locater uses a {@link org.skife.jdbi.tweak.ChainedScriptLocator} which first attempts a
+     * {@link org.skife.jdbi.tweak.ClasspathScriptLocator}, then {@link org.skife.jdbi.tweak.FileSystemScriptLocator}, then finally a
+     * {@link org.skife.jdbi.tweak.URLScriptLocator}.
+     */
+    void setScriptLocator(ScriptLocator locator);
+
+    /**
+     * Specify a decorator builder to decorate all handles created by this DBI instance
+     */
+    void setHandleDecorator(HandleDecorator builder);
 }
