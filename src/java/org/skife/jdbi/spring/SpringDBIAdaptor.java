@@ -18,8 +18,10 @@ import org.skife.jdbi.DBIException;
 import org.skife.jdbi.Handle;
 import org.skife.jdbi.HandleCallback;
 import org.skife.jdbi.IDBI;
+import org.skife.jdbi.unstable.decorator.HandleDecorator;
 import org.skife.jdbi.tweak.StatementLocator;
 import org.skife.jdbi.tweak.TransactionHandler;
+import org.skife.jdbi.tweak.ScriptLocator;
 import org.springframework.aop.framework.ProxyFactory;
 
 import javax.sql.DataSource;
@@ -106,4 +108,27 @@ class SpringDBIAdaptor implements IDBI
     {
         return real.getGlobalParameters();
     }
+
+    /**
+     * Specify a script locator which will be used when the {@link org.skife.jdbi.Handle#script(String)} method
+     * is used for handles created from this DBI instance.
+     * <p/>
+     * The default script locater uses a {@link org.skife.jdbi.tweak.ChainedScriptLocator} which first attempts a
+     * {@link org.skife.jdbi.tweak.ClasspathScriptLocator}, then {@link org.skife.jdbi.tweak.FileSystemScriptLocator}, then finally a
+     * {@link org.skife.jdbi.tweak.URLScriptLocator}.
+     */
+    public void setScriptLocator(ScriptLocator locator)
+    {
+        real.setScriptLocator(locator);
+    }
+
+    /**
+     * Specify a decorator builder to decorate all handles created by this DBI instance
+     */
+    public void setHandleDecorator(HandleDecorator builder)
+    {
+        real.setHandleDecorator(builder);
+    }
+
+
 }
