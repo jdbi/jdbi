@@ -127,22 +127,4 @@ public class TestBatch extends TestCase
                 .execute();
         assertEquals(4, handle.query("select * from something").size());
     }
-
-    public void testLotsaCallbacks() throws Exception
-    {
-        handle.inTransaction(new TransactionCallback() {
-            public void inTransaction(Handle handle) throws Exception {
-                handle.prepareBatch("insert into something (id, name) values (:id, :name)")
-                        .add(Args.with("id", new Long(1)).and("name", "one"))
-                        .add(Args.with("id", new Long(2)).and("name", "two"))
-                        .add(Args.with("id", new Long(3)).and("name", "three"))
-                        .add(Args.with("id", new Long(4)).and("name", "four"))
-                        .add(Args.with("id", new Long(5)).and("name", "five"))
-                        .execute();
-            }
-        });
-        assertEquals(new Integer("5"),
-                     handle.first("select count(*) num from something")
-                             .get("num"));
-    }
 }

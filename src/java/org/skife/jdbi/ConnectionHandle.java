@@ -14,8 +14,8 @@
  */
 package org.skife.jdbi;
 
+import org.skife.jdbi.tweak.ScriptLocator;
 import org.skife.jdbi.tweak.TransactionHandler;
-import org.skife.jdbi.unstable.RowMapper;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -30,24 +30,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ListIterator;
 
 class ConnectionHandle implements Handle
 {
     private final Connection conn;
     private final StatementCache cache;
     private final TransactionHandler transactionHandler;
-    private final RowMapper mapper;
+    private final ScriptLocator scriptLocator;
 
-    ConnectionHandle(final Connection conn,
-                     NamedStatementRepository repository,
-                     TransactionHandler transactionHandler,
-                     Map globals,
-                     RowMapper mapper)
+    ConnectionHandle(final Connection conn, 
+                     final NamedStatementRepository repository,
+                     final TransactionHandler transactionHandler,
+                     final Map globals,
+                     final ScriptLocator scriptLocator)
     {
         this.conn = conn;
         this.transactionHandler = transactionHandler;
-        this.mapper = mapper;
+        this.scriptLocator = scriptLocator;
         this.cache = new StatementCache(conn, repository, new HashMap(globals));
     }
 
@@ -140,10 +139,12 @@ class ConnectionHandle implements Handle
         }
     }
 
-    void clearStatementCacheInternal() throws CacheCloseException
+    public void clearStatementCacheInternal() throws CacheCloseException
     {
         final Collection exceptions = cache.close();
-        if (!exceptions.isEmpty())
+        if (exceptions.isEmpty())
+            return;
+        else
         {
             CacheCloseException e = new CacheCloseException();
             e.getExceptions().addAll(exceptions);
@@ -368,7 +369,13 @@ class ConnectionHandle implements Handle
             }
             while (results.next())
             {
-                final Map row = mapper.map(columns, results);
+                final Map row = new RowMap();
+                for (int i = 0; i != columns.length; i++)
+                {
+                    final String column = columns[i];
+                    final Object value = results.getObject(i + 1);
+                    row.put(column, value);
+                }
                 try
                 {
                     callback.eachRow(this, row);
@@ -416,7 +423,7 @@ class ConnectionHandle implements Handle
 
     public void script(final String name) throws DBIException, IOException
     {
-        new Script(this, name).run();
+        new Script(this, this.scriptLocator, name).run();
     }
 
     public void name(final String name, final String sql) throws DBIException
@@ -450,28 +457,5 @@ class ConnectionHandle implements Handle
     public Map getGlobalParameters()
     {
         return cache.getGlobals();
-    }
-
-    public Query createQuery(String sql)
-    {
-        return new HandleQuery(mapper, cache.find(sql));
-    }
-
-    public void close(Iterator i)
-    {
-        if (i instanceof ResultSetListIterator)
-        {
-            ResultSetListIterator ri = (ResultSetListIterator)i;
-            ri.close();
-        }
-    }
-
-    public void close(ListIterator i)
-    {
-        if (i instanceof ResultSetListIterator)
-        {
-            ResultSetListIterator ri = (ResultSetListIterator)i;
-            ri.close();
-        }
     }
 }

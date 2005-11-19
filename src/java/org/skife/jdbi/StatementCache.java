@@ -66,6 +66,7 @@ class StatementCache
 
     private StatementEnvelope locateStatement(final String statement) throws DBIException
     {
+        SQLException saved = null;
         if (this.envelopes.containsKey(statement))
         {
             return (StatementEnvelope) this.envelopes.get(statement);
@@ -84,9 +85,10 @@ class StatementCache
             catch (SQLException e)
             {
                 // may be a very weird named statement
+                saved = e;
             }
         }
-        String sql = null;
+        String sql;
         if ((sql = repository.get(statement)) != null)
         {
             try
@@ -100,8 +102,8 @@ class StatementCache
                                        e1.getMessage(), e1);
             }
         }
-
-        throw new DBIException("Unable to parse, or find an external representation of [" + statement + "]");
+        if (saved != null) throw new DBIException(saved.getMessage(), saved);
+        else throw new DBIException("Unable to parse, or find an external representation of [" + statement + "]");
     }
 
     String load(final String name) throws IOException

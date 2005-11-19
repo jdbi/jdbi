@@ -15,9 +15,13 @@
 package org.skife.jdbi;
 
 import org.skife.jdbi.tweak.ConnectionTransactionHandler;
+import org.skife.jdbi.tweak.ScriptLocator;
 import org.skife.jdbi.tweak.StatementLocator;
 import org.skife.jdbi.tweak.TransactionHandler;
-import org.skife.jdbi.unstable.RowMapper;
+import org.skife.jdbi.tweak.ChainedScriptLocator;
+import org.skife.jdbi.tweak.ClasspathScriptLocator;
+import org.skife.jdbi.tweak.FileSystemScriptLocator;
+import org.skife.jdbi.tweak.URLScriptLocator;
 import org.skife.jdbi.unstable.decorator.HandleDecorator;
 
 import javax.naming.InitialContext;
@@ -41,7 +45,12 @@ public class DBI implements IDBI
     private HandleDecorator handleDecorator = new NullHandleDecorator();
     private TransactionHandler transactionHandler = new ConnectionTransactionHandler();
     private Map globals = new HashMap();
-    private RowMapper mapper = new DefaultRowMapper();
+    private ScriptLocator scriptLocator = new ChainedScriptLocator(new ScriptLocator[]
+            {
+                    new ClasspathScriptLocator(),
+                    new FileSystemScriptLocator(),
+                    new URLScriptLocator()
+            });
 
     /**
      * Attempt to auto-configure a DBi instance
@@ -147,19 +156,6 @@ public class DBI implements IDBI
      * <tr>
      * <td>
      * <ul>
-     * <li>jdbi.row-mapper</li>
-     * <li>jdbc.row-mapper</li>
-     * <li>row-mapper</li>
-     * </ul>
-     * </td>
-     * <td>
-     * <b>OPTIONAL</b> <b>Unstable Feature</b> class name of a <code>RowMapper</code> which should
-     * be used to override default row mapping facility. Optional.
-     * </td>
-     * </tr>
-     * <tr>
-     * <td>
-     * <ul>
      * <li>jdbi.statement-locator</li>
      * <li>jdbc.statement-locator</li>
      * <li>statement-locator</li>
@@ -196,11 +192,6 @@ public class DBI implements IDBI
             if (l != null)
             {
                 repository.setLocator(l);
-            }
-            final RowMapper m = auto.getRowMapper();
-            if (m != null)
-            {
-                this.setRowMapper(mapper);
             }
         }
         catch (Exception e)
@@ -344,7 +335,7 @@ public class DBI implements IDBI
     /**
      * Obtain a map containing globally set named parameter values. All handles obtained
      * from this DBI instance will use these named parameters.
-     * <p>
+     * <p/>
      * Named parameters added to a handle will not be added to the DBI globals, and DBI globals added
      * after a handle is opened will not be added to the already open handles.
      */
@@ -369,7 +360,7 @@ public class DBI implements IDBI
                                                                        repository,
                                                                        transactionHandler,
                                                                        globals,
-                                                                       mapper));
+                                                                       scriptLocator));
         }
         catch (SQLException e)
         {
@@ -497,7 +488,7 @@ public class DBI implements IDBI
     /**
      * Specify a non-standard <code>TransactionHandler</code> which should be
      * used for all <code>Handle</code> instances created from this dbi.
-     * <p />
+     * <p/>
      * The default handler, if you specify none, will explicitely manage
      * transactions on the underlying JDBC connection.
      *
@@ -528,11 +519,16 @@ public class DBI implements IDBI
     }
 
     /**
-     * Specify a row mapper to be used for all handles obtained from this DBI instance
+     * Specify a script locator which will be used when the {@link Handle#script(String)} method
+     * is used for handles created from this DBI instance.
+     * <p>
+     * The default script locater uses a {@link ChainedScriptLocator} which first attempts a
+     * {@link ClasspathScriptLocator}, then {@link FileSystemScriptLocator}, then finally a
+     * {@link URLScriptLocator}.
      */
-    public void setRowMapper(RowMapper mapper)
+    public void setScriptLocator(ScriptLocator locator)
     {
-        this.mapper = mapper;
+        this.scriptLocator = locator;
     }
 
     /**

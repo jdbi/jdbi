@@ -42,11 +42,4 @@ public class TestNamedQueries extends TestCase
         List r = h.query("all-something");
         assertEquals(1, r.size());
     }
-
-    public void testScriptWithComments() throws Exception
-    {
-        h.script("insert-script-with-comments");
-        List r = h.query("all-something");
-        assertEquals(3, r.size());
-    }
 }

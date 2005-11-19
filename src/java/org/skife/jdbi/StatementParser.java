@@ -118,7 +118,7 @@ final class StatementParser
                         // token is inside quote
                         replaced.append(sql.substring(quote_matcher.start(), quote_matcher.end()));
 
-                        // iterator through tokens until we escape the quote
+                        // iterate through tokens until we escape the quote
                         while (last_token = token_matcher.find())
                         {
                             if (token_matcher.start() > quote_matcher.end())

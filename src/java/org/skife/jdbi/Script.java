@@ -15,6 +15,7 @@
 package org.skife.jdbi;
 
 import org.skife.jdbi.tweak.ClasspathStatementLocator;
+import org.skife.jdbi.tweak.ScriptLocator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,22 +25,35 @@ import java.io.InputStreamReader;
 class Script
 {
     private final Handle handle;
+    private final ScriptLocator scriptLocator;
     private final String name;
 
-    Script(final Handle handle, final String name)
+    Script(final Handle handle, ScriptLocator scriptLocator, final String name)
     {
         this.handle = handle;
+        this.scriptLocator = scriptLocator;
         this.name = name;
     }
 
     public void run() throws DBIException, IOException
     {
-        final ClassLoader loader = ClasspathStatementLocator.selectClassLoader();
         BufferedReader reader = null;
         Batch batch = handle.batch();
         try
         {
-            final InputStream in = loader.getResourceAsStream(name + ".sql");
+            final InputStream in;
+            try
+            {
+                in = scriptLocator.locate(name);
+            }
+            catch (Exception e)
+            {
+                throw new DBIException("Exception while looking for a script [" + e.getMessage() + "]", e);
+            }
+            if (in == null)
+            {
+                throw new DBIException("Unable to locate a script named [" + name + "]");
+            }
             reader = new BufferedReader(new InputStreamReader(in));
             String line;
             final StringBuffer buffer = new StringBuffer();
@@ -48,7 +62,7 @@ class Script
                 if (ClasspathStatementLocator.isComment(line)) continue;
                 buffer.append(line).append(" ");
             }
-            final String[] statements = buffer.toString().replaceAll("\n", " ").split(";");
+            final String[] statements = buffer.toString().replaceAll("\n", " ").replaceAll("\r", "").split(";");
 
             for (int i = 0; i != statements.length; i++)
             {

@@ -16,12 +16,11 @@ package org.skife.jdbi;
 
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.ConnectionHandle;
-import org.skife.jdbi.NamedStatementRepository;
+import org.skife.jdbi.tweak.ClasspathScriptLocator;
 import org.skife.jdbi.tweak.ConnectionTransactionHandler;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class TestGlobalRepository extends TestCase
 {
@@ -37,7 +36,7 @@ public class TestGlobalRepository extends TestCase
                                       repo,
                                       new ConnectionTransactionHandler(),
                                       new HashMap(),
-                                      new DefaultRowMapper());
+                                      new ClasspathScriptLocator());
     }
 
     public void tearDown() throws Exception

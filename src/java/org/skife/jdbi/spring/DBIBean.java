@@ -18,7 +18,6 @@ import org.skife.jdbi.ConnectionFactory;
 import org.skife.jdbi.DBI;
 import org.skife.jdbi.IDBI;
 import org.skife.jdbi.unstable.decorator.HandleDecorator;
-import org.skife.jdbi.unstable.RowMapper;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -68,7 +67,6 @@ public class DBIBean implements FactoryBean, InitializingBean
 {
     private DataSource dataSource;
     private HandleDecorator handleDecorator;
-    private RowMapper rowMapper;
 
     public DataSource getDataSource()
     {
@@ -91,11 +89,6 @@ public class DBIBean implements FactoryBean, InitializingBean
     public void setHandleDecoratorBuilder(HandleDecorator builder)
     {
         this.handleDecorator = builder;
-    }
-
-    public void setRowMapper(RowMapper mapper)
-    {
-        this.rowMapper = mapper;
     }
 
     public Object getObject() throws Exception

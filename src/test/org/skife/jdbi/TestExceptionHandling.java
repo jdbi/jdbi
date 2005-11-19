@@ -12,43 +12,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.unstable.theory;
+package org.skife.jdbi;
 
 import junit.framework.TestCase;
-import org.skife.jdbi.DBI;
-import org.skife.jdbi.Handle;
-import org.skife.jdbi.Something;
 import org.skife.jdbi.derby.Tools;
 
-import java.util.Iterator;
-import java.util.Map;
-
-public class TestTheory extends TestCase
+public class TestExceptionHandling extends TestCase
 {
     private Handle handle;
-    private Database database;
 
     public void setUp() throws Exception
     {
         Tools.start();
         Tools.dropAndCreateSomething();
-        handle = DBI.open(Tools.CONN_STRING);
-        database = new Database(Tools.CONN_STRING);
+        this.handle = DBI.open(Tools.CONN_STRING);
     }
 
     public void tearDown() throws Exception
     {
-        if (handle.isOpen()) handle.close();
         Tools.stop();
     }
 
-    public void testApiStuff() throws Exception
+    public void testSqlErrorAvailableInExceptions() throws Exception
     {
-        handle.execute("insert into something (id, name) values (:id, :name)", new Something(1, "brian"));
-
-        Relation something = database.getRelation("something");
-        Iterator i = something.iterator();
-        Map row = (Map) i.next();
-        assertEquals(new Integer(1), row.get("id"));
+        try
+        {
+            handle.query("select wombats from something");
+            fail("should throw an exception");
+        }
+        catch (DBIException e)
+        {
+            assertTrue( e.getMessage().startsWith("Column 'WOMBATS' is not in any table in the FROM list") );
+        }
     }
 }

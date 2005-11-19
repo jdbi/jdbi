@@ -30,18 +30,6 @@ class Configuration
     private String transactionHandler;
     private String statementLocator;
 
-    String getRowMapper()
-    {
-        return rowMapper;
-    }
-
-    void setRowMapper(String rowMapper)
-    {
-        this.rowMapper = rowMapper;
-    }
-
-    private String rowMapper;
-
     String getUsername()
     {
         return user;
