@@ -153,7 +153,7 @@
       <file leaf-file-name="RELEASE_NOTES" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1" column="74" selection-start="80" selection-end="80" vertical-scroll-proportion="0.014340344">
+            <state line="45" column="60" selection-start="1491" selection-end="1491" vertical-scroll-proportion="0.64531547">
               <folding />
             </state>
           </provider>
@@ -731,13 +731,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="54" selection-start="442" selection-end="442" vertical-scroll-proportion="0.1290631">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/IDBI.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="99" column="46" selection-start="3516" selection-end="3516" vertical-scroll-proportion="0.68451244">
@@ -761,16 +754,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="287" column="27" selection-start="11822" selection-end="11822" vertical-scroll-proportion="0.6099426">
+        <state line="45" column="60" selection-start="1491" selection-end="1491" vertical-scroll-proportion="0.64531547">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+    <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="74" selection-start="80" selection-end="80" vertical-scroll-proportion="0.014340344">
+        <state line="8" column="47" selection-start="394" selection-end="394" vertical-scroll-proportion="0.11472275">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="286" column="43" selection-start="11774" selection-end="11774" vertical-scroll-proportion="0.9397706">
           <folding />
         </state>
       </provider>
