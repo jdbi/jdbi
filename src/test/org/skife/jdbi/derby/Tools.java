@@ -14,8 +14,9 @@
  */
 package org.skife.jdbi.derby;
 
-import org.apache.derby.jdbc.EmbeddedDriver;
+import org.apache.derby.jdbc.EmbeddedDataSource;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,14 +33,11 @@ public class Tools
     public static final String CONN_STRING = "jdbc:derby:testing";
     public static Driver driver;
     public static boolean running = false;
+    public static EmbeddedDataSource dataSource;
 
-    public static final void start() throws IOException, SQLException, IOException
+    public static void start() throws IOException, SQLException, IOException
     {
-        if (running)
-        {
-
-        }
-        else
+        if (!running)
         {
             running = true;
             System.setProperty("derby.system.home", "build/db");
@@ -49,15 +47,17 @@ public class Tools
             derby.setProperty("derby.storage.fileSyncTransactionLog", "true");
             FileOutputStream outs = new FileOutputStream("build/db/derby.properties");
             derby.store(outs, "auto-generated properties for unit testing");
-            driver = new EmbeddedDriver();
-            DriverManager.registerDriver(driver);
 
-            final Connection conn = DriverManager.getConnection("jdbc:derby:testing;create=true");
+            dataSource = new EmbeddedDataSource();
+            dataSource.setCreateDatabase("create");
+            dataSource.setDatabaseName("testing");
+
+            final Connection conn = dataSource.getConnection();
             conn.close();
         }
     }
 
-    public final static void stop() throws SQLException
+    public static void stop() throws SQLException
     {
         final Connection conn = getConnection();
         final Statement delete = conn.createStatement();
@@ -73,9 +73,8 @@ public class Tools
         final String[] drops = {"drop table something",
                                 "drop function do_it",
                                 "drop procedure INSERTSOMETHING"};
-        for (int i = 0; i < drops.length; i++)
+        for (String drop : drops)
         {
-            final String drop = drops[i];
             final Statement stmt = conn.createStatement();
             try
             {
@@ -89,12 +88,12 @@ public class Tools
         }
     }
 
-    public static final Connection getConnection() throws SQLException
+    public static Connection getConnection() throws SQLException
     {
-        return DriverManager.getConnection(CONN_STRING);
+        return dataSource.getConnection();
     }
 
-    public static final void dropAndCreateSomething() throws SQLException
+    public static void dropAndCreateSomething() throws SQLException
     {
         final Connection conn = getConnection();
 
@@ -124,5 +123,10 @@ public class Tools
     public static String doIt()
     {
         return "it";
+    }
+
+    public static DataSource getDataSource()
+    {
+        return dataSource;
     }
 }
