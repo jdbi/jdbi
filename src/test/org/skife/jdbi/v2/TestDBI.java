@@ -16,13 +16,13 @@ package org.skife.jdbi.v2;
 
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class TestDBI extends TestCase
 {
-
     public void setUp() throws Exception
     {
         Tools.start();
@@ -72,7 +72,6 @@ public class TestDBI extends TestCase
             }
         });
 
-        Handle h = null;
         try
         {
             dbi.open();
@@ -82,5 +81,12 @@ public class TestDBI extends TestCase
         {
             assertTrue(true);
         }
+    }
+
+    public void testStaticHandleOpener() throws Exception
+    {
+        Handle h = DBI.open(Tools.dataSource);
+        assertNotNull(h);
+        h.close();
     }
 }

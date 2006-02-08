@@ -12,13 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2;
+package org.skife.jdbi.v2.exceptions;
 
-public interface Handle
+public class UnableToObtainConnectionException extends DBIException
 {
-    /**
-     * @throws org.skife.jdbi.v2.exceptions.UnableToCloseResourceException if any
-     * resources throw exception while closing
-     */
-    void close();
+    public UnableToObtainConnectionException(Throwable cause)
+    {
+        super(cause);
+    }
 }

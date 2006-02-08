@@ -14,6 +14,8 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
+
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
@@ -43,5 +45,10 @@ public class DBI
         {
             throw new UnableToObtainConnectionException(e);
         }
+    }
+
+    public static Handle open(DataSource dataSource)
+    {
+        return new DBI(dataSource).open();
     }
 }

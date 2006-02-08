@@ -14,11 +14,9 @@
  */
 package org.skife.jdbi.v2;
 
-public interface Handle
+import java.sql.ResultSet;
+
+public interface ResultSetMapper<T>
 {
-    /**
-     * @throws org.skife.jdbi.v2.exceptions.UnableToCloseResourceException if any
-     * resources throw exception while closing
-     */
-    void close();
+    public T map(int index, ResultSet r);
 }

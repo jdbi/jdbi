@@ -14,8 +14,11 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
+
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class BasicHandle implements Handle
 {
@@ -25,6 +28,15 @@ public class BasicHandle implements Handle
     {
         this.connection = connection;
     }
+
+    public Query<Map<String, Object>> createQuery(String sql)
+    {
+        return new Query<Map<String, Object>>(new DefaultMapper(),
+                                              connection,
+                                              sql);
+    }
+
+
 
     public void close()
     {
@@ -36,5 +48,10 @@ public class BasicHandle implements Handle
         {
             throw new UnableToCloseResourceException("Unable to close Connection", e);
         }
+    }
+
+    public SQLStatement createStatement(String sql)
+    {
+        return new SQLStatement(connection, sql);
     }
 }

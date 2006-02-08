@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2;
+package org.skife.jdbi.v2.exceptions;
 
-public class UnableToCloseResourceException extends DBIException
+public class UnableToCreateStatementException extends DBIException
 {
-    public UnableToCloseResourceException(String string, Throwable throwable)
+    public UnableToCreateStatementException(Exception e)
     {
-        super(string, throwable);
+        super(e);
     }
 }
