@@ -7,7 +7,7 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 /**
  * 
  */
-public class TestParameterBinding extends TestCase
+public class TestPositionalParameterBinding extends TestCase
 {
     private BasicHandle h;
 
@@ -91,8 +91,19 @@ public class TestParameterBinding extends TestCase
         }
     }
 
-    public void testNamedParameterBinding() throws Exception
+    public void testInsertParamBinding() throws Exception
     {
+        int count = h.createStatement("insert into something (id, name) values (?, 'eric')")
+                .setInteger(0, 1)
+                .execute();
 
+        assertEquals(1, count);
+    }
+
+    public void testPositionalConvenienceInsert() throws Exception
+    {
+        int count = h.insert("insert into something (id, name) values (?, ?)", 1, "eric");
+
+        assertEquals(1, count);
     }
 }

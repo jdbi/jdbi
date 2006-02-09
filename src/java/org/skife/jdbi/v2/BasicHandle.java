@@ -55,13 +55,19 @@ public class BasicHandle implements Handle
         return new SQLStatement(connection, sql);
     }
 
-    public int insert(String sql)
+    public int insert(String sql, Object... args)
     {
-        return update(sql);
+        return update(sql, args);
     }
 
-    public int update(String sql)
+    public int update(String sql, Object... args)
     {
-        return createStatement(sql).execute();
+        SQLStatement stmt = createStatement(sql);
+        int position = 0;
+        for (Object arg : args)
+        {
+            stmt.setObject(position++, arg);
+        }
+        return stmt.execute();
     }
 }

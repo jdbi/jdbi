@@ -41,5 +41,8 @@ public interface Handle
      * @param sql
      * @return the number of rows inserted
      */
-    public int insert(String sql);
+    public int insert(String sql, Object... args);
+
+
+    int update(String sql, Object... args);
 }
