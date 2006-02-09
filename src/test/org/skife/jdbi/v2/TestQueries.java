@@ -17,6 +17,8 @@ package org.skife.jdbi.v2;
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +39,6 @@ public class TestQueries extends TestCase
         Tools.stop();
     }
 
-    public void testStatement() throws Exception
-    {
-        int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        assertEquals(1, rows);
-    }
-
     public void testCreateQueryObject() throws Exception
     {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
@@ -56,8 +52,8 @@ public class TestQueries extends TestCase
 
     public void testMappedQueryObject() throws Exception
     {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
 
         Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
 
@@ -65,5 +61,23 @@ public class TestQueries extends TestCase
         Something eric = r.get(0);
         assertEquals("eric", eric.getName());
         assertEquals(1, eric.getId());
+    }
+
+    public void testMapper() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        Query<String> query = h.createQuery("select name from something order by id").map(new ResultSetMapper<String>()
+        {
+            public String map(int index, ResultSet r) throws SQLException
+            {
+                return r.getString(1);
+            }
+        });
+
+        String name = query.list().get(0);
+        assertEquals("eric", name);
+
     }
 }

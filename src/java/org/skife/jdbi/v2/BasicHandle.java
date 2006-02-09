@@ -54,4 +54,14 @@ public class BasicHandle implements Handle
     {
         return new SQLStatement(connection, sql);
     }
+
+    public int insert(String sql)
+    {
+        return update(sql);
+    }
+
+    public int update(String sql)
+    {
+        return createStatement(sql).execute();
+    }
 }

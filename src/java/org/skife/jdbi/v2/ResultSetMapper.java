@@ -15,8 +15,9 @@
 package org.skife.jdbi.v2;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public interface ResultSetMapper<T>
 {
-    public T map(int index, ResultSet r);
+    public T map(int index, ResultSet r) throws SQLException;
 }

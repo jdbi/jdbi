@@ -14,6 +14,8 @@
  */
 package org.skife.jdbi.v2;
 
+import java.util.Map;
+
 public interface Handle
 {
     /**
@@ -21,4 +23,23 @@ public interface Handle
      * resources throw exception while closing
      */
     void close();
+
+    /**
+     * Return a default Query instance which can be executed later, as long as this handle remains open.
+     * @param sql
+     */
+    Query<Map<String, Object>> createQuery(String sql);
+
+    /**
+     * Create an Insert or Update statement which returns the number of rows modified.
+     * @param sql
+     */
+    SQLStatement createStatement(String sql);
+
+    /**
+     * Execute a simple insert statement
+     * @param sql
+     * @return the number of rows inserted
+     */
+    public int insert(String sql);
 }

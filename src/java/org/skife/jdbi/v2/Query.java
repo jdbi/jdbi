@@ -22,20 +22,35 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.InputStream;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.net.URL;
 
 public class Query<ResultType>
 {
     private final Connection connection;
     private final String sql;
     private final ResultSetMapper<ResultType> mapper;
+    private Parameters params;
 
-    Query(ResultSetMapper<ResultType> mapper, Connection connection, String sql)
+    Query(Parameters params, ResultSetMapper<ResultType> mapper, Connection connection, String sql)
     {
+        this.params = params;
         this.mapper = mapper;
         this.connection = connection;
         this.sql = sql;
+    }
+
+    Query(ResultSetMapper<ResultType> mapper, Connection connection, String sql)
+    {
+        this(new Parameters(), mapper, connection, sql);
     }
 
     /**
@@ -56,6 +71,7 @@ public class Query<ResultType>
         {
             throw new UnableToCreateStatementException(e);
         }
+        params.apply(stmt);
         ResultSet rs;
         try
         {
@@ -81,8 +97,264 @@ public class Query<ResultType>
         }
     }
 
-    public <T> Query<T> map(Class<T> resultType)
+    public <Type> Query<Type> map(Class<Type> resultType)
     {
-        return new Query<T>(new BeanMapper<T>(resultType), connection, sql);
+        return this.map(new BeanMapper<Type>(resultType));
+    }
+
+    public <T> Query<T> map(ResultSetMapper<T> mapper)
+    {
+        return new Query<T>(params, mapper, connection, sql);
+    }
+
+
+    /* position param stuff */
+
+
+    private Query<ResultType> setPositional(int position, Argument arg)
+    {
+        params.addPositional(position, arg);
+        return this;
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setString(int position, String value)
+    {
+        return setPositional(position, new StringArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setInteger(int position, int value)
+    {
+        return setPositional(position, new IntegerArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @param length how long is the stream being bound?
+     * @return the same Query instance
+     */
+    public Query<ResultType> setAsciiStream(int position, InputStream value, int length)
+    {
+        return setPositional(position, new InputStreamArgument(value, length, true));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setBigDecimal(int position, BigDecimal value)
+    {
+        return setPositional(position, new BigDecimalArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setBinaryStream(int position, InputStream value, int length)
+    {
+        return setPositional(position, new InputStreamArgument(value, length, false));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setBlob(int position, Blob value)
+    {
+        return setPositional(position, new BlobArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setBoolean(int position, boolean value)
+    {
+        return setPositional(position, new BooleanArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setByte(int position, byte value)
+    {
+        return setPositional(position, new ByteArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setBytes(int position, byte[] value)
+    {
+        return setPositional(position, new ByteArrayArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setCharacterStream(int position, Reader value, int length)
+    {
+        return setPositional(position, new CharacterStreamArgument(value, length));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setClob(int position, Clob value)
+    {
+        return setPositional(position, new ClobArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setDate(int position, java.sql.Date value)
+    {
+        return setPositional(position, new SqlDateArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setDate(int position, java.util.Date value)
+    {
+        return setPositional(position, new JavaDateArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setDouble(int position, Double value)
+    {
+        return setPositional(position, new DoubleArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setFloat(int position, Float value)
+    {
+        return setPositional(position, new FloatArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setLongg(int position, long value)
+    {
+        return setPositional(position, new LongArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setObject(int position, Object value)
+    {
+        return setPositional(position, new ObjectArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setTime(int position, Time value)
+    {
+        return setPositional(position, new TimeArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setTimestamp(int position, Timestamp value)
+    {
+        return setPositional(position, new TimestampArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public Query<ResultType> setUrl(int position, URL value)
+    {
+        return setPositional(position, new URLArgument(value));
     }
 }
