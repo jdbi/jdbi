@@ -15,9 +15,17 @@
 package org.skife.jdbi.v2;
 
 import java.util.Map;
+import java.sql.Connection;
 
 public interface Handle
 {
+
+    /**
+     * Get the JDBC Connection this Handle uses
+     * @return the JDBC Connection this Handle uses 
+     */
+    Connection getConnection();
+
     /**
      * @throws org.skife.jdbi.v2.exceptions.UnableToCloseResourceException if any
      * resources throw exception while closing
@@ -25,24 +33,44 @@ public interface Handle
     void close();
 
     /**
+     * Start a transaction
+     */
+    void begin();
+
+    /**
+     * Commit a transaction
+     */
+    void commit();
+
+    /**
+     * Rollback a transaction
+     */
+    void rollback();
+
+    /**
      * Return a default Query instance which can be executed later, as long as this handle remains open.
-     * @param sql
+     * @param sql the query sql
      */
     Query<Map<String, Object>> createQuery(String sql);
 
     /**
      * Create an Insert or Update statement which returns the number of rows modified.
-     * @param sql
+     * @param sql The statement sql
      */
     SQLStatement createStatement(String sql);
 
     /**
      * Execute a simple insert statement
-     * @param sql
+     * @param sql the insert SQL
      * @return the number of rows inserted
      */
-    public int insert(String sql, Object... args);
+    int insert(String sql, Object... args);
 
-
+    /**
+     * Execute a simple update statement
+     * @param sql the update SQL
+     * @param args positional arguments
+     * @return the number of updated inserted
+     */
     int update(String sql, Object... args);
 }

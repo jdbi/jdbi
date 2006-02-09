@@ -15,7 +15,7 @@ public class TestPositionalParameterBinding extends TestCase
     {
         Tools.start();
         Tools.dropAndCreateSomething();
-        h = new BasicHandle(Tools.getConnection());
+        h = new BasicHandle(new LocalTransactionHandler(), Tools.getConnection());
     }
 
     public void tearDown() throws Exception

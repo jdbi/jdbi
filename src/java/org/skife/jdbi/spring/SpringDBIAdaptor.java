@@ -18,9 +18,9 @@ import org.skife.jdbi.DBIException;
 import org.skife.jdbi.Handle;
 import org.skife.jdbi.HandleCallback;
 import org.skife.jdbi.IDBI;
+import org.skife.jdbi.tweak.TransactionHandler;
 import org.skife.jdbi.unstable.decorator.HandleDecorator;
 import org.skife.jdbi.tweak.StatementLocator;
-import org.skife.jdbi.tweak.TransactionHandler;
 import org.skife.jdbi.tweak.ScriptLocator;
 import org.springframework.aop.framework.ProxyFactory;
 

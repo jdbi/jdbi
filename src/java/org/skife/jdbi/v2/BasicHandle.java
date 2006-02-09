@@ -15,6 +15,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
+import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,10 +23,12 @@ import java.util.Map;
 
 public class BasicHandle implements Handle
 {
+    private final TransactionHandler transactions;
     private final Connection connection;
 
-    public BasicHandle(Connection connection)
+    public BasicHandle(TransactionHandler transactions, Connection connection)
     {
+        this.transactions = transactions;
         this.connection = connection;
     }
 
@@ -37,6 +40,15 @@ public class BasicHandle implements Handle
     }
 
 
+    /**
+     * Get the JDBC Connection this Handle uses
+     *
+     * @return the JDBC Connection this Handle uses
+     */
+    public Connection getConnection()
+    {
+        return this.connection;
+    }
 
     public void close()
     {
@@ -48,6 +60,30 @@ public class BasicHandle implements Handle
         {
             throw new UnableToCloseResourceException("Unable to close Connection", e);
         }
+    }
+
+    /**
+     * Start a transaction
+     */
+    public void begin()
+    {
+        transactions.begin(this);
+    }
+
+    /**
+     * Commit a transaction
+     */
+    public void commit()
+    {
+        transactions.commit(this);
+    }
+
+    /**
+     * Rollback a transaction
+     */
+    public void rollback()
+    {
+        transactions.rollback(this);
     }
 
     public SQLStatement createStatement(String sql)

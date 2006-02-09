@@ -40,7 +40,7 @@ public class DBI
     {
         try
         {
-            return new BasicHandle(connectionFactory.openConnection());
+            return new BasicHandle(new LocalTransactionHandler(), connectionFactory.openConnection());
         }
         catch (SQLException e)
         {
