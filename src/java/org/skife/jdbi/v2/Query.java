@@ -17,6 +17,8 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -110,10 +112,16 @@ public class Query<ResultType>
 
     /* position param stuff */
 
-
-    private Query<ResultType> setPositional(int position, Argument arg)
+    /**
+     * Used if you need to have some exotic parameter bound.
+     *
+     * @param position position to bind this argument, starting at 0
+     * @param argument exotic argument factory
+     * @return the same Query instance
+     */
+    public Query<ResultType> setArgument(int position, Argument argument)
     {
-        params.addPositional(position, arg);
+        params.addPositional(position, argument);
         return this;
     }
 
@@ -126,7 +134,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setString(int position, String value)
     {
-        return setPositional(position, new StringArgument(value));
+        return setArgument(position, new StringArgument(value));
     }
 
     /**
@@ -138,7 +146,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setInteger(int position, int value)
     {
-        return setPositional(position, new IntegerArgument(value));
+        return setArgument(position, new IntegerArgument(value));
     }
 
     /**
@@ -151,7 +159,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setAsciiStream(int position, InputStream value, int length)
     {
-        return setPositional(position, new InputStreamArgument(value, length, true));
+        return setArgument(position, new InputStreamArgument(value, length, true));
     }
 
     /**
@@ -163,7 +171,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setBigDecimal(int position, BigDecimal value)
     {
-        return setPositional(position, new BigDecimalArgument(value));
+        return setArgument(position, new BigDecimalArgument(value));
     }
 
     /**
@@ -175,7 +183,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setBinaryStream(int position, InputStream value, int length)
     {
-        return setPositional(position, new InputStreamArgument(value, length, false));
+        return setArgument(position, new InputStreamArgument(value, length, false));
     }
 
     /**
@@ -187,7 +195,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setBlob(int position, Blob value)
     {
-        return setPositional(position, new BlobArgument(value));
+        return setArgument(position, new BlobArgument(value));
     }
 
     /**
@@ -199,7 +207,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setBoolean(int position, boolean value)
     {
-        return setPositional(position, new BooleanArgument(value));
+        return setArgument(position, new BooleanArgument(value));
     }
 
     /**
@@ -211,7 +219,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setByte(int position, byte value)
     {
-        return setPositional(position, new ByteArgument(value));
+        return setArgument(position, new ByteArgument(value));
     }
 
     /**
@@ -223,7 +231,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setBytes(int position, byte[] value)
     {
-        return setPositional(position, new ByteArrayArgument(value));
+        return setArgument(position, new ByteArrayArgument(value));
     }
 
     /**
@@ -235,7 +243,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setCharacterStream(int position, Reader value, int length)
     {
-        return setPositional(position, new CharacterStreamArgument(value, length));
+        return setArgument(position, new CharacterStreamArgument(value, length));
     }
 
     /**
@@ -247,7 +255,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setClob(int position, Clob value)
     {
-        return setPositional(position, new ClobArgument(value));
+        return setArgument(position, new ClobArgument(value));
     }
 
     /**
@@ -259,7 +267,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setDate(int position, java.sql.Date value)
     {
-        return setPositional(position, new SqlDateArgument(value));
+        return setArgument(position, new SqlDateArgument(value));
     }
 
     /**
@@ -271,7 +279,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setDate(int position, java.util.Date value)
     {
-        return setPositional(position, new JavaDateArgument(value));
+        return setArgument(position, new JavaDateArgument(value));
     }
 
     /**
@@ -283,7 +291,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setDouble(int position, Double value)
     {
-        return setPositional(position, new DoubleArgument(value));
+        return setArgument(position, new DoubleArgument(value));
     }
 
     /**
@@ -295,7 +303,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setFloat(int position, Float value)
     {
-        return setPositional(position, new FloatArgument(value));
+        return setArgument(position, new FloatArgument(value));
     }
 
     /**
@@ -307,7 +315,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setLongg(int position, long value)
     {
-        return setPositional(position, new LongArgument(value));
+        return setArgument(position, new LongArgument(value));
     }
 
     /**
@@ -319,7 +327,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setObject(int position, Object value)
     {
-        return setPositional(position, new ObjectArgument(value));
+        return setArgument(position, new ObjectArgument(value));
     }
 
     /**
@@ -331,7 +339,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setTime(int position, Time value)
     {
-        return setPositional(position, new TimeArgument(value));
+        return setArgument(position, new TimeArgument(value));
     }
 
     /**
@@ -343,7 +351,7 @@ public class Query<ResultType>
      */
     public Query<ResultType> setTimestamp(int position, Timestamp value)
     {
-        return setPositional(position, new TimestampArgument(value));
+        return setArgument(position, new TimestampArgument(value));
     }
 
     /**
@@ -355,6 +363,6 @@ public class Query<ResultType>
      */
     public Query<ResultType> setUrl(int position, URL value)
     {
-        return setPositional(position, new URLArgument(value));
+        return setArgument(position, new URLArgument(value));
     }
 }

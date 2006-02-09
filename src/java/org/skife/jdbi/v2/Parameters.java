@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,7 +31,7 @@ class Parameters
             catch (SQLException e)
             {
                 throw new UnableToExecuteStatementException(String.format("Error attempting " +
-                                                                          "to bind argument, %s, to stateemtn",
+                                                                          "to bind argument, %s, to statement",
                                                                           entry.getValue()), e);
             }
         }

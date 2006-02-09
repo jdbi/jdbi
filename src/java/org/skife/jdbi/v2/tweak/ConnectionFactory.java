@@ -12,12 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2;
+package org.skife.jdbi.v2.tweak;
 
-import java.sql.ResultSet;
+import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface ResultSetMapper<T>
+/**
+ * Interface which abstracts away how JDBC Connections are obtained
+ */
+public interface ConnectionFactory
 {
-    public T map(int index, ResultSet r) throws SQLException;
+    /**
+     * Provides a Connection
+     */
+    public Connection openConnection() throws SQLException;
 }

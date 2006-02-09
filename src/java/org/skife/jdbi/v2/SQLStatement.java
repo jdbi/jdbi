@@ -16,7 +16,7 @@ public class SQLStatement
     private final Connection connection;
     private final String sql;
 
-    public SQLStatement(Connection connection, String sql)
+    SQLStatement(Connection connection, String sql)
     {
         this.connection = connection;
         this.sql = sql;

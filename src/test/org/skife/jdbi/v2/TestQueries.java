@@ -16,6 +16,7 @@ package org.skife.jdbi.v2;
 
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
