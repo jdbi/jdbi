@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 public class NamedParameterStatementRewriter implements StatementRewriter
 {
-    public ReWrittenStatement rewrite(String raw)
+    public ReWrittenStatement rewrite(String raw, Parameters params)
     {
         ParsedStatement ps = new ParsedStatement(raw);
         return new MyReWrittenStatement(ps);

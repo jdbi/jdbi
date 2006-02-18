@@ -39,7 +39,7 @@ public class SQLStatement
 
     public int execute()
     {
-        ReWrittenStatement rewritten = statementRewriter.rewrite(sql);
+        ReWrittenStatement rewritten = statementRewriter.rewrite(sql, params);
 
         final PreparedStatement stmt;
         try

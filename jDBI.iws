@@ -134,37 +134,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="BasicHandle.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
+      <file leaf-file-name="StatementRewriter.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementRewriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="27" selection-start="1926" selection-end="1926" vertical-scroll-proportion="0.83048433">
+            <state line="9" column="60" selection-start="181" selection-end="181" vertical-scroll-proportion="0.20512821">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SQLStatement.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="74" column="100" selection-start="2070" selection-end="2070" vertical-scroll-proportion="0.57977206">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Query.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="91" column="91" selection-start="3135" selection-end="3135" vertical-scroll-proportion="0.7037037">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="NamedParameterStatementRewriter.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="NamedParameterStatementRewriter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NamedParameterStatementRewriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="42" column="0" selection-start="1419" selection-end="1419" vertical-scroll-proportion="0.34757835">
+            <state line="25" column="54" selection-start="970" selection-end="970" vertical-scroll-proportion="0.26068377">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -172,20 +154,31 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TestPositionalParameterBinding.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPositionalParameterBinding.java">
+      <file leaf-file-name="Query.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="0" selection-start="1118" selection-end="1118" vertical-scroll-proportion="0.37891737">
+            <state line="75" column="76" selection-start="2686" selection-end="2686" vertical-scroll-proportion="0.21509972">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TestNamedParams.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNamedParams.java">
+      <file leaf-file-name="SQLStatement.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="16" selection-start="107" selection-end="107" vertical-scroll-proportion="0.15954416">
+            <state line="41" column="76" selection-start="1229" selection-end="1229" vertical-scroll-proportion="0.21509972">
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ReWrittenStatement.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ReWrittenStatement.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="27" selection-start="885" selection-end="885" vertical-scroll-proportion="0.5669516">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -816,19 +809,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ReWrittenStatement.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ParsedStatement.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="81" selection-start="1224" selection-end="1224" vertical-scroll-proportion="0.77492875">
+        <state line="32" column="34" selection-start="1180" selection-end="1180" vertical-scroll-proportion="0.33333334">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementRewriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="22" selection-start="105" selection-end="105" vertical-scroll-proportion="0.15954416">
-          <folding />
         </state>
       </provider>
     </entry>
@@ -839,23 +825,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Parameters.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPositionalParameterBinding.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="16" selection-start="1092" selection-end="1380" vertical-scroll-proportion="0.88500726">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="74" column="100" selection-start="2070" selection-end="2070" vertical-scroll-proportion="0.57977206">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="91" column="91" selection-start="3135" selection-end="3135" vertical-scroll-proportion="0.7037037">
+        <state line="37" column="0" selection-start="1118" selection-end="1118" vertical-scroll-proportion="0.37891737">
           <folding />
         </state>
       </provider>
@@ -867,28 +839,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ParsedStatement.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Parameters.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="34" selection-start="1180" selection-end="1180" vertical-scroll-proportion="0.33333334">
+        <state line="15" column="30" selection-start="346" selection-end="346" vertical-scroll-proportion="0.2735043">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ReWrittenStatement.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="27" selection-start="885" selection-end="885" vertical-scroll-proportion="0.5669516">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPositionalParameterBinding.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementRewriter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="0" selection-start="1118" selection-end="1118" vertical-scroll-proportion="0.37891737">
+        <state line="9" column="60" selection-start="181" selection-end="181" vertical-scroll-proportion="0.20512821">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NamedParameterStatementRewriter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="0" selection-start="1419" selection-end="1419" vertical-scroll-proportion="0.34757835">
+        <state line="25" column="54" selection-start="970" selection-end="970" vertical-scroll-proportion="0.26068377">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="75" column="76" selection-start="2686" selection-end="2686" vertical-scroll-proportion="0.21509972">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="76" selection-start="1229" selection-end="1229" vertical-scroll-proportion="0.21509972">
+          <folding />
         </state>
       </provider>
     </entry>
