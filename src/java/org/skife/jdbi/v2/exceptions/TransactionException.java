@@ -14,4 +14,9 @@ public class TransactionException extends DBIException
     {
         super(cause);
     }
+
+    public TransactionException(String msg)
+    {
+        super(msg);
+    }
 }

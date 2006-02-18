@@ -17,6 +17,7 @@ package org.skife.jdbi.v2;
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -79,6 +80,5 @@ public class TestQueries extends TestCase
 
         String name = query.list().get(0);
         assertEquals("eric", name);
-
     }
 }

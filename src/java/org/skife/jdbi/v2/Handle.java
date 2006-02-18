@@ -35,17 +35,17 @@ public interface Handle
     /**
      * Start a transaction
      */
-    void begin();
+    Handle begin();
 
     /**
      * Commit a transaction
      */
-    void commit();
+    Handle commit();
 
     /**
      * Rollback a transaction
      */
-    void rollback();
+    Handle rollback();
 
     /**
      * Return a default Query instance which can be executed later, as long as this handle remains open.

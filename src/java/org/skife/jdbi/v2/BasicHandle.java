@@ -39,7 +39,6 @@ public class BasicHandle implements Handle
                                               sql);
     }
 
-
     /**
      * Get the JDBC Connection this Handle uses
      *
@@ -65,25 +64,28 @@ public class BasicHandle implements Handle
     /**
      * Start a transaction
      */
-    public void begin()
+    public Handle begin()
     {
         transactions.begin(this);
+        return this;
     }
 
     /**
      * Commit a transaction
      */
-    public void commit()
+    public Handle commit()
     {
         transactions.commit(this);
+        return this;
     }
 
     /**
      * Rollback a transaction
      */
-    public void rollback()
+    public Handle rollback()
     {
         transactions.rollback(this);
+        return this;
     }
 
     public SQLStatement createStatement(String sql)

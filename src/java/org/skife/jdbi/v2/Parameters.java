@@ -14,6 +14,7 @@ import java.util.Map;
 class Parameters
 {
     private Map<Integer, Argument> positionals = new HashMap<Integer, Argument>();
+    private Map<String, Argument> named = new HashMap<String, Argument>();
 
     public void addPositional(int position, Argument parameter)
     {
@@ -35,5 +36,10 @@ class Parameters
                                                                           entry.getValue()), e);
             }
         }
+    }
+
+    public void addNamed(String name, Argument argument)
+    {
+        this.named.put(name, argument);
     }
 }

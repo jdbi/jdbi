@@ -26,9 +26,6 @@ final class StatementParser
     private static final Pattern TOKEN_PATTERN = Pattern.compile(":(\\w+)");
     private static final Pattern QUOTE_PATTERN = Pattern.compile("'.*'");
 
-    /**
-     * @todo vastly improve plz
-     */
     private static final Pattern IN_PARAM_PATTERN = Pattern.compile("\\sin\\s*\\(\\?\\)");
 
     private static final String[] EMPTY = new String[]{};

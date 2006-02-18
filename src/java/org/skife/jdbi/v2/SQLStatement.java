@@ -89,6 +89,19 @@ public class SQLStatement
     }
 
     /**
+     * Used if you need to have some exotic parameter bound.
+     *
+     * @param name     name to bind this argument
+     * @param argument exotic argument factory
+     * @return the same Query instance
+     */
+    public SQLStatement setArgument(String name, Argument argument)
+    {
+        params.addNamed(name, argument);
+        return this;
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -101,6 +114,18 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setString(String name, String value)
+    {
+        return setArgument(name, new StringArgument(value));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -110,6 +135,18 @@ public class SQLStatement
     public SQLStatement setInteger(int position, int value)
     {
         return setArgument(position, new IntegerArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setInteger(String name, int value)
+    {
+        return setArgument(name, new IntegerArgument(value));
     }
 
     /**
@@ -126,6 +163,19 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name   token name to bind the paramater to
+     * @param value  to bind
+     * @param length bytes to read from value
+     * @return the same Query instance
+     */
+    public SQLStatement setAsciiStream(String name, InputStream value, int length)
+    {
+        return setArgument(name, new InputStreamArgument(value, length, true));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -135,6 +185,18 @@ public class SQLStatement
     public SQLStatement setBigDecimal(int position, BigDecimal value)
     {
         return setArgument(position, new BigDecimalArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setBigDecimal(String name, BigDecimal value)
+    {
+        return setArgument(name, new BigDecimalArgument(value));
     }
 
     /**
@@ -150,6 +212,19 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name   token name to bind the paramater to
+     * @param value  to bind
+     * @param length bytes to read from value
+     * @return the same Query instance
+     */
+    public SQLStatement setBinaryStream(String name, InputStream value, int length)
+    {
+        return setArgument(name, new InputStreamArgument(value, length, false));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -159,6 +234,18 @@ public class SQLStatement
     public SQLStatement setBlob(int position, Blob value)
     {
         return setArgument(position, new BlobArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setBlob(String name, Blob value)
+    {
+        return setArgument(name, new BlobArgument(value));
     }
 
     /**
@@ -174,6 +261,18 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setBoolean(String name, boolean value)
+    {
+        return setArgument(name, new BooleanArgument(value));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -183,6 +282,18 @@ public class SQLStatement
     public SQLStatement setByte(int position, byte value)
     {
         return setArgument(position, new ByteArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setByte(String name, byte value)
+    {
+        return setArgument(name, new ByteArgument(value));
     }
 
     /**
@@ -198,15 +309,41 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setBytes(String name, byte[] value)
+    {
+        return setArgument(name, new ByteArrayArgument(value));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
      * @param value    to bind
+     * @param length   number of characters to read
      * @return the same Query instance
      */
     public SQLStatement setCharacterStream(int position, Reader value, int length)
     {
         return setArgument(position, new CharacterStreamArgument(value, length));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name   token name to bind the paramater to
+     * @param value  to bind
+     * @param length number of characters to read
+     * @return the same Query instance
+     */
+    public SQLStatement setCharacterStream(String name, Reader value, int length)
+    {
+        return setArgument(name, new CharacterStreamArgument(value, length));
     }
 
     /**
@@ -222,6 +359,18 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setClob(String name, Clob value)
+    {
+        return setArgument(name, new ClobArgument(value));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -231,6 +380,18 @@ public class SQLStatement
     public SQLStatement setDate(int position, java.sql.Date value)
     {
         return setArgument(position, new SqlDateArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setDate(String name, java.sql.Date value)
+    {
+        return setArgument(name, new SqlDateArgument(value));
     }
 
     /**
@@ -246,6 +407,18 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setDate(String name, java.util.Date value)
+    {
+        return setArgument(name, new JavaDateArgument(value));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -255,6 +428,18 @@ public class SQLStatement
     public SQLStatement setDouble(int position, Double value)
     {
         return setArgument(position, new DoubleArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setDouble(String name, Double value)
+    {
+        return setArgument(name, new DoubleArgument(value));
     }
 
     /**
@@ -270,15 +455,39 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setFloat(String name, Float value)
+    {
+        return setArgument(name, new FloatArgument(value));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setLongg(int position, long value)
+    public SQLStatement setLong(int position, long value)
     {
         return setArgument(position, new LongArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setLong(String name, long value)
+    {
+        return setArgument(name, new LongArgument(value));
     }
 
     /**
@@ -294,6 +503,18 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setObject(String name, Object value)
+    {
+        return setArgument(name, new ObjectArgument(value));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -303,6 +524,18 @@ public class SQLStatement
     public SQLStatement setTime(int position, Time value)
     {
         return setArgument(position, new TimeArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setTime(String name, Time value)
+    {
+        return setArgument(name, new TimeArgument(value));
     }
 
     /**
@@ -318,6 +551,18 @@ public class SQLStatement
     }
 
     /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setTimestamp(String name, Timestamp value)
+    {
+        return setArgument(name, new TimestampArgument(value));
+    }
+
+    /**
      * Bind an argument positionally
      *
      * @param position position to bind the paramater at, starting at 0
@@ -329,5 +574,15 @@ public class SQLStatement
         return setArgument(position, new URLArgument(value));
     }
 
-
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     * @return the same Query instance
+     */
+    public SQLStatement setUrl(String name, URL value)
+    {
+        return setArgument(name, new URLArgument(value));
+    }
 }

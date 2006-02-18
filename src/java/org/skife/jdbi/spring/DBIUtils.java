@@ -17,7 +17,6 @@ package org.skife.jdbi.spring;
 import org.skife.jdbi.DBIException;
 import org.skife.jdbi.Handle;
 import org.skife.jdbi.IDBI;
-import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -51,7 +50,7 @@ public class DBIUtils
     }
 
     /**
-     * When used in conjuntion with <code>Handle#getHandle()</code> will only close the
+     * When used in conjuntion with <code>Handle#openHandle()</code> will only close the
      * handle if it is not bound to an ongoing Spring transaction. If it is bound to a
      * transaction then the Handle will be closed when the transaction completes
      * and this will noop.
