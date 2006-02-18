@@ -32,7 +32,9 @@ public class TestQueries extends TestCase
     {
         Tools.start();
         Tools.dropAndCreateSomething();
-        h = new BasicHandle(new LocalTransactionHandler(), Tools.getConnection());
+        h = new BasicHandle(new LocalTransactionHandler(),
+                            new NamedParameterStatementRewriter(),
+                            Tools.getConnection());
     }
 
     public void tearDown() throws Exception

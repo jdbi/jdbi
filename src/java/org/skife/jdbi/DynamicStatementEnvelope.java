@@ -32,7 +32,6 @@ class DynamicStatementEnvelope implements StatementEnvelope
     DynamicStatementEnvelope(Connection conn, StatementParser parser)
     {
         this.conn = conn;
-
         this.parser = parser;
     }
 

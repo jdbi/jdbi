@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * 
  */
-class Parameters
+public class Parameters
 {
     private Map<Integer, Argument> positionals = new HashMap<Integer, Argument>();
     private Map<String, Argument> named = new HashMap<String, Argument>();
@@ -21,6 +21,17 @@ class Parameters
         positionals.put(position, parameter);
     }
 
+    public Argument forName(String name)
+    {
+        return named.get(name);
+    }
+
+    public Argument forPosition(int position)
+    {
+        return positionals.get(position);
+    }
+
+    @Deprecated
     void apply(PreparedStatement statement)
     {
         for (Map.Entry<Integer, Argument> entry : positionals.entrySet())

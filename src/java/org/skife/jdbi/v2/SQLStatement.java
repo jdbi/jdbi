@@ -4,6 +4,8 @@ import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -25,9 +27,11 @@ public class SQLStatement
     private final Connection connection;
     private final String sql;
     private Parameters params;
+    private final StatementRewriter statementRewriter;
 
-    SQLStatement(Connection connection, String sql)
+    SQLStatement(Connection connection, StatementRewriter statementRewriter, String sql)
     {
+        this.statementRewriter = statementRewriter;
         this.params = new Parameters();
         this.connection = connection;
         this.sql = sql;
@@ -35,16 +39,25 @@ public class SQLStatement
 
     public int execute()
     {
+        ReWrittenStatement rewritten = statementRewriter.rewrite(sql);
+
         final PreparedStatement stmt;
         try
         {
-            stmt = connection.prepareStatement(sql);
+            stmt = connection.prepareStatement(rewritten.getSql());
         }
         catch (SQLException e)
         {
             throw new UnableToCreateStatementException(e);
         }
-        params.apply(stmt);
+        try
+        {
+            rewritten.bind(params, stmt);
+        }
+        catch (SQLException e)
+        {
+            throw new UnableToExecuteStatementException("Unable to bind arguments to statement", e);
+        }
         try
         {
             int count = stmt.executeUpdate();

@@ -19,6 +19,8 @@ import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -37,22 +39,28 @@ import java.util.List;
 
 public class Query<ResultType>
 {
+    private final StatementRewriter statementRewriter;
     private final Connection connection;
     private final String sql;
     private final ResultSetMapper<ResultType> mapper;
     private Parameters params;
 
-    Query(Parameters params, ResultSetMapper<ResultType> mapper, Connection connection, String sql)
+    Query(Parameters params,
+          ResultSetMapper<ResultType> mapper,
+          StatementRewriter statementRewriter,
+          Connection connection,
+          String sql)
     {
         this.params = params;
         this.mapper = mapper;
+        this.statementRewriter = statementRewriter;
         this.connection = connection;
         this.sql = sql;
     }
 
-    Query(ResultSetMapper<ResultType> mapper, Connection connection, String sql)
+    Query(ResultSetMapper<ResultType> mapper, StatementRewriter statementRewriter, Connection connection, String sql)
     {
-        this(new Parameters(), mapper, connection, sql);
+        this(new Parameters(), mapper, statementRewriter, connection, sql);
     }
 
     /**
@@ -65,16 +73,24 @@ public class Query<ResultType>
      */
     public List<ResultType> list()
     {
+        ReWrittenStatement rewritten = statementRewriter.rewrite(sql);
         final PreparedStatement stmt;
         try
         {
-            stmt = connection.prepareStatement(sql);
+            stmt = connection.prepareStatement(rewritten.getSql());
         }
         catch (SQLException e)
         {
             throw new UnableToCreateStatementException(e);
         }
-        params.apply(stmt);
+        try
+        {
+            rewritten.bind(params, stmt);
+        }
+        catch (SQLException e)
+        {
+            throw new UnableToExecuteStatementException("Unable to bind parameters to query", e);
+        }
         ResultSet rs;
         try
         {
@@ -108,7 +124,7 @@ public class Query<ResultType>
 
     public <T> Query<T> map(ResultSetMapper<T> mapper)
     {
-        return new Query<T>(params, mapper, connection, sql);
+        return new Query<T>(params, mapper, statementRewriter, connection, sql);
     }
 
     /* position param stuff */

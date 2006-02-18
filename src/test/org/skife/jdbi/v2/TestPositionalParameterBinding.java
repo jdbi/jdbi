@@ -16,7 +16,9 @@ public class TestPositionalParameterBinding extends TestCase
     {
         Tools.start();
         Tools.dropAndCreateSomething();
-        h = new BasicHandle(new LocalTransactionHandler(), Tools.getConnection());
+        h = new BasicHandle(new LocalTransactionHandler(),
+                            new NamedParameterStatementRewriter(),
+                            Tools.getConnection());
     }
 
     public void tearDown() throws Exception
@@ -33,7 +35,8 @@ public class TestPositionalParameterBinding extends TestCase
         Something eric = h.createQuery("select * from something where name = ?")
                 .setString(0, "eric")
                 .map(Something.class)
-                .list().get(0);
+                .list()
+                .get(0);
         assertEquals(1, eric.getId());
     }
 

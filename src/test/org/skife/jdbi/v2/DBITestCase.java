@@ -38,7 +38,9 @@ public abstract class DBITestCase extends TestCase
 
     protected BasicHandle openHandle() throws SQLException
     {
-        BasicHandle h = new BasicHandle(getTransactionHandler(), Tools.getConnection());
+        BasicHandle h = new BasicHandle(getTransactionHandler(),
+                                        new NamedParameterStatementRewriter(),
+                                        Tools.getConnection());
         handles.add(h);
         return h;
     }

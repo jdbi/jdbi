@@ -16,6 +16,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -25,9 +26,13 @@ public class BasicHandle implements Handle
 {
     private final TransactionHandler transactions;
     private final Connection connection;
+    private StatementRewriter statementRewriter;
 
-    public BasicHandle(TransactionHandler transactions, Connection connection)
+    public BasicHandle(TransactionHandler transactions,
+                       StatementRewriter statementRewriter,
+                       Connection connection)
     {
+        this.statementRewriter = statementRewriter;
         this.transactions = transactions;
         this.connection = connection;
     }
@@ -35,6 +40,7 @@ public class BasicHandle implements Handle
     public Query<Map<String, Object>> createQuery(String sql)
     {
         return new Query<Map<String, Object>>(new DefaultMapper(),
+                                              statementRewriter,
                                               connection,
                                               sql);
     }
@@ -49,7 +55,7 @@ public class BasicHandle implements Handle
         return this.connection;
     }
 
-    public void close()
+    public void close()    
     {
         try
         {
@@ -90,7 +96,7 @@ public class BasicHandle implements Handle
 
     public SQLStatement createStatement(String sql)
     {
-        return new SQLStatement(connection, sql);
+        return new SQLStatement(connection, statementRewriter, sql);
     }
 
     public int insert(String sql, Object... args)
