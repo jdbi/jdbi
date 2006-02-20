@@ -65,7 +65,7 @@ public class Query<ResultType>
 
     /**
      * Executes the query
-     * <p>
+     * <p/>
      * Will eagerly load all results
      *
      * @return
@@ -89,12 +89,12 @@ public class Query<ResultType>
                 }
                 return result_list;
             }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES);
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
     }
 
     /**
      * Executes the query.
-     * <p>
+     * <p/>
      * Specifies a maximum of one result on the JDBC statement, and map that one result
      * as the return value, or return null if there is nothing in the results
      *
@@ -116,58 +116,61 @@ public class Query<ResultType>
                     return null;
                 }
             }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES);
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
     }
 
     private <Result> Result internalExecute(final QueryPreperator prep,
                                             final QueryResultMunger<Result> munger,
-                                            QueryPostMungeCleanup cleanup)
+                                            final QueryPostMungeCleanup cleanup)
     {
-        ReWrittenStatement rewritten = statementRewriter.rewrite(sql, params);
-        final PreparedStatement stmt;
+        final ReWrittenStatement rewritten = statementRewriter.rewrite(sql, params);
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         try
         {
-            stmt = connection.prepareStatement(rewritten.getSql());
-        }
-        catch (SQLException e)
-        {
-            throw new UnableToCreateStatementException(e);
-        }
-        try
-        {
-            rewritten.bind(params, stmt);
-        }
-        catch (SQLException e)
-        {
-            throw new UnableToExecuteStatementException("Unable to bind parameters to query", e);
-        }
+            try
+            {
+                stmt = connection.prepareStatement(rewritten.getSql());
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToCreateStatementException(e);
+            }
+            try
+            {
+                rewritten.bind(params, stmt);
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToExecuteStatementException("Unable to bind parameters to query", e);
+            }
 
-        try
-        {
-            prep.prepare(stmt);
-        }
-        catch (SQLException e)
-        {
-            throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
-        }
+            try
+            {
+                prep.prepare(stmt);
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
+            }
 
-        ResultSet rs;
-        try
-        {
-            rs = stmt.executeQuery();
-        }
-        catch (SQLException e)
-        {
-            throw new UnableToExecuteStatementException(e);
-        }
+            try
+            {
+                rs = stmt.executeQuery();
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToExecuteStatementException(e);
+            }
 
-        try
-        {
-            return munger.munge(rs);
-        }
-        catch (SQLException e)
-        {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e);
+            try
+            {
+                return munger.munge(rs);
+            }
+            catch (SQLException e)
+            {
+                throw new ResultSetException("Exception thrown while attempting to traverse the result set", e);
+            }
         }
         finally
         {

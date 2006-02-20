@@ -14,25 +14,10 @@
  */
 package org.skife.jdbi.v2.exceptions;
 
-import java.sql.SQLException;
-
 public class UnableToCloseResourceException extends DBIException
 {
-    private SQLException otherException;
-
     public UnableToCloseResourceException(String string, Throwable throwable)
     {
         super(string, throwable);
-    }
-
-    public UnableToCloseResourceException(String msg, SQLException first, SQLException second)
-    {
-        super(msg, first);
-        this.otherException = second;
-    }
-
-    public SQLException getOtherException()
-    {
-        return otherException;
     }
 }

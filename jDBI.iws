@@ -137,16 +137,16 @@
       <file leaf-file-name="Query.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="118" column="26" selection-start="4067" selection-end="4067" vertical-scroll-proportion="0.69825435">
+            <state line="145" column="14" selection-start="5031" selection-end="5031" vertical-scroll-proportion="0.99750626">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SQLStatement.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
+      <file leaf-file-name="UnableToCloseResourceException.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToCloseResourceException.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="96" column="19" selection-start="2796" selection-end="2796" vertical-scroll-proportion="1.5841346">
+            <state line="17" column="1" selection-start="708" selection-end="708" vertical-scroll-proportion="0.15384616">
               <folding />
             </state>
           </provider>
@@ -388,6 +388,40 @@
       </PATH_ELEMENT>
       <PATH_ELEMENT>
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -799,16 +833,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToCloseResourceException.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="39" selection-start="865" selection-end="865" vertical-scroll-proportion="0.22792023">
+        <state line="50" column="105" selection-start="1470" selection-end="1470" vertical-scroll-proportion="0.2008547">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/QueryPostMungeCleanup.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="78" selection-start="989" selection-end="989" vertical-scroll-proportion="0.5470086">
+        <state line="38" column="31" selection-start="1229" selection-end="1229" vertical-scroll-proportion="0.52136755">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -817,14 +851,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="26" selection-start="4067" selection-end="4067" vertical-scroll-proportion="0.69825435">
+        <state line="145" column="14" selection-start="5031" selection-end="5031" vertical-scroll-proportion="0.99750626">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToCloseResourceException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="96" column="19" selection-start="2796" selection-end="2796" vertical-scroll-proportion="1.5841346">
+        <state line="17" column="1" selection-start="708" selection-end="708" vertical-scroll-proportion="0.15384616">
           <folding />
         </state>
       </provider>

@@ -14,19 +14,16 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 interface QueryPostMungeCleanup
 {
-    final QueryPostMungeCleanup CLOSE_RESOURCES = new QueryPostMungeCleanup()
+    final QueryPostMungeCleanup CLOSE_RESOURCES_QUIETLY = new QueryPostMungeCleanup()
     {
         public void cleanup(Query query, PreparedStatement stmt, ResultSet rs)
         {
-            SQLException from_closing_result_set = null;
             if (rs != null)
             {
                 try
@@ -35,11 +32,10 @@ interface QueryPostMungeCleanup
                 }
                 catch (SQLException e)
                 {
-                    from_closing_result_set = e;
+                    // nothing we can do
                 }
             }
 
-            SQLException from_closing_statement = null;
             if (stmt != null)
             {
                 try
@@ -48,33 +44,8 @@ interface QueryPostMungeCleanup
                 }
                 catch (SQLException e)
                 {
-                    from_closing_statement = e;
+                    // nothing we can do
                 }
-            }
-            if (from_closing_statement == null && from_closing_result_set == null)
-            {
-                // went smoothly
-            }
-            else if (from_closing_result_set != null && from_closing_statement == null)
-            {
-                // closing rs errored
-                throw new UnableToCloseResourceException("Unable to close result set",
-                                                         from_closing_result_set);
-            }
-            else if (from_closing_result_set == null)
-            {
-                // closing stmt errored
-                throw new UnableToCloseResourceException("Unable to close statement",
-                                                         from_closing_statement);
-            }
-            else
-            {
-                // both errored!
-                throw new UnableToCloseResourceException("Exceptions closing both statement and result set, " +
-                                                         "get cause for result set exception, getOtherException() " +
-                                                         "for the statement exception",
-                                                         from_closing_result_set,
-                                                         from_closing_statement);
             }
         }
     };
