@@ -17,6 +17,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -49,7 +50,7 @@ public class NamedParameterStatementRewriter implements StatementRewriter
                     Argument a = params.forPosition(i);
                     if (a != null)
                     {
-                        a.apply(i+1, statement);
+                        a.apply(i + 1, statement);
                     }
                     else
                     {
@@ -63,8 +64,22 @@ public class NamedParameterStatementRewriter implements StatementRewriter
                 for (int i = 0; i < named_params.length; i++)
                 {
                     String named_param = named_params[i];
+
                     Argument a = params.forName(named_param);
-                    a.apply(i+1, statement);
+                    if (a == null)
+                    {
+                        a = params.forPosition(i);
+                    }
+
+                    if (a == null) {
+                        String msg = String.format("Unable to execute, no named parameter matches " +
+                                                   "\"%s\" and no positional param for place %d (which is %d in " +
+                                                   "the JDBC 'start at 1' scheme) has been set.",
+                                                   named_param, i, i+1);
+                        throw new UnableToExecuteStatementException(msg);
+                    }
+
+                    a.apply(i + 1, statement);
                 }
             }
         }

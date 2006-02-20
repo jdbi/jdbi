@@ -4,8 +4,8 @@ import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.ReWrittenStatement;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -83,6 +83,19 @@ public class SQLStatement
                 msg = String.format("%s and unable to close the statetement [%s]", msg, e1.getMessage());
             }
             throw new UnableToExecuteStatementException(msg, e);
+        }
+        finally
+        {
+            try
+            {
+                if (stmt != null) { stmt.close(); }
+            }
+            catch (SQLException e)
+            {
+                // yes this is ugly, no this shouldn't throw an exception
+                //noinspection ThrowFromFinallyBlock
+                throw new UnableToCloseResourceException("Unable to close prepared statement", e);
+            }
         }
     }
 

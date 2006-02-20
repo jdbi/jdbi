@@ -18,9 +18,9 @@ import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -64,6 +64,10 @@ public class Query<ResultType>
     }
 
     /**
+     * Executes the query
+     * <p>
+     * Will eagerly load all results
+     *
      * @return
      * @throws UnableToCreateStatementException
      *                            if there is an error creating the statement
@@ -72,6 +76,52 @@ public class Query<ResultType>
      * @throws ResultSetException if there is an error dealing with the result set
      */
     public List<ResultType> list()
+    {
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<List<ResultType>>()
+        {
+            public List<ResultType> munge(ResultSet rs) throws SQLException
+            {
+                List<ResultType> result_list = new ArrayList<ResultType>();
+                int index = 0;
+                while (rs.next())
+                {
+                    result_list.add(mapper.map(index++, rs));
+                }
+                return result_list;
+            }
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES);
+    }
+
+    /**
+     * Executes the query.
+     * <p>
+     * Specifies a maximum of one result on the JDBC statement, and map that one result
+     * as the return value, or return null if there is nothing in the results
+     *
+     * @return first result, mapped, or null if there is no first result
+     */
+    public ResultType first()
+    {
+        return this.internalExecute(QueryPreperator.MAX_ROWS_ONE, new QueryResultMunger<ResultType>()
+        {
+            public final ResultType munge(final ResultSet rs) throws SQLException
+            {
+                if (rs.next())
+                {
+                    return mapper.map(0, rs);
+                }
+                else
+                {
+                    // no result matches
+                    return null;
+                }
+            }
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES);
+    }
+
+    private <Result> Result internalExecute(final QueryPreperator prep,
+                                            final QueryResultMunger<Result> munger,
+                                            QueryPostMungeCleanup cleanup)
     {
         ReWrittenStatement rewritten = statementRewriter.rewrite(sql, params);
         final PreparedStatement stmt;
@@ -91,6 +141,16 @@ public class Query<ResultType>
         {
             throw new UnableToExecuteStatementException("Unable to bind parameters to query", e);
         }
+
+        try
+        {
+            prep.prepare(stmt);
+        }
+        catch (SQLException e)
+        {
+            throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
+        }
+
         ResultSet rs;
         try
         {
@@ -103,17 +163,15 @@ public class Query<ResultType>
 
         try
         {
-            List<ResultType> result_list = new ArrayList<ResultType>();
-            int index = 0;
-            while (rs.next())
-            {
-                result_list.add(mapper.map(index++, rs));
-            }
-            return result_list;
+            return munger.munge(rs);
         }
         catch (SQLException e)
         {
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e);
+        }
+        finally
+        {
+            cleanup.cleanup(this, stmt, rs);
         }
     }
 

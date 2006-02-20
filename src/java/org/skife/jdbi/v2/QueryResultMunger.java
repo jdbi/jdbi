@@ -12,21 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2.exceptions;
+package org.skife.jdbi.v2;
 
-public class UnableToExecuteStatementException extends DBIException
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+interface QueryResultMunger<Result>
 {
-    public UnableToExecuteStatementException(Exception e) {
-        super(e);
-    }
-
-    public UnableToExecuteStatementException(String message)
-    {
-        super(message);
-    }
-
-    public UnableToExecuteStatementException(String string, Throwable throwable)
-    {
-        super(string, throwable);
-    }
+    Result munge(ResultSet results) throws SQLException;
 }

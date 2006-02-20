@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.tweak.StatementRewriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.List;
 
 public class BasicHandle implements Handle
 {
@@ -55,7 +56,7 @@ public class BasicHandle implements Handle
         return this.connection;
     }
 
-    public void close()    
+    public void close()
     {
         try
         {
@@ -113,5 +114,16 @@ public class BasicHandle implements Handle
             stmt.setObject(position++, arg);
         }
         return stmt.execute();
+    }
+
+    public List<Map<String, Object>> query(String sql, Object... args)
+    {
+        Query<Map<String, Object>> query = this.createQuery(sql);
+        int position = 0;
+        for (Object arg : args)
+        {
+            query.setObject(position++, arg);
+        }
+        return query.list();
     }
 }

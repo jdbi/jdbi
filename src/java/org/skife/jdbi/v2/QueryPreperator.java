@@ -12,21 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2.exceptions;
+package org.skife.jdbi.v2;
 
-public class UnableToExecuteStatementException extends DBIException
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+interface QueryPreperator
 {
-    public UnableToExecuteStatementException(Exception e) {
-        super(e);
-    }
-
-    public UnableToExecuteStatementException(String message)
+    final QueryPreperator NO_OP = new QueryPreperator()
     {
-        super(message);
-    }
+        public final void prepare(final PreparedStatement stmt)
+        {
+            // no op
+        }
+    };
 
-    public UnableToExecuteStatementException(String string, Throwable throwable)
+    final QueryPreperator MAX_ROWS_ONE = new QueryPreperator()
     {
-        super(string, throwable);
-    }
+        public final void prepare(final PreparedStatement stmt) throws SQLException
+        {
+            stmt.setMaxRows(1);
+        }
+    };
+
+    void prepare(PreparedStatement stmt) throws SQLException;
 }

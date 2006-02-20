@@ -16,6 +16,7 @@ package org.skife.jdbi.v2;
 
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
@@ -83,4 +84,94 @@ public class TestQueries extends TestCase
         String name = query.list().get(0);
         assertEquals("eric", name);
     }
+
+    public void testConvenienceMethod() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        List<Map<String, Object>> r = h.query("select * from something order by id");
+        assertEquals(2, r.size());
+        assertEquals("eric", r.get(0).get("name"));
+    }
+
+    public void testConvenienceMethodWithParam() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        List<Map<String, Object>> r = h.query("select * from something where id = ?", 1);
+        assertEquals(1, r.size());
+        assertEquals("eric", r.get(0).get("name"));
+    }
+
+    public void testPositionalArgWithNamedParam() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        List<Something> r = h.createQuery("select * from something where name = :name")
+                .setString(0, "eric")
+                .map(Something.class)
+                .list();
+
+        assertEquals(1, r.size());
+        assertEquals("eric", r.get(0).getName());
+    }
+
+    public void testMixedSetting() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        List<Something> r = h.createQuery("select * from something where name = :name and id = :id")
+                .setString(0, "eric")
+                .setInteger("id", 1)
+                .map(Something.class)
+                .list();
+
+        assertEquals(1, r.size());
+        assertEquals("eric", r.get(0).getName());
+    }
+
+    public void testHelpfulErrorOnNothingSet() throws Exception
+    {
+        try
+        {
+            h.createQuery("select * from something where name = :name").list();
+            fail("should have raised exception");
+        }
+        catch (UnableToExecuteStatementException e)
+        {
+            assertTrue("execution goes through here", true);
+        }
+        catch (Exception e)
+        {
+            fail("Raised incorrect exception");
+        }
+    }
+
+    public void testFirstResult() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        Something r = h.createQuery("select * from something order by id")
+                .map(Something.class)
+                .first();
+
+        assertNotNull(r);
+        assertEquals("eric", r.getName());
+    }
+
+//    public void testIteratedResult() throws Exception
+//    {
+//        h.insert("insert into something (id, name) values (1, 'eric')");
+//        h.insert("insert into something (id, name) values (2, 'brian')");
+//
+//        Iterator<Something> i = h.createQuery("select * from something order by id")
+//                .map(Something.class)
+//                .iterate();
+//
+//    }
 }
