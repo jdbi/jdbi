@@ -184,10 +184,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StaticStatementEnvelope.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="StaticStatementEnvelope.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/StaticStatementEnvelope.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="47" column="9" selection-start="1583" selection-end="1583" vertical-scroll-proportion="0.6260997">
+            <state line="56" column="32" selection-start="1808" selection-end="1808" vertical-scroll-proportion="0.8797654">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="155" column="69" selection-start="6201" selection-end="6201" vertical-scroll-proportion="0.37683284">
               <folding />
             </state>
           </provider>
@@ -743,13 +752,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="270" column="32" selection-start="10968" selection-end="10968" vertical-scroll-proportion="0.5550725">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/TestParams.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="18" column="13" selection-start="675" selection-end="675" vertical-scroll-proportion="-2.5652175">
@@ -838,7 +840,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/StaticStatementEnvelope.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="9" selection-start="1583" selection-end="1583" vertical-scroll-proportion="0.6260997">
+        <state line="56" column="32" selection-start="1808" selection-end="1808" vertical-scroll-proportion="0.8797654">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="155" column="69" selection-start="6201" selection-end="6201" vertical-scroll-proportion="0.37683284">
           <folding />
         </state>
       </provider>
