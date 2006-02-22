@@ -1,5 +1,6 @@
 1.4.1
     Fixed bug where null is being set via setObject instead of setNull
+    Thank you, Simone Gianni!
 
 1.4.0
     Expose the new functionality on interfaces as well as concrete classes

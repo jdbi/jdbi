@@ -7,3 +7,4 @@ Thank you to:
     Henry Yandell for in clause expansion feature request
     Patrick Burleson for showing that DBIException should extend RuntimeException
     Thomas Risberg for the Spring DataAccessException wrapping code
+    Simone Gianni for finding a nasty setNull bug
