@@ -14,6 +14,9 @@
  */
 package org.skife.jdbi;
 
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 /**
@@ -25,7 +28,7 @@ public class Args extends HashMap
      * Create a new Args instance, typically to be used for named parameters
      *
      * @param name named parameter in statement
-     * @param arg value to bind
+     * @param arg  value to bind
      * @return an Args instance, which happens to be a Map
      */
     public static Args with(final String name, final Object arg)
@@ -39,12 +42,33 @@ public class Args extends HashMap
      * Add another named argument to the Args
      *
      * @param name named parameter in statement
-     * @param arg value to bind
+     * @param arg  value to bind
      * @return self
      */
     public Args and(final String name, final Object arg)
     {
         this.put(name, arg);
         return this;
+    }
+
+
+    static void setArgument(int position, PreparedStatement stmt, ParameterMetaData md, Object value) throws SQLException
+    {
+        if (md != null)
+        {
+            int type = md.getParameterType(position);
+            if (value == null)
+            {
+                stmt.setNull(position, type);
+            }
+            else
+            {
+                stmt.setObject(position, value, type);
+            }
+        }
+        else
+        {
+            stmt.setObject(position, value);
+        }
     }
 }

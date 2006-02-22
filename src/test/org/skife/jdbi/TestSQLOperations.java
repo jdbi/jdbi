@@ -133,7 +133,7 @@ public class TestSQLOperations extends TestCase
         assertFalse(itty.hasNext());
     }
 
-    public void _testSetToNull() throws Exception                        
+    public void testSetToNull() throws Exception
     {
         handle.execute("insert into something (id, name) values (1, 'one')");
 
@@ -143,7 +143,7 @@ public class TestSQLOperations extends TestCase
         assertEquals(null, r.get("name"));
 
         r = handle.first("select * from something where name is null");
-        assertEquals(Long.valueOf(1), r.get("id"));
+        assertEquals(Integer.valueOf(1), r.get("id"));
     }
 
     public void testPositionalParams() throws Exception

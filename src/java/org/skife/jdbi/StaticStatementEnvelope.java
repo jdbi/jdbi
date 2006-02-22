@@ -17,7 +17,7 @@ package org.skife.jdbi;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.ParameterMetaData;
 
 class StaticStatementEnvelope implements StatementEnvelope
 {
@@ -37,17 +37,19 @@ class StaticStatementEnvelope implements StatementEnvelope
     {
         final Object[] params = args.objects();
         stmt.clearParameters();
+        ParameterMetaData md;
+        try
+        {
+            md = stmt.getParameterMetaData();
+        }
+        catch (SQLException e)
+        {
+            md = null;
+        }
         for (int i = 0; i < params.length; i++)
         {
             final Object param = params[i];
-            if (param == null)
-            {
-                stmt.setNull(i + 1, Types.OTHER);
-            }
-            else
-            {
-                stmt.setObject(i + 1, param);
-            }
+            Args.setArgument(i+1, stmt, md, param);
         }
         return stmt;
     }

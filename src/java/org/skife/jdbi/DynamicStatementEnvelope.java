@@ -15,9 +15,9 @@
 package org.skife.jdbi;
 
 import java.sql.Connection;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -116,17 +116,19 @@ class DynamicStatementEnvelope implements StatementEnvelope
                                  ? conn.prepareCall(sql)
                                  : conn.prepareStatement(sql);
 
+        ParameterMetaData md;
+        try
+        {
+            md = stmt.getParameterMetaData();
+        }
+        catch (SQLException e)
+        {
+            md = null;
+        }
         for (int i = 0; i < params.length; i++)
         {
             final Object param = params[i];
-            if (param != null)
-            {
-                stmt.setObject(i + 1, param);
-            }
-            else
-            {
-                stmt.setNull(i + 1, Types.OTHER);
-            }
+            Args.setArgument(i+1, stmt, md, param);
         }
         statements.add(stmt);
         return stmt;

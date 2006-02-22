@@ -14,9 +14,9 @@
  */
 package org.skife.jdbi;
 
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -115,6 +115,15 @@ class QueueingPreparedBatch implements PreparedBatch
     {
         try
         {
+            ParameterMetaData md;
+            try
+            {
+                md = stmt.getParameterMetaData();
+            }
+            catch (SQLException e)
+            {
+                md = null;
+            }
             for (int i = 0; i < args.size(); i++)
             {
                 final Arguments h = (Arguments) args.get(i);
@@ -122,19 +131,13 @@ class QueueingPreparedBatch implements PreparedBatch
                 for (int j = 0; j < objects.length; j++)
                 {
                     final Object object = objects[j];
-                    if (object != null) {
-                    stmt.setObject(j + 1, object);
-                    }
-                    else
-                    {
-                        stmt.setNull(j + 1, Types.OTHER);
-                    }
+
+                    Args.setArgument(j + 1, stmt, md, object);
 
                 }
                 stmt.addBatch();
             }
-            final int[] results = stmt.executeBatch();
-            return results;
+            return stmt.executeBatch();
         }
         catch (SQLException e)
         {
