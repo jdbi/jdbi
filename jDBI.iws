@@ -167,7 +167,7 @@
       <file leaf-file-name="Args.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/Args.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="54" column="22" selection-start="1572" selection-end="1572" vertical-scroll-proportion="0.9017595">
+            <state line="54" column="22" selection-start="1572" selection-end="1572" vertical-scroll-proportion="0.8913044">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -175,46 +175,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="QueueingPreparedBatch.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="QueueingPreparedBatch.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/QueueingPreparedBatch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="125" column="13" selection-start="3180" selection-end="3180" vertical-scroll-proportion="0.31085044">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="StaticStatementEnvelope.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/StaticStatementEnvelope.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="56" column="32" selection-start="1808" selection-end="1808" vertical-scroll-proportion="0.8797654">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/doc/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="155" column="69" selection-start="6201" selection-end="6201" vertical-scroll-proportion="0.37683284">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DynamicStatementEnvelope.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/DynamicStatementEnvelope.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="118" column="8" selection-start="4600" selection-end="4773" vertical-scroll-proportion="0.24486804">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="44" selection-start="135" selection-end="135" vertical-scroll-proportion="0.0659824">
+            <state line="125" column="13" selection-start="3180" selection-end="3180" vertical-scroll-proportion="0.3072464">
               <folding />
             </state>
           </provider>
@@ -646,14 +610,14 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-5" y="26" width="1610" height="1179" extended-state="0" />
+    <frame x="-5" y="26" width="1610" height="1179" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32993513" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32956153" order="7" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.32023194" order="0" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3308619" order="1" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3308619" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.2495935" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32808155" order="8" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3997175" order="6" />
@@ -662,7 +626,7 @@
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="Favorites" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="1" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32344764" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.32344764" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.36886007" order="4" />
@@ -808,46 +772,46 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="44" selection-start="135" selection-end="135" vertical-scroll-proportion="0.0659824">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/Args.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="22" selection-start="1572" selection-end="1572" vertical-scroll-proportion="0.9017595">
+        <state line="54" column="22" selection-start="1572" selection-end="1572" vertical-scroll-proportion="0.8913044">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="103" selection-start="1000" selection-end="1000" vertical-scroll-proportion="0.5">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/DynamicStatementEnvelope.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="8" selection-start="4600" selection-end="4773" vertical-scroll-proportion="0.24486804">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/QueueingPreparedBatch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="125" column="13" selection-start="3180" selection-end="3180" vertical-scroll-proportion="0.31085044">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/StaticStatementEnvelope.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="32" selection-start="1808" selection-end="1808" vertical-scroll-proportion="0.8797654">
+        <state line="118" column="8" selection-start="4600" selection-end="4773" vertical-scroll-proportion="0.47246376">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/doc/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="155" column="69" selection-start="6201" selection-end="6201" vertical-scroll-proportion="0.37683284">
+        <state line="155" column="69" selection-start="6201" selection-end="6201" vertical-scroll-proportion="0.37246376">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/StaticStatementEnvelope.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="56" column="32" selection-start="1808" selection-end="1808" vertical-scroll-proportion="0.8695652">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/QueueingPreparedBatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="125" column="13" selection-start="3180" selection-end="3180" vertical-scroll-proportion="0.3072464">
           <folding />
         </state>
       </provider>
