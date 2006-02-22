@@ -16,6 +16,7 @@ package org.skife.jdbi;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -121,7 +122,13 @@ class QueueingPreparedBatch implements PreparedBatch
                 for (int j = 0; j < objects.length; j++)
                 {
                     final Object object = objects[j];
+                    if (object != null) {
                     stmt.setObject(j + 1, object);
+                    }
+                    else
+                    {
+                        stmt.setNull(j + 1, Types.OTHER);
+                    }
 
                 }
                 stmt.addBatch();

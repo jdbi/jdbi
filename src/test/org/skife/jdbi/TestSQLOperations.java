@@ -133,6 +133,19 @@ public class TestSQLOperations extends TestCase
         assertFalse(itty.hasNext());
     }
 
+    public void _testSetToNull() throws Exception                        
+    {
+        handle.execute("insert into something (id, name) values (1, 'one')");
+
+        handle.execute("update something set name = :name", new Object[] {null});
+
+        Map r = handle.first("select * from something where id = 1");
+        assertEquals(null, r.get("name"));
+
+        r = handle.first("select * from something where name is null");
+        assertEquals(Long.valueOf(1), r.get("id"));
+    }
+
     public void testPositionalParams() throws Exception
     {
         handle.execute("insert into something (id, name) values (1, 'one')");

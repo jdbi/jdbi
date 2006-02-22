@@ -17,6 +17,7 @@ package org.skife.jdbi;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -118,7 +119,14 @@ class DynamicStatementEnvelope implements StatementEnvelope
         for (int i = 0; i < params.length; i++)
         {
             final Object param = params[i];
-            stmt.setObject(i + 1, param);
+            if (param != null)
+            {
+                stmt.setObject(i + 1, param);
+            }
+            else
+            {
+                stmt.setNull(i + 1, Types.OTHER);
+            }
         }
         statements.add(stmt);
         return stmt;
