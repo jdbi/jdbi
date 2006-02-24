@@ -12,44 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi;
+package org.skife.jdbi.v2;
 
-public class Something
+import org.skife.jdbi.v2.tweak.StatementRewriter;
+
+import java.sql.Connection;
+
+class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
-    private Long id;
-    private String name;
-
-    public Something() {}
-
-    public Something(Long id, String name)
+    PreparedBatchPart(StatementRewriter rewriter, Connection connection, String sql)
     {
-        this.id = id;
-        this.name = name;
-    }
+        super(new Parameters(), rewriter, connection, sql);
 
-    public Something(long id, String name)
-    {
-        this.id = new Long(id);
-        this.name = name;
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
     }
 }

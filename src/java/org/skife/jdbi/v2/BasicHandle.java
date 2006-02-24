@@ -95,9 +95,9 @@ public class BasicHandle implements Handle
         return this;
     }
 
-    public SQLStatement createStatement(String sql)
+    public UpdateStatement createStatement(String sql)
     {
-        return new SQLStatement(connection, statementRewriter, sql);
+        return new UpdateStatement(connection, statementRewriter, sql);
     }
 
     public int insert(String sql, Object... args)
@@ -107,13 +107,18 @@ public class BasicHandle implements Handle
 
     public int update(String sql, Object... args)
     {
-        SQLStatement stmt = createStatement(sql);
+        UpdateStatement stmt = createStatement(sql);
         int position = 0;
         for (Object arg : args)
         {
             stmt.setObject(position++, arg);
         }
         return stmt.execute();
+    }
+
+    public PreparedBatch prepareBatch(String sql)
+    {
+        return new PreparedBatch(statementRewriter, connection, sql);
     }
 
     public List<Map<String, Object>> query(String sql, Object... args)

@@ -14,10 +14,11 @@
  */
 package org.skife.jdbi.v2;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
 
 interface QueryResultMunger<Result>
 {
-    Result munge(ResultSet results) throws SQLException;
+    Pair<Result, ResultSet> munge(Statement results) throws SQLException;
 }

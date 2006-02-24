@@ -22,7 +22,7 @@ interface QueryPostMungeCleanup
 {
     final QueryPostMungeCleanup CLOSE_RESOURCES_QUIETLY = new QueryPostMungeCleanup()
     {
-        public void cleanup(Query query, PreparedStatement stmt, ResultSet rs)
+        public void cleanup(SQLStatement query, PreparedStatement stmt, ResultSet rs)
         {
             if (rs != null)
             {
@@ -50,5 +50,5 @@ interface QueryPostMungeCleanup
         }
     };
 
-    void cleanup(Query query, PreparedStatement stmt, ResultSet rs);
+    void cleanup(SQLStatement query, PreparedStatement stmt, ResultSet rs);
 }

@@ -1,6 +1,20 @@
+/* Copyright 2004-2006 Brian McCallister
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
+import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
@@ -15,91 +29,69 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-/**
- * 
- */
-public class SQLStatement
+public abstract class SQLStatement<SelfType extends SQLStatement>
 {
+    private final Parameters params;
     private final Connection connection;
     private final String sql;
-    private Parameters params;
-    private final StatementRewriter statementRewriter;
+    private final StatementRewriter rewriter;
 
-    SQLStatement(Connection connection, StatementRewriter statementRewriter, String sql)
+    SQLStatement(Parameters params,
+                 StatementRewriter rewriter,
+                 Connection conn,
+                 String sql)
     {
-        this.statementRewriter = statementRewriter;
-        this.params = new Parameters();
-        this.connection = connection;
+        assert(verifyOurNastyDowncastIsOkay());
+
+        this.rewriter = rewriter;
+        this.connection = conn;
         this.sql = sql;
+        this.params = params;
     }
 
-    public int execute()
+    private boolean verifyOurNastyDowncastIsOkay()
     {
-        ReWrittenStatement rewritten = statementRewriter.rewrite(sql, params);
-
-        final PreparedStatement stmt;
-        try
+        if (this.getClass().getTypeParameters().length == 0)
         {
-            stmt = connection.prepareStatement(rewritten.getSql());
+            return true;
         }
-        catch (SQLException e)
+        else
         {
-            throw new UnableToCreateStatementException(e);
-        }
-        try
-        {
-            rewritten.bind(params, stmt);
-        }
-        catch (SQLException e)
-        {
-            throw new UnableToExecuteStatementException("Unable to bind arguments to statement", e);
-        }
-        try
-        {
-            int count = stmt.executeUpdate();
-            try
-            {
-                stmt.close();
-            }
-            catch (SQLException e)
-            {
-                throw new UnableToCloseResourceException("Unable to close statement", e);
-            }
-            return count;
-        }
-        catch (SQLException e)
-        {
-            String msg = String.format("Unable to execute statement [%s]", sql);
-            try
-            {
-                stmt.close();
-            }
-            catch (SQLException e1)
-            {
-                msg = String.format("%s and unable to close the statetement [%s]", msg, e1.getMessage());
-            }
-            throw new UnableToExecuteStatementException(msg, e);
-        }
-        finally
-        {
-            try
-            {
-                if (stmt != null) { stmt.close(); }
-            }
-            catch (SQLException e)
-            {
-                // yes this is ugly, no this shouldn't throw an exception
-                //noinspection ThrowFromFinallyBlock
-                throw new UnableToCloseResourceException("Unable to close prepared statement", e);
-            }
+            Class parameterized_type =
+                    this.getClass().getTypeParameters()[0].getGenericDeclaration();
+            return parameterized_type.isAssignableFrom(this.getClass());
         }
     }
 
-    /* position param stuff */
+    protected StatementRewriter getRewriter()
+    {
+        return rewriter;
+    }
+
+    protected Parameters getParams()
+    {
+        return params;
+    }
+
+    protected Connection getConnection()
+    {
+        return connection;
+    }
+
+    protected String getSql()
+    {
+        return sql;
+    }
+
+    protected Parameters getParameters()
+    {
+        return params;
+    }
 
     /**
      * Used if you need to have some exotic parameter bound.
@@ -108,10 +100,11 @@ public class SQLStatement
      * @param argument exotic argument factory
      * @return the same Query instance
      */
-    public SQLStatement setArgument(int position, Argument argument)
+    @SuppressWarnings("unchecked")
+    public SelfType setArgument(int position, Argument argument)
     {
         params.addPositional(position, argument);
-        return this;
+        return (SelfType) this;
     }
 
     /**
@@ -121,10 +114,11 @@ public class SQLStatement
      * @param argument exotic argument factory
      * @return the same Query instance
      */
-    public SQLStatement setArgument(String name, Argument argument)
+    @SuppressWarnings("unchecked")
+    public SelfType setArgument(String name, Argument argument)
     {
         params.addNamed(name, argument);
-        return this;
+        return (SelfType) this;
     }
 
     /**
@@ -134,7 +128,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setString(int position, String value)
+    public final SelfType setString(int position, String value)
     {
         return setArgument(position, new StringArgument(value));
     }
@@ -146,7 +140,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setString(String name, String value)
+    public final SelfType setString(String name, String value)
     {
         return setArgument(name, new StringArgument(value));
     }
@@ -158,7 +152,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setInteger(int position, int value)
+    public final SelfType setInteger(int position, int value)
     {
         return setArgument(position, new IntegerArgument(value));
     }
@@ -170,7 +164,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setInteger(String name, int value)
+    public final SelfType setInteger(String name, int value)
     {
         return setArgument(name, new IntegerArgument(value));
     }
@@ -183,7 +177,7 @@ public class SQLStatement
      * @param length   how long is the stream being bound?
      * @return the same Query instance
      */
-    public SQLStatement setAsciiStream(int position, InputStream value, int length)
+    public final SelfType setAsciiStream(int position, InputStream value, int length)
     {
         return setArgument(position, new InputStreamArgument(value, length, true));
     }
@@ -196,7 +190,7 @@ public class SQLStatement
      * @param length bytes to read from value
      * @return the same Query instance
      */
-    public SQLStatement setAsciiStream(String name, InputStream value, int length)
+    public final SelfType setAsciiStream(String name, InputStream value, int length)
     {
         return setArgument(name, new InputStreamArgument(value, length, true));
     }
@@ -208,7 +202,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setBigDecimal(int position, BigDecimal value)
+    public final SelfType setBigDecimal(int position, BigDecimal value)
     {
         return setArgument(position, new BigDecimalArgument(value));
     }
@@ -220,7 +214,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setBigDecimal(String name, BigDecimal value)
+    public final SelfType setBigDecimal(String name, BigDecimal value)
     {
         return setArgument(name, new BigDecimalArgument(value));
     }
@@ -232,7 +226,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setBinaryStream(int position, InputStream value, int length)
+    public final SelfType setBinaryStream(int position, InputStream value, int length)
     {
         return setArgument(position, new InputStreamArgument(value, length, false));
     }
@@ -245,7 +239,7 @@ public class SQLStatement
      * @param length bytes to read from value
      * @return the same Query instance
      */
-    public SQLStatement setBinaryStream(String name, InputStream value, int length)
+    public final SelfType setBinaryStream(String name, InputStream value, int length)
     {
         return setArgument(name, new InputStreamArgument(value, length, false));
     }
@@ -257,7 +251,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setBlob(int position, Blob value)
+    public final SelfType setBlob(int position, Blob value)
     {
         return setArgument(position, new BlobArgument(value));
     }
@@ -269,7 +263,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setBlob(String name, Blob value)
+    public final SelfType setBlob(String name, Blob value)
     {
         return setArgument(name, new BlobArgument(value));
     }
@@ -281,7 +275,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setBoolean(int position, boolean value)
+    public final SelfType setBoolean(int position, boolean value)
     {
         return setArgument(position, new BooleanArgument(value));
     }
@@ -293,7 +287,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setBoolean(String name, boolean value)
+    public final SelfType setBoolean(String name, boolean value)
     {
         return setArgument(name, new BooleanArgument(value));
     }
@@ -305,7 +299,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setByte(int position, byte value)
+    public final SelfType setByte(int position, byte value)
     {
         return setArgument(position, new ByteArgument(value));
     }
@@ -317,7 +311,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setByte(String name, byte value)
+    public final SelfType setByte(String name, byte value)
     {
         return setArgument(name, new ByteArgument(value));
     }
@@ -329,7 +323,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setBytes(int position, byte[] value)
+    public final SelfType setBytes(int position, byte[] value)
     {
         return setArgument(position, new ByteArrayArgument(value));
     }
@@ -341,7 +335,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setBytes(String name, byte[] value)
+    public final SelfType setBytes(String name, byte[] value)
     {
         return setArgument(name, new ByteArrayArgument(value));
     }
@@ -354,7 +348,7 @@ public class SQLStatement
      * @param length   number of characters to read
      * @return the same Query instance
      */
-    public SQLStatement setCharacterStream(int position, Reader value, int length)
+    public final SelfType setCharacterStream(int position, Reader value, int length)
     {
         return setArgument(position, new CharacterStreamArgument(value, length));
     }
@@ -367,7 +361,7 @@ public class SQLStatement
      * @param length number of characters to read
      * @return the same Query instance
      */
-    public SQLStatement setCharacterStream(String name, Reader value, int length)
+    public final SelfType setCharacterStream(String name, Reader value, int length)
     {
         return setArgument(name, new CharacterStreamArgument(value, length));
     }
@@ -379,7 +373,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setClob(int position, Clob value)
+    public final SelfType setClob(int position, Clob value)
     {
         return setArgument(position, new ClobArgument(value));
     }
@@ -391,7 +385,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setClob(String name, Clob value)
+    public final SelfType setClob(String name, Clob value)
     {
         return setArgument(name, new ClobArgument(value));
     }
@@ -403,7 +397,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setDate(int position, java.sql.Date value)
+    public final SelfType setDate(int position, java.sql.Date value)
     {
         return setArgument(position, new SqlDateArgument(value));
     }
@@ -415,7 +409,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setDate(String name, java.sql.Date value)
+    public final SelfType setDate(String name, java.sql.Date value)
     {
         return setArgument(name, new SqlDateArgument(value));
     }
@@ -427,7 +421,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setDate(int position, java.util.Date value)
+    public final SelfType setDate(int position, java.util.Date value)
     {
         return setArgument(position, new JavaDateArgument(value));
     }
@@ -439,7 +433,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setDate(String name, java.util.Date value)
+    public final SelfType setDate(String name, java.util.Date value)
     {
         return setArgument(name, new JavaDateArgument(value));
     }
@@ -451,7 +445,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setDouble(int position, Double value)
+    public final SelfType setDouble(int position, Double value)
     {
         return setArgument(position, new DoubleArgument(value));
     }
@@ -463,7 +457,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setDouble(String name, Double value)
+    public final SelfType setDouble(String name, Double value)
     {
         return setArgument(name, new DoubleArgument(value));
     }
@@ -475,7 +469,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setFloat(int position, Float value)
+    public final SelfType setFloat(int position, Float value)
     {
         return setArgument(position, new FloatArgument(value));
     }
@@ -487,7 +481,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setFloat(String name, Float value)
+    public final SelfType setFloat(String name, Float value)
     {
         return setArgument(name, new FloatArgument(value));
     }
@@ -499,7 +493,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setLong(int position, long value)
+    public final SelfType setLong(int position, long value)
     {
         return setArgument(position, new LongArgument(value));
     }
@@ -511,7 +505,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setLong(String name, long value)
+    public final SelfType setLong(String name, long value)
     {
         return setArgument(name, new LongArgument(value));
     }
@@ -523,7 +517,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setObject(int position, Object value)
+    public final SelfType setObject(int position, Object value)
     {
         return setArgument(position, new ObjectArgument(value));
     }
@@ -535,7 +529,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setObject(String name, Object value)
+    public final SelfType setObject(String name, Object value)
     {
         return setArgument(name, new ObjectArgument(value));
     }
@@ -547,7 +541,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setTime(int position, Time value)
+    public final SelfType setTime(int position, Time value)
     {
         return setArgument(position, new TimeArgument(value));
     }
@@ -559,7 +553,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setTime(String name, Time value)
+    public final SelfType setTime(String name, Time value)
     {
         return setArgument(name, new TimeArgument(value));
     }
@@ -571,7 +565,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setTimestamp(int position, Timestamp value)
+    public final SelfType setTimestamp(int position, Timestamp value)
     {
         return setArgument(position, new TimestampArgument(value));
     }
@@ -583,7 +577,7 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setTimestamp(String name, Timestamp value)
+    public final SelfType setTimestamp(String name, Timestamp value)
     {
         return setArgument(name, new TimestampArgument(value));
     }
@@ -595,7 +589,7 @@ public class SQLStatement
      * @param value    to bind
      * @return the same Query instance
      */
-    public SQLStatement setUrl(int position, URL value)
+    public final SelfType setUrl(int position, URL value)
     {
         return setArgument(position, new URLArgument(value));
     }
@@ -607,8 +601,69 @@ public class SQLStatement
      * @param value to bind
      * @return the same Query instance
      */
-    public SQLStatement setUrl(String name, URL value)
+    public final SelfType setUrl(String name, URL value)
     {
         return setArgument(name, new URLArgument(value));
+    }
+
+    protected <Result> Result internalExecute(final QueryPreperator prep,
+                                              final QueryResultMunger<Result> munger,
+                                              final QueryPostMungeCleanup cleanup)
+    {
+        final ReWrittenStatement rewritten = rewriter.rewrite(sql, getParameters());
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try
+        {
+            try
+            {
+                stmt = connection.prepareStatement(rewritten.getSql());
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToCreateStatementException(e);
+            }
+            try
+            {
+                rewritten.bind(getParameters(), stmt);
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToExecuteStatementException("Unable to bind parameters to query", e);
+            }
+
+            try
+            {
+                prep.prepare(stmt);
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
+            }
+
+            try
+            {
+                stmt.execute();
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToExecuteStatementException(e);
+            }
+
+            try
+            {
+                final Pair<Result, ResultSet> r = munger.munge(stmt);
+                rs = r.getSecond();
+                return r.getFirst();
+            }
+            catch (SQLException e)
+            {
+                throw new ResultSetException("Exception thrown while attempting to traverse the result set", e);
+            }
+        }
+        finally
+        {
+            cleanup.cleanup(this, stmt, rs);
+        }
     }
 }

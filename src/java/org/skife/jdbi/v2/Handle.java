@@ -57,7 +57,7 @@ public interface Handle
      * Create an Insert or Update statement which returns the number of rows modified.
      * @param sql The statement sql
      */
-    SQLStatement createStatement(String sql);
+    UpdateStatement createStatement(String sql);
 
     /**
      * Execute a simple insert statement
@@ -73,4 +73,12 @@ public interface Handle
      * @return the number of updated inserted
      */
     int update(String sql, Object... args);
+
+    /**
+     * Prepare a batch to execute. This is for efficiently executing more than one
+     * of the same statements with different parameters bound
+     * @param sql the batch SQL
+     * @return a batch which can have "statements" added
+     */
+    PreparedBatch prepareBatch(String sql);
 }

@@ -25,11 +25,11 @@ class StatementFactory
         return new StaticStatementEnvelope(conn, parser);
 //        if (parser.isDynamic())
 //        {
-//            return new DynamicStatementEnvelope(conn, parser);
+//            return new DynamicStatementEnvelope(connection, parser);
 //        }
 //        else
 //        {
-//            return new StaticStatementEnvelope(conn, parser);
+//            return new StaticStatementEnvelope(connection, parser);
 //        }
     }
 

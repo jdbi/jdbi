@@ -14,9 +14,24 @@
  */
 package org.skife.jdbi.v2;
 
-import java.sql.ResultSet;
-
-public interface ResultSetMapper<T>
+final class Pair<FirstType, SecondType>
 {
-    public T map(int index, ResultSet r);
+    private final FirstType first;
+    private final SecondType second;
+
+    Pair(final FirstType first, final SecondType second)
+    {
+        this.first = first;
+        this.second = second;
+    }
+
+    final FirstType getFirst()
+    {
+        return first;
+    }
+
+    final SecondType getSecond()
+    {
+        return second;
+    }
 }
