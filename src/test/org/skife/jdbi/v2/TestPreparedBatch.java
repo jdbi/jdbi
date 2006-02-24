@@ -14,11 +14,11 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.*;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class TestPreparedBatch extends DBITestCase
 {
@@ -27,10 +27,10 @@ public class TestPreparedBatch extends DBITestCase
         Handle h = openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        b = b.setInteger("id", 1).setString("name", "Eric").add();
-        b.setInteger("id", 2).setString("name", "Brian").add()
+        PreparedBatchPart p = b.add();
+        p = p.setInteger("id", 1).setString("name", "Eric").another();
+        p.setInteger("id", 2).setString("name", "Brian").another()
                 .setInteger("id", 3).setString("name", "Keith");
-
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
@@ -46,9 +46,8 @@ public class TestPreparedBatch extends DBITestCase
         int count = 1000;
         for (int i = 0; i < count; ++i)
         {
-            b.add();
-            b.setInteger("id", i);
-            b.setString("name", "A Name");
+            b.add().setInteger("id", i).setString("name", "A Name");
+
         }
         b.execute();
 

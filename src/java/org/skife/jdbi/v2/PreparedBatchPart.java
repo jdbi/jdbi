@@ -20,9 +20,21 @@ import java.sql.Connection;
 
 class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
-    PreparedBatchPart(StatementRewriter rewriter, Connection connection, String sql)
+    private final PreparedBatch batch;
+
+    PreparedBatchPart(PreparedBatch batch, StatementRewriter rewriter, Connection connection, String sql)
     {
         super(new Parameters(), rewriter, connection, sql);
+        this.batch = batch;
+    }
 
+    public PreparedBatch submit()
+    {
+        return batch;
+    }
+
+    public PreparedBatchPart another()
+    {
+        return batch.add();
     }
 }

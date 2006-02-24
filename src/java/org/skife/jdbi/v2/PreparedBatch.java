@@ -2,7 +2,6 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
-import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
@@ -12,26 +11,30 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreparedBatch extends SQLStatement<PreparedBatch>
+public class PreparedBatch
 {
-    private PreparedBatchPart current;
     private List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
+    private final StatementRewriter rewriter;
+    private final Connection connection;
+    private final String sql;
 
     PreparedBatch(StatementRewriter rewriter, Connection connection, String sql)
     {
-        super(null, rewriter, connection, sql);
+        this.rewriter = rewriter;
+        this.connection = connection;
+        this.sql = sql;
     }
 
     public int[] execute()
     {
-        parts.add(current);
-        final ReWrittenStatement rewritten = getRewriter().rewrite(getSql(), current.getParameters());
+        PreparedBatchPart current = parts.get(0);
+        final ReWrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters());
         PreparedStatement stmt = null;
         try
         {
             try
             {
-                stmt = getConnection().prepareStatement(rewritten.getSql());
+                stmt = connection.prepareStatement(rewritten.getSql());
             }
             catch (SQLException e)
             {
@@ -62,32 +65,14 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
         }
         finally
         {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(this, stmt, null);
+            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(null, stmt, null);
         }
     }
 
-    public PreparedBatch add()
+    public PreparedBatchPart add()
     {
-        if (current != null) parts.add(current);
-        current =  new PreparedBatchPart(getRewriter(), getConnection(), getSql());
-        return this;
-    }
-
-    private PreparedBatchPart getCurrent()
-    {
-        if (current == null) current = new PreparedBatchPart(getRewriter(), getConnection(), getSql());
-        return current;
-    }
-
-    public PreparedBatch setArgument(int position, Argument argument)
-    {
-        getCurrent().setArgument(position, argument);
-        return this;
-    }
-
-    public PreparedBatch setArgument(String name, Argument argument)
-    {
-        getCurrent().setArgument(name, argument);
-        return this;
+        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, sql);
+        parts.add(part);
+        return part;
     }
 }
