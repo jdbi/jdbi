@@ -61,4 +61,16 @@ public class TestPreparedBatch extends DBITestCase
 
         assertEquals(count, row_count);
     }
+
+    public void testStartHere() throws Exception
+    {
+        assertTrue("Push all connection ops into handle, " +
+                   "move internalExecute there, " +
+                   "don't expose connection outside of handle!\n" +
+                   "Make SQLStatement accept a 'delegate' which is passed in " +
+                   "and returned -- frees things up, SQLOperation then collects params " +
+                   "which are just used later.\nThis makes it possible to " +
+                   "not pass the statement rewriter, sql, etc around either!\nAll that " +
+                   "muckery can be kept in one place.\nWoot!", false);
+    }
 }

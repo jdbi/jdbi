@@ -134,10 +134,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TestPreparedBatch.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="TestPreparedBatch.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="18" selection-start="1467" selection-end="1467" vertical-scroll-proportion="0.2934473">
+            <state line="73" column="55" selection-start="2789" selection-end="2789" vertical-scroll-proportion="0.84134614">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -145,10 +145,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PreparedBatch.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="PreparedBatch.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="46" selection-start="825" selection-end="825" vertical-scroll-proportion="0.5470086">
+            <state line="38" column="34" selection-start="1220" selection-end="1220" vertical-scroll-proportion="1.4615384">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -456,14 +456,14 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="TestPreparedBatch" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="TestPreparedBatch.testStartHere" type="JUnit" factoryName="JUnit">
       <module name="jDBI" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="org.skife.jdbi.v2" />
       <option name="MAIN_CLASS_NAME" value="org.skife.jdbi.v2.TestPreparedBatch" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="METHOD_NAME" value="testStartHere" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -607,7 +607,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1280" height="828" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="SQL" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
@@ -621,7 +621,7 @@
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="Favorites" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="1" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.37959182" order="2" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.37959182" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.36870748" order="4" />
@@ -800,18 +800,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="18" selection-start="1467" selection-end="1467" vertical-scroll-proportion="0.2934473">
+        <state line="38" column="34" selection-start="1220" selection-end="1220" vertical-scroll-proportion="1.4615384">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="46" selection-start="825" selection-end="825" vertical-scroll-proportion="0.5470086">
+        <state line="73" column="55" selection-start="2789" selection-end="2789" vertical-scroll-proportion="0.84134614">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
