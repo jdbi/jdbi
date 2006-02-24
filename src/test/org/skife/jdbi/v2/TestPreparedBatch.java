@@ -27,8 +27,8 @@ public class TestPreparedBatch extends DBITestCase
         Handle h = openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        b = b.setInteger("id", 1).setString("name", "Eric").addAnother();
-        b.setInteger("id", 2).setString("name", "Brian").addAnother()
+        b = b.setInteger("id", 1).setString("name", "Eric").add();
+        b.setInteger("id", 2).setString("name", "Brian").add()
                 .setInteger("id", 3).setString("name", "Keith");
 
         b.execute();
@@ -44,11 +44,9 @@ public class TestPreparedBatch extends DBITestCase
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         int count = 1000;
-        b.setInteger("id", 0);
-        b.setString("name", "First Name");
-        for (int i = 1; i < count; ++i)
+        for (int i = 0; i < count; ++i)
         {
-            b.addAnother();
+            b.add();
             b.setInteger("id", i);
             b.setString("name", "A Name");
         }

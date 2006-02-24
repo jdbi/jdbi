@@ -20,7 +20,6 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     PreparedBatch(StatementRewriter rewriter, Connection connection, String sql)
     {
         super(null, rewriter, connection, sql);
-        current = new PreparedBatchPart(rewriter, connection, sql);
     }
 
     public int[] execute()
@@ -67,22 +66,28 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
         }
     }
 
-    public PreparedBatch addAnother()
+    public PreparedBatch add()
     {
-        parts.add(current);
-        current = new PreparedBatchPart(getRewriter(), getConnection(), getSql());
+        if (current != null) parts.add(current);
+        current =  new PreparedBatchPart(getRewriter(), getConnection(), getSql());
         return this;
+    }
+
+    private PreparedBatchPart getCurrent()
+    {
+        if (current == null) current = new PreparedBatchPart(getRewriter(), getConnection(), getSql());
+        return current;
     }
 
     public PreparedBatch setArgument(int position, Argument argument)
     {
-        current.setArgument(position, argument);
+        getCurrent().setArgument(position, argument);
         return this;
     }
 
     public PreparedBatch setArgument(String name, Argument argument)
     {
-        current.setArgument(name, argument);
+        getCurrent().setArgument(name, argument);
         return this;
     }
 }
