@@ -97,6 +97,20 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Brian", r.get(2).getName());
     }
 
+    public void testMixedModeBatch() throws Exception
+    {
+        Handle h = openHandle();
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        Map<String, Object> one =Tools.map("id", 0);
+        b.add(one).bind("name", "Keith");
+        b.execute();
+
+        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        assertEquals(1, r.size());
+        assertEquals("Keith", r.get(0).getName());   
+    }
+
     public void _testStartHere() throws Exception
     {
         assertTrue("Push all connection ops into handle, " +
