@@ -93,7 +93,7 @@ public interface Handle
      * Execute a statement of the form <code>update foo set bar = foo_id</code>
      *
      * @param statement sql statement or named statement
-     * @param args positional args to bind to <code>statement</code>
+     * @param args positional args to bindBinaryStream to <code>statement</code>
      * @return number of modified rows
      * @throws DBIException if anything goes wrong
      */
@@ -103,7 +103,7 @@ public interface Handle
      * Execute a statement of the form <code>update foo set bar = foo_id</code>
      *
      * @param statement sql statement or named statement
-     * @param args positional args to bind to <code>statement</code>
+     * @param args positional args to bindBinaryStream to <code>statement</code>
      * @return number of modified rows
      * @throws DBIException if anything goes wrong
      */
@@ -113,7 +113,7 @@ public interface Handle
      * Execute a statement of the form <code>update foo set bar = foo_id</code>
      *
      * @param statement sql statement or named statement
-     * @param args named args to bind to <code>statement</code>
+     * @param args named args to bindBinaryStream to <code>statement</code>
      * @return number of modified rows
      * @throws DBIException if anything goes wrong
      */

@@ -25,7 +25,7 @@ public class Args extends HashMap
      * Create a new Args instance, typically to be used for named parameters
      *
      * @param name named parameter in statement
-     * @param arg value to bind
+     * @param arg value to bindBinaryStream
      * @return an Args instance, which happens to be a Map
      */
     public static Args with(final String name, final Object arg)
@@ -39,7 +39,7 @@ public class Args extends HashMap
      * Add another named argument to the Args
      *
      * @param name named parameter in statement
-     * @param arg value to bind
+     * @param arg value to bindBinaryStream
      * @return self
      */
     public Args and(final String name, final Object arg)

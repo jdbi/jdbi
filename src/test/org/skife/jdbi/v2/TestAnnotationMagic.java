@@ -19,7 +19,7 @@ public class TestAnnotationMagic extends TestCase
         ParameterizedType parameterized_return_type = (ParameterizedType) return_type;
         Type parameterized_type_on_return_type = parameterized_return_type.getActualTypeArguments()[0];
         Class we_require_this_be_instantiable = (Class) parameterized_type_on_return_type;
-        Objsect it = we_require_this_be_instantiable.newInstance();
+        Object it = we_require_this_be_instantiable.newInstance();
         assertTrue(it instanceof String);
     }
 

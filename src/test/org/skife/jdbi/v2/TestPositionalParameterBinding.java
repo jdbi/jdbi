@@ -47,7 +47,7 @@ public class TestPositionalParameterBinding extends TestCase
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         Something eric = h.createQuery("select * from something where name = ?")
-                .setString(0, "eric")
+                .bind(0, "eric")
                 .map(Something.class)
                 .list()
                 .get(0);
@@ -60,7 +60,7 @@ public class TestPositionalParameterBinding extends TestCase
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         Something eric = h.createQuery("select * from something where id = ?")
-                .setInteger(0, 1)
+                .bind(0, 1)
                 .map(Something.class)
                 .list().get(0);
         assertEquals(1, eric.getId());
@@ -69,7 +69,7 @@ public class TestPositionalParameterBinding extends TestCase
     public void testBehaviorOnBadBinding1() throws Exception
     {
         Query<Something> q = h.createQuery("select * from something where id = ? and name = ?")
-                .setInteger(0, 1)
+                .bind(0, 1)
                 .map(Something.class);
 
         try
@@ -90,8 +90,8 @@ public class TestPositionalParameterBinding extends TestCase
      public void testBehaviorOnBadBinding2() throws Exception
     {
         Query<Something> q = h.createQuery("select * from something where id = ?")
-                .setInteger(1, 1)
-                .setString(2, "Hi")
+                .bind(1, 1)
+                .bind(2, "Hi")
                 .map(Something.class);
 
         try
@@ -112,7 +112,7 @@ public class TestPositionalParameterBinding extends TestCase
     public void testInsertParamBinding() throws Exception
     {
         int count = h.createStatement("insert into something (id, name) values (?, 'eric')")
-                .setInteger(0, 1)
+                .bind(0, 1)
                 .execute();
 
         assertEquals(1, count);

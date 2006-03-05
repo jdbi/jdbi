@@ -111,7 +111,7 @@ public class TestQueries extends TestCase
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         List<Something> r = h.createQuery("select * from something where name = :name")
-                .setString(0, "eric")
+                .bind(0, "eric")
                 .map(Something.class)
                 .list();
 
@@ -125,8 +125,8 @@ public class TestQueries extends TestCase
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         List<Something> r = h.createQuery("select * from something where name = :name and id = :id")
-                .setString(0, "eric")
-                .setInteger("id", 1)
+                .bind(0, "eric")
+                .bind("id", 1)
                 .map(Something.class)
                 .list();
 

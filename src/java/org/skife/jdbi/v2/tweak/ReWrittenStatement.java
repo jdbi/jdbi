@@ -22,7 +22,7 @@ import java.sql.SQLException;
 public interface ReWrittenStatement
 {
     /**
-     * Called to bind a set of parameters to a prepared statement. The
+     * Called to bindBinaryStream a set of parameters to a prepared statement. The
      * statement will have been constructed from this ReWrittenStatement's
      * getSql() return result
      * @param params

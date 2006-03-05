@@ -111,7 +111,7 @@ public class BasicHandle implements Handle
         int position = 0;
         for (Object arg : args)
         {
-            stmt.setObject(position++, arg);
+            stmt.bind(position++, arg);
         }
         return stmt.execute();
     }
@@ -127,7 +127,7 @@ public class BasicHandle implements Handle
         int position = 0;
         for (Object arg : args)
         {
-            query.setObject(position++, arg);
+            query.bind(position++, arg);
         }
         return query.list();
     }

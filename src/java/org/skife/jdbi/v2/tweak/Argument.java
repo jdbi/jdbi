@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 /**
  * Represents an argument to a prepared statement. It will be called right before the
- * statement is executed to bind the parameter.
+ * statement is executed to bindBinaryStream the parameter.
  */
 public interface Argument
 {

@@ -3,9 +3,9 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * 

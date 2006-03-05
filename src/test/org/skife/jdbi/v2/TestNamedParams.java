@@ -16,7 +16,9 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.derby.Tools;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -27,8 +29,8 @@ public class TestNamedParams extends DBITestCase
     {
         Handle h = openHandle();
         UpdateStatement insert = h.createStatement("insert into something (id, name) values (:id, :name)");
-        insert.setInteger("id", 1);
-        insert.setString("name", "Brian");
+        insert.bind("id", 1);
+        insert.bind("name", "Brian");
         int count = insert.execute();
         assertEquals(1, count);
     }
@@ -37,8 +39,8 @@ public class TestNamedParams extends DBITestCase
     {
         Handle h = DBI.open(Tools.getDataSource());
         h.createStatement("insert into something (id, name) values (:id, :name)")
-                .setInteger("id", 1)
-                .setString("name", "Brian")
+                .bind("id", 1)
+                .bind("name", "Brian")
                 .execute();
         h.insert("insert into something (id, name) values (?, ?)", 2, "Eric");
         h.insert("insert into something (id, name) values (?, ?)", 3, "Erin");
@@ -46,7 +48,7 @@ public class TestNamedParams extends DBITestCase
         List<Something> r = h.createQuery("select id, name from something " +
                                           "where name like :name " +
                                           "order by id")
-                .setString("name", "Eri%")
+                .bind("name", "Eri%")
                 .map(Something.class)
                 .list();
 
@@ -55,5 +57,44 @@ public class TestNamedParams extends DBITestCase
         assertEquals(3, r.get(1).getId());
 
         h.close();
+    }
+
+    public void testBeanPropertyBinding() throws Exception
+    {
+        Handle h = this.openHandle();
+        UpdateStatement s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        s.bindFromProperties(new Something(0, "Keith"));
+        int insert_count = s.execute();
+        assertEquals(1, insert_count);
+    }
+
+    public void testMapKeyBinding() throws Exception
+    {
+        Handle h = this.openHandle();
+        UpdateStatement s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("id", 0);
+        args.put("name", "Keith");
+        s.bindFromMap(args);
+        int insert_count = s.execute();
+        assertEquals(1, insert_count);
+    }
+
+    public void testCascadedLazyArgs() throws Exception
+    {
+        Handle h = this.openHandle();
+        UpdateStatement s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("id", 0);
+        s.bindFromMap(args);
+        s.bindFromProperties(new Object()
+        {
+            public String getName() { return "Keith"; }
+        });
+        int insert_count = s.execute();
+        assertEquals(1, insert_count);
+        Something something = h.createQuery("select id, name from something").map(Something.class).first();
+        assertEquals("Keith", something.getName());
+        assertEquals(0, something.getId());
     }
 }

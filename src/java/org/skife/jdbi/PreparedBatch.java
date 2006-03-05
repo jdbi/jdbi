@@ -30,7 +30,7 @@ public interface PreparedBatch
     PreparedBatch add(Object[] objects);
 
     /**
-     * Collection containing arguments to bind positionally
+     * Collection containing arguments to bindBinaryStream positionally
      */
     PreparedBatch add(Collection params);
 

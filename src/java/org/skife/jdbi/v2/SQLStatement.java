@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Map;
 
 public abstract class SQLStatement<SelfType extends SQLStatement>
 {
@@ -96,12 +97,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement>
     /**
      * Used if you need to have some exotic parameter bound.
      *
-     * @param position position to bind this argument, starting at 0
+     * @param position position to bindBinaryStream this argument, starting at 0
      * @param argument exotic argument factory
      * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
-    public SelfType setArgument(int position, Argument argument)
+    public SelfType bind(int position, Argument argument)
     {
         params.addPositional(position, argument);
         return (SelfType) this;
@@ -110,500 +111,514 @@ public abstract class SQLStatement<SelfType extends SQLStatement>
     /**
      * Used if you need to have some exotic parameter bound.
      *
-     * @param name     name to bind this argument
+     * @param name     name to bindBinaryStream this argument
      * @param argument exotic argument factory
      * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
-    public SelfType setArgument(String name, Argument argument)
+    public SelfType bind(String name, Argument argument)
     {
         params.addNamed(name, argument);
+        return (SelfType) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public SelfType bindFromProperties(Object o)
+    {
+        params.addLazyNamedArguments(new BeanPropertyArguments(o));
+        return (SelfType) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public SelfType bindFromMap(Map<String, ? extends Object> args)
+    {
+        params.addLazyNamedArguments(new MapArguments(args));
         return (SelfType) this;
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setString(int position, String value)
+    public final SelfType bind(int position, String value)
     {
-        return setArgument(position, new StringArgument(value));
+        return bind(position, new StringArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setString(String name, String value)
+    public final SelfType bind(String name, String value)
     {
-        return setArgument(name, new StringArgument(value));
+        return bind(name, new StringArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setInteger(int position, int value)
+    public final SelfType bind(int position, int value)
     {
-        return setArgument(position, new IntegerArgument(value));
+        return bind(position, new IntegerArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  name to bind the paramater to
-     * @param value to bind
+     * @param name  name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setInteger(String name, int value)
+    public final SelfType bind(String name, int value)
     {
-        return setArgument(name, new IntegerArgument(value));
+        return bind(name, new IntegerArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @param length   how long is the stream being bound?
      * @return the same Query instance
      */
-    public final SelfType setAsciiStream(int position, InputStream value, int length)
+    public final SelfType bindASCIIStream(int position, InputStream value, int length)
     {
-        return setArgument(position, new InputStreamArgument(value, length, true));
+        return bind(position, new InputStreamArgument(value, length, true));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bind the paramater to
-     * @param value  to bind
+     * @param name   token name to bindBinaryStream the paramater to
+     * @param value  to bindBinaryStream
      * @param length bytes to read from value
      * @return the same Query instance
      */
-    public final SelfType setAsciiStream(String name, InputStream value, int length)
+    public final SelfType bindASCIIStream(String name, InputStream value, int length)
     {
-        return setArgument(name, new InputStreamArgument(value, length, true));
+        return bind(name, new InputStreamArgument(value, length, true));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBigDecimal(int position, BigDecimal value)
+    public final SelfType bind(int position, BigDecimal value)
     {
-        return setArgument(position, new BigDecimalArgument(value));
+        return bind(position, new BigDecimalArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBigDecimal(String name, BigDecimal value)
+    public final SelfType bind(String name, BigDecimal value)
     {
-        return setArgument(name, new BigDecimalArgument(value));
+        return bind(name, new BigDecimalArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBinaryStream(int position, InputStream value, int length)
+    public final SelfType bindBinaryStream(int position, InputStream value, int length)
     {
-        return setArgument(position, new InputStreamArgument(value, length, false));
+        return bind(position, new InputStreamArgument(value, length, false));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bind the paramater to
-     * @param value  to bind
+     * @param name   token name to bindBinaryStream the paramater to
+     * @param value  to bindBinaryStream
      * @param length bytes to read from value
      * @return the same Query instance
      */
-    public final SelfType setBinaryStream(String name, InputStream value, int length)
+    public final SelfType bindBinaryStream(String name, InputStream value, int length)
     {
-        return setArgument(name, new InputStreamArgument(value, length, false));
+        return bind(name, new InputStreamArgument(value, length, false));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBlob(int position, Blob value)
+    public final SelfType bind(int position, Blob value)
     {
-        return setArgument(position, new BlobArgument(value));
+        return bind(position, new BlobArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBlob(String name, Blob value)
+    public final SelfType bind(String name, Blob value)
     {
-        return setArgument(name, new BlobArgument(value));
+        return bind(name, new BlobArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBoolean(int position, boolean value)
+    public final SelfType bind(int position, boolean value)
     {
-        return setArgument(position, new BooleanArgument(value));
+        return bind(position, new BooleanArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBoolean(String name, boolean value)
+    public final SelfType bind(String name, boolean value)
     {
-        return setArgument(name, new BooleanArgument(value));
+        return bind(name, new BooleanArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setByte(int position, byte value)
+    public final SelfType bind(int position, byte value)
     {
-        return setArgument(position, new ByteArgument(value));
+        return bind(position, new ByteArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setByte(String name, byte value)
+    public final SelfType bind(String name, byte value)
     {
-        return setArgument(name, new ByteArgument(value));
+        return bind(name, new ByteArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBytes(int position, byte[] value)
+    public final SelfType bind(int position, byte[] value)
     {
-        return setArgument(position, new ByteArrayArgument(value));
+        return bind(position, new ByteArrayArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setBytes(String name, byte[] value)
+    public final SelfType bind(String name, byte[] value)
     {
-        return setArgument(name, new ByteArrayArgument(value));
+        return bind(name, new ByteArrayArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @param length   number of characters to read
      * @return the same Query instance
      */
-    public final SelfType setCharacterStream(int position, Reader value, int length)
+    public final SelfType bind(int position, Reader value, int length)
     {
-        return setArgument(position, new CharacterStreamArgument(value, length));
+        return bind(position, new CharacterStreamArgument(value, length));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bind the paramater to
-     * @param value  to bind
+     * @param name   token name to bindBinaryStream the paramater to
+     * @param value  to bindBinaryStream
      * @param length number of characters to read
      * @return the same Query instance
      */
-    public final SelfType setCharacterStream(String name, Reader value, int length)
+    public final SelfType bind(String name, Reader value, int length)
     {
-        return setArgument(name, new CharacterStreamArgument(value, length));
+        return bind(name, new CharacterStreamArgument(value, length));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setClob(int position, Clob value)
+    public final SelfType bind(int position, Clob value)
     {
-        return setArgument(position, new ClobArgument(value));
+        return bind(position, new ClobArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setClob(String name, Clob value)
+    public final SelfType bind(String name, Clob value)
     {
-        return setArgument(name, new ClobArgument(value));
+        return bind(name, new ClobArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setDate(int position, java.sql.Date value)
+    public final SelfType bind(int position, java.sql.Date value)
     {
-        return setArgument(position, new SqlDateArgument(value));
+        return bind(position, new SqlDateArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setDate(String name, java.sql.Date value)
+    public final SelfType bind(String name, java.sql.Date value)
     {
-        return setArgument(name, new SqlDateArgument(value));
+        return bind(name, new SqlDateArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setDate(int position, java.util.Date value)
+    public final SelfType bind(int position, java.util.Date value)
     {
-        return setArgument(position, new JavaDateArgument(value));
+        return bind(position, new JavaDateArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setDate(String name, java.util.Date value)
+    public final SelfType bind(String name, java.util.Date value)
     {
-        return setArgument(name, new JavaDateArgument(value));
+        return bind(name, new JavaDateArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setDouble(int position, Double value)
+    public final SelfType bind(int position, Double value)
     {
-        return setArgument(position, new DoubleArgument(value));
+        return bind(position, new DoubleArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setDouble(String name, Double value)
+    public final SelfType bind(String name, Double value)
     {
-        return setArgument(name, new DoubleArgument(value));
+        return bind(name, new DoubleArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setFloat(int position, Float value)
+    public final SelfType bind(int position, Float value)
     {
-        return setArgument(position, new FloatArgument(value));
+        return bind(position, new FloatArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setFloat(String name, Float value)
+    public final SelfType bind(String name, Float value)
     {
-        return setArgument(name, new FloatArgument(value));
+        return bind(name, new FloatArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setLong(int position, long value)
+    public final SelfType bind(int position, long value)
     {
-        return setArgument(position, new LongArgument(value));
+        return bind(position, new LongArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setLong(String name, long value)
+    public final SelfType bind(String name, long value)
     {
-        return setArgument(name, new LongArgument(value));
+        return bind(name, new LongArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setObject(int position, Object value)
+    public final SelfType bind(int position, Object value)
     {
-        return setArgument(position, new ObjectArgument(value));
+        return bind(position, new ObjectArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setObject(String name, Object value)
+    public final SelfType bind(String name, Object value)
     {
-        return setArgument(name, new ObjectArgument(value));
+        return bind(name, new ObjectArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setTime(int position, Time value)
+    public final SelfType bind(int position, Time value)
     {
-        return setArgument(position, new TimeArgument(value));
+        return bind(position, new TimeArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setTime(String name, Time value)
+    public final SelfType bind(String name, Time value)
     {
-        return setArgument(name, new TimeArgument(value));
+        return bind(name, new TimeArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setTimestamp(int position, Timestamp value)
+    public final SelfType bind(int position, Timestamp value)
     {
-        return setArgument(position, new TimestampArgument(value));
+        return bind(position, new TimestampArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setTimestamp(String name, Timestamp value)
+    public final SelfType bind(String name, Timestamp value)
     {
-        return setArgument(name, new TimestampArgument(value));
+        return bind(name, new TimestampArgument(value));
     }
 
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
+     * @param position position to bindBinaryStream the paramater at, starting at 0
+     * @param value    to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setUrl(int position, URL value)
+    public final SelfType bind(int position, URL value)
     {
-        return setArgument(position, new URLArgument(value));
+        return bind(position, new URLArgument(value));
     }
 
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
+     * @param name  token name to bindBinaryStream the paramater to
+     * @param value to bindBinaryStream
      * @return the same Query instance
      */
-    public final SelfType setUrl(String name, URL value)
+    public final SelfType bind(String name, URL value)
     {
-        return setArgument(name, new URLArgument(value));
+        return bind(name, new URLArgument(value));
     }
 
     protected <Result> Result internalExecute(final QueryPreperator prep,
@@ -629,7 +644,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement>
             }
             catch (SQLException e)
             {
-                throw new UnableToExecuteStatementException("Unable to bind parameters to query", e);
+                throw new UnableToExecuteStatementException("Unable to bindBinaryStream parameters to query", e);
             }
 
             try

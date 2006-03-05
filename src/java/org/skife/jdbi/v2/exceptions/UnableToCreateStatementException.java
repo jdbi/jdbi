@@ -16,6 +16,12 @@ package org.skife.jdbi.v2.exceptions;
 
 public class UnableToCreateStatementException extends DBIException
 {
+
+    public UnableToCreateStatementException(String string, Throwable throwable)
+    {
+        super(string, throwable);
+    }
+
     public UnableToCreateStatementException(Exception e)
     {
         super(e);

@@ -10,7 +10,14 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Represents a prepared batch statement. That is, a sql statement compiled as a prepared
+ * statement, and then executed multiple times in a single batch. This is, generally,
+ * a very efficient way to execute large numbers of the same statement where
+ * the statement only varies by the arguments bound to it.
+ */
 public class PreparedBatch
 {
     private List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
@@ -25,8 +32,15 @@ public class PreparedBatch
         this.sql = sql;
     }
 
+    /**
+     * Execute the batch
+     * @return the number of rows modified or inserted per batch part.
+     */
     public int[] execute()
     {
+        // short circuit empty batch
+        if (parts.size() == 0) return new int[] {};
+
         PreparedBatchPart current = parts.get(0);
         final ReWrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters());
         PreparedStatement stmt = null;
@@ -69,10 +83,32 @@ public class PreparedBatch
         }
     }
 
+    /**
+     * Add a statement (part) to this batch. You'll need to bindBinaryStream any arguments to the
+     * part.
+     *
+     * @return A part which can be used to bindBinaryStream parts to the statement
+     */
     public PreparedBatchPart add()
     {
         PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, sql);
         parts.add(part);
+        return part;
+    }
+
+    public PreparedBatchPart add(Object bean)
+    {
+        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, sql);
+        parts.add(part);
+        part.bindFromProperties(bean);
+        return part;
+    }
+
+    public PreparedBatchPart add(Map<String, ? extends Object> args)
+    {
+        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, sql);
+        parts.add(part);
+        part.bindFromMap(args);
         return part;
     }
 }

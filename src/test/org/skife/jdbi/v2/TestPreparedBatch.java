@@ -15,10 +15,12 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.derby.Tools;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public class TestPreparedBatch extends DBITestCase
 {
@@ -28,9 +30,9 @@ public class TestPreparedBatch extends DBITestCase
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         PreparedBatchPart p = b.add();
-        p = p.setInteger("id", 1).setString("name", "Eric").another();
-        p.setInteger("id", 2).setString("name", "Brian").another()
-                .setInteger("id", 3).setString("name", "Keith");
+        p = p.bind("id", 1).bind("name", "Eric").another();
+        p.bind("id", 2).bind("name", "Brian").another()
+                .bind("id", 3).bind("name", "Keith");
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
@@ -38,15 +40,15 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Keith", r.get(2).getName());
     }
 
-    public void testBigBatch() throws Exception
+    public void testBigishBatch() throws Exception
     {
         Handle h = openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        int count = 1000;
+        int count = 100;
         for (int i = 0; i < count; ++i)
         {
-            b.add().setInteger("id", i).setString("name", "A Name");
+            b.add().bind("id", i).bind("name", "A Name");
 
         }
         b.execute();
@@ -62,7 +64,40 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals(count, row_count);
     }
 
-    public void testStartHere() throws Exception
+    public void testBindProperties() throws Exception
+    {
+        Handle h = openHandle();
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        b.add(new Something(0, "Keith"));
+        b.add(new Something(1, "Eric"));
+        b.add(new Something(2, "Brian"));
+
+        b.execute();
+
+        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        assertEquals(3, r.size());
+        assertEquals("Brian", r.get(2).getName());
+    }
+
+    public void testBindMaps() throws Exception
+    {
+        Handle h = openHandle();
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        Map<String, Object> one =Tools.map("id", 0).add("name", "Keith");
+        b.add(one);
+        b.add(Tools.map("id", Integer.parseInt("1")).add("name", "Eric"));
+        b.add(Tools.map("id", Integer.parseInt("2")).add("name", "Brian"));
+
+        b.execute();
+
+        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        assertEquals(3, r.size());
+        assertEquals("Brian", r.get(2).getName());
+    }
+
+    public void _testStartHere() throws Exception
     {
         assertTrue("Push all connection ops into handle, " +
                    "move internalExecute there, " +

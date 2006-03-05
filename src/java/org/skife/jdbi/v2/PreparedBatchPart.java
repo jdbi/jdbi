@@ -18,7 +18,11 @@ import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
 
-class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
+/**
+ * Represents a single statement in a prepared batch
+ * @see PreparedBatch
+ */
+public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
 
@@ -28,11 +32,23 @@ class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
         this.batch = batch;
     }
 
+    /**
+     * Submit this statement to the batch, yielding the batch. The statement is already,
+     * actually part of the batch before it is submitted. This method is really just
+     * a convenient way to get the prepared batch back.
+     *
+     * @return the PreparedBatch which this is a part of
+     */
     public PreparedBatch submit()
     {
         return batch;
     }
 
+    /**
+     * Submit this part of the batch and open a fresh one
+     *
+     * @return a fresh PrepatedBatchPart on the same batch
+     */
     public PreparedBatchPart another()
     {
         return batch.add();

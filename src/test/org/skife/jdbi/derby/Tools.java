@@ -15,6 +15,7 @@
 package org.skife.jdbi.derby;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.skife.jdbi.HandyMapThing;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -128,5 +129,12 @@ public class Tools
     public static DataSource getDataSource()
     {
         return dataSource;
+    }
+
+
+    public static <K> HandyMapThing<K> map(K k, Object v)
+    {
+        HandyMapThing<K>s =  new HandyMapThing<K>();
+        return s.add(k, v);
     }
 }
