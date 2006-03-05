@@ -20,15 +20,16 @@ import java.sql.Connection;
 
 /**
  * Represents a single statement in a prepared batch
+ *
  * @see PreparedBatch
  */
 public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
 
-    PreparedBatchPart(PreparedBatch batch, StatementRewriter rewriter, Connection connection, String sql)
+    PreparedBatchPart(PreparedBatch batch, StatementRewriter rewriter, Connection connection, PreparedStatementCache cache, String sql)
     {
-        super(new Parameters(), rewriter, connection, sql);
+        super(new Parameters(), rewriter, connection, cache, sql);
         this.batch = batch;
     }
 

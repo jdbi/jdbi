@@ -12,9 +12,9 @@ import java.sql.Statement;
  */
 public class UpdateStatement extends SQLStatement<UpdateStatement>
 {
-    UpdateStatement(Connection connection, StatementRewriter statementRewriter, String sql)
+    UpdateStatement(Connection connection, StatementRewriter statementRewriter, PreparedStatementCache cache, String sql)
     {
-        super(new Parameters(), statementRewriter, connection, sql);
+        super(new Parameters(), statementRewriter, connection, cache, sql);
     }
 
     public int execute()

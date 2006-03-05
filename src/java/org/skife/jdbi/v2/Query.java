@@ -35,15 +35,16 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>
           ResultSetMapper<ResultType> mapper,
           StatementRewriter statementRewriter,
           Connection connection,
+          PreparedStatementCache cache,
           String sql)
     {
-        super(params, statementRewriter, connection, sql);
+        super(params, statementRewriter, connection, cache, sql);
         this.mapper = mapper;
     }
 
-    Query(ResultSetMapper<ResultType> mapper, StatementRewriter statementRewriter, Connection connection, String sql)
+    Query(ResultSetMapper<ResultType> mapper, StatementRewriter statementRewriter, Connection connection, PreparedStatementCache cache, String sql)
     {
-        this(new Parameters(), mapper, statementRewriter, connection, sql);
+        this(new Parameters(), mapper, statementRewriter, connection, cache, sql);
     }
 
     /**
@@ -115,6 +116,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>
                             mapper,
                             getRewriter(),
                             getConnection(),
+                            getPreparedStatementCache(),
                             getSql());
     }
 }

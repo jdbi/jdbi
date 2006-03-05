@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutorService;
 import java.sql.SQLException;
+import java.sql.Connection;
 
 /**
  * 
@@ -52,9 +53,11 @@ public abstract class DBITestCase extends TestCase
 
     protected BasicHandle openHandle() throws SQLException
     {
+        Connection conn = Tools.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
+                                        new PreparedStatementCache(conn),
                                         new NamedParameterStatementRewriter(),
-                                        Tools.getConnection());
+                                        conn);
         handles.add(h);
         return h;
     }
@@ -69,7 +72,7 @@ public abstract class DBITestCase extends TestCase
         if (this.executor == null) {
             this.executor = Executors.newCachedThreadPool();
         }
-        return executor.submit(it);    
+        return executor.submit(it);
     }
 
 }

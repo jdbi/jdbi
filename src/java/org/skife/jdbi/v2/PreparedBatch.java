@@ -23,12 +23,14 @@ public class PreparedBatch
     private List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private final StatementRewriter rewriter;
     private final Connection connection;
+    private final PreparedStatementCache preparedStatementCache;
     private final String sql;
 
-    PreparedBatch(StatementRewriter rewriter, Connection connection, String sql)
+    PreparedBatch(StatementRewriter rewriter, Connection connection, PreparedStatementCache preparedStatementCache, String sql)
     {
         this.rewriter = rewriter;
         this.connection = connection;
+        this.preparedStatementCache = preparedStatementCache;
         this.sql = sql;
     }
 
@@ -91,14 +93,14 @@ public class PreparedBatch
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, preparedStatementCache, sql);
         parts.add(part);
         return part;
     }
 
     public PreparedBatchPart add(Object bean)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, preparedStatementCache,sql);
         parts.add(part);
         part.bindFromProperties(bean);
         return part;
@@ -106,7 +108,7 @@ public class PreparedBatch
 
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, preparedStatementCache,sql);
         parts.add(part);
         part.bindFromMap(args);
         return part;

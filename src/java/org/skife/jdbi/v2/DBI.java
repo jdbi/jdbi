@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.sql.Connection;
 
 public class DBI
 {
@@ -43,9 +44,12 @@ public class DBI
     {
         try
         {
+            Connection conn = connectionFactory.openConnection();
+            PreparedStatementCache cache = new PreparedStatementCache(conn);
             return new BasicHandle(new LocalTransactionHandler(),
+                                   cache,
                                    statementRewriter,
-                                   connectionFactory.openConnection());
+                                   conn);
         }
         catch (SQLException e)
         {

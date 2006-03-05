@@ -19,6 +19,8 @@ import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
+import java.sql.Connection;
+
 /**
  * 
  */
@@ -30,9 +32,11 @@ public class TestPositionalParameterBinding extends TestCase
     {
         Tools.start();
         Tools.dropAndCreateSomething();
+        Connection conn = Tools.getConnection();
         h = new BasicHandle(new LocalTransactionHandler(),
+                            new PreparedStatementCache(conn),
                             new NamedParameterStatementRewriter(),
-                            Tools.getConnection());
+                            conn);
     }
 
     public void tearDown() throws Exception

@@ -28,11 +28,14 @@ public class BasicHandle implements Handle
     private final TransactionHandler transactions;
     private final Connection connection;
     private StatementRewriter statementRewriter;
+    private PreparedStatementCache preparedStatementCache;
 
     public BasicHandle(TransactionHandler transactions,
+                       PreparedStatementCache preparedStatementCache,
                        StatementRewriter statementRewriter,
                        Connection connection)
     {
+        this.preparedStatementCache = preparedStatementCache;
         this.statementRewriter = statementRewriter;
         this.transactions = transactions;
         this.connection = connection;
@@ -43,6 +46,7 @@ public class BasicHandle implements Handle
         return new Query<Map<String, Object>>(new DefaultMapper(),
                                               statementRewriter,
                                               connection,
+                                              preparedStatementCache,
                                               sql);
     }
 
@@ -58,6 +62,7 @@ public class BasicHandle implements Handle
 
     public void close()
     {
+        preparedStatementCache.close();
         try
         {
             connection.close();
@@ -97,7 +102,7 @@ public class BasicHandle implements Handle
 
     public UpdateStatement createStatement(String sql)
     {
-        return new UpdateStatement(connection, statementRewriter, sql);
+        return new UpdateStatement(connection, statementRewriter, preparedStatementCache, sql);
     }
 
     public int insert(String sql, Object... args)
@@ -118,7 +123,7 @@ public class BasicHandle implements Handle
 
     public PreparedBatch prepareBatch(String sql)
     {
-        return new PreparedBatch(statementRewriter, connection, sql);
+        return new PreparedBatch(statementRewriter, connection, preparedStatementCache, sql);
     }
 
     public Batch createBatch()

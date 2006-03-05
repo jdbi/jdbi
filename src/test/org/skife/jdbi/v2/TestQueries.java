@@ -22,6 +22,7 @@ import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,9 +34,11 @@ public class TestQueries extends TestCase
     {
         Tools.start();
         Tools.dropAndCreateSomething();
+        Connection conn = Tools.getConnection();
         h = new BasicHandle(new LocalTransactionHandler(),
+                            new PreparedStatementCache(conn),
                             new NamedParameterStatementRewriter(),
-                            Tools.getConnection());
+                            conn);
     }
 
     public void tearDown() throws Exception

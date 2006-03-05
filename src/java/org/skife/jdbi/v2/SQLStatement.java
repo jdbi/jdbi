@@ -41,14 +41,16 @@ public abstract class SQLStatement<SelfType extends SQLStatement>
     private final Connection connection;
     private final String sql;
     private final StatementRewriter rewriter;
+    private final PreparedStatementCache preparedStatementCache;
 
     SQLStatement(Parameters params,
                  StatementRewriter rewriter,
                  Connection conn,
+                 PreparedStatementCache preparedStatementCache,
                  String sql)
     {
         assert(verifyOurNastyDowncastIsOkay());
-
+        this.preparedStatementCache = preparedStatementCache;
         this.rewriter = rewriter;
         this.connection = conn;
         this.sql = sql;
@@ -67,6 +69,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement>
                     this.getClass().getTypeParameters()[0].getGenericDeclaration();
             return parameterized_type.isAssignableFrom(this.getClass());
         }
+    }
+
+    protected PreparedStatementCache getPreparedStatementCache()
+    {
+        return preparedStatementCache;
     }
 
     protected StatementRewriter getRewriter()
@@ -632,7 +639,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement>
         {
             try
             {
-                stmt = connection.prepareStatement(rewritten.getSql());
+                stmt = preparedStatementCache.locate(rewritten.getSql());
             }
             catch (SQLException e)
             {
@@ -678,7 +685,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement>
         }
         finally
         {
-            cleanup.cleanup(this, stmt, rs);
+            cleanup.cleanup(this, null, rs);
         }
     }
 }
