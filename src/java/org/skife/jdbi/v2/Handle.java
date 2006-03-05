@@ -81,4 +81,11 @@ public interface Handle
      * @return a batch which can have "statements" added
      */
     PreparedBatch prepareBatch(String sql);
+
+    /**
+     * Create a non-prepared (no bound parameters, but different SQL, batch statement
+     * @return empty batch
+     * @see Handle#prepareBatch(String)
+     */
+    Batch createBatch();
 }

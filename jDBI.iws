@@ -134,13 +134,71 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TestPreparedBatch.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="TestPreparedBatch.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="107" column="30" selection-start="3680" selection-end="3680" vertical-scroll-proportion="0.65583175">
+            <state line="100" column="39" selection-start="3431" selection-end="3431" vertical-scroll-proportion="1.6101426">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Batch.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Batch.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="27" column="29" selection-start="711" selection-end="711" vertical-scroll-proportion="0.6418384">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Handle.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="89" column="18" selection-start="2503" selection-end="2503" vertical-scroll-proportion="1.5863708">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BasicHandle.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="125" column="21" selection-start="3277" selection-end="3277" vertical-scroll-proportion="1.1822504">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="QueueingBatch.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/QueueingBatch.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="24" column="6" selection-start="827" selection-end="827" vertical-scroll-proportion="0.118858956">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PreparedBatch.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="83" column="0" selection-start="1320" selection-end="2608" vertical-scroll-proportion="1.2535658">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Arguments.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/Arguments.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="16" column="10" selection-start="638" selection-end="638" vertical-scroll-proportion="0.07131537">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -278,6 +336,44 @@
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/org/skife/jdbi" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/org/skife/jdbi" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/org/skife/jdbi/v2" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
     </PATH>
     <PATH>
       <PATH_ELEMENT>
@@ -350,22 +446,6 @@
       </PATH_ELEMENT>
       <PATH_ELEMENT>
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -423,13 +503,13 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="TestPreparedBatch.testMixedModeBatch" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="TestBatch.testBasics" type="JUnit" factoryName="JUnit">
       <module name="jDBI" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="org.skife.jdbi.v2" />
-      <option name="MAIN_CLASS_NAME" value="org.skife.jdbi.v2.TestPreparedBatch" />
-      <option name="METHOD_NAME" value="testMixedModeBatch" />
+      <option name="MAIN_CLASS_NAME" value="org.skife.jdbi.v2.TestBatch" />
+      <option name="METHOD_NAME" value="testBasics" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
@@ -589,7 +669,7 @@
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="Favorites" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="1" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3781279" order="2" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3781279" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="2" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.36793327" order="4" />
@@ -672,73 +752,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestAnnotationMagic.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="27" selection-start="810" selection-end="810" vertical-scroll-proportion="0.2581262">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="55" selection-start="1351" selection-end="1351" vertical-scroll-proportion="0.34416825">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToCreateStatementException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="33" selection-start="831" selection-end="831" vertical-scroll-proportion="0.19017433">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/LazyArguments.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="17" selection-start="77" selection-end="77" vertical-scroll-proportion="0.118858956">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NamedParameterStatementRewriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="0" selection-start="2900" selection-end="2900" vertical-scroll-proportion="0.4770206">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="63" column="43" selection-start="2076" selection-end="2076" vertical-scroll-proportion="0.5267686">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/HandyMapThing.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="28" selection-start="151" selection-end="151" vertical-scroll-proportion="0.1290631">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/derby/Tools.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="102" column="29" selection-start="3235" selection-end="3235" vertical-scroll-proportion="0.7131931">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNamedParams.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="98" column="5" selection-start="3560" selection-end="3560" vertical-scroll-proportion="1.1615679">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/UpdateStatement.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="28" column="5" selection-start="846" selection-end="846" vertical-scroll-proportion="0.3298279">
@@ -780,9 +793,76 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/Arguments.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="10" selection-start="638" selection-end="638" vertical-scroll-proportion="0.07131537">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="107" column="30" selection-start="3680" selection-end="3680" vertical-scroll-proportion="0.65583175">
+        <state line="100" column="39" selection-start="3431" selection-end="3431" vertical-scroll-proportion="1.6101426">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="83" column="0" selection-start="1320" selection-end="2608" vertical-scroll-proportion="1.2535658">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/QueryPostMungeCleanup.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="57" selection-start="899" selection-end="899" vertical-scroll-proportion="0.1290631">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/QueueingBatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="6" selection-start="827" selection-end="827" vertical-scroll-proportion="0.118858956">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/Batch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="16" selection-start="800" selection-end="800" vertical-scroll-proportion="0.15774378">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="89" column="18" selection-start="2503" selection-end="2503" vertical-scroll-proportion="1.5863708">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="125" column="21" selection-start="3277" selection-end="3277" vertical-scroll-proportion="1.1822504">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestBatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="18" column="32" selection-start="500" selection-end="500" vertical-scroll-proportion="0.42789224">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Batch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="29" selection-start="711" selection-end="711" vertical-scroll-proportion="0.6418384">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

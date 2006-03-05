@@ -121,6 +121,11 @@ public class BasicHandle implements Handle
         return new PreparedBatch(statementRewriter, connection, sql);
     }
 
+    public Batch createBatch()
+    {
+        return new Batch(this.statementRewriter, this.connection);
+    }
+
     public List<Map<String, Object>> query(String sql, Object... args)
     {
         Query<Map<String, Object>> query = this.createQuery(sql);

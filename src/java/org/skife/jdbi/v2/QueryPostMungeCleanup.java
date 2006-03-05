@@ -14,15 +14,15 @@
  */
 package org.skife.jdbi.v2;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 interface QueryPostMungeCleanup
 {
     final QueryPostMungeCleanup CLOSE_RESOURCES_QUIETLY = new QueryPostMungeCleanup()
     {
-        public void cleanup(SQLStatement query, PreparedStatement stmt, ResultSet rs)
+        public void cleanup(SQLStatement query, Statement stmt, ResultSet rs)
         {
             if (rs != null)
             {
@@ -50,5 +50,5 @@ interface QueryPostMungeCleanup
         }
     };
 
-    void cleanup(SQLStatement query, PreparedStatement stmt, ResultSet rs);
+    void cleanup(SQLStatement query, Statement stmt, ResultSet rs);
 }
