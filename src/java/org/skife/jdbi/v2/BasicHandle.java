@@ -171,7 +171,7 @@ public class BasicHandle implements Handle
         }
     }
 
-    public List<Map<String, Object>> query(String sql, Object... args)
+    public List<Map<String, Object>> select(String sql, Object... args)
     {
         Query<Map<String, Object>> query = this.createQuery(sql);
         int position = 0;

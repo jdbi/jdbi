@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 public class TestQueries extends TestCase
 {
@@ -93,7 +94,7 @@ public class TestQueries extends TestCase
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        List<Map<String, Object>> r = h.query("select * from something order by id");
+        List<Map<String, Object>> r = h.select("select * from something order by id");
         assertEquals(2, r.size());
         assertEquals("eric", r.get(0).get("name"));
     }
@@ -103,7 +104,7 @@ public class TestQueries extends TestCase
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        List<Map<String, Object>> r = h.query("select * from something where id = ?", 1);
+        List<Map<String, Object>> r = h.select("select * from something where id = ?", 1);
         assertEquals(1, r.size());
         assertEquals("eric", r.get(0).get("name"));
     }

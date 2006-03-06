@@ -18,6 +18,7 @@ import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 
 import java.sql.Connection;
 import java.util.Map;
+import java.util.List;
 
 public interface Handle
 {
@@ -51,7 +52,7 @@ public interface Handle
 
     /**
      * Return a default Query instance which can be executed later, as long as this handle remains open.
-     * @param sql the query sql
+     * @param sql the select sql
      */
     Query<Map<String, Object>> createQuery(String sql);
 
@@ -100,4 +101,6 @@ public interface Handle
      * @throws TransactionFailedException if the transaction failed in the callback
      */
     <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException;
+
+    List<Map<String, Object>> select(String sql, Object... args);
 }

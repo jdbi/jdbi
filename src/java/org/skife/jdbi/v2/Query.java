@@ -48,7 +48,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>
     }
 
     /**
-     * Executes the query
+     * Executes the select
      * <p/>
      * Will eagerly load all results
      *
@@ -78,7 +78,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>
     }
 
     /**
-     * Executes the query.
+     * Executes the select.
      * <p/>
      * Specifies a maximum of one result on the JDBC statement, and map that one result
      * as the return value, or return null if there is nothing in the results
