@@ -161,6 +161,7 @@ public class BasicHandle implements Handle
         }
         if (failed[0])
         {
+            this.rollback();
             throw new TransactionFailedException("Transaction failed due to transaction status being set " +
                                                  "to rollback only.");
         }

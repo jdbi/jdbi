@@ -81,32 +81,6 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestTransactions.java" line="44" class="org.skife.jdbi.v2.TestTransactions" package="org.skife.jdbi.v2">
-        <option name="ENABLED" value="true" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java" line="136" class="org.skife.jdbi.v2.BasicHandle" package="org.skife.jdbi.v2">
-        <option name="ENABLED" value="true" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
       <breakpoint url="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java" line="156" class="org.skife.jdbi.v2.BasicHandle" package="org.skife.jdbi.v2">
         <option name="ENABLED" value="true" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
@@ -178,7 +152,7 @@
       <file leaf-file-name="TestTransactions.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestTransactions.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="44" column="0" selection-start="1323" selection-end="1323" vertical-scroll-proportion="0.3846154">
+            <state line="70" column="23" selection-start="2157" selection-end="2157" vertical-scroll-proportion="0.36182335">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -186,30 +160,28 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Handle.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="101" column="28" selection-start="2968" selection-end="2968" vertical-scroll-proportion="0.8136827">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BasicHandle.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="BasicHandle.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="99" column="0" selection-start="2884" selection-end="2884" vertical-scroll-proportion="0.19796215">
+            <state line="163" column="28" selection-start="4761" selection-end="4761" vertical-scroll-proportion="0.77729255">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LocalTransactionHandler.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="DBITestCase.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/DBITestCase.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="48" column="0" selection-start="1488" selection-end="1488" vertical-scroll-proportion="0.19800569">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LocalTransactionHandler.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/LocalTransactionHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="49" column="44" selection-start="1379" selection-end="1379" vertical-scroll-proportion="0.52136755">
+            <state line="12" column="0" selection-start="280" selection-end="280" vertical-scroll-proportion="0.15954416">
               <folding />
             </state>
           </provider>
@@ -522,7 +494,7 @@
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
       <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions" />
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -598,14 +570,14 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="TestTransactions.testExceptionAbortsTransaction" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="TestTransactions" type="JUnit" factoryName="JUnit">
       <module name="jDBI" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="org.skife.jdbi.v2" />
       <option name="MAIN_CLASS_NAME" value="org.skife.jdbi.v2.TestTransactions" />
-      <option name="METHOD_NAME" value="testExceptionAbortsTransaction" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -613,13 +585,7 @@
       <option name="TEST_SEARCH_SCOPE">
         <value defaultName="wholeProject" />
       </option>
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="57109" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
     </tempConfiguration>
     <configuration selected="false" default="true" type="WebLogic Instance" factoryName="Local">
@@ -853,20 +819,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPositionalParameterBinding.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="32" selection-start="1351" selection-end="1351" vertical-scroll-proportion="0.022792023">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/DBITestCase.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="59" column="44" selection-start="1931" selection-end="1931" vertical-scroll-proportion="0.46581197">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="687" column="38" selection-start="20211" selection-end="20211" vertical-scroll-proportion="0.8076923">
@@ -938,16 +890,37 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="101" column="28" selection-start="2968" selection-end="2968" vertical-scroll-proportion="0.8136827">
+        <state line="101" column="28" selection-start="2968" selection-end="2968" vertical-scroll-proportion="0.88355166">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/LocalTransactionHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="0" selection-start="280" selection-end="280" vertical-scroll-proportion="0.15954416">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/TransactionHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="93" selection-start="695" selection-end="695" vertical-scroll-proportion="0.5964912">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/DBITestCase.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="0" selection-start="1488" selection-end="1488" vertical-scroll-proportion="0.19800569">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestTransactions.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="0" selection-start="1323" selection-end="1323" vertical-scroll-proportion="0.3846154">
+        <state line="70" column="23" selection-start="2157" selection-end="2157" vertical-scroll-proportion="0.36182335">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -956,14 +929,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="99" column="0" selection-start="2884" selection-end="2884" vertical-scroll-proportion="0.19796215">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/LocalTransactionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="49" column="44" selection-start="1379" selection-end="1379" vertical-scroll-proportion="0.52136755">
+        <state line="163" column="28" selection-start="4761" selection-end="4761" vertical-scroll-proportion="0.77729255">
           <folding />
         </state>
       </provider>

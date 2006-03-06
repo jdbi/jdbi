@@ -15,7 +15,7 @@ public interface TransactionHandler
     /**
      * Called when a transaction is started
      */
-    public void begin(Handle handle);
+    public void begin(Handle handle); // TODO consider having this return a TransactionStatus
 
     /**
      * Called when a transaction is committed

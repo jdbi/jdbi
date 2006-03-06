@@ -60,6 +60,33 @@ public class TestTransactions extends DBITestCase
 
         List<Something> r = h.createQuery("select * from something").map(Something.class).list();
         assertEquals(0, r.size());
+    }
+
+    public void testRollbackOnlyAbortsTransaction() throws Exception
+    {
+        Handle h = this.openHandle();
+
+        try
+        {
+            h.inTransaction(new TransactionCallback<Object>()
+            {
+                public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
+                {
+                    handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
+                    status.setRollbackOnly();
+                    return "Hi";
+                }
+            });
+            fail("Should have thrown exception");
+        }
+        catch (TransactionFailedException e)
+        {
+            assertTrue(true);
+        }
+
+        List<Something> r = h.createQuery("select * from something").map(Something.class).list();
+        assertEquals(0, r.size());
+
 
     }
 }
