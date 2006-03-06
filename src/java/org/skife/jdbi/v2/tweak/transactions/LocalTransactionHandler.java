@@ -1,16 +1,19 @@
 package org.skife.jdbi.v2.tweak.transactions;
 
+import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
-import org.skife.jdbi.v2.Handle;
 
 import java.sql.SQLException;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
  */
 public class LocalTransactionHandler implements TransactionHandler
 {
+    private ConcurrentHashMap<Handle, Boolean> initialAutoCommits = new ConcurrentHashMap<Handle, Boolean>();
+
     /**
      * Called when a transaction is started
      */
@@ -18,6 +21,8 @@ public class LocalTransactionHandler implements TransactionHandler
     {
         try
         {
+            boolean initial = handle.getConnection().getAutoCommit();
+            initialAutoCommits.put(handle, initial);
             handle.getConnection().setAutoCommit(false);
         }
         catch (SQLException e)
@@ -34,10 +39,18 @@ public class LocalTransactionHandler implements TransactionHandler
         try
         {
             handle.getConnection().commit();
+            handle.getConnection().setAutoCommit(initialAutoCommits.remove(handle));
         }
         catch (SQLException e)
         {
             throw new TransactionException("Failed to commit transaction", e);
+        }
+        finally
+        {
+            // prevent memory leak if commit throws an exception
+            if (initialAutoCommits.containsKey(handle)) {
+                initialAutoCommits.remove(handle);
+            }
         }
     }
 
@@ -49,10 +62,18 @@ public class LocalTransactionHandler implements TransactionHandler
         try
         {
             handle.getConnection().rollback();
+            handle.getConnection().setAutoCommit(initialAutoCommits.remove(handle));
         }
         catch (SQLException e)
         {
             throw new TransactionException("Failed to rollback transaction", e);
+        }
+        finally
+        {
+            // prevent memory leak if rollback throws an exception
+            if (initialAutoCommits.containsKey(handle)) {
+                initialAutoCommits.remove(handle);
+            }
         }
     }
 

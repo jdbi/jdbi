@@ -14,8 +14,10 @@
  */
 package org.skife.jdbi.v2;
 
-import java.util.Map;
+import org.skife.jdbi.v2.exceptions.TransactionFailedException;
+
 import java.sql.Connection;
+import java.util.Map;
 
 public interface Handle
 {
@@ -88,4 +90,14 @@ public interface Handle
      * @see Handle#prepareBatch(String)
      */
     Batch createBatch();
+
+    /**
+     * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
+     * result of the callback will be returned. If it fails a {@link TransactionFailedException}
+     * will be thrown.
+     *
+     * @return value returned from the callback
+     * @throws TransactionFailedException if the transaction failed in the callback
+     */
+    <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException;
 }

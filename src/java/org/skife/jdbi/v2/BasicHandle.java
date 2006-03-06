@@ -14,14 +14,15 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
-import org.skife.jdbi.v2.tweak.TransactionHandler;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 public class BasicHandle implements Handle
 {
@@ -129,6 +130,44 @@ public class BasicHandle implements Handle
     public Batch createBatch()
     {
         return new Batch(this.statementRewriter, this.connection);
+    }
+
+    public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException
+    {
+        final boolean[] failed = {false};
+        TransactionStatus status = new TransactionStatus()
+        {
+            public void setRollbackOnly()
+            {
+                failed[0] = true;
+            }
+        };
+        final ReturnType returnValue;
+        try
+        {
+            this.begin();
+            returnValue = callback.inTransaction(this, status);
+            if (!failed[0])
+            {
+                this.commit();
+            }
+        }
+        catch (Exception e)
+        {
+            this.rollback();
+            throw new TransactionFailedException("Transaction failed do to exception being thrown " +
+                                                 "from within the callback. See cause " +
+                                                 "for the original exception.", e);
+        }
+        if (failed[0])
+        {
+            throw new TransactionFailedException("Transaction failed due to transaction status being set " +
+                                                 "to rollback only.");
+        }
+        else
+        {
+            return returnValue;
+        }
     }
 
     public List<Map<String, Object>> query(String sql, Object... args)
