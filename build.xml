@@ -1,7 +1,7 @@
 <project name="jDBI" default="jar" basedir=".">
 
     <property name="debug" value="true"/>
-    <property name="version" value="1.4.1"/>
+    <property name="version" value="1.4.2"/>
     <property name="username" value="johan"/>
     <property name="password" value="doe"/>
     <property name="release-url" value="${username}:${password}@beaver.codehaus.org:/home/projects/jdbi/public_html/"/>
@@ -9,7 +9,7 @@
     <target name="compile" description="Compile all Source Files">
         <mkdir dir="build"/>
         <mkdir dir="build/classes"/>
-        <javac srcdir="src/java" destdir="build/classes" debug="${debug}">
+        <javac srcdir="src/java" target="1.4" destdir="build/classes" debug="${debug}">
             <classpath>
                 <fileset dir="lib">
                     <include name="**/*.jar"/>
@@ -21,7 +21,7 @@
     <target name="compile-tests" depends="compile" description="Build source for unit tests">
         <mkdir dir="build"/>
         <mkdir dir="build/test-classes"/>
-        <javac srcdir="src/test" destdir="build/test-classes" debug="${debug}">
+        <javac srcdir="src/test" target="1.4" destdir="build/test-classes" debug="${debug}">
             <classpath>
                 <fileset dir="lib">
                     <include name="**/*.jar"/>

@@ -1,3 +1,6 @@
+1.4.2
+    Be explicit about target jdk version (1.4) for this branch
+
 1.4.1
     Fixed bug where null is being set via setObject instead of setNull
     Thank you, Simone Gianni!
