@@ -20,12 +20,11 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
 
 public class TestQueries extends TestCase
 {
@@ -168,14 +167,62 @@ public class TestQueries extends TestCase
         assertEquals("eric", r.getName());
     }
 
-//    public void testIteratedResult() throws Exception
-//    {
-//        h.insert("insert into something (id, name) values (1, 'eric')");
-//        h.insert("insert into something (id, name) values (2, 'brian')");
-//
-//        Iterator<Something> i = h.createQuery("select * from something order by id")
-//                .map(Something.class)
-//                .iterate();
-//
-//    }
+    public void testIteratedResult() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        ResultIterator<Something> i = h.createQuery("select * from something order by id")
+                .map(Something.class)
+                .iterator();
+
+        assertTrue(i.hasNext());
+        Something first = i.next();
+        assertEquals("eric", first.getName());
+        assertTrue(i.hasNext());
+        Something second = i.next();
+        assertEquals(2, second.getId());
+        assertFalse(i.hasNext());
+
+        i.close();
+    }
+
+    public void testIteratorBehavior() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        ResultIterator<Something> i = h.createQuery("select * from something order by id")
+                .map(Something.class)
+                .iterator();
+
+        assertTrue(i.hasNext());
+        assertTrue(i.hasNext());
+        Something first = i.next();
+        assertEquals("eric", first.getName());
+        assertTrue(i.hasNext());
+        Something second = i.next();
+        assertEquals(2, second.getId());
+        assertFalse(i.hasNext());
+
+        i.close();
+    }
+
+    public void testIteratorBehavior2() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'brian')");
+
+        ResultIterator<Something> i = h.createQuery("select * from something order by id")
+                .map(Something.class)
+                .iterator();
+
+        Something first = i.next();
+        assertEquals("eric", first.getName());
+        Something second = i.next();
+        assertEquals(2, second.getId());
+        assertFalse(i.hasNext());
+
+        i.close();
+    }
 }

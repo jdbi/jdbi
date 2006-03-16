@@ -78,6 +78,24 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>
     }
 
     /**
+     * Obtain a forward-only result set iterator. Note that you must explicitely close
+     * the iterator to close the underlying resources.
+     */
+    public ResultIterator<ResultType> iterator()
+    {
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<ResultIterator<ResultType>>()
+        {
+            public Pair<ResultIterator<ResultType>, ResultSet> munge(Statement results) throws SQLException
+            {
+                ResultSetResultIterator<ResultType> r = new ResultSetResultIterator<ResultType>(mapper,
+                                                                                                results,
+                                                                                                results.getResultSet());
+                return new Pair<ResultIterator<ResultType>, ResultSet>(r, results.getResultSet());
+            }
+        }, QueryPostMungeCleanup.NO_OP);
+    }
+
+    /**
      * Executes the select.
      * <p/>
      * Specifies a maximum of one result on the JDBC statement, and map that one result

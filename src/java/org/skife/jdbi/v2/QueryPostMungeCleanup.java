@@ -49,6 +49,13 @@ interface QueryPostMungeCleanup
             }
         }
     };
+    final QueryPostMungeCleanup NO_OP =  new QueryPostMungeCleanup()
+    {
+        public void cleanup(SQLStatement query, Statement stmt, ResultSet rs)
+        {
+
+        }
+    };
 
     void cleanup(SQLStatement query, Statement stmt, ResultSet rs);
 }
