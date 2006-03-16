@@ -137,7 +137,7 @@
       <file leaf-file-name="TestQueries.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="220" column="46" selection-start="7671" selection-end="7671" vertical-scroll-proportion="0.7438137">
+            <state line="236" column="26" selection-start="8206" selection-end="8206" vertical-scroll-proportion="0.930131">
               <folding />
             </state>
           </provider>
@@ -861,7 +861,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="220" column="46" selection-start="7671" selection-end="7671" vertical-scroll-proportion="0.7438137">
+        <state line="236" column="26" selection-start="8206" selection-end="8206" vertical-scroll-proportion="0.930131">
           <folding />
         </state>
       </provider>

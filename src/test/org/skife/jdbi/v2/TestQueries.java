@@ -225,4 +225,14 @@ public class TestQueries extends TestCase
 
         i.close();
     }
+
+//    public void testListIterator() throws Exception
+//    {
+//        h.insert("insert into something (id, name) values (1, 'eric')");
+//        h.insert("insert into something (id, name) values (2, 'brian')");
+//
+//        ResultListIterator<Something> i = h.createQuery("select * from something order by id")
+//                .map(Something.class)
+//                .listIterator();
+//    }
 }
