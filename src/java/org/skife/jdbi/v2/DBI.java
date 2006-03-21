@@ -25,7 +25,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Connection;
 
-public class DBI
+public class DBI implements IDBI
 {
     private final ConnectionFactory connectionFactory;
     private StatementRewriter statementRewriter = new NamedParameterStatementRewriter();

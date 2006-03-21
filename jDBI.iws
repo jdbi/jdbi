@@ -137,7 +137,7 @@
       <file leaf-file-name="Handle.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="110" column="65" selection-start="3379" selection-end="3379" vertical-scroll-proportion="0.94263864">
+            <state line="110" column="65" selection-start="3379" selection-end="3379" vertical-scroll-proportion="1.4415205">
               <folding />
             </state>
           </provider>
@@ -146,16 +146,70 @@
       <file leaf-file-name="BasicHandle.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="205" column="42" selection-start="6295" selection-end="6295" vertical-scroll-proportion="0.8852773">
+            <state line="205" column="42" selection-start="6295" selection-end="6295" vertical-scroll-proportion="1.3538011">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DBI.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="DBI.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DBI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="58" column="42" selection-start="2045" selection-end="2045" vertical-scroll-proportion="0.5162524">
+            <state line="41" column="51" selection-start="1607" selection-end="1607" vertical-scroll-proportion="0.41666666">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SQLExceptionTranslatingThrowsAdvice.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SQLExceptionTranslatingThrowsAdvice.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="48" column="24" selection-start="1695" selection-end="1695" vertical-scroll-proportion="0.5482456">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DBIBean.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/DBIBean.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="65" column="13" selection-start="2482" selection-end="2482" vertical-scroll-proportion="0.048245613">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DBIUtils.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/DBIUtils.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="13" selection-start="976" selection-end="976" vertical-scroll-proportion="0.1754386">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SpringTransactionHandler.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringTransactionHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="28" column="19" selection-start="1074" selection-end="1074" vertical-scroll-proportion="0.50438595">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SpringDBIAdaptor.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="39" column="39" selection-start="1368" selection-end="1368" vertical-scroll-proportion="-0.021929825">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IDBI.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IDBI.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="11" column="17" selection-start="238" selection-end="238" vertical-scroll-proportion="0.24122807">
               <folding />
             </state>
           </provider>
@@ -449,7 +503,109 @@
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
       <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/tweak" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="jDBI" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/spring" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -682,7 +838,7 @@
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32993513" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32956153" order="7" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.22809279" order="0" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32900834" order="1" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.32900834" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.2495935" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3243744" order="8" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.3997175" order="6" />
@@ -774,57 +930,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="132" column="36" selection-start="5084" selection-end="5084" vertical-scroll-proportion="0.8422562">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="40" selection-start="1277" selection-end="1277" vertical-scroll-proportion="0.30114722">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/UpdateStatement.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="41" selection-start="517" selection-end="517" vertical-scroll-proportion="0.15774378">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/tweak/ClasspathStatementLocator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="88" column="4" selection-start="2655" selection-end="2804" vertical-scroll-proportion="0.8422562">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClasspathStatementLocator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="25" selection-start="928" selection-end="928" vertical-scroll-proportion="0.41586998">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="54" selection-start="136" selection-end="136" vertical-scroll-proportion="0.10038241">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedStatementCache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="37" selection-start="1574" selection-end="1574" vertical-scroll-proportion="0.34416825">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="33" column="5" selection-start="1065" selection-end="1065" vertical-scroll-proportion="0.18642448">
@@ -864,21 +969,63 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="110" column="65" selection-start="3379" selection-end="3379" vertical-scroll-proportion="0.94263864">
+        <state line="110" column="65" selection-start="3379" selection-end="3379" vertical-scroll-proportion="1.4415205">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="205" column="42" selection-start="6295" selection-end="6295" vertical-scroll-proportion="0.8852773">
+        <state line="205" column="42" selection-start="6295" selection-end="6295" vertical-scroll-proportion="1.3538011">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IDBI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="17" selection-start="238" selection-end="238" vertical-scroll-proportion="0.24122807">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DBI.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="58" column="42" selection-start="2045" selection-end="2045" vertical-scroll-proportion="0.5162524">
+        <state line="41" column="51" selection-start="1607" selection-end="1607" vertical-scroll-proportion="0.41666666">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/DBIUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="13" selection-start="976" selection-end="976" vertical-scroll-proportion="0.1754386">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/DBIBean.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="65" column="13" selection-start="2482" selection-end="2482" vertical-scroll-proportion="0.048245613">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SQLExceptionTranslatingThrowsAdvice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="24" selection-start="1695" selection-end="1695" vertical-scroll-proportion="0.5482456">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringTransactionHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="19" selection-start="1074" selection-end="1074" vertical-scroll-proportion="0.50438595">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/spring/SpringDBIAdaptor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="39" selection-start="1368" selection-end="1368" vertical-scroll-proportion="-0.021929825">
           <folding />
         </state>
       </provider>
