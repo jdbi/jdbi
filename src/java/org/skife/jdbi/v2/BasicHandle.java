@@ -44,7 +44,7 @@ public class BasicHandle implements Handle
 
     public Query<Map<String, Object>> createQuery(String sql)
     {
-        return new Query<Map<String, Object>>(new DefaultMapper(),
+        return new DefaultQuery<Map<String, Object>>(new DefaultMapper(),
                                               statementRewriter,
                                               connection,
                                               preparedStatementCache,
@@ -101,9 +101,9 @@ public class BasicHandle implements Handle
         return this;
     }
 
-    public UpdateStatement createStatement(String sql)
+    public DefaultUpdateStatement createStatement(String sql)
     {
-        return new UpdateStatement(connection, statementRewriter, preparedStatementCache, sql);
+        return new DefaultUpdateStatement(connection, statementRewriter, preparedStatementCache, sql);
     }
 
     public int insert(String sql, Object... args)
@@ -113,7 +113,7 @@ public class BasicHandle implements Handle
 
     public int update(String sql, Object... args)
     {
-        UpdateStatement stmt = createStatement(sql);
+        DefaultUpdateStatement stmt = createStatement(sql);
         int position = 0;
         for (Object arg : args)
         {

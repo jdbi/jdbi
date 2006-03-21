@@ -226,6 +226,20 @@ public class TestQueries extends TestCase
         i.close();
     }
 
+    public void testIterable() throws Exception
+    {
+        int count = 0;
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'eric')");
+
+        for (Something s : h.createQuery("select * from something").map(Something.class))
+        {
+            assertEquals("eric", s.getName());
+            count++;
+        }
+        assertEquals(2, count);
+    }
+
 //    public void testListIterator() throws Exception
 //    {
 //        h.insert("insert into something (id, name) values (1, 'eric')");

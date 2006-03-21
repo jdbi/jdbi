@@ -30,6 +30,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private boolean alreadyAdvanced = false;
     private int count = 0;
     private boolean hasNext = false;
+    private boolean closed = false;
 
     ResultSetResultIterator(ResultSetMapper<Type> mapper, Statement stmt, ResultSet resiults)
     {
@@ -41,6 +42,8 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
 
     public void close()
     {
+        if (closed) return;
+        closed = true;
         boolean failed_to_close_results = false;
         try
         {
@@ -73,10 +76,14 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         {
             return hasNext;
         }
-        
+
         try
         {
             hasNext = results.next();
+            if (!hasNext)
+            {
+                close();
+            }
         }
         catch (SQLException e)
         {
