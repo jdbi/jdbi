@@ -4,8 +4,6 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
-import javax.sql.DataSource;
-
 /**
  * 
  */
@@ -18,6 +16,4 @@ public interface IDBI
     void setTransactionHandler(TransactionHandler handler);
 
     Handle open();
-
-    Handle open(DataSource dataSource);
 }
