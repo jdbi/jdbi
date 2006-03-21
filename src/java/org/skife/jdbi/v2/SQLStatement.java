@@ -35,7 +35,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Map;
 
-public abstract class SQLStatement<SelfType extends SQLStatement>
+public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 {
     private final Parameters params;
     private final Connection connection;
@@ -633,7 +633,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement>
                                               final QueryPostMungeCleanup cleanup)
     {
         final ReWrittenStatement rewritten = rewriter.rewrite(sql, getParameters());
-        PreparedStatement stmt = null;
+        final PreparedStatement stmt;
         ResultSet rs = null;
         try
         {
