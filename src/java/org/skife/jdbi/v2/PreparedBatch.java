@@ -4,6 +4,7 @@ import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,13 +22,15 @@ import java.util.Map;
 public class PreparedBatch
 {
     private List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
+    private final StatementLocator locator;
     private final StatementRewriter rewriter;
     private final Connection connection;
     private final PreparedStatementCache preparedStatementCache;
     private final String sql;
 
-    PreparedBatch(StatementRewriter rewriter, Connection connection, PreparedStatementCache preparedStatementCache, String sql)
+    PreparedBatch(StatementLocator locator, StatementRewriter rewriter, Connection connection, PreparedStatementCache preparedStatementCache, String sql)
     {
+        this.locator = locator;
         this.rewriter = rewriter;
         this.connection = connection;
         this.preparedStatementCache = preparedStatementCache;
@@ -93,14 +96,14 @@ public class PreparedBatch
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, preparedStatementCache, sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql);
         parts.add(part);
         return part;
     }
 
     public PreparedBatchPart add(Object bean)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, preparedStatementCache,sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache,sql);
         parts.add(part);
         part.bindFromProperties(bean);
         return part;
@@ -108,7 +111,7 @@ public class PreparedBatch
 
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, rewriter, connection, preparedStatementCache,sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache,sql);
         parts.add(part);
         part.bindFromMap(args);
         return part;

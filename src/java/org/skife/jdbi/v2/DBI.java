@@ -17,6 +17,8 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.TransactionHandler;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import javax.sql.DataSource;
@@ -27,6 +29,8 @@ public class DBI
 {
     private final ConnectionFactory connectionFactory;
     private StatementRewriter statementRewriter = new NamedParameterStatementRewriter();
+    private StatementLocator statementLocator = new ClasspathStatementLocator();
+    private TransactionHandler transactionhandler = new LocalTransactionHandler();
 
     public DBI(DataSource dataSource)
     {
@@ -40,13 +44,29 @@ public class DBI
         this.connectionFactory = connectionFactory;
     }
 
+    public void setStatementLocator(StatementLocator locator)
+    {
+        this.statementLocator = locator;
+    }
+
+    public void setStatementRewriter(StatementRewriter rewriter)
+    {
+        this.statementRewriter = rewriter;
+    }
+
+    public void setTransactionHandler(TransactionHandler handler)
+    {
+        this.transactionhandler = handler;
+    }
+
     public Handle open()
     {
         try
         {
             Connection conn = connectionFactory.openConnection();
             PreparedStatementCache cache = new PreparedStatementCache(conn);
-            return new BasicHandle(new LocalTransactionHandler(),
+            return new BasicHandle(transactionhandler,
+                                   statementLocator,
                                    cache,
                                    statementRewriter,
                                    conn);

@@ -15,6 +15,8 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
 import java.util.Map;
@@ -103,4 +105,8 @@ public interface Handle
     <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException;
 
     List<Map<String, Object>> select(String sql, Object... args);
+
+    public void setStatementLocator(StatementLocator locator);
+
+    public void setStatementRewriter(StatementRewriter rewriter);
 }

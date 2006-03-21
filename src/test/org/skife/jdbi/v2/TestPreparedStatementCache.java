@@ -38,6 +38,7 @@ public class TestPreparedStatementCache extends DBITestCase
         PreparedStatementCache cache = new PreparedStatementCache(c);
 
         BasicHandle h = new BasicHandle(new LocalTransactionHandler(),
+                                        new ClasspathStatementLocator(),
                                         cache,
                                         new NamedParameterStatementRewriter(),
                                         c);

@@ -14,28 +14,19 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
-
-import java.sql.Connection;
 
 /**
  * 
  */
-public class TestStatements extends TestCase
+public class TestStatements extends DBITestCase
 {
     private BasicHandle h;
 
     public void setUp() throws Exception
     {
-        Tools.start();
-        Tools.dropAndCreateSomething();
-        Connection conn = Tools.getConnection();
-        h = new BasicHandle(new LocalTransactionHandler(),
-                            new PreparedStatementCache(conn),
-                            new NamedParameterStatementRewriter(),
-                            conn);
+        super.setUp();
+        h = openHandle();
     }
 
     public void tearDown() throws Exception

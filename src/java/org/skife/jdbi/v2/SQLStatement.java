@@ -19,6 +19,7 @@ import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ReWrittenStatement;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.io.InputStream;
@@ -42,8 +43,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final String sql;
     private final StatementRewriter rewriter;
     private final PreparedStatementCache preparedStatementCache;
+    private final StatementLocator locator;
 
     SQLStatement(Parameters params,
+                 StatementLocator locator,
                  StatementRewriter rewriter,
                  Connection conn,
                  PreparedStatementCache preparedStatementCache,
@@ -55,6 +58,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         this.connection = conn;
         this.sql = sql;
         this.params = params;
+        this.locator = locator;
     }
 
     private boolean verifyOurNastyDowncastIsOkay()
@@ -74,6 +78,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     protected PreparedStatementCache getPreparedStatementCache()
     {
         return preparedStatementCache;
+    }
+
+    protected StatementLocator getStatementLocator()
+    {
+        return this.locator;
     }
 
     protected StatementRewriter getRewriter()
@@ -628,11 +637,23 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return bind(name, new URLArgument(value));
     }
 
+    private String wrapLookup(String sql)
+    {
+        try
+        {
+            return locator.locate(sql);
+        }
+        catch (Exception e)
+        {
+            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e);
+        }
+    }
+
     protected <Result> Result internalExecute(final QueryPreperator prep,
                                               final QueryResultMunger<Result> munger,
                                               final QueryPostMungeCleanup cleanup)
     {
-        final ReWrittenStatement rewritten = rewriter.rewrite(sql, getParameters());
+        final ReWrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql) , getParameters());
         final PreparedStatement stmt;
         ResultSet rs = null;
         try

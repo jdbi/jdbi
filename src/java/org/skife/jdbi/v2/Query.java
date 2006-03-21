@@ -19,6 +19,7 @@ import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -33,18 +34,14 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>
 
     Query(Parameters params,
           ResultSetMapper<ResultType> mapper,
+          StatementLocator locator,
           StatementRewriter statementRewriter,
           Connection connection,
           PreparedStatementCache cache,
           String sql)
     {
-        super(params, statementRewriter, connection, cache, sql);
+        super(params,  locator, statementRewriter, connection, cache, sql);
         this.mapper = mapper;
-    }
-
-    Query(ResultSetMapper<ResultType> mapper, StatementRewriter statementRewriter, Connection connection, PreparedStatementCache cache, String sql)
-    {
-        this(new Parameters(), mapper, statementRewriter, connection, cache, sql);
     }
 
     /**
@@ -132,6 +129,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>
     {
         return new Query<T>(getParameters(),
                             mapper,
+                            getStatementLocator(),
                             getRewriter(),
                             getConnection(),
                             getPreparedStatementCache(),

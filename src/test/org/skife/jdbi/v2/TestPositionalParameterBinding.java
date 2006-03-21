@@ -14,35 +14,19 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
-import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
-
-import java.sql.Connection;
 
 /**
  * 
  */
-public class TestPositionalParameterBinding extends TestCase
+public class TestPositionalParameterBinding extends DBITestCase
 {
     private BasicHandle h;
 
     public void setUp() throws Exception
     {
-        Tools.start();
-        Tools.dropAndCreateSomething();
-        Connection conn = Tools.getConnection();
-        h = new BasicHandle(new LocalTransactionHandler(),
-                            new PreparedStatementCache(conn),
-                            new NamedParameterStatementRewriter(),
-                            conn);
-    }
-
-    public void tearDown() throws Exception
-    {
-        if (h != null) h.close();
-        Tools.stop();
+        super.setUp();
+        h = openHandle();
     }
 
     public void testSetPositionalString() throws Exception

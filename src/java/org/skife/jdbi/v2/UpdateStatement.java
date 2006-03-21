@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -12,9 +13,9 @@ import java.sql.Statement;
  */
 public class UpdateStatement extends SQLStatement<UpdateStatement>
 {
-    UpdateStatement(Connection connection, StatementRewriter statementRewriter, PreparedStatementCache cache, String sql)
+    UpdateStatement(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, PreparedStatementCache cache, String sql)
     {
-        super(new Parameters(), statementRewriter, connection, cache, sql);
+        super(new Parameters(), locator, statementRewriter, connection, cache, sql);
     }
 
     public int execute()
