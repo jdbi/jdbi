@@ -91,7 +91,7 @@ public class TestPositionalParameterBinding extends TestCase
         }
     }
 
-    public void testBehaviorOnBadBinding2() throws Exception
+     public void testBehaviorOnBadBinding2() throws Exception
     {
         Query<Something> q = h.createQuery("select * from something where id = ?")
                 .bind(1, 1)

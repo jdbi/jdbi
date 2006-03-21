@@ -14,36 +14,86 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Time;
-import java.sql.Timestamp;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public interface Query<ResultType> extends Iterable<ResultType>
+public class Query<ResultType> extends SQLStatement<Query<ResultType>>
 {
+    private final ResultSetMapper<ResultType> mapper;
+
+    Query(Parameters params,
+          ResultSetMapper<ResultType> mapper,
+          StatementRewriter statementRewriter,
+          Connection connection,
+          PreparedStatementCache cache,
+          String sql)
+    {
+        super(params, statementRewriter, connection, cache, sql);
+        this.mapper = mapper;
+    }
+
+    Query(ResultSetMapper<ResultType> mapper, StatementRewriter statementRewriter, Connection connection, PreparedStatementCache cache, String sql)
+    {
+        this(new Parameters(), mapper, statementRewriter, connection, cache, sql);
+    }
+
     /**
      * Executes the select
      * <p/>
      * Will eagerly load all results
      *
      * @return
-     * @throws org.skife.jdbi.v2.exceptions.UnableToCreateStatementException
-     *          if there is an error creating the statement
-     * @throws org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException
-     *          if there is an error executing the statement
-     * @throws org.skife.jdbi.v2.exceptions.ResultSetException
-     *          if there is an error dealing with the result set
+     * @throws UnableToCreateStatementException
+     *                            if there is an error creating the statement
+     * @throws UnableToExecuteStatementException
+     *                            if there is an error executing the statement
+     * @throws ResultSetException if there is an error dealing with the result set
      */
-    List<ResultType> list();
+    public List<ResultType> list()
+    {
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<List<ResultType>>()
+        {
+            public Pair<List<ResultType>, ResultSet> munge(Statement stmt) throws SQLException
+            {
+                ResultSet rs = stmt.getResultSet();
+                List<ResultType> result_list = new ArrayList<ResultType>();
+                int index = 0;
+                while (rs.next())
+                {
+                    result_list.add(mapper.map(index++, rs));
+                }
+                return new Pair<List<ResultType>, ResultSet>(result_list, rs);
+            }
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+    }
+
+    /**
+     * Obtain a forward-only result set iterator. Note that you must explicitely close
+     * the iterator to close the underlying resources.
+     */
+    public ResultIterator<ResultType> iterator()
+    {
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<ResultIterator<ResultType>>()
+        {
+            public Pair<ResultIterator<ResultType>, ResultSet> munge(Statement results) throws SQLException
+            {
+                ResultSetResultIterator<ResultType> r = new ResultSetResultIterator<ResultType>(mapper,
+                                                                                                results,
+                                                                                                results.getResultSet());
+                return new Pair<ResultIterator<ResultType>, ResultSet>(r, results.getResultSet());
+            }
+        }, QueryPostMungeCleanup.NO_OP);
+    }
 
     /**
      * Executes the select.
@@ -53,400 +103,38 @@ public interface Query<ResultType> extends Iterable<ResultType>
      *
      * @return first result, mapped, or null if there is no first result
      */
-    ResultType first();
+    public ResultType first()
+    {
+        return this.internalExecute(QueryPreperator.MAX_ROWS_ONE, new QueryResultMunger<ResultType>()
+        {
+            public final Pair<ResultType, ResultSet> munge(final Statement stt) throws SQLException
+            {
+                ResultSet rs = stt.getResultSet();
+                if (rs.next())
+                {
+                    return new Pair<ResultType, ResultSet>(mapper.map(0, rs), rs);
+                }
+                else
+                {
+                    // no result matches
+                    return null;
+                }
+            }
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+    }
 
-    <Type> Query<Type> map(Class<Type> resultType);
+    public <Type> Query<Type> map(Class<Type> resultType)
+    {
+        return this.map(new BeanMapper<Type>(resultType));
+    }
 
-    <T> Query<T> map(ResultSetMapper<T> mapper);
-
-    /**
-     * Used if you need to have some exotic parameter bound.
-     *
-     * @param position position to bindBinaryStream this argument, starting at 0
-     * @param argument exotic argument factory
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Argument argument);
-
-    /**
-     * Used if you need to have some exotic parameter bound.
-     *
-     * @param name     name to bindBinaryStream this argument
-     * @param argument exotic argument factory
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Argument argument);
-
-
-    public Query<ResultType> bindFromProperties(Object o);
-
-
-    public Query<ResultType> bindFromMap(Map<String, ? extends Object> args);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, String value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, String value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, int value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, int value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @param length   how long is the stream being bound?
-     * @return the same Query instance
-     */
-    public Query<ResultType> bindASCIIStream(int position, InputStream value, int length);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name   token name to bindBinaryStream the paramater to
-     * @param value  to bindBinaryStream
-     * @param length bytes to read from value
-     * @return the same Query instance
-     */
-    public Query<ResultType> bindASCIIStream(String name, InputStream value, int length);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, BigDecimal value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, BigDecimal value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bindBinaryStream(int position, InputStream value, int length);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name   token name to bindBinaryStream the paramater to
-     * @param value  to bindBinaryStream
-     * @param length bytes to read from value
-     * @return the same Query instance
-     */
-    public Query<ResultType> bindBinaryStream(String name, InputStream value, int length);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Blob value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Blob value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, boolean value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, boolean value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, byte value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, byte value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, byte[] value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, byte[] value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @param length   number of characters to read
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Reader value, int length);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name   token name to bindBinaryStream the paramater to
-     * @param value  to bindBinaryStream
-     * @param length number of characters to read
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Reader value, int length);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Clob value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Clob value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, java.sql.Date value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, java.sql.Date value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, java.util.Date value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, java.util.Date value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Double value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Double value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Float value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Float value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, long value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, long value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Object value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Object value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Time value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Time value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, Timestamp value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, Timestamp value);
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(int position, URL value);
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
-     * @return the same Query instance
-     */
-    public Query<ResultType> bind(String name, URL value);
-
-    ResultIterator<ResultType> iterator();
+    public <T> Query<T> map(ResultSetMapper<T> mapper)
+    {
+        return new Query<T>(getParameters(),
+                            mapper,
+                            getRewriter(),
+                            getConnection(),
+                            getPreparedStatementCache(),
+                            getSql());
+    }
 }
