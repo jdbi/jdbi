@@ -143,7 +143,7 @@ public class TestSQLOperations extends TestCase
         assertEquals(null, r.get("name"));
 
         r = handle.first("select * from something where name is null");
-        assertEquals(Integer.valueOf(1), r.get("id"));
+        assertEquals(new Integer(1), r.get("id"));
     }
 
     public void testPositionalParams() throws Exception

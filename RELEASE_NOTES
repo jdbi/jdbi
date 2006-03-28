@@ -1,3 +1,7 @@
+1.4.3
+    Handle drivers (such as Oracle) which throw an exception when trying to retrieve
+    prepared statement parameter type information.
+
 1.4.2
     Be explicit about target jdk version (1.4) for this branch
 

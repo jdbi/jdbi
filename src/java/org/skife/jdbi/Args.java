@@ -56,15 +56,23 @@ public class Args extends HashMap
     {
         if (md != null)
         {
-            int type = md.getParameterType(position);
-            if (value == null)
+            try
             {
-                stmt.setNull(position, type);
+                int type = md.getParameterType(position);
+                if (value == null)
+                {
+                    stmt.setNull(position, type);
+                }
+                else
+                {
+                    stmt.setObject(position, value, type);
+                }
             }
-            else
+            catch (SQLException e)
             {
-                stmt.setObject(position, value, type);
+                stmt.setObject(position, value);
             }
+
         }
         else
         {
