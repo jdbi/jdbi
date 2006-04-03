@@ -76,6 +76,9 @@ class StatementCache
             || lower_case.startsWith("update ")
             || lower_case.startsWith("insert ")
             || lower_case.startsWith("delete ")
+            || lower_case.startsWith("create ")
+            || lower_case.startsWith("drop ")
+            || lower_case.startsWith("alter ")
             || lower_case.startsWith("call "))
         {
             try

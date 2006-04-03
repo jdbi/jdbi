@@ -1,3 +1,8 @@
+1.4.4
+    Allow for create/drop/alter statements
+
+    Cache whether or not a driver supports asking for prepared statement parameter types
+
 1.4.3
     Handle drivers (such as Oracle) which throw an exception when trying to retrieve
     prepared statement parameter type information.

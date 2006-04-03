@@ -18,12 +18,18 @@ import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Convenience class for building named argument maps
  */
 public class Args extends HashMap
 {
+    // initilize to null to allow for faster test in case it is empty, which is the
+    // common case
+    private static Set metadataIncapableDriverNames = null;
+
     /**
      * Create a new Args instance, typically to be used for named parameters
      *
@@ -54,25 +60,34 @@ public class Args extends HashMap
 
     static void setArgument(int position, PreparedStatement stmt, ParameterMetaData md, Object value) throws SQLException
     {
-        if (md != null)
+        if (md != null
+            && metadataIncapableDriverNames != null
+            && !metadataIncapableDriverNames.contains(stmt.getConnection().getMetaData().getDriverName()))
         {
+            final int type;
             try
             {
-                int type = md.getParameterType(position);
-                if (value == null)
-                {
-                    stmt.setNull(position, type);
-                }
-                else
-                {
-                    stmt.setObject(position, value, type);
-                }
+                type = md.getParameterType(position);
             }
             catch (SQLException e)
             {
+                // abort metadata attempts, cache that this driver won't do it
+                // and fall back to setObject(..)
+                Set new_set = new HashSet(metadataIncapableDriverNames);
+                new_set.add(stmt.getConnection().getMetaData().getDriverName());
+                metadataIncapableDriverNames = new_set;
                 stmt.setObject(position, value);
-            }
+                return;
 
+            }
+            if (value == null)
+            {
+                stmt.setNull(position, type);
+            }
+            else
+            {
+                stmt.setObject(position, value, type);
+            }
         }
         else
         {
