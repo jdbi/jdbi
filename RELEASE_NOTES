@@ -1,3 +1,8 @@
+1.4.5
+    Fix bug in caching added in 1.4.4
+
+    Optimize statement literal or named statement detection
+
 1.4.4
     Allow for create/drop/alter statements
 

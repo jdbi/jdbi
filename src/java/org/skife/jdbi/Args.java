@@ -61,8 +61,8 @@ public class Args extends HashMap
     static void setArgument(int position, PreparedStatement stmt, ParameterMetaData md, Object value) throws SQLException
     {
         if (md != null
-            && metadataIncapableDriverNames != null
-            && !metadataIncapableDriverNames.contains(stmt.getConnection().getMetaData().getDriverName()))
+            && (metadataIncapableDriverNames == null
+                || !metadataIncapableDriverNames.contains(stmt.getConnection().getMetaData().getDriverName())))
         {
             final int type;
             try

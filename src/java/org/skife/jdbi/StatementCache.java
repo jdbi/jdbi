@@ -71,7 +71,9 @@ class StatementCache
         {
             return (StatementEnvelope) this.envelopes.get(statement);
         }
-        final String lower_case = statement.toLowerCase().trim();
+        final String lower_case = statement.length() >= 7
+                                  ? statement.trim().substring(0, 7).toLowerCase()
+                                  : statement.toLowerCase().trim();
         if (lower_case.startsWith("select ")
             || lower_case.startsWith("update ")
             || lower_case.startsWith("insert ")
