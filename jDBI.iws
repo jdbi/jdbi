@@ -182,19 +182,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="index.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/doc/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="315" column="43" selection-start="11638" selection-end="11638" vertical-scroll-proportion="0.47619048">
+            <state line="10" column="27" selection-start="453" selection-end="453" vertical-scroll-proportion="0.21645021">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RELEASE_NOTES" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="RELEASE_NOTES" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1" column="0" selection-start="6" selection-end="105" vertical-scroll-proportion="0.021645023">
+            <state line="16" column="64" selection-start="458" selection-end="458" vertical-scroll-proportion="0.34632036">
               <folding />
             </state>
           </provider>
@@ -758,16 +758,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="315" column="43" selection-start="11638" selection-end="11638" vertical-scroll-proportion="0.47619048">
+        <state line="16" column="64" selection-start="458" selection-end="458" vertical-scroll-proportion="0.34632036">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="0" selection-start="6" selection-end="105" vertical-scroll-proportion="0.021645023">
+        <state line="10" column="27" selection-start="453" selection-end="453" vertical-scroll-proportion="0.21645021">
           <folding />
         </state>
       </provider>
