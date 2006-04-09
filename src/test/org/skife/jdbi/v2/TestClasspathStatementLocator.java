@@ -1,5 +1,7 @@
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+
 /**
  * 
  */
@@ -38,5 +40,19 @@ public class TestClasspathStatementLocator extends DBITestCase
         Handle h = openHandle();
         h.createStatement("insert-id-name").bind("id", 1).bind("name", "Tip").execute();
         assertEquals(1, h.select("select name from something").size());
+    }
+
+    public void testTriesToParseNameIfNothingFound() throws Exception
+    {
+        Handle h = openHandle();
+        try
+        {
+            h.insert("this-does-not-exist.sql");
+            fail("Should have raised an exception");
+        }
+        catch (UnableToCreateStatementException e)
+        {
+            assertTrue(true);
+        }
     }
 }

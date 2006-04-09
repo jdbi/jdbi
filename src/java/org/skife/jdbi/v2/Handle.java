@@ -104,9 +104,29 @@ public interface Handle
      */
     <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException;
 
+    /**
+     * Convenience method which executes a select with purely positional arguments
+     * @param sql SQL or named statement
+     * @param args arguments to bind positionally
+     * @return results of the query
+     */
     List<Map<String, Object>> select(String sql, Object... args);
 
+    /**
+     * Allows for overiding the default statement locator. The default searches the
+     * classpath for named statements
+     */
     public void setStatementLocator(StatementLocator locator);
 
+    /**
+     * Allows for overiding the default statement rewriter. The default handles
+     * named parameter interpolation.
+     */
     public void setStatementRewriter(StatementRewriter rewriter);
+
+    /**
+     * Creates an SQL script, looking for the source of the script using the
+     * current statement locator (which defaults to searching the classpath)
+     */
+    public Script createScript(String name);
 }

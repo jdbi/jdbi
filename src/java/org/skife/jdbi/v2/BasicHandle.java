@@ -205,4 +205,9 @@ public class BasicHandle implements Handle
     {
         this.statementRewriter = rewriter;
     }
+
+    public Script createScript(String name)
+    {
+        return new Script(this, statementLocator, name);
+    }
 }
