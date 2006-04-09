@@ -15,7 +15,7 @@ public class ClasspathStatementLocator implements StatementLocator
 {
     private boolean looksLikeSql(String sql)
     {
-        final String local = sql.toLowerCase();
+        final String local = sql.substring(0, 7).toLowerCase();
         return local.startsWith("insert ")
                || local.startsWith("update ")
                || local.startsWith("select ")
@@ -40,7 +40,7 @@ public class ClasspathStatementLocator implements StatementLocator
         }
         if (in_stream == null)
         {
-            return null;
+            return name;
         }
         final BufferedReader reader = new BufferedReader(new InputStreamReader(in_stream));
         final StringBuffer buffer = new StringBuffer();

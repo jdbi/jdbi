@@ -34,6 +34,11 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
+        <copy todir="build/test-classes">
+            <fileset dir="src/test">
+                <include name="**/*.sql"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="jar" depends="compile" description="Build Jar Library">

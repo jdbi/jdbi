@@ -25,6 +25,7 @@
       <entry name="?*.png" />
       <entry name="?*.jpeg" />
       <entry name="?*.jpg" />
+      <entry name="?*.sql" />
     </wildcardResourcePatterns>
   </component>
   <component name="DataSourceManagerImpl" />
