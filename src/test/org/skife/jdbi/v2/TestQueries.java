@@ -234,6 +234,24 @@ public class TestQueries extends DBITestCase
 
     }
 
+    public void testFetchSize() throws Exception
+    {
+        h.createScript("default-data").execute();
+
+        Query<Something> q = h.createQuery("select id, name from something order by id").map(Something.class);
+
+        q.setFetchSize(1);
+
+        ResultIterator<Something> r = q.iterator();
+
+        assertTrue(r.hasNext());
+        r.next();
+        assertTrue(r.hasNext());
+        r.next();
+        assertFalse(r.hasNext());
+
+    }
+
 //    public void testListIterator() throws Exception
 //    {
 //        h.insert("insert into something (id, name) values (1, 'eric')");

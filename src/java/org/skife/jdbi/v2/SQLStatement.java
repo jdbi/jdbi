@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -35,6 +36,8 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.Collection;
+import java.util.ArrayList;
 
 public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 {
@@ -44,6 +47,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final StatementRewriter rewriter;
     private final PreparedStatementCache preparedStatementCache;
     private final StatementLocator locator;
+    private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
 
     SQLStatement(Parameters params,
                  StatementLocator locator,
@@ -59,6 +63,13 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         this.sql = sql;
         this.params = params;
         this.locator = locator;
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public SelfType addStatementCustomizer(StatementCustomizer customizer)
+    {
+        this.customizers.add(customizer);
+        return (SelfType) this;
     }
 
     private boolean verifyOurNastyDowncastIsOkay()
@@ -682,6 +693,18 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             catch (SQLException e)
             {
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
+            }
+
+            for (StatementCustomizer customizer : customizers)
+            {
+                try
+                {
+                    customizer.customize(stmt);
+                }
+                catch (SQLException e)
+                {
+                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e);
+                }
             }
 
             try

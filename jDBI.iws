@@ -134,19 +134,39 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TestScript.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestScript.java">
+      <file leaf-file-name="TestQueries.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="5" selection-start="323" selection-end="323" vertical-scroll-proportion="0.20076482">
+            <state line="245" column="19" selection-start="8161" selection-end="8161" vertical-scroll-proportion="0.68451244">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Script.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Script.java">
+      <file leaf-file-name="Query.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="7" selection-start="700" selection-end="700" vertical-scroll-proportion="0.40152964">
+            <state line="158" column="20" selection-start="5917" selection-end="5917" vertical-scroll-proportion="0.32600382">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SQLStatement.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="705" column="108" selection-start="20893" selection-end="20893" vertical-scroll-proportion="0.65583175">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StatementCustomizer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementCustomizer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="10" column="70" selection-start="221" selection-end="221" vertical-scroll-proportion="0.14340344">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -391,36 +411,6 @@
         <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-    </PATH>
-    <PATH>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="jDBI.ipr" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="jDBI" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
     </PATH>
   </component>
   <component name="ProjectReloadState">
@@ -476,14 +466,14 @@
   <component name="RestoreUpdateTree" />
   <component name="RunManager">
     <activeType name="JUnit" />
-    <tempConfiguration selected="true" default="false" name="TestScript.testScriptStuff" type="JUnit" factoryName="JUnit">
+    <tempConfiguration selected="true" default="false" name="org.skife.jdbi.v2" type="JUnit" factoryName="JUnit">
       <module name="jDBI" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="org.skife.jdbi.v2" />
-      <option name="MAIN_CLASS_NAME" value="org.skife.jdbi.v2.TestScript" />
-      <option name="METHOD_NAME" value="testScriptStuff" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="package" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -491,13 +481,7 @@
       <option name="TEST_SEARCH_SCOPE">
         <value defaultName="wholeProject" />
       </option>
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="42583" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
     </tempConfiguration>
     <configuration selected="false" default="true" type="Application" factoryName="Application">
@@ -731,34 +715,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/insert-keith.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="51" selection-start="51" selection-end="51" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NamedParameterStatementRewriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="0" selection-start="1062" selection-end="1062" vertical-scroll-proportion="0.1290631">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ParsedStatement.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="52" column="0" selection-start="1515" selection-end="1515" vertical-scroll-proportion="0.19407266">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="35" selection-start="1592" selection-end="1592" vertical-scroll-proportion="0.57361376">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/insert-eric-with-comments.sql">
       <provider selected="true" editor-type-id="text-editor">
         <state line="4" column="0" selection-start="113" selection-end="113" vertical-scroll-proportion="0.057361376">
@@ -822,6 +778,15 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Script.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="34" column="31" selection-start="868" selection-end="868" vertical-scroll-proportion="0.48757172">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestScript.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="14" column="5" selection-start="323" selection-end="323" vertical-scroll-proportion="0.20076482">
@@ -829,12 +794,35 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Script.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementCustomizer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="7" selection-start="700" selection-end="700" vertical-scroll-proportion="0.40152964">
+        <state line="10" column="70" selection-start="221" selection-end="221" vertical-scroll-proportion="0.14340344">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="705" column="108" selection-start="20893" selection-end="20893" vertical-scroll-proportion="0.65583175">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="245" column="19" selection-start="8161" selection-end="8161" vertical-scroll-proportion="0.68451244">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="158" column="20" selection-start="5917" selection-end="5917" vertical-scroll-proportion="0.32600382">
+          <folding />
         </state>
       </provider>
     </entry>

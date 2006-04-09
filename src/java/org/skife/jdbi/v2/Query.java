@@ -18,10 +18,12 @@ import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,7 +42,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           PreparedStatementCache cache,
           String sql)
     {
-        super(params,  locator, statementRewriter, connection, cache, sql);
+        super(params, locator, statementRewriter, connection, cache, sql);
         this.mapper = mapper;
     }
 
@@ -134,5 +136,65 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getConnection(),
                             getPreparedStatementCache(),
                             getSql());
+    }
+
+    public Query<ResultType> setFetchSize(final int i)
+    {
+        this.addStatementCustomizer(new StatementCustomizer()
+        {
+            public void customize(PreparedStatement stmt) throws SQLException
+            {
+                stmt.setFetchSize(i);
+            }
+        });
+        return this;
+    }
+
+    public Query<ResultType> setMaxRows(final int i)
+    {
+        this.addStatementCustomizer(new StatementCustomizer()
+        {
+            public void customize(PreparedStatement stmt) throws SQLException
+            {
+                stmt.setMaxRows(i);
+            }
+        });
+        return this;
+    }
+
+    public Query<ResultType> setMaxFieldSize(final int i)
+    {
+        this.addStatementCustomizer(new StatementCustomizer()
+        {
+            public void customize(PreparedStatement stmt) throws SQLException
+            {
+                stmt.setMaxFieldSize(i);
+            }
+        });
+        return this;
+    }
+
+    public Query<ResultType> fetchReverse()
+    {
+        this.addStatementCustomizer(new StatementCustomizer()
+        {
+            public void customize(PreparedStatement stmt) throws SQLException
+            {
+                stmt.setFetchDirection(ResultSet.FETCH_REVERSE);
+            }
+        });
+        return this;
+    }
+
+    public Query<ResultType> fetchForward()
+    {
+        this.addStatementCustomizer(new StatementCustomizer()
+        {
+            public void customize(PreparedStatement stmt) throws SQLException
+            {
+                stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
+            }
+        });
+        return this;
     }
 }
