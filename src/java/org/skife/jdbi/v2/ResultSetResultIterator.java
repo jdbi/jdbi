@@ -31,12 +31,16 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private int count = 0;
     private boolean hasNext = false;
 
-    ResultSetResultIterator(ResultSetMapper<Type> mapper, Statement stmt, ResultSet resiults)
+    ResultSetResultIterator(ResultSetMapper<Type> mapper, Statement stmt, ResultSet results)
     {
         this.mapper = mapper;
         this.stmt = stmt;
+        this.results = results;
+    }
 
-        this.results = resiults;
+    protected ResultSet getResults()
+    {
+        return results;
     }
 
     public void close()
@@ -73,7 +77,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         {
             return hasNext;
         }
-        
+
         try
         {
             hasNext = results.next();
@@ -81,6 +85,17 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         catch (SQLException e)
         {
             throw new ResultSetException("Unable to advance result set", e);
+        }
+        if (!hasNext)
+        {
+            try
+            {
+                results.close();
+            }
+            catch (SQLException e)
+            {
+                throw new ResultSetException("Unable to close result set after iterating through to the end", e);
+            }
         }
         alreadyAdvanced = true;
         return hasNext;
@@ -115,13 +130,23 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
 
     public void remove()
     {
-        try
-        {
-            results.deleteRow();
-        }
-        catch (SQLException e)
-        {
-            throw new ResultSetException("Unable to delete row from result set", e);
-        }
+//        if (!allowDeletes) {
+        throw new UnsupportedOperationException("Deleting from a result set iterator is not yet supported");
+//                                                    "in order to call remove()");
+//        }
+//        try
+//        {
+//            if (alreadyAdvanced) {
+//                results.previous();
+//            }
+//            results.deleteRow();
+//            if (alreadyAdvanced) {
+//                results.previous();
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            throw new ResultSetException("Unable to delete row from result set", e);
+//        }
     }
 }

@@ -218,6 +218,22 @@ public class TestQueries extends DBITestCase
         i.close();
     }
 
+    public void testIteratorBehavior3() throws Exception
+    {
+        h.insert("insert into something (id, name) values (1, 'eric')");
+        h.insert("insert into something (id, name) values (2, 'eric')");
+
+        int count = 0 ;
+        for (Something s : h.createQuery("select * from something order by id").map(Something.class))
+        {
+            count++;
+            assertEquals("eric", s.getName());
+        }
+
+        assertEquals(2, count);
+
+    }
+
 //    public void testListIterator() throws Exception
 //    {
 //        h.insert("insert into something (id, name) values (1, 'eric')");

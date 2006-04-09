@@ -16,6 +16,19 @@ package org.skife.jdbi.v2;
 
 import java.util.Iterator;
 
+/**
+ * Represents a forward-only iterator over a result set, which will lazily iterate
+ * the results. The underlying <code>ResultSet</code> can be closed by calling the
+ * {@link org.skife.jdbi.v2.ResultIterator#close()} method.
+ * <p>
+ * The default implementation of <code>ResultIterator</code> will automatically close
+ * the result set after the last element has been retrieved via <code>next()</code> and
+ * <code>hasNext()</code> is called (which will return false). This allows for iteration
+ * over the results with automagic resource cleanup.
+ * <p>
+ * The <code>remove()</code> operation is not supported in the default
+ * version, and will raise an <code>UnsupportedOperationException</code> 
+ */
 public interface ResultIterator<Type> extends Iterator<Type>
 {
     /**

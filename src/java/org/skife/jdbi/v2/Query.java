@@ -28,7 +28,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Query<ResultType> extends SQLStatement<Query<ResultType>>
+public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements Iterable<ResultType>
 {
     private final ResultSetMapper<ResultType> mapper;
 
