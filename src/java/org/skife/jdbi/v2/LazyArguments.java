@@ -5,7 +5,7 @@ import org.skife.jdbi.v2.tweak.Argument;
 /**
  * 
  */
-public interface LazyArguments
+interface LazyArguments
 {
     Argument find(String name);
 }
