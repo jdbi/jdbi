@@ -9,15 +9,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * 
+ * Used for INSERT, UPDATE, and DELETE statements
  */
 public class UpdateStatement extends SQLStatement<UpdateStatement>
 {
     UpdateStatement(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, PreparedStatementCache cache, String sql)
     {
-        super(new Parameters(), locator, statementRewriter, connection, cache, sql);
+        super(new Binding(), locator, statementRewriter, connection, cache, sql);
     }
 
+    /**
+     * Execute the statement
+     * @return the number of rows modified
+     */
     public int execute()
     {
         return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Integer>()

@@ -18,7 +18,7 @@ import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.ReWrittenStatement;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
@@ -39,9 +39,12 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.ArrayList;
 
+/**
+ * Represents an SQL statement. You should obtain instances from a Handle
+ */
 public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 {
-    private final Parameters params;
+    private final Binding params;
     private final Connection connection;
     private final String sql;
     private final StatementRewriter rewriter;
@@ -49,7 +52,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final StatementLocator locator;
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
 
-    SQLStatement(Parameters params,
+    SQLStatement(Binding params,
                  StatementLocator locator,
                  StatementRewriter rewriter,
                  Connection conn,
@@ -65,6 +68,13 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         this.locator = locator;
     }
 
+    /**
+     * Provides a means for custom statement modification. Common cusotmizations
+     * have their own methods, such as {@link Query#setMaxRows(int)}
+     *
+     * @param customizer instance to be used to cstomize a statement
+     * @return modified statement
+     */
     @SuppressWarnings({"unchecked"})
     public SelfType addStatementCustomizer(StatementCustomizer customizer)
     {
@@ -101,7 +111,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return rewriter;
     }
 
-    protected Parameters getParams()
+    protected Binding getParams()
     {
         return params;
     }
@@ -116,7 +126,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return sql;
     }
 
-    protected Parameters getParameters()
+    protected Binding getParameters()
     {
         return params;
     }
@@ -149,6 +159,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return (SelfType) this;
     }
 
+    /**
+     * Binds named parameters from JavaBean propertues on o
+     * @param o source of named parameter values to use as arguments
+     * @return modified statement
+     */
     @SuppressWarnings("unchecked")
     public SelfType bindFromProperties(Object o)
     {
@@ -156,6 +171,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return (SelfType) this;
     }
 
+    /**
+     * Binds named parameters from a map of String to Object instances
+     *
+     * @param args map where keys are matched to named parameters in order to bind arguments
+     * @return modified statement
+     */
     @SuppressWarnings("unchecked")
     public SelfType bindFromMap(Map<String, ? extends Object> args)
     {
@@ -664,7 +685,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                                               final QueryResultMunger<Result> munger,
                                               final QueryPostMungeCleanup cleanup)
     {
-        final ReWrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql) , getParameters());
+        final RewrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql) , getParameters());
         final PreparedStatement stmt;
         ResultSet rs = null;
         try

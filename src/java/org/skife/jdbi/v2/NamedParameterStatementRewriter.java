@@ -15,22 +15,25 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.ReWrittenStatement;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Statement rewriter which replaces named parameter tokens of the form :tokenName
+ */
 public class NamedParameterStatementRewriter implements StatementRewriter
 {
-    public ReWrittenStatement rewrite(String raw, Parameters params)
+    public RewrittenStatement rewrite(String raw, Binding params)
     {
         ParsedStatement ps = new ParsedStatement(raw);
         return new MyReWrittenStatement(ps);
     }
 
-    private static class MyReWrittenStatement implements ReWrittenStatement
+    private static class MyReWrittenStatement implements RewrittenStatement
     {
         private final ParsedStatement parsed;
 
@@ -39,7 +42,7 @@ public class NamedParameterStatementRewriter implements StatementRewriter
             this.parsed = parsed;
         }
 
-        public void bind(Parameters params, PreparedStatement statement) throws SQLException
+        public void bind(Binding params, PreparedStatement statement) throws SQLException
         {
             if (parsed.isPositionalOnly())
             {

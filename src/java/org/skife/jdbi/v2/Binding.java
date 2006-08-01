@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
+ * Represents the arguments bound to a particular statement
  */
-public class Parameters
+public class Binding
 {
     private Map<Integer, Argument> positionals = new HashMap<Integer, Argument>();
     private Map<String, Argument> named = new HashMap<String, Argument>();
@@ -21,6 +21,12 @@ public class Parameters
         positionals.put(position, parameter);
     }
 
+    /**
+     * Look up an argument by name
+     *
+     * @param name the key to lookup the value of
+     * @return the bound Argument
+     */
     public Argument forName(String name)
     {
         if (named.containsKey(name))
@@ -41,6 +47,11 @@ public class Parameters
         return null;
     }
 
+    /**
+     * Look up an argument by position
+     * @param position starts at 0, not 1
+     * @return arfument bound to that position
+     */
     public Argument forPosition(int position)
     {
         return positionals.get(position);

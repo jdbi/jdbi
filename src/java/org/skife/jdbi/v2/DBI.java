@@ -25,6 +25,10 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Connection;
 
+/**
+ * This class  provides the access point for jDBI. Use it to obtain Handle instances
+ * and provide "global" configuration for all handles obtained from it.
+ */
 public class DBI implements IDBI
 {
     private final ConnectionFactory connectionFactory;
@@ -32,33 +36,77 @@ public class DBI implements IDBI
     private StatementLocator statementLocator = new ClasspathStatementLocator();
     private TransactionHandler transactionhandler = new LocalTransactionHandler();
 
+    /**
+     * Constructor for use with a DataSource which will provide
+     * @param dataSource
+     */
     public DBI(DataSource dataSource)
     {
         this(new DataSourceConnectionFactory(dataSource));
         assert(dataSource != null);
     }
 
+    /**
+     * Constructor used to allow for obtaining a Connection in a customized manner.
+     * <p>
+     * The {@link org.skife.jdbi.v2.tweak.ConnectionFactory#openConnection()} method will
+     * be invoked to obtain a connection instance whenever a Handle is opened.
+     *
+     * @param connectionFactory PrvidesJDBC connections to Handle instances
+     */
     public DBI(ConnectionFactory connectionFactory)
     {
         assert(connectionFactory != null);
         this.connectionFactory = connectionFactory;
     }
 
+    /**
+     * Use a non-standard StatementLocator to look up named statements for all
+     * handles created from this DBi instance.
+     *
+     * @param locator StatementLocator which will be used by all Handle instances
+     *                created from this DBI
+     */
     public void setStatementLocator(StatementLocator locator)
     {
+        assert(locator != null);
         this.statementLocator = locator;
     }
 
+    /**
+     * Use a non-standard StatementRewriter to transform SQL for all Handle instances
+     * created by this DBI.
+     *
+     * @param rewriter StatementRewriter to use on all Handle instances
+     */
     public void setStatementRewriter(StatementRewriter rewriter)
     {
+        assert(rewriter != null);
         this.statementRewriter = rewriter;
     }
 
+    /**
+     * Specify the TransactionHandler instance to use. This allows overriding
+     * transaction semantics, or mapping into different transaction
+     * management systems.
+     * <p>
+     * The default version uses local transactions on the database Connection
+     * instances obtained.
+     *
+     * @param handler The TransactionHandler to use for all Handle instances obtained
+     *                from this DBI
+     */
     public void setTransactionHandler(TransactionHandler handler)
     {
+        assert(handler != null);
         this.transactionhandler = handler;
     }
 
+    /**
+     * Obtain a Handle to the data source wrapped by this DBI instance
+     *
+     * @return an open Handle instance
+     */
     public Handle open()
     {
         try
@@ -77,8 +125,32 @@ public class DBI implements IDBI
         }
     }
 
+    /**
+     * Convenience methd used to obtain a handle from a specific data source
+     *
+     * @param dataSource
+     * @return Handle using a Connection obtained from the provided DataSource
+     */
     public static Handle open(DataSource dataSource)
     {
+        assert(dataSource != null);
         return new DBI(dataSource).open();
+    }
+
+    /**
+     * Create a Handle wrapping a particular JDBC Connection
+     * @param connection
+     * @return Handle bound to connection
+     */
+    public static Handle open(final Connection connection)
+    {
+        assert(connection != null);
+        return new DBI(new ConnectionFactory()
+        {
+            public Connection openConnection()
+            {
+                return connection;
+            }
+        }).open();
     }
 }
