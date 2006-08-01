@@ -8,8 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
- * A result set mapper which maps the fields in a statement into a JavaBean. This uses
- * the JDK's built in bean mapping facilities, so it does not support nested properties. 
+ * 
  */
 class BeanMapper<T> extends BaseResultSetMapper<T>
 {

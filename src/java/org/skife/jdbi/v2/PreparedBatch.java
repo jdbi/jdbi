@@ -2,7 +2,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
-import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.ReWrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
@@ -47,7 +47,7 @@ public class PreparedBatch
         if (parts.size() == 0) return new int[] {};
 
         PreparedBatchPart current = parts.get(0);
-        final RewrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters());
+        final ReWrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters());
         PreparedStatement stmt = null;
         try
         {

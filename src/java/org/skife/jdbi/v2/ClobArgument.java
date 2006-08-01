@@ -9,7 +9,7 @@ import java.sql.SQLException;
 /**
  *
  */
-class ClobArgument implements Argument
+public class ClobArgument implements Argument
 {
     private final Clob value;
 

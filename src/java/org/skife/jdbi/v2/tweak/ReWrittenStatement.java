@@ -14,25 +14,22 @@
  */
 package org.skife.jdbi.v2.tweak;
 
-import org.skife.jdbi.v2.Binding;
+import org.skife.jdbi.v2.Parameters;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-/**
- * Return value from {@link StatementRewriter#rewrite(String, org.skife.jdbi.v2.Binding)} calls
- */
-public interface RewrittenStatement
+public interface ReWrittenStatement
 {
     /**
-     * Called to bind a set of parameters to a prepared statement. The
-     * statement will have been constructed from this RewrittenStatement's
+     * Called to bindBinaryStream a set of parameters to a prepared statement. The
+     * statement will have been constructed from this ReWrittenStatement's
      * getSql() return result
      * @param params
      * @param statement
      * @throws SQLException
      */
-    public void bind(Binding params, PreparedStatement statement) throws SQLException;
+    public void bind(Parameters params, PreparedStatement statement) throws SQLException;
 
     /**
      * Obtain the SQL in valid (rewritten) form to be used to prepare a statement

@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-class DataSourceConnectionFactory implements ConnectionFactory
+public class DataSourceConnectionFactory implements ConnectionFactory
 {
     private DataSource dataSource;
 

@@ -5,7 +5,10 @@ import org.skife.jdbi.v2.tweak.Argument;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-class BooleanArgument implements Argument
+/**
+ *
+ */
+public class BooleanArgument implements Argument
 {
     private final boolean value;
 

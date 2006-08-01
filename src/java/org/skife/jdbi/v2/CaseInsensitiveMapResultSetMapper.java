@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-class CaseInsensitiveMapResultSetMapper<Result extends Map<String, Object>>
+public class CaseInsensitiveMapResultSetMapper<Result extends Map<String, Object>>
         implements ResultSetMapper<Map<String, Object>>
 {
     public Map<String, Object> map(int index, ResultSet r)

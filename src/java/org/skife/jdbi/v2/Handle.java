@@ -22,10 +22,6 @@ import java.sql.Connection;
 import java.util.Map;
 import java.util.List;
 
-/**
- * This represents a connection to the database system. It ususally is a wrapper around
- * a JDBC Connection object. 
- */
 public interface Handle
 {
 

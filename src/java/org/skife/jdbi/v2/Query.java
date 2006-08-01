@@ -30,14 +30,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Statement prviding convenience result handling for SQL queries.
- */
 public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements Iterable<ResultType>
 {
     private final ResultSetMapper<ResultType> mapper;
 
-    Query(Binding params,
+    Query(Parameters params,
           ResultSetMapper<ResultType> mapper,
           StatementLocator locator,
           StatementRewriter statementRewriter,
@@ -125,13 +122,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
     }
 
-    /**
-     * Provide basic JavaBean mapping capabilities. Will instantiate an instance of resultType
-     * for each row and set the JavaBean properties which match fields in the result set.
-     *
-     * @param resultType JavaBean class to map result set fields into the properties of, by name
-     * @return a Query which provides the bean property mapping
-     */
     public <Type> Query<Type> map(Class<Type> resultType)
     {
         return this.map(new BeanMapper<Type>(resultType));
@@ -148,15 +138,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getSql());
     }
 
-    /**
-     * Specify the fetch size for the query. This should cause the results to be
-     * fetched from the underlying RDBMS in groups of rows equal to the number passed.
-     * This is useful for doing chunked streaming of results when exhausting memory
-     * could be a problem.
-     *
-     * @param i the number of rows to fetch in a bunch
-     * @return the modified query
-     */
     public Query<ResultType> setFetchSize(final int i)
     {
         this.addStatementCustomizer(new StatementCustomizer()
@@ -169,13 +150,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this;
     }
 
-    /**
-     * Specify the maimum number of rows the query is to return. This uses the underlying JDBC
-     * {@link Statement#setMaxRows(int)}}.
-     *
-     * @param i maximum number of rows to return
-     * @return modified query
-     */
     public Query<ResultType> setMaxRows(final int i)
     {
         this.addStatementCustomizer(new StatementCustomizer()
@@ -188,13 +162,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this;
     }
 
-    /**
-     * Specify the maimum field size in the result set. This uses the underlying JDBC
-     * {@link Statement#setMaxFieldSize(int)}
-     *
-     * @param i maximum field size
-     * @return modified query
-     */
     public Query<ResultType> setMaxFieldSize(final int i)
     {
         this.addStatementCustomizer(new StatementCustomizer()
@@ -207,12 +174,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this;
     }
 
-    /**
-     * Specify that the fetch order should be reversed, uses the underlying
-     * {@link Statement#setFetchDirection(int)}
-     *
-     * @return the modified query
-     */
     public Query<ResultType> fetchReverse()
     {
         this.addStatementCustomizer(new StatementCustomizer()
@@ -225,12 +186,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this;
     }
 
-    /**
-     * Specify that the fetch order should be forward, uses the underlying
-     * {@link Statement#setFetchDirection(int)}
-     *
-     * @return the modified query
-     */
     public Query<ResultType> fetchForward()
     {
         this.addStatementCustomizer(new StatementCustomizer()

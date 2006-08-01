@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-class BasicHandle implements Handle
+public class BasicHandle implements Handle
 {
     private final TransactionHandler transactions;
     private final Connection connection;
@@ -56,7 +56,7 @@ class BasicHandle implements Handle
 
     public Query<Map<String, Object>> createQuery(String sql)
     {
-        return new Query<Map<String, Object>>(new Binding(),
+        return new Query<Map<String, Object>>(new Parameters(),
                                               new DefaultMapper(),
                                               statementLocator,
                                               statementRewriter,

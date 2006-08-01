@@ -14,13 +14,7 @@
  */
 package org.skife.jdbi.v2;
 
-/**
- * Allows rolling back a transaction in a TransactionCallback
- */
 public interface TransactionStatus
 {
-    /**
-     * Force the transaction to be rolled back
-     */
     public void setRollbackOnly();
 }

@@ -35,7 +35,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       PreparedStatementCache cache,
                       String sql)
     {
-        super(new Binding(), locator, rewriter, connection, cache, sql);
+        super(new Parameters(), locator, rewriter, connection, cache, sql);
         this.batch = batch;
     }
 

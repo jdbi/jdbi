@@ -26,20 +26,6 @@ public class ClasspathStatementLocator implements StatementLocator
                || local.startsWith("drop ");
     }
 
-    /**
-     * If the passed in name doesn't look like SQL it will search the classpath for a file
-     * which looks like the provided name.
-     * <p>
-     * The "looks like" algorithm is not very sophisticated, it basically looks for the string
-     * to begin with insert, update, select, call, delete, create, alter, or drop followed
-     * by a space.
-     * <p>
-     * If no resource is found using the passed in string, the string s returned as-is
-     *
-     * @param name Name or statement literal
-     * @return SQL to execute (which will go to a StatementRRewrter first)
-     * @throws UnableToCreateStatementException if an IOException occurs reading a found resource
-     */
     public String locate(String name) throws Exception
     {
         if (looksLikeSql(name))
