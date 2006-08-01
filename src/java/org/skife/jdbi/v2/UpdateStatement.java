@@ -15,7 +15,7 @@ public class UpdateStatement extends SQLStatement<UpdateStatement>
 {
     UpdateStatement(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, PreparedStatementCache cache, String sql)
     {
-        super(new Parameters(), locator, statementRewriter, connection, cache, sql);
+        super(new Binding(), locator, statementRewriter, connection, cache, sql);
     }
 
     /**

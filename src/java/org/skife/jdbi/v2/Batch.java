@@ -47,7 +47,7 @@ public class Batch
         // short circuit empty batch
         if (parts.size() == 0) return new int[] {};
 
-        Parameters empty = new Parameters();
+        Binding empty = new Binding();
         Statement stmt = null;
         try
         {

@@ -56,7 +56,7 @@ class BasicHandle implements Handle
 
     public Query<Map<String, Object>> createQuery(String sql)
     {
-        return new Query<Map<String, Object>>(new Parameters(),
+        return new Query<Map<String, Object>>(new Binding(),
                                               new DefaultMapper(),
                                               statementLocator,
                                               statementRewriter,

@@ -1,6 +1,6 @@
 package org.skife.jdbi.v2.tweak;
 
-import org.skife.jdbi.v2.Parameters;
+import org.skife.jdbi.v2.Binding;
 
 /**
  * Use to provide arbitrary statement rewriting.
@@ -16,5 +16,5 @@ public interface StatementRewriter
      * @return somethign which can provde the actual SQL to prepare a statement from
      *         and which can bind the correct arguments to that prepared statement
      */
-    ReWrittenStatement rewrite(String sql, Parameters params);
+    RewrittenStatement rewrite(String sql, Binding params);
 }

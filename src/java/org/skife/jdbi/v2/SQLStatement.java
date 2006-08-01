@@ -18,7 +18,7 @@ import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.ReWrittenStatement;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
@@ -44,7 +44,7 @@ import java.util.ArrayList;
  */
 public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 {
-    private final Parameters params;
+    private final Binding params;
     private final Connection connection;
     private final String sql;
     private final StatementRewriter rewriter;
@@ -52,7 +52,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final StatementLocator locator;
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
 
-    SQLStatement(Parameters params,
+    SQLStatement(Binding params,
                  StatementLocator locator,
                  StatementRewriter rewriter,
                  Connection conn,
@@ -111,7 +111,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return rewriter;
     }
 
-    protected Parameters getParams()
+    protected Binding getParams()
     {
         return params;
     }
@@ -126,7 +126,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return sql;
     }
 
-    protected Parameters getParameters()
+    protected Binding getParameters()
     {
         return params;
     }
@@ -685,7 +685,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                                               final QueryResultMunger<Result> munger,
                                               final QueryPostMungeCleanup cleanup)
     {
-        final ReWrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql) , getParameters());
+        final RewrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql) , getParameters());
         final PreparedStatement stmt;
         ResultSet rs = null;
         try

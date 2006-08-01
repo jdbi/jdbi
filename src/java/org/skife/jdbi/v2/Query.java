@@ -37,7 +37,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 {
     private final ResultSetMapper<ResultType> mapper;
 
-    Query(Parameters params,
+    Query(Binding params,
           ResultSetMapper<ResultType> mapper,
           StatementLocator locator,
           StatementRewriter statementRewriter,
