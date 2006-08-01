@@ -8,3 +8,4 @@ Thank you to:
     Patrick Burleson for showing that DBIException should extend RuntimeException
     Thomas Risberg for the Spring DataAccessException wrapping code
     Simone Gianni for finding (and finding the fix for) a nasty setNull bug
+    Martin Traverso for noticing DDL wasn't working right

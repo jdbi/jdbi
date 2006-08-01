@@ -146,7 +146,7 @@
       <file leaf-file-name="RewrittenStatement.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/RewrittenStatement.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="10" selection-start="741" selection-end="741" vertical-scroll-proportion="0.07759457">
+            <state line="41" column="0" selection-start="1361" selection-end="1361" vertical-scroll-proportion="0.38797283">
               <folding />
             </state>
           </provider>
@@ -745,7 +745,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/RewrittenStatement.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="10" selection-start="741" selection-end="741" vertical-scroll-proportion="0.07759457">
+        <state line="41" column="0" selection-start="1361" selection-end="1361" vertical-scroll-proportion="0.38797283">
           <folding />
         </state>
       </provider>
