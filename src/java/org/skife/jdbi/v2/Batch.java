@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
  */
 public class Batch
 {
@@ -25,12 +25,23 @@ public class Batch
         this.connection = connection;
     }
 
+    /**
+     * Add a statement to the batch
+     *
+     * @param sql SQL to be added to the batch, possibly a named statement
+     * @return the same Batch statement
+     */
     public Batch add(String sql)
     {
         parts.add(sql);
         return this;
     }
 
+    /**
+     * Execute all the queued up statements
+     *
+     * @return an array of integers representing the return values from each statement's execution
+     */
     public int[] execute()
     {
         // short circuit empty batch

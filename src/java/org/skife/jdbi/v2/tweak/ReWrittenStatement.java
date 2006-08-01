@@ -19,10 +19,13 @@ import org.skife.jdbi.v2.Parameters;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Return value from {@link StatementRewriter#rewrite(String, org.skife.jdbi.v2.Parameters)} calls
+ */
 public interface ReWrittenStatement
 {
     /**
-     * Called to bindBinaryStream a set of parameters to a prepared statement. The
+     * Called to bind a set of parameters to a prepared statement. The
      * statement will have been constructed from this ReWrittenStatement's
      * getSql() return result
      * @param params

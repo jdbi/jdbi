@@ -22,6 +22,9 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Statement rewriter which replaces named parameter tokens of the form :tokenName 
+ */
 public class NamedParameterStatementRewriter implements StatementRewriter
 {
     public ReWrittenStatement rewrite(String raw, Parameters params)

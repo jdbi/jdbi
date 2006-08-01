@@ -17,7 +17,20 @@ package org.skife.jdbi.v2.tweak;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Used with a {@link org.skife.jdbi.v2.Query#map(ResultSetMapper<T>)} call to specify
+ * what to do with each row of a result set
+ */
 public interface ResultSetMapper<T>
 {
+    /**
+     * Map the row the result set is at when passed in. This method should not cause the result
+     * set to advance, allow jDBI to do that, please.
+     *
+     * @param index which row of the result set we are at, starts at 0
+     * @param r the result set being iterated
+     * @return the value to return for this row
+     * @throws SQLException if anythign goes wrong go ahead and let this percolate, jDBI will handle it
+     */
     public T map(int index, ResultSet r) throws SQLException;
 }

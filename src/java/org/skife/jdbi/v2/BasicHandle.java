@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-public class BasicHandle implements Handle
+class BasicHandle implements Handle
 {
     private final TransactionHandler transactions;
     private final Connection connection;

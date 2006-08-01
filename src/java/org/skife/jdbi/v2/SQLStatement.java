@@ -39,6 +39,9 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.ArrayList;
 
+/**
+ * Represents an SQL statement. You should obtain instances from a Handle
+ */
 public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 {
     private final Parameters params;
@@ -65,6 +68,13 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         this.locator = locator;
     }
 
+    /**
+     * Provides a means for custom statement modification. Common cusotmizations
+     * have their own methods, such as {@link Query#setMaxRows(int)}
+     *
+     * @param customizer instance to be used to cstomize a statement
+     * @return modified statement
+     */
     @SuppressWarnings({"unchecked"})
     public SelfType addStatementCustomizer(StatementCustomizer customizer)
     {
@@ -149,6 +159,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return (SelfType) this;
     }
 
+    /**
+     * Binds named parameters from JavaBean propertues on o
+     * @param o source of named parameter values to use as arguments
+     * @return modified statement
+     */
     @SuppressWarnings("unchecked")
     public SelfType bindFromProperties(Object o)
     {
@@ -156,6 +171,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return (SelfType) this;
     }
 
+    /**
+     * Binds named parameters from a map of String to Object instances
+     *
+     * @param args map where keys are matched to named parameters in order to bind arguments
+     * @return modified statement
+     */
     @SuppressWarnings("unchecked")
     public SelfType bindFromMap(Map<String, ? extends Object> args)
     {
