@@ -18,47 +18,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/package.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Delete.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/UpdateStatement.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/LocalTransactionHandler.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/LocalTransactionHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iml" afterPath="$PROJECT_DIR$/jDBI.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NamedParameterStatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NamedParameterStatementRewriter.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/package.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNamedParams.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNamedParams.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/DataAccessor.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Update.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/package.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPositionalParameterBinding.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPositionalParameterBinding.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/package.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/BindType.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/Argument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/Argument.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/package.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/package.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/BindBy.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Insert.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ParsedStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ParsedStatement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.ipr" afterPath="$PROJECT_DIR$/jDBI.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Update.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Select.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IDBI.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IDBI.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectGenerator.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/QueryObjectFactory.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BaseResultSetMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BaseResultSetMapper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/DataAccessHandler.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -200,7 +161,7 @@
       <file leaf-file-name="TestQueryObjectHandler.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="101" column="0" selection-start="2768" selection-end="2768" vertical-scroll-proportion="0.3055286">
+            <state line="101" column="0" selection-start="2768" selection-end="2768" vertical-scroll-proportion="0.015518914">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -208,13 +169,22 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MyQueries.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="MyQueries.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="23" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.4898157">
+            <state line="38" column="0" selection-start="1053" selection-end="1053" vertical-scroll-proportion="0.07759457">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="118" column="13" selection-start="4321" selection-end="4321" vertical-scroll-proportion="0.5586809">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -222,7 +192,7 @@
       <file leaf-file-name="DataAccessHandler.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/DataAccessHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="82" column="0" selection-start="2952" selection-end="2952" vertical-scroll-proportion="0.19495635">
+            <state line="82" column="0" selection-start="2952" selection-end="2952" vertical-scroll-proportion="0.015518914">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -233,7 +203,7 @@
       <file leaf-file-name="SQLStatement.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="746" column="0" selection-start="21111" selection-end="21111" vertical-scroll-proportion="0.19495635">
+            <state line="746" column="0" selection-start="21111" selection-end="21111" vertical-scroll-proportion="0.015518914">
               <folding />
             </state>
           </provider>
@@ -638,6 +608,16 @@
         <option name="Make" value="true" />
       </method>
     </tempConfiguration>
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="" />
+    </configuration>
     <configuration default="true" type="Applet" factoryName="Applet">
       <module name="" />
       <option name="MAIN_CLASS_NAME" />
@@ -650,15 +630,12 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
-    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="" />
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="" />
@@ -694,13 +671,6 @@
       <option name="DOMAIN_NAME" value="mydomain" />
       <predefined_log_file id="WEBLOGIC_DOMAIN_LOG_FILE" enabled="true" />
       <predefined_log_file id="WEBLOGIC_SERVER_LOG_FILE" enabled="true" />
-    </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
     </configuration>
   </component>
   <component name="SQL">
@@ -913,13 +883,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NamedParameterStatementRewriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="20" selection-start="2327" selection-end="2327" vertical-scroll-proportion="0.34336525">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ParsedStatement.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="52" column="38" selection-start="1604" selection-end="1604" vertical-scroll-proportion="0.021887826">
@@ -1000,37 +963,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="746" column="0" selection-start="21111" selection-end="21111" vertical-scroll-proportion="0.19495635">
-          <folding />
+        <state line="101" column="0" selection-start="2768" selection-end="2768" vertical-scroll-proportion="0.015518914">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/DataAccessHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="82" column="0" selection-start="2952" selection-end="2952" vertical-scroll-proportion="0.19495635">
+        <state line="82" column="0" selection-start="2952" selection-end="2952" vertical-scroll-proportion="0.015518914">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectHandler.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="101" column="0" selection-start="2768" selection-end="2768" vertical-scroll-proportion="0.3055286">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="746" column="0" selection-start="21111" selection-end="21111" vertical-scroll-proportion="0.015518914">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="23" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.4898157">
+        <state line="38" column="0" selection-start="1053" selection-end="1053" vertical-scroll-proportion="0.07759457">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="118" column="13" selection-start="4321" selection-end="4321" vertical-scroll-proportion="0.5586809">
+          <folding />
         </state>
       </provider>
     </entry>

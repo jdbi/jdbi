@@ -117,12 +117,6 @@
         <tar tarfile="build/site/jdbi-${version}.tar.gz" basedir="build/staging" compression="gzip"/>
         <zip zipfile="build/site/jdbi-${version}.zip" basedir="build/staging"/>
     </target>
-
-    <target name="site" depends="release">
-        <scp todir="${release-url}/">
-            <fileset dir="build/site"/>
-        </scp>
-    </target>
 </project>
 
 
