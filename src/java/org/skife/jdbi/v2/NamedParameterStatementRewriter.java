@@ -74,11 +74,12 @@ public class NamedParameterStatementRewriter implements StatementRewriter
                         a = params.forPosition(i);
                     }
 
-                    if (a == null) {
+                    if (a == null)
+                    {
                         String msg = String.format("Unable to execute, no named parameter matches " +
                                                    "\"%s\" and no positional param for place %d (which is %d in " +
                                                    "the JDBC 'start at 1' scheme) has been set.",
-                                                   named_param, i, i+1);
+                                                   named_param, i, i + 1);
                         throw new UnableToExecuteStatementException(msg);
                     }
 
@@ -92,6 +93,4 @@ public class NamedParameterStatementRewriter implements StatementRewriter
             return parsed.getSubstitutedSql();
         }
     }
-
-
 }

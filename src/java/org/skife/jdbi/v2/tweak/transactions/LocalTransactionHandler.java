@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 
+ * This <code>TransactionHandler</code> uses local JDBC transactions
+ * demarcated explicitely on the handle and passed through to be handled
+ * directly on the JDBC Connection instance. 
  */
 public class LocalTransactionHandler implements TransactionHandler
 {

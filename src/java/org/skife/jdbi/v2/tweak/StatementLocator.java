@@ -1,7 +1,7 @@
 package org.skife.jdbi.v2.tweak;
 
 /**
- * Used for named statement locating.
+ * Used for finding the actual SQL for named statements..
  */
 public interface StatementLocator
 {

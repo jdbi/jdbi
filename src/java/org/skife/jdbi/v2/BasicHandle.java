@@ -115,9 +115,9 @@ class BasicHandle implements Handle
         return this;
     }
 
-    public UpdateStatement createStatement(String sql)
+    public Update createStatement(String sql)
     {
-        return new UpdateStatement(connection, statementLocator, statementRewriter, preparedStatementCache, sql);
+        return new Update(connection, statementLocator, statementRewriter, preparedStatementCache, sql);
     }
 
     public int insert(String sql, Object... args)
@@ -127,7 +127,7 @@ class BasicHandle implements Handle
 
     public int update(String sql, Object... args)
     {
-        UpdateStatement stmt = createStatement(sql);
+        Update stmt = createStatement(sql);
         int position = 0;
         for (Object arg : args)
         {

@@ -42,11 +42,6 @@ class ParsedStatement
         return replaced;
     }
 
-//    boolean isDynamic()
-//    {
-//        return IN_PARAM_PATTERN.matcher(replaced).find();
-//    }
-
     ParsedStatement(final String sql)
     {
         // attempt to short circuit
@@ -136,7 +131,7 @@ class ParsedStatement
                     last_token = token_matcher.find();
                     replaced.append(sql.substring(index, (last_token ? token_matcher.start() : sql.length())));
                 }
-                else if (last_quote)
+                else // if (last_quote)
                 {
                     // quote, but no more tokens
                     replaced.append(sql.substring(quote_matcher.start(), sql.length()));

@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
+ *
  */
 public class TestNamedParams extends DBITestCase
 {
     public void testInsert() throws Exception
     {
         Handle h = openHandle();
-        UpdateStatement insert = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Update insert = h.createStatement("insert into something (id, name) values (:id, :name)");
         insert.bind("id", 1);
         insert.bind("name", "Brian");
         int count = insert.execute();
@@ -62,7 +62,7 @@ public class TestNamedParams extends DBITestCase
     public void testBeanPropertyBinding() throws Exception
     {
         Handle h = this.openHandle();
-        UpdateStatement s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
         s.bindFromProperties(new Something(0, "Keith"));
         int insert_count = s.execute();
         assertEquals(1, insert_count);
@@ -71,7 +71,7 @@ public class TestNamedParams extends DBITestCase
     public void testMapKeyBinding() throws Exception
     {
         Handle h = this.openHandle();
-        UpdateStatement s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("id", 0);
         args.put("name", "Keith");
@@ -83,7 +83,7 @@ public class TestNamedParams extends DBITestCase
     public void testCascadedLazyArgs() throws Exception
     {
         Handle h = this.openHandle();
-        UpdateStatement s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("id", 0);
         s.bindFromMap(args);

@@ -11,9 +11,9 @@ import java.sql.Statement;
 /**
  * Used for INSERT, UPDATE, and DELETE statements
  */
-public class UpdateStatement extends SQLStatement<UpdateStatement>
+public class Update extends SQLStatement<Update>
 {
-    UpdateStatement(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, PreparedStatementCache cache, String sql)
+    Update(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, PreparedStatementCache cache, String sql)
     {
         super(new Binding(), locator, statementRewriter, connection, cache, sql);
     }

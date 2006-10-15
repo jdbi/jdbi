@@ -17,7 +17,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
 /**
- * 
+ *
  */
 public class TestPositionalParameterBinding extends DBITestCase
 {
@@ -111,5 +111,10 @@ public class TestPositionalParameterBinding extends DBITestCase
         int count = h.insert("insert into something (id, name) values (?, ?)", 1, "eric");
 
         assertEquals(1, count);
+    }
+
+    public void testWeirdPositionalSyntax() throws Exception
+    {
+        
     }
 }

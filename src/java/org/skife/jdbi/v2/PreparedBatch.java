@@ -39,12 +39,13 @@ public class PreparedBatch
 
     /**
      * Execute the batch
+     *
      * @return the number of rows modified or inserted per batch part.
      */
     public int[] execute()
     {
         // short circuit empty batch
-        if (parts.size() == 0) return new int[] {};
+        if (parts.size() == 0) return new int[]{};
 
         PreparedBatchPart current = parts.get(0);
         final RewrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters());
@@ -101,17 +102,33 @@ public class PreparedBatch
         return part;
     }
 
+    /**
+     * Create a new batch part by binding properties from <code>bean</code> to
+     * named parameters on the statement
+     *
+     * @param bean JavaBean to lookup properties on
+     *
+     * @return the new batch part
+     */
     public PreparedBatchPart add(Object bean)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache,sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql);
         parts.add(part);
         part.bindFromProperties(bean);
         return part;
     }
 
+    /**
+     * Create a new batch part by binding values looked up in <code>args</code> to
+     * named parameters on the statement.
+     *
+     * @param args map to bind arguments from for named parameters on the statement
+     *
+     * @return the new batch part
+     */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache,sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql);
         parts.add(part);
         part.bindFromMap(args);
         return part;

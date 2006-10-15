@@ -40,7 +40,9 @@ import java.util.Collection;
 import java.util.ArrayList;
 
 /**
- * Represents an SQL statement. You should obtain instances from a Handle
+ * This class provides the common functions between <code>Query</code> and
+ * <code>Update</code>. It defines most of the argument binding functions
+ * used by its subclasses.
  */
 public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 {
@@ -73,6 +75,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * have their own methods, such as {@link Query#setMaxRows(int)}
      *
      * @param customizer instance to be used to cstomize a statement
+     *
      * @return modified statement
      */
     @SuppressWarnings({"unchecked"})
@@ -136,6 +139,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream this argument, starting at 0
      * @param argument exotic argument factory
+     *
      * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
@@ -150,6 +154,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name     name to bindBinaryStream this argument
      * @param argument exotic argument factory
+     *
      * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
@@ -161,7 +166,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 
     /**
      * Binds named parameters from JavaBean propertues on o
+     *
      * @param o source of named parameter values to use as arguments
+     *
      * @return modified statement
      */
     @SuppressWarnings("unchecked")
@@ -175,6 +182,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * Binds named parameters from a map of String to Object instances
      *
      * @param args map where keys are matched to named parameters in order to bind arguments
+     *
      * @return modified statement
      */
     @SuppressWarnings("unchecked")
@@ -189,6 +197,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, String value)
@@ -201,6 +210,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, String value)
@@ -213,6 +223,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, int value)
@@ -225,6 +236,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, int value)
@@ -238,6 +250,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
      * @param length   how long is the stream being bound?
+     *
      * @return the same Query instance
      */
     public final SelfType bindASCIIStream(int position, InputStream value, int length)
@@ -251,6 +264,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * @param name   token name to bindBinaryStream the paramater to
      * @param value  to bindBinaryStream
      * @param length bytes to read from value
+     *
      * @return the same Query instance
      */
     public final SelfType bindASCIIStream(String name, InputStream value, int length)
@@ -263,6 +277,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, BigDecimal value)
@@ -275,6 +290,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, BigDecimal value)
@@ -287,6 +303,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bindBinaryStream(int position, InputStream value, int length)
@@ -300,6 +317,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * @param name   token name to bindBinaryStream the paramater to
      * @param value  to bindBinaryStream
      * @param length bytes to read from value
+     *
      * @return the same Query instance
      */
     public final SelfType bindBinaryStream(String name, InputStream value, int length)
@@ -312,6 +330,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, Blob value)
@@ -324,6 +343,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, Blob value)
@@ -336,6 +356,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, boolean value)
@@ -348,6 +369,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, boolean value)
@@ -360,6 +382,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, byte value)
@@ -372,6 +395,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, byte value)
@@ -384,6 +408,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, byte[] value)
@@ -396,6 +421,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, byte[] value)
@@ -409,6 +435,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
      * @param length   number of characters to read
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, Reader value, int length)
@@ -422,6 +449,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * @param name   token name to bindBinaryStream the paramater to
      * @param value  to bindBinaryStream
      * @param length number of characters to read
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, Reader value, int length)
@@ -434,6 +462,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, Clob value)
@@ -446,6 +475,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, Clob value)
@@ -458,6 +488,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, java.sql.Date value)
@@ -470,6 +501,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, java.sql.Date value)
@@ -482,6 +514,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, java.util.Date value)
@@ -494,6 +527,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, java.util.Date value)
@@ -506,6 +540,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, Double value)
@@ -518,6 +553,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, Double value)
@@ -530,6 +566,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, Float value)
@@ -542,6 +579,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, Float value)
@@ -554,6 +592,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, long value)
@@ -566,6 +605,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, long value)
@@ -578,6 +618,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, Object value)
@@ -590,6 +631,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, Object value)
@@ -602,6 +644,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, Time value)
@@ -614,6 +657,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, Time value)
@@ -626,6 +670,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, Timestamp value)
@@ -638,6 +683,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, Timestamp value)
@@ -650,6 +696,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bindBinaryStream the paramater at, starting at 0
      * @param value    to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(int position, URL value)
@@ -662,6 +709,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param name  token name to bindBinaryStream the paramater to
      * @param value to bindBinaryStream
+     *
      * @return the same Query instance
      */
     public final SelfType bind(String name, URL value)
@@ -685,7 +733,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                                               final QueryResultMunger<Result> munger,
                                               final QueryPostMungeCleanup cleanup)
     {
-        final RewrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql) , getParameters());
+        final RewrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql), getParameters());
         final PreparedStatement stmt;
         ResultSet rs = null;
         try

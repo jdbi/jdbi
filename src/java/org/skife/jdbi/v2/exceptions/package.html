@@ -1,8 +1,9 @@
 <html>
 <body>
 <p>
-    This package exists, more or less, to house the various exceptions which exist in jDBI.
-    Mostly it cleans up things in the old editor.
+    All JDBI exceptions extend <code>RuntimeException</code>, so you can skip catching them.
+    The methods declare which ones they throw, despite them being runtime, so autocompletion
+    in various IDEs should be able to pick up on them.
 </p>
 </body>
 </html>

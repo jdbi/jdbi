@@ -24,14 +24,14 @@ import java.util.List;
 
 /**
  * This represents a connection to the database system. It ususally is a wrapper around
- * a JDBC Connection object. 
+ * a JDBC Connection object.
  */
 public interface Handle
 {
 
     /**
      * Get the JDBC Connection this Handle uses
-     * @return the JDBC Connection this Handle uses 
+     * @return the JDBC Connection this Handle uses
      */
     Connection getConnection();
 
@@ -66,7 +66,7 @@ public interface Handle
      * Create an Insert or Update statement which returns the number of rows modified.
      * @param sql The statement sql
      */
-    UpdateStatement createStatement(String sql);
+    Update createStatement(String sql);
 
     /**
      * Execute a simple insert statement

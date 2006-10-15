@@ -31,8 +31,7 @@ public class TestPreparedBatch extends DBITestCase
 
         PreparedBatchPart p = b.add();
         p = p.bind("id", 1).bind("name", "Eric").another();
-        p.bind("id", 2).bind("name", "Brian").another()
-                .bind("id", 3).bind("name", "Keith");
+        p.bind("id", 2).bind("name", "Brian").another().bind("id", 3).bind("name", "Keith");
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
@@ -85,7 +84,7 @@ public class TestPreparedBatch extends DBITestCase
         Handle h = openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        Map<String, Object> one =Tools.map("id", 0).add("name", "Keith");
+        Map<String, Object> one = Tools.map("id", 0).add("name", "Keith");
         b.add(one);
         b.add(Tools.map("id", Integer.parseInt("1")).add("name", "Eric"));
         b.add(Tools.map("id", Integer.parseInt("2")).add("name", "Brian"));
@@ -102,24 +101,24 @@ public class TestPreparedBatch extends DBITestCase
         Handle h = openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        Map<String, Object> one =Tools.map("id", 0);
+        Map<String, Object> one = Tools.map("id", 0);
         b.add(one).bind("name", "Keith");
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
         assertEquals(1, r.size());
-        assertEquals("Keith", r.get(0).getName());   
+        assertEquals("Keith", r.get(0).getName());
     }
 
-    public void _testStartHere() throws Exception
+    public void testPositionalBinding() throws Exception
     {
-        assertTrue("Push all connection ops into handle, " +
-                   "move internalExecute there, " +
-                   "don't expose connection outside of handle!\n" +
-                   "Make SQLStatement accept a 'delegate' which is passed in " +
-                   "and returned -- frees things up, SQLOperation then collects params " +
-                   "which are just used later.\nThis makes it possible to " +
-                   "not pass the statement rewriter, sql, etc around either!\nAll that " +
-                   "muckery can be kept in one place.\nWoot!", false);
+        Handle h = openHandle();
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        b.add().bind(0, 0).bind(1, "Keith").submit().execute();
+
+        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        assertEquals(1, r.size());
+        assertEquals("Keith", r.get(0).getName());
     }
 }
