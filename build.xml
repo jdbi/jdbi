@@ -70,6 +70,12 @@
             </fileset>
             <zipfileset src="lib/build/antlr-2.7.7.jar"/>
             <rule pattern="antlr.**" result="org.skife.jdbi.antlr.@1"/>
+
+            <zap pattern="antlr.Tool"/>
+            <zap pattern="antlr.*Tool*"/>
+            <zap pattern="antlr.Rule*"/>
+            <zap pattern="antlr.PrintWriter*"/>
+            <zap pattern="antlr.*RewriteEngine*"/>
             <zap pattern="antlr.**CSharp**"/>
             <zap pattern="antlr.CSharp**"/>
             <zap pattern="antlr.DefineGrammarSymbols"/>

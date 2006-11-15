@@ -14,3 +14,5 @@ LITERAL: ('a'..'z' | 'A'..'Z' | ' ' | '\t' | '0'..'9' | ',' | '*'
 NAMED_PARAM: ':' ('a'..'z' | 'A'..'Z' | '_')+;
 POSITIONAAL_PARAM: '?';
 QUOTED_TEXT: ('\'' (~'\'')+ '\'');
+
+
