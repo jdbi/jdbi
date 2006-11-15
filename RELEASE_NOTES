@@ -1,3 +1,6 @@
+2.0pre5
+    Improve grammar for named param parsing (_ @ and _ in LITERAL) 
+
 2.0pre4
     Switch to an ANTLR based grammar for named param parsing
 
