@@ -1,3 +1,15 @@
+2.0pre4
+    Switch to an ANTLR based grammar for named param parsing
+
+2.0pre3
+    JDBC4 Style "Ease of Development" and API Docs
+
+2.0pre2
+    Flesh out convenience APIS
+
+2.0pre1
+    Complete Rewrite
+
 1.4.5
     Fix bug in caching added in 1.4.4
 
@@ -41,7 +53,7 @@
     Support for "global" named parameters at the handle and DBI levels
 
 1.2.5
-    Change Handle#script to batch the statements in the script    
+    Change Handle#script to batch the statements in the script
 
 1.2.4
     Bug fix in named parameter handling with quotes (would ignore some named params incorrectly)
@@ -63,7 +75,7 @@
     DBIException now extends RuntimeException. The 7 character change major release =)
 
     Added DBIUtils.closeHandleIfNecessary(Handle, IDBI) to allow for transparently managing
-    transactions and connections in Spring whteher tx's are enabled or not.    
+    transactions and connections in Spring whteher tx's are enabled or not.
 
 1.1.2
     Handle#query(String, RowCallback): void no longer starts a transaction
@@ -71,7 +83,7 @@
 
 1.1.1
     Support full-line comments in external sql and sql scripts. Full line comments
-    must begin with # or // or -- as the first character(s) on the line. 
+    must begin with # or // or -- as the first character(s) on the line.
 
 1.1.0
     Added handle#first(..): Map convenience functions to query for individual rows
@@ -127,7 +139,7 @@
     Lots of internal refactoring
 
 1.0.4
-    Was swallowing an exception in one place for the (brief) 1.0.3 release. 
+    Was swallowing an exception in one place for the (brief) 1.0.3 release.
     Definately upgrade if using 1.0.3
 
 1.0.3
@@ -141,11 +153,11 @@
     with no runtime dependencies (other than the JDBC driver for your database).
 
 1.0.2
-    Added facility for loading connection info from properties file 
+    Added facility for loading connection info from properties file
     for convenience. Totally optional, thankfully.
 
 1.0.1
     Added overloaded argument signatures to callback-based queries
-    
-1.0 
+
+1.0
     Initial Release
