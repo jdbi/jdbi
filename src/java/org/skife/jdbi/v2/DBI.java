@@ -32,7 +32,7 @@ import java.sql.Connection;
 public class DBI implements IDBI
 {
     private final ConnectionFactory connectionFactory;
-    private StatementRewriter statementRewriter = new NamedParameterStatementRewriter();
+    private StatementRewriter statementRewriter = new ColonPrefixNamedParamStatementRewriter();
     private StatementLocator statementLocator = new ClasspathStatementLocator();
     private TransactionHandler transactionhandler = new LocalTransactionHandler();
 

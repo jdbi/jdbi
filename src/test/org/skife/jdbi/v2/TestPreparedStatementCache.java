@@ -40,7 +40,7 @@ public class TestPreparedStatementCache extends DBITestCase
         BasicHandle h = new BasicHandle(new LocalTransactionHandler(),
                                         new ClasspathStatementLocator(),
                                         cache,
-                                        new NamedParameterStatementRewriter(),
+                                        new ColonPrefixNamedParamStatementRewriter(),
                                         c);
 
         h.createStatement("insert into something (id, name) values (:id, :name)")
@@ -52,7 +52,7 @@ public class TestPreparedStatementCache extends DBITestCase
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bindFromProperties(new Something(0, "Keith"))
                 .execute();
-        
+
         assertEquals(1, prep_count[0]);
     }
 }

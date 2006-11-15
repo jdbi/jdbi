@@ -6,6 +6,7 @@
     <exclude-output />
     <exclude-exploded />
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/build/grammar" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
     </content>
@@ -22,6 +23,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="spring" level="project" />
+    <orderEntry type="library" name="antlr" level="project" />
     <orderEntryProperties />
   </component>
 </module>

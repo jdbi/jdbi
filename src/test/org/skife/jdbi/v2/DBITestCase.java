@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.sql.Connection;
 
 /**
- * 
+ *
  */
 public abstract class DBITestCase extends TestCase
 {
@@ -57,7 +57,7 @@ public abstract class DBITestCase extends TestCase
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         new ClasspathStatementLocator(),
                                         new PreparedStatementCache(conn),
-                                        new NamedParameterStatementRewriter(),
+                                        new ColonPrefixNamedParamStatementRewriter(),
                                         conn);
         handles.add(h);
         return h;

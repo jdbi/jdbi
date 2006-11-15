@@ -78,7 +78,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @return modified statement
      */
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings("unchecked")
     public SelfType addStatementCustomizer(StatementCustomizer customizer)
     {
         this.customizers.add(customizer);

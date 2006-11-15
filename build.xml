@@ -1,15 +1,24 @@
 <project name="jDBI" default="jar" basedir=".">
 
     <property name="debug" value="true"/>
-    <property name="version" value="2.0pre3"/>
+    <property name="version" value="2.0pre4"/>
     <property name="username" value="johan"/>
     <property name="password" value="doe"/>
     <property name="release-url" value="${username}:${password}@beaver.codehaus.org:/home/projects/jdbi/public_html/"/>
 
-    <target name="compile" description="Compile all Source Files">
+    <target name="grammar" description="Build format grammer">
+        <mkdir dir="build/grammar/org/skife/jdbi/rewriter/printf/"/>
+        <antlr target="src/grammar/printf-rewriter.g" outputdirectory="build/grammar/org/skife/jdbi/rewriter/printf/"/>
+        <mkdir dir="build/grammar/org/skife/jdbi/rewriter/colon/"/>
+        <antlr target="src/grammar/colon-rewriter.g" outputdirectory="build/grammar/org/skife/jdbi/rewriter/colon/"/>
+    </target>
+
+    <target name="compile" depends="grammar" description="Compile all Source Files">
         <mkdir dir="build"/>
         <mkdir dir="build/classes"/>
-        <javac srcdir="src/java" target="5" source="5" destdir="build/classes" debug="${debug}">
+        <javac target="5" source="5" destdir="build/classes" debug="${debug}">
+            <src location="src/java"/>
+            <src location="build/grammar"/>
             <classpath>
                 <fileset dir="lib">
                     <include name="**/*.jar"/>
@@ -34,15 +43,63 @@
                 <include name="**/*.sql"/>
             </fileset>
         </copy>
+
+        <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/build/jarjar-0.7.jar"/>
+        <jarjar jarfile="build/jdbi-tests.jar">
+            <fileset dir="src/test">
+                <include name="**/*.sql"/>
+            </fileset>
+            <fileset dir="build/test-classes">
+                <include name="**/*.class"/>
+            </fileset>
+            <rule pattern="antlr.**" result="org.skife.jdbi.antlr.@1"/>
+        </jarjar>
+
     </target>
 
     <target name="jar" depends="compile" description="Build Jar Library">
         <mkdir dir="build"/>
-        <jar jarfile="build/jdbi-${version}.jar">
+
+        <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/build/jarjar-0.7.jar"/>
+        <jarjar jarfile="build/jdbi-${version}.jar">
             <fileset dir="build/classes">
                 <include name="**/*.class"/>
             </fileset>
-        </jar>
+            <fileset dir="build/grammar">
+                <include name="**/*TokenTypes.txt"/>
+            </fileset>
+            <zipfileset src="lib/build/antlr-2.7.7.jar"/>
+            <rule pattern="antlr.**" result="org.skife.jdbi.antlr.@1"/>
+            <zap pattern="antlr.**CSharp**"/>
+            <zap pattern="antlr.CSharp**"/>
+            <zap pattern="antlr.DefineGrammarSymbols"/>
+            <zap pattern="antlr.MakeGrammar"/>
+            <zap pattern="antlr.Diagnostic**"/>
+            <zap pattern="antlr.Python**"/>
+            <zap pattern="antlr.**Python**"/>
+            <zap pattern="antlr.DocBook**"/>
+            <zap pattern="antlr.**DocBook**"/>
+            <zap pattern="antlr.**HTML**"/>
+            <zap pattern="antlr.HTML**"/>
+            <zap pattern="antlr.**Cpp**"/>
+            <zap pattern="antlr.Cpp**"/>
+            <zap pattern="antlr.Tree*"/>
+            <zap pattern="antlr.**AST**"/>
+            <zap pattern="antlr.AST**"/>
+            <zap pattern="antlr.Parse**"/>
+            <zap pattern="antlr.**Parse**"/>
+            <zap pattern="antlr.**CodeGenerator**"/>
+            <zap pattern="antlr.CodeGenerator**"/>
+            <zap pattern="antlr.CodeGenerator"/>
+            <zap pattern="antlr.ASdebug.**"/>
+            <zap pattern="antlr.build.**"/>
+            <zap pattern="antlr.debug.**"/>
+            <zap pattern="antlr.actions.csharp.**"/>
+            <zap pattern="antlr.actions.python.**"/>
+            <zap pattern="antlr.actions.cpp.**"/>
+            <zap pattern="antlr.preprocessor.**"/>
+        </jarjar>
+
         <echo message="built library: build/jdbi-${version}.jar"/>
     </target>
 
@@ -51,16 +108,19 @@
         <delete quiet="true" dir="report"/>
     </target>
 
-    <target name="test" depends="compile-tests" description="Run all junit tests">
+    <target name="test" depends="jar, compile-tests" description="Run all junit tests">
         <mkdir dir="report"/>
         <junit>
             <formatter type="plain"/>
             <classpath>
-                <fileset dir="lib">
+                <fileset dir="lib/test">
                     <include name="**/*.jar"/>
                 </fileset>
-                <pathelement location="build/classes"/>
-                <pathelement location="build/test-classes"/>
+                <fileset dir="lib/spring">
+                    <include name="**/*.jar"/>
+                </fileset>
+                <pathelement location="build/jdbi-${version}.jar"/>
+                <pathelement location="build/jdbi-tests.jar"/>
             </classpath>
             <batchtest todir="report">
                 <fileset dir="src/test">
@@ -72,10 +132,10 @@
 
     <target name="javadoc" description="Generate API Documentation">
         <javadoc
-            destdir="build/doc/api-2.0"
-            author="true"
-            windowtitle="jDBI"
-            access="protected">
+                destdir="build/doc/api-2.0"
+                author="true"
+                windowtitle="jDBI"
+                access="protected">
             <fileset dir="src/java"/>
         </javadoc>
     </target>
@@ -92,7 +152,7 @@
             </filterset>
         </copy>
 
-        <copy file="RELEASE_NOTES" todir="build/site/" />
+        <copy file="RELEASE_NOTES" todir="build/site/"/>
 
         <mkdir dir="build/staging/jdbi-${version}"/>
         <copy todir="build/staging/jdbi-${version}/src">

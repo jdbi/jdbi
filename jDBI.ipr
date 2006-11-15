@@ -331,10 +331,14 @@
         <root url="jar://$PROJECT_DIR$/lib/spring/commons-logging.jar!/" />
         <root url="jar://$PROJECT_DIR$/lib/test/aopalliance.jar!/" />
       </CLASSES>
-      <JAVADOC>
-        <root url="file:///Users/brianm/src/spring-framework-1.1.2/src" />
-        <root url="file:///Users/brianm/src/spring-framework-1.1.2/docs/api" />
-      </JAVADOC>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="antlr">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/build/antlr-2.7.7.jar!/" />
+      </CLASSES>
+      <JAVADOC />
       <SOURCES />
     </library>
   </component>
