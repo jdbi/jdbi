@@ -15,15 +15,19 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
+import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.Properties;
 
 /**
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
@@ -38,17 +42,18 @@ public class DBI implements IDBI
 
     /**
      * Constructor for use with a DataSource which will provide
+     *
      * @param dataSource
      */
     public DBI(DataSource dataSource)
     {
         this(new DataSourceConnectionFactory(dataSource));
-        assert(dataSource != null);
+        assert (dataSource != null);
     }
 
     /**
      * Constructor used to allow for obtaining a Connection in a customized manner.
-     * <p>
+     * <p/>
      * The {@link org.skife.jdbi.v2.tweak.ConnectionFactory#openConnection()} method will
      * be invoked to obtain a connection instance whenever a Handle is opened.
      *
@@ -56,8 +61,59 @@ public class DBI implements IDBI
      */
     public DBI(ConnectionFactory connectionFactory)
     {
-        assert(connectionFactory != null);
+        assert (connectionFactory != null);
         this.connectionFactory = connectionFactory;
+    }
+
+    /**
+     * Create a DBI which directly uses the DriverManager
+     *
+     * @param url JDBC URL for connections
+     */
+    public DBI(final String url)
+    {
+        this(new ConnectionFactory()
+        {
+            public Connection openConnection() throws SQLException
+            {
+                return DriverManager.getConnection(url);
+            }
+        });
+    }
+
+    /**
+     * Create a DBI which directly uses the DriverManager
+     *
+     * @param url   JDBC URL for connections
+     * @param props Properties to pass to DriverManager.getConnection(url, props) for each new handle
+     */
+    public DBI(final String url, final Properties props)
+    {
+        this(new ConnectionFactory()
+        {
+            public Connection openConnection() throws SQLException
+            {
+                return DriverManager.getConnection(url, props);
+            }
+        });
+    }
+
+    /**
+     * Create a DBI which directly uses the DriverManager
+     *
+     * @param url      JDBC URL for connections
+     * @param username User name for connection authentication
+     * @param password Password for connection authentication
+     */
+    public DBI(final String url, final String username, final String password)
+    {
+        this(new ConnectionFactory()
+        {
+            public Connection openConnection() throws SQLException
+            {
+                return DriverManager.getConnection(url, username, password);
+            }
+        });
     }
 
     /**
@@ -69,7 +125,7 @@ public class DBI implements IDBI
      */
     public void setStatementLocator(StatementLocator locator)
     {
-        assert(locator != null);
+        assert (locator != null);
         this.statementLocator = locator;
     }
 
@@ -81,7 +137,7 @@ public class DBI implements IDBI
      */
     public void setStatementRewriter(StatementRewriter rewriter)
     {
-        assert(rewriter != null);
+        assert (rewriter != null);
         this.statementRewriter = rewriter;
     }
 
@@ -89,7 +145,7 @@ public class DBI implements IDBI
      * Specify the TransactionHandler instance to use. This allows overriding
      * transaction semantics, or mapping into different transaction
      * management systems.
-     * <p>
+     * <p/>
      * The default version uses local transactions on the database Connection
      * instances obtained.
      *
@@ -98,7 +154,7 @@ public class DBI implements IDBI
      */
     public void setTransactionHandler(TransactionHandler handler)
     {
-        assert(handler != null);
+        assert (handler != null);
         this.transactionhandler = handler;
     }
 
@@ -109,8 +165,7 @@ public class DBI implements IDBI
      */
     public Handle open()
     {
-        try
-        {
+        try {
             Connection conn = connectionFactory.openConnection();
             PreparedStatementCache cache = new PreparedStatementCache(conn);
             return new BasicHandle(transactionhandler,
@@ -119,9 +174,31 @@ public class DBI implements IDBI
                                    statementRewriter,
                                    conn);
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new UnableToObtainConnectionException(e);
+        }
+    }
+
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients.
+     *
+     * @param callback A callback which will receive an open Handle
+     * @return the value returned by callback
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    public <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException
+    {
+        final Handle h = this.open();
+        try {
+            return callback.withHandle(h);
+        }
+        catch (Exception e) {
+            throw new CallbackFailedException(e);
+        }
+        finally {
+            h.close();
         }
     }
 
@@ -129,22 +206,25 @@ public class DBI implements IDBI
      * Convenience methd used to obtain a handle from a specific data source
      *
      * @param dataSource
+     *
      * @return Handle using a Connection obtained from the provided DataSource
      */
     public static Handle open(DataSource dataSource)
     {
-        assert(dataSource != null);
+        assert (dataSource != null);
         return new DBI(dataSource).open();
     }
 
     /**
      * Create a Handle wrapping a particular JDBC Connection
+     *
      * @param connection
+     *
      * @return Handle bound to connection
      */
     public static Handle open(final Connection connection)
     {
-        assert(connection != null);
+        assert (connection != null);
         return new DBI(new ConnectionFactory()
         {
             public Connection openConnection()
@@ -152,5 +232,47 @@ public class DBI implements IDBI
                 return connection;
             }
         }).open();
+    }
+
+    /**
+     * Obtain a handle with just a JDBC URL
+     *
+     * @param url JDBC Url
+     *
+     * @return newly opened Handle
+     */
+    public static Handle open(final String url)
+    {
+        assert (url != null);
+        return new DBI(url).open();
+    }
+
+    /**
+     * Obtain a handle with just a JDBC URL
+     *
+     * @param url      JDBC Url
+     * @param username JDBC username for authentication
+     * @param password JDBC password for authentication
+     *
+     * @return newly opened Handle
+     */
+    public static Handle open(final String url, final String username, final String password)
+    {
+        assert (url != null);
+        return new DBI(url, username, password).open();
+    }
+
+    /**
+     * Obtain a handle with just a JDBC URL
+     *
+     * @param url   JDBC Url
+     * @param props JDBC properties
+     *
+     * @return newly opened Handle
+     */
+    public static Handle open(final String url, final Properties props)
+    {
+        assert (url != null);
+        return new DBI(url, props).open();
     }
 }

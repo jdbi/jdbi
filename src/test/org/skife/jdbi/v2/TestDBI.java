@@ -18,22 +18,13 @@ import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
+import org.skife.jdbi.v2.tweak.HandleCallback;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class TestDBI extends TestCase
+public class TestDBI extends DBITestCase
 {
-    public void setUp() throws Exception
-    {
-        Tools.start();
-    }
-
-    public void tearDown() throws Exception
-    {
-        Tools.stop();
-    }
-
     public void testDataSourceConstructor() throws Exception
     {
         DBI dbi = new DBI(Tools.getDataSource());
@@ -89,5 +80,18 @@ public class TestDBI extends TestCase
         Handle h = DBI.open(Tools.dataSource);
         assertNotNull(h);
         h.close();
+    }
+
+    public void testWithHandle() throws Exception
+    {
+        DBI dbi = new DBI(Tools.getDataSource());
+        String value = dbi.withHandle(new HandleCallback<String>() {
+            public String withHandle(Handle handle) throws Exception
+            {
+                handle.insert("insert into something (id, name) values (1, 'Brian')");
+                return handle.createQuery("select name from something where id = 1").map(Something.class).first().getName();
+            }
+        });
+        assertEquals("Brian", value);
     }
 }
