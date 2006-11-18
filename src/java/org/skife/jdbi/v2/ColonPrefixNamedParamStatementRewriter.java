@@ -18,6 +18,8 @@ import java.util.ArrayList;
 
 /**
  * Statement rewriter which replaces named parameter tokens of the form :tokenName
+ * <p>
+ * This is the default statement rewriter
  */
 public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
 {

@@ -24,8 +24,14 @@ import java.sql.SQLException;
 
 /**
  * Statement rewriter which replaces named parameter tokens of the form :tokenName
+ * <p>
+ * This class uses the algorithm from the JDBI 1.X versions, which used a hand-crafted
+ * regex based parser for this. It remains, basically, in case there is some strange
+ * case where the {@link org.skife.jdbi.v2.ColonPrefixNamedParamStatementRewriter}
+ * breaks down and the previous one worked. It is suggested that the aforementioned
+ * rewriter be used in preference to this one.
  */
-public class NamedParameterStatementRewriter implements StatementRewriter
+public class V1NamedParameterStatementRewriter implements StatementRewriter
 {
     public RewrittenStatement rewrite(String raw, Binding params)
     {

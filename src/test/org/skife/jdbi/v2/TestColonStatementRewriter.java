@@ -41,5 +41,4 @@ public class TestColonStatementRewriter extends TestCase
         RewrittenStatement rws = rw.rewrite(":boo ':nope' _%&^& *@ :id", new Binding());
         assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
     }
-
 }
