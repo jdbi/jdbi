@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,7 +43,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           StatementLocator locator,
           StatementRewriter statementRewriter,
           Connection connection,
-          PreparedStatementCache cache,
+          StatementBuilder cache,
           String sql)
     {
         super(params, locator, statementRewriter, connection, cache, sql);

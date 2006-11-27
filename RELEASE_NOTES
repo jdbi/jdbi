@@ -1,5 +1,10 @@
+2.0pre6
+    Pluggable statement builders
+
+    More literal characters in the named statement parser
+
 2.0pre5
-    Improve grammar for named param parsing (_ @ and _ in LITERAL) 
+    Improve grammar for named param parsing (_ @ and _ in LITERAL)
 
 2.0pre4
     Switch to an ANTLR based grammar for named param parsing

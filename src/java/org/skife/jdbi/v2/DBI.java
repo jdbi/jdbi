@@ -21,6 +21,8 @@ import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 import org.skife.jdbi.v2.tweak.HandleCallback;
+import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import javax.sql.DataSource;
@@ -39,6 +41,7 @@ public class DBI implements IDBI
     private StatementRewriter statementRewriter = new ColonPrefixNamedParamStatementRewriter();
     private StatementLocator statementLocator = new ClasspathStatementLocator();
     private TransactionHandler transactionhandler = new LocalTransactionHandler();
+    private StatementBuilderFactory statementBuilderFactory = new CachingStatementBuilderFactory();
 
     /**
      * Constructor for use with a DataSource which will provide
@@ -167,7 +170,7 @@ public class DBI implements IDBI
     {
         try {
             Connection conn = connectionFactory.openConnection();
-            PreparedStatementCache cache = new PreparedStatementCache(conn);
+            StatementBuilder cache = statementBuilderFactory.createStatementBuilder(conn);
             return new BasicHandle(transactionhandler,
                                    statementLocator,
                                    cache,
@@ -274,5 +277,16 @@ public class DBI implements IDBI
     {
         assert (url != null);
         return new DBI(url, props).open();
+    }
+
+    /**
+     * Allows customization of how prepared statements are created. When a Handle is created
+     * against this DBI instance the factory will be used to create a StatementBuilder for
+     * that specific handle. When the handle is closed, the StatementBuilder's close method
+     * will be invoked.
+     */
+    public void setStatementBuilderFactory(StatementBuilderFactory factory)
+    {
+        this.statementBuilderFactory = factory;
     }
 }

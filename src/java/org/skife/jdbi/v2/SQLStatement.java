@@ -22,6 +22,7 @@ import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -50,7 +51,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final Connection connection;
     private final String sql;
     private final StatementRewriter rewriter;
-    private final PreparedStatementCache preparedStatementCache;
+    private final StatementBuilder preparedStatementCache;
     private final StatementLocator locator;
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
 
@@ -58,7 +59,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                  StatementLocator locator,
                  StatementRewriter rewriter,
                  Connection conn,
-                 PreparedStatementCache preparedStatementCache,
+                 StatementBuilder preparedStatementCache,
                  String sql)
     {
         assert(verifyOurNastyDowncastIsOkay());
@@ -99,7 +100,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         }
     }
 
-    protected PreparedStatementCache getPreparedStatementCache()
+    protected StatementBuilder getPreparedStatementCache()
     {
         return preparedStatementCache;
     }
@@ -740,7 +741,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         {
             try
             {
-                stmt = preparedStatementCache.locate(rewritten.getSql());
+                stmt = preparedStatementCache.create(rewritten.getSql());
             }
             catch (SQLException e)
             {

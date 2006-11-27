@@ -16,6 +16,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.sql.Connection;
 
@@ -32,7 +33,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       StatementLocator locator,
                       StatementRewriter rewriter,
                       Connection connection,
-                      PreparedStatementCache cache,
+                      StatementBuilder cache,
                       String sql)
     {
         super(new Binding(), locator, rewriter, connection, cache, sql);

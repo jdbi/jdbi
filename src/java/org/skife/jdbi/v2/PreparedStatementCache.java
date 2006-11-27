@@ -1,5 +1,7 @@
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.StatementBuilder;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -7,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ *
  */
-class PreparedStatementCache
+class PreparedStatementCache implements StatementBuilder
 {
     private final Connection conn;
 
@@ -20,7 +22,7 @@ class PreparedStatementCache
         this.conn = conn;
     }
 
-    PreparedStatement locate(String sql) throws SQLException
+    public PreparedStatement create(String sql) throws SQLException
     {
         if (cache.containsKey(sql)) {
             PreparedStatement cached = cache.get(sql);
@@ -33,7 +35,7 @@ class PreparedStatementCache
         return stmt;
     }
 
-    void close()
+    public void close()
     {
         for (PreparedStatement statement : cache.values())
         {

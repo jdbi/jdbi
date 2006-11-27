@@ -24,6 +24,8 @@
     </orderEntry>
     <orderEntry type="library" name="spring" level="project" />
     <orderEntry type="library" name="antlr" level="project" />
+    <orderEntry type="library" name="optional" level="project" />
+    <orderEntry type="library" name="JEXL 1.1" level="project" />
     <orderEntryProperties />
   </component>
 </module>

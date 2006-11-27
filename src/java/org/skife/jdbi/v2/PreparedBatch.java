@@ -5,6 +5,7 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,10 +26,10 @@ public class PreparedBatch
     private final StatementLocator locator;
     private final StatementRewriter rewriter;
     private final Connection connection;
-    private final PreparedStatementCache preparedStatementCache;
+    private final StatementBuilder preparedStatementCache;
     private final String sql;
 
-    PreparedBatch(StatementLocator locator, StatementRewriter rewriter, Connection connection, PreparedStatementCache preparedStatementCache, String sql)
+    PreparedBatch(StatementLocator locator, StatementRewriter rewriter, Connection connection, StatementBuilder preparedStatementCache, String sql)
     {
         this.locator = locator;
         this.rewriter = rewriter;

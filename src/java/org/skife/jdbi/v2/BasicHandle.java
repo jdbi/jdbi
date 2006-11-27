@@ -19,6 +19,7 @@ import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,23 +32,23 @@ class BasicHandle implements Handle
     private final Connection connection;
     private StatementRewriter statementRewriter;
     private StatementLocator statementLocator;
-    private PreparedStatementCache preparedStatementCache;
+    private StatementBuilder statementBuilder;
 
 //    public BasicHandle(TransactionHandler transactions,
-//                       PreparedStatementCache preparedStatementCache,
+//                       PreparedStatementCache statementBuilder,
 //                       StatementRewriter statementRewriter,
 //                       Connection connection)
 //    {
-//        this(transactions, new ClasspathStatementLocator(), preparedStatementCache, statementRewriter, connection);
+//        this(transactions, new ClasspathStatementLocator(), statementBuilder, statementRewriter, connection);
 //    }
 
     public BasicHandle(TransactionHandler transactions,
                        StatementLocator statementLocator,
-                       PreparedStatementCache preparedStatementCache,
+                       StatementBuilder preparedStatementCache,
                        StatementRewriter statementRewriter,
                        Connection connection)
     {
-        this.preparedStatementCache = preparedStatementCache;
+        this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
         this.transactions = transactions;
         this.connection = connection;
@@ -61,7 +62,7 @@ class BasicHandle implements Handle
                                               statementLocator,
                                               statementRewriter,
                                               connection,
-                                              preparedStatementCache,
+                                              statementBuilder,
                                               sql);
     }
 
@@ -77,7 +78,7 @@ class BasicHandle implements Handle
 
     public void close()
     {
-        preparedStatementCache.close();
+        statementBuilder.close();
         try
         {
             connection.close();
@@ -117,7 +118,7 @@ class BasicHandle implements Handle
 
     public Update createStatement(String sql)
     {
-        return new Update(connection, statementLocator, statementRewriter, preparedStatementCache, sql);
+        return new Update(connection, statementLocator, statementRewriter, statementBuilder, sql);
     }
 
     public int insert(String sql, Object... args)
@@ -138,7 +139,7 @@ class BasicHandle implements Handle
 
     public PreparedBatch prepareBatch(String sql)
     {
-        return new PreparedBatch(statementLocator, statementRewriter, connection, preparedStatementCache, sql);
+        return new PreparedBatch(statementLocator, statementRewriter, connection, statementBuilder, sql);
     }
 
     public Batch createBatch()
