@@ -36,57 +36,6 @@ public class Update extends SQLStatement<Update>
     }
 
     /**
-     * For databases which support returning result sets from DML, this method
-     * provides a convenient way to get to those results.
-     *
-     * @return This update statement returning a result set
-     */
-    public Query<Map<String, Object>> returning() {
-        return new Query<Map<String, Object>>(this.getParameters(),
-                                              new DefaultMapper(),
-                                              this.getStatementLocator(),
-                                              this.getRewriter(),
-                                              this.getConnection(),
-                                              this.getPreparedStatementCache(),
-                                              this.getSql());
-    }
-
-    /**
-     * For databases which support returning result sets from DML, this method
-     * provides a convenient way to get to those results. This form provides
-     * for mapping attributes onto a JavaBean by name
-     *
-     * @param type The class of the JavaBean to be instantiated and have
-     *             results mapped onto
-     * @return This update statement returning a result set
-     */
-    public <ResultType> Query<ResultType> returning(Class<ResultType> type) {
-        return new Query<ResultType>(this.getParameters(),
-                                              new BeanMapper<ResultType>(type),
-                                              this.getStatementLocator(),
-                                              this.getRewriter(),
-                                              this.getConnection(),
-                                              this.getPreparedStatementCache(),
-                                              this.getSql());
-    }
-
-    /**
-     * For databases which support returning result sets from DML, this method
-     * provides a convenient way to get to those results.
-     *
-     * @return This update statement returning a result set
-     */
-    public <ResultType> Query<ResultType> returning(ResultSetMapper<ResultType> type) {
-        return new Query<ResultType>(this.getParameters(),
-                                              type,
-                                              this.getStatementLocator(),
-                                              this.getRewriter(),
-                                              this.getConnection(),
-                                              this.getPreparedStatementCache(),
-                                              this.getSql());
-    }
-
-    /**
      * Execute the statement
      * @return the number of rows modified
      */
