@@ -8,6 +8,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/build/grammar" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stubs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -26,6 +27,7 @@
     <orderEntry type="library" name="antlr" level="project" />
     <orderEntry type="library" name="optional" level="project" />
     <orderEntry type="library" name="JEXL 1.1" level="project" />
+    <orderEntry type="library" name="ojdbc14" level="project" />
     <orderEntryProperties />
   </component>
 </module>

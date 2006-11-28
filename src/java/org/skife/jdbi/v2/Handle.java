@@ -133,4 +133,11 @@ public interface Handle
      * current statement locator (which defaults to searching the classpath)
      */
     public Script createScript(String name);
+
+    /**
+     * Execute some SQL with no return value
+     * @param sql the sql to execute
+     * @param args arguments to bind to the sql
+     */
+    void execute(String sql, Object... args);
 }

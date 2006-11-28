@@ -9,14 +9,14 @@ import java.util.Map;
 
 /**
  * A result set mapper which maps the fields in a statement into a JavaBean. This uses
- * the JDK's built in bean mapping facilities, so it does not support nested properties. 
+ * the JDK's built in bean mapping facilities, so it does not support nested properties.
  */
-class BeanMapper<T> extends BaseResultSetMapper<T>
+public class BeanMapper<T> extends BaseResultSetMapper<T>
 {
     private BeanInfo info;
     private Class<T> type;
 
-    BeanMapper(Class<T> type)
+    public BeanMapper(Class<T> type)
     {
         this.type = type;
         try

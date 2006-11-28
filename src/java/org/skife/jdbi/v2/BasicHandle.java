@@ -211,4 +211,9 @@ class BasicHandle implements Handle
     {
         return new Script(this, statementLocator, name);
     }
+
+    public void execute(String sql, Object... args)
+    {
+        this.update(sql, args);
+    }
 }
