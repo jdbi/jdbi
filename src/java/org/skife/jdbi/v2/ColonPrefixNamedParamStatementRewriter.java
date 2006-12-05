@@ -42,6 +42,9 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                     case QUOTED_TEXT:
                         b.append(t.getText());
                         break;
+                    case DOUBLE_QUOTED_TEXT:
+                        b.append(t.getText());
+                        break;
                     case POSITIONAAL_PARAM:
                         b.append("?");
                         stmt.addPositionalParamAt();

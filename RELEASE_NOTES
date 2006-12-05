@@ -1,3 +1,6 @@
+2.0pre8
+    Add double quote handling to named param magic
+
 2.0pre7
     Added Oracle DML Returning features
 
