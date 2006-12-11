@@ -1,3 +1,6 @@
+2.0pre9
+    Fix up IDBI to have the DBI functional methods and not the config methods
+
 2.0pre8
     Add double quote handling to named param magic
 

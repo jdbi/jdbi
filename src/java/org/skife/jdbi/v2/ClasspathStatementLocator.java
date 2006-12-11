@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private boolean looksLikeSql(String sql)
+    private static boolean looksLikeSql(String sql)
     {
         final String local = sql.substring(0, 7).toLowerCase();
         return local.startsWith("insert ")
