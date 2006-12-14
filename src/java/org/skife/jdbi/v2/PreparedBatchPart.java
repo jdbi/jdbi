@@ -30,16 +30,19 @@ import java.sql.Connection;
 public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
+    private final StatementContext context;
 
     PreparedBatchPart(PreparedBatch batch,
                       StatementLocator locator,
                       StatementRewriter rewriter,
                       Connection connection,
                       StatementBuilder cache,
-                      String sql)
+                      String sql,
+                      StatementContext context)
     {
         super(new Binding(), locator, rewriter, connection, cache, sql);
         this.batch = batch;
+        this.context = context;
     }
 
     /**
@@ -62,5 +65,10 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
     public PreparedBatchPart another()
     {
         return batch.add();
+    }
+
+    public StatementContext getContext()
+    {
+        return context;
     }
 }

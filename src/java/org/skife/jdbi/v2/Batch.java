@@ -34,6 +34,7 @@ public class Batch
     private List<String> parts = new ArrayList<String>();
     private final StatementRewriter rewriter;
     private final Connection connection;
+    private final StatementContext context = new StatementContext();
 
     Batch(StatementRewriter rewriter, Connection connection)
     {
@@ -80,7 +81,7 @@ public class Batch
             {
                 for (String part : parts)
                 {
-                    stmt.addBatch( rewriter.rewrite(part, empty).getSql());
+                    stmt.addBatch( rewriter.rewrite(part, empty, context).getSql());
                 }
             }
             catch (SQLException e)

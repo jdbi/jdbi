@@ -35,19 +35,21 @@ import java.sql.SQLException;
  */
 public class V1NamedParameterStatementRewriter implements StatementRewriter
 {
-    public RewrittenStatement rewrite(String raw, Binding params)
+    public RewrittenStatement rewrite(String raw, Binding params, StatementContext ctx)
     {
         ParsedStatement ps = new ParsedStatement(raw);
-        return new MyReWrittenStatement(ps);
+        return new MyReWrittenStatement(ps, ctx);
     }
 
     private static class MyReWrittenStatement implements RewrittenStatement
     {
         private final ParsedStatement parsed;
+        private final StatementContext context;
 
-        MyReWrittenStatement(ParsedStatement parsed)
+        MyReWrittenStatement(ParsedStatement parsed, StatementContext ctx)
         {
             this.parsed = parsed;
+            context = ctx;
         }
 
         public void bind(Binding params, PreparedStatement statement) throws SQLException
@@ -61,7 +63,7 @@ public class V1NamedParameterStatementRewriter implements StatementRewriter
                     Argument a = params.forPosition(i);
                     if (a != null)
                     {
-                        a.apply(i + 1, statement);
+                        a.apply(i + 1, statement, this.context);
                     }
                     else
                     {
@@ -91,7 +93,7 @@ public class V1NamedParameterStatementRewriter implements StatementRewriter
                         throw new UnableToExecuteStatementException(msg);
                     }
 
-                    a.apply(i + 1, statement);
+                    a.apply(i + 1, statement, this.context);
                 }
             }
         }

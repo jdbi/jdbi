@@ -16,6 +16,8 @@
 
 package org.skife.jdbi.v2.tweak;
 
+import org.skife.jdbi.v2.StatementContext;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -31,7 +33,8 @@ public interface Argument
      * @param position the position to which the argument should be bound, using the
      *                 stupid JDBC "start at 1" bit
      * @param statement the prepared statement the argument is to be bound to
+     * @param ctx
      * @throws SQLException if anything goes wrong
      */
-    void apply(final int position, PreparedStatement statement) throws SQLException;
+    void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException;
 }

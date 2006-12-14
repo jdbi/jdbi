@@ -44,6 +44,7 @@ public class PreparedBatch
     private final Connection connection;
     private final StatementBuilder preparedStatementCache;
     private final String sql;
+    private final StatementContext context = new StatementContext();
 
     PreparedBatch(StatementLocator locator, StatementRewriter rewriter, Connection connection, StatementBuilder preparedStatementCache, String sql)
     {
@@ -65,7 +66,7 @@ public class PreparedBatch
         if (parts.size() == 0) return new int[]{};
 
         PreparedBatchPart current = parts.get(0);
-        final RewrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters());
+        final RewrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters(), context);
         PreparedStatement stmt = null;
         try
         {
@@ -114,7 +115,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
         parts.add(part);
         return part;
     }
@@ -129,7 +130,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Object bean)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
         parts.add(part);
         part.bindFromProperties(bean);
         return part;
@@ -145,7 +146,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
         parts.add(part);
         part.bindFromMap(args);
         return part;

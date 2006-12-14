@@ -33,7 +33,7 @@ class FloatArgument implements Argument
         this.value = value;
     }
 
-    public void apply(int position, PreparedStatement statement) throws SQLException
+    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
         statement.setFloat(position, value);
     }

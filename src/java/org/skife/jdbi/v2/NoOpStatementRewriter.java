@@ -30,18 +30,19 @@ import java.sql.SQLException;
  */
 public class NoOpStatementRewriter implements StatementRewriter
 {
-    public RewrittenStatement rewrite(String sql, Binding params)
+    public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
-        return new NoOpRewrittenStatement(sql);
+        return new NoOpRewrittenStatement(sql, ctx);
     }
 
     private static class NoOpRewrittenStatement implements RewrittenStatement
     {
         private final String sql;
+        private final StatementContext context;
 
-        public NoOpRewrittenStatement(String sql)
+        public NoOpRewrittenStatement(String sql, StatementContext ctx)
         {
-
+            this.context = ctx;
             this.sql = sql;
         }
 
@@ -50,7 +51,7 @@ public class NoOpStatementRewriter implements StatementRewriter
             for (int i = 0; ; i++) {
                 final Argument s = params.forPosition(i);
                 if (s == null) { break; }
-                s.apply(i + 1, statement);
+                s.apply(i + 1, statement, this.context);
             }
         }
 

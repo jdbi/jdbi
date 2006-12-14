@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2.tweak;
 
 import org.skife.jdbi.v2.Binding;
+import org.skife.jdbi.v2.StatementContext;
 
 /**
  * Use to provide arbitrary statement rewriting.
@@ -29,8 +30,9 @@ public interface StatementRewriter
      *
      * @param sql The SQL to rewrite
      * @param params contains the arguments which have been bound to this statement.
+     * @param ctx The statement context for the statement being executed
      * @return somethign which can provde the actual SQL to prepare a statement from
      *         and which can bind the correct arguments to that prepared statement
      */
-    RewrittenStatement rewrite(String sql, Binding params);
+    RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx);
 }

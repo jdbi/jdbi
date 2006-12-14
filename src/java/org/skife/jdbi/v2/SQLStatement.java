@@ -85,7 +85,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     @SuppressWarnings("unchecked")
     public SelfType define(String key, Object value)
     {
-        context.define(key, value);
+        getContext().define(key, value);
         return (SelfType)this;
     }
 
@@ -93,7 +93,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * Obtain the statement context associated with this statement
      */
     public StatementContext getContext() {
-        return this.context;
+        return context;
     }
 
     /**
@@ -755,7 +755,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                                               final QueryResultMunger<Result> munger,
                                               final QueryPostMungeCleanup cleanup)
     {
-        final RewrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql), getParameters());
+        final RewrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql), getParameters(), this.context);
         final PreparedStatement stmt;
         ResultSet rs = null;
         try {

@@ -39,7 +39,7 @@ import java.util.ArrayList;
  */
 public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
 {
-    public RewrittenStatement rewrite(String sql, Binding params)
+    public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
         StringBuilder b = new StringBuilder();
         ParsedStatement stmt = new ParsedStatement();
@@ -73,16 +73,18 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
             throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e);
         }
 
-        return new MyRewrittenStatement(b.toString(), stmt);
+        return new MyRewrittenStatement(b.toString(), stmt, ctx);
     }
 
     private static class MyRewrittenStatement implements RewrittenStatement
     {
         private final String sql;
         private final ParsedStatement stmt;
+        private final StatementContext context;
 
-        public MyRewrittenStatement(String sql, ParsedStatement stmt)
+        public MyRewrittenStatement(String sql, ParsedStatement stmt, StatementContext ctx)
         {
+            this.context = ctx;
             this.sql = sql;
             this.stmt = stmt;
         }
@@ -97,7 +99,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                     final Argument a = params.forPosition(i);
                     if (a != null)
                     {
-                        a.apply(i + 1, statement);
+                        a.apply(i + 1, statement, this.context);
                     }
                     else
                     {
@@ -126,7 +128,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                         throw new UnableToExecuteStatementException(msg);
                     }
 
-                    a.apply(i + 1, statement);
+                    a.apply(i + 1, statement, this.context);
                     i++;
                 }
             }
