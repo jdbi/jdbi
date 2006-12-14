@@ -1,7 +1,7 @@
 <project name="jDBI" default="jar" basedir=".">
 
     <property name="debug" value="true"/>
-    <property name="version" value="2.0pre9"/>
+    <property name="version" value="2.0pre10"/>
     <property name="username" value="johan"/>
     <property name="password" value="doe"/>
     <property name="release-url" value="${username}:${password}@beaver.codehaus.org:/home/projects/jdbi/public_html/"/>
