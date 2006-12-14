@@ -65,7 +65,8 @@ class BasicHandle implements Handle
                                               statementRewriter,
                                               connection,
                                               statementBuilder,
-                                              sql);
+                                              sql,
+                                              new StatementContext());
     }
 
     /**
@@ -120,7 +121,7 @@ class BasicHandle implements Handle
 
     public Update createStatement(String sql)
     {
-        return new Update(connection, statementLocator, statementRewriter, statementBuilder, sql);
+        return new Update(connection, statementLocator, statementRewriter, statementBuilder, sql, new StatementContext());
     }
 
     public int insert(String sql, Object... args)

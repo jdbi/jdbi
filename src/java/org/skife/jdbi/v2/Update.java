@@ -30,9 +30,9 @@ import java.sql.Statement;
  */
 public class Update extends SQLStatement<Update>
 {
-    Update(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, StatementBuilder cache, String sql)
+    Update(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, StatementBuilder cache, String sql, StatementContext ctx)
     {
-        super(new Binding(), locator, statementRewriter, connection, cache, sql);
+        super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx);
     }
 
     /**

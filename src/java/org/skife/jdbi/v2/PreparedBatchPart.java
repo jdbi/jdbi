@@ -40,7 +40,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       String sql,
                       StatementContext context)
     {
-        super(new Binding(), locator, rewriter, connection, cache, sql);
+        super(new Binding(), locator, rewriter, connection, cache, sql, context);
         this.batch = batch;
         this.context = context;
     }

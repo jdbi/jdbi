@@ -56,16 +56,18 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final StatementBuilder preparedStatementCache;
     private final StatementLocator locator;
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
-    private final StatementContext context = new StatementContext();
+    private final StatementContext context;
 
     SQLStatement(Binding params,
                  StatementLocator locator,
                  StatementRewriter rewriter,
                  Connection conn,
                  StatementBuilder preparedStatementCache,
-                 String sql)
+                 String sql,
+                 StatementContext ctx)
     {
         assert (verifyOurNastyDowncastIsOkay());
+        this.context = ctx;
         this.preparedStatementCache = preparedStatementCache;
         this.rewriter = rewriter;
         this.connection = conn;

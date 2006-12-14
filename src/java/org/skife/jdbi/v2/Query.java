@@ -46,9 +46,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           StatementRewriter statementRewriter,
           Connection connection,
           StatementBuilder cache,
-          String sql)
+          String sql,
+          StatementContext ctx)
     {
-        super(params, locator, statementRewriter, connection, cache, sql);
+        super(params, locator, statementRewriter, connection, cache, sql, ctx);
         this.mapper = mapper;
     }
 
@@ -149,7 +150,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getRewriter(),
                             getConnection(),
                             getPreparedStatementCache(),
-                            getSql());
+                            getSql(),
+                            getContext());
     }
 
     /**
