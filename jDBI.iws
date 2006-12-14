@@ -18,37 +18,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BlobArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BlobArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iml" afterPath="$PROJECT_DIR$/jDBI.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Batch.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Batch.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/LongArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/LongArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NoOpStatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NoOpStatementRewriter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestColonStatementRewriter.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestColonStatementRewriter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClobArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClobArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DoubleArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DoubleArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IntegerArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IntegerArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementRewriter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/V1NamedParameterStatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/V1NamedParameterStatementRewriter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StringArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StringArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/URLArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/URLArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/Argument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/Argument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArrayArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArrayArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TimestampArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TimestampArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CharacterStreamArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CharacterStreamArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/doc/index.html" afterPath="$PROJECT_DIR$/src/doc/index.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ObjectArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ObjectArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TimeArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TimeArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BigDecimalArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BigDecimalArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/FloatArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/FloatArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/InputStreamArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/InputStreamArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ColonPrefixNamedParamStatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ColonPrefixNamedParamStatementRewriter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/JavaDateArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/JavaDateArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BooleanArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BooleanArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SqlDateArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SqlDateArgument.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -187,24 +158,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Argument.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/Argument.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="11" selection-start="1305" selection-end="1305" vertical-scroll-proportion="0.3258972">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ColonPrefixNamedParamStatementRewriter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ColonPrefixNamedParamStatementRewriter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="82" column="22" selection-start="3113" selection-end="3113" vertical-scroll-proportion="0.015518914">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="PreparedBatch.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -232,10 +185,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="V1NamedParameterStatementRewriter.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="V1NamedParameterStatementRewriter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/V1NamedParameterStatementRewriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="33" selection-start="915" selection-end="915" vertical-scroll-proportion="0.07759457">
+            <state line="76" column="40" selection-start="2805" selection-end="2805" vertical-scroll-proportion="0.86905915">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="11" column="52" selection-start="654" selection-end="654" vertical-scroll-proportion="0.17070805">
               <folding />
             </state>
           </provider>
@@ -971,20 +933,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArrayArgument.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArgument.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BooleanArgument.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
@@ -1071,7 +1019,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/V1NamedParameterStatementRewriter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="33" selection-start="915" selection-end="915" vertical-scroll-proportion="0.07759457">
+        <state line="76" column="40" selection-start="2805" selection-end="2805" vertical-scroll-proportion="0.86905915">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="90" selection-start="582" selection-end="582" vertical-scroll-proportion="0.19492386">
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="HtmlPreview">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="52" selection-start="654" selection-end="654" vertical-scroll-proportion="0.17070805">
           <folding />
         </state>
       </provider>
