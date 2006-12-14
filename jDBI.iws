@@ -18,14 +18,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/doc/index.html" afterPath="$PROJECT_DIR$/src/doc/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RELEASE_NOTES" afterPath="$PROJECT_DIR$/RELEASE_NOTES" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Update.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Update.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -811,13 +805,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="29" selection-start="116" selection-end="116" vertical-scroll-proportion="0.031037828">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="6" column="76" selection-start="305" selection-end="305" vertical-scroll-proportion="0.09311348">
@@ -873,6 +860,13 @@
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StatementContext.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="33" selection-start="1393" selection-end="1393" vertical-scroll-proportion="0.37245393">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="11" selection-start="20" selection-end="20" vertical-scroll-proportion="0.015518914">
           <folding />
         </state>
       </provider>

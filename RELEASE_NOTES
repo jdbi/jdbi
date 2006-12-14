@@ -1,3 +1,6 @@
+2.0pre12
+    [bugfix] Pass statement context into result mapped queries
+
 2.0pre11
     Create the StatementContext to allow for tunneling state into the various
     client defined tweakables
