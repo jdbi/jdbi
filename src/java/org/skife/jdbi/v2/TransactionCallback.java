@@ -1,10 +1,11 @@
-/* Copyright 2004-2006 Brian McCallister
+/*
+ * Copyright 2004-2006 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.skife.jdbi.v2;
 
 /**
@@ -25,7 +27,7 @@ public interface TransactionCallback<ReturnType>
      * is thrown
      * <p>
      * If the transaction fails a {@link org.skife.jdbi.v2.exceptions.TransactionFailedException}
-     * will be thrown from the {@link Handle#inTransaction(TransactionCallback<ReturnType>)} 
+     * will be thrown from the {@link Handle#inTransaction(TransactionCallback<ReturnType>)}
      *
      * @param handle a transactional handle instance which can be used in the callback
      * @param status a handle on the transaction, kind of

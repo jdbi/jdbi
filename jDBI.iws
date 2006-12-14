@@ -18,12 +18,137 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestColonStatementRewriter.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestColonStatementRewriter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RELEASE_NOTES" afterPath="$PROJECT_DIR$/RELEASE_NOTES" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/doc/index.html" afterPath="$PROJECT_DIR$/src/doc/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToCreateStatementException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToCreateStatementException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/BindBy.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/BindBy.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NoOpStatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/NoOpStatementRewriter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/Something.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/Something.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/QueryPostMungeCleanup.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/QueryPostMungeCleanup.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/package.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/grammar/TestPrintfGrammar.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/grammar/TestPrintfGrammar.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Update.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Update.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Update.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Update.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/V1NamedParameterStatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/V1NamedParameterStatementRewriter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/derby/TestDerbyStuff.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/derby/TestDerbyStuff.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TransactionCallback.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TransactionCallback.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/oracle/OracleReturning.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/oracle/OracleReturning.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CachingStatementBuilderFactory.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CachingStatementBuilderFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClasspathStatementLocator.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClasspathStatementLocator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/BindType.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/BindType.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Script.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Script.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ObjectArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ObjectArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Binding.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Binding.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.ipr" afterPath="$PROJECT_DIR$/jDBI.ipr" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TimeArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TimeArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/stubs/oracle/jdbc/driver/OraclePreparedStatement.java" afterPath="$PROJECT_DIR$/src/stubs/oracle/jdbc/driver/OraclePreparedStatement.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DefaultMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DefaultMapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/TransactionHandler.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/TransactionHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/grammar/GrammarTestCase.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/grammar/GrammarTestCase.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SqlDateArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SqlDateArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/package.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/grammar/TestColonGrammar.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/grammar/TestColonGrammar.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/LocalTransactionHandler.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/LocalTransactionHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iml" afterPath="$PROJECT_DIR$/jDBI.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BeanMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BeanMapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Batch.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Batch.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/derby/Tools.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/derby/Tools.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/DelegatingConnection.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/DelegatingConnection.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DataSourceConnectionFactory.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DataSourceConnectionFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/oracle/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/oracle/package.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CaseInsensitiveMapResultSetMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CaseInsensitiveMapResultSetMapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TransactionStatus.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TransactionStatus.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectHandler.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPositionalParameterBinding.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPositionalParameterBinding.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatch.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/doc/api/overview.html" afterPath="$PROJECT_DIR$/src/doc/api/overview.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Pair.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Pair.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/URLArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/URLArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BeanPropertyArguments.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BeanPropertyArguments.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/HandleCallback.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/HandleCallback.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Insert.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Insert.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/QueryResultMunger.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/QueryResultMunger.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementBuilder.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementBuilder.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IDBI.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IDBI.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BooleanArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BooleanArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToObtainConnectionException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToObtainConnectionException.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToExecuteStatementException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToExecuteStatementException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/package.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BlobArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BlobArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/HandyMapThing.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/HandyMapThing.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ConnectionFactory.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ConnectionFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ResultIterator.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ResultIterator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/TransactionFailedException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/TransactionFailedException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/QueryPreperator.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/QueryPreperator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectGenerator.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectGenerator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test-etc/applicationContext.xml" afterPath="$PROJECT_DIR$/src/test-etc/applicationContext.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/CMTTransactionHandler.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/CMTTransactionHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClobArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClobArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IntegerArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IntegerArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementRewriter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestDataSourceConnectionFactory.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestDataSourceConnectionFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/MapArguments.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/MapArguments.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementBuilderFactory.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementBuilderFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StringArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StringArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArrayArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArrayArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TimestampArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/TimestampArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/DataAccessor.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/DataAccessor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/doc/index.html" afterPath="$PROJECT_DIR$/src/doc/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestStatements.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestStatements.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CharacterStreamArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CharacterStreamArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestBatch.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestBatch.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Delete.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Delete.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/grammar/colon-rewriter.g" afterPath="$PROJECT_DIR$/src/grammar/colon-rewriter.g" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ParsedStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ParsedStatement.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/QueryObjectFactory.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/QueryObjectFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedStatementCache.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedStatementCache.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/FloatArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/FloatArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/InputStreamArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/InputStreamArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ColonPrefixNamedParamStatementRewriter.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ColonPrefixNamedParamStatementRewriter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/JavaDateArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/JavaDateArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/CallbackFailedException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/CallbackFailedException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestDBI.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestDBI.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementCustomizer.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementCustomizer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Select.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/Select.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/DataAccessHandler.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/DataAccessHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/package.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/LongArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/LongArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/DBITestCase.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/DBITestCase.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DBI.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DBI.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestColonStatementRewriter.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestColonStatementRewriter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/TransactionException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/TransactionException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestClasspathStatementLocator.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestClasspathStatementLocator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNamedParams.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNamedParams.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestScript.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestScript.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestTransactions.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestTransactions.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DoubleArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DoubleArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test-etc/jdbc.properties" afterPath="$PROJECT_DIR$/src/test-etc/jdbc.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/ResultSetException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/ResultSetException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/Argument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/Argument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToCloseResourceException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/UnableToCloseResourceException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedStatementCache.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedStatementCache.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestHandle.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestHandle.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNoOpStatementRewriter.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNoOpStatementRewriter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StatementContext.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BigDecimalArgument.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BigDecimalArgument.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/LazyArguments.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/LazyArguments.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/transactions/package.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/package.html" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/eod/package.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestStatementContext.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ResultSetMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ResultSetMapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/DBIException.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/exceptions/DBIException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BaseResultSetMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BaseResultSetMapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ResultSetResultIterator.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ResultSetResultIterator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/RewrittenStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/RewrittenStatement.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -162,55 +287,73 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ResultSetMapper.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ResultSetMapper.java">
+      <file leaf-file-name="Binding.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Binding.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="38" selection-start="1352" selection-end="1352" vertical-scroll-proportion="0.31037828">
+            <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Handle.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java">
+      <file leaf-file-name="BlobArgument.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BlobArgument.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="62" column="53" selection-start="1741" selection-end="1741" vertical-scroll-proportion="0.2327837">
+            <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StatementBuilder.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementBuilder.java">
+      <file leaf-file-name="BooleanArgument.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BooleanArgument.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="17" selection-start="382" selection-end="382" vertical-scroll-proportion="0.15518914">
+            <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TestHandle.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestHandle.java">
+      <file leaf-file-name="ByteArgument.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArgument.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="79" selection-start="917" selection-end="917" vertical-scroll-proportion="0.38797283">
+            <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BasicHandle.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
+      <file leaf-file-name="ByteArrayArgument.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArrayArgument.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="60" selection-start="2299" selection-end="2299" vertical-scroll-proportion="0.33268672">
+            <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TestQueries.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
+      <file leaf-file-name="CachingStatementBuilderFactory.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CachingStatementBuilderFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="40" column="26" selection-start="1179" selection-end="1179" vertical-scroll-proportion="0.31037828">
+            <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CaseInsensitiveMapResultSetMapper.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CaseInsensitiveMapResultSetMapper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="27" column="6" selection-start="888" selection-end="888" vertical-scroll-proportion="0.062075656">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CharacterStreamArgument.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CharacterStreamArgument.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="39" column="52" selection-start="1108" selection-end="1108" vertical-scroll-proportion="0.543162">
               <folding />
             </state>
           </provider>
@@ -467,36 +610,6 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="jDBI.ipr" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="jDBI" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/grammar" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
@@ -523,6 +636,50 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="jDBI.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="jDBI" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/build" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="jDBI.ipr" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="jDBI" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/build" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/build/staging" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/build/staging/jdbi-2.0pre10" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
     </subPane>
   </component>
   <component name="ProjectReloadState">
@@ -536,7 +693,7 @@
       <showLibraryContents />
       <hideEmptyPackages />
       <abbreviatePackageNames />
-      <showStructure PackagesPane="false" ProjectPane="false" Scope="false" Favorites="false" />
+      <showStructure Scope="false" ProjectPane="false" PackagesPane="false" Favorites="false" />
       <autoscrollToSource />
       <autoscrollFromSource ProjectPane="true" />
       <sortByType />
@@ -604,34 +761,6 @@
         <option name="Make" value="true" />
       </method>
     </tempConfiguration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
-    <configuration default="true" type="WebLogic Instance" factoryName="Local">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="7001" />
-      <option name="LOCAL" value="true" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DOMAIN_PATH" value="" />
-      <option name="USER" value="weblogic" />
-      <option name="PASSWORD" value="weblogic" />
-      <option name="SERVER_NAME" value="myserver" />
-      <option name="DOMAIN_NAME" value="mydomain" />
-      <predefined_log_file id="WEBLOGIC_DOMAIN_LOG_FILE" enabled="true" />
-      <predefined_log_file id="WEBLOGIC_SERVER_LOG_FILE" enabled="true" />
-    </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -660,6 +789,34 @@
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="ENABLE_SWING_INSPECTOR" value="false" />
       <module name="" />
+    </configuration>
+    <configuration default="true" type="WebLogic Instance" factoryName="Local">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="7001" />
+      <option name="LOCAL" value="true" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DOMAIN_PATH" value="" />
+      <option name="USER" value="weblogic" />
+      <option name="PASSWORD" value="weblogic" />
+      <option name="SERVER_NAME" value="myserver" />
+      <option name="DOMAIN_NAME" value="mydomain" />
+      <predefined_log_file id="WEBLOGIC_DOMAIN_LOG_FILE" enabled="true" />
+      <predefined_log_file id="WEBLOGIC_SERVER_LOG_FILE" enabled="true" />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
@@ -910,110 +1067,107 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/doc/index.html">
-      <provider editor-type-id="HtmlPreview">
-        <state />
-      </provider>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="362" column="21" selection-start="14086" selection-end="14086" vertical-scroll-proportion="0.016243655">
+        <state line="50" column="20" selection-start="2014" selection-end="2014" vertical-scroll-proportion="0.41901067">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Batch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="44" selection-start="135" selection-end="135" vertical-scroll-proportion="0.015518914">
+        <state line="14" column="0" selection-start="603" selection-end="603" vertical-scroll-proportion="0.21726479">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestColonStatementRewriter.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BeanMapper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="61" selection-start="1012" selection-end="1012" vertical-scroll-proportion="0.015518914">
+        <state line="14" column="0" selection-start="603" selection-end="603" vertical-scroll-proportion="0.21726479">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestNamedParams.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BeanPropertyArguments.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="13" selection-start="763" selection-end="763" vertical-scroll-proportion="0.015518914">
+        <state line="16" column="30" selection-start="631" selection-end="631" vertical-scroll-proportion="0.24830262">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BigDecimalArgument.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="0" selection-start="0" selection-end="604" vertical-scroll-proportion="0.2327837">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Binding.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BlobArgument.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BooleanArgument.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArgument.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ByteArrayArgument.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CachingStatementBuilderFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="0" selection-start="608" selection-end="608" vertical-scroll-proportion="0.2327837">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CaseInsensitiveMapResultSetMapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="6" selection-start="888" selection-end="888" vertical-scroll-proportion="0.062075656">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/grammar/printf-rewriter.g">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="0" selection-start="338" selection-end="338" vertical-scroll-proportion="0.2327837">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/grammar/colon-rewriter.g">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="48" selection-start="401" selection-end="401" vertical-scroll-proportion="0.015518914">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/IDBI.java">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CharacterStreamArgument.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="0" selection-start="1188" selection-end="1188" vertical-scroll-proportion="0.015518914">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementRewriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="0" selection-start="675" selection-end="675" vertical-scroll-proportion="0.31037828">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="17" selection-start="117" selection-end="117" vertical-scroll-proportion="0.07759457">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementCustomizer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="17" selection-start="167" selection-end="167" vertical-scroll-proportion="0.10863239">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="26" selection-start="1179" selection-end="1179" vertical-scroll-proportion="0.31037828">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BasicHandle.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="60" selection-start="2299" selection-end="2299" vertical-scroll-proportion="0.33268672">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ResultSetMapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="38" selection-start="1352" selection-end="1352" vertical-scroll-proportion="0.31037828">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Handle.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="53" selection-start="1741" selection-end="1741" vertical-scroll-proportion="0.2327837">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="17" selection-start="382" selection-end="382" vertical-scroll-proportion="0.15518914">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestHandle.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="79" selection-start="917" selection-end="917" vertical-scroll-proportion="0.38797283">
+        <state line="39" column="52" selection-start="1108" selection-end="1108" vertical-scroll-proportion="0.543162">
           <folding />
         </state>
       </provider>

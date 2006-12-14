@@ -14,18 +14,30 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi;
+package org.skife.jdbi.v2;
 
+import java.util.Map;
 import java.util.HashMap;
 
 /**
  *
  */
-public class HandyMapThing<K> extends HashMap<K, Object>
+public class StatementContext
 {
-    public HandyMapThing<K> add(K k, Object v)
+    private final Map<String, Object> properties = new HashMap<String, Object>();
+
+    /**
+     *
+     * @param key
+     * @param value
+     * @return previous value for this key
+     */
+    public Object define(String key, Object value)
     {
-        this.put(k, v);
-        return this;
+        return properties.put(key, value);
+    }
+
+    public Object get(String key) {
+        return this.properties.get(key);
     }
 }

@@ -1,10 +1,11 @@
-/* Copyright 2004-2006 Brian McCallister
+/*
+ * Copyright 2004-2006 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.ResultSetException;
@@ -54,6 +56,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final StatementBuilder preparedStatementCache;
     private final StatementLocator locator;
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
+    private final StatementContext context = new StatementContext();
 
     SQLStatement(Binding params,
                  StatementLocator locator,
@@ -62,13 +65,35 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                  StatementBuilder preparedStatementCache,
                  String sql)
     {
-        assert(verifyOurNastyDowncastIsOkay());
+        assert (verifyOurNastyDowncastIsOkay());
         this.preparedStatementCache = preparedStatementCache;
         this.rewriter = rewriter;
         this.connection = conn;
         this.sql = sql;
         this.params = params;
         this.locator = locator;
+    }
+
+
+    /**
+     * Define a value on the {@link StatementContext}
+     *
+     * @param key Key to acces this value from the StatementContext
+     * @param value Value to define on the StatementContext
+     * @return this
+     */
+    @SuppressWarnings("unchecked")
+    public SelfType define(String key, Object value)
+    {
+        context.define(key, value);
+        return (SelfType)this;
+    }
+
+    /**
+     * Obtain the statement context associated with this statement
+     */
+    public StatementContext getContext() {
+        return this.context;
     }
 
     /**
@@ -88,12 +113,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 
     private boolean verifyOurNastyDowncastIsOkay()
     {
-        if (this.getClass().getTypeParameters().length == 0)
-        {
+        if (this.getClass().getTypeParameters().length == 0) {
             return true;
         }
-        else
-        {
+        else {
             Class parameterized_type =
                     this.getClass().getTypeParameters()[0].getGenericDeclaration();
             return parameterized_type.isAssignableFrom(this.getClass());
@@ -720,12 +743,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 
     private String wrapLookup(String sql)
     {
-        try
-        {
-            return locator.locate(sql);
+        try {
+            return locator.locate(sql, this.getContext());
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             throw new UnableToCreateStatementException("Exception thrown while looking for statement", e);
         }
     }
@@ -737,68 +758,53 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         final RewrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql), getParameters());
         final PreparedStatement stmt;
         ResultSet rs = null;
-        try
-        {
-            try
-            {
+        try {
+            try {
                 stmt = preparedStatementCache.create(rewritten.getSql());
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new UnableToCreateStatementException(e);
             }
-            try
-            {
+            try {
                 rewritten.bind(getParameters(), stmt);
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Unable to bindBinaryStream parameters to query", e);
             }
 
-            try
-            {
+            try {
                 prep.prepare(stmt);
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
             }
 
-            for (StatementCustomizer customizer : customizers)
-            {
-                try
-                {
+            for (StatementCustomizer customizer : customizers) {
+                try {
                     customizer.customize(stmt);
                 }
-                catch (SQLException e)
-                {
+                catch (SQLException e) {
                     throw new UnableToExecuteStatementException("Exception thrown in statement customization", e);
                 }
             }
 
-            try
-            {
+            try {
                 stmt.execute();
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new UnableToExecuteStatementException(e);
             }
 
-            try
-            {
+            try {
                 final Pair<Result, ResultSet> r = munger.munge(stmt);
                 rs = r.getSecond();
                 return r.getFirst();
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new ResultSetException("Exception thrown while attempting to traverse the result set", e);
             }
         }
-        finally
-        {
+        finally {
             cleanup.cleanup(this, null, rs);
         }
     }

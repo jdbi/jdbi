@@ -1,10 +1,11 @@
-/* Copyright 2004-2006 Brian McCallister
+/*
+ * Copyright 2004-2006 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -251,14 +252,4 @@ public class TestQueries extends DBITestCase
         assertFalse(r.hasNext());
 
     }
-
-//    public void testListIterator() throws Exception
-//    {
-//        h.insert("insert into something (id, name) values (1, 'eric')");
-//        h.insert("insert into something (id, name) values (2, 'brian')");
-//
-//        ResultListIterator<Something> i = h.createQuery("select * from something order by id")
-//                .map(Something.class)
-//                .listIterator();
-//    }
 }
