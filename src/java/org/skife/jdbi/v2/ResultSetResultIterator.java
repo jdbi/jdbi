@@ -29,15 +29,17 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private final ResultSetMapper<Type> mapper;
     private final Statement stmt;
     private final ResultSet results;
+    private final StatementContext context;
     private boolean alreadyAdvanced = false;
     private int count = 0;
     private boolean hasNext = false;
 
-    ResultSetResultIterator(ResultSetMapper<Type> mapper, Statement stmt, ResultSet results)
+    ResultSetResultIterator(ResultSetMapper<Type> mapper, Statement stmt, ResultSet results, StatementContext context)
     {
         this.mapper = mapper;
         this.stmt = stmt;
         this.results = results;
+        this.context = context;
     }
 
     protected ResultSet getResults()
@@ -122,7 +124,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         alreadyAdvanced = false;
         try
         {
-            return mapper.map(count++, results);
+            return mapper.map(count++, results, context);
         }
         catch (SQLException e)
         {

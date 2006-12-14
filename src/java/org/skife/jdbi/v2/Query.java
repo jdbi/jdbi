@@ -75,7 +75,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                 int index = 0;
                 while (rs.next())
                 {
-                    result_list.add(mapper.map(index++, rs));
+                    result_list.add(mapper.map(index++, rs, getContext()));
                 }
                 return new Pair<List<ResultType>, ResultSet>(result_list, rs);
             }
@@ -94,7 +94,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
             {
                 ResultSetResultIterator<ResultType> r = new ResultSetResultIterator<ResultType>(mapper,
                                                                                                 results,
-                                                                                                results.getResultSet());
+                                                                                                results.getResultSet(),
+                                                                                                getContext());
                 return new Pair<ResultIterator<ResultType>, ResultSet>(r, results.getResultSet());
             }
         }, QueryPostMungeCleanup.NO_OP);
@@ -117,7 +118,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                 ResultSet rs = stt.getResultSet();
                 if (rs.next())
                 {
-                    return new Pair<ResultType, ResultSet>(mapper.map(0, rs), rs);
+                    return new Pair<ResultType, ResultSet>(mapper.map(0, rs, getContext()), rs);
                 }
                 else
                 {
@@ -164,7 +165,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt) throws SQLException
+            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setFetchSize(i);
             }
@@ -183,7 +184,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt) throws SQLException
+            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setMaxRows(i);
             }
@@ -202,7 +203,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt) throws SQLException
+            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setMaxFieldSize(i);
             }
@@ -220,7 +221,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt) throws SQLException
+            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setFetchDirection(ResultSet.FETCH_REVERSE);
             }
@@ -238,7 +239,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt) throws SQLException
+            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
             }

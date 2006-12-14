@@ -27,7 +27,7 @@ import java.util.Map;
 
 class DefaultMapper implements ResultSetMapper<Map<String, Object>>
 {
-    public Map<String, Object> map(int index, ResultSet r)
+    public Map<String, Object> map(int index, ResultSet r, StatementContext ctx)
     {
         Map<String, Object> row = new DefaultResultMap();
         ResultSetMetaData m;

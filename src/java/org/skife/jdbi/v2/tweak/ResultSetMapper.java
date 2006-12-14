@@ -16,6 +16,8 @@
 
 package org.skife.jdbi.v2.tweak;
 
+import org.skife.jdbi.v2.StatementContext;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -31,8 +33,9 @@ public interface ResultSetMapper<T>
      *
      * @param index which row of the result set we are at, starts at 0
      * @param r the result set being iterated
+     * @param ctx
      * @return the value to return for this row
      * @throws SQLException if anythign goes wrong go ahead and let this percolate, jDBI will handle it
      */
-    public T map(int index, ResultSet r) throws SQLException;
+    public T map(int index, ResultSet r, StatementContext ctx) throws SQLException;
 }

@@ -32,16 +32,16 @@ public abstract class BaseResultSetMapper<ResultType> implements ResultSetMapper
     /**
      * Defers to {@link BaseResultSetMapper#mapInternal(int, java.util.Map<java.lang.String,java.lang.Object>)}
      */
-    public final ResultType map(int index, ResultSet r)
+    public final ResultType map(int index, ResultSet r, StatementContext ctx)
     {
-        return this.mapInternal(index, mapper.map(index, r));
+        return this.mapInternal(index, mapper.map(index, r, ctx));
     }
 
     /**
      * Subclasses should implement this method in order to map the result
      *
      * @param index The row, starting at 0
-     * @param row The result of a {@link DefaultMapper#map} call
+     * @param row The result of a {@link org.skife.jdbi.v2.tweak.ResultSetMapper#map} call
      * @return the value to pt into the results from a query
      */
     protected abstract ResultType mapInternal(int index, Map<String, Object> row);

@@ -19,6 +19,7 @@ package org.skife.jdbi.v2.unstable.oracle;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.StatementContext;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -64,6 +65,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     private ResultSetMapper<ResultType> mapper;
     private OraclePreparedStatement stmt;
     private final List<int[]> binds = new ArrayList<int[]>();
+    private StatementContext context;
 
     /**
      * Provide a mapper which knows how to do positional access, sadly the
@@ -76,10 +78,11 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     }
 
     /**
-     * @see StatementCustomizer#customize(java.sql.PreparedStatement)
+     * @see StatementCustomizer#customize(java.sql.PreparedStatement, org.skife.jdbi.v2.StatementContext)
      */
-    public void customize(PreparedStatement stmt) throws SQLException
+    public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
+        this.context = ctx;
         this.stmt = (OraclePreparedStatement) stmt;
         for (int[] bind : binds) {
             this.stmt.registerReturnParameter(bind[0], bind[1]);
@@ -105,7 +108,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
         try {
             int i = 0;
             while (rs.next()) {
-                results.add(mapper.map(i++, rs));
+                results.add(mapper.map(i++, rs, context));
             }
         }
         catch (SQLException e) {

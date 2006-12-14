@@ -22,7 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Return value from {@link StatementRewriter#rewrite(String, org.skife.jdbi.v2.Binding)} calls
+ * Return value from {@link StatementRewriter#rewrite(String, org.skife.jdbi.v2.Binding, org.skife.jdbi.v2.StatementContext)} calls
  */
 public interface RewrittenStatement
 {

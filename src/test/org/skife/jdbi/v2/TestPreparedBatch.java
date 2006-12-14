@@ -55,7 +55,7 @@ public class TestPreparedBatch extends DBITestCase
 
         int row_count = h.createQuery("select count(id) from something").map(new ResultSetMapper<Integer>()
         {
-            public Integer map(int index, ResultSet r) throws SQLException
+            public Integer map(int index, ResultSet r, StatementContext ctx) throws SQLException
             {
                 return r.getInt(1);
             }

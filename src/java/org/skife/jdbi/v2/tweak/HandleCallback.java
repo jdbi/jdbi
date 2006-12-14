@@ -19,7 +19,7 @@ package org.skife.jdbi.v2.tweak;
 import org.skife.jdbi.v2.Handle;
 
 /**
- * Callback for use with {@link org.skife.jdbi.v2.DBI#withHandle(Object)}
+ * Callback for use with {@link org.skife.jdbi.v2.DBI#withHandle(HandleCallback)}
  */
 public interface HandleCallback<T>
 {

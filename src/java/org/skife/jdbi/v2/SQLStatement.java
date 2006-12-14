@@ -760,7 +760,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         ResultSet rs = null;
         try {
             try {
-                stmt = preparedStatementCache.create(rewritten.getSql());
+                stmt = preparedStatementCache.create(rewritten.getSql(), context);
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e);
@@ -781,7 +781,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 
             for (StatementCustomizer customizer : customizers) {
                 try {
-                    customizer.customize(stmt);
+                    customizer.customize(stmt, context);
                 }
                 catch (SQLException e) {
                     throw new UnableToExecuteStatementException("Exception thrown in statement customization", e);

@@ -16,6 +16,8 @@
 
 package org.skife.jdbi.v2.tweak;
 
+import org.skife.jdbi.v2.StatementContext;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -30,8 +32,9 @@ public interface StatementBuilder
     /**
      * Called each time a prepared statement needs to be created
      * @param sql the translated SQL which should be prepared
+     * @param ctx Statement context associated with the SQLStatement this is building for
      */
-    PreparedStatement create(String sql) throws SQLException;
+    PreparedStatement create(String sql, StatementContext ctx) throws SQLException;
 
     /**
      * Called when the handle this StatementBuilder is attached to is closed.

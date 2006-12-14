@@ -71,7 +71,7 @@ public class TestQueries extends DBITestCase
 
         Query<String> query = h.createQuery("select name from something order by id").map(new ResultSetMapper<String>()
         {
-            public String map(int index, ResultSet r) throws SQLException
+            public String map(int index, ResultSet r, StatementContext ctx) throws SQLException
             {
                 return r.getString(1);
             }

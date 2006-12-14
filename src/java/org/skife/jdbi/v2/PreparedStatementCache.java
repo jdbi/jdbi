@@ -38,7 +38,7 @@ class PreparedStatementCache implements StatementBuilder
         this.conn = conn;
     }
 
-    public PreparedStatement create(String sql) throws SQLException
+    public PreparedStatement create(String sql, StatementContext ctx) throws SQLException
     {
         if (cache.containsKey(sql)) {
             PreparedStatement cached = cache.get(sql);
