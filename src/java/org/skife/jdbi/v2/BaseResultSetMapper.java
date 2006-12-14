@@ -22,7 +22,7 @@ import java.sql.ResultSet;
 import java.util.Map;
 
 /**
- * Convenience class which allows definition of result set mappers which get the
+ * Convenience class which allows definition of result set mappers which getAttribute the
  * row as a map instead of a result set. This can be useful.
  */
 public abstract class BaseResultSetMapper<ResultType> implements ResultSetMapper<ResultType>

@@ -37,7 +37,7 @@ public class TestStatementContext extends DBITestCase
 
             public String locate(String name, StatementContext ctx) throws Exception
             {
-                return name.replaceAll("<table>", String.valueOf(ctx.get("table")));
+                return name.replaceAll("<table>", String.valueOf(ctx.getAttribute("table")));
             }
         });
         final int inserted = h.createStatement("insert into <table> (id, name) values (:id, :name)")

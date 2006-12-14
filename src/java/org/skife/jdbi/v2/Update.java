@@ -16,18 +16,14 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
-
-import com.sun.deploy.util.DeploySysAction;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements

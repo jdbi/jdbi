@@ -54,7 +54,7 @@ import oracle.jdbc.driver.OraclePreparedStatement;
  *     List&lt;Integer&gt; ids = or.getReturnedResults();
  *
  *     assertEquals(1, ids.size());
- *     assertEquals(Integer.valueOf(17), ids.get(0));
+ *     assertEquals(Integer.valueOf(17), ids.getAttribute(0));
  *     h.close();
  * }
  * </code></pre>

@@ -20,24 +20,46 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- *
+ * The statement context provides a means for passing client specific information through the
+ * evaluation of a statement. The context is not used by jDBI internally, but will be passed
+ * to all statement customizers. This makes it possible to parameterize the processing of
+ * the tweakable parts of the statement processing cycle.
  */
 public class StatementContext
 {
-    private final Map<String, Object> properties = new HashMap<String, Object>();
+    private final Map<String, Object> attributes = new HashMap<String, Object>();
 
     /**
+     * Specify an attribute on the statement context
      *
-     * @param key
-     * @param value
-     * @return previous value for this key
+     * @param key   name of the attribute
+     * @param value value for the attribute
+     *
+     * @return previous value of this attribute
      */
-    public Object define(String key, Object value)
+    public Object setAttribute(String key, Object value)
     {
-        return properties.put(key, value);
+        return attributes.put(key, value);
+    }
+                                                                                         
+    /**
+     * Obtain the value of an attribute
+     *
+     * @param key The name of the attribute
+     * @return the value of the attribute
+     */
+    public Object getAttribute(String key)
+    {
+        return this.attributes.get(key);
     }
 
-    public Object get(String key) {
-        return this.properties.get(key);
+    /**
+     * Obtain all the attributes associated with this context as a map. Changes to the map
+     * or to the attributes on the context will be reflected across both
+     * @return a map f attributes
+     */
+    public Map<String, Object> getAttributes()
+    {
+        return attributes;
     }
 }

@@ -1,6 +1,10 @@
+2.0pre11
+    Create the StatementContext to allow for tunneling state into the various
+    client defined tweakables
+
 2.0pre10
     allow numbers in named params
-    
+
 2.0pre9
     Fix up IDBI to have the DBI functional methods and not the config methods
 

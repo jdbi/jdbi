@@ -21,10 +21,10 @@ import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -38,9 +38,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Map;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -79,13 +79,13 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * Define a value on the {@link StatementContext}
      *
      * @param key Key to acces this value from the StatementContext
-     * @param value Value to define on the StatementContext
+     * @param value Value to setAttribute on the StatementContext
      * @return this
      */
     @SuppressWarnings("unchecked")
     public SelfType define(String key, Object value)
     {
-        getContext().define(key, value);
+        getContext().setAttribute(key, value);
         return (SelfType)this;
     }
 

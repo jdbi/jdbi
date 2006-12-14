@@ -18,23 +18,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StatementContext.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StatementContext.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RELEASE_NOTES" afterPath="$PROJECT_DIR$/RELEASE_NOTES" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestStatementContext.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestStatementContext.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/oracle/OracleReturning.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/oracle/OracleReturning.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestHandle.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestHandle.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/HandleCallback.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/HandleCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementBuilder.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementBuilder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedStatementCache.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedStatementCache.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CaseInsensitiveMapResultSetMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/CaseInsensitiveMapResultSetMapper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestPreparedBatch.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DefaultMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/DefaultMapper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ResultSetMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ResultSetMapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Update.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Update.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BaseResultSetMapper.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BaseResultSetMapper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementCustomizer.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementCustomizer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/RewrittenStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/RewrittenStatement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ResultSetResultIterator.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ResultSetResultIterator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/PreparedBatchPart.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -143,7 +135,7 @@
   </component>
   <component name="ErrorTreeViewConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
-    <option name="HIDE_WARNINGS" value="true" />
+    <option name="HIDE_WARNINGS" value="false" />
   </component>
   <component name="FavoritesManager">
     <favorites_list name="jDBI" />
@@ -173,19 +165,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Query.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="97" column="108" selection-start="3947" selection-end="3947" vertical-scroll-proportion="0.37342387">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="BaseResultSetMapper.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BaseResultSetMapper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="46" column="7" selection-start="1635" selection-end="1635" vertical-scroll-proportion="0.39767218">
+            <state line="46" column="7" selection-start="1644" selection-end="1644" vertical-scroll-proportion="0.39767218">
               <folding />
             </state>
           </provider>
@@ -227,19 +210,28 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StatementLocator.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="StatementLocator.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="29" selection-start="787" selection-end="787" vertical-scroll-proportion="0.15518914">
+            <state line="35" column="0" selection-start="1301" selection-end="1301" vertical-scroll-proportion="0.3258972">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OracleReturning.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/oracle/OracleReturning.java">
+      <file leaf-file-name="StatementContext.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StatementContext.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="67" column="36" selection-start="2416" selection-end="2416" vertical-scroll-proportion="-0.21047527">
+            <state line="43" column="89" selection-start="1561" selection-end="1561" vertical-scroll-proportion="0.43452957">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SQLStatement.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="65" column="70" selection-start="2449" selection-end="2449" vertical-scroll-proportion="0.41901067">
               <folding />
             </state>
           </provider>
@@ -817,37 +809,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/package.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="HtmlPreview">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/HandleCallback.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="68" selection-start="1032" selection-end="1032" vertical-scroll-proportion="0.2327837">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/ResultSetMapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="14" selection-start="1395" selection-end="1395" vertical-scroll-proportion="0.3414161">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ResultSetResultIterator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="117" selection-start="1354" selection-end="1354" vertical-scroll-proportion="0.2327837">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementCustomizer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="32" column="82" selection-start="1049" selection-end="1049" vertical-scroll-proportion="0.21726479">
@@ -857,7 +818,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/unstable/oracle/OracleReturning.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="67" column="36" selection-start="2416" selection-end="2416" vertical-scroll-proportion="-0.21047527">
+        <state line="67" column="36" selection-start="2425" selection-end="2425" vertical-scroll-proportion="-0.21047527">
           <folding />
         </state>
       </provider>
@@ -871,7 +832,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BaseResultSetMapper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="7" selection-start="1635" selection-end="1635" vertical-scroll-proportion="0.39767218">
+        <state line="46" column="7" selection-start="1644" selection-end="1644" vertical-scroll-proportion="0.39767218">
           <folding />
         </state>
       </provider>
@@ -920,7 +881,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="29" selection-start="787" selection-end="787" vertical-scroll-proportion="0.15518914">
+        <state line="35" column="0" selection-start="1301" selection-end="1301" vertical-scroll-proportion="0.3258972">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="65" column="70" selection-start="2449" selection-end="2449" vertical-scroll-proportion="0.41901067">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Update.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="13" selection-start="969" selection-end="969" vertical-scroll-proportion="0.13967022">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="2" column="29" selection-start="116" selection-end="116" vertical-scroll-proportion="0.031037828">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StatementContext.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="89" selection-start="1561" selection-end="1561" vertical-scroll-proportion="0.43452957">
           <folding />
         </state>
       </provider>
