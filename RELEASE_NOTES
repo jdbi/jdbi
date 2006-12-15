@@ -1,6 +1,12 @@
 2.0pre14
     Have prepared batch use the statement locator
 
+	 Bean resultset mapper invokes the right ResultSet.getXXX() for each property type (getObject() on Oracle returns internal Oracle types)
+
+	 Allow positional binding for PreparedBatch
+
+	 Renamed PreparedBatchPart.another() to next()
+
 2.0pre13
     Allow setting attributes on statement contexts for batches and prepared batches
 

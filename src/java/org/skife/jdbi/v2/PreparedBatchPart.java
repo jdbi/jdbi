@@ -62,7 +62,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
      *
      * @return a fresh PrepatedBatchPart on the same batch
      */
-    public PreparedBatchPart another()
+    public PreparedBatchPart next()
     {
         return batch.add();
     }

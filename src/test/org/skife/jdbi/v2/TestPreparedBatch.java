@@ -31,8 +31,8 @@ public class TestPreparedBatch extends DBITestCase
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         PreparedBatchPart p = b.add();
-        p = p.bind("id", 1).bind("name", "Eric").another();
-        p.bind("id", 2).bind("name", "Brian").another().bind("id", 3).bind("name", "Keith");
+        p = p.bind("id", 1).bind("name", "Eric").next();
+        p.bind("id", 2).bind("name", "Brian").next().bind("id", 3).bind("name", "Keith");
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
@@ -67,11 +67,11 @@ public class TestPreparedBatch extends DBITestCase
     public void testBindProperties() throws Exception
     {
         Handle h = openHandle();
-        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
-        b.add(new Something(0, "Keith"));
-        b.add(new Something(1, "Eric"));
-        b.add(new Something(2, "Brian"));
+        b.add(0, "Keith");
+        b.add(1, "Eric");
+        b.add(2, "Brian");
 
         b.execute();
 
