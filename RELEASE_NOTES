@@ -1,3 +1,8 @@
+2.0pre13
+    Allow setting attributes on statement contexts for batches and prepared batches
+
+    SQLStatement.setNull*(...)
+
 2.0pre12
     [bugfix] Pass statement context into result mapped queries
 

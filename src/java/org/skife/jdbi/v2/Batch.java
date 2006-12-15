@@ -55,6 +55,16 @@ public class Batch
     }
 
     /**
+     * Specify a value on the statement context for this batch
+     *
+     * @return self
+     */
+    public Batch define(String key, Object value) {
+        this.context.setAttribute(key, value);
+        return this;
+    }
+
+    /**
      * Execute all the queued up statements
      *
      * @return an array of integers representing the return values from each statement's execution

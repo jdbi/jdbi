@@ -46,13 +46,28 @@ public class PreparedBatch
     private final String sql;
     private final StatementContext context = new StatementContext();
 
-    PreparedBatch(StatementLocator locator, StatementRewriter rewriter, Connection connection, StatementBuilder preparedStatementCache, String sql)
+    PreparedBatch(StatementLocator locator,
+                  StatementRewriter rewriter,
+                  Connection connection,
+                  StatementBuilder preparedStatementCache,
+                  String sql)
     {
         this.locator = locator;
         this.rewriter = rewriter;
         this.connection = connection;
         this.preparedStatementCache = preparedStatementCache;
         this.sql = sql;
+    }
+
+    /**
+     * Specify a value on the statement context for this batch
+     *
+     * @return self
+     */
+    public PreparedBatch define(String key, Object value)
+    {
+        context.setAttribute(key, value);
+        return this;
     }
 
     /**
@@ -68,41 +83,32 @@ public class PreparedBatch
         PreparedBatchPart current = parts.get(0);
         final RewrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters(), context);
         PreparedStatement stmt = null;
-        try
-        {
-            try
-            {
+        try {
+            try {
                 stmt = connection.prepareStatement(rewritten.getSql());
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new UnableToCreateStatementException(e);
             }
 
-            try
-            {
-                for (PreparedBatchPart part : parts)
-                {
+            try {
+                for (PreparedBatchPart part : parts) {
                     rewritten.bind(part.getParameters(), stmt);
                     stmt.addBatch();
                 }
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
             }
 
-            try
-            {
+            try {
                 return stmt.executeBatch();
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new UnableToExecuteStatementException(e);
             }
         }
-        finally
-        {
+        finally {
             QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(null, stmt, null);
         }
     }

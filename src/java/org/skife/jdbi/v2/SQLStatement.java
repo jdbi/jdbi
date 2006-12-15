@@ -38,6 +38,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -743,6 +744,28 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return bind(name, new URLArgument(value));
     }
 
+    /**
+     * Bind NULL to be set for a given argument.
+     *
+     * @param name Named parameter to bind to
+     * @param sqlType The sqlType must be set and is a value from <code>java.sql.Types</code>
+     * @return the same statement instance
+     */
+    public final SelfType bindNull(String name, int sqlType) {
+        return bind(name, new NullArgument(sqlType));
+    }
+
+    /**
+     * Bind NULL to be set for a given argument.
+     *
+     * @param position position to bind NULL to, starting at 0
+     * @param sqlType The sqlType must be set and is a value from <code>java.sql.Types</code>
+     * @return the same statement instance
+     */
+    public final SelfType bindNull(int position, int sqlType) {
+        return bind(position, new NullArgument(sqlType));
+    }
+
     private String wrapLookup(String sql)
     {
         try {
@@ -767,6 +790,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e);
             }
+            
             try {
                 rewritten.bind(getParameters(), stmt);
             }
