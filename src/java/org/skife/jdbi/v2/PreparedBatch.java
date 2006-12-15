@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a prepared batch statement. That is, a sql statement compiled as a prepared
+ * Represents a prepared batch statement. That is, a rawSql statement compiled as a prepared
  * statement, and then executed multiple times in a single batch. This is, generally,
  * a very efficient way to execute large numbers of the same statement where
  * the statement only varies by the arguments bound to it.
@@ -43,7 +43,7 @@ public class PreparedBatch
     private final StatementRewriter rewriter;
     private final Connection connection;
     private final StatementBuilder preparedStatementCache;
-    private final String sql;
+    private final String rawSql;
     private final StatementContext context = new StatementContext();
 
     PreparedBatch(StatementLocator locator,
@@ -56,7 +56,7 @@ public class PreparedBatch
         this.rewriter = rewriter;
         this.connection = connection;
         this.preparedStatementCache = preparedStatementCache;
-        this.sql = sql;
+        this.rawSql = sql;
     }
 
     /**
@@ -81,6 +81,13 @@ public class PreparedBatch
         if (parts.size() == 0) return new int[]{};
 
         PreparedBatchPart current = parts.get(0);
+        final String sql;
+        try {
+             sql = locator.locate(rawSql, context);
+        }
+        catch (Exception e) {
+            throw new UnableToExecuteStatementException("Exception while trying to locate statement", e);
+        }
         final RewrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters(), context);
         PreparedStatement stmt = null;
         try {
@@ -121,7 +128,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, rawSql, context);
         parts.add(part);
         return part;
     }
@@ -136,7 +143,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Object bean)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, rawSql, context);
         parts.add(part);
         part.bindFromProperties(bean);
         return part;
@@ -152,7 +159,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, rawSql, context);
         parts.add(part);
         part.bindFromMap(args);
         return part;
