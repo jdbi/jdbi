@@ -766,6 +766,19 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return bind(position, new NullArgument(sqlType));
     }
 
+    /**
+     * Bind a value using a specific type from <code>java.sql.Types</code> via
+     * PreparedStatement#setObject(int, Object, int)
+     *
+     * @param name Named parameter to bind at
+     * @param value Value to bind
+     * @param sqlType The sqlType from java.sql.Types
+     * @return self
+     */
+    public final SelfType bindBySqlType(String name, Object value, int sqlType) {
+        return bind(name, new SqlTypeArgument(value, sqlType));
+    }
+
     private String wrapLookup(String sql)
     {
         try {
@@ -790,7 +803,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e);
             }
-            
+
             try {
                 rewritten.bind(getParameters(), stmt);
             }

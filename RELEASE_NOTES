@@ -1,3 +1,6 @@
+2.0pre14
+    Have prepared batch use the statement locator
+
 2.0pre13
     Allow setting attributes on statement contexts for batches and prepared batches
 
