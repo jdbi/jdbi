@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 /**
  * Statement rewriter which replaces named parameter tokens of the form :tokenName
- * <p>
+ * <p/>
  * This is the default statement rewriter
  */
 public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
@@ -94,15 +94,19 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
             if (stmt.positionalOnly) {
                 // no named params, is easy
                 boolean finished = false;
-                for (int i = 0; !finished; ++i)
-                {
+                for (int i = 0; !finished; ++i) {
                     final Argument a = params.forPosition(i);
-                    if (a != null)
-                    {
+                    if (a != null) {
+                        try {
                         a.apply(i + 1, statement, this.context);
+                        }
+                        catch (SQLException e) {
+                            throw new UnableToExecuteStatementException(
+                                    String.format("Excpetion while binding positional param at (0 based) position %d",
+                                                  i), e);
+                        }
                     }
-                    else
-                    {
+                    else {
                         finished = true;
                     }
                 }
@@ -110,17 +114,14 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
             else {
                 //List<String> named_params = stmt.params;
                 int i = 0;
-                for (String named_param : stmt.params)
-                {
+                for (String named_param : stmt.params) {
                     if ("*".equals(named_param)) continue;
                     Argument a = params.forName(named_param);
-                    if (a == null)
-                    {
+                    if (a == null) {
                         a = params.forPosition(i);
                     }
 
-                    if (a == null)
-                    {
+                    if (a == null) {
                         String msg = String.format("Unable to execute, no named parameter matches " +
                                                    "\"%s\" and no positional param for place %d (which is %d in " +
                                                    "the JDBC 'start at 1' scheme) has been set.",
@@ -128,7 +129,13 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                         throw new UnableToExecuteStatementException(msg);
                     }
 
-                    a.apply(i + 1, statement, this.context);
+                    try {
+                        a.apply(i + 1, statement, this.context);
+                    }
+                    catch (SQLException e) {
+                        throw new UnableToCreateStatementException(String.format("Exception while binding '%s'",
+                                                                                 named_param), e);
+                    }
                     i++;
                 }
             }
@@ -140,7 +147,8 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
         }
     }
 
-    private static class ParsedStatement {
+    private static class ParsedStatement
+    {
 
         private boolean positionalOnly = true;
         private List<String> params = new ArrayList<String>();

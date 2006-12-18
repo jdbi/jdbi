@@ -815,7 +815,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                 prep.prepare(stmt);
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
+                throw new UnableToExecuteStatementException("Unable to prepare JDBC statement", e);
             }
 
             for (StatementCustomizer customizer : customizers) {

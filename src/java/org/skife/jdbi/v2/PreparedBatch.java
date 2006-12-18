@@ -81,7 +81,15 @@ public class PreparedBatch
         if (parts.size() == 0) return new int[]{};
 
         PreparedBatchPart current = parts.get(0);
-        final RewrittenStatement rewritten = rewriter.rewrite(sql, current.getParameters(), context);
+        final String my_sql ;
+        try {
+            my_sql = locator.locate(sql, context);
+        }
+        catch (Exception e) {
+            throw new UnableToCreateStatementException(String.format("Exception while locating statement for [%s]",
+                                                                     sql), e);
+        }
+        final RewrittenStatement rewritten = rewriter.rewrite(my_sql, current.getParameters(), context);
         PreparedStatement stmt = null;
         try {
             try {
@@ -98,7 +106,7 @@ public class PreparedBatch
                 }
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to configure JDBC statement to 1", e);
+                throw new UnableToExecuteStatementException("Exception while binding parameters", e);
             }
 
             try {
