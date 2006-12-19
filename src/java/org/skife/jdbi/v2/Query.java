@@ -124,7 +124,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                 else
                 {
                     // no result matches
-                    return null;
+                    return new Pair<ResultType, ResultSet>(null, null);
                 }
             }
         }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);

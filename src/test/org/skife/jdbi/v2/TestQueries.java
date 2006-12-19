@@ -250,6 +250,11 @@ public class TestQueries extends DBITestCase
         assertTrue(r.hasNext());
         r.next();
         assertFalse(r.hasNext());
+    }
 
+    public void testFirstWithNoResult() throws Exception
+    {
+        Something s = h.createQuery("select id, name from something").map(Something.class).first();
+        assertNull(s);
     }
 }
