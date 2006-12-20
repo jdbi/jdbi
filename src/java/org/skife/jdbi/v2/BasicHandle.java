@@ -18,13 +18,14 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
-import org.skife.jdbi.v2.tweak.StatementLocator;
-import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,26 +36,22 @@ class BasicHandle implements Handle
     private StatementRewriter statementRewriter;
     private StatementLocator statementLocator;
     private StatementBuilder statementBuilder;
-
-//    public BasicHandle(TransactionHandler transactions,
-//                       PreparedStatementCache statementBuilder,
-//                       StatementRewriter statementRewriter,
-//                       Connection connection)
-//    {
-//        this(transactions, new ClasspathStatementLocator(), statementBuilder, statementRewriter, connection);
-//    }
+    private final Map<String, Object> globalStatementAttributes;
 
     public BasicHandle(TransactionHandler transactions,
                        StatementLocator statementLocator,
                        StatementBuilder preparedStatementCache,
                        StatementRewriter statementRewriter,
-                       Connection connection)
+                       Connection connection,
+                       Map<String, Object> globalStatementAttributes)
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
         this.transactions = transactions;
         this.connection = connection;
         this.statementLocator = statementLocator;
+        this.globalStatementAttributes = new HashMap<String, Object>();
+        this.globalStatementAttributes.putAll(globalStatementAttributes);
     }
 
     public Query<Map<String, Object>> createQuery(String sql)
@@ -66,7 +63,7 @@ class BasicHandle implements Handle
                                               connection,
                                               statementBuilder,
                                               sql,
-                                              new StatementContext());
+                                              new StatementContext(globalStatementAttributes));
     }
 
     /**
@@ -82,14 +79,17 @@ class BasicHandle implements Handle
     public void close()
     {
         statementBuilder.close();
-        try
-        {
+        try {
             connection.close();
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new UnableToCloseResourceException("Unable to close Connection", e);
         }
+    }
+
+    public void define(String key, Object value)
+    {
+        this.globalStatementAttributes.put(key, value);
     }
 
     /**
@@ -121,7 +121,12 @@ class BasicHandle implements Handle
 
     public Update createStatement(String sql)
     {
-        return new Update(connection, statementLocator, statementRewriter, statementBuilder, sql, new StatementContext());
+        return new Update(connection,
+                          statementLocator,
+                          statementRewriter,
+                          statementBuilder,
+                          sql,
+                          new StatementContext(globalStatementAttributes));
     }
 
     public int insert(String sql, Object... args)
@@ -133,8 +138,7 @@ class BasicHandle implements Handle
     {
         Update stmt = createStatement(sql);
         int position = 0;
-        for (Object arg : args)
-        {
+        for (Object arg : args) {
             stmt.bind(position++, arg);
         }
         return stmt.execute();
@@ -142,12 +146,17 @@ class BasicHandle implements Handle
 
     public PreparedBatch prepareBatch(String sql)
     {
-        return new PreparedBatch(statementLocator, statementRewriter, connection, statementBuilder, sql);
+        return new PreparedBatch(statementLocator,
+                                 statementRewriter,
+                                 connection,
+                                 statementBuilder,
+                                 sql,
+                                 globalStatementAttributes);
     }
 
     public Batch createBatch()
     {
-        return new Batch(this.statementRewriter, this.connection);
+        return new Batch(this.statementRewriter, this.connection, globalStatementAttributes);
     }
 
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException
@@ -161,30 +170,25 @@ class BasicHandle implements Handle
             }
         };
         final ReturnType returnValue;
-        try
-        {
+        try {
             this.begin();
             returnValue = callback.inTransaction(this, status);
-            if (!failed[0])
-            {
+            if (!failed[0]) {
                 this.commit();
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             this.rollback();
             throw new TransactionFailedException("Transaction failed do to exception being thrown " +
                                                  "from within the callback. See cause " +
                                                  "for the original exception.", e);
         }
-        if (failed[0])
-        {
+        if (failed[0]) {
             this.rollback();
             throw new TransactionFailedException("Transaction failed due to transaction status being set " +
                                                  "to rollback only.");
         }
-        else
-        {
+        else {
             return returnValue;
         }
     }
@@ -193,8 +197,7 @@ class BasicHandle implements Handle
     {
         Query<Map<String, Object>> query = this.createQuery(sql);
         int position = 0;
-        for (Object arg : args)
-        {
+        for (Object arg : args) {
             query.bind(position++, arg);
         }
         return query.list();
@@ -212,7 +215,7 @@ class BasicHandle implements Handle
 
     public Script createScript(String name)
     {
-        return new Script(this, statementLocator, name);
+        return new Script(this, statementLocator, name, globalStatementAttributes);
     }
 
     public void execute(String sql, Object... args)

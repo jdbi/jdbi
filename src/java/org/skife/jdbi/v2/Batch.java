@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
@@ -34,12 +35,13 @@ public class Batch
     private List<String> parts = new ArrayList<String>();
     private final StatementRewriter rewriter;
     private final Connection connection;
-    private final StatementContext context = new StatementContext();
+    private final StatementContext context;
 
-    Batch(StatementRewriter rewriter, Connection connection)
+    Batch(StatementRewriter rewriter, Connection connection, Map<String, Object> globalStatementAttributes)
     {
         this.rewriter = rewriter;
         this.connection = connection;
+        this.context = new StatementContext(globalStatementAttributes);
     }
 
     /**

@@ -44,19 +44,21 @@ public class PreparedBatch
     private final Connection connection;
     private final StatementBuilder preparedStatementCache;
     private final String sql;
-    private final StatementContext context = new StatementContext();
+    private final StatementContext context;
 
     PreparedBatch(StatementLocator locator,
                   StatementRewriter rewriter,
                   Connection connection,
                   StatementBuilder preparedStatementCache,
-                  String sql)
+                  String sql,
+                  Map<String, Object> globalStatementAttributes)
     {
         this.locator = locator;
         this.rewriter = rewriter;
         this.connection = connection;
         this.preparedStatementCache = preparedStatementCache;
         this.sql = sql;
+        this.context = new StatementContext(globalStatementAttributes);
     }
 
     /**

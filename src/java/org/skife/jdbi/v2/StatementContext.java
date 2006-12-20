@@ -29,6 +29,10 @@ public class StatementContext
 {
     private final Map<String, Object> attributes = new HashMap<String, Object>();
 
+    StatementContext(Map<String, Object> globalAttributes) {
+        attributes.putAll(globalAttributes);
+    }
+
     /**
      * Specify an attribute on the statement context
      *
@@ -41,7 +45,7 @@ public class StatementContext
     {
         return attributes.put(key, value);
     }
-                                                                                         
+
     /**
      * Obtain the value of an attribute
      *

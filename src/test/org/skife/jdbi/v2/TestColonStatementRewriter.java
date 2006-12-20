@@ -18,6 +18,8 @@ package org.skife.jdbi.v2;
 import junit.framework.TestCase;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 
+import java.util.HashMap;
+
 /**
  *
  */
@@ -33,19 +35,22 @@ public class TestColonStatementRewriter extends TestCase
 
     public void testNewlinesOkay() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite("select * from something\n where id = :id", new Binding(), new StatementContext());
+        RewrittenStatement rws = rw.rewrite("select * from something\n where id = :id", new Binding(),
+                                            new StatementContext(new HashMap<String, Object>()));
         assertEquals("select * from something\n where id = ?", rws.getSql());
     }
 
     public void testOddCharacters() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite(":boo ':nope' _%&^& *@ :id", new Binding(), new StatementContext());
+        RewrittenStatement rws = rw.rewrite(":boo ':nope' _%&^& *@ :id", new Binding(),
+                                            new StatementContext(new HashMap<String, Object>()));
         assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
     }
 
     public void testNumbers() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite(":bo0 ':nope' _%&^& *@ :id", new Binding(), new StatementContext());
+        RewrittenStatement rws = rw.rewrite(":bo0 ':nope' _%&^& *@ :id", new Binding(),
+                                            new StatementContext(new HashMap<String, Object>()));
         assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
     }
 }

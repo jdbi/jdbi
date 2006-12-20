@@ -38,6 +38,15 @@ public interface IDBI
     Handle open();
 
     /**
+     * Define an attribute on every {@link StatementContext} for every statement created
+     * from a handle obtained from this DBI instance.
+     *
+     * @param key The key for the attribute
+     * @param value the value for the attribute
+     */
+    void define(String key, Object value);
+
+    /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients.
      *

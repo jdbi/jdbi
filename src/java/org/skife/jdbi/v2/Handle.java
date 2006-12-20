@@ -44,6 +44,15 @@ public interface Handle
     void close();
 
     /**
+     * Define a statement attribute which will be applied to all {@link StatementContext}
+     * instances for statements created from this handle
+     *
+     * @param key Attribute name
+     * @param value Attribute value
+     */
+    void define(String key, Object value);
+
+    /**
      * Start a transaction
      */
     Handle begin();

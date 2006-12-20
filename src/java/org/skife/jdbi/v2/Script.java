@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import java.util.regex.Pattern;
+import java.util.Map;
 
 /**
  * Represents a number of SQL statements which will be executed in a batch statement.
@@ -32,12 +33,14 @@ public class Script
     private Handle handle;
     private final StatementLocator locator;
     private final String name;
+    private final Map<String, Object> globalStatementAttributes;
 
-    Script(Handle h, StatementLocator locator, String name)
+    Script(Handle h, StatementLocator locator, String name, Map<String, Object> globalStatementAttributes)
     {
         this.handle = h;
         this.locator = locator;
         this.name = name;
+        this.globalStatementAttributes = globalStatementAttributes;
     }
 
     /**
@@ -48,7 +51,7 @@ public class Script
     public int[] execute()
     {
         final String script;
-        final StatementContext ctx = new StatementContext();
+        final StatementContext ctx = new StatementContext(globalStatementAttributes);
         try
         {
             script = locator.locate(name, ctx);

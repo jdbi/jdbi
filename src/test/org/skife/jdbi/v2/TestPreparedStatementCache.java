@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 public class TestPreparedStatementCache extends DBITestCase
 {
@@ -42,7 +43,8 @@ public class TestPreparedStatementCache extends DBITestCase
                                         new ClasspathStatementLocator(),
                                         cache,
                                         new ColonPrefixNamedParamStatementRewriter(),
-                                        c);
+                                        c,
+                                        new HashMap<String, Object>());
 
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bindFromProperties(new Something(0, "Keith"))

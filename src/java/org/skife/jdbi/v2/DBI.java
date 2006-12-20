@@ -32,6 +32,8 @@ import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
@@ -44,6 +46,7 @@ public class DBI implements IDBI
     private StatementLocator statementLocator = new ClasspathStatementLocator();
     private TransactionHandler transactionhandler = new LocalTransactionHandler();
     private StatementBuilderFactory statementBuilderFactory = new CachingStatementBuilderFactory();
+    private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
 
     /**
      * Constructor for use with a DataSource which will provide
@@ -177,11 +180,24 @@ public class DBI implements IDBI
                                    statementLocator,
                                    cache,
                                    statementRewriter,
-                                   conn);
+                                   conn,
+                                   globalStatementAttributes);
         }
         catch (SQLException e) {
             throw new UnableToObtainConnectionException(e);
         }
+    }
+
+    /**
+     * Define an attribute on every {@link StatementContext} for every statement created
+     * from a handle obtained from this DBI instance.
+     *
+     * @param key The key for the attribute
+     * @param value the value for the attribute
+     */
+    public void define(String key, Object value)
+    {
+        this.globalStatementAttributes.put(key, value);
     }
 
     /**

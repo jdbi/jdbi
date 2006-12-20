@@ -22,6 +22,7 @@ import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -59,7 +60,8 @@ public abstract class DBITestCase extends TestCase
                                         new ClasspathStatementLocator(),
                                         new PreparedStatementCache(conn),
                                         new ColonPrefixNamedParamStatementRewriter(),
-                                        conn);
+                                        conn,
+                                        new HashMap<String, Object>());
         handles.add(h);
         return h;
     }
