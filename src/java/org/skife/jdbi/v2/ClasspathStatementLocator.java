@@ -29,7 +29,10 @@ import java.io.InputStreamReader;
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private static boolean looksLikeSql(String sql)
+    /**
+     * Very basic sanity test to see if a string looks like it might be sql
+     */
+    public static boolean looksLikeSql(String sql)
     {
         final String local = sql.substring(0, 7).toLowerCase();
         return local.startsWith("insert ")

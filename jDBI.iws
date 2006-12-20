@@ -18,10 +18,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RELEASE_NOTES" afterPath="$PROJECT_DIR$/RELEASE_NOTES" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClasspathStatementLocator.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClasspathStatementLocator.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -178,7 +176,7 @@
       <file leaf-file-name="StringArgument.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StringArgument.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="40" column="0" selection-start="1072" selection-end="1072" vertical-scroll-proportion="0.35693502">
+            <state line="40" column="0" selection-start="1072" selection-end="1072" vertical-scroll-proportion="0.015518914">
               <folding />
             </state>
           </provider>
@@ -187,7 +185,7 @@
       <file leaf-file-name="RewrittenStatement.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/RewrittenStatement.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="16" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.29485935">
+            <state line="36" column="16" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.015518914">
               <folding />
             </state>
           </provider>
@@ -214,7 +212,7 @@
       <file leaf-file-name="SQLStatement.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="837" column="60" selection-start="24228" selection-end="24228" vertical-scroll-proportion="0.47235695">
+            <state line="837" column="60" selection-start="24228" selection-end="24228" vertical-scroll-proportion="0.015518914">
               <folding />
             </state>
           </provider>
@@ -223,7 +221,7 @@
       <file leaf-file-name="Query.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="92" column="56" selection-start="3424" selection-end="3424" vertical-scroll-proportion="0.35111544">
+            <state line="102" column="93" selection-start="4146" selection-end="4146" vertical-scroll-proportion="0.015518914">
               <folding />
             </state>
           </provider>
@@ -232,7 +230,7 @@
       <file leaf-file-name="TestQueries.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="257" column="22" selection-start="8516" selection-end="8516" vertical-scroll-proportion="0.7313288">
+            <state line="257" column="22" selection-start="8516" selection-end="8516" vertical-scroll-proportion="0.015518914">
               <folding />
             </state>
           </provider>
@@ -544,7 +542,7 @@
       <showLibraryContents />
       <hideEmptyPackages />
       <abbreviatePackageNames />
-      <showStructure PackagesPane="false" ProjectPane="false" Scope="false" Favorites="false" />
+      <showStructure ProjectPane="false" PackagesPane="false" Scope="false" Favorites="false" />
       <autoscrollToSource />
       <autoscrollFromSource ProjectPane="true" />
       <sortByType />
@@ -629,6 +627,28 @@
       <predefined_log_file id="WEBLOGIC_DOMAIN_LOG_FILE" enabled="true" />
       <predefined_log_file id="WEBLOGIC_SERVER_LOG_FILE" enabled="true" />
     </configuration>
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="" />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+    </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -654,28 +674,6 @@
       <method>
         <option name="Make" value="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="" />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
     <configuration default="false" name="GrammarTestCase" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="org.skife.jdbi.v2.unstable.format.*" />
@@ -919,13 +917,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/BeanMapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="84" column="0" selection-start="2848" selection-end="2848" vertical-scroll-proportion="0.42870998">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/StatementLocator.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="22" column="74" selection-start="751" selection-end="751" vertical-scroll-proportion="0.12415131">
@@ -972,23 +963,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="0" selection-start="292" selection-end="372" vertical-scroll-proportion="0.15518914">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/StringArgument.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="0" selection-start="1072" selection-end="1072" vertical-scroll-proportion="0.35693502">
+        <state line="40" column="0" selection-start="1072" selection-end="1072" vertical-scroll-proportion="0.015518914">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/tweak/RewrittenStatement.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="16" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.29485935">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="58" selection-start="1394" selection-end="1394" vertical-scroll-proportion="0.015518914">
+        <state line="36" column="16" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.015518914">
           <folding />
         </state>
       </provider>
@@ -1000,30 +991,37 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="58" selection-start="1394" selection-end="1394" vertical-scroll-proportion="0.015518914">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/SQLStatement.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="837" column="60" selection-start="24228" selection-end="24228" vertical-scroll-proportion="0.47235695">
+        <state line="837" column="60" selection-start="24228" selection-end="24228" vertical-scroll-proportion="0.015518914">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/TestQueries.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="257" column="22" selection-start="8516" selection-end="8516" vertical-scroll-proportion="0.7313288">
+        <state line="257" column="22" selection-start="8516" selection-end="8516" vertical-scroll-proportion="0.015518914">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/ClasspathStatementLocator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="0" selection-start="292" selection-end="372" vertical-scroll-proportion="0.15518914">
+        <state line="32" column="75" selection-start="1092" selection-end="1092" vertical-scroll-proportion="0.18622696">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/Query.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="92" column="56" selection-start="3424" selection-end="3424" vertical-scroll-proportion="0.35111544">
+        <state line="102" column="93" selection-start="4146" selection-end="4146" vertical-scroll-proportion="0.015518914">
           <folding />
         </state>
       </provider>
