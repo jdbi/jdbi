@@ -16,18 +16,18 @@
 
 package org.skife.jdbi.v2.unstable.oracle;
 
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.StatementContext;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.util.List;
-import java.util.ArrayList;
-
 import oracle.jdbc.driver.OraclePreparedStatement;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
+
+import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides access to Oracle's "DML Returning" features introduced in 10.2. To use,
@@ -38,21 +38,21 @@ import oracle.jdbc.driver.OraclePreparedStatement;
  * public void testFoo() throws Exception
  * {
  *     Handle h = dbi.open();
- *
+ * <p/>
  *     OracleReturning&lt;Integer&gt; or = new OracleReturning&lt;Integer&gt;(new ResultSetMapper&lt;Integer&gt;() {
  *         public Integer map(int index, ResultSet r) throws SQLException
  *         {
  *             return r.getInt(1);
  *         }
  *     });
- *
+ * <p/>
  *     or.registerReturnParam(1, OracleTypes.INTEGER);
- *
+ * <p/>
  *     h.createStatement("insert into something (id, name) values (17, 'Brian') returning id into ?")
  *             .addStatementCustomizer(or)
  *             .execute();
  *     List&lt;Integer&gt; ids = or.getReturnedResults();
- *
+ * <p/>
  *     assertEquals(1, ids.size());
  *     assertEquals(Integer.valueOf(17), ids.getAttribute(0));
  *     h.close();
@@ -70,6 +70,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     /**
      * Provide a mapper which knows how to do positional access, sadly the
      * {@link org.skife.jdbi.v2.BeanMapper} uses the names in the result set
+     *
      * @param mapper Must use only positional access to the result set
      */
     public OracleReturning(ResultSetMapper<ResultType> mapper)
@@ -78,12 +79,31 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     }
 
     /**
-     * @see StatementCustomizer#customize(java.sql.PreparedStatement, org.skife.jdbi.v2.StatementContext)
+     * @see StatementCustomizer#customize(java.sql.PreparedStatement,org.skife.jdbi.v2.StatementContext)
      */
     public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
         this.context = ctx;
-        this.stmt = (OraclePreparedStatement) stmt;
+
+        if (!(stmt instanceof OraclePreparedStatement)) {
+            try {
+                final Method get_delegate = stmt.getClass().getMethod("getDelegate");
+                final Object candidate = get_delegate.invoke(stmt);
+                if (candidate instanceof OraclePreparedStatement) {
+                    this.stmt = (OraclePreparedStatement) candidate;
+                }
+                else {
+                    throw new Exception("Obtained delegate, but it still wasn't an OraclePreparedStatement");
+                }
+            }
+            catch (Exception e) {
+                throw new IllegalStateException("Statement is not an OraclePreparedStatement, nor" +
+                                                "one which we know how to find it from", e);
+            }
+        }
+        else {
+            this.stmt = (OraclePreparedStatement) stmt;
+        }
         for (int[] bind : binds) {
             this.stmt.registerReturnParameter(bind[0], bind[1]);
         }
@@ -121,8 +141,9 @@ public class OracleReturning<ResultType> implements StatementCustomizer
      * Used to specify the types (required) of the out parameters. You must
      * register each of them.
      *
-     * @param position 1 based position of the out parameter
+     * @param position   1 based position of the out parameter
      * @param oracleType one of the values from oracle.jdbc.driver..OracleTypes
+     *
      * @return The same instance, in case you want to chain things
      */
     public OracleReturning<ResultType> registerReturnParam(int position, int oracleType)
