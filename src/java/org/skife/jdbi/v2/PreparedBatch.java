@@ -45,6 +45,7 @@ public class PreparedBatch
     private final StatementBuilder preparedStatementCache;
     private final String sql;
     private final StatementContext context;
+    private int size = 0;
 
     PreparedBatch(StatementLocator locator,
                   StatementRewriter rewriter,
@@ -131,6 +132,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add()
     {
+        size++;
         PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
         parts.add(part);
         return part;
@@ -138,7 +140,8 @@ public class PreparedBatch
 
 	public PreparedBatch add(Object... args)
 	{
-		PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
+        size++;
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
 
 		for (int i = 0; i < args.length; ++i) {
 			part.bind(i, args[i]);
@@ -160,9 +163,26 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
+        size++;
         PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
         parts.add(part);
         part.bindFromMap(args);
         return part;
+    }
+
+    /**
+     * The number of statements which are in this batch
+     */
+    public int getSize()
+    {
+        return size;
+    }
+
+    /**
+     * The number of statements which are in this batch
+     */
+    public int size()
+    {
+        return size;
     }
 }
