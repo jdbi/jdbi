@@ -19,9 +19,9 @@ package org.skife.jdbi.v2.unstable.eod;
 import org.skife.jdbi.v2.DBI;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.lang.reflect.Proxy;
 
 /**
  *

@@ -37,7 +37,7 @@ public class Tools
     public static boolean running = false;
     public static EmbeddedDataSource dataSource;
 
-    public static void start() throws IOException, SQLException, IOException
+    public static void start() throws SQLException, IOException
     {
         if (!running)
         {
@@ -45,10 +45,6 @@ public class Tools
             System.setProperty("derby.system.home", "build/db");
             File db = new File("build/db");
             db.mkdirs();
-            final Properties derby = new Properties();
-            derby.setProperty("derby.storage.fileSyncTransactionLog", "true");
-            FileOutputStream outs = new FileOutputStream("build/db/derby.properties");
-            derby.store(outs, "auto-generated properties for unit testing");
 
             dataSource = new EmbeddedDataSource();
             dataSource.setCreateDatabase("create");
@@ -113,15 +109,6 @@ public class Tools
         conn.close();
     }
 
-    public static void insertSomething() throws SQLException
-    {
-        Connection conn = DriverManager.getConnection("jdbc:default:connection");
-        final PreparedStatement stmt = conn.prepareStatement("insert into something (id, name) values (?, ?)");
-        stmt.setInt(1, 5);
-        stmt.setString(2, "george");
-        stmt.execute();
-    }
-
     public static String doIt()
     {
         return "it";
@@ -131,7 +118,6 @@ public class Tools
     {
         return dataSource;
     }
-
 
     public static <K> HandyMapThing<K> map(K k, Object v)
     {

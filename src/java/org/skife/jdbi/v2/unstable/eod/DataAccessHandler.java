@@ -18,8 +18,8 @@ package org.skife.jdbi.v2.unstable.eod;
 
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
-import org.skife.jdbi.v2.Update;
 import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.Update;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

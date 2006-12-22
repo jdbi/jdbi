@@ -16,9 +16,9 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

@@ -16,9 +16,9 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
 

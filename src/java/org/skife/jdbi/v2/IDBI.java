@@ -16,11 +16,8 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.StatementLocator;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.TransactionHandler;
-import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
+import org.skife.jdbi.v2.tweak.HandleCallback;
 
 /**
  * An interface for {@link DBI} instances for systems which like

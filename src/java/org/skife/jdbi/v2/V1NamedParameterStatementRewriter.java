@@ -16,10 +16,10 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

@@ -16,8 +16,8 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
 
 import java.sql.Connection;
 

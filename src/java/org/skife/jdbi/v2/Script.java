@@ -19,8 +19,8 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
-import java.util.regex.Pattern;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Represents a number of SQL statements which will be executed in a batch statement.

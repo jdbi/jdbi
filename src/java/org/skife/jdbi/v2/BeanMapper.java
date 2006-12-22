@@ -23,11 +23,15 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Date;
-import java.sql.*;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A result set mapper which maps the fields in a statement into a JavaBean. This uses
@@ -122,7 +126,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 				else {
 					value = rs.getObject(i);
 				}
-				
+
 				try
 				{
 					descriptor.getWriteMethod().invoke(bean, value);

@@ -16,9 +16,9 @@
 
 package org.skife.jdbi.v2.tweak.transactions;
 
+import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
-import org.skife.jdbi.v2.Handle;
 
 import java.sql.SQLException;
 

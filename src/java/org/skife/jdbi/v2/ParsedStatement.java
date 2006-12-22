@@ -16,10 +16,10 @@
 
 package org.skife.jdbi.v2;
 
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class ParsedStatement
 {

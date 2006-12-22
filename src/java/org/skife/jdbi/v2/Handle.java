@@ -21,8 +21,8 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This represents a connection to the database system. It ususally is a wrapper around

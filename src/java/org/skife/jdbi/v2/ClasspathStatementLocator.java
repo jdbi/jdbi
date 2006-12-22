@@ -101,7 +101,7 @@ public class ClasspathStatementLocator implements StatementLocator
     /**
      * There *must* be a better place to put this without creating a util class just for it
      */
-    public static ClassLoader selectClassLoader()
+    private static ClassLoader selectClassLoader()
     {
         ClassLoader loader;
         if (Thread.currentThread().getContextClassLoader() != null)
@@ -115,7 +115,7 @@ public class ClasspathStatementLocator implements StatementLocator
         return loader;
     }
 
-    public static boolean isComment(final String line)
+    private static boolean isComment(final String line)
     {
         return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
     }

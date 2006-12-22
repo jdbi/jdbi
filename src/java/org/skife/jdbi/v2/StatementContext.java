@@ -16,8 +16,8 @@
 
 package org.skife.jdbi.v2;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The statement context provides a means for passing client specific information through the

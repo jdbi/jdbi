@@ -22,15 +22,15 @@ import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
 import static org.skife.jdbi.rewriter.colon.ColonStatementLexerTokenTypes.*;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.Argument;
 
 import java.io.StringReader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Statement rewriter which replaces named parameter tokens of the form :tokenName
