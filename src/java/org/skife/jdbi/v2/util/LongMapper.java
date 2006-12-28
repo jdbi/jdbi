@@ -24,6 +24,10 @@ import java.sql.SQLException;
  */
 public class LongMapper extends TypedMapper<Long>
 {
+    /**
+     * An instance which extracts value from the first field
+     */
+    public static final LongMapper FIRST = new LongMapper(1);
 
 
     /**

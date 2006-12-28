@@ -24,6 +24,10 @@ import java.sql.SQLException;
  */
 public class BooleanMapper extends TypedMapper<Boolean>
 {
+    /**
+     * An instance which extracts value from the first field
+     */
+    public static final BooleanMapper FIRST = new BooleanMapper(1);
 
 
     /**

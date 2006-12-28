@@ -25,6 +25,11 @@ import java.sql.SQLException;
 public class IntegerMapper extends TypedMapper<Integer>
 {
     /**
+     * An instance which extracts value from the first field
+     */
+    public static final IntegerMapper FIRST = new IntegerMapper(1);
+
+    /**
      * Create a new instance which extracts the value positionally
      * in the result set
      *

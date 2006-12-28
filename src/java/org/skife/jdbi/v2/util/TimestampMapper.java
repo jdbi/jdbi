@@ -25,6 +25,10 @@ import java.sql.SQLException;
  */
 public class TimestampMapper extends TypedMapper<Timestamp>
 {
+    /**
+     * An instance which extracts value from the first field
+     */
+    public static final TimestampMapper FIRST = new TimestampMapper(1);
 
 
     /**

@@ -24,6 +24,13 @@ import java.sql.SQLException;
  */
 public class StringMapper extends TypedMapper<String>
 {
+
+    /**
+     * An instance which extracts value from the first field
+     */
+    public static final StringMapper FIRST = new StringMapper(1);
+
+
     /**
      * Create a new instance which extracts the value from the first column
      */
