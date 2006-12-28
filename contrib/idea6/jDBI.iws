@@ -19,8 +19,6 @@
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIUtil.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIUtil.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIFactoryBean.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIFactoryBean.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -186,7 +184,7 @@
       <file leaf-file-name="MyQueries.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="41" column="107" selection-start="1314" selection-end="1314" vertical-scroll-proportion="0.35693502">
+            <state line="54" column="0" selection-start="1661" selection-end="1661" vertical-scroll-proportion="0.5586809">
               <folding />
             </state>
           </provider>
@@ -1267,7 +1265,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="107" selection-start="1314" selection-end="1314" vertical-scroll-proportion="0.35693502">
+        <state line="54" column="0" selection-start="1661" selection-end="1661" vertical-scroll-proportion="0.5586809">
           <folding />
         </state>
       </provider>
