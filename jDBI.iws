@@ -18,9 +18,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RELEASE_NOTES" afterPath="$PROJECT_DIR$/RELEASE_NOTES" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIUtil.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIUtil.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIFactoryBean.java" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIFactoryBean.java" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -177,7 +177,25 @@
       <file leaf-file-name="DBIUtil.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIUtil.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="60" column="22" selection-start="2146" selection-end="2146" vertical-scroll-proportion="0.015518914">
+            <state line="61" column="19" selection-start="2156" selection-end="2156" vertical-scroll-proportion="0.6362755">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MyQueries.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="41" column="107" selection-start="1314" selection-end="1314" vertical-scroll-proportion="0.35693502">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TestQueryObjectHandler.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="101" column="22" selection-start="2984" selection-end="2984" vertical-scroll-proportion="0.6828322">
               <folding />
             </state>
           </provider>
@@ -186,7 +204,7 @@
       <file leaf-file-name="DBIFactoryBean.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIFactoryBean.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="78" column="0" selection-start="2160" selection-end="2160" vertical-scroll-proportion="0.015518914">
+            <state line="82" column="47" selection-start="2452" selection-end="2452" vertical-scroll-proportion="0.8845781">
               <folding />
             </state>
           </provider>
@@ -195,7 +213,7 @@
       <file leaf-file-name="package.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/package.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="54" column="9" selection-start="2437" selection-end="2437" vertical-scroll-proportion="0.016243655">
+            <state line="54" column="9" selection-start="2437" selection-end="2437" vertical-scroll-proportion="0.4">
               <folding />
             </state>
           </provider>
@@ -213,10 +231,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="48" selection-start="139" selection-end="139" vertical-scroll-proportion="0.015518914">
+            <state line="10" column="69" selection-start="555" selection-end="555" vertical-scroll-proportion="0.12415131">
               <folding />
             </state>
           </provider>
@@ -225,7 +243,7 @@
       <file leaf-file-name="test-context.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/test-context.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="0" selection-start="663" selection-end="1929" vertical-scroll-proportion="0.015518914">
+            <state line="16" column="0" selection-start="663" selection-end="1929" vertical-scroll-proportion="0.025218235">
               <folding />
             </state>
           </provider>
@@ -234,7 +252,7 @@
       <file leaf-file-name="SpringDataSourceConnectionFactory.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/SpringDataSourceConnectionFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="31" selection-start="1181" selection-end="1181" vertical-scroll-proportion="0.015518914">
+            <state line="39" column="31" selection-start="1181" selection-end="1181" vertical-scroll-proportion="0.31037828">
               <folding />
             </state>
           </provider>
@@ -592,21 +610,22 @@
     <option name="referencePos" value="0" />
   </component>
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.All in jDBI">
-    <tempConfiguration default="false" name="All in jDBI" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RunManager" selected="JUnit.TestQueryObjectHandler">
+    <tempConfiguration default="false" name="TestQueryObjectHandler" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="org.skife.jdbi.v2.unstable.eod.*" />
       <module name="jDBI" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" />
+      <option name="PACKAGE_NAME" value="org.skife.jdbi.v2.unstable.eod" />
+      <option name="MAIN_CLASS_NAME" value="org.skife.jdbi.v2.unstable.eod.TestQueryObjectHandler" />
       <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="package" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="ADDITIONAL_CLASS_PATH" />
       <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
+        <value defaultName="wholeProject" />
       </option>
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
@@ -746,6 +765,156 @@
           <option name="myItemType" value="" />
         </PATH_ELEMENT>
         <PATH_ELEMENT USER_OBJECT="src">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT USER_OBJECT="Root">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="jDBI">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="$PROJECT_DIR$">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="src">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="test">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT USER_OBJECT="Root">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="jDBI">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="$PROJECT_DIR$">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="src">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="test">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="org/skife/jdbi">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT USER_OBJECT="Root">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="jDBI">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="$PROJECT_DIR$">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="src">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="test">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="org/skife/jdbi">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="v2">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT USER_OBJECT="Root">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="jDBI">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="$PROJECT_DIR$">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="src">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="test">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="org/skife/jdbi">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="v2">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="unstable">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT USER_OBJECT="Root">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="jDBI">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="$PROJECT_DIR$">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="src">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="test">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="org/skife/jdbi">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="v2">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="unstable">
+          <option name="myItemId" value="" />
+          <option name="myItemType" value="" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT USER_OBJECT="eod">
           <option name="myItemId" value="" />
           <option name="myItemType" value="" />
         </PATH_ELEMENT>
@@ -989,22 +1158,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/Service.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="46" selection-start="727" selection-end="727" vertical-scroll-proportion="0.33268672">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/CountMapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="27" selection-start="989" selection-end="989" vertical-scroll-proportion="0.13967022">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/grammar/TestColonGrammar.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="29" column="76" selection-start="906" selection-end="906" vertical-scroll-proportion="0.17070805">
@@ -1053,23 +1206,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="60" column="22" selection-start="2146" selection-end="2146" vertical-scroll-proportion="0.015518914">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIFactoryBean.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="0" selection-start="2160" selection-end="2160" vertical-scroll-proportion="0.015518914">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/package.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="9" selection-start="2437" selection-end="2437" vertical-scroll-proportion="0.016243655">
+        <state line="54" column="9" selection-start="2437" selection-end="2437" vertical-scroll-proportion="0.4">
           <folding />
         </state>
       </provider>
@@ -1079,14 +1218,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/test-context.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="663" selection-end="1929" vertical-scroll-proportion="0.015518914">
+        <state line="16" column="0" selection-start="663" selection-end="1929" vertical-scroll-proportion="0.025218235">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/SpringDataSourceConnectionFactory.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="31" selection-start="1181" selection-end="1181" vertical-scroll-proportion="0.015518914">
+        <state line="39" column="31" selection-start="1181" selection-end="1181" vertical-scroll-proportion="0.31037828">
           <folding />
         </state>
       </provider>
@@ -1100,7 +1239,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="48" selection-start="139" selection-end="139" vertical-scroll-proportion="0.015518914">
+        <state line="10" column="69" selection-start="555" selection-end="555" vertical-scroll-proportion="0.12415131">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="61" column="19" selection-start="2156" selection-end="2156" vertical-scroll-proportion="0.6362755">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIFactoryBean.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="82" column="47" selection-start="2452" selection-end="2452" vertical-scroll-proportion="0.8845781">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/TestQueryObjectHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="101" column="22" selection-start="2984" selection-end="2984" vertical-scroll-proportion="0.6828322">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/skife/jdbi/v2/unstable/eod/MyQueries.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="107" selection-start="1314" selection-end="1314" vertical-scroll-proportion="0.35693502">
           <folding />
         </state>
       </provider>

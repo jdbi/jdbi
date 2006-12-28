@@ -18,10 +18,13 @@ package org.skife.jdbi.v2.spring;
 
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.IDBI;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.sql.DataSource;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Utility class which constructs an IDBI instance which can conveniently participate
@@ -30,13 +33,24 @@ import javax.sql.DataSource;
 public class DBIFactoryBean implements FactoryBean, InitializingBean
 {
     private DataSource dataSource;
+    private StatementLocator statementLocator;
+    private Map<String, Object> globalDefines = new HashMap<String, Object>();
 
     /**
      * See org.springframework.beans.factory.FactoryBean#getObject
      */
     public Object getObject() throws Exception
     {
-        return new DBI(new SpringDataSourceConnectionFactory(dataSource));
+        final DBI dbi = new DBI(new SpringDataSourceConnectionFactory(dataSource));
+        if (statementLocator != null) {
+            dbi.setStatementLocator(statementLocator);
+        }
+
+        for (Map.Entry<String, Object> entry : globalDefines.entrySet()) {
+            dbi.define(entry.getKey(), entry.getValue());
+        }
+
+        return dbi;
     }
 
     /**
@@ -64,6 +78,15 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     public void setDataSource(DataSource dataSource)
     {
         this.dataSource = dataSource;
+    }
+
+    public void setStatementLocator(StatementLocator statementLocator)
+    {
+        this.statementLocator = statementLocator;
+    }
+
+    public void setGlobalDefines(Map<String, Object> defines) {
+        globalDefines.putAll(defines);
     }
 
     /**

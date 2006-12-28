@@ -63,7 +63,7 @@ public class DBIUtil
     }
 
     private static class Adapter extends TransactionSynchronizationAdapter {
-        private IDBI dbi;
+        private final IDBI dbi;
         private final Handle handle;
 
         Adapter(IDBI dbi, Handle handle) {
