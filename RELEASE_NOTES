@@ -1,4 +1,6 @@
 2.0pre14
+    Spring (2.0) support classes
+
     Add ability to define statement attributes at the DBI and Handle levels
 
     Have prepared batch use the statement locator
@@ -12,10 +14,9 @@
 
 	Change SQLStatement#first to return null on an empty result instead of an NPE
 
-2.0pre13
     Allow setting attributes on statement contexts for batches and prepared batches
 
-    SQLStatement.setNull*(...)
+    SQLStatement.bindNull(...)
 
 2.0pre12
     [bugfix] Pass statement context into result mapped queries

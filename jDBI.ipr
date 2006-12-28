@@ -494,9 +494,8 @@
     </library>
     <library name="spring">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/spring/spring.jar!/" />
         <root url="jar://$PROJECT_DIR$/lib/spring/commons-logging.jar!/" />
-        <root url="jar://$PROJECT_DIR$/lib/test/aopalliance.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/spring/spring-2.0.1.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

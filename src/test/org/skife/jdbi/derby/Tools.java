@@ -20,15 +20,11 @@ import org.skife.jdbi.HandyMapThing;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
 public class Tools
 {
