@@ -18,27 +18,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/ForceRollback.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/DummyService.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/Callback.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIFactoryBean.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/spring/spring-2.0.1.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/skife/jdbi/derby/Tools.java" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/derby/Tools.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/Service.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/CountMapper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.ipr" afterPath="$PROJECT_DIR$/jDBI.ipr" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/package.html" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/spring/spring.jar" afterPath="" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/DBIUtil.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/test-context.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/skife/jdbi/v2/spring/TestDBIFactoryBean.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RELEASE_NOTES" afterPath="$PROJECT_DIR$/RELEASE_NOTES" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/spring/SpringDataSourceConnectionFactory.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/java/org/skife/jdbi/v2/V1NamedParameterStatementRewriter.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jDBI.iws" afterPath="$PROJECT_DIR$/jDBI.iws" />
     </list>
   </component>
   <component name="ChangeListSynchronizer" />
@@ -225,7 +206,7 @@
       <file leaf-file-name="RELEASE_NOTES" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="25" selection-start="593" selection-end="593" vertical-scroll-proportion="0.27934045">
+            <state line="35" column="81" selection-start="981" selection-end="981" vertical-scroll-proportion="0.543162">
               <folding />
             </state>
           </provider>
@@ -1118,7 +1099,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/RELEASE_NOTES">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="25" selection-start="593" selection-end="593" vertical-scroll-proportion="0.27934045">
+        <state line="35" column="81" selection-start="981" selection-end="981" vertical-scroll-proportion="0.543162">
           <folding />
         </state>
       </provider>
