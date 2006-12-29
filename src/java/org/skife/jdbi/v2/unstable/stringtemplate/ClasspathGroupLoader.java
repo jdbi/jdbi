@@ -79,23 +79,24 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
         this("/");
     }
 
-    public ClasspathGroupLoader(Class<? extends CharScanner> lexer, String... roots) {
+    public ClasspathGroupLoader(Class<? extends CharScanner> lexer, String... roots)
+    {
         this(lexer, new ExplodingStringTemplateErrorListener(), roots);
     }
 
 
-    private BufferedReader locate(String name) throws IOException
+    private BufferedReader locate(String name)
     {
         for (String dir : dirs) {
-            String fileName = dir + "/" + name;
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            InputStream is = cl.getResourceAsStream(fileName);
-            if (is == null) {
-                cl = this.getClass().getClassLoader();
-                is = cl.getResourceAsStream(fileName);
+            final String fileName = dir + "/" + name;
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            InputStream stream = loader.getResourceAsStream(fileName);
+            if (stream == null) {
+                loader = this.getClass().getClassLoader();
+                stream = loader.getResourceAsStream(fileName);
             }
-            if (is != null) {
-                return new BufferedReader(getInputStreamReader(is));
+            if (stream != null) {
+                return new BufferedReader(getInputStreamReader(stream));
             }
         }
         return null;
@@ -110,19 +111,14 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
         if (groupCache.containsKey(groupName)) {
             return groupCache.get(groupName);
         }
-        StringTemplateGroup group = null;
-        try {
-            BufferedReader br = locate(groupName + ".stg");
-            if (br == null) {
-                error("no such group file " + groupName + ".stg");
-                return null;
-            }
-            group = new StringTemplateGroup(br, lexerClass, errors);
-            groupCache.putIfAbsent(groupName, group);
+        final BufferedReader br = locate(groupName + ".stg");
+        if (br == null) {
+            error("no such group file " + groupName + ".stg");
+            return null;
         }
-        catch (IOException ioe) {
-            error("can't load group " + groupName, ioe);
-        }
+        final StringTemplateGroup group = new StringTemplateGroup(br, lexerClass, errors);
+        groupCache.putIfAbsent(groupName, group);
+
         return group;
     }
 
@@ -137,19 +133,14 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
         if (groupCache.containsKey(key)) {
             return groupCache.get(key);
         }
-        StringTemplateGroup group = null;
-        try {
-            BufferedReader br = locate(groupName + ".stg");
-            if (br == null) {
-                error("no such group file " + groupName + ".stg");
-                return null;
-            }
-            group = new StringTemplateGroup(br, lexerClass, errors, superGroup);
-            groupCache.putIfAbsent(key, group);
+        final BufferedReader br = locate(groupName + ".stg");
+        if (br == null) {
+            error("no such group file " + groupName + ".stg");
+            return null;
         }
-        catch (IOException ioe) {
-            error("can't load group " + groupName, ioe);
-        }
+        final StringTemplateGroup group = new StringTemplateGroup(br, lexerClass, errors, superGroup);
+        groupCache.putIfAbsent(key, group);
+
         return group;
     }
 
@@ -162,30 +153,20 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
         if (interfaceCache.containsKey(interfaceName)) {
             return interfaceCache.get(interfaceName);
         }
-        StringTemplateGroupInterface I = null;
-        try {
-            BufferedReader br = locate(interfaceName + ".sti");
+            final BufferedReader br = locate(interfaceName + ".sti");
             if (br == null) {
                 error("no such interface file " + interfaceName + ".sti");
                 return null;
             }
-            I = new StringTemplateGroupInterface(br, errors);
-            interfaceCache.put(interfaceName, I);
-        }
-        catch (IOException ioe) {
-            error("can't load interface " + interfaceName, ioe);
-        }
-        return I;
+            final StringTemplateGroupInterface iface = new StringTemplateGroupInterface(br, errors);
+            interfaceCache.put(interfaceName, iface);
+
+        return iface;
     }
 
     private void error(String msg)
     {
         errors.error(msg, null);
-    }
-
-    private void error(String msg, Exception e)
-    {
-        errors.error(msg, e);
     }
 
     private InputStreamReader getInputStreamReader(InputStream in)
