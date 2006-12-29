@@ -3,6 +3,8 @@
 
     StringTemplate 3.0 based statement locator and a classpath based loader
 
+    Improve grammar for named param parsing (| in LITERAL)
+
 2.0pre13
     Spring (2.0) support classes
 

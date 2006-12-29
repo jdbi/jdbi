@@ -34,7 +34,7 @@ public class TestStringTemplateLoader extends DBITestCase
     protected StatementLocator getStatementLocator()
     {
         final ClasspathGroupLoader loader = new ClasspathGroupLoader(AngleBracketTemplateLexer.class,
-                                                                     "org/skife/jdbi/v2/unstable/stringtemplate");
+                                                                     "org/skife/jdbi/v2/stringtemplate");
         return new StringTemplateStatementLocator(loader);
     }
 
