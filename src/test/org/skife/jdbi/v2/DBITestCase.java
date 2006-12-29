@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import java.util.ArrayList;
@@ -53,11 +54,15 @@ public abstract class DBITestCase extends TestCase
         Tools.stop();
     }
 
+    protected StatementLocator getStatementLocator() {
+        return new ClasspathStatementLocator();
+    }
+
     protected BasicHandle openHandle() throws SQLException
     {
         Connection conn = Tools.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
-                                        new ClasspathStatementLocator(),
+                                        getStatementLocator(),
                                         new PreparedStatementCache(conn),
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         conn,

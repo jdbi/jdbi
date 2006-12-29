@@ -1,5 +1,7 @@
 2.0pre14
-    Add convenince classes for one value result sets    
+    Add convenince classes for one value result sets
+
+    StringTemplate 3.0 based statement locator
 
 2.0pre13
     Spring (2.0) support classes
