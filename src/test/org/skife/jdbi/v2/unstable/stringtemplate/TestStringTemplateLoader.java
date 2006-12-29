@@ -35,19 +35,7 @@ public class TestStringTemplateLoader extends DBITestCase
     protected StatementLocator getStatementLocator()
     {
         final ClasspathGroupLoader loader = new ClasspathGroupLoader(AngleBracketTemplateLexer.class,
-                                                                     new StringTemplateErrorListener()
-                                                                     {
-                                                                         public void error(String msg, Throwable e)
-                                                                         {
-                                                                             fail(msg);
-                                                                         }
-
-                                                                         public void warning(String msg)
-                                                                         {
-                                                                             fail(msg);
-                                                                         }
-                                                                     },
-                                                                     "org/skife/jdbi/v2/unstable/stringtemplate");
+                                                                     "", "org/skife/jdbi/v2/unstable/stringtemplate");
         return new StringTemplateStatementLocator(loader);
     }
 

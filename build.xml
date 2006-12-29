@@ -51,16 +51,20 @@
                 <pathelement location="build/classes"/>
             </classpath>
         </javac>
-        <copy todir="build/test-classes">
-            <fileset dir="src/test">
-                <include name="**/*.sql"/>
-            </fileset>
-        </copy>
+        <!--<copy todir="build/test-classes">-->
+            <!--<fileset dir="src/test">-->
+                <!--<include name="**/*.sql"/>-->
+                <!--<include name="**/*.stg"/>-->
+                <!--<include name="**/*.xml"/>-->
+            <!--</fileset>-->
+        <!--</copy>-->
 
         <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/build/jarjar-0.7.jar"/>
         <jarjar jarfile="build/jdbi-tests.jar">
             <fileset dir="src/test">
                 <include name="**/*.sql"/>
+                <include name="**/*.stg"/>
+                <include name="**/*.xml"/>
             </fileset>
             <fileset dir="build/test-classes">
                 <include name="**/*.class"/>
@@ -132,16 +136,13 @@
         <junit>
             <formatter type="plain"/>
             <classpath>
-                <fileset dir="lib/test">
-                    <include name="**/*.jar"/>
-                </fileset>
-                <fileset dir="lib/spring">
+                <fileset dir="lib">
                     <include name="**/*.jar"/>
                 </fileset>
                 <pathelement location="build/jdbi-${version}.jar"/>
                 <pathelement location="build/jdbi-tests.jar"/>
             </classpath>
-            <batchtest todir="report">
+            <batchtest todir="report" fork="true">
                 <fileset dir="src/test">
                     <include name="**/Test*.java"/>
                 </fileset>

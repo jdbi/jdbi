@@ -58,7 +58,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
 
     protected String[] getConfigLocations()
     {
-        return new String[]{"classpath:/org/skife/jdbi/v2/spring/test-context.xml"};
+        return new String[]{"org/skife/jdbi/v2/spring/test-context.xml"};
     }
 
     public void testServiceIsActuallySet() throws Exception

@@ -27,7 +27,7 @@ public class TestStatementContext extends DBITestCase
 
     public void setUp() throws Exception
     {
-        Tools.dropAndCreateSomething();
+        super.setUp();
     }
 
     public void testFoo() throws Exception

@@ -43,17 +43,17 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
 
     private final ConcurrentMap<String, StringTemplateGroup> groupCache;
     private final ConcurrentMap<String, StringTemplateGroupInterface> interfaceCache;
-    private final Class<? extends CharScanner> scannerClass;
+    private final Class<? extends CharScanner> lexerClass;
     private final StringTemplateErrorListener errors;
     private final String[] dirs;
 
-    public ClasspathGroupLoader(Class<? extends CharScanner> scannerClass,
+    public ClasspathGroupLoader(Class<? extends CharScanner> lexerClass,
                                 StringTemplateErrorListener errors,
                                 String... roots)
     {
         groupCache = new ConcurrentHashMap<String, StringTemplateGroup>();
         interfaceCache = new ConcurrentHashMap<String, StringTemplateGroupInterface>();
-        this.scannerClass = scannerClass;
+        this.lexerClass = lexerClass;
         this.errors = errors;
         this.dirs = roots;
     }
@@ -69,8 +69,22 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
         this(errors, "/");
     }
 
+    public ClasspathGroupLoader(String... roots)
+    {
+        this(new ExplodingStringTemplateErrorListener(), roots);
+    }
 
-    protected BufferedReader locate(String name) throws IOException
+    public ClasspathGroupLoader()
+    {
+        this("/");
+    }
+
+    public ClasspathGroupLoader(Class<? extends CharScanner> lexer, String... roots) {
+        this(lexer, new ExplodingStringTemplateErrorListener(), roots);
+    }
+
+
+    private BufferedReader locate(String name) throws IOException
     {
         for (String dir : dirs) {
             String fileName = dir + "/" + name;
@@ -103,7 +117,7 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
                 error("no such group file " + groupName + ".stg");
                 return null;
             }
-            group = new StringTemplateGroup(br, scannerClass, errors);
+            group = new StringTemplateGroup(br, lexerClass, errors);
             groupCache.putIfAbsent(groupName, group);
         }
         catch (IOException ioe) {
@@ -130,7 +144,7 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
                 error("no such group file " + groupName + ".stg");
                 return null;
             }
-            group = new StringTemplateGroup(br, scannerClass, errors, superGroup);
+            group = new StringTemplateGroup(br, lexerClass, errors, superGroup);
             groupCache.putIfAbsent(key, group);
         }
         catch (IOException ioe) {
@@ -174,7 +188,7 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
         errors.error(msg, e);
     }
 
-    protected InputStreamReader getInputStreamReader(InputStream in)
+    private InputStreamReader getInputStreamReader(InputStream in)
     {
         InputStreamReader isr = null;
         try {
@@ -189,5 +203,19 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
     public void setFileCharEncoding(String fileCharEncoding)
     {
         this.fileCharEncoding = fileCharEncoding;
+    }
+
+    private static class ExplodingStringTemplateErrorListener implements StringTemplateErrorListener
+    {
+
+        public void error(String msg, Throwable e)
+        {
+            throw new IllegalStateException(msg, e);
+        }
+
+        public void warning(String msg)
+        {
+            throw new IllegalStateException(msg);
+        }
     }
 }
