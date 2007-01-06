@@ -156,7 +156,12 @@
             <fileset dir="build/doc/api-2.0"/>
         </copy>
         <copy file="build/jdbi-${version}.jar" todir="build/site/"/>
-        <copy file="src/doc/index.html" todir="build/site/">
+
+        <copy todir="build/site/">
+            <fileset dir="src/doc">
+                <exclude name="**/*.svn" />
+            </fileset>
+
             <filterset>
                 <filter token="version" value="${version}"/>
             </filterset>
@@ -165,11 +170,13 @@
         <copy file="RELEASE_NOTES" todir="build/site/"/>
 
         <mkdir dir="build/staging/jdbi-${version}"/>
+
         <copy todir="build/staging/jdbi-${version}/src">
             <fileset dir="src">
                 <exclude name="**/.svn"/>
             </fileset>
         </copy>
+
         <copy todir="build/staging/jdbi-${version}/lib">
             <fileset dir="lib">
                 <exclude name="**/.svn"/>
