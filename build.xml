@@ -2,9 +2,6 @@
 
     <property name="debug" value="true"/>
     <property name="version" value="2.0-SNAPSHOT"/>
-    <property name="username" value="johan"/>
-    <property name="password" value="doe"/>
-    <property name="release-url" value="${username}:${password}@beaver.codehaus.org:/home/projects/jdbi/public_html/"/>
 
     <target name="grammar" description="Build format grammer">
         <mkdir dir="build/grammar/org/skife/jdbi/rewriter/printf/"/>
@@ -51,13 +48,6 @@
                 <pathelement location="build/classes"/>
             </classpath>
         </javac>
-        <!--<copy todir="build/test-classes">-->
-            <!--<fileset dir="src/test">-->
-                <!--<include name="**/*.sql"/>-->
-                <!--<include name="**/*.stg"/>-->
-                <!--<include name="**/*.xml"/>-->
-            <!--</fileset>-->
-        <!--</copy>-->
 
         <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/build/jarjar-0.7.jar"/>
         <jarjar jarfile="build/jdbi-tests.jar">

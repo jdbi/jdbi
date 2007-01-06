@@ -1,5 +1,8 @@
+2.0pre15
+    Move StringTemplate stuff back into unstable    
+
 2.0pre14
-    Add convenince classes for one value result sets
+    Add convenience classes for one value result sets
 
     StringTemplate 3.0 based statement locator and a classpath based loader
 
