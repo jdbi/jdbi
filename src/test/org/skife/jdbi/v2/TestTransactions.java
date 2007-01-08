@@ -37,6 +37,15 @@ public class TestTransactions extends DBITestCase
         assertEquals("Woot!", woot);
     }
 
+    public void testRollbackOutsideTx() throws Exception
+    {
+        Handle h = openHandle();
+
+        h.insert("insert into something (id, name) values (?, ?)", 7, "Tom");
+        h.rollback();
+    }
+
+
     public void testExceptionAbortsTransaction() throws Exception
     {
         Handle h = this.openHandle();

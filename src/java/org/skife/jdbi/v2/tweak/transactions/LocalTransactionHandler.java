@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -57,7 +58,10 @@ public class LocalTransactionHandler implements TransactionHandler
         try
         {
             handle.getConnection().commit();
-            handle.getConnection().setAutoCommit(initialAutoCommits.remove(handle));
+            final Boolean auto = initialAutoCommits.remove(handle);
+            if (auto != null) {
+                handle.getConnection().setAutoCommit(auto);
+            }
         }
         catch (SQLException e)
         {
@@ -80,7 +84,10 @@ public class LocalTransactionHandler implements TransactionHandler
         try
         {
             handle.getConnection().rollback();
-            handle.getConnection().setAutoCommit(initialAutoCommits.remove(handle));
+            final Boolean auto = initialAutoCommits.remove(handle);
+            if (auto != null) {
+                handle.getConnection().setAutoCommit(auto);
+            }
         }
         catch (SQLException e)
         {

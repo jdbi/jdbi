@@ -29,6 +29,25 @@
     <li><a href="http://svn.codehaus.org/jdbi/">Browse Subversion</a></li>
     <li><a href="http://svn.jdbi.codehaus.org/">Browse Subversion with FishEye</a></li>
 </ul>
+<h2>Overview</h2>
+<p>
+    jDBI provides a convenience interface for SQL operations in Java. It is not intended as an abstraction layer,
+    but rather a library which makes the common things easy and the hard things possible, to paraphrase Larry Wall.
+</p>
+<p>
+    The primary entry point for using jDBI is the <a href="../api-2.0/org/skife/jdbi/v2/DBI.html">DBI</a> class. This
+    is used to create <a href="../api-2.0/org/skife/jdbi/v2/Handle.html">Handle</a> instances, each of which
+    represents a connection to the RDBMS. A Handle wraps a JDBC <code>Connection</code> instance, and makes use of
+    that same Connection for all of its operations.
+</p>
+<p>
+    Generally, you will explicitely create statements, queries, and batch operations for working with data in the
+    database. Seperate objects are used to represent these things, and they are designed to be used in a somewhat
+    literate-programming style. Here is an example:
+</p>
+<pre><code>
+    
+</code></pre>
 
 </body>
 </html>
