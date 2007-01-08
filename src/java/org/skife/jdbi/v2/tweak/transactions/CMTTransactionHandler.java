@@ -55,6 +55,17 @@ public class CMTTransactionHandler implements TransactionHandler
     }
 
     /**
+     * Roll back to a named checkpoint
+     *
+     * @param handle the handle the rollback is being performed on
+     * @param name   the name of the checkpoint to rollback to
+     */
+    public void rollback(Handle handle, String name)
+    {
+        throw new UnsupportedOperationException("Checkpoints not implemented");
+    }
+
+    /**
      * Called to test if a handle is in a transaction
      */
     public boolean isInTransaction(Handle handle)
@@ -67,5 +78,27 @@ public class CMTTransactionHandler implements TransactionHandler
         {
             throw new TransactionException("Failed to check status of transaction", e);
         }
+    }
+
+    /**
+     * Create a new checkpoint (savepoint in JDBC terminology)
+     *
+     * @param handle the handle on which the transaction is being checkpointed
+     * @param name   The name of the chckpoint, used to rollback to or release late
+     */
+    public void checkpoint(Handle handle, String name)
+    {
+        throw new UnsupportedOperationException("Checkpoints not implemented");
+    }
+
+    /**
+     * Release a previously created checkpoint
+     *
+     * @param handle         the handle on which the checkpoint is being released
+     * @param checkpointName the checkpoint to release
+     */
+    public void release(Handle handle, String checkpointName)
+    {
+        throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");        
     }
 }

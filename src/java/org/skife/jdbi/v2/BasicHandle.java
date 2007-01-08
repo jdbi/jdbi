@@ -119,6 +119,40 @@ class BasicHandle implements Handle
         return this;
     }
 
+    /**
+     * Create a transaction checkpoint (savepoint in JDBC terminology) with the name provided.
+     *
+     * @param name The name of the checkpoint
+     * @return The same handle
+     */
+    public Handle checkpoint(String name)
+    {
+        transactions.checkpoint(this, name);
+        return this;
+    }
+
+    public Handle release(String checkpointName)
+    {
+        transactions.release(this, checkpointName);
+        return this;
+    }
+
+    /**
+     * Rollback a transaction to a named checkpoint
+     *
+     * @param checkpointName the name of the checkpoint, previously declared with {@see Handle#checkpoint}
+     */
+    public Handle rollback(String checkpointName)
+    {
+        transactions.rollback(this, checkpointName);
+        return this;
+    }
+
+    public boolean isInTransaction()
+    {
+        return transactions.isInTransaction(this);
+    }
+
     public Update createStatement(String sql)
     {
         return new Update(connection,

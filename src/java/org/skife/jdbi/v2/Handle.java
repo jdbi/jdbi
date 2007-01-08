@@ -68,6 +68,17 @@ public interface Handle
     Handle rollback();
 
     /**
+     * Rollback a transaction to a named checkpoint
+     * @param checkpointName the name of the checkpoint, previously declared with {@see Handle#checkpoint}
+     */
+    Handle rollback(String checkpointName);
+
+    /**
+     * Is the handle in a transaction? It defers to the underlying {@link org.skife.jdbi.v2.tweak.TransactionHandler}
+     */
+    boolean isInTransaction();
+
+    /**
      * Return a default Query instance which can be executed later, as long as this handle remains open.
      * @param sql the select sql
      */
@@ -151,4 +162,18 @@ public interface Handle
      * @param args arguments to bind to the sql
      */
     void execute(String sql, Object... args);
+
+    /**
+     * Create a transaction checkpoint (savepoint in JDBC terminology) with the name provided.
+     * @param name The name of the checkpoint
+     * @return The same handle
+     */
+    Handle checkpoint(String name);
+
+    /**
+     * Release a previously created checkpoint
+     *
+     * @param checkpointName the name of the checkpoint to release
+     */
+    Handle release(String checkpointName);
 }

@@ -16,6 +16,8 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
+import org.skife.jdbi.v2.exceptions.TransactionException;
+import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.io.IOException;
 import java.util.List;
@@ -96,7 +98,39 @@ public class TestTransactions extends DBITestCase
 
         List<Something> r = h.createQuery("select * from something").map(Something.class).list();
         assertEquals(0, r.size());
+    }
 
+    public void testCheckpoint() throws Exception
+    {
+        Handle h = openHandle();
+        h.begin();
 
+        h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
+        h.checkpoint("first");
+        h.insert("insert into something (id, name) values (:id, :name)", 1, "Martin");
+        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+        h.rollback("first");
+        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+        h.commit();
+        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+    }
+
+    public void testReleaseCheckpoint() throws Exception
+    {
+        Handle h = openHandle();
+        h.begin();
+        h.checkpoint("first");
+        h.insert("insert into something (id, name) values (:id, :name)", 1, "Martin");
+
+        h.release("first");
+
+        try {
+            h.rollback("first");
+            fail("Should have thrown an exception of some kind");
+        }
+        catch (TransactionException e) {
+            h.rollback();
+            assertTrue(true);
+        }
     }
 }

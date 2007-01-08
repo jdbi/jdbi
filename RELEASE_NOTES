@@ -1,5 +1,7 @@
 2.0pre15
-    Move StringTemplate stuff back into unstable    
+    Move StringTemplate stuff back into unstable
+
+    Support for checkpointed transactions
 
 2.0pre14
     Add convenience classes for one value result sets

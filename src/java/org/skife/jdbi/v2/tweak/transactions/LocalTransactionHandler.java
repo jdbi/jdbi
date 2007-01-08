@@ -22,7 +22,10 @@ import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.Savepoint;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions
@@ -31,21 +34,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LocalTransactionHandler implements TransactionHandler
 {
-    private ConcurrentHashMap<Handle, Boolean> initialAutoCommits = new ConcurrentHashMap<Handle, Boolean>();
+    private ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<Handle, LocalStuff>();
 
     /**
      * Called when a transaction is started
      */
     public void begin(Handle handle)
     {
-        try
-        {
+        try {
             boolean initial = handle.getConnection().getAutoCommit();
-            initialAutoCommits.put(handle, initial);
+            localStuff.put(handle, new LocalStuff(initial));
             handle.getConnection().setAutoCommit(false);
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new TransactionException("Failed to start transaction", e);
         }
     }
@@ -55,23 +56,21 @@ public class LocalTransactionHandler implements TransactionHandler
      */
     public void commit(Handle handle)
     {
-        try
-        {
+        try {
             handle.getConnection().commit();
-            final Boolean auto = initialAutoCommits.remove(handle);
-            if (auto != null) {
-                handle.getConnection().setAutoCommit(auto);
+            final LocalStuff stuff = localStuff.remove(handle);
+            if (stuff != null) {
+                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
+                stuff.getCheckpoints().clear();
             }
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new TransactionException("Failed to commit transaction", e);
         }
-        finally
-        {
+        finally {
             // prevent memory leak if commit throws an exception
-            if (initialAutoCommits.containsKey(handle)) {
-                initialAutoCommits.remove(handle);
+            if (localStuff.containsKey(handle)) {
+                localStuff.remove(handle);
             }
         }
     }
@@ -81,24 +80,78 @@ public class LocalTransactionHandler implements TransactionHandler
      */
     public void rollback(Handle handle)
     {
-        try
-        {
+        try {
             handle.getConnection().rollback();
-            final Boolean auto = initialAutoCommits.remove(handle);
-            if (auto != null) {
-                handle.getConnection().setAutoCommit(auto);
+            final LocalStuff stuff = localStuff.remove(handle);
+            if (stuff != null) {
+                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
+                stuff.getCheckpoints().clear();
             }
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new TransactionException("Failed to rollback transaction", e);
         }
-        finally
-        {
+        finally {
             // prevent memory leak if rollback throws an exception
-            if (initialAutoCommits.containsKey(handle)) {
-                initialAutoCommits.remove(handle);
+            if (localStuff.containsKey(handle)) {
+                localStuff.remove(handle);
             }
+        }
+    }
+
+    /**
+     * Create a new checkpoint (savepoint in JDBC terminology)
+     *
+     * @param handle the handle on which the transaction is being checkpointed
+     * @param name   The name of the chckpoint, used to rollback to or release late
+     */
+    public void checkpoint(Handle handle, String name)
+    {
+        final Connection conn = handle.getConnection();
+        try {
+            final Savepoint savepoint = conn.setSavepoint(name);
+            localStuff.get(handle).getCheckpoints().put(name, savepoint);
+        }
+        catch (SQLException e) {
+            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
+        }
+    }
+
+    public void release(Handle handle, String name)
+    {
+        final Connection conn = handle.getConnection();
+        try {
+            final Savepoint savepoint = localStuff.get(handle).getCheckpoints().remove(name);
+            if (savepoint == null) {
+                throw new TransactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
+                                                             name));
+            }
+            conn.releaseSavepoint(savepoint);
+        }
+        catch (SQLException e) {
+            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
+        }
+    }
+
+    /**
+     * Roll back to a named checkpoint
+     *
+     * @param handle the handle the rollback is being performed on
+     * @param name   the name of the checkpoint to rollback to
+     */
+    public void rollback(Handle handle, String name)
+    {
+        final Connection conn = handle.getConnection();
+        try {
+            final Savepoint savepoint = localStuff.get(handle).getCheckpoints().remove(name);
+            if (savepoint == null) {
+                throw new TransactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
+                                                             name));
+            }
+            conn.rollback(savepoint);
+        }
+        catch (SQLException e) {
+            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
         }
     }
 
@@ -107,13 +160,32 @@ public class LocalTransactionHandler implements TransactionHandler
      */
     public boolean isInTransaction(Handle handle)
     {
-        try
-        {
+        try {
             return !handle.getConnection().getAutoCommit();
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new TransactionException("Failed to test for transaction status", e);
+        }
+    }
+
+    private static class LocalStuff
+    {
+        private final Map<String, Savepoint> checkpoints = new HashMap<String, Savepoint>();
+        private final boolean initialAutocommit;
+
+        public LocalStuff(boolean initial)
+        {
+            this.initialAutocommit = initial;
+        }
+
+        public Map<String, Savepoint> getCheckpoints()
+        {
+            return checkpoints;
+        }
+
+        public boolean getInitialAutocommit()
+        {
+            return initialAutocommit;
         }
     }
 }
