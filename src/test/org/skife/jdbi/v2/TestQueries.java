@@ -64,7 +64,33 @@ public class TestQueries extends DBITestCase
         assertEquals(1, eric.getId());
     }
 
-    public void testMapper() throws Exception
+	public void testMappedQueryObjectWithNulls() throws Exception
+	{
+		h.insert("insert into something (id, name, integerValue) values (1, 'eric', null)");
+
+		Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
+
+		List<Something> r = query.list();
+		Something eric = r.get(0);
+		assertEquals("eric", eric.getName());
+		assertEquals(1, eric.getId());
+		assertNull(eric.getIntegerValue());
+	}
+
+	public void testMappedQueryObjectWithNullForPrimitiveIntField() throws Exception
+	{
+		h.insert("insert into something (id, name, intValue) values (1, 'eric', null)");
+
+		Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
+
+		List<Something> r = query.list();
+		Something eric = r.get(0);
+		assertEquals("eric", eric.getName());
+		assertEquals(1, eric.getId());
+		assertEquals(0, eric.getIntValue());
+	}
+
+	public void testMapper() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");

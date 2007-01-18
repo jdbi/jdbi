@@ -127,6 +127,10 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 					value = rs.getObject(i);
 				}
 
+				if (rs.wasNull() && !type.isPrimitive()) {
+					value = null;
+				}
+
 				try
 				{
 					descriptor.getWriteMethod().invoke(bean, value);

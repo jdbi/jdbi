@@ -94,7 +94,7 @@ public class Tools
         final Statement create = conn.createStatement();
         try
         {
-            create.execute("create table something ( id integer, name varchar(50) )");
+            create.execute("create table something ( id integer, name varchar(50), integerValue integer, intValue integer )");
         }
         catch (Exception e)
         {
