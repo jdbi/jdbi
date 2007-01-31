@@ -221,8 +221,34 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, Character value)
+    {
+        return bind(position, new CharacterArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, Character value)
+    {
+        return bind(name, new CharacterArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -234,8 +260,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -247,8 +273,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -260,8 +286,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -273,8 +299,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      * @param length   how long is the stream being bound?
      *
      * @return the same Query instance
@@ -287,8 +313,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bindBinaryStream the paramater to
-     * @param value  to bindBinaryStream
+     * @param name   token name to bind the paramater to
+     * @param value  to bind
      * @param length bytes to read from value
      *
      * @return the same Query instance
@@ -301,8 +327,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -314,8 +340,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -327,8 +353,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -340,8 +366,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bindBinaryStream the paramater to
-     * @param value  to bindBinaryStream
+     * @param name   token name to bind the paramater to
+     * @param value  to bind
      * @param length bytes to read from value
      *
      * @return the same Query instance
@@ -354,8 +380,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -367,8 +393,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -380,8 +406,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -393,8 +419,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -406,8 +432,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -419,8 +445,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -432,8 +458,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -445,8 +471,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -458,8 +484,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      * @param length   number of characters to read
      *
      * @return the same Query instance
@@ -472,8 +498,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bindBinaryStream the paramater to
-     * @param value  to bindBinaryStream
+     * @param name   token name to bind the paramater to
+     * @param value  to bind
      * @param length number of characters to read
      *
      * @return the same Query instance
@@ -486,8 +512,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -499,8 +525,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -512,8 +538,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -525,8 +551,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -538,8 +564,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -551,8 +577,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -564,8 +590,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -577,8 +603,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -590,8 +616,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -603,8 +629,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -616,8 +642,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -629,8 +655,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -642,8 +668,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -655,8 +681,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -668,8 +694,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -681,8 +707,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -694,8 +720,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -707,8 +733,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -720,8 +746,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument positionally
      *
-     * @param position position to bindBinaryStream the paramater at, starting at 0
-     * @param value    to bindBinaryStream
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      *
      * @return the same Query instance
      */
@@ -733,8 +759,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bindBinaryStream the paramater to
-     * @param value to bindBinaryStream
+     * @param name  token name to bind the paramater to
+     * @param value to bind
      *
      * @return the same Query instance
      */
@@ -807,7 +833,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                 rewritten.bind(getParameters(), stmt);
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to bindBinaryStream parameters to query", e);
+                throw new UnableToExecuteStatementException("Unable to bind parameters to query", e);
             }
 
             try {
