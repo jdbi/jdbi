@@ -68,15 +68,16 @@
         <mkdir dir="build"/>
 
         <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/build/jarjar-0.7.jar"/>
-        <jarjar jarfile="build/jdbi-${version}.jar">
+        <jarjar jarfile="build/jarjar.jar">
             <fileset dir="build/classes">
                 <include name="**/*.class"/>
+                <exclude name="**/stringtemplate/**/*.class"/>
             </fileset>
             <fileset dir="build/grammar">
                 <include name="**/*TokenTypes.txt"/>
             </fileset>
             <zipfileset src="lib/build/antlr-2.7.7.jar"/>
-            <rule pattern="antlr.**" result="org.skife.jdbi.antlr.@1"/>
+            <rule pattern="antlr.**" result="org.skife.jdbi.antlr.@1" />
 
             <zap pattern="antlr.Tool"/>
             <zap pattern="antlr.*Tool*"/>
@@ -113,6 +114,13 @@
             <zap pattern="antlr.preprocessor.**"/>
         </jarjar>
 
+        <jar jarfile="build/jdbi-${version}.jar">
+            <zipfileset src="build/jarjar.jar"/>
+            <fileset dir="build/classes">
+                <include name="**/stringtemplate/**/*.class"/>
+            </fileset>
+        </jar>
+        <delete file="build/jarjar.jar"/>
         <echo message="built library: build/jdbi-${version}.jar"/>
     </target>
 

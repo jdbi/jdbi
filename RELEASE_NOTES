@@ -1,3 +1,6 @@
+2.0.0
+    Clean up the build so the stringtemplate stuff is useful
+
 2.0pre15
     Move StringTemplate stuff back into unstable
 

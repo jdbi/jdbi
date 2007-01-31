@@ -54,9 +54,9 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
      * Create a new instance
      *
      * @param lexerClass CharScanner which will be used to lex the StringTemplateGroup file
-     * @param errors Listener for errors while parsing or processing the templates
-     * @param roots List of roots, relative to CLASSPATH root, which will be used
-     *              to find template group files
+     * @param errors     Listener for errors while parsing or processing the templates
+     * @param roots      List of roots, relative to CLASSPATH root, which will be used
+     *                   to find template group files
      */
     public ClasspathGroupLoader(Class<? extends CharScanner> lexerClass,
                                 StringTemplateErrorListener errors,
@@ -73,8 +73,8 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
      * Create a new instance which uses the default lexer
      *
      * @param errors Listener for errors while parsing or processing the templates
-     * @param roots List of roots, relative to CLASSPATH root, which will be used
-     *              to find template group files
+     * @param roots  List of roots, relative to CLASSPATH root, which will be used
+     *               to find template group files
      */
     public ClasspathGroupLoader(StringTemplateErrorListener errors,
                                 String... roots)
@@ -106,29 +106,27 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
     }
 
     /**
-     * Create a new instance which uses the default lexer, looks for files
-     * relative to the root of the classpath, and throws
-     * IllegalStateExceptions when an error occurs during template processing
-     *
-     */
-    public ClasspathGroupLoader()
-    {
-        this("/");
-    }
-
-    /**
      * Create a new instance which throws IllegalStateExceptions when there is an error
      * processing templates
      *
      * @param lexerClass CharScanner which will be used to lex the StringTemplateGroup file
-     * @param roots List of roots, relative to CLASSPATH root, which will be used
-     *              to find template group files
+     * @param roots      List of roots, relative to CLASSPATH root, which will be used
+     *                   to find template group files
      */
     public ClasspathGroupLoader(Class<? extends CharScanner> lexerClass, String... roots)
     {
         this(lexerClass, new ExplodingStringTemplateErrorListener(), roots);
     }
 
+    /**
+     * Create a new instance which uses the default lexer, looks for files
+     * relative to the root of the classpath, and throws
+     * IllegalStateExceptions when an error occurs during template processing
+     */
+    public ClasspathGroupLoader()
+    {
+        this("/");
+    }
 
     private BufferedReader locate(String name)
     {
@@ -198,13 +196,13 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
         if (interfaceCache.containsKey(interfaceName)) {
             return interfaceCache.get(interfaceName);
         }
-            final BufferedReader br = locate(interfaceName + ".sti");
-            if (br == null) {
-                errors.error("no such interface file " + interfaceName + ".sti", null);
-                return null;
-            }
-            final StringTemplateGroupInterface iface = new StringTemplateGroupInterface(br, errors);
-            interfaceCache.put(interfaceName, iface);
+        final BufferedReader br = locate(interfaceName + ".sti");
+        if (br == null) {
+            errors.error("no such interface file " + interfaceName + ".sti", null);
+            return null;
+        }
+        final StringTemplateGroupInterface iface = new StringTemplateGroupInterface(br, errors);
+        interfaceCache.put(interfaceName, iface);
 
         return iface;
     }
