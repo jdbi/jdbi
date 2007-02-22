@@ -39,6 +39,16 @@ import java.util.List;
  */
 public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
 {
+    /**
+     * Munge up the SQL as desired. Responsible for figuring out ow to bind any
+     * arguments in to the resultant prepared statement.
+     *
+     * @param sql The SQL to rewrite
+     * @param params contains the arguments which have been bound to this statement.
+     * @param ctx The statement context for the statement being executed
+     * @return somethign which can provde the actual SQL to prepare a statement from
+     *         and which can bind the correct arguments to that prepared statement
+     */
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
         StringBuilder b = new StringBuilder();
