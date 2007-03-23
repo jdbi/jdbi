@@ -26,32 +26,36 @@ interface QueryPostMungeCleanup
     {
         public void cleanup(SQLStatement query, Statement stmt, ResultSet rs)
         {
-            if (rs != null)
-            {
-                try
-                {
+            if (query != null) {
+                try {
+                    query.close();
+                }
+                catch (SQLException e) {
+                    // HACK
+                    e.printStackTrace();
+                }
+            }
+            if (rs != null) {
+                try {
                     rs.close();
                 }
-                catch (SQLException e)
-                {
+                catch (SQLException e) {
                     // nothing we can do
                 }
             }
 
-            if (stmt != null)
-            {
-                try
-                {
+            if (stmt != null) {
+                try {
                     stmt.close();
                 }
-                catch (SQLException e)
-                {
+                catch (SQLException e) {
                     // nothing we can do
                 }
             }
         }
     };
-    final QueryPostMungeCleanup NO_OP =  new QueryPostMungeCleanup()
+
+    final QueryPostMungeCleanup NO_OP = new QueryPostMungeCleanup()
     {
         public void cleanup(SQLStatement query, Statement stmt, ResultSet rs)
         {

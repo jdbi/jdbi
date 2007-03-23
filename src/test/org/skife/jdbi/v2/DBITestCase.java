@@ -63,7 +63,7 @@ public abstract class DBITestCase extends TestCase
         Connection conn = Tools.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         getStatementLocator(),
-                                        new PreparedStatementCache(conn),
+                                        new CachingStatementBuilder(new DefaultStatementBuilder()),
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         conn,
                                         new HashMap<String, Object>());

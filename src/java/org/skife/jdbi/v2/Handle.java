@@ -19,6 +19,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.sql.Connection;
 import java.util.List;
@@ -176,4 +177,10 @@ public interface Handle
      * @param checkpointName the name of the checkpoint to release
      */
     Handle release(String checkpointName);
+
+    /**
+     * Specify the statement builder to use for this handle 
+     * @param builder StatementBuilder to be used
+     */
+    void setStatementBuilder(StatementBuilder builder);
 }

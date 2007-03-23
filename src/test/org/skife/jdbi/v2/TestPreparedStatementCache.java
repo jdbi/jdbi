@@ -37,11 +37,11 @@ public class TestPreparedStatementCache extends DBITestCase
                 return super.prepareStatement(s);
             }
         };
-        PreparedStatementCache cache = new PreparedStatementCache(c);
+        CachingStatementBuilder builder = new CachingStatementBuilder(new DefaultStatementBuilder());
 
         BasicHandle h = new BasicHandle(new LocalTransactionHandler(),
                                         new ClasspathStatementLocator(),
-                                        cache,
+                                        builder,
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         c,
                                         new HashMap<String, Object>());

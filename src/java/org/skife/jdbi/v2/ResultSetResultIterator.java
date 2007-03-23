@@ -27,17 +27,20 @@ import java.sql.Statement;
 class ResultSetResultIterator<Type> implements ResultIterator<Type>
 {
     private final ResultSetMapper<Type> mapper;
-    private final Statement stmt;
+    private final QueryPostMungeCleanup cleaner;
     private final ResultSet results;
     private final StatementContext context;
     private boolean alreadyAdvanced = false;
     private int count = 0;
     private boolean hasNext = false;
 
-    ResultSetResultIterator(ResultSetMapper<Type> mapper, Statement stmt, ResultSet results, StatementContext context)
+    ResultSetResultIterator(ResultSetMapper<Type> mapper,
+                            QueryPostMungeCleanup cleaner,
+                            ResultSet results,
+                            StatementContext context)
     {
         this.mapper = mapper;
-        this.stmt = stmt;
+        this.cleaner = cleaner;
         this.results = results;
         this.context = context;
     }
@@ -49,55 +52,26 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
 
     public void close()
     {
-        boolean failed_to_close_results = false;
-        try
-        {
-            results.close();
-        }
-        catch (SQLException e)
-        {
-            failed_to_close_results = true;
-        }
-        try
-        {
-            stmt.close();
-        }
-        catch (SQLException e)
-        {
-            if (failed_to_close_results)
-            {
-                throw new UnableToCloseResourceException("unable to close statement", e);
-            }
-            else
-            {
-                throw new UnableToCloseResourceException("unable to close result set and statement", e);
-            }
-        }
+        cleaner.cleanup(null, null, null);
     }
 
     public boolean hasNext()
     {
-        if (alreadyAdvanced)
-        {
+        if (alreadyAdvanced) {
             return hasNext;
         }
 
-        try
-        {
+        try {
             hasNext = results.next();
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new ResultSetException("Unable to advance result set", e);
         }
-        if (!hasNext)
-        {
-            try
-            {
+        if (!hasNext) {
+            try {
                 results.close();
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new ResultSetException("Unable to close result set after iterating through to the end", e);
             }
         }
@@ -107,27 +81,21 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
 
     public Type next()
     {
-        if (!alreadyAdvanced)
-        {
-            try
-            {
-                if (!results.next())
-                {
+        if (!alreadyAdvanced) {
+            try {
+                if (!results.next()) {
                     throw new IllegalStateException("No element to advance to");
                 }
             }
-            catch (SQLException e)
-            {
+            catch (SQLException e) {
                 throw new ResultSetException("Unable to advance result set", e);
             }
         }
         alreadyAdvanced = false;
-        try
-        {
+        try {
             return mapper.map(count++, results, context);
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new ResultSetException("Error thrown mapping result set into return type", e);
         }
     }

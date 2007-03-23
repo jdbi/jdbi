@@ -1,4 +1,13 @@
-2.0.0
+2.0pre17
+    Provide a non-caching default statement builder
+
+    Allow setting the statement builder on a DBI explicitely
+
+    Allow re-use of a prepared batch by clearing the parts prior to execution
+
+    Change query iterated results to clean resources in the same manner as list, just later
+
+2.0pre16
     Clean up the build so the stringtemplate stuff is useful
 
     SQLStatement#bind(*, Character) which converts to a string

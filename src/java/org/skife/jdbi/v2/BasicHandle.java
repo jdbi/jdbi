@@ -78,7 +78,7 @@ class BasicHandle implements Handle
 
     public void close()
     {
-        statementBuilder.close();
+        statementBuilder.close(getConnection());
         try {
             connection.close();
         }
@@ -135,6 +135,11 @@ class BasicHandle implements Handle
     {
         transactions.release(this, checkpointName);
         return this;
+    }
+
+    public void setStatementBuilder(StatementBuilder builder)
+    {
+        this.statementBuilder = builder;
     }
 
     /**

@@ -59,6 +59,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * Will eagerly load all results
      *
      * @return
+     *
      * @throws UnableToCreateStatementException
      *                            if there is an error creating the statement
      * @throws UnableToExecuteStatementException
@@ -74,8 +75,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                 ResultSet rs = stmt.getResultSet();
                 List<ResultType> result_list = new ArrayList<ResultType>();
                 int index = 0;
-                while (rs.next())
-                {
+                while (rs.next()) {
                     result_list.add(mapper.map(index++, rs, getContext()));
                 }
                 return new Pair<List<ResultType>, ResultSet>(result_list, rs);
@@ -89,17 +89,46 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public ResultIterator<ResultType> iterator()
     {
+        /**
+         * Okay, so this is a bit dodgy. It relies on the internal behavior so beware :-)
+         *
+         * Basically, the cleaner will be called right after execution and will *not* do anything
+         * except store the values. When the iterator is closed, it will be called again and will
+         * close the stored values 
+         */
+        final QueryPostMungeCleanup cleaner = new QueryPostMungeCleanup()
+        {
+            private boolean skipNextClose = true;
+            private SQLStatement query;
+            private Statement stmt;
+            private ResultSet rs;
+
+            public void cleanup(SQLStatement query, Statement stmt, ResultSet rs)
+            {
+                if (skipNextClose) {
+                    this.query = query;
+                    this.stmt = stmt;
+                    this.rs = rs;
+                    skipNextClose = false;
+                }
+                else {
+                    QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(this.query, this.stmt, this.rs);
+                }
+            }
+        };
+
         return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<ResultIterator<ResultType>>()
         {
             public Pair<ResultIterator<ResultType>, ResultSet> munge(Statement results) throws SQLException
             {
+
                 ResultSetResultIterator<ResultType> r = new ResultSetResultIterator<ResultType>(mapper,
-                                                                                                results,
+                                                                                                cleaner,
                                                                                                 results.getResultSet(),
                                                                                                 getContext());
                 return new Pair<ResultIterator<ResultType>, ResultSet>(r, results.getResultSet());
             }
-        }, QueryPostMungeCleanup.NO_OP);
+        }, cleaner);
     }
 
     /**
@@ -117,12 +146,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
             public final Pair<ResultType, ResultSet> munge(final Statement stt) throws SQLException
             {
                 ResultSet rs = stt.getResultSet();
-                if (rs.next())
-                {
+                if (rs.next()) {
                     return new Pair<ResultType, ResultSet>(mapper.map(0, rs, getContext()), rs);
                 }
-                else
-                {
+                else {
                     // no result matches
                     return new Pair<ResultType, ResultSet>(null, null);
                 }
@@ -135,6 +162,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * for each row and set the JavaBean properties which match fields in the result set.
      *
      * @param resultType JavaBean class to map result set fields into the properties of, by name
+     *
      * @return a Query which provides the bean property mapping
      */
     public <Type> Query<Type> map(Class<Type> resultType)
@@ -149,7 +177,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getStatementLocator(),
                             getRewriter(),
                             getConnection(),
-                            getPreparedStatementCache(),
+                            getStatementBuilder(),
                             getSql(),
                             getContext());
     }
@@ -161,6 +189,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * could be a problem.
      *
      * @param i the number of rows to fetch in a bunch
+     *
      * @return the modified query
      */
     public Query<ResultType> setFetchSize(final int i)
@@ -180,6 +209,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * {@link Statement#setMaxRows(int)}}.
      *
      * @param i maximum number of rows to return
+     *
      * @return modified query
      */
     public Query<ResultType> setMaxRows(final int i)
@@ -199,6 +229,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * {@link Statement#setMaxFieldSize(int)}
      *
      * @param i maximum field size
+     *
      * @return modified query
      */
     public Query<ResultType> setMaxFieldSize(final int i)

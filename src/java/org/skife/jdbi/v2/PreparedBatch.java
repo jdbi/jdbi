@@ -45,7 +45,6 @@ public class PreparedBatch
     private final StatementBuilder preparedStatementCache;
     private final String sql;
     private final StatementContext context;
-    private int size = 0;
 
     PreparedBatch(StatementLocator locator,
                   StatementRewriter rewriter,
@@ -121,6 +120,7 @@ public class PreparedBatch
         }
         finally {
             QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(null, stmt, null);
+            this.parts.clear();
         }
     }
 
@@ -132,7 +132,6 @@ public class PreparedBatch
      */
     public PreparedBatchPart add()
     {
-        size++;
         PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
         parts.add(part);
         return part;
@@ -140,7 +139,6 @@ public class PreparedBatch
 
 	public PreparedBatch add(Object... args)
 	{
-        size++;
         PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
 
 		for (int i = 0; i < args.length; ++i) {
@@ -163,7 +161,6 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        size++;
         PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
         parts.add(part);
         part.bindFromMap(args);
@@ -175,7 +172,7 @@ public class PreparedBatch
      */
     public int getSize()
     {
-        return size;
+        return parts.size();
     }
 
     /**
@@ -183,6 +180,6 @@ public class PreparedBatch
      */
     public int size()
     {
-        return size;
+        return parts.size();
     }
 }

@@ -53,10 +53,16 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final Connection connection;
     private final String sql;
     private final StatementRewriter rewriter;
-    private final StatementBuilder preparedStatementCache;
+    private final StatementBuilder statementBuilder;
     private final StatementLocator locator;
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
     private final StatementContext context;
+
+    /**
+     * This will be set on execution, not before
+     */
+    private RewrittenStatement rewritten;
+    private PreparedStatement stmt;
 
     SQLStatement(Binding params,
                  StatementLocator locator,
@@ -68,7 +74,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     {
         assert (verifyOurNastyDowncastIsOkay());
         this.context = ctx;
-        this.preparedStatementCache = preparedStatementCache;
+        this.statementBuilder = preparedStatementCache;
         this.rewriter = rewriter;
         this.connection = conn;
         this.sql = sql;
@@ -119,15 +125,14 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             return true;
         }
         else {
-            Class parameterized_type =
-                    this.getClass().getTypeParameters()[0].getGenericDeclaration();
+            Class parameterized_type = this.getClass().getTypeParameters()[0].getGenericDeclaration();
             return parameterized_type.isAssignableFrom(this.getClass());
         }
     }
 
-    protected StatementBuilder getPreparedStatementCache()
+    protected StatementBuilder getStatementBuilder()
     {
-        return preparedStatementCache;
+        return statementBuilder;
     }
 
     protected StatementLocator getStatementLocator()
@@ -150,6 +155,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return connection;
     }
 
+    /**
+     * The un-translated SQL used to create this statement
+     * @return
+     */
     protected String getSql()
     {
         return sql;
@@ -818,12 +827,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                                               final QueryResultMunger<Result> munger,
                                               final QueryPostMungeCleanup cleanup)
     {
-        final RewrittenStatement rewritten = rewriter.rewrite(wrapLookup(sql), getParameters(), this.context);
-        final PreparedStatement stmt;
+        rewritten = rewriter.rewrite(wrapLookup(sql), getParameters(), this.context);
         ResultSet rs = null;
         try {
             try {
-                stmt = preparedStatementCache.create(rewritten.getSql(), context);
+                stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e);
@@ -871,5 +879,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         finally {
             cleanup.cleanup(this, null, rs);
         }
+    }
+
+    void close() throws SQLException
+    {
+        this.statementBuilder.close(getConnection(), rewritten.getSql(), stmt);
     }
 }

@@ -31,6 +31,6 @@ public class CachingStatementBuilderFactory implements StatementBuilderFactory
      * Return a new, or cached, prepared statement
      */
     public StatementBuilder createStatementBuilder(Connection conn) {
-        return new PreparedStatementCache(conn);
+        return new CachingStatementBuilder(new DefaultStatementBuilder());
     }
 }
