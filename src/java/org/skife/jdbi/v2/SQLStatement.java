@@ -833,7 +833,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             try {
                 stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
             }
-            catch (SQLException e) {
+            catch (SQLException e) {                                                                                                     
                 throw new UnableToCreateStatementException(e);
             }
 

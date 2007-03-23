@@ -45,7 +45,7 @@ public class DBI implements IDBI
     private StatementRewriter statementRewriter = new ColonPrefixNamedParamStatementRewriter();
     private StatementLocator statementLocator = new ClasspathStatementLocator();
     private TransactionHandler transactionhandler = new LocalTransactionHandler();
-    private StatementBuilderFactory statementBuilderFactory = new CachingStatementBuilderFactory();
+    private StatementBuilderFactory statementBuilderFactory = new DefaultStatementBuilderFactory();
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
 
     /**
