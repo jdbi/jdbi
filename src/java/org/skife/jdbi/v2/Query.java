@@ -94,7 +94,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
          *
          * Basically, the cleaner will be called right after execution and will *not* do anything
          * except store the values. When the iterator is closed, it will be called again and will
-         * close the stored values 
+         * close the stored values
          */
         final QueryPostMungeCleanup cleaner = new QueryPostMungeCleanup()
         {
@@ -196,9 +196,13 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setFetchSize(i);
+            }
+
+            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
             }
         });
         return this;
@@ -216,9 +220,13 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setMaxRows(i);
+            }
+
+            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
             }
         });
         return this;
@@ -236,10 +244,15 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setMaxFieldSize(i);
             }
+
+            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
+            }
+
         });
         return this;
     }
@@ -254,10 +267,15 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setFetchDirection(ResultSet.FETCH_REVERSE);
             }
+
+            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
+            }
+
         });
         return this;
     }
@@ -272,10 +290,15 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         this.addStatementCustomizer(new StatementCustomizer()
         {
-            public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
                 stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
             }
+
+            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
+            }
+            
         });
         return this;
     }

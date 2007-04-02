@@ -1,4 +1,14 @@
 2.0pre17
+
+    Change statement customizer to have before and after callbacks
+
+    Change OracleReturning to use the after callback to extract results
+
+2.0pre16
+    Clean up the build so the stringtemplate stuff is useful
+
+    SQLStatement#bind(*, Character) which converts to a string
+
     Provide a non-caching default statement builder
 
     Allow setting the statement builder on a DBI explicitely
@@ -6,11 +16,6 @@
     Allow re-use of a prepared batch by clearing the parts prior to execution
 
     Change query iterated results to clean resources in the same manner as list, just later
-
-2.0pre16
-    Clean up the build so the stringtemplate stuff is useful
-
-    SQLStatement#bind(*, Character) which converts to a string
 
 2.0pre15
     Move StringTemplate stuff back into unstable

@@ -66,6 +66,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     private OraclePreparedStatement stmt;
     private final List<int[]> binds = new ArrayList<int[]>();
     private StatementContext context;
+    private List<ResultType> results;
 
     /**
      * Provide a mapper which knows how to do positional access, sadly the
@@ -79,9 +80,9 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     }
 
     /**
-     * @see StatementCustomizer#customize(java.sql.PreparedStatement,org.skife.jdbi.v2.StatementContext)
+     * @see StatementCustomizer#beforeExecution(java.sql.PreparedStatement,org.skife.jdbi.v2.StatementContext)
      */
-    public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException
+    public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
         this.context = ctx;
 
@@ -109,22 +110,17 @@ public class OracleReturning<ResultType> implements StatementCustomizer
         }
     }
 
-    /**
-     * Callable after the statement has been executed to obtain the mapped results.
-     *
-     * @return the mapped results
-     */
-    public List<ResultType> getReturnedResults()
+    public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
         ResultSet rs;
         try {
-            rs = stmt.getReturnResultSet();
+            rs = this.stmt.getReturnResultSet();
         }
         catch (SQLException e) {
             throw new ResultSetException("Unable to retrieve return result set", e);
         }
 
-        List<ResultType> results = new ArrayList<ResultType>();
+        this.results = new ArrayList<ResultType>();
         try {
             int i = 0;
             while (rs.next()) {
@@ -134,6 +130,16 @@ public class OracleReturning<ResultType> implements StatementCustomizer
         catch (SQLException e) {
             throw new ResultSetException("Unable to retrieve results from returned result set", e);
         }
+    }
+
+
+    /**
+     * Callable after the statement has been executed to obtain the mapped results.
+     *
+     * @return the mapped results
+     */
+    public List<ResultType> getReturnedResults()
+    {
         return results;
     }
 

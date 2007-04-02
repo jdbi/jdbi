@@ -22,16 +22,27 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Used t customize a prepared statement.
+ * Used t beforeExecution a prepared statement.
  */
 public interface StatementCustomizer
 {
     /**
-     * Make the changes you need to inside this method.
+     * Make the changes you need to inside this method. It will be invoked prior to execution of
+     * the prepared statement
      *
      * @param stmt Prepared statement being customized
      * @param ctx Statement context associated with the statement being customized
      * @throws SQLException go ahead and percolate it for jDBI to handle
      */
-    public void customize(PreparedStatement stmt, StatementContext ctx) throws SQLException;
+    public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException;
+
+    /**
+     * This will be invoked after execution of the prepared statement, but before any results
+     * are accessed.
+     *
+     * @param stmt Prepared statement being customized
+     * @param ctx Statement context associated with the statement being customized
+     * @throws SQLException go ahead and percolate it for jDBI to handle
+     */
+    public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException;
 }
