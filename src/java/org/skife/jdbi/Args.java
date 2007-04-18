@@ -28,7 +28,7 @@ public class Args extends HashMap
 {
     // initilize to null to allow for faster test in case it is empty, which is the
     // common case
-    private static Set metadataIncapableDriverNames = null;
+    private static volatile Set metadataIncapableDriverNames = null;
 
     /**
      * Create a new Args instance, typically to be used for named parameters
@@ -73,7 +73,14 @@ public class Args extends HashMap
             {
                 // abort metadata attempts, cache that this driver won't do it
                 // and fall back to setObject(..)
-                Set new_set = new HashSet(metadataIncapableDriverNames);
+                final Set new_set;
+                if (metadataIncapableDriverNames == null) {
+                    new_set = new HashSet();
+                }
+                else {
+                    new_set = new HashSet(metadataIncapableDriverNames);
+                }
+
                 new_set.add(stmt.getConnection().getMetaData().getDriverName());
                 metadataIncapableDriverNames = new_set;
                 stmt.setObject(position, value);
