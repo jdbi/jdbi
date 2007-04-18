@@ -1,3 +1,6 @@
+1.4.6
+    Fix an NPE when dealing with metadata in Args.
+
 2.0pre17
 
     Change statement customizer to have before and after callbacks
