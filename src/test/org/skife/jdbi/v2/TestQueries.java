@@ -283,4 +283,16 @@ public class TestQueries extends DBITestCase
         Something s = h.createQuery("select id, name from something").map(Something.class).first();
         assertNull(s);
     }
+
+    public void testListWithMaxRows() throws Exception
+    {
+        h.prepareBatch("insert into something (id, name) values (:id, :name)")
+                .add(1, "Brian")
+                .add(2, "Keith")
+                .add(3, "Eric")
+                .execute();
+
+        assertEquals(1, h.createQuery("select id, name from something").map(Something.class).list(1).size());
+        assertEquals(2, h.createQuery("select id, name from something").map(Something.class).list(2).size());
+    }
 }

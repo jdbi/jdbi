@@ -58,8 +58,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * <p/>
      * Will eagerly load all results
      *
-     * @return
-     *
      * @throws UnableToCreateStatementException
      *                            if there is an error creating the statement
      * @throws UnableToExecuteStatementException
@@ -82,6 +80,36 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
             }
         }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
     }
+
+    /**
+     * Executes the select
+     * <p/>
+     * Will eagerly load all results up to a maximum of <code>maxRows</code>
+     *
+     * @param maxRows The maximum number of results to include in the result, any
+     *                rows in the result set beyond this number will be ignored.
+     *
+     * @throws UnableToCreateStatementException if there is an error creating the statement
+     * @throws UnableToExecuteStatementException if there is an error executing the statement
+     * @throws ResultSetException if there is an error dealing with the result set
+     */
+    public List<ResultType> list(final int maxRows)
+    {
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<List<ResultType>>()
+        {
+            public Pair<List<ResultType>, ResultSet> munge(Statement stmt) throws SQLException
+            {
+                ResultSet rs = stmt.getResultSet();
+                List<ResultType> result_list = new ArrayList<ResultType>();
+                int index = 0;
+                while (rs.next() && index < maxRows) {
+                    result_list.add(mapper.map(index++, rs, getContext()));
+                }
+                return new Pair<List<ResultType>, ResultSet>(result_list, rs);
+            }
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+    }
+
 
     /**
      * Obtain a forward-only result set iterator. Note that you must explicitely close
@@ -298,7 +326,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
             public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
             {
             }
-            
+
         });
         return this;
     }

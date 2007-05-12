@@ -1,3 +1,7 @@
+2.0pre18
+    Add Query#list(int) in order to allow for a maximum resukt size from
+    eager query execution.
+
 1.4.6
     Fix an NPE when dealing with metadata in Args.
 
