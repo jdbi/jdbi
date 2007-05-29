@@ -20,6 +20,7 @@ import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
+import org.skife.jdbi.v2.logging.NoOpLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,8 @@ public abstract class DBITestCase extends TestCase
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         conn,
-                                        new HashMap<String, Object>());
+                                        new HashMap<String, Object>(),
+                                        new NoOpLog());
         handles.add(h);
         return h;
     }

@@ -25,7 +25,9 @@ import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
+import org.skife.jdbi.v2.logging.NoOpLog;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -47,6 +49,7 @@ public class DBI implements IDBI
     private TransactionHandler transactionhandler = new LocalTransactionHandler();
     private StatementBuilderFactory statementBuilderFactory = new DefaultStatementBuilderFactory();
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
+    private SQLLog log = new NoOpLog();
 
     /**
      * Constructor for use with a DataSource which will provide
@@ -181,7 +184,8 @@ public class DBI implements IDBI
                                    cache,
                                    statementRewriter,
                                    conn,
-                                   globalStatementAttributes);
+                                   globalStatementAttributes,
+                                   log);
         }
         catch (SQLException e) {
             throw new UnableToObtainConnectionException(e);
@@ -306,5 +310,14 @@ public class DBI implements IDBI
     public void setStatementBuilderFactory(StatementBuilderFactory factory)
     {
         this.statementBuilderFactory = factory;
+    }
+
+    /**
+     * Specify the class used to log sql statements. Will be passed to all handles created from
+     * this instance
+     */
+    public void setSQLLog(SQLLog log)
+    {
+        this.log = log;
     }
 }

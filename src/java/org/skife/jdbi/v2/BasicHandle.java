@@ -22,6 +22,7 @@ import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,6 +36,7 @@ class BasicHandle implements Handle
     private final Connection connection;
     private StatementRewriter statementRewriter;
     private StatementLocator statementLocator;
+    private SQLLog log;
     private StatementBuilder statementBuilder;
     private final Map<String, Object> globalStatementAttributes;
 
@@ -43,13 +45,15 @@ class BasicHandle implements Handle
                        StatementBuilder preparedStatementCache,
                        StatementRewriter statementRewriter,
                        Connection connection,
-                       Map<String, Object> globalStatementAttributes)
+                       Map<String, Object> globalStatementAttributes,
+                       SQLLog log)
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
         this.transactions = transactions;
         this.connection = connection;
         this.statementLocator = statementLocator;
+        this.log = log;
         this.globalStatementAttributes = new HashMap<String, Object>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
     }
@@ -63,7 +67,8 @@ class BasicHandle implements Handle
                                               connection,
                                               statementBuilder,
                                               sql,
-                                              new StatementContext(globalStatementAttributes));
+                                              new StatementContext(globalStatementAttributes),
+                                              log);
     }
 
     /**
@@ -142,6 +147,11 @@ class BasicHandle implements Handle
         this.statementBuilder = builder;
     }
 
+    public void setSQLLog(SQLLog log)
+    {
+        this.log = log;
+    }
+
     /**
      * Rollback a transaction to a named checkpoint
      *
@@ -165,7 +175,8 @@ class BasicHandle implements Handle
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new StatementContext(globalStatementAttributes));
+                          new StatementContext(globalStatementAttributes),
+                          log);
     }
 
     public int insert(String sql, Object... args)
@@ -190,12 +201,13 @@ class BasicHandle implements Handle
                                  connection,
                                  statementBuilder,
                                  sql,
-                                 globalStatementAttributes);
+                                 globalStatementAttributes,
+                                 log);
     }
 
     public Batch createBatch()
     {
-        return new Batch(this.statementRewriter, this.connection, globalStatementAttributes);
+        return new Batch(this.statementRewriter, this.connection, globalStatementAttributes, log);
     }
 
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException

@@ -22,6 +22,7 @@ import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,6 +45,7 @@ public class PreparedBatch
     private final Connection connection;
     private final StatementBuilder preparedStatementCache;
     private final String sql;
+    private final SQLLog log;
     private final StatementContext context;
 
     PreparedBatch(StatementLocator locator,
@@ -51,13 +53,15 @@ public class PreparedBatch
                   Connection connection,
                   StatementBuilder preparedStatementCache,
                   String sql,
-                  Map<String, Object> globalStatementAttributes)
+                  Map<String, Object> globalStatementAttributes,
+                  SQLLog log)
     {
         this.locator = locator;
         this.rewriter = rewriter;
         this.connection = connection;
         this.preparedStatementCache = preparedStatementCache;
         this.sql = sql;
+        this.log = log;
         this.context = new StatementContext(globalStatementAttributes);
     }
 
@@ -112,6 +116,7 @@ public class PreparedBatch
             }
 
             try {
+                log.logPreparedBatch(rewritten.getSql(), parts.size());
                 return stmt.executeBatch();
             }
             catch (SQLException e) {
@@ -132,14 +137,14 @@ public class PreparedBatch
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context, log);
         parts.add(part);
         return part;
     }
 
 	public PreparedBatch add(Object... args)
 	{
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context, log);
 
 		for (int i = 0; i < args.length; ++i) {
 			part.bind(i, args[i]);
@@ -161,7 +166,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context, log);
         parts.add(part);
         part.bindFromMap(args);
         return part;

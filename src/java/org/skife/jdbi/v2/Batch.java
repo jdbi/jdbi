@@ -19,6 +19,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,12 +36,14 @@ public class Batch
     private List<String> parts = new ArrayList<String>();
     private final StatementRewriter rewriter;
     private final Connection connection;
+    private final SQLLog log;
     private final StatementContext context;
 
-    Batch(StatementRewriter rewriter, Connection connection, Map<String, Object> globalStatementAttributes)
+    Batch(StatementRewriter rewriter, Connection connection, Map<String, Object> globalStatementAttributes, SQLLog log)
     {
         this.rewriter = rewriter;
         this.connection = connection;
+        this.log = log;
         this.context = new StatementContext(globalStatementAttributes);
     }
 
@@ -89,11 +92,14 @@ public class Batch
                 throw new UnableToCreateStatementException(e);
             }
 
+            final SQLLog.BatchLogger logger = log.logBatch();
             try
             {
                 for (String part : parts)
                 {
-                    stmt.addBatch( rewriter.rewrite(part, empty, context).getSql());
+                    final String sql= rewriter.rewrite(part, empty, context).getSql();
+                    logger.add(sql);
+                    stmt.addBatch(sql);
                 }
             }
             catch (SQLException e)
@@ -103,6 +109,7 @@ public class Batch
 
             try
             {
+                logger.log();
                 return stmt.executeBatch();
             }
             catch (SQLException e)

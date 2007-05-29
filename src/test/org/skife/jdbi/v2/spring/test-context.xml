@@ -29,7 +29,7 @@
         <property name="dataSource" ref="derby"/>
     </bean>
 
-    <bean id="derby" class="org.apache.derby.jdbc.EmbeddedDataSource" destroy-method="close">
+    <bean id="derby" class="org.apache.derby.jdbc.EmbeddedDataSource">
         <property name="databaseName" value="testing"/>
     </bean>
 
@@ -37,6 +37,7 @@
         <property name="dataSource" ref="derby"/>
     </bean>
 
+    <!--suppress SpringBeanConstructorArgInspection -->
     <bean id="service" class="org.skife.jdbi.v2.spring.DummyService">
         <constructor-arg ref="dbi"/>
     </bean>

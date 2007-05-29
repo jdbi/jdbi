@@ -19,6 +19,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -30,9 +31,15 @@ import java.sql.Statement;
  */
 public class Update extends SQLStatement<Update>
 {
-    Update(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, StatementBuilder cache, String sql, StatementContext ctx)
+    Update(Connection connection,
+           StatementLocator locator,
+           StatementRewriter statementRewriter,
+           StatementBuilder cache,
+           String sql,
+           StatementContext ctx,
+           SQLLog log)
     {
-        super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx);
+        super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log);
     }
 
     /**

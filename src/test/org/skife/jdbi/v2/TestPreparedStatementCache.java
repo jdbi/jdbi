@@ -17,6 +17,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
+import org.skife.jdbi.v2.logging.NoOpLog;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,7 +45,8 @@ public class TestPreparedStatementCache extends DBITestCase
                                         builder,
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         c,
-                                        new HashMap<String, Object>());
+                                        new HashMap<String, Object>(),
+                                        new NoOpLog());
 
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bindFromProperties(new Something(0, "Keith"))

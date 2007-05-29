@@ -25,6 +25,7 @@ import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -63,6 +64,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     private RewrittenStatement rewritten;
     private PreparedStatement stmt;
+    private final SQLLog log;
 
     SQLStatement(Binding params,
                  StatementLocator locator,
@@ -70,8 +72,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                  Connection conn,
                  StatementBuilder preparedStatementCache,
                  String sql,
-                 StatementContext ctx)
+                 StatementContext ctx,
+                 SQLLog log)
     {
+        this.log = log;
         assert (verifyOurNastyDowncastIsOkay());
         this.context = ctx;
         this.statementBuilder = preparedStatementCache;
@@ -861,6 +865,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             }
 
             try {
+                log.logSQL(rewritten.getSql());
                 stmt.execute();
             }
             catch (SQLException e) {
@@ -893,5 +898,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     void close() throws SQLException
     {
         this.statementBuilder.close(getConnection(), rewritten.getSql(), stmt);
+    }
+
+    protected SQLLog getLog()
+    {
+        return log;
     }
 }

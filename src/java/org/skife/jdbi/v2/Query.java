@@ -24,6 +24,7 @@ import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,9 +48,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           Connection connection,
           StatementBuilder cache,
           String sql,
-          StatementContext ctx)
+          StatementContext ctx,
+          SQLLog log)
     {
-        super(params, locator, statementRewriter, connection, cache, sql, ctx);
+        super(params, locator, statementRewriter, connection, cache, sql, ctx, log);
         this.mapper = mapper;
     }
 
@@ -89,8 +91,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @param maxRows The maximum number of results to include in the result, any
      *                rows in the result set beyond this number will be ignored.
      *
-     * @throws UnableToCreateStatementException if there is an error creating the statement
-     * @throws UnableToExecuteStatementException if there is an error executing the statement
+     * @throws UnableToCreateStatementException
+     *                            if there is an error creating the statement
+     * @throws UnableToExecuteStatementException
+     *                            if there is an error executing the statement
      * @throws ResultSetException if there is an error dealing with the result set
      */
     public List<ResultType> list(final int maxRows)
@@ -207,7 +211,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getConnection(),
                             getStatementBuilder(),
                             getSql(),
-                            getContext());
+                            getContext(),
+                            getLog());
     }
 
     /**

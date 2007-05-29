@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
 import java.sql.Connection;
 import java.util.List;
@@ -179,8 +180,14 @@ public interface Handle
     Handle release(String checkpointName);
 
     /**
-     * Specify the statement builder to use for this handle 
+     * Specify the statement builder to use for this handle
      * @param builder StatementBuilder to be used
      */
     void setStatementBuilder(StatementBuilder builder);
+
+    /**
+     * Specify the class used to log sql statements. The default is inherited from the DBI used
+     * to create this Handle.
+     */
+    void setSQLLog(SQLLog log);
 }
