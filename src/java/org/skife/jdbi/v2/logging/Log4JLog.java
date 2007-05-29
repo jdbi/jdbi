@@ -1,52 +1,51 @@
 package org.skife.jdbi.v2.logging;
 
-import org.skife.jdbi.v2.tweak.SQLLog;
-import org.skife.jdbi.v2.DBI;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
+import org.apache.log4j.Priority;
+import org.skife.jdbi.v2.DBI;
 
 /**
- * Logs SQL to the org.skife.jdbi.v2 logger at the debug level
+ * Logs SQL via Log4J
  */
-public class Log4JLog implements SQLLog
+public final class Log4JLog extends FormattedLog
 {
-    private final Logger log = Logger.getLogger(DBI.class.getPackage().getName());
+    private final Logger log;
+    private Priority level;
 
-    public void logSQL(String sql)
+    /**
+     * Logs to org.skife.jdbi.v2 logger at the debug level
+     */
+    public Log4JLog()
     {
-        if (log.isDebugEnabled()) log.debug(String.format("statement:[%s]", sql));
+        this(Logger.getLogger(DBI.class.getPackage().getName()));
     }
 
-    public void logPreparedBatch(String sql, int count)
+    /**
+     * Use an arbitrary logger to log to at the debug level
+     */
+    public Log4JLog(Logger log)
     {
-        if (log.isDebugEnabled()) log.debug(String.format("prepared batch with %d parts:[%s]", count, sql));
+        this(log, Level.DEBUG);
     }
 
-    public BatchLogger logBatch()
-    {
-        if (log.isDebugEnabled()) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append("batch:[");
-            return new BatchLogger()
-            {
-                private boolean added = false;
-                public final void add(String sql)
-                {
-                    added = true;
-                    builder.append("[").append(sql).append("], ");
-                }
+    /**
+     * Specify both the logger and the priority to log at
+     * @param log The logger to log to
+     * @param level the priority to log at
+     */
+    public Log4JLog(Logger log, Priority level) {
+        this.log = log;
+        this.level = level;
+    }
 
-                public final void log()
-                {
-                    if (added) {
-                    builder.delete(builder.length() - 2, builder.length());
-                    }
-                    builder.append("]");
-                    log.debug(builder.toString());
-                }
-            };
-        }
-        else {
-            return NoOpLog.batch;
-        }
+    protected final boolean isEnabled()
+    {
+        return log.isEnabledFor(level);
+    }
+
+    protected final void log(String msg)
+    {
+        log.log(level, msg);
     }
 }

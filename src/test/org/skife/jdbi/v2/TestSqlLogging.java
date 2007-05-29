@@ -3,6 +3,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.logging.Log4JLog;
+import org.skife.jdbi.v2.logging.PrintStreamLog;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.log4j.BasicConfigurator;
@@ -11,6 +12,8 @@ import org.apache.log4j.spi.LoggingEvent;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 /**
  *
@@ -111,5 +114,14 @@ public class TestSqlLogging extends DBITestCase
         h.createBatch().add(sql1).add(sql2).execute();
         assertEquals(1, logged.size());
         assertEquals("batch:[[insert into something (id, name) values (1, 'Eric')], [insert into something (id, name) values (2, 'Keith')]]", logged.get(0));
+    }
+
+    public void testPrintStream() throws Exception
+    {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        h.setSQLLog(new PrintStreamLog(new PrintStream(bout)));
+        String sql = "insert into something (id, name) values (?, ?)";
+        h.insert(sql, 1, "Brian");
+        assertEquals(String.format("statement:[%s]\n", sql), new String(bout.toByteArray()));
     }
 }
