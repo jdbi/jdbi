@@ -1,0 +1,69 @@
+<!--
+  ~ Copyright 2004-2007 Brian McCallister
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<html>
+<body>
+<h1>jDBI 2.0 Documentation</h1>
+<ul>
+    <li><a href="http://jdbi.codehaus.org/">Home</a></li>
+    <li><a href="index.html">Overview</a></li>
+    <li><a href="queries.html">Statements and Queries</a></li>
+    <li><a href="spring-integration.html">Spring Integration</a></li>
+    <li><a href="http://jdbi.codehaus.org/api-2.0/index.html">Javadocs</a></li>
+</ul>
+<h2>Statements and Queries</h2>
+<p>
+    Query and statement processing goes through a number of stages. When a statement is first created it is effectively
+    a builder object which you use to configure what you want it to do. You can add customizers, result mappers, define
+    properties on its statement context, bind arguments, and so on. It stays pretty much the same, modulo what
+    you set, until the statement is executed. When the statement is executed the fun starts.
+</p>
+<p>
+    The first thing the statement does is lookup the actual SQL to use from the <code>StatementLocator</code>. This
+    class receives the string used to create the statement and returns another String, possibly the same. The
+    default implementation returns the same string if it lokos like SQL, otherwise looks for it on the classpath,
+    you can see the javadocs for
+    <code><a href="../api-2.0/org/skife/jdbi/v2/ClasspathStatementLocator.html">ClasspathStatementLocator</a></code>
+    for the exact details. You can plug your own in on the DBI if you want different lookup rules. The
+    <code><a href="../api-2.0/org/skife/jdbi/v2/unstable/stringtemplate/StringTemplateStatementLocator.html">
+        StringTemplateStatementLocator
+    </a></code> is another bundled statement locator which supports some dynamic sql generation, for example.
+</p>
+<p>
+    After the bas SQL string has been located it is passed to a <code>StatementRewriter</code>. The rewriter
+    is used to do final manipulation. The default one, for instance, converts <code>:foo</code> tokens into
+    <code>?</code> to support named parameters. See
+    <code><a href="../api-2.0/org/skife/jdbi/v2/ColonPrefixNamedParamStatementRewriter.html">ColonPrefixNamedParamStatementRewriter</a></code>
+    for more information.
+</p>
+<p>
+    Next, the rewritten SQL is passed to a <code>StatementBuilder</code> which converts the sql to a JDBC
+    <code>PreparedStatement</code>. The default implementation creates a new prepared statement every time, but
+    there is also an incuded implementation which will cache prepared statements on a given handle.
+</p>
+<p>
+    The last step before execution is to invoke any statement customizers which have been applied to the statement.
+    This includes things like the <code>OracleReturning</code> functionality, as well as custom ones.
+</p>
+<p>
+    Post execution, query customizers are run again (post-execution callback).
+</p>
+<p>
+    After customizers run, a query has its result set passed through the specified mapper, either eagerly in the case of
+    <code>list()</code> or lazily in the case of <code>iterate()</code>, whereas a DML statement just returns the
+    rows modfied.
+</p>
+</body>
+</html>

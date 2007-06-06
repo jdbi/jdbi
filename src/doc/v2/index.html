@@ -18,48 +18,47 @@
 <h1>jDBI 2.0 Documentation</h1>
 <ul>
     <li><a href="http://jdbi.codehaus.org/">Home</a></li>
-    <li><a href="http://dist.codehaus.org/jdbi/jdbi-@version@.tar.gz">jDBI @version@ Source Tarball</a></li>
-    <li><a href="http://dist.codehaus.org/jdbi/jdbi-@version@.zip">jDBI @version@ Source Zip</a></li>
-    <li><a href="http://dist.codehaus.org/jdbi/jdbi-@version@.jar">jDBI @version@ Standalone Jar</a> (all that is needed to use jDBI)</li>
-    <li><a href="http://dist.codehaus.org/jdbi/">All Downloads</a></li>
-    <li><a href="http://jira.codehaus.org/browse/JDBI">Issue Tracker</a></li>
-    <li><a href="http://www.opensource.org/licenses/apache2.0.txt">License (ASL 2.0)</a></li>
-    <li><a href="mailto:user-subscribe@jdbi.codehaus.org">Subscribe to Users List</a></li>
-    <li><a href="mailto:dev-subscribe@jdbi.codehaus.org">Subscribe to Developers List</a></li>
-    <li><a href="http://svn.codehaus.org/jdbi/">Browse Subversion</a></li>
-    <li><a href="http://svn.jdbi.codehaus.org/">Browse Subversion with FishEye</a></li>
+    <li><a href="index.html">Overview</a></li>
+    <li><a href="queries.html">Statements and Queries</a></li>
+    <li><a href="spring-integration.html">Spring Integration</a></li>
+    <li><a href="http://jdbi.codehaus.org/api-2.0/index.html">Javadocs</a></li>
 </ul>
 <h2>Overview</h2>
+
 <p>
     jDBI provides a convenience interface for SQL operations in Java. It is not intended as an abstraction layer,
     but rather a library which makes the common things easy and the hard things possible, to paraphrase Larry Wall.
 </p>
+
 <p>
     The primary entry point for using jDBI is the <a href="../api-2.0/org/skife/jdbi/v2/DBI.html">DBI</a> class. This
     is used to create <a href="../api-2.0/org/skife/jdbi/v2/Handle.html">Handle</a> instances, each of which
     represents a connection to the RDBMS. A Handle wraps a JDBC <code>Connection</code> instance, and makes use of
     that same Connection for all of its operations.
 </p>
+
 <p>
     Generally, you will explicitely create statements, queries, and batch operations for working with data in the
     database. Seperate objects are used to represent these things, and they are designed to be used in a somewhat
     literate-programming style. Here is an example:
 </p>
 <pre><code>
-DBI dbi = new DBI("jdbc:derby:testing");
-Handle handle = dbi.open();
-Query&lt;Something&gt; query = handle.createQuery("select * from something where name like :name")
-            .bind("name", "Eri%")
-            .map(Something.class);
-List&lt;Something&gt; rs = query.list();
-handle.close();
+    DBI dbi = new DBI("jdbc:derby:testing");
+    Handle handle = dbi.open();
+    Query&lt;Something&gt; query = handle.createQuery("select * from something where name like :name")
+                                         .bind("name", "Eri%")
+                                         .map(Something.class);
+    List&lt;Something&gt; rs = query.list();
+    handle.close();
 </code></pre>
 <p>
     This example just exercises the basics of jDBI. We'll explore the details in the remainder of this documentation.
 </p>
+
 <h2>
     Creating DBI Instances
 </h2>
+
 <p>
     The two most common ways are to pass in the JDBC connection information, the url, username, and password. In this
     case a new connection will be opened using the JDBC <code>DriverManager</code> for each <code>Handle</code>. An
@@ -68,15 +67,31 @@ handle.close();
     approaches work well, it is possible to provide your own <code>ConnectionFactory</code> implementation which
     will be used to obtain JDBC connections.
 </p>
+
 <p>
     A special case exists for using jDBI in Spring where you want to use Spring's transaction management system.
     This case is described more fully in the <a href="spring-integration.html">Spring Integration</a> documentation.
 </p>
+
 <h2>A Brief Tour of the Handle</h2>
+
 <p>
     The <code>Handle</code> basically is a connection to the database. A handle wraps a single JDBC connection
-    which it uses for all of its work. 
+    which it uses for all of its work.
 </p>
+
+<p>
+    The handle is used, primarily, to create various kinds of statements: queries, statements, batches, prepared
+    batches, etc. In addition to these, it has a couple convenience methods for the most commons cases -- simple
+    statements and queries with positional parameters. The javadocs for the Handle explain these.
+</p>
+
+<p>
+    The general idiom for working with the database is to create a statement object from the handle. This will usually
+    be a SQLStatement or a Query. When you create the statement object you can then configure exactly how you want
+    it to work, then call execute(), list(), iterate(), or first() as appropriate.
+</p>
+
 <p>
     A handle is not thread-safe, though it can be used in multithreaded code with external synchronization.
 </p>
