@@ -1,4 +1,4 @@
-2.0pre18
+2.0.0  
     Add Query#list(int) in order to allow for a maximum resukt size from
     eager query execution.
 
