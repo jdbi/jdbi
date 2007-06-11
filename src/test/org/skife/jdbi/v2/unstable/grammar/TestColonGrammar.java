@@ -46,6 +46,11 @@ public class TestColonGrammar extends GrammarTestCase
                LITERAL, NAMED_PARAM, LITERAL, NAMED_PARAM, LITERAL, EOF);
     }
 
+    public void testExclamationWorks() throws Exception
+    {
+        expect("select1 != 2 from dual", LITERAL, EOF);
+    }
+
     protected String nameOf(int type)
     {
         switch (type) {
