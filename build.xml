@@ -77,7 +77,7 @@
                 <include name="**/*TokenTypes.txt"/>
             </fileset>
             <zipfileset src="lib/build/antlr-2.7.7.jar"/>
-            <rule pattern="antlr.**" result="org.skife.jdbi.antlr.@1" />
+            <rule pattern="antlr.**" result="org.skife.jdbi.antlr.@1"/>
 
             <zap pattern="antlr.Tool"/>
             <zap pattern="antlr.*Tool*"/>
@@ -154,7 +154,9 @@
                 author="true"
                 windowtitle="jDBI"
                 access="protected">
-            <fileset dir="src/java"/>
+            <fileset dir="src/java">
+                <exclude name="**/*.html"/>
+            </fileset>
         </javadoc>
     </target>
 
@@ -167,7 +169,7 @@
 
         <copy todir="build/site/">
             <fileset dir="src/doc">
-                <exclude name="**/*.svn" />
+                <exclude name="**/*.svn"/>
             </fileset>
 
             <filterset>
