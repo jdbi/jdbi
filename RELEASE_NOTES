@@ -1,3 +1,7 @@
+2.0.2
+    Clean up a NullPointerException which was masking an
+    UnableToCreateStatementException
+
 2.0.1
     Add '!' to the characters for LITERAL in the colon prefix grammar
 
@@ -27,7 +31,8 @@
 
     Allow re-use of a prepared batch by clearing the parts prior to execution
 
-    Change query iterated results to clean resources in the same manner as list, just later
+    Change query iterated results to clean resources in the same manner as list,
+    just later
 
 2.0pre15
     Move StringTemplate stuff back into unstable
@@ -48,8 +53,8 @@
 
     Have prepared batch use the statement locator
 
-    Bean resultset mapper invokes the right ResultSet.getXXX() for each property type
-    (getObject() on Oracle returns internal Oracle types)
+    Bean resultset mapper invokes the right ResultSet.getXXX() for each
+    property type (getObject() on Oracle returns internal Oracle types)
 
     Allow positional binding for PreparedBatch
 

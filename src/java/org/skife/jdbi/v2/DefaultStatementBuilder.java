@@ -38,7 +38,7 @@ public class DefaultStatementBuilder implements StatementBuilder
      */
     public void close(Connection conn, String sql, Statement stmt) throws SQLException
     {
-        stmt.close();
+        if (stmt != null) stmt.close();
     }
 
     /**
