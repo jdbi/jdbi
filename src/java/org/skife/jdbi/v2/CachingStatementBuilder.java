@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2006 Brian McCallister
+ * Copyright 2004-2007 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class CachingStatementBuilder implements StatementBuilder
     private final StatementBuilder builder;
 
     /**
-     * Create a new CachingStatementBuilder which decorates the one passed in. 
+     * Create a new CachingStatementBuilder which decorates the one passed in.
      *
      * @param builder The StatementBuilder used to actual PreparedStatement creation
      */

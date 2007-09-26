@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2006 Brian McCallister
+ * Copyright 2004-2007 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Statement prviding convenience result handling for SQL queries.
@@ -114,6 +115,34 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
     }
 
+    /**
+     * Used to execute the query and traverse the result set with a accumulator.
+     * <a href="http://en.wikipedia.org/wiki/Fold_(higher-order_function)">Folding</a> over the
+     * result involves invoking a callback for each row, passing into the callback the return value
+     * from the previous function invocation.
+     *
+     * @param accumulator The initial accumulator value
+     * @param folder Defines the function which will fold over the result set.
+     * @return The return value from the last invocation of {@link Folder#fold(Object, java.sql.ResultSet)}
+     * @see org.skife.jdbi.v2.Folder
+     */
+    public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder<AccumulatorType> folder)
+    {
+        final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
+
+        this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Void>()
+        {
+            public Pair<Void, ResultSet> munge(Statement stmt) throws SQLException
+            {
+                ResultSet rs = stmt.getResultSet();
+                while (rs.next()) {
+                    acc.set(folder.fold(acc.get(), rs));
+                }
+                return new Pair<Void, ResultSet>(null, rs);
+            }
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+        return acc.get();
+    }
 
     /**
      * Obtain a forward-only result set iterator. Note that you must explicitely close

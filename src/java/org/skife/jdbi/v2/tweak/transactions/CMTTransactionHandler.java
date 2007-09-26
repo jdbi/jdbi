@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2006 Brian McCallister
+ * Copyright 2004-2007 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,6 +99,6 @@ public class CMTTransactionHandler implements TransactionHandler
      */
     public void release(Handle handle, String checkpointName)
     {
-        throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");        
+        throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");
     }
 }

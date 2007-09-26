@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2006 Brian McCallister
+ * Copyright 2004-2007 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class TestQueries extends DBITestCase
 {
@@ -64,33 +65,33 @@ public class TestQueries extends DBITestCase
         assertEquals(1, eric.getId());
     }
 
-	public void testMappedQueryObjectWithNulls() throws Exception
-	{
-		h.insert("insert into something (id, name, integerValue) values (1, 'eric', null)");
+    public void testMappedQueryObjectWithNulls() throws Exception
+    {
+        h.insert("insert into something (id, name, integerValue) values (1, 'eric', null)");
 
-		Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
+        Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
 
-		List<Something> r = query.list();
-		Something eric = r.get(0);
-		assertEquals("eric", eric.getName());
-		assertEquals(1, eric.getId());
-		assertNull(eric.getIntegerValue());
-	}
+        List<Something> r = query.list();
+        Something eric = r.get(0);
+        assertEquals("eric", eric.getName());
+        assertEquals(1, eric.getId());
+        assertNull(eric.getIntegerValue());
+    }
 
-	public void testMappedQueryObjectWithNullForPrimitiveIntField() throws Exception
-	{
-		h.insert("insert into something (id, name, intValue) values (1, 'eric', null)");
+    public void testMappedQueryObjectWithNullForPrimitiveIntField() throws Exception
+    {
+        h.insert("insert into something (id, name, intValue) values (1, 'eric', null)");
 
-		Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
+        Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
 
-		List<Something> r = query.list();
-		Something eric = r.get(0);
-		assertEquals("eric", eric.getName());
-		assertEquals(1, eric.getId());
-		assertEquals(0, eric.getIntValue());
-	}
+        List<Something> r = query.list();
+        Something eric = r.get(0);
+        assertEquals("eric", eric.getName());
+        assertEquals(1, eric.getId());
+        assertEquals(0, eric.getIntValue());
+    }
 
-	public void testMapper() throws Exception
+    public void testMapper() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
@@ -158,17 +159,14 @@ public class TestQueries extends DBITestCase
 
     public void testHelpfulErrorOnNothingSet() throws Exception
     {
-        try
-        {
+        try {
             h.createQuery("select * from something where name = :name").list();
             fail("should have raised exception");
         }
-        catch (UnableToExecuteStatementException e)
-        {
+        catch (UnableToExecuteStatementException e) {
             assertTrue("execution goes through here", true);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             fail("Raised incorrect exception");
         }
     }
@@ -250,9 +248,8 @@ public class TestQueries extends DBITestCase
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'eric')");
 
-        int count = 0 ;
-        for (Something s : h.createQuery("select * from something order by id").map(Something.class))
-        {
+        int count = 0;
+        for (Something s : h.createQuery("select * from something order by id").map(Something.class)) {
             count++;
             assertEquals("eric", s.getName());
         }
@@ -294,5 +291,26 @@ public class TestQueries extends DBITestCase
 
         assertEquals(1, h.createQuery("select id, name from something").map(Something.class).list(1).size());
         assertEquals(2, h.createQuery("select id, name from something").map(Something.class).list(2).size());
+    }
+
+    public void testFold() throws Exception
+    {
+        h.prepareBatch("insert into something (id, name) values (:id, :name)")
+                .add(1, "Brian")
+                .add(2, "Keith")
+                .execute();
+
+        Map<String, Integer> rs = h.createQuery("select id, name from something")
+                .fold(new HashMap<String, Integer>(), new Folder<Map<String, Integer>>()
+                {
+                    public Map<String, Integer> fold(Map<String, Integer> a, ResultSet rs) throws SQLException
+                    {
+                        a.put(rs.getString("name"), rs.getInt("id"));
+                        return a;
+                    }
+                });
+        assertEquals(2, rs.size());
+        assertEquals(Integer.valueOf(1), rs.get("Brian"));
+        assertEquals(Integer.valueOf(2), rs.get("Keith"));
     }
 }
