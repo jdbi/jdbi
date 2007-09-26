@@ -17,6 +17,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.TransactionException;
+import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.io.IOException;
@@ -131,6 +132,29 @@ public class TestTransactions extends DBITestCase
         catch (TransactionException e) {
             h.rollback();
             assertTrue(true);
+        }
+    }
+
+    public void testThrowingRuntimeExceptionPercolatesOriginal() throws Exception
+    {
+        Handle h = openHandle();
+        try {
+            h.inTransaction(new TransactionCallback() {
+                public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
+                {
+                    throw new IllegalArgumentException();
+                }
+            });
+        }
+        catch (DBIException e) {
+            fail("Should have thrown a straight RuntimeException");
+        }
+        catch (IllegalArgumentException e)
+        {
+            assertEquals("Go here", 2, 1 + 1);
+        }
+        catch (Exception e) {
+            fail("Should have been caught at IllegalArgumentException");
         }
     }
 }

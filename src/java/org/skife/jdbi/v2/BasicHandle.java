@@ -228,6 +228,11 @@ class BasicHandle implements Handle
                 this.commit();
             }
         }
+        catch (RuntimeException e)
+        {
+            this.rollback();
+            throw e;
+        }
         catch (Exception e) {
             this.rollback();
             throw new TransactionFailedException("Transaction failed do to exception being thrown " +
