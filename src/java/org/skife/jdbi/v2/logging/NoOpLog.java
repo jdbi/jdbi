@@ -50,7 +50,7 @@ public final class NoOpLog implements SQLLog
 
     public BatchLogger logBatch()
     {
-        return null;
+        return batch;
     }
 
     public void logCheckpointTransaction(Handle h, String name)
