@@ -32,17 +32,17 @@ public class TestSqlLogging extends DBITestCase
         logged = new ArrayList<String>();
         log = new SQLLog()
         {
-            public void logBeginTransaction()
+            public void logBeginTransaction(Handle h)
             {
                 logged.add("begin");
             }
 
-            public void logCommitTransaction()
+            public void logCommitTransaction(Handle h)
             {
                 logged.add("commit");
             }
 
-            public void logRollbackTransaction()
+            public void logRollbackTransaction(Handle h)
             {
                 logged.add("rollback");
             }
@@ -83,17 +83,17 @@ public class TestSqlLogging extends DBITestCase
                 };
             }
 
-            public void logCheckpointTransaction(String name)
+            public void logCheckpointTransaction(Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s created", name));
             }
 
-            public void logReleaseCheckpointTransaction(String name)
+            public void logReleaseCheckpointTransaction(Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s released", name));
             }
 
-            public void logRollbackToCheckpoint(String name)
+            public void logRollbackToCheckpoint(Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s rolled back to", name));
             }

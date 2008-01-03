@@ -104,7 +104,7 @@ class BasicHandle implements Handle
     public Handle begin()
     {
         transactions.begin(this);
-        log.logBeginTransaction();
+        log.logBeginTransaction(this);
         return this;
     }
 
@@ -114,7 +114,7 @@ class BasicHandle implements Handle
     public Handle commit()
     {
         transactions.commit(this);
-        log.logCommitTransaction();
+        log.logCommitTransaction(this);
         return this;
     }
 
@@ -124,7 +124,7 @@ class BasicHandle implements Handle
     public Handle rollback()
     {
         transactions.rollback(this);
-        log.logRollbackTransaction();
+        log.logRollbackTransaction(this);
         return this;
     }
 
@@ -137,7 +137,7 @@ class BasicHandle implements Handle
     public Handle checkpoint(String name)
     {
         transactions.checkpoint(this, name);
-        log.logCheckpointTransaction(name);
+        log.logCheckpointTransaction(this, name);
         return this;
     }
 
@@ -148,7 +148,7 @@ class BasicHandle implements Handle
     public Handle release(String checkpointName)
     {
         transactions.release(this, checkpointName);
-        log.logReleaseCheckpointTransaction(checkpointName);
+        log.logReleaseCheckpointTransaction(this, checkpointName);
         return this;
     }
 
@@ -170,7 +170,7 @@ class BasicHandle implements Handle
     public Handle rollback(String checkpointName)
     {
         transactions.rollback(this, checkpointName);
-        log.logRollbackToCheckpoint(checkpointName);
+        log.logRollbackToCheckpoint(this, checkpointName);
         return this;
     }
 

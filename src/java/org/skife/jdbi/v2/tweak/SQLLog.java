@@ -10,17 +10,17 @@ public interface SQLLog
     /**
      * Called when a transaction is started
      */
-    public void logBeginTransaction();
+    public void logBeginTransaction(Handle h);
 
     /**
      * Called when a transaction is committed
      */
-    public void logCommitTransaction();
+    public void logCommitTransaction(Handle h);
 
     /**
      * Called when a transaction is committed
      */
-    public void logRollbackTransaction();
+    public void logRollbackTransaction(Handle h);
 
     /**
      * Called when a handle is opened from a DBI instance
@@ -57,19 +57,19 @@ public interface SQLLog
      * Called when a transaction is checkpointed
      * @param name the checkpoint name
      */
-    void logCheckpointTransaction(String name);
+    void logCheckpointTransaction(Handle h, String name);
 
     /**
      * Called when a transaction checkpoint is released
      * @param name the checkpoint name
      */
-    void logReleaseCheckpointTransaction(String name);
+    void logReleaseCheckpointTransaction(Handle h, String name);
 
     /**
      * Called when a transaction checkpoint is rolled back to
      * @param name the checkpoint name
      */
-    void logRollbackToCheckpoint(String checkpointName);
+    void logRollbackToCheckpoint(Handle h, String checkpointName);
 
     /**
      * Instances of this are used to log batch statements. SQLLog#logBatch will return one of these.
