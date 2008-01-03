@@ -62,19 +62,19 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
-    public void logBeginTransaction()
+    public void logBeginTransaction(Handle h)
     {
-        log("begin transaction");
+        if (isEnabled()) log(String.format("begin transaction on [%s]", h));
     }
 
-    public void logCommitTransaction()
+    public void logCommitTransaction(Handle h)
     {
-        log("commit transaction");
+        if (isEnabled()) log(String.format("commit transaction on [%s]", h));
     }
 
-    public void logRollbackTransaction()
+    public void logRollbackTransaction(Handle h)
     {
-        log("rollback transaction");
+        if (isEnabled()) log(String.format("rollback transaction on [%s]", h));
     }
 
     public void logObtainHandle(Handle h)
@@ -91,24 +91,24 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
-    public void logCheckpointTransaction(String name)
+    public void logCheckpointTransaction(Handle h, String name)
     {
         if (this.isEnabled()) {
-            log(String.format("checkpoint [%s] created", name));
+            log(String.format("checkpoint [%s] created on [%s]", name, h));
         }
     }
 
-    public void logReleaseCheckpointTransaction(String name)
+    public void logReleaseCheckpointTransaction(Handle h, String name)
     {
         if (this.isEnabled()) {
-            log(String.format("checkpoint [%s] released", name));
+            log(String.format("checkpoint [%s] on [%s] released", name, h));
         }
     }
 
-    public void logRollbackToCheckpoint(String checkpointName)
+    public void logRollbackToCheckpoint(Handle h, String checkpointName)
     {
         if (this.isEnabled()) {
-            log(String.format("checkpoint [%s] rolled back", checkpointName));
+            log(String.format("checkpoint [%s] on [%s] rolled back", checkpointName, h));
         }
     }
 }

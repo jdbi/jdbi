@@ -1,3 +1,8 @@
+2.1.0
+    Add Query#fold
+
+    Add additional logging around handles and transactions
+
 2.0.2
     Clean up a NullPointerException which was masking an
     UnableToCreateStatementException
