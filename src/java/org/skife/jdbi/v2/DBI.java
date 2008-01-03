@@ -179,13 +179,15 @@ public class DBI implements IDBI
         try {
             Connection conn = connectionFactory.openConnection();
             StatementBuilder cache = statementBuilderFactory.createStatementBuilder(conn);
-            return new BasicHandle(transactionhandler,
-                                   statementLocator,
-                                   cache,
-                                   statementRewriter,
-                                   conn,
-                                   globalStatementAttributes,
-                                   log);
+            Handle h = new BasicHandle(transactionhandler,
+                                       statementLocator,
+                                       cache,
+                                       statementRewriter,
+                                       conn,
+                                       globalStatementAttributes,
+                                       log);
+            log.logObtainHandle(h);
+            return h;
         }
         catch (SQLException e) {
             throw new UnableToObtainConnectionException(e);
@@ -196,7 +198,7 @@ public class DBI implements IDBI
      * Define an attribute on every {@link StatementContext} for every statement created
      * from a handle obtained from this DBI instance.
      *
-     * @param key The key for the attribute
+     * @param key   The key for the attribute
      * @param value the value for the attribute
      */
     public void define(String key, Object value)
@@ -209,7 +211,9 @@ public class DBI implements IDBI
      * for use by clients.
      *
      * @param callback A callback which will receive an open Handle
+     *
      * @return the value returned by callback
+     *
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */

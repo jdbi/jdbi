@@ -1,10 +1,37 @@
 package org.skife.jdbi.v2.tweak;
 
+import org.skife.jdbi.v2.Handle;
+
 /**
  * Interface used to receive sql logging events.
  */
 public interface SQLLog
 {
+    /**
+     * Called when a transaction is started
+     */
+    public void logBeginTransaction();
+
+    /**
+     * Called when a transaction is committed
+     */
+    public void logCommitTransaction();
+
+    /**
+     * Called when a transaction is committed
+     */
+    public void logRollbackTransaction();
+
+    /**
+     * Called when a handle is opened from a DBI instance
+     */
+    public void logObtainHandle(Handle h);
+
+    /**
+     * Called when a handle is closed
+     */
+    public void logReleaseHandle(Handle h);
+
     /**
      * Called to log typical sql statements
      * @param sql the actual sql being exected
@@ -25,6 +52,24 @@ public interface SQLLog
      * @return an instance of BatchLogger which will be used to log this batch
      */
     public BatchLogger logBatch();
+
+    /**
+     * Called when a transaction is checkpointed
+     * @param name the checkpoint name
+     */
+    void logCheckpointTransaction(String name);
+
+    /**
+     * Called when a transaction checkpoint is released
+     * @param name the checkpoint name
+     */
+    void logReleaseCheckpointTransaction(String name);
+
+    /**
+     * Called when a transaction checkpoint is rolled back to
+     * @param name the checkpoint name
+     */
+    void logRollbackToCheckpoint(String checkpointName);
 
     /**
      * Instances of this are used to log batch statements. SQLLog#logBatch will return one of these.

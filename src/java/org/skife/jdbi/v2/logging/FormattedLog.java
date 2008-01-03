@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.logging;
 
 import org.skife.jdbi.v2.tweak.SQLLog;
+import org.skife.jdbi.v2.Handle;
 
 /**
  * Convenience class which handles log statement formatting
@@ -14,7 +15,7 @@ public abstract class FormattedLog implements SQLLog
 
     /**
      * Used to ask implementations if logging is enabled.
-     * 
+     *
      * @return true if statement logging is enabled
      */
     protected abstract boolean isEnabled();
@@ -58,6 +59,56 @@ public abstract class FormattedLog implements SQLLog
         }
         else {
             return NoOpLog.batch;
+        }
+    }
+
+    public void logBeginTransaction()
+    {
+        log("begin transaction");
+    }
+
+    public void logCommitTransaction()
+    {
+        log("commit transaction");
+    }
+
+    public void logRollbackTransaction()
+    {
+        log("rollback transaction");
+    }
+
+    public void logObtainHandle(Handle h)
+    {
+        if (this.isEnabled()) {
+            log(String.format("Handle [%s] obtained", h));
+        }
+    }
+
+    public void logReleaseHandle(Handle h)
+    {
+        if (this.isEnabled()) {
+            log(String.format("Handle [%s] released", h));
+        }
+    }
+
+    public void logCheckpointTransaction(String name)
+    {
+        if (this.isEnabled()) {
+            log(String.format("checkpoint [%s] created", name));
+        }
+    }
+
+    public void logReleaseCheckpointTransaction(String name)
+    {
+        if (this.isEnabled()) {
+            log(String.format("checkpoint [%s] released", name));
+        }
+    }
+
+    public void logRollbackToCheckpoint(String checkpointName)
+    {
+        if (this.isEnabled()) {
+            log(String.format("checkpoint [%s] rolled back", checkpointName));
         }
     }
 }

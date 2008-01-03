@@ -86,6 +86,7 @@ class BasicHandle implements Handle
         statementBuilder.close(getConnection());
         try {
             connection.close();
+            log.logReleaseHandle(this);
         }
         catch (SQLException e) {
             throw new UnableToCloseResourceException("Unable to close Connection", e);
@@ -103,6 +104,7 @@ class BasicHandle implements Handle
     public Handle begin()
     {
         transactions.begin(this);
+        log.logBeginTransaction();
         return this;
     }
 
@@ -112,6 +114,7 @@ class BasicHandle implements Handle
     public Handle commit()
     {
         transactions.commit(this);
+        log.logCommitTransaction();
         return this;
     }
 
@@ -121,6 +124,7 @@ class BasicHandle implements Handle
     public Handle rollback()
     {
         transactions.rollback(this);
+        log.logRollbackTransaction();
         return this;
     }
 
@@ -133,12 +137,18 @@ class BasicHandle implements Handle
     public Handle checkpoint(String name)
     {
         transactions.checkpoint(this, name);
+        log.logCheckpointTransaction(name);
         return this;
     }
 
+    /**
+     * Release the named checkpoint, making rollback to it not possible.
+     * @return The same handle
+     */
     public Handle release(String checkpointName)
     {
         transactions.release(this, checkpointName);
+        log.logReleaseCheckpointTransaction(checkpointName);
         return this;
     }
 
@@ -160,6 +170,7 @@ class BasicHandle implements Handle
     public Handle rollback(String checkpointName)
     {
         transactions.rollback(this, checkpointName);
+        log.logRollbackToCheckpoint(checkpointName);
         return this;
     }
 

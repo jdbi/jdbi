@@ -4,6 +4,7 @@ import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.logging.Log4JLog;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
+import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.log4j.BasicConfigurator;
@@ -22,14 +23,40 @@ public class TestSqlLogging extends DBITestCase
 {
     private Handle h;
     private List<String> logged;
+    private SQLLog log;
 
     public void setUp() throws Exception
     {
         super.setUp();
         h = openHandle();
         logged = new ArrayList<String>();
-        h.setSQLLog(new SQLLog()
+        log = new SQLLog()
         {
+            public void logBeginTransaction()
+            {
+                logged.add("begin");
+            }
+
+            public void logCommitTransaction()
+            {
+                logged.add("commit");
+            }
+
+            public void logRollbackTransaction()
+            {
+                logged.add("rollback");
+            }
+
+            public void logObtainHandle(Handle h)
+            {
+                logged.add("open");
+            }
+
+            public void logReleaseHandle(Handle h)
+            {
+                logged.add("close");
+            }
+
             public void logSQL(String sql)
             {
                 logged.add(sql);
@@ -42,7 +69,8 @@ public class TestSqlLogging extends DBITestCase
 
             public BatchLogger logBatch()
             {
-                return new SQLLog.BatchLogger() {
+                return new SQLLog.BatchLogger()
+                {
 
                     public void add(String sql)
                     {
@@ -54,7 +82,23 @@ public class TestSqlLogging extends DBITestCase
                     }
                 };
             }
-        });
+
+            public void logCheckpointTransaction(String name)
+            {
+                logged.add(String.format("checkpoint %s created", name));
+            }
+
+            public void logReleaseCheckpointTransaction(String name)
+            {
+                logged.add(String.format("checkpoint %s released", name));
+            }
+
+            public void logRollbackToCheckpoint(String name)
+            {
+                logged.add(String.format("checkpoint %s rolled back to", name));
+            }
+        };
+        h.setSQLLog(log);
     }
 
     public void tearDown() throws Exception
@@ -90,7 +134,8 @@ public class TestSqlLogging extends DBITestCase
 
     public void testLog4J() throws Exception
     {
-        BasicConfigurator.configure(new AppenderSkeleton() {
+        BasicConfigurator.configure(new AppenderSkeleton()
+        {
 
             protected void append(LoggingEvent loggingEvent)
             {
@@ -123,5 +168,80 @@ public class TestSqlLogging extends DBITestCase
         String sql = "insert into something (id, name) values (?, ?)";
         h.insert(sql, 1, "Brian");
         assertEquals(String.format("statement:[%s]\n", sql), new String(bout.toByteArray()));
+    }
+
+    public void testCloseLogged() throws Exception
+    {
+        h.close();
+        assertTrue(logged.contains("close"));
+    }
+
+    public void testLogBegin() throws Exception
+    {
+        h.begin();
+        assertTrue(logged.contains("begin"));
+        h.commit();
+    }
+
+    public void testLogCommit() throws Exception
+    {
+        h.begin();
+        h.commit();
+        assertTrue(logged.contains("commit"));
+    }
+
+    public void testLogBeginCommit() throws Exception
+    {
+        h.inTransaction(new TransactionCallback<Object>()
+        {
+            public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
+            {
+                assertTrue(logged.contains("begin"));
+                return null;
+            }
+        });
+        assertTrue(logged.contains("commit"));
+    }
+
+    public void testLogBeginRollback() throws Exception
+    {
+        try {
+            h.inTransaction(new TransactionCallback<Object>()
+            {
+                public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
+                {
+                    assertTrue(logged.contains("begin"));
+                    throw new Exception();
+                }
+            });
+            fail("should have raised exception");
+        }
+        catch (TransactionFailedException e) {
+            assertTrue(logged.contains("rollback"));
+        }
+    }
+
+    public void testLogRollback() throws Exception
+    {
+        h.begin();
+        h.rollback();
+        assertTrue(logged.contains("rollback"));
+    }
+
+    public void testCheckpoint() throws Exception
+    {
+        h.begin();
+
+        h.checkpoint("a");
+        assertTrue(logged.contains("checkpoint a created"));
+        h.rollback("a");
+        assertTrue(logged.contains("checkpoint a rolled back to"));
+
+        h.checkpoint("b");
+        assertTrue(logged.contains("checkpoint b created"));
+        h.release("b");
+        assertTrue(logged.contains("checkpoint b released"));
+
+        h.commit();
     }
 }
