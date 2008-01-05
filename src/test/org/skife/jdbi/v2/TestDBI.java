@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;

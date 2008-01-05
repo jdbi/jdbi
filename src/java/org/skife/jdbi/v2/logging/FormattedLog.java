@@ -8,9 +8,9 @@ import org.skife.jdbi.v2.Handle;
  */
 public abstract class FormattedLog implements SQLLog
 {
-    public final void logSQL(String sql)
+    public final void logSQL(long time, String sql)
     {
-        if (isEnabled()) log(String.format("statement:[%s]", sql));
+        if (isEnabled()) log(String.format("statement:[%s] took %d millis", sql, time));
     }
 
     /**
@@ -27,9 +27,9 @@ public abstract class FormattedLog implements SQLLog
     protected abstract void log(String msg);
 
 
-    public final void logPreparedBatch(String sql, int count)
+    public final void logPreparedBatch(long time, String sql, int count)
     {
-        if (isEnabled()) log(String.format("prepared batch with %d parts:[%s]", count, sql));
+        if (isEnabled()) log(String.format("prepared batch with %d parts:[%s] took %d millis", count, sql, time));
     }
 
     public final BatchLogger logBatch()
@@ -47,13 +47,13 @@ public abstract class FormattedLog implements SQLLog
                     builder.append("[").append(sql).append("], ");
                 }
 
-                public final void log()
+                public final void log(long time)
                 {
                     if (added) {
                         builder.delete(builder.length() - 2, builder.length());
                     }
                     builder.append("]");
-                    FormattedLog.this.log(builder.toString());
+                    FormattedLog.this.log(String.format("%s took %d millis", builder.toString(), time));
                 }
             };
         }
@@ -67,20 +67,20 @@ public abstract class FormattedLog implements SQLLog
         if (isEnabled()) log(String.format("begin transaction on [%s]", h));
     }
 
-    public void logCommitTransaction(Handle h)
+    public void logCommitTransaction(long time, Handle h)
     {
-        if (isEnabled()) log(String.format("commit transaction on [%s]", h));
+        if (isEnabled()) log(String.format("commit transaction on [%s] took %d millis", h, time));
     }
 
-    public void logRollbackTransaction(Handle h)
+    public void logRollbackTransaction(long time, Handle h)
     {
-        if (isEnabled()) log(String.format("rollback transaction on [%s]", h));
+        if (isEnabled()) log(String.format("rollback transaction on [%s] took %d millis", h, time));
     }
 
-    public void logObtainHandle(Handle h)
+    public void logObtainHandle(long time, Handle h)
     {
         if (this.isEnabled()) {
-            log(String.format("Handle [%s] obtained", h));
+            log(String.format("Handle [%s] obtained in %d millis", h, time));
         }
     }
 
@@ -105,10 +105,10 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
-    public void logRollbackToCheckpoint(Handle h, String checkpointName)
+    public void logRollbackToCheckpoint(long time, Handle h, String checkpointName)
     {
         if (this.isEnabled()) {
-            log(String.format("checkpoint [%s] on [%s] rolled back", checkpointName, h));
+            log(String.format("checkpoint [%s] on [%s] rolled back in %d millis", checkpointName, h, time));
         }
     }
 }

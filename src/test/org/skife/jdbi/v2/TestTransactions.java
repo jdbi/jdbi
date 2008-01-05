@@ -15,9 +15,9 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
-import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.DBIException;
+import org.skife.jdbi.v2.exceptions.TransactionException;
+import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.io.IOException;

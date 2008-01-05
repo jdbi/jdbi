@@ -16,13 +16,9 @@
 
 package org.skife.jdbi.v2.unstable.grammar;
 
-import static org.skife.jdbi.rewriter.printf.FormattedStatementLexerTokenTypes.LITERAL;
-import static org.skife.jdbi.rewriter.printf.FormattedStatementLexerTokenTypes.QUOTED_TEXT;
-import static org.skife.jdbi.rewriter.printf.FormattedStatementLexerTokenTypes.INTEGER;
-import static org.skife.jdbi.rewriter.printf.FormattedStatementLexerTokenTypes.STRING;
-import static org.skife.jdbi.rewriter.printf.FormattedStatementLexerTokenTypes.EOF;
-import org.skife.jdbi.rewriter.printf.FormattedStatementLexer;
 import antlr.CharScanner;
+import org.skife.jdbi.rewriter.printf.FormattedStatementLexer;
+import static org.skife.jdbi.rewriter.printf.FormattedStatementLexerTokenTypes.*;
 
 import java.io.Reader;
 

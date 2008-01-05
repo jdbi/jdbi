@@ -16,15 +16,9 @@
 
 package org.skife.jdbi.v2.unstable.eod;
 
-import junit.framework.TestCase;
+import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.DBITestCase;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.derby.Tools;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.io.PrintWriter;
 
 /**
  *

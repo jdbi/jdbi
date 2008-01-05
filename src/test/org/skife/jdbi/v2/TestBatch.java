@@ -26,6 +26,7 @@ public class TestBatch extends DBITestCase
     public void testBasics() throws Exception
     {
         Handle h = this.openHandle();
+
         Batch b = h.createBatch();
         b.add("insert into something (id, name) values (0, 'Keith')");
         b.add("insert into something (id, name) values (1, 'Eric')");

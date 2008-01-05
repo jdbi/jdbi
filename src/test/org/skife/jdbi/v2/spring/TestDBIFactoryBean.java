@@ -22,6 +22,10 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.IDBI;
 import org.skife.jdbi.v2.util.IntegerMapper;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Appender;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.spi.LoggingEvent;
 
 import javax.sql.DataSource;
 
@@ -31,6 +35,23 @@ import javax.sql.DataSource;
 public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContextTests
 {
     static { System.setProperty("derby.system.home", "build/db"); }
+    static {
+        BasicConfigurator.configure(new AppenderSkeleton() {
+
+            protected void append(LoggingEvent event)
+            {
+            }
+
+            public boolean requiresLayout()
+            {
+                return false;
+            }
+
+            public void close()
+            {
+            }
+        });
+    }
 
     protected Service service;
     protected DataSource derby;

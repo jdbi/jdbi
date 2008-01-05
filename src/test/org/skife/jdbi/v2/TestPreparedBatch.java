@@ -15,8 +15,8 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

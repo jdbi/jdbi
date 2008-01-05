@@ -1,3 +1,6 @@
+2.1.1
+    Add timing info to logging calls
+
 2.1.0
     Add Query#fold
 

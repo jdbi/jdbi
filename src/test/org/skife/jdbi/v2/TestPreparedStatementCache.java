@@ -16,8 +16,8 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 import org.skife.jdbi.v2.logging.NoOpLog;
+import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

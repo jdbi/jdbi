@@ -16,7 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
 /**

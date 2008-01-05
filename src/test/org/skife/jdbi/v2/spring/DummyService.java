@@ -17,9 +17,9 @@
 package org.skife.jdbi.v2.spring;
 
 import org.skife.jdbi.v2.IDBI;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Isolation;
 
 /**
  *

@@ -16,9 +16,9 @@
 
 package org.skife.jdbi.v2.unstable.eod;
 
-import static org.skife.jdbi.v2.unstable.eod.BindType.Bean;
 import org.skife.jdbi.v2.ResultIterator;
 import org.skife.jdbi.v2.Something;
+import static org.skife.jdbi.v2.unstable.eod.BindType.Bean;
 
 import java.util.List;
 

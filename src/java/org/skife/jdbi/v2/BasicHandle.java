@@ -113,8 +113,9 @@ class BasicHandle implements Handle
      */
     public Handle commit()
     {
+        final long start = System.currentTimeMillis();
         transactions.commit(this);
-        log.logCommitTransaction(this);
+        log.logCommitTransaction(System.currentTimeMillis() - start, this);
         return this;
     }
 
@@ -123,8 +124,9 @@ class BasicHandle implements Handle
      */
     public Handle rollback()
     {
+        final long start = System.currentTimeMillis();
         transactions.rollback(this);
-        log.logRollbackTransaction(this);
+        log.logRollbackTransaction(System.currentTimeMillis() - start,  this);
         return this;
     }
 
@@ -169,8 +171,9 @@ class BasicHandle implements Handle
      */
     public Handle rollback(String checkpointName)
     {
+        final long start = System.currentTimeMillis();
         transactions.rollback(this, checkpointName);
-        log.logRollbackToCheckpoint(this, checkpointName);
+        log.logRollbackToCheckpoint(System.currentTimeMillis() - start, this, checkpointName);
         return this;
     }
 

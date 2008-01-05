@@ -15,17 +15,17 @@ public interface SQLLog
     /**
      * Called when a transaction is committed
      */
-    public void logCommitTransaction(Handle h);
+    public void logCommitTransaction(long time, Handle h);
 
     /**
      * Called when a transaction is committed
      */
-    public void logRollbackTransaction(Handle h);
+    public void logRollbackTransaction(long time, Handle h);
 
     /**
      * Called when a handle is opened from a DBI instance
      */
-    public void logObtainHandle(Handle h);
+    public void logObtainHandle(long time, Handle h);
 
     /**
      * Called when a handle is closed
@@ -36,14 +36,14 @@ public interface SQLLog
      * Called to log typical sql statements
      * @param sql the actual sql being exected
      */
-    public void logSQL(String sql);
+    public void logSQL(long time, String sql);
 
     /**
      * Called to log a prepared batch execution
      * @param sql The sql for the prepared batch
      * @param count the number of elements in the prepared batch
      */
-    public void logPreparedBatch(String sql, int count);
+    public void logPreparedBatch(long time, String sql, int count);
 
     /**
      * Factory method used to obtain a SQLLog.BatchLogger which will be used to log
@@ -69,7 +69,7 @@ public interface SQLLog
      * Called when a transaction checkpoint is rolled back to
      * @param name the checkpoint name
      */
-    void logRollbackToCheckpoint(Handle h, String checkpointName);
+    void logRollbackToCheckpoint(long time, Handle h, String checkpointName);
 
     /**
      * Instances of this are used to log batch statements. SQLLog#logBatch will return one of these.
@@ -86,6 +86,6 @@ public interface SQLLog
         /**
          * Called when all statements have been passed to add()
          */
-        public void log();
+        public void log(long time);
     }
 }

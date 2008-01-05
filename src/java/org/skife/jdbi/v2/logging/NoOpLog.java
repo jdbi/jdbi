@@ -15,7 +15,7 @@ public final class NoOpLog implements SQLLog
         {
         }
 
-        public final void log()
+        public final void log(long time)
         {
         }
     };
@@ -24,15 +24,15 @@ public final class NoOpLog implements SQLLog
     {
     }
 
-    public void logCommitTransaction(Handle h)
+    public void logCommitTransaction(long time, Handle h)
     {
     }
 
-    public void logRollbackTransaction(Handle h)
+    public void logRollbackTransaction(long time, Handle h)
     {
     }
 
-    public void logObtainHandle(Handle h)
+    public void logObtainHandle(long time, Handle h)
     {
     }
 
@@ -40,11 +40,11 @@ public final class NoOpLog implements SQLLog
     {
     }
 
-    public void logSQL(String sql)
+    public void logSQL(long time, String sql)
     {
     }
 
-    public void logPreparedBatch(String sql, int count)
+    public void logPreparedBatch(long time, String sql, int count)
     {
     }
 
@@ -61,7 +61,7 @@ public final class NoOpLog implements SQLLog
     {
     }
 
-    public void logRollbackToCheckpoint(Handle h, String checkpointName)
+    public void logRollbackToCheckpoint(long time, Handle h, String checkpointName)
     {
     }
 }

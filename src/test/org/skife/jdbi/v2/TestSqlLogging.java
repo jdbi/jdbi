@@ -1,20 +1,20 @@
 package org.skife.jdbi.v2;
 
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggingEvent;
 import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v2.tweak.SQLLog;
+import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.logging.Log4JLog;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.LoggingEvent;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -37,17 +37,17 @@ public class TestSqlLogging extends DBITestCase
                 logged.add("begin");
             }
 
-            public void logCommitTransaction(Handle h)
+            public void logCommitTransaction(long time, Handle h)
             {
                 logged.add("commit");
             }
 
-            public void logRollbackTransaction(Handle h)
+            public void logRollbackTransaction(long time, Handle h)
             {
                 logged.add("rollback");
             }
 
-            public void logObtainHandle(Handle h)
+            public void logObtainHandle(long time, Handle h)
             {
                 logged.add("open");
             }
@@ -57,12 +57,12 @@ public class TestSqlLogging extends DBITestCase
                 logged.add("close");
             }
 
-            public void logSQL(String sql)
+            public void logSQL(long time, String sql)
             {
                 logged.add(sql);
             }
 
-            public void logPreparedBatch(String sql, int count)
+            public void logPreparedBatch(long time, String sql, int count)
             {
                 logged.add(String.format("%d:%s", count, sql));
             }
@@ -77,7 +77,7 @@ public class TestSqlLogging extends DBITestCase
                         logged.add(sql);
                     }
 
-                    public void log()
+                    public void log(long time)
                     {
                     }
                 };
@@ -93,7 +93,7 @@ public class TestSqlLogging extends DBITestCase
                 logged.add(String.format("checkpoint %s released", name));
             }
 
-            public void logRollbackToCheckpoint(Handle h, String name)
+            public void logRollbackToCheckpoint(long time, Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s rolled back to", name));
             }
@@ -136,7 +136,6 @@ public class TestSqlLogging extends DBITestCase
     {
         BasicConfigurator.configure(new AppenderSkeleton()
         {
-
             protected void append(LoggingEvent loggingEvent)
             {
                 logged.add(loggingEvent.getRenderedMessage());
@@ -158,7 +157,9 @@ public class TestSqlLogging extends DBITestCase
         String sql2 = "insert into something (id, name) values (2, 'Keith')";
         h.createBatch().add(sql1).add(sql2).execute();
         assertEquals(1, logged.size());
-        assertEquals("batch:[[insert into something (id, name) values (1, 'Eric')], [insert into something (id, name) values (2, 'Keith')]]", logged.get(0));
+
+
+        assertTrue(logged.get(0).matches("batch:\\[\\[insert into something \\(id, name\\) values \\(1, 'Eric'\\)\\], \\[insert into something \\(id, name\\) values \\(2, 'Keith'\\)\\]\\] took \\d+ millis"));
     }
 
     public void testPrintStream() throws Exception
@@ -167,7 +168,9 @@ public class TestSqlLogging extends DBITestCase
         h.setSQLLog(new PrintStreamLog(new PrintStream(bout)));
         String sql = "insert into something (id, name) values (?, ?)";
         h.insert(sql, 1, "Brian");
-        assertEquals(String.format("statement:[%s]\n", sql), new String(bout.toByteArray()));
+
+        assertTrue(new String(bout.toByteArray())
+                .matches("statement:\\[insert into something \\(id, name\\) values \\(\\?, \\?\\)\\] took \\d+ millis\n"));
     }
 
     public void testCloseLogged() throws Exception

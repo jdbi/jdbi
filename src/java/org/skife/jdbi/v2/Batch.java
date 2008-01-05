@@ -109,8 +109,11 @@ public class Batch
 
             try
             {
-                logger.log();
-                return stmt.executeBatch();
+                final long start = System.currentTimeMillis();
+                final int[] rs = stmt.executeBatch();
+                logger.log(System.currentTimeMillis() - start);
+                return rs;
+
             }
             catch (SQLException e)
             {
