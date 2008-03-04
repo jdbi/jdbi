@@ -1,7 +1,7 @@
 <project name="jDBI" default="jar" basedir=".">
 
     <property name="debug" value="true"/>
-    <property name="version" value="2.1.1"/>
+    <property name="version" value="2.2.0"/>
 
     <target name="grammar" description="Build format grammer">
         <mkdir dir="build/grammar/org/skife/jdbi/rewriter/printf/"/>
@@ -203,6 +203,16 @@
         </copy>
         <tar tarfile="build/site/jdbi-${version}.tar.gz" basedir="build/staging" compression="gzip"/>
         <zip zipfile="build/site/jdbi-${version}.zip" basedir="build/staging"/>
+
+        <mkdir dir="build/maven" />
+        <copy todir="build/maven">
+            <fileset file="src/doc/pom.xml"/>
+            <filterset>
+                <filter token="version" value="${version}"/>
+            </filterset>
+        </copy>
+        <move file="build/maven/pom.xml" tofile="jdbi-${version}.pom"/>
+
     </target>
 </project>
 

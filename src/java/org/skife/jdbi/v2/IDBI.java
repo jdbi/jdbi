@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
+import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
 /**
@@ -55,4 +56,20 @@ public interface IDBI
      *                                 wrap the exception thrown by the callback.
      */
     <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException;
+
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients. The handle will be in a transaction when the callback is invoked, and
+     * that transaction will be committed if the callback finishes normally, or rolled back if the
+     * callback raises an exception.
+     *
+     * @param callback A callback which will receive an open Handle, in a transaction
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws CallbackFailedException;
+
 }

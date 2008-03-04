@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
+import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -231,6 +232,29 @@ public class DBI implements IDBI
         finally {
             h.close();
         }
+    }
+
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients. The handle will be in a transaction when the callback is invoked, and
+     * that transaction will be committed if the callback finishes normally, or rolled back if the
+     * callback raises an exception.
+     *
+     * @param callback A callback which will receive an open Handle, in a transaction
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    public <ReturnType> ReturnType inTransaction(final TransactionCallback<ReturnType> callback) throws CallbackFailedException
+    {
+        return withHandle(new HandleCallback<ReturnType>() {
+            public ReturnType withHandle(Handle handle) throws Exception
+            {
+                return handle.inTransaction(callback);
+            }
+        });
     }
 
     /**
