@@ -50,9 +50,9 @@ public class Update extends SQLStatement<Update>
     {
         return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Integer>()
         {
-            public Pair<Integer, ResultSet> munge(Statement results) throws SQLException
+            public Integer munge(Statement results) throws SQLException
             {
-                return new Pair<Integer, ResultSet>(results.getUpdateCount(), null);
+                return results.getUpdateCount();
             }
         }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
     }

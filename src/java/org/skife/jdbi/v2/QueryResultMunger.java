@@ -22,5 +22,5 @@ import java.sql.Statement;
 
 interface QueryResultMunger<Result>
 {
-    Pair<Result, ResultSet> munge(Statement results) throws SQLException;
+    Result munge(Statement results) throws SQLException;
 }
