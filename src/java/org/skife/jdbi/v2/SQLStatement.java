@@ -883,9 +883,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             }
 
             try {
-                final Pair<Result, ResultSet> r = munger.munge(stmt);
-                rs = r.getSecond();
-                return r.getFirst();
+                rs = stmt.getResultSet();
+                return munger.munge(stmt);
             }
             catch (SQLException e) {
                 throw new ResultSetException("Exception thrown while attempting to traverse the result set", e);
