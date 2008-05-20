@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package oracle.jdbc.driver;
+package oracle.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
