@@ -1,3 +1,7 @@
+2.2.2
+    Change OracleReturning to use oracle.jdbc.oraclePreparedStatement for
+    compatibility with ojdbc6.jar compatibility
+
 2.2.1
     Fix a result set leak in the case of a Mapper raising an exception rather
     than returning cleanly
