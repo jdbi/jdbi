@@ -193,6 +193,18 @@ class BasicHandle implements Handle
                           log);
     }
 
+    public <ReturnType> Call<ReturnType> createCall(String sql, CallableStatementMapper<ReturnType> mapper)
+    {
+        return new Call(connection,
+                          statementLocator,
+                          statementRewriter,
+                          statementBuilder,
+                          sql,
+                          new StatementContext(globalStatementAttributes),
+                          log,
+		                  mapper);
+    }
+
     public int insert(String sql, Object... args)
     {
         return update(sql, args);

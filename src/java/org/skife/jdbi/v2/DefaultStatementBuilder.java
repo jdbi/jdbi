@@ -24,7 +24,12 @@ public class DefaultStatementBuilder implements StatementBuilder
      */
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
-        return conn.prepareStatement(sql);
+	    if ( ctx.getAttribute(Call.class.getName()) != null ) {
+		    return conn.prepareCall(sql);
+	    }
+	    else {
+		    return conn.prepareStatement(sql);		    
+	    }
     }
 
     /**

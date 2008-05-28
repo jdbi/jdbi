@@ -1,7 +1,7 @@
 <project name="jDBI" default="jar" basedir=".">
 
     <property name="debug" value="true"/>
-    <property name="version" value="2.2.2"/>
+    <property name="version" value="2.3.0"/>
 
     <target name="grammar" description="Build format grammer">
         <mkdir dir="build/grammar/org/skife/jdbi/rewriter/printf/"/>

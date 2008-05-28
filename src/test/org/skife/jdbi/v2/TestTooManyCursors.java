@@ -87,6 +87,16 @@ public class TestTooManyCursors extends DBITestCase
         {
             return target.getLoginTimeout();
         }
+
+	    public <T> T unwrap(Class<T> iface) throws SQLException
+	    {
+		    return null;
+	    }
+
+	    public boolean isWrapperFor(Class<?> iface) throws SQLException
+	    {
+		    return false;
+	    }
     }
 
 

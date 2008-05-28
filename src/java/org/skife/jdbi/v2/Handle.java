@@ -92,6 +92,16 @@ public interface Handle
      */
     Update createStatement(String sql);
 
+	/**
+	 * Create an Insert or Update statement which returns the number of rows modified.
+	 *
+	 * @param callableSql
+	 * @param mapper
+	 * @return
+	 */
+	public <ReturnType> Call<ReturnType> createCall(String callableSql, CallableStatementMapper<ReturnType> mapper);
+
+
     /**
      * Execute a simple insert statement
      * @param sql the insert SQL

@@ -16,7 +16,6 @@
 
 package org.skife.jdbi.v2.unstable.oracle;
 
-import oracle.jdbc.OraclePreparedStatement;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -60,13 +59,17 @@ import java.util.List;
  * </code></pre>
  * Though you can bind multiple params, and whatnot
  */
+@Deprecated
 public class OracleReturning<ResultType> implements StatementCustomizer
 {
     private ResultSetMapper<ResultType> mapper;
-    private OraclePreparedStatement stmt;
     private final List<int[]> binds = new ArrayList<int[]>();
     private StatementContext context;
     private List<ResultType> results;
+	private Class oraclePS ;
+	private Method registerReturnParameter ;
+	private Method getReturnResultSet ;
+	private Object stmt ;
 
     /**
      * Provide a mapper which knows how to do positional access, sadly the
@@ -77,6 +80,14 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     public OracleReturning(ResultSetMapper<ResultType> mapper)
     {
         this.mapper = mapper;
+	    try {
+		    this.oraclePS = Class.forName("oracle.jdbc.OraclePreparedStatement");
+		    this.registerReturnParameter = oraclePS.getMethod("registerReturnParameter", new Class[]{int.class, int.class});
+		    this.getReturnResultSet = oraclePS.getMethod("getReturnResultSet");
+	    }
+	    catch (Exception e) {
+		    throw new RuntimeException(e);
+	    }
     }
 
     /**
@@ -86,15 +97,15 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     {
         this.context = ctx;
 
-        if (!(stmt instanceof OraclePreparedStatement)) {
+        if (!oraclePS.isAssignableFrom(stmt.getClass())) {
             try {
                 final Method get_delegate = stmt.getClass().getMethod("getDelegate");
                 final Object candidate = get_delegate.invoke(stmt);
-                if (candidate instanceof OraclePreparedStatement) {
-                    this.stmt = (OraclePreparedStatement) candidate;
-                }
-                else {
+                if (!oraclePS.isAssignableFrom(candidate.getClass())) {
                     throw new Exception("Obtained delegate, but it still wasn't an OraclePreparedStatement");
+                }
+	            else {
+	                this.stmt = candidate ;
                 }
             }
             catch (Exception e) {
@@ -102,24 +113,28 @@ public class OracleReturning<ResultType> implements StatementCustomizer
                                                 "one which we know how to find it from", e);
             }
         }
-        else {
-            this.stmt = (OraclePreparedStatement) stmt;
+	    else {
+	        this.stmt = stmt ;
         }
         for (int[] bind : binds) {
-            this.stmt.registerReturnParameter(bind[0], bind[1]);
+	        try {
+		        registerReturnParameter.invoke(this.stmt, bind[0], bind[1]);
+	        }
+	        catch (Exception e) {
+		        throw new RuntimeException(e);
+	        }
         }
     }
 
     public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
         ResultSet rs;
-        try {
-            rs = this.stmt.getReturnResultSet();
-        }
-        catch (SQLException e) {
-            throw new ResultSetException("Unable to retrieve return result set", e);
-        }
-
+		try {
+			rs = (ResultSet) this.getReturnResultSet.invoke(this.stmt);
+		}
+		catch (Exception e) {
+			throw new ResultSetException("Unable to retrieve return result set", e);
+		}
         this.results = new ArrayList<ResultType>();
         try {
             int i = 0;
