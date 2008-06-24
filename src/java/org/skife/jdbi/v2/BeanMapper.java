@@ -145,6 +145,11 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 					throw new IllegalArgumentException(String.format("Invocation target exception trying to " +
 																	 "invoker setter for the %s property", name), e);
 				}
+        catch (NullPointerException e)
+        {
+          throw new IllegalArgumentException(String.format("No appropriate method to " +
+                                   "write value %s ", value.toString()), e);
+        }
 
 			}
 		}
@@ -152,3 +157,4 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         return bean;
 	}
 }
+
