@@ -53,4 +53,12 @@ public class TestColonStatementRewriter extends TestCase
                                             new StatementContext(new HashMap<String, Object>()));
         assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
     }
+
+	public void testDollarSignOkay() throws Exception
+	{
+	    RewrittenStatement rws = rw.rewrite("select * from v$session", new Binding(),
+	                                        new StatementContext(new HashMap<String, Object>()));
+	    assertEquals("select * from v$session", rws.getSql());
+	}
+
 }
