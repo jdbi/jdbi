@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.sql.CallableStatement;
 import java.sql.Statement;
 import java.sql.Types;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
@@ -119,7 +121,9 @@ public class Call extends SQLStatement<Call>
 					return stmt.getBytes(position) ;
 				case Types.SMALLINT :
 					return stmt.getShort(position);
-				case Types.BIGINT : case Types.INTEGER :
+				case Types.INTEGER :
+					return stmt.getInt(position);
+				case Types.BIGINT :
 				    return stmt.getLong(position);
 				case Types.TIMESTAMP : case Types.TIME :
 					return stmt.getTimestamp(position) ;
@@ -140,14 +144,194 @@ public class Call extends SQLStatement<Call>
 	{
 		final Map map = new HashMap();
 
-		public Object getParameterByName(String name)
+		public Object getObject(String name)
 		{
 			return map.get(name);
 		}
 
-		public Object getParameterByPosition(Integer pos)
+		public Object getObject(Integer pos)
 		{
 			return map.get(pos);
+		}
+
+		public String getString(String name)
+		{
+			Object obj = map.get(name);
+			if ( obj != null ) {
+				return obj.toString();
+			}
+			return null;
+		}
+
+		public String getString(Integer pos)
+		{
+			Object obj = map.get(pos);
+			if ( obj != null ) {
+				return obj.toString();
+			}
+			return null;
+		}
+
+		public byte[] getBytes(String name)
+		{
+			Object obj = map.get(name);
+			if ( obj instanceof byte[]) {
+				return (byte[]) obj ;
+			}
+			return null;
+		}
+
+		public byte[] getBytes(Integer pos)
+		{
+			Object obj = map.get(pos);
+			if ( obj instanceof byte[]) {
+				return (byte[]) obj ;
+			}
+			return null;
+		}
+
+		public Integer getInt(String name)
+		{
+			Number n = getNumber(name) ;
+			if ( n != null ) {
+				return n.intValue();
+			}
+			return null;
+		}
+
+		public Integer getInt(Integer pos)
+		{
+			Number n = getNumber(pos) ;
+			if ( n != null ) {
+				return n.intValue();
+			}
+			return null;
+		}
+
+		public Long getLong(String name)
+		{
+			Number n = getNumber(name) ;
+			if ( n != null ) {
+				return n.longValue();
+			}
+			return null;
+		}
+
+		public Long getLong(Integer pos)
+		{
+			Number n = getNumber(pos) ;
+			if ( n != null ) {
+				return n.longValue();
+			}
+			return null;
+		}
+
+		public Short getShort(String name)
+		{
+			Number n = getNumber(name) ;
+			if ( n != null ) {
+				return n.shortValue();
+			}
+			return null;
+		}
+
+		public Short getShort(Integer pos)
+		{
+			Number n = getNumber(pos) ;
+			if ( n != null ) {
+				return n.shortValue();
+			}
+			return null;
+		}
+
+		public Date getDate(String name)
+		{
+			Long t = getEpoch(name) ;
+			if ( t != null ) {
+				return new Date(t);
+			}
+			return null;
+		}
+
+		public Date getDate(Integer pos)
+		{
+			Long t = getEpoch(pos) ;
+			if ( t != null ) {
+				return new Date(t);
+			}
+			return null;
+		}
+
+		public Timestamp getTimestamp(String name)
+		{
+			Long t = getEpoch(name) ;
+			if ( t != null ) {
+				return new Timestamp(t);
+			}
+			return null;
+		}
+
+		public Timestamp getTimestamp(Integer pos)
+		{
+			Long t = getEpoch(pos) ;
+			if ( t != null ) {
+				return new Timestamp(t);
+			}
+			return null;
+		}
+
+		public Double getDouble(String name)
+		{
+			Number n = getNumber(name) ;
+			if ( n != null ) {
+				return n.doubleValue();
+			}
+			return null;
+		}
+
+		public Double getDouble(Integer pos)
+		{
+			Number n = getNumber(pos) ;
+			if ( n != null ) {
+				return n.doubleValue();
+			}
+			return null;
+		}
+
+		public Float getFloat(String name)
+		{
+			Number n = getNumber(name) ;
+			if ( n != null ) {
+				return n.floatValue();
+			}
+			return null;
+		}
+
+		public Float getFloat(Integer pos)
+		{
+			Number n = getNumber(pos) ;
+			if ( n != null ) {
+				return n.floatValue();
+			}
+			return null;
+		}
+
+		private Number getNumber(Object name)
+		{
+			Object obj = map.get(name);
+			if ( obj != null && obj instanceof Number) {
+				return (Number) obj ;
+			}
+			return null;
+		}
+
+		private Long getEpoch(Object name)
+		{
+			Object obj = map.get(name) ;
+			if ( obj != null && obj instanceof java.util.Date) {
+				return ((java.util.Date) obj).getTime() ;
+			}
+			return null;
 		}
 	}
 }

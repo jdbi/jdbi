@@ -44,7 +44,7 @@ public class TestCallable extends DBITestCase
 			    .invoke();
 
 	    // JDBI oddity : register or bind is 0-indexed, which JDBC is 1-indexed.
-	    assertEquals(Math.toDegrees(100.0d), ret.getParameterByPosition(1));
+	    assertEquals(Math.toDegrees(100.0d), ret.getDouble(1));
     }
 
 	public void testStatementWithNamedParam() throws Exception
@@ -54,7 +54,7 @@ public class TestCallable extends DBITestCase
 				.bind("y", 100.0d)
 				.invoke();
 
-		assertEquals(Math.toDegrees(100.0d), ret.getParameterByName("x"));
+		assertEquals(Math.toDegrees(100.0d), ret.getDouble("x"));
 	}
 
 }
