@@ -44,7 +44,12 @@ public class TestCallable extends DBITestCase
 			    .invoke();
 
 	    // JDBI oddity : register or bind is 0-indexed, which JDBC is 1-indexed.
-	    assertEquals(Math.toDegrees(100.0d), ret.getDouble(1));
+	    Double expected = Math.toDegrees(100.0d);
+	    assertEquals(expected, ret.getDouble(1));
+	    assertEquals(expected.longValue(), ret.getLong(1).longValue());
+	    assertEquals(expected.shortValue(), ret.getShort(1).shortValue());
+	    assertEquals(expected.intValue(), ret.getInt(1).intValue());
+	    assertEquals(expected.floatValue(), ret.getFloat(1).floatValue());
     }
 
 	public void testStatementWithNamedParam() throws Exception
@@ -54,7 +59,12 @@ public class TestCallable extends DBITestCase
 				.bind("y", 100.0d)
 				.invoke();
 
-		assertEquals(Math.toDegrees(100.0d), ret.getDouble("x"));
+		Double expected = Math.toDegrees(100.0d);
+		assertEquals(expected, ret.getDouble("x"));
+		assertEquals(expected.longValue(), ret.getLong("x").longValue());
+		assertEquals(expected.shortValue(), ret.getShort("x").shortValue());
+		assertEquals(expected.intValue(), ret.getInt("x").intValue());
+		assertEquals(expected.floatValue(), ret.getFloat("x").floatValue());
 	}
 
 }

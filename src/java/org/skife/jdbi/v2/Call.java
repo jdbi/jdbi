@@ -149,7 +149,7 @@ public class Call extends SQLStatement<Call>
 			return map.get(name);
 		}
 
-		public Object getObject(Integer pos)
+		public Object getObject(int pos)
 		{
 			return map.get(pos);
 		}
@@ -160,160 +160,104 @@ public class Call extends SQLStatement<Call>
 			if ( obj != null ) {
 				return obj.toString();
 			}
-			return null;
+			throw new IllegalArgumentException("Parameter doesn't exist");
 		}
 
-		public String getString(Integer pos)
+		public String getString(int pos)
 		{
 			Object obj = map.get(pos);
 			if ( obj != null ) {
 				return obj.toString();
 			}
-			return null;
+			throw new IllegalArgumentException("Parameter doesn't exist");
 		}
 
 		public byte[] getBytes(String name)
 		{
 			Object obj = map.get(name);
-			if ( obj instanceof byte[]) {
+			if (obj instanceof byte[]) {
 				return (byte[]) obj ;
 			}
-			return null;
+			throw new IllegalArgumentException("Parameter result not byte[] or doesn't exist");
 		}
 
-		public byte[] getBytes(Integer pos)
+		public byte[] getBytes(int pos)
 		{
 			Object obj = map.get(pos);
-			if ( obj instanceof byte[]) {
+			if (obj instanceof byte[]) {
 				return (byte[]) obj ;
 			}
-			return null;
+			throw new IllegalArgumentException("Parameter result not byte[] or doesn't exist");
 		}
 
 		public Integer getInt(String name)
 		{
-			Number n = getNumber(name) ;
-			if ( n != null ) {
-				return n.intValue();
-			}
-			return null;
+			return getNumber(name).intValue() ;
 		}
 
-		public Integer getInt(Integer pos)
+		public Integer getInt(int pos)
 		{
-			Number n = getNumber(pos) ;
-			if ( n != null ) {
-				return n.intValue();
-			}
-			return null;
+			return getNumber(pos).intValue() ;
 		}
 
 		public Long getLong(String name)
 		{
-			Number n = getNumber(name) ;
-			if ( n != null ) {
-				return n.longValue();
-			}
-			return null;
+			return getNumber(name).longValue() ;
 		}
 
-		public Long getLong(Integer pos)
+		public Long getLong(int pos)
 		{
-			Number n = getNumber(pos) ;
-			if ( n != null ) {
-				return n.longValue();
-			}
-			return null;
+			return getNumber(pos).longValue() ;
 		}
 
 		public Short getShort(String name)
 		{
-			Number n = getNumber(name) ;
-			if ( n != null ) {
-				return n.shortValue();
-			}
-			return null;
+			return getNumber(name).shortValue() ;
 		}
 
-		public Short getShort(Integer pos)
+		public Short getShort(int pos)
 		{
-			Number n = getNumber(pos) ;
-			if ( n != null ) {
-				return n.shortValue();
-			}
-			return null;
+			return getNumber(pos).shortValue() ;
 		}
 
 		public Date getDate(String name)
 		{
-			Long t = getEpoch(name) ;
-			if ( t != null ) {
-				return new Date(t);
-			}
-			return null;
+			return new Date(getEpoch(name));
 		}
 
-		public Date getDate(Integer pos)
+		public Date getDate(int pos)
 		{
-			Long t = getEpoch(pos) ;
-			if ( t != null ) {
-				return new Date(t);
-			}
-			return null;
+			return new Date(getEpoch(pos));
 		}
 
 		public Timestamp getTimestamp(String name)
 		{
-			Long t = getEpoch(name) ;
-			if ( t != null ) {
-				return new Timestamp(t);
-			}
-			return null;
+			return new Timestamp(getEpoch(name)) ;
 		}
 
-		public Timestamp getTimestamp(Integer pos)
+		public Timestamp getTimestamp(int pos)
 		{
-			Long t = getEpoch(pos) ;
-			if ( t != null ) {
-				return new Timestamp(t);
-			}
-			return null;
+			return new Timestamp(getEpoch(pos)) ;
 		}
 
 		public Double getDouble(String name)
 		{
-			Number n = getNumber(name) ;
-			if ( n != null ) {
-				return n.doubleValue();
-			}
-			return null;
+			return getNumber(name).doubleValue() ;
 		}
 
-		public Double getDouble(Integer pos)
+		public Double getDouble(int pos)
 		{
-			Number n = getNumber(pos) ;
-			if ( n != null ) {
-				return n.doubleValue();
-			}
-			return null;
+			return getNumber(pos).doubleValue();
 		}
 
 		public Float getFloat(String name)
 		{
-			Number n = getNumber(name) ;
-			if ( n != null ) {
-				return n.floatValue();
-			}
-			return null;
+			return getNumber(name).floatValue();
 		}
 
-		public Float getFloat(Integer pos)
+		public Float getFloat(int pos)
 		{
-			Number n = getNumber(pos) ;
-			if ( n != null ) {
-				return n.floatValue();
-			}
-			return null;
+			return getNumber(pos).floatValue();
 		}
 
 		private Number getNumber(Object name)
@@ -322,7 +266,7 @@ public class Call extends SQLStatement<Call>
 			if ( obj != null && obj instanceof Number) {
 				return (Number) obj ;
 			}
-			return null;
+			throw new IllegalArgumentException("Parameter result not a number or doesn't exist");
 		}
 
 		private Long getEpoch(Object name)
@@ -331,7 +275,7 @@ public class Call extends SQLStatement<Call>
 			if ( obj != null && obj instanceof java.util.Date) {
 				return ((java.util.Date) obj).getTime() ;
 			}
-			return null;
+			throw new IllegalArgumentException("Parameter result not a Date or doesn't exist");
 		}
 	}
 }
