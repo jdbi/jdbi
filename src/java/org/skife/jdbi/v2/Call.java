@@ -12,21 +12,22 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.CallableStatement;
 import java.sql.Statement;
+import java.sql.Types;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Used for invoking stored procedures.
  */
-public class Call<ReturnType> extends SQLStatement<Call<ReturnType>>
+public class Call extends SQLStatement<Call>
 {
-	final CallableStatementMapper<ReturnType> mapper ;
-	ReturnType returnObj = null ;
+	private final List<OutParamArgument> params = new ArrayList<OutParamArgument>();
 
-	Call(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, StatementBuilder cache, String sql, StatementContext ctx, SQLLog log, CallableStatementMapper<ReturnType> mapper)
+	Call(Connection connection, StatementLocator locator, StatementRewriter statementRewriter, StatementBuilder cache, String sql, StatementContext ctx, SQLLog log)
 	{
 		super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log);
-		this.mapper = mapper;
-		ctx.setAttribute(getClass().getName(), "true");
-		this.addStatementCustomizer(new MyStatementCustomizer());
 	}
 
 	/**
@@ -35,9 +36,14 @@ public class Call<ReturnType> extends SQLStatement<Call<ReturnType>>
 	 * @param sqlType
 	 * @return
 	 */
-	public Call<ReturnType> registerOutParameter(int position, int sqlType)
+	public Call registerOutParameter(int position, int sqlType)
 	{
-	    getParams().addPositional(position, new OutParamArgument(sqlType));
+		return registerOutParameter(position, sqlType, null);
+	}
+
+	public Call registerOutParameter(int position, int sqlType, CallableStatementMapper mapper)
+	{
+	    getParams().addPositional(position, new OutParamArgument(sqlType, mapper, null));
 	    return this;
 	}
 
@@ -47,9 +53,14 @@ public class Call<ReturnType> extends SQLStatement<Call<ReturnType>>
 	 * @param sqlType
 	 * @return
 	 */
-	public Call<ReturnType> registerOutParameter(String name, int sqlType)
+	public Call registerOutParameter(String name, int sqlType)
 	{
-	    getParams().addNamed(name, new OutParamArgument(sqlType));
+	    return registerOutParameter(name, sqlType, null);
+	}
+
+	public Call registerOutParameter(String name, int sqlType, CallableStatementMapper mapper)
+	{
+	    getParams().addNamed(name, new OutParamArgument(sqlType, mapper, name));
 	    return this;
 	}
 
@@ -57,42 +68,86 @@ public class Call<ReturnType> extends SQLStatement<Call<ReturnType>>
 	 * Invoke the callable statement
 	 * @return
 	 */
-	public ReturnType invoke()
+	public OutParameters invoke()
 	{
-        this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Void>(){
-	        public Void munge(Statement results) throws SQLException
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<OutParameters>(){
+	        public OutParameters munge(Statement results) throws SQLException
 	        {
-		        return null;
+		        OutParameters out = new OutParameters();
+		        for ( OutParamArgument param : params ) {
+			        Object obj = param.map((CallableStatement)results);
+			        out.map.put(param.position, obj);
+			        if ( param.name != null ) {
+				        out.map.put(param.name, obj);
+			        }
+		        }
+		        return out;
 	        }
         }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
-		return returnObj ;
-	}
-
-
-	private class MyStatementCustomizer implements StatementCustomizer
-	{
-		public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-		{
-		}
-
-		public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-		{
-			returnObj = mapper.map((CallableStatement)stmt);
-		}
 	}
 
 	private class OutParamArgument implements Argument
 	{
 		private final int sqlType;
+		private final CallableStatementMapper mapper;
+		private final String name;
+		private int position ;
 
-		public OutParamArgument(int sqlType)
+		public OutParamArgument(int sqlType, CallableStatementMapper mapper, String name)
 		{
 			this.sqlType = sqlType;
+			this.mapper = mapper;
+			this.name = name;
+			params.add(this);
 		}
 
 		public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
 		{
 			((CallableStatement)statement).registerOutParameter(position, sqlType);
+			this.position = position ;
+		}
+
+		public Object map(CallableStatement stmt) throws SQLException
+		{
+			if ( mapper != null ) {
+				return mapper.map(position, stmt);
+			}
+			switch ( sqlType ) {
+				case Types.CLOB : case Types.VARCHAR : case Types.LONGNVARCHAR : case Types.LONGVARCHAR : case Types.NCLOB : case Types.NVARCHAR :
+					return stmt.getString(position) ;
+				case Types.BLOB : case Types.VARBINARY :
+					return stmt.getBytes(position) ;
+				case Types.SMALLINT :
+					return stmt.getShort(position);
+				case Types.BIGINT : case Types.INTEGER :
+				    return stmt.getLong(position);
+				case Types.TIMESTAMP : case Types.TIME :
+					return stmt.getTimestamp(position) ;
+				case Types.DATE :
+					return stmt.getDate(position) ;
+				case Types.FLOAT :
+					return stmt.getFloat(position);
+				case Types.DECIMAL : case Types.DOUBLE :
+				    return stmt.getDouble(position);
+				default :
+					return stmt.getObject(position);
+
+			}
+		}
+	}
+
+	public static class OutParameters
+	{
+		final Map map = new HashMap();
+
+		public Object getParameterByName(String name)
+		{
+			return map.get(name);
+		}
+
+		public Object getParameterByPosition(Integer pos)
+		{
+			return map.get(pos);
 		}
 	}
 }

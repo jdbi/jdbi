@@ -5,6 +5,7 @@ import org.skife.jdbi.derby.Tools;
 import java.sql.Types;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class TestCallable extends DBITestCase
 {
@@ -37,32 +38,23 @@ public class TestCallable extends DBITestCase
 
     public void testStatement() throws Exception
     {
-        Double i = h.createCall("? = CALL TO_DEGREES(?)", new CallableStatementMapper<Double>(){
-	        public Double map(CallableStatement call) throws SQLException
-	        {
-		        return call.getDouble(1);
-	        }
-        })
-		.registerOutParameter(0, Types.VARCHAR)
-		.bind(1, 100.0d)
-		.invoke();
+	    Call.OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
+			    .registerOutParameter(0, Types.DOUBLE)
+			    .bind(1, 100.0d)
+			    .invoke();
 
-	    assertEquals(Math.toDegrees(100.0d), i);
+	    // JDBI oddity : register or bind is 0-indexed, which JDBC is 1-indexed.
+	    assertEquals(Math.toDegrees(100.0d), ret.getParameterByPosition(1));
     }
 
 	public void testStatementWithNamedParam() throws Exception
 	{
-	    Double i = h.createCall(":x = CALL TO_DEGREES(:y)", new CallableStatementMapper<Double>(){
-		    public Double map(CallableStatement call) throws SQLException
-		    {
-			    return call.getDouble(1);
-		    }
-	    })
-		.registerOutParameter("x", Types.VARCHAR)
-		.bind("y", 100.0d)
-		.invoke();
+		Call.OutParameters ret = h.createCall(":x = CALL TO_DEGREES(:y)")
+				.registerOutParameter("x", Types.DOUBLE)
+				.bind("y", 100.0d)
+				.invoke();
 
-		assertEquals(Math.toDegrees(100.0d), i);
+		assertEquals(Math.toDegrees(100.0d), ret.getParameterByName("x"));
 	}
 
 }

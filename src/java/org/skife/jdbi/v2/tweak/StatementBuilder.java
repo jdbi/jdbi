@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.sql.CallableStatement;
 
 /**
  * Used to convert translated SQL into a prepared statement. The default implementation
@@ -42,6 +43,16 @@ public interface StatementBuilder
      * @param ctx Statement context associated with the SQLStatement this is building for
      */
     PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException;
+
+	/**
+	 * Called each time a Callable statement needs to be created
+	 *
+	 * @param conn the JDBC Connection the statement is being created for
+	 * @param sql the translated SQL which should be prepared
+	 * @param ctx Statement context associated with the SQLStatement this is building for
+	 */
+	CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException;
+	
 
     /**
      * Called to close an individual prepared statement created from this builder

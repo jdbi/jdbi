@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.CallableStatement;
 
 /**
  * A StatementBuilder which will always create a new PreparedStatement
@@ -24,12 +25,7 @@ public class DefaultStatementBuilder implements StatementBuilder
      */
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
-	    if ( ctx.getAttribute(Call.class.getName()) != null ) {
-		    return conn.prepareCall(sql);
-	    }
-	    else {
-		    return conn.prepareStatement(sql);		    
-	    }
+		return conn.prepareStatement(sql);
     }
 
     /**
@@ -52,4 +48,16 @@ public class DefaultStatementBuilder implements StatementBuilder
     public void close(Connection conn)
     {
     }
+
+	/**
+	 * Called each time a Callable statement needs to be created
+	 *
+	 * @param conn the JDBC Connection the statement is being created for
+	 * @param sql the translated SQL which should be prepared
+	 * @param ctx Statement context associated with the SQLStatement this is building for
+	 */
+	public CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException
+	{
+		return conn.prepareCall(sql);
+	}
 }

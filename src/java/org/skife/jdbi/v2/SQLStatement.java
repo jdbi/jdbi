@@ -835,7 +835,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         ResultSet rs = null;
         try {
             try {
-                stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
+	            if (getClass().equals(Call.class)) {
+		            stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);   
+	            }
+	            else {
+                    stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
+	            }
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e);

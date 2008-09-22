@@ -3,7 +3,7 @@ package org.skife.jdbi.v2;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 
-public interface CallableStatementMapper<ReturnType>
+public interface CallableStatementMapper
 {
-	public ReturnType map(CallableStatement call) throws SQLException;
+	public Object map(int position, CallableStatement stmt) throws SQLException;
 }
