@@ -50,6 +50,23 @@ public class TestCallable extends DBITestCase
 	    assertEquals(expected.shortValue(), ret.getShort(1).shortValue());
 	    assertEquals(expected.intValue(), ret.getInt(1).intValue());
 	    assertEquals(expected.floatValue(), ret.getFloat(1).floatValue());
+
+	    try {
+		    ret.getDate(1);
+		    fail("didn't throw exception !");
+	    }
+	    catch ( Exception e) {
+		    //e.printStackTrace();
+	    }
+
+	    try {
+		    ret.getDate(2);
+		    fail("didn't throw exception !");
+	    }
+	    catch ( Exception e) {
+		    //e.printStackTrace();
+	    }
+
     }
 
 	public void testStatementWithNamedParam() throws Exception
@@ -65,6 +82,22 @@ public class TestCallable extends DBITestCase
 		assertEquals(expected.shortValue(), ret.getShort("x").shortValue());
 		assertEquals(expected.intValue(), ret.getInt("x").intValue());
 		assertEquals(expected.floatValue(), ret.getFloat("x").floatValue());
+
+		try {
+			ret.getDate("x");
+			fail("didn't throw exception !");
+		}
+		catch ( Exception e) {
+			//e.printStackTrace();
+		}
+
+		try {
+			ret.getDate("y");
+			fail("didn't throw exception !");
+		}
+		catch ( Exception e) {
+			//e.printStackTrace();
+		}
 	}
 
 }
