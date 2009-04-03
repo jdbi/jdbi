@@ -34,6 +34,19 @@ public class TestColonGrammar extends GrammarTestCase
                LITERAL, QUOTED_TEXT, LITERAL, NAMED_PARAM, LITERAL, NAMED_PARAM, EOF);
     }
 
+    public void testEmptyQuote() throws Exception
+    {
+        expect("select ''",
+               LITERAL, QUOTED_TEXT, EOF);
+    }
+
+    public void testEscapedEmptyQuote() throws Exception
+    {
+        expect("select '\\''",
+               LITERAL, QUOTED_TEXT, EOF);
+    }
+
+
     public void testMixed() throws Exception
     {
         expect("select id from something where name like ':foo' and id = ? and name like :name",

@@ -22,7 +22,9 @@ import java.sql.SQLException;
  * Used to define a function for <a href="http://en.wikipedia.org/wiki/Fold_(higher-order_function)">folding</a>
  * over the result set of a query.
  * @see org.skife.jdbi.v2.Query#fold(Object, Folder)
+ * @deprecated Prefer Folder2, in jdbi3 Folder2 will be renamed Folder and this form will go away
  */
+@Deprecated
 public interface Folder<AccumulatorType>
 {
     /**

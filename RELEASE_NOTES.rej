@@ -1,0 +1,28 @@
+***************
+*** 1,10 ****
+  2.3.0
+-     Fix OracleReturning compile time dependency using Reflection. 
+      Deprecated OracleReturning.
+-     Added CallableStatement support : 
+        - new method handle.prepareCall
+        - new Call class and CallableStatementMapper interface
+-      
+  2.2.2
+      Change OracleReturning to use oracle.jdbc.oraclePreparedStatement for
+      compatibility with ojdbc6.jar compatibility
+--- 1,15 ----
+  2.3.0
++     Fix OracleReturning compile time dependency using Reflection.
+      Deprecated OracleReturning.
++     Added CallableStatement support :
+        - new method handle.prepareCall
+        - new Call class and CallableStatementMapper interface
++ 
++     Fixes to colon prefix grammar to support empty string literals and
++     escaped quotes.
++ 
++     Added access to more of the actual context for a statement to StatementContext
++ 
+  2.2.2
+      Change OracleReturning to use oracle.jdbc.oraclePreparedStatement for
+      compatibility with ojdbc6.jar compatibility

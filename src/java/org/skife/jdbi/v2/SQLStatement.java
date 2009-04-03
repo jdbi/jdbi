@@ -84,6 +84,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         this.sql = sql;
         this.params = params;
         this.locator = locator;
+
+        ctx.setConnection(conn);
+        ctx.setRawSql(sql);
     }
 
 
@@ -831,12 +834,15 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                                               final QueryResultMunger<Result> munger,
                                               final QueryPostMungeCleanup cleanup)
     {
-        rewritten = rewriter.rewrite(wrapLookup(sql), getParameters(), this.context);
+        final String located_sql = wrapLookup(sql);
+        this.context.setLocatedSql(located_sql);
+        rewritten = rewriter.rewrite(located_sql, getParameters(), this.context);
+        this.context.setRewrittenSql(rewritten.getSql());
         ResultSet rs = null;
         try {
             try {
-	            if (getClass().equals(Call.class)) {
-		            stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);   
+	            if (getClass().isAssignableFrom(Call.class)) {
+		            stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);
 	            }
 	            else {
                     stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
@@ -846,6 +852,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                 throw new UnableToCreateStatementException(e);
             }
 
+            this.context.setStatement(stmt);
             try {
                 rewritten.bind(getParameters(), stmt);
             }

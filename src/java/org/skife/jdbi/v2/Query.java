@@ -128,6 +128,37 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @see org.skife.jdbi.v2.Folder
      */
+    public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder2<AccumulatorType> folder)
+    {
+        final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
+
+        this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Void>()
+        {
+            public Void munge(Statement stmt) throws SQLException
+            {
+                ResultSet rs = stmt.getResultSet();
+                while (rs.next()) {
+                    acc.set(folder.fold(acc.get(), rs, getContext()));
+                }
+                return null;
+            }
+        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+        return acc.get();
+    }
+
+    /**
+     * Used to execute the query and traverse the result set with a accumulator.
+     * <a href="http://en.wikipedia.org/wiki/Fold_(higher-order_function)">Folding</a> over the
+     * result involves invoking a callback for each row, passing into the callback the return value
+     * from the previous function invocation.
+     *
+     * @param accumulator The initial accumulator value
+     * @param folder      Defines the function which will fold over the result set.
+     *
+     * @return The return value from the last invocation of {@link Folder#fold(Object, java.sql.ResultSet)}
+     *
+     * @see org.skife.jdbi.v2.Folder
+     */
     public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder<AccumulatorType> folder)
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);

@@ -201,8 +201,7 @@ class BasicHandle implements Handle
                           statementBuilder,
                           sql,
                           new StatementContext(globalStatementAttributes),
-                          log
-		                  );
+                          log);
     }
 
     public int insert(String sql, Object... args)

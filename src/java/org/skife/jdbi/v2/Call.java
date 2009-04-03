@@ -1,24 +1,23 @@
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.SQLLog;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.StatementBuilder;
-import org.skife.jdbi.v2.tweak.SQLLog;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.tweak.Argument;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.CallableStatement;
 import java.sql.Statement;
-import java.sql.Types;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Map;
-import java.util.List;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Used for invoking stored procedures.
@@ -140,9 +139,12 @@ public class Call extends SQLStatement<Call>
 		}
 	}
 
+    /**
+     * Represents output from a callable statement
+     */
 	public static class OutParameters
 	{
-		final Map map = new HashMap();
+		private final Map map = new HashMap();
 
 		public Object getObject(String name)
 		{

@@ -1,14 +1,5 @@
-2.3.0
-    Fix OracleReturning compile time dependency using Reflection.
-    Deprecated OracleReturning.
-    Added CallableStatement support :
-      - new method handle.prepareCall
-      - new Call class and CallableStatementMapper interface
-
-    Fixes to colon prefix grammar to support empty string literals and
-    escaped quotes.
-
-    Added access to more of the actual context for a statement to StatementContext
+2.2.4
+    JIRA-15: ClasspathGroupLoader chokes on empty path definitions / default c'tor usage
 
 2.2.2
     Change OracleReturning to use oracle.jdbc.oraclePreparedStatement for

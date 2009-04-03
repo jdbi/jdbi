@@ -93,10 +93,10 @@ public interface Handle
     Update createStatement(String sql);
 
 	/**
-	 * Create an Insert or Update statement which returns the number of rows modified.
+	 * Create a call to a stored procedure
 	 *
 	 * @param callableSql
-	 * @return
+	 * @return the Call
 	 */
 	public Call createCall(String callableSql);
 

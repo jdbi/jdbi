@@ -16,8 +16,13 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Connection;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -28,6 +33,11 @@ import java.util.Map;
 public class StatementContext
 {
     private final Map<String, Object> attributes = new HashMap<String, Object>();
+    private String rawSql;
+    private String rewrittenSql;
+    private String locatedSql;
+    private PreparedStatement statement;
+    private Connection connection;
 
     StatementContext(Map<String, Object> globalAttributes) {
         attributes.putAll(globalAttributes);
@@ -65,5 +75,71 @@ public class StatementContext
     public Map<String, Object> getAttributes()
     {
         return attributes;
+    }
+
+    void setRawSql(String rawSql) {
+        this.rawSql = rawSql;
+    }
+
+    /**
+     * Obtain the initial sql for the statement used to create the statement
+     * @return the initial sql
+     */
+    public String getRawSql() {
+        return rawSql;
+    }
+
+    void setLocatedSql(String locatedSql) {
+        this.locatedSql = locatedSql;
+    }
+
+    void setRewrittenSql(String rewrittenSql) {
+        this.rewrittenSql = rewrittenSql;
+    }
+
+    /**
+     * Obtain the located and rewritten sql
+     *
+     * Not available until until statement execution time
+     * @return the sql as it will be executed against the database
+     */
+    public String getRewrittenSql() {
+        return rewrittenSql;
+    }
+
+    /**
+     * Obtain the located sql
+     *
+     * Not available until until statement execution time
+     * @return the sql which will be passed to the statement rewriter
+     */
+    public String getLocatedSql() {
+        return locatedSql;
+    }
+
+    void setStatement(PreparedStatement stmt) {
+        statement = stmt;
+    }
+
+    /**
+     * Obtain the actual prepared statement being used.
+     *
+     * Not available until execution time
+     * @return Obtain the actual prepared statement being used.
+     */
+    public PreparedStatement getStatement() {
+        return statement;
+    }
+
+    void setConnection(Connection connection) {
+        this.connection = connection;
+    }
+
+    /**
+     * Obtain the JDBC connection being used for this statement
+     * @return the JDBC connection
+     */
+    public Connection getConnection() {
+        return connection;
     }
 }
