@@ -15,9 +15,9 @@
 
 package org.skife.jdbi.v2.util;
 
-import java.sql.Timestamp;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 /**
  * Convenience ResultSetMapper for extracting a single value result

@@ -23,8 +23,8 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.sql.DataSource;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utility class which constructs an IDBI instance which can conveniently participate

@@ -21,8 +21,8 @@ import org.skife.jdbi.v2.IDBI;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Utility for working with jDBI and Spring transaction bound resources

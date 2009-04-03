@@ -18,17 +18,16 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
+import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
+import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
-import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
-import org.skife.jdbi.v2.logging.NoOpLog;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

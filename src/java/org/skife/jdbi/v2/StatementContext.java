@@ -16,13 +16,10 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.RewrittenStatement;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Connection;
 
 /**
  * The statement context provides a means for passing client specific information through the

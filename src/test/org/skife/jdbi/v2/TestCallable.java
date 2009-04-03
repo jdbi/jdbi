@@ -36,7 +36,7 @@ public class TestCallable extends DBITestCase
     }
 
     public void testStatement() throws Exception {
-        Call.OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
+        OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
                 .registerOutParameter(0, Types.DOUBLE)
                 .bind(1, 100.0d)
                 .invoke();
@@ -68,7 +68,7 @@ public class TestCallable extends DBITestCase
     }
 
     public void testStatementWithNamedParam() throws Exception {
-        Call.OutParameters ret = h.createCall(":x = CALL TO_DEGREES(:y)")
+        OutParameters ret = h.createCall(":x = CALL TO_DEGREES(:y)")
                 .registerOutParameter("x", Types.DOUBLE)
                 .bind("y", 100.0d)
                 .invoke();

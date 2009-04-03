@@ -17,12 +17,10 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 class ResultSetResultIterator<Type> implements ResultIterator<Type>
 {

@@ -20,12 +20,12 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
-import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Savepoint;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions

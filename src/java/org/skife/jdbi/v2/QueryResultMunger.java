@@ -16,7 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 

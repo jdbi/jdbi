@@ -2,11 +2,11 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.CallableStatement;
 
 /**
  * A StatementBuilder which will always create a new PreparedStatement

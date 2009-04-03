@@ -1,7 +1,7 @@
 package org.skife.jdbi.v2.logging;
 
-import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.tweak.SQLLog;
 
 /**
  * Convenience class which handles log statement formatting

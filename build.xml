@@ -10,20 +10,7 @@
         <antlr target="src/grammar/colon-rewriter.g" outputdirectory="build/grammar/org/skife/jdbi/rewriter/colon/"/>
     </target>
 
-    <target name="compile-stubs" description="Compile stubs required by the compile step">
-        <!-- builds the stubs for things we cannot distribute with the build -->
-        <mkdir dir="build/stub-classes"/>
-        <javac target="5" source="5" destdir="build/stub-classes" debug="${debug}">
-            <src location="src/stubs"/>
-            <classpath>
-                <fileset dir="lib">
-                    <include name="**/*.jar"/>
-                </fileset>
-            </classpath>
-        </javac>
-    </target>
-
-    <target name="compile" depends="compile-stubs, grammar" description="Compile all Source Files">
+    <target name="compile" depends="grammar" description="Compile all Source Files">
         <mkdir dir="build/classes"/>
         <javac target="5" source="5" destdir="build/classes" debug="${debug}">
             <src location="src/java"/>
