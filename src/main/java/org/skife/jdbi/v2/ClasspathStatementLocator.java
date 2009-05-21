@@ -67,7 +67,7 @@ public class ClasspathStatementLocator implements StatementLocator
         }
         final ClassLoader loader = selectClassLoader();
         InputStream in_stream = loader.getResourceAsStream(name);
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(in_stream));
+        BufferedReader reader = null;
         try {
             if (in_stream == null) {
                 in_stream = loader.getResourceAsStream(name + ".sql");
@@ -77,6 +77,7 @@ public class ClasspathStatementLocator implements StatementLocator
             }
 
             final StringBuffer buffer = new StringBuffer();
+            reader = new BufferedReader(new InputStreamReader(in_stream));
             String line;
             try {
                 while ((line = reader.readLine()) != null) {
@@ -94,7 +95,9 @@ public class ClasspathStatementLocator implements StatementLocator
         }
         finally {
             try {
-                reader.close();
+                if (reader != null) {
+                    reader.close();
+                }
             }
             catch (IOException e) {
                 // nothing we can do here :-(
