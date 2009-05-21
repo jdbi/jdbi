@@ -32,8 +32,7 @@ public class ClasspathStatementLocator implements StatementLocator
     /**
      * Very basic sanity test to see if a string looks like it might be sql
      */
-    public static boolean looksLikeSql(String sql)
-    {
+    public static boolean looksLikeSql(String sql) {
         final String local = sql.substring(0, 7).toLowerCase();
         return local.startsWith("insert ")
                || local.startsWith("update ")
@@ -48,75 +47,76 @@ public class ClasspathStatementLocator implements StatementLocator
     /**
      * If the passed in name doesn't look like SQL it will search the classpath for a file
      * which looks like the provided name.
-     * <p>
+     * <p/>
      * The "looks like" algorithm is not very sophisticated, it basically looks for the string
      * to begin with insert, update, select, call, delete, create, alter, or drop followed
      * by a space.
-     * <p>
+     * <p/>
      * If no resource is found using the passed in string, the string s returned as-is
      *
      * @param name Name or statement literal
+     *
      * @return SQL to execute (which will go to a StatementRRewrter first)
-     * @throws UnableToCreateStatementException if an IOException occurs reading a found resource
+     *
+     * @throws UnableToCreateStatementException
+     *          if an IOException occurs reading a found resource
      */
-    public String locate(String name, StatementContext ctx) throws Exception
-    {
-        if (looksLikeSql(name))
-        {
+    public String locate(String name, StatementContext ctx) {
+        if (looksLikeSql(name)) {
             return name;
         }
         final ClassLoader loader = selectClassLoader();
         InputStream in_stream = loader.getResourceAsStream(name);
-        if (in_stream == null)
-        {
-            in_stream = loader.getResourceAsStream(name + ".sql");
-        }
-        if (in_stream == null)
-        {
-            return name;
-        }
         final BufferedReader reader = new BufferedReader(new InputStreamReader(in_stream));
-        final StringBuffer buffer = new StringBuffer();
-        String line;
-        try
-        {
-            while ((line = reader.readLine()) != null)
-            {
-                if (isComment(line))
-                {
-                    // comment
-                    continue;
-                }
-                buffer.append(line).append(" ");
+        try {
+            if (in_stream == null) {
+                in_stream = loader.getResourceAsStream(name + ".sql");
             }
-            reader.close();
+            if (in_stream == null) {
+                return name;
+            }
+
+            final StringBuffer buffer = new StringBuffer();
+            String line;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    if (isComment(line)) {
+                        // comment
+                        continue;
+                    }
+                    buffer.append(line).append(" ");
+                }
+            }
+            catch (IOException e) {
+                throw new UnableToCreateStatementException(e.getMessage(), e);
+            }
+            return buffer.toString();
         }
-        catch (IOException e)
-        {
-            throw new UnableToCreateStatementException(e.getMessage(), e);
+        finally {
+            try {
+                reader.close();
+            }
+            catch (IOException e) {
+                // nothing we can do here :-(
+            }
         }
-        return buffer.toString();
     }
 
     /**
      * There *must* be a better place to put this without creating a util class just for it
      */
-    private static ClassLoader selectClassLoader()
-    {
+    private static ClassLoader selectClassLoader() {
         ClassLoader loader;
-        if (Thread.currentThread().getContextClassLoader() != null)
-        {
+        if (Thread.currentThread().getContextClassLoader() != null) {
             loader = Thread.currentThread().getContextClassLoader();
         }
-        else
-        {
+        else {
             loader = ClasspathStatementLocator.class.getClassLoader();
         }
         return loader;
     }
 
-    private static boolean isComment(final String line)
-    {
+    private static boolean isComment(final String line) {
         return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
     }
 }

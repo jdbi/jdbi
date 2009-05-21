@@ -1,5 +1,7 @@
 target
 report
+*.ipr
+*.iws
 *.iml
 .clover
 .idea
