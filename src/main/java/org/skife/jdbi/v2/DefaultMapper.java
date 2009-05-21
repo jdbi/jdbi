@@ -60,6 +60,8 @@ class DefaultMapper implements ResultSetMapper<Map<String, Object>>
 
     private static class DefaultResultMap extends HashMap<String, Object>
     {
+        public static final long serialVersionUID = 1L; 
+
         public Object get(Object o)
         {
             return super.get(((String)o).toLowerCase());
