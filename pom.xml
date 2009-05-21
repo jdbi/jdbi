@@ -43,7 +43,7 @@
 
     <site>
       <id>codehaus.org</id>
-      <url>dav:https://dav.codehaus.org/xfire/</url>
+      <url>dav:https://dav.codehaus.org/jdbi/</url>
     </site>
   </distributionManagement>
 
