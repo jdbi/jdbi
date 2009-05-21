@@ -274,8 +274,6 @@
     </plugins>
   </reporting>
 
-
-
   <dependencies>
     <dependency>
       <groupId>commons-logging</groupId>
