@@ -1,3 +1,6 @@
+2.3.1
+    Switch to maven2 for builds
+
 2.3.0
     Fix OracleReturning compile time dependency using Reflection.
     Deprecated OracleReturning.

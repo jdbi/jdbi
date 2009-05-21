@@ -1,8 +1,8 @@
-Developers:
-    Brian McCallister  - brianm@skife.org
+Contributors:
+    Brian McCallister
     Martin Traverso
-
-Thank you to:
+    Henning Schmiedehausen 
+    Jax Law
     maniax for finding a nasty bug in named parameter substitution
     Robert Sfeir for batch processing feature requests
     Henry Yandell for in clause expansion feature request
