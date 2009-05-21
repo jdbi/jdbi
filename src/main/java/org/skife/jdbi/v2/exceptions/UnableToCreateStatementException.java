@@ -16,16 +16,18 @@
 
 package org.skife.jdbi.v2.exceptions;
 
-public class UnableToCreateStatementException extends DBIException
+import org.skife.jdbi.v2.StatementContext;
+
+public class UnableToCreateStatementException extends StatementException
 {
 
-    public UnableToCreateStatementException(String string, Throwable throwable)
+    public UnableToCreateStatementException(String string, Throwable throwable, StatementContext ctx)
     {
-        super(string, throwable);
+        super(string, throwable, ctx);
     }
 
-    public UnableToCreateStatementException(Exception e)
+    public UnableToCreateStatementException(Exception e, StatementContext ctx)
     {
-        super(e);
+        super(e, ctx);
     }
 }

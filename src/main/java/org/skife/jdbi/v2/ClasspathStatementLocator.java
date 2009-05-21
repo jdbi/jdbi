@@ -89,7 +89,7 @@ public class ClasspathStatementLocator implements StatementLocator
                 }
             }
             catch (IOException e) {
-                throw new UnableToCreateStatementException(e.getMessage(), e);
+                throw new UnableToCreateStatementException(e.getMessage(), e, ctx);
             }
             return buffer.toString();
         }

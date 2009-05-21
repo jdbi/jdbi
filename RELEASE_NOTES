@@ -1,5 +1,8 @@
-2.3.1
+2.4.0
     Switch to maven2 for builds
+
+    Add the statement context to statement related exceptions, including a new
+    DBIExcpetion abstact subclass, StatementException, which exposes this.
 
 2.3.0
     Fix OracleReturning compile time dependency using Reflection.

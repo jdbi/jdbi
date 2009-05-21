@@ -31,11 +31,13 @@ import java.lang.reflect.InvocationTargetException;
 class BeanPropertyArguments implements LazyArguments
 {
     private final Object bean;
+    private final StatementContext ctx;
     private BeanInfo info;
 
-    BeanPropertyArguments(Object bean)
+    BeanPropertyArguments(Object bean, StatementContext ctx)
     {
         this.bean = bean;
+        this.ctx = ctx;
         try
         {
             this.info = Introspector.getBeanInfo(bean.getClass());
@@ -43,7 +45,7 @@ class BeanPropertyArguments implements LazyArguments
         catch (IntrospectionException e)
         {
             throw new UnableToCreateStatementException("Failed to introspect object which is supposed ot be used to" +
-                                                       " set named args for a statement via JavaBean properties", e);
+                                                       " set named args for a statement via JavaBean properties", e, ctx);
         }
 
     }
@@ -62,13 +64,13 @@ class BeanPropertyArguments implements LazyArguments
                 {
                     throw new UnableToCreateStatementException(String.format("Access excpetion invoking getter for " +
                                                                              "bean property [%s] on [%s]",
-                                                                             name, bean), e);
+                                                                             name, bean), e, ctx);
                 }
                 catch (InvocationTargetException e)
                 {
                     throw new UnableToCreateStatementException(String.format("Invocation target exception invoking " +
                                                                              "getter for bean property [%s] on [%s]",
-                                                                             name, bean), e);
+                                                                             name, bean), e, ctx);
                 }
             }
         }

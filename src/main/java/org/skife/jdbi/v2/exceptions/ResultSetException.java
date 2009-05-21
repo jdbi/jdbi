@@ -16,9 +16,11 @@
 
 package org.skife.jdbi.v2.exceptions;
 
-public class ResultSetException extends DBIException
+import org.skife.jdbi.v2.StatementContext;
+
+public class ResultSetException extends StatementException
 {
-    public ResultSetException(String msg, Exception e) {
-        super(msg, e);
+    public ResultSetException(String msg, Exception e, StatementContext ctx) {
+        super(msg, e, ctx);
     }
 }

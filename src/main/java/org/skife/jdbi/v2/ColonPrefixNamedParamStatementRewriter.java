@@ -80,7 +80,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
             }
         }
         catch (TokenStreamException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e);
+            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
         }
 
         return new MyRewrittenStatement(b.toString(), stmt, ctx);
@@ -113,7 +113,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                         catch (SQLException e) {
                             throw new UnableToExecuteStatementException(
                                     String.format("Excpetion while binding positional param at (0 based) position %d",
-                                                  i), e);
+                                                  i), e, context);
                         }
                     }
                     else {
@@ -136,7 +136,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                                                    "\"%s\" and no positional param for place %d (which is %d in " +
                                                    "the JDBC 'start at 1' scheme) has been set.",
                                                    named_param, i, i + 1);
-                        throw new UnableToExecuteStatementException(msg);
+                        throw new UnableToExecuteStatementException(msg, context);
                     }
 
                     try {
@@ -144,7 +144,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                     }
                     catch (SQLException e) {
                         throw new UnableToCreateStatementException(String.format("Exception while binding '%s'",
-                                                                                 named_param), e);
+                                                                                 named_param), e, context);
                     }
                     i++;
                 }

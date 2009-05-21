@@ -93,7 +93,7 @@ public class PreparedBatch
         }
         catch (Exception e) {
             throw new UnableToCreateStatementException(String.format("Exception while locating statement for [%s]",
-                                                                     sql), e);
+                                                                     sql), e, context);
         }
         final RewrittenStatement rewritten = rewriter.rewrite(my_sql, current.getParameters(), context);
         PreparedStatement stmt = null;
@@ -102,7 +102,7 @@ public class PreparedBatch
                 stmt = connection.prepareStatement(rewritten.getSql());
             }
             catch (SQLException e) {
-                throw new UnableToCreateStatementException(e);
+                throw new UnableToCreateStatementException(e, context);
             }
 
             try {
@@ -112,7 +112,7 @@ public class PreparedBatch
                 }
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception while binding parameters", e);
+                throw new UnableToExecuteStatementException("Exception while binding parameters", e, context);
             }
 
             try {
@@ -122,7 +122,7 @@ public class PreparedBatch
                 return rs;
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException(e);
+                throw new UnableToExecuteStatementException(e, context);
             }
         }
         finally {

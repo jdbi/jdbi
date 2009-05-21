@@ -16,6 +16,7 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.tweak.SQLLog;
@@ -46,8 +47,7 @@ class BasicHandle implements Handle
                        StatementRewriter statementRewriter,
                        Connection connection,
                        Map<String, Object> globalStatementAttributes,
-                       SQLLog log)
-    {
+                       SQLLog log) {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
         this.transactions = transactions;
@@ -58,8 +58,7 @@ class BasicHandle implements Handle
         this.globalStatementAttributes.putAll(globalStatementAttributes);
     }
 
-    public Query<Map<String, Object>> createQuery(String sql)
-    {
+    public Query<Map<String, Object>> createQuery(String sql) {
         return new Query<Map<String, Object>>(new Binding(),
                                               new DefaultMapper(),
                                               statementLocator,
@@ -76,13 +75,11 @@ class BasicHandle implements Handle
      *
      * @return the JDBC Connection this Handle uses
      */
-    public Connection getConnection()
-    {
+    public Connection getConnection() {
         return this.connection;
     }
 
-    public void close()
-    {
+    public void close() {
         statementBuilder.close(getConnection());
         try {
             connection.close();
@@ -93,16 +90,14 @@ class BasicHandle implements Handle
         }
     }
 
-    public void define(String key, Object value)
-    {
+    public void define(String key, Object value) {
         this.globalStatementAttributes.put(key, value);
     }
 
     /**
      * Start a transaction
      */
-    public Handle begin()
-    {
+    public Handle begin() {
         transactions.begin(this);
         log.logBeginTransaction(this);
         return this;
@@ -111,8 +106,7 @@ class BasicHandle implements Handle
     /**
      * Commit a transaction
      */
-    public Handle commit()
-    {
+    public Handle commit() {
         final long start = System.currentTimeMillis();
         transactions.commit(this);
         log.logCommitTransaction(System.currentTimeMillis() - start, this);
@@ -122,11 +116,10 @@ class BasicHandle implements Handle
     /**
      * Rollback a transaction
      */
-    public Handle rollback()
-    {
+    public Handle rollback() {
         final long start = System.currentTimeMillis();
         transactions.rollback(this);
-        log.logRollbackTransaction(System.currentTimeMillis() - start,  this);
+        log.logRollbackTransaction(System.currentTimeMillis() - start, this);
         return this;
     }
 
@@ -134,10 +127,10 @@ class BasicHandle implements Handle
      * Create a transaction checkpoint (savepoint in JDBC terminology) with the name provided.
      *
      * @param name The name of the checkpoint
+     *
      * @return The same handle
      */
-    public Handle checkpoint(String name)
-    {
+    public Handle checkpoint(String name) {
         transactions.checkpoint(this, name);
         log.logCheckpointTransaction(this, name);
         return this;
@@ -145,22 +138,20 @@ class BasicHandle implements Handle
 
     /**
      * Release the named checkpoint, making rollback to it not possible.
+     *
      * @return The same handle
      */
-    public Handle release(String checkpointName)
-    {
+    public Handle release(String checkpointName) {
         transactions.release(this, checkpointName);
         log.logReleaseCheckpointTransaction(this, checkpointName);
         return this;
     }
 
-    public void setStatementBuilder(StatementBuilder builder)
-    {
+    public void setStatementBuilder(StatementBuilder builder) {
         this.statementBuilder = builder;
     }
 
-    public void setSQLLog(SQLLog log)
-    {
+    public void setSQLLog(SQLLog log) {
         this.log = log;
     }
 
@@ -169,21 +160,18 @@ class BasicHandle implements Handle
      *
      * @param checkpointName the name of the checkpoint, previously declared with {@see Handle#checkpoint}
      */
-    public Handle rollback(String checkpointName)
-    {
+    public Handle rollback(String checkpointName) {
         final long start = System.currentTimeMillis();
         transactions.rollback(this, checkpointName);
         log.logRollbackToCheckpoint(System.currentTimeMillis() - start, this, checkpointName);
         return this;
     }
 
-    public boolean isInTransaction()
-    {
+    public boolean isInTransaction() {
         return transactions.isInTransaction(this);
     }
 
-    public Update createStatement(String sql)
-    {
+    public Update createStatement(String sql) {
         return new Update(connection,
                           statementLocator,
                           statementRewriter,
@@ -193,24 +181,21 @@ class BasicHandle implements Handle
                           log);
     }
 
-    public Call createCall(String sql)
-    {
+    public Call createCall(String sql) {
         return new Call(connection,
-                          statementLocator,
-                          statementRewriter,
-                          statementBuilder,
-                          sql,
-                          new StatementContext(globalStatementAttributes),
-                          log);
+                        statementLocator,
+                        statementRewriter,
+                        statementBuilder,
+                        sql,
+                        new StatementContext(globalStatementAttributes),
+                        log);
     }
 
-    public int insert(String sql, Object... args)
-    {
+    public int insert(String sql, Object... args) {
         return update(sql, args);
     }
 
-    public int update(String sql, Object... args)
-    {
+    public int update(String sql, Object... args) {
         Update stmt = createStatement(sql);
         int position = 0;
         for (Object arg : args) {
@@ -219,8 +204,7 @@ class BasicHandle implements Handle
         return stmt.execute();
     }
 
-    public PreparedBatch prepareBatch(String sql)
-    {
+    public PreparedBatch prepareBatch(String sql) {
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
                                  connection,
@@ -230,18 +214,15 @@ class BasicHandle implements Handle
                                  log);
     }
 
-    public Batch createBatch()
-    {
+    public Batch createBatch() {
         return new Batch(this.statementRewriter, this.connection, globalStatementAttributes, log);
     }
 
-    public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException
-    {
+    public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException {
         final boolean[] failed = {false};
         TransactionStatus status = new TransactionStatus()
         {
-            public void setRollbackOnly()
-            {
+            public void setRollbackOnly() {
                 failed[0] = true;
             }
         };
@@ -253,8 +234,7 @@ class BasicHandle implements Handle
                 this.commit();
             }
         }
-        catch (RuntimeException e)
-        {
+        catch (RuntimeException e) {
             this.rollback();
             throw e;
         }
@@ -274,8 +254,7 @@ class BasicHandle implements Handle
         }
     }
 
-    public List<Map<String, Object>> select(String sql, Object... args)
-    {
+    public List<Map<String, Object>> select(String sql, Object... args) {
         Query<Map<String, Object>> query = this.createQuery(sql);
         int position = 0;
         for (Object arg : args) {
@@ -284,23 +263,19 @@ class BasicHandle implements Handle
         return query.list();
     }
 
-    public void setStatementLocator(StatementLocator locator)
-    {
+    public void setStatementLocator(StatementLocator locator) {
         this.statementLocator = locator;
     }
 
-    public void setStatementRewriter(StatementRewriter rewriter)
-    {
+    public void setStatementRewriter(StatementRewriter rewriter) {
         this.statementRewriter = rewriter;
     }
 
-    public Script createScript(String name)
-    {
+    public Script createScript(String name) {
         return new Script(this, statementLocator, name, globalStatementAttributes);
     }
 
-    public void execute(String sql, Object... args)
-    {
+    public void execute(String sql, Object... args) {
         this.update(sql, args);
     }
 }

@@ -16,19 +16,21 @@
 
 package org.skife.jdbi.v2.exceptions;
 
-public class UnableToExecuteStatementException extends DBIException
+import org.skife.jdbi.v2.StatementContext;
+
+public class UnableToExecuteStatementException extends StatementException
 {
-    public UnableToExecuteStatementException(Exception e) {
-        super(e);
+    public UnableToExecuteStatementException(Exception e, StatementContext ctx) {
+        super(e, ctx);
     }
 
-    public UnableToExecuteStatementException(String message)
+    public UnableToExecuteStatementException(String message, StatementContext ctx)
     {
-        super(message);
+        super(message, ctx);
     }
 
-    public UnableToExecuteStatementException(String string, Throwable throwable)
+    public UnableToExecuteStatementException(String string, Throwable throwable, StatementContext ctx)
     {
-        super(string, throwable);
+        super(string, throwable, ctx);
     }
 }

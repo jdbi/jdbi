@@ -58,7 +58,7 @@ public class Script
         }
         catch (Exception e)
         {
-            throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e);
+            throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, ctx);
         }
 
         final String[] statements = script.replaceAll("\n", " ").replaceAll("\r", "").split(";");

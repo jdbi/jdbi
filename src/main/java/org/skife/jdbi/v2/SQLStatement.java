@@ -216,7 +216,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     @SuppressWarnings("unchecked")
     public SelfType bindFromProperties(Object o)
     {
-        params.addLazyNamedArguments(new BeanPropertyArguments(o));
+        params.addLazyNamedArguments(new BeanPropertyArguments(o, context));
         return (SelfType) this;
     }
 
@@ -826,7 +826,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             return locator.locate(sql, this.getContext());
         }
         catch (Exception e) {
-            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e);
+            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e, context);
         }
     }
 
@@ -849,7 +849,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 	            }
             }
             catch (SQLException e) {
-                throw new UnableToCreateStatementException(e);
+                throw new UnableToCreateStatementException(e,context);
             }
 
             this.context.setStatement(stmt);
@@ -857,14 +857,14 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                 rewritten.bind(getParameters(), stmt);
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to bind parameters to query", e);
+                throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, context);
             }
 
             try {
                 prep.prepare(stmt);
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to prepare JDBC statement", e);
+                throw new UnableToExecuteStatementException("Unable to prepare JDBC statement", e, context);
             }
 
             for (StatementCustomizer customizer : customizers) {
@@ -872,7 +872,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                     customizer.beforeExecution(stmt, context);
                 }
                 catch (SQLException e) {
-                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e);
+                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, context);
                 }
             }
 
@@ -882,7 +882,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                 log.logSQL(System.currentTimeMillis() - start,  rewritten.getSql());
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException(e);
+                throw new UnableToExecuteStatementException(e, context);
             }
 
             for (StatementCustomizer customizer : customizers) {
@@ -890,7 +890,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                     customizer.afterExecution(stmt, context);
                 }
                 catch (SQLException e) {
-                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e);
+                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, context);
                 }
             }
 
@@ -899,7 +899,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                 return munger.munge(stmt);
             }
             catch (SQLException e) {
-                throw new ResultSetException("Exception thrown while attempting to traverse the result set", e);
+                throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
             }
         }
         finally {

@@ -133,7 +133,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
 			rs = (ResultSet) this.getReturnResultSet.invoke(this.stmt);
 		}
 		catch (Exception e) {
-			throw new ResultSetException("Unable to retrieve return result set", e);
+			throw new ResultSetException("Unable to retrieve return result set", e, ctx);
 		}
         this.results = new ArrayList<ResultType>();
         try {
@@ -143,7 +143,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
             }
         }
         catch (SQLException e) {
-            throw new ResultSetException("Unable to retrieve results from returned result set", e);
+            throw new ResultSetException("Unable to retrieve results from returned result set", e, ctx);
         }
     }
 

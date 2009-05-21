@@ -63,14 +63,14 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
             hasNext = results.next();
         }
         catch (SQLException e) {
-            throw new ResultSetException("Unable to advance result set", e);
+            throw new ResultSetException("Unable to advance result set", e, context);
         }
         if (!hasNext) {
             try {
                 results.close();
             }
             catch (SQLException e) {
-                throw new ResultSetException("Unable to close result set after iterating through to the end", e);
+                throw new ResultSetException("Unable to close result set after iterating through to the end", e, context);
             }
         }
         alreadyAdvanced = true;
@@ -86,7 +86,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
                 }
             }
             catch (SQLException e) {
-                throw new ResultSetException("Unable to advance result set", e);
+                throw new ResultSetException("Unable to advance result set", e, context);
             }
         }
         alreadyAdvanced = false;
@@ -94,7 +94,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
             return mapper.map(count++, results, context);
         }
         catch (SQLException e) {
-            throw new ResultSetException("Error thrown mapping result set into return type", e);
+            throw new ResultSetException("Error thrown mapping result set into return type", e, context);
         }
     }
 

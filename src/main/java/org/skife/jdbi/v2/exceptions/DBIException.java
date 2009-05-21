@@ -16,6 +16,8 @@
 
 package org.skife.jdbi.v2.exceptions;
 
+import org.skife.jdbi.v2.StatementContext;
+
 /**
  * Base runtime exception for exceptions thrown from jDBI
  */

@@ -89,7 +89,7 @@ public class Batch
             }
             catch (SQLException e)
             {
-                throw new UnableToCreateStatementException(e);
+                throw new UnableToCreateStatementException(e, context);
             }
 
             final SQLLog.BatchLogger logger = log.logBatch();
@@ -104,7 +104,7 @@ public class Batch
             }
             catch (SQLException e)
             {
-                throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e);
+                throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, context);
             }
 
             try
@@ -117,7 +117,7 @@ public class Batch
             }
             catch (SQLException e)
             {
-                throw new UnableToExecuteStatementException(e);
+                throw new UnableToExecuteStatementException(e, context);
             }
         }
         finally

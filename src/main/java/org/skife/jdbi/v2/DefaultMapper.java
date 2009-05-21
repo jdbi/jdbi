@@ -37,7 +37,7 @@ class DefaultMapper implements ResultSetMapper<Map<String, Object>>
         }
         catch (SQLException e)
         {
-            throw new ResultSetException("Unable to obtain metadata from result set", e);
+            throw new ResultSetException("Unable to obtain metadata from result set", e, ctx);
         }
 
         try
@@ -53,14 +53,14 @@ class DefaultMapper implements ResultSetMapper<Map<String, Object>>
         catch (SQLException e)
         {
             throw new ResultSetException("Unable to access specific metadata from " +
-                                         "result set metadata", e);
+                                         "result set metadata", e, ctx);
         }
         return row;
     }
 
     private static class DefaultResultMap extends HashMap<String, Object>
     {
-        public static final long serialVersionUID = 1L; 
+        public static final long serialVersionUID = 1L;
 
         public Object get(Object o)
         {
