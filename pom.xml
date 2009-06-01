@@ -4,7 +4,7 @@
   <groupId>org.jdbi</groupId>
   <artifactId>jdbi</artifactId>
   <name>jDBI</name>
-  <version>2.4.3-SNAPSHOT</version>
+  <version>2.4.3</version>
   <packaging>jar</packaging>
   <description>
     jDBI is designed to provide convenient tabular data access in
@@ -15,9 +15,9 @@
   </description>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/jdbi/trunk</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/jdbi/trunk</developerConnection>
-    <url>http://svn.jdbi.codehaus.org/</url>
+    <connection>scm:svn:http://svn.codehaus.org/jdbi/tags/jdbi-2.4.3</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/jdbi/tags/jdbi-2.4.3</developerConnection>
+    <url>http://svn.jdbi.codehaus.org/tags/jdbi-2.4.3</url>
   </scm>
 
   <prerequisites>
