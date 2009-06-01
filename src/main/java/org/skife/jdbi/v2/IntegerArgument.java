@@ -37,4 +37,9 @@ class IntegerArgument implements Argument
     {
         statement.setInt(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

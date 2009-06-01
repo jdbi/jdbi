@@ -76,4 +76,9 @@ class BeanPropertyArguments implements LazyArguments
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("{lazy bean proprty arguments \"").append(bean).append("\"").toString();
+    }
 }

@@ -33,4 +33,9 @@ class NullArgument implements Argument
     {
         statement.setNull(position, sqlType);
     }
+
+    @Override
+    public String toString() {
+        return "NULL";
+    }
 }

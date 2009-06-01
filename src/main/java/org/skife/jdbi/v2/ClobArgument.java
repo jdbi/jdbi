@@ -38,4 +38,9 @@ class ClobArgument implements Argument
     {
         statement.setClob(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

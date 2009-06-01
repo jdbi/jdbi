@@ -37,4 +37,9 @@ class StringArgument implements Argument
     {
         statement.setString(position, value);
     }
+
+    @Override
+    public String toString() {
+        return "'" + value + "'";
+    }
 }

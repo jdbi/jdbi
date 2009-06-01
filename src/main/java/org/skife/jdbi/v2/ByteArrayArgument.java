@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 /**
  *
@@ -36,5 +37,10 @@ class ByteArrayArgument implements Argument
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
         statement.setBytes(position, value);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(value);
     }
 }

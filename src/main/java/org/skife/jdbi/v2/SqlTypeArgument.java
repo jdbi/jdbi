@@ -39,4 +39,9 @@ class SqlTypeArgument implements Argument
     {
         statement.setObject(position, value, sqlType);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

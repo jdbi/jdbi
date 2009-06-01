@@ -38,4 +38,9 @@ class TimestampArgument implements Argument
     {
         statement.setTimestamp(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

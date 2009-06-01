@@ -38,4 +38,9 @@ class TimeArgument implements Argument
     {
         statement.setTime(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

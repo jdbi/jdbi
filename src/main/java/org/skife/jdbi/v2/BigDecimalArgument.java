@@ -38,4 +38,9 @@ class BigDecimalArgument implements Argument
     {
         statement.setBigDecimal(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

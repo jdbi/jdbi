@@ -19,6 +19,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.tweak.Argument;
 
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  *
@@ -29,7 +30,6 @@ class MapArguments implements LazyArguments
 
     MapArguments(Map<String, ? extends Object> args)
     {
-
         this.args = args;
     }
 
@@ -43,5 +43,10 @@ class MapArguments implements LazyArguments
         {
             return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return new LinkedHashMap(args).toString();
     }
 }

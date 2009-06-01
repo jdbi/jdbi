@@ -38,4 +38,9 @@ class SqlDateArgument implements Argument
     {
         statement.setDate(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

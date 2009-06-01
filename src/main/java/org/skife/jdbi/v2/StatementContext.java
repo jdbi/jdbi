@@ -35,6 +35,7 @@ public class StatementContext
     private String locatedSql;
     private PreparedStatement statement;
     private Connection connection;
+    private Binding binding;
 
     StatementContext(Map<String, Object> globalAttributes) {
         attributes.putAll(globalAttributes);
@@ -138,5 +139,13 @@ public class StatementContext
      */
     public Connection getConnection() {
         return connection;
+    }
+
+    public void setBinding(Binding b) {
+        this.binding = b;
+    }
+
+    public Binding getBinding() {
+        return binding;
     }
 }

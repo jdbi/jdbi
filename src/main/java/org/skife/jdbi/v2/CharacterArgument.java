@@ -18,4 +18,9 @@ class CharacterArgument implements Argument
     {
         statement.setString(position, String.valueOf(value));
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

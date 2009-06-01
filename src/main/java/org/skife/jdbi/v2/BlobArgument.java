@@ -38,4 +38,9 @@ class BlobArgument implements Argument
     {
         statement.setBlob(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

@@ -38,4 +38,9 @@ class ByteArgument implements Argument
     {
         statement.setByte(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

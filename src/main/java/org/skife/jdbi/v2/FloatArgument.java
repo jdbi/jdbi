@@ -37,4 +37,9 @@ class FloatArgument implements Argument
     {
         statement.setFloat(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

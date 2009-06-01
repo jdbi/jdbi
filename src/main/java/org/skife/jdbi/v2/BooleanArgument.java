@@ -34,4 +34,9 @@ class BooleanArgument implements Argument
     {
         statement.setBoolean(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

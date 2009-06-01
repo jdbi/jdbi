@@ -32,8 +32,7 @@ public class Binding
     private Map<String, Argument> named = new HashMap<String, Argument>();
     private List<LazyArguments> lazyArguments = new ArrayList<LazyArguments>();
 
-    void addPositional(int position, Argument parameter)
-    {
+    void addPositional(int position, Argument parameter) {
         positionals.put(position, parameter);
     }
 
@@ -41,21 +40,17 @@ public class Binding
      * Look up an argument by name
      *
      * @param name the key to lookup the value of
+     *
      * @return the bound Argument
      */
-    public Argument forName(String name)
-    {
-        if (named.containsKey(name))
-        {
+    public Argument forName(String name) {
+        if (named.containsKey(name)) {
             return named.get(name);
         }
-        else
-        {
-            for (LazyArguments arguments : lazyArguments)
-            {
+        else {
+            for (LazyArguments arguments : lazyArguments) {
                 Argument arg = arguments.find(name);
-                if (arg != null)
-                {
+                if (arg != null) {
                     return arg;
                 }
             }
@@ -65,21 +60,59 @@ public class Binding
 
     /**
      * Look up an argument by position
+     *
      * @param position starts at 0, not 1
+     *
      * @return arfument bound to that position
      */
-    public Argument forPosition(int position)
-    {
+    public Argument forPosition(int position) {
         return positionals.get(position);
     }
 
-    void addNamed(String name, Argument argument)
-    {
+    void addNamed(String name, Argument argument) {
         this.named.put(name, argument);
     }
 
-    void addLazyNamedArguments(LazyArguments args)
-    {
+    void addLazyNamedArguments(LazyArguments args) {
         lazyArguments.add(args);
+    }
+
+    public String toString() {
+        boolean wrote = false;
+        StringBuilder b = new StringBuilder();
+        b.append("{ positional:{");
+        for (Map.Entry<Integer, Argument> entry : positionals.entrySet()) {
+            wrote = true;
+            b.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
+        }
+        if (wrote) {
+            wrote = false;
+            b.deleteCharAt(b.length() - 1);
+        }
+        b.append("}");
+
+        b.append(", named:{");
+        for (Map.Entry<String, Argument> entry : named.entrySet()) {
+            wrote = true;
+            b.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
+        }
+        if (wrote) {
+            wrote = false;
+            b.deleteCharAt(b.length() - 1);
+        }
+        b.append("}");
+
+        b.append(", lazy:[");
+        for (LazyArguments argument : lazyArguments) {
+            wrote = true;
+            b.append(argument).append(",");
+        }
+        if (wrote) {
+            b.deleteCharAt(b.length() - 1);
+        }
+        b.append("]");
+
+        b.append("}");
+        return b.toString();
     }
 }

@@ -37,4 +37,9 @@ class DoubleArgument implements Argument
     {
         statement.setDouble(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

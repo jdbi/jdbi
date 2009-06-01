@@ -38,4 +38,9 @@ class URLArgument implements Argument
     {
         statement.setURL(position, value);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

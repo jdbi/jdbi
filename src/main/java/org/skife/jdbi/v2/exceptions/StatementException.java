@@ -27,4 +27,21 @@ public abstract class StatementException extends DBIException
     public StatementContext getStatementContext() {
         return statementContext;
     }
+
+    @Override
+    public String getMessage() {
+        String base = super.getMessage();
+        StatementContext ctx = getStatementContext();
+        if (ctx == null) {
+            return base;
+        }
+        else {
+            return String.format("%s [statement:\"%s\", located:\"%s\", rewritten:\"%s\", arguments:%s]",
+                                 base,
+                                 ctx.getRawSql(),
+                                 ctx.getLocatedSql(),
+                                 ctx.getRewrittenSql(),
+                                 ctx.getBinding());
+        }
+    }
 }

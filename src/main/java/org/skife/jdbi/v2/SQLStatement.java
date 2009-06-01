@@ -87,6 +87,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 
         ctx.setConnection(conn);
         ctx.setRawSql(sql);
+        ctx.setBinding(params);
     }
 
 
