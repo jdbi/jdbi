@@ -1,3 +1,7 @@
+2.4.4 
+    Fix several dependency and shading issues which came up from the
+    ant to conversion.
+
 2.4.3
     Add better messages on statement exceptions
 
