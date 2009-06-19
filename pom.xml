@@ -15,9 +15,10 @@
   </description>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/jdbi/trunk</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/jdbi/trunk</developerConnection>
-    <url>http://svn.jdbi.codehaus.org/</url>
+    <!--     <connection>scm:svn:http://svn.codehaus.org/jdbi/trunk</connection> -->
+    <!-- git@github.com:brianm/jdbi.git -->
+    <developerConnection>scm:git:ssh://github.com/brianm/jdbi.git</developerConnection>
+    <url>http://github.com/brianm/jdbi/tree/master</url>
   </scm>
 
   <prerequisites>
