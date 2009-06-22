@@ -15,8 +15,8 @@
     </description>
 
     <scm>
-        <connection>git://github.com/brianm/jdbi.git</connection>
-        <developerConnection>git@github.com:brianm/jdbi.git</developerConnection>
+        <connection>scm:git://github.com/brianm/jdbi.git</connection>
+        <developerConnection>scm:git@github.com:brianm/jdbi.git</developerConnection>
         <url>http://github.com/brianm/jdbi/tree/master</url>
     </scm>
 
@@ -128,6 +128,7 @@
                 </configuration>
             </plugin>
 
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -144,7 +145,9 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            -->
 
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-plugin</artifactId>
@@ -161,7 +164,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
