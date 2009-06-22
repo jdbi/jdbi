@@ -15,8 +15,8 @@
     </description>
 
     <scm>
-        <connection>scm:git://github.com/brianm/jdbi.git</connection>
-        <developerConnection>scm:git://github.com/brianm/jdbi.git</developerConnection>
+        <connection>scm:git:git://github.com/brianm/jdbi.git</connection>
+        <developerConnection>scm:git:git://github.com/brianm/jdbi.git</developerConnection>
         <!--<developerConnection>scm:git@github.com:brianm/jdbi.git</developerConnection>-->
         <url>http://github.com/brianm/jdbi/tree/master</url>
     </scm>
