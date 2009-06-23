@@ -1,20 +1,21 @@
-header {
+lexer grammar ColonStatementLexer;
+
+@header {
     package org.skife.jdbi.rewriter.colon;
 }
 
-class ColonStatementLexer extends Lexer;
-
-options {
-    charVocabulary='\u0000'..'\uFFFE';
-    k=2;
+@lexer::members {
+  @Override
+  public void reportError(RecognitionException e) {
+    throw new IllegalArgumentException(e);
+  }
 }
 
 LITERAL: ('a'..'z' | 'A'..'Z' | ' ' | '\t' | '\n' | '\r' | '0'..'9' | ',' | '*' | '.' | '@' | '_' | '!'
           | '=' | ';' | '(' | ')' | '[' | ']' | '+' | '-' | '/' | '>' | '<' | '%' | '&' | '^' | '|' | '$' )+ ;
 NAMED_PARAM: ':' ('a'..'z' | 'A'..'Z' | '0'..'9' | '_')+;
-POSITIONAAL_PARAM: '?';
+POSITIONAL_PARAM: '?';
 QUOTED_TEXT: ('\'' ( ESCAPE_SEQUENCE | ~'\'')* '\'');
 DOUBLE_QUOTED_TEXT: ('"' (~'"')+ '"');
 
-protected ESCAPE_SEQUENCE:   '\\' '\'';
-
+fragment ESCAPE_SEQUENCE:   '\\' '\'';

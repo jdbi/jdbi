@@ -16,9 +16,11 @@
 
 package org.skife.jdbi.v2.unstable.grammar;
 
-import antlr.CharScanner;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.*;
 import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexerTokenTypes.*;
+import org.antlr.runtime.ANTLRReaderStream;
+import org.antlr.runtime.Lexer;
+import org.antlr.runtime.ANTLRStringStream;
 
 import java.io.Reader;
 
@@ -50,7 +52,7 @@ public class TestColonGrammar extends GrammarTestCase
     public void testMixed() throws Exception
     {
         expect("select id from something where name like ':foo' and id = ? and name like :name",
-               LITERAL, QUOTED_TEXT, LITERAL, POSITIONAAL_PARAM, LITERAL, NAMED_PARAM, EOF);
+               LITERAL, QUOTED_TEXT, LITERAL, POSITIONAL_PARAM, LITERAL, NAMED_PARAM, EOF);
     }
 
     public void testThisBrokeATest() throws Exception
@@ -80,8 +82,8 @@ public class TestColonGrammar extends GrammarTestCase
     }
 
 
-    protected CharScanner createLexer(Reader r)
+    protected Lexer createLexer(String s)
     {
-        return new ColonStatementLexer(r);
+        return new ColonStatementLexer(new ANTLRStringStream(s));
     }
 }

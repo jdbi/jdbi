@@ -16,17 +16,17 @@
 
 package org.skife.jdbi.v2;
 
-import antlr.Token;
-import antlr.TokenStreamException;
-import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexerTokenTypes.*;
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.Token;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
 
-import java.io.StringReader;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.*;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -53,10 +53,10 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
     {
         StringBuilder b = new StringBuilder();
         ParsedStatement stmt = new ParsedStatement();
-        ColonStatementLexer lexer = new ColonStatementLexer(new StringReader(sql));
+        ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
         try {
             Token t = lexer.nextToken();
-            while (t.getType() != EOF) {
+            while (t.getType() != ColonStatementLexer.EOF) {
                 switch (t.getType()) {
                     case LITERAL:
                         b.append(t.getText());
@@ -71,7 +71,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                     case DOUBLE_QUOTED_TEXT:
                         b.append(t.getText());
                         break;
-                    case POSITIONAAL_PARAM:
+                    case POSITIONAL_PARAM:
                         b.append("?");
                         stmt.addPositionalParamAt();
                         break;
@@ -79,7 +79,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                 t = lexer.nextToken();
             }
         }
-        catch (TokenStreamException e) {
+        catch (IllegalArgumentException e) {
             throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
         }
 

@@ -16,12 +16,13 @@
 
 package org.skife.jdbi.v2.unstable.grammar;
 
-import antlr.CharScanner;
-import antlr.Token;
 import junit.framework.TestCase;
 
 import java.io.Reader;
 import java.io.StringReader;
+
+import org.antlr.runtime.Lexer;
+import org.antlr.runtime.Token;
 
 /**
  *
@@ -31,7 +32,7 @@ public abstract class GrammarTestCase extends TestCase
 
     public void expect(String s, int... tokens) throws Exception
     {
-        CharScanner lexer = createLexer(new StringReader(s));
+        Lexer lexer = createLexer(s);
         for (int token : tokens) {
             Token t = lexer.nextToken();
             assertEquals(String.format("Expected %s, got %s, with '%s'", nameOf(token), nameOf(t.getType()), t.getText()),
@@ -39,7 +40,7 @@ public abstract class GrammarTestCase extends TestCase
         }
     }
 
-    protected abstract CharScanner createLexer(Reader r);
+    protected abstract Lexer createLexer(String s);
 
     protected abstract String nameOf(int type);
 }

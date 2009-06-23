@@ -16,7 +16,9 @@
 package org.skife.jdbi.v2;
 
 import junit.framework.TestCase;
+import junit.framework.Assert;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 
 import java.util.HashMap;
 
@@ -61,4 +63,15 @@ public class TestColonStatementRewriter extends TestCase
 	    assertEquals("select * from v$session", rws.getSql());
 	}
 
+    public void testBailsOutOnInvalidInput() throws Exception
+    {
+        try {
+            rw.rewrite("select * from something\n where id = :‡Ž’—œ", new Binding(),
+                                            new StatementContext(new HashMap<String, Object>()));
+
+            Assert.fail("Expected 'UnableToCreateStatementException' but got none");
+        }
+        catch (UnableToCreateStatementException e) {
+        }
+    }
 }

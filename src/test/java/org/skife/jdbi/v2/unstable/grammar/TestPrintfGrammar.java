@@ -16,11 +16,10 @@
 
 package org.skife.jdbi.v2.unstable.grammar;
 
-import antlr.CharScanner;
-import org.skife.jdbi.rewriter.printf.FormattedStatementLexer;
-import static org.skife.jdbi.rewriter.printf.FormattedStatementLexerTokenTypes.*;
-
-import java.io.Reader;
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.Lexer;
+import org.skife.jdbi.rewriter.printf.FormatterStatementLexer;
+import static org.skife.jdbi.rewriter.printf.FormatterStatementLexer.*;
 
 /**
  *
@@ -52,8 +51,8 @@ public class TestPrintfGrammar extends GrammarTestCase
     }
 
 
-    protected CharScanner createLexer(Reader r)
+    protected Lexer createLexer(String s)
     {
-        return new FormattedStatementLexer(r);
+        return new FormatterStatementLexer(new ANTLRStringStream(s));
     }
 }
