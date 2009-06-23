@@ -62,16 +62,4 @@ public class TestColonStatementRewriter extends TestCase
 	                                        new StatementContext(new HashMap<String, Object>()));
 	    assertEquals("select * from v$session", rws.getSql());
 	}
-
-    public void testBailsOutOnInvalidInput() throws Exception
-    {
-        try {
-            rw.rewrite("select * from something\n where id = :‡Ž’—œ", new Binding(),
-                                            new StatementContext(new HashMap<String, Object>()));
-
-            Assert.fail("Expected 'UnableToCreateStatementException' but got none");
-        }
-        catch (UnableToCreateStatementException e) {
-        }
-    }
 }
