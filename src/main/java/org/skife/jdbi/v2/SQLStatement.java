@@ -454,6 +454,32 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @return the same Query instance
      */
+    public final SelfType bindAsInt(int position, boolean value)
+    {
+        return bind(position, new BooleanIntegerArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bindAsInt(String name, boolean value)
+    {
+        return bind(name, new BooleanIntegerArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
     public final SelfType bind(int position, byte value)
     {
         return bind(position, new ByteArgument(value));
