@@ -318,6 +318,32 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @param position position to bind the paramater at, starting at 0
      * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, char value)
+    {
+        return bind(position, new CharacterArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, char value)
+    {
+        return bind(name, new CharacterArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
      * @param length   how long is the stream being bound?
      *
      * @return the same Query instance
