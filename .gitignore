@@ -7,3 +7,6 @@ report
 .idea
 build
 out
+.classpath
+.project
+.settings
