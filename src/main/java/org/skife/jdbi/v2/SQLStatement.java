@@ -16,17 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
-import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.RewrittenStatement;
-import org.skife.jdbi.v2.tweak.SQLLog;
-import org.skife.jdbi.v2.tweak.StatementBuilder;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.tweak.StatementLocator;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -39,9 +28,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
+import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.SQLLog;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -133,7 +134,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             return true;
         }
         else {
-            Class parameterized_type = this.getClass().getTypeParameters()[0].getGenericDeclaration();
+            Class<?> parameterized_type = this.getClass().getTypeParameters()[0].getGenericDeclaration();
             return parameterized_type.isAssignableFrom(this.getClass());
         }
     }
@@ -208,7 +209,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
-     * Binds named parameters from JavaBean propertues on o
+     * Binds named parameters from JavaBean properties on o.
      *
      * @param o source of named parameter values to use as arguments
      *
@@ -301,6 +302,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, Integer value)
+    {
+        if (value == null) {
+            return bind(position, new NullArgument(Types.INTEGER));
+        }
+        else {
+            return bind(position, new IntegerArgument(value));
+        }
+    }
+
+    /**
      * Bind an argument by name
      *
      * @param name  name to bind the paramater to
@@ -311,6 +330,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     public final SelfType bind(String name, int value)
     {
         return bind(name, new IntegerArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, Integer value)
+    {
+        if (value == null) {
+            return bind(name, new NullArgument(Types.INTEGER));
+        }
+        else {
+            return bind(name, new IntegerArgument(value));
+        }
     }
 
     /**
@@ -460,6 +497,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, Boolean value)
+    {
+        if (value == null) {
+            return bind(position, new NullArgument(Types.BOOLEAN));
+        }
+        else {
+            return bind(position, new BooleanArgument(value));
+        }
+    }
+
+    /**
      * Bind an argument by name
      *
      * @param name  token name to bind the paramater to
@@ -470,6 +525,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     public final SelfType bind(String name, boolean value)
     {
         return bind(name, new BooleanArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, Boolean value)
+    {
+        if (value == null) {
+            return bind(name, new NullArgument(Types.BOOLEAN));
+        }
+        else {
+            return bind(name, new BooleanArgument(value));
+        }
     }
 
     /**
@@ -486,6 +559,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bindAsInt(int position, Boolean value)
+    {
+        if (value == null) {
+            return bind(position, new NullArgument(Types.BOOLEAN));
+        }
+        else {
+            return bind(position, new BooleanIntegerArgument(value));
+        }
+    }
+
+    /**
      * Bind an argument by name
      *
      * @param name  token name to bind the paramater to
@@ -496,6 +587,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     public final SelfType bindAsInt(String name, boolean value)
     {
         return bind(name, new BooleanIntegerArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bindAsInt(String name, Boolean value)
+    {
+        if (value == null) {
+            return bind(name, new NullArgument(Types.INTEGER));
+        }
+        else {
+            return bind(name, new BooleanIntegerArgument(value));
+        }
     }
 
     /**
@@ -512,6 +621,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, Byte value)
+    {
+        if (value == null) {
+            return bind(position, new NullArgument(Types.TINYINT));
+        }
+        else {
+            return bind(position, new ByteArgument(value));
+        }
+    }
+
+    /**
      * Bind an argument by name
      *
      * @param name  token name to bind the paramater to
@@ -522,6 +649,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     public final SelfType bind(String name, byte value)
     {
         return bind(name, new ByteArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, Byte value)
+    {
+        if (value == null) {
+            return bind(name, new NullArgument(Types.TINYINT));
+        }
+        else {
+            return bind(name, new ByteArgument(value));
+        }
     }
 
     /**
@@ -664,9 +809,40 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Double value)
+    public final SelfType bind(int position, double value)
     {
         return bind(position, new DoubleArgument(value));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, Double value)
+    {
+        if (value == null) {
+            return bind(position, new NullArgument(Types.DOUBLE));
+        }
+        else {
+            return bind(position, new DoubleArgument(value));
+        }
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, double value)
+    {
+        return bind(name, new DoubleArgument(value));
     }
 
     /**
@@ -679,7 +855,25 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Double value)
     {
-        return bind(name, new DoubleArgument(value));
+        if (value == null) {
+            return bind(name, new NullArgument(Types.DOUBLE));
+        }
+        else {
+            return bind(name, new DoubleArgument(value));
+        }
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, float value)
+    {
+        return bind(position, new FloatArgument(value));
     }
 
     /**
@@ -692,7 +886,25 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Float value)
     {
-        return bind(position, new FloatArgument(value));
+        if (value == null) {
+            return bind(position, new NullArgument(Types.FLOAT));
+        }
+        else {
+            return bind(position, new FloatArgument(value));
+        }
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, float value)
+    {
+        return bind(name, new FloatArgument(value));
     }
 
     /**
@@ -705,7 +917,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Float value)
     {
-        return bind(name, new FloatArgument(value));
+        if (value == null) {
+            return bind(name, new NullArgument(Types.FLOAT));
+        }
+        else {
+            return bind(name, new FloatArgument(value));
+        }
     }
 
     /**
@@ -722,6 +939,24 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, Long value)
+    {
+        if (value == null) {
+            return bind(position, new NullArgument(Types.BIGINT));
+        }
+        else {
+            return bind(position, new LongArgument(value));
+        }
+    }
+
+    /**
      * Bind an argument by name
      *
      * @param name  token name to bind the paramater to
@@ -732,6 +967,86 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     public final SelfType bind(String name, long value)
     {
         return bind(name, new LongArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, Long value)
+    {
+        if (value == null) {
+            return bind(name, new NullArgument(Types.BIGINT));
+        }
+        else {
+            return bind(name, new LongArgument(value));
+        }
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, Short value)
+    {
+        if (value == null) {
+            return bind(position, new NullArgument(Types.SMALLINT));
+        }
+        else {
+            return bind(position, new ShortArgument(value));
+        }
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(int position, short value)
+    {
+        return bind(position, new ShortArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, short value)
+    {
+        return bind(name, new ShortArgument(value));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, Short value)
+    {
+        if (value == null) {
+            return bind(name, new NullArgument(Types.SMALLINT));
+        }
+        else {
+            return bind(name, new ShortArgument(value));
+        }
     }
 
     /**
@@ -871,6 +1186,19 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bindBySqlType(String name, Object value, int sqlType) {
         return bind(name, new SqlTypeArgument(value, sqlType));
+    }
+
+    /**
+     * Bind a value using a specific type from <code>java.sql.Types</code> via
+     * PreparedStatement#setObject(int, Object, int)
+     *
+     * @param position position to bind NULL to, starting at 0
+     * @param value Value to bind
+     * @param sqlType The sqlType from java.sql.Types
+     * @return self
+     */
+    public final SelfType bindBySqlType(int position, Object value, int sqlType) {
+        return bind(position, new SqlTypeArgument(value, sqlType));
     }
 
     private String wrapLookup(String sql)
