@@ -16,11 +16,12 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.Argument;
-
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
+
+import org.skife.jdbi.v2.tweak.Argument;
 
 /**
  *
@@ -36,7 +37,12 @@ class BigDecimalArgument implements Argument
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setBigDecimal(position, value);
+        if (value != null) {
+            statement.setBigDecimal(position, value);
+        }
+        else {
+            statement.setNull(position, Types.NUMERIC);
+        }
     }
 
     @Override

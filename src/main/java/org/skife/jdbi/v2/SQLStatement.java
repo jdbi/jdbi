@@ -246,7 +246,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Character value)
     {
-        return bind(position, new CharacterArgument(value));
+        if (value != null) {
+            return bind(position, new CharacterArgument(value));
+        }
+        else {
+            return bind(position, new NullArgument(Types.VARCHAR));
+        }
     }
 
     /**
@@ -259,7 +264,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Character value)
     {
-        return bind(name, new CharacterArgument(value));
+        if (value != null) {
+            return bind(name, new CharacterArgument(value));
+        }
+        else {
+            return bind(name, new NullArgument(Types.VARCHAR));
+        }
     }
 
     /**
@@ -311,11 +321,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Integer value)
     {
-        if (value == null) {
-            return bind(position, new NullArgument(Types.INTEGER));
+        if (value != null) {
+            return bind(position, new IntegerArgument(value));
         }
         else {
-            return bind(position, new IntegerArgument(value));
+            return bind(position, new NullArgument(Types.INTEGER));
         }
     }
 
@@ -342,11 +352,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Integer value)
     {
-        if (value == null) {
-            return bind(name, new NullArgument(Types.INTEGER));
+        if (value != null) {
+            return bind(name, new IntegerArgument(value));
         }
         else {
-            return bind(name, new IntegerArgument(value));
+            return bind(name, new NullArgument(Types.INTEGER));
         }
     }
 
@@ -506,11 +516,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Boolean value)
     {
-        if (value == null) {
-            return bind(position, new NullArgument(Types.BOOLEAN));
+        if (value != null) {
+            return bind(position, new BooleanArgument(value));
         }
         else {
-            return bind(position, new BooleanArgument(value));
+            return bind(position, new NullArgument(Types.BOOLEAN));
         }
     }
 
@@ -537,11 +547,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Boolean value)
     {
-        if (value == null) {
-            return bind(name, new NullArgument(Types.BOOLEAN));
+        if (value != null) {
+            return bind(name, new BooleanArgument(value));
         }
         else {
-            return bind(name, new BooleanArgument(value));
+            return bind(name, new NullArgument(Types.BOOLEAN));
         }
     }
 
@@ -568,11 +578,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bindAsInt(int position, Boolean value)
     {
-        if (value == null) {
-            return bind(position, new NullArgument(Types.BOOLEAN));
+        if (value != null) {
+            return bind(position, new BooleanIntegerArgument(value));
         }
         else {
-            return bind(position, new BooleanIntegerArgument(value));
+            return bind(position, new NullArgument(Types.INTEGER));
         }
     }
 
@@ -599,11 +609,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bindAsInt(String name, Boolean value)
     {
-        if (value == null) {
-            return bind(name, new NullArgument(Types.INTEGER));
+        if (value != null) {
+            return bind(name, new BooleanIntegerArgument(value));
         }
         else {
-            return bind(name, new BooleanIntegerArgument(value));
+            return bind(name, new NullArgument(Types.INTEGER));
         }
     }
 
@@ -630,11 +640,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Byte value)
     {
-        if (value == null) {
-            return bind(position, new NullArgument(Types.TINYINT));
+        if (value != null) {
+            return bind(position, new ByteArgument(value));
         }
         else {
-            return bind(position, new ByteArgument(value));
+            return bind(position, new NullArgument(Types.TINYINT));
         }
     }
 
@@ -661,11 +671,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Byte value)
     {
-        if (value == null) {
-            return bind(name, new NullArgument(Types.TINYINT));
+        if (value != null) {
+            return bind(name, new ByteArgument(value));
         }
         else {
-            return bind(name, new ByteArgument(value));
+            return bind(name, new NullArgument(Types.TINYINT));
         }
     }
 
@@ -824,11 +834,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Double value)
     {
-        if (value == null) {
-            return bind(position, new NullArgument(Types.DOUBLE));
+        if (value != null) {
+            return bind(position, new DoubleArgument(value));
         }
         else {
-            return bind(position, new DoubleArgument(value));
+            return bind(position, new NullArgument(Types.DOUBLE));
         }
     }
 
@@ -855,11 +865,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Double value)
     {
-        if (value == null) {
-            return bind(name, new NullArgument(Types.DOUBLE));
+        if (value != null) {
+            return bind(name, new DoubleArgument(value));
         }
         else {
-            return bind(name, new DoubleArgument(value));
+            return bind(name, new NullArgument(Types.DOUBLE));
         }
     }
 
@@ -886,11 +896,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Float value)
     {
-        if (value == null) {
-            return bind(position, new NullArgument(Types.FLOAT));
+        if (value != null) {
+            return bind(position, new FloatArgument(value));
         }
         else {
-            return bind(position, new FloatArgument(value));
+            return bind(position, new NullArgument(Types.FLOAT));
         }
     }
 
@@ -917,11 +927,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Float value)
     {
-        if (value == null) {
-            return bind(name, new NullArgument(Types.FLOAT));
+        if (value != null) {
+            return bind(name, new FloatArgument(value));
         }
         else {
-            return bind(name, new FloatArgument(value));
+            return bind(name, new NullArgument(Types.FLOAT));
         }
     }
 
@@ -948,11 +958,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Long value)
     {
-        if (value == null) {
-            return bind(position, new NullArgument(Types.BIGINT));
+        if (value != null) {
+            return bind(position, new LongArgument(value));
         }
         else {
-            return bind(position, new LongArgument(value));
+            return bind(position, new NullArgument(Types.BIGINT));
         }
     }
 
@@ -979,11 +989,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Long value)
     {
-        if (value == null) {
-            return bind(name, new NullArgument(Types.BIGINT));
+        if (value != null) {
+            return bind(name, new LongArgument(value));
         }
         else {
-            return bind(name, new LongArgument(value));
+            return bind(name, new NullArgument(Types.BIGINT));
         }
     }
 
@@ -997,11 +1007,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Short value)
     {
-        if (value == null) {
-            return bind(position, new NullArgument(Types.SMALLINT));
+        if (value != null) {
+            return bind(position, new ShortArgument(value));
         }
         else {
-            return bind(position, new ShortArgument(value));
+            return bind(position, new NullArgument(Types.SMALLINT));
         }
     }
 
@@ -1041,11 +1051,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Short value)
     {
-        if (value == null) {
-            return bind(name, new NullArgument(Types.SMALLINT));
+        if (value != null) {
+            return bind(name, new ShortArgument(value));
         }
         else {
-            return bind(name, new ShortArgument(value));
+            return bind(name, new NullArgument(Types.SMALLINT));
         }
     }
 

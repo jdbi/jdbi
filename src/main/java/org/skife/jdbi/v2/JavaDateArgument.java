@@ -16,11 +16,12 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.Argument;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Date;
+
+import org.skife.jdbi.v2.tweak.Argument;
 
 /**
  *
@@ -36,7 +37,12 @@ class JavaDateArgument implements Argument
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setDate(position, new java.sql.Date(value.getTime()));
+        if (value != null) {
+            statement.setDate(position, new java.sql.Date(value.getTime()));
+        }
+        else {
+            statement.setNull(position, Types.DATE);
+        }
     }
 
     @Override

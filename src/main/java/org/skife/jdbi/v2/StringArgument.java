@@ -16,10 +16,11 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.Argument;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
+
+import org.skife.jdbi.v2.tweak.Argument;
 
 /**
  *
@@ -35,7 +36,12 @@ class StringArgument implements Argument
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setString(position, value);
+        if (value != null) {
+            statement.setString(position, value);
+        }
+        else {
+            statement.setNull(position, Types.VARCHAR);
+        }
     }
 
     @Override

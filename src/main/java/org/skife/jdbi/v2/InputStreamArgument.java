@@ -16,11 +16,12 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.Argument;
-
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
+
+import org.skife.jdbi.v2.tweak.Argument;
 
 /**
  *
@@ -42,11 +43,21 @@ class InputStreamArgument implements Argument
     {
         if (ascii)
         {
-            statement.setAsciiStream(position, value, length);
+            if (value != null) {
+                statement.setAsciiStream(position, value, length);
+            }
+            else {
+                statement.setNull(position, Types.LONGVARCHAR);
+            }
         }
         else
         {
-            statement.setBinaryStream(position, value, length);
+            if (value != null) {
+                statement.setBinaryStream(position, value, length);
+            }
+            else {
+                statement.setNull(position, Types.LONGVARBINARY);
+            }
         }
     }
 }
