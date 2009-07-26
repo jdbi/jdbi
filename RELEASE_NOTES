@@ -1,4 +1,7 @@
-2.6.1
+2.6.1-SNAPSHOT
+  - convert all calls to System.currentTimeMillis() to System.nanoTime(), which is more
+    accurate and much more lightweight. As we only calculate time differences, it is 
+    good enough.
   - fix more compiler warnings
   - add null checks for all object types on SQLStatement
   - move object null checks, that don't require boxing/unboxing

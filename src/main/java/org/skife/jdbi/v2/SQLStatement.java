@@ -1268,9 +1268,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             }
 
             try {
-                final long start = System.currentTimeMillis();
+                final long start = System.nanoTime();
                 stmt.execute();
-                log.logSQL(System.currentTimeMillis() - start,  rewritten.getSql());
+                log.logSQL((System.nanoTime() - start) / 1000000L,  rewritten.getSql());
             }
             catch (SQLException e) {
                 throw new UnableToExecuteStatementException(e, context);

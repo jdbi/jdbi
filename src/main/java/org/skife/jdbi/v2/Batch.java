@@ -109,9 +109,9 @@ public class Batch
 
             try
             {
-                final long start = System.currentTimeMillis();
+                final long start = System.nanoTime();
                 final int[] rs = stmt.executeBatch();
-                logger.log(System.currentTimeMillis() - start);
+                logger.log((System.nanoTime() - start) / 1000000L);
                 return rs;
 
             }

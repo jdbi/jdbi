@@ -116,9 +116,9 @@ public class PreparedBatch
             }
 
             try {
-                final long start = System.currentTimeMillis();
+                final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
-                log.logPreparedBatch(System.currentTimeMillis() - start,  rewritten.getSql(), parts.size());
+                log.logPreparedBatch((System.nanoTime() - start) / 1000000L,  rewritten.getSql(), parts.size());
                 return rs;
             }
             catch (SQLException e) {

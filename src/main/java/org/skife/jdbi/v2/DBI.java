@@ -177,9 +177,9 @@ public class DBI implements IDBI
     public Handle open()
     {
         try {
-            final long start = System.currentTimeMillis();
+            final long start = System.nanoTime();
             Connection conn = connectionFactory.openConnection();
-            final long stop = System.currentTimeMillis();
+            final long stop = System.nanoTime();
             StatementBuilder cache = statementBuilderFactory.createStatementBuilder(conn);
             Handle h = new BasicHandle(transactionhandler,
                                        statementLocator,
@@ -188,7 +188,7 @@ public class DBI implements IDBI
                                        conn,
                                        globalStatementAttributes,
                                        log);
-            log.logObtainHandle(stop - start, h);
+            log.logObtainHandle((stop - start) / 1000000L, h);
             return h;
         }
         catch (SQLException e) {

@@ -106,9 +106,9 @@ class BasicHandle implements Handle
      * Commit a transaction
      */
     public Handle commit() {
-        final long start = System.currentTimeMillis();
+        final long start = System.nanoTime();
         transactions.commit(this);
-        log.logCommitTransaction(System.currentTimeMillis() - start, this);
+        log.logCommitTransaction((System.nanoTime() - start) / 1000000L, this);
         return this;
     }
 
@@ -116,9 +116,9 @@ class BasicHandle implements Handle
      * Rollback a transaction
      */
     public Handle rollback() {
-        final long start = System.currentTimeMillis();
+        final long start = System.nanoTime();
         transactions.rollback(this);
-        log.logRollbackTransaction(System.currentTimeMillis() - start, this);
+        log.logRollbackTransaction((System.nanoTime() - start) / 1000000L, this);
         return this;
     }
 
@@ -160,9 +160,9 @@ class BasicHandle implements Handle
      * @param checkpointName the name of the checkpoint, previously declared with {@see Handle#checkpoint}
      */
     public Handle rollback(String checkpointName) {
-        final long start = System.currentTimeMillis();
+        final long start = System.nanoTime();
         transactions.rollback(this, checkpointName);
-        log.logRollbackToCheckpoint(System.currentTimeMillis() - start, this, checkpointName);
+        log.logRollbackToCheckpoint((System.nanoTime() - start) / 1000000L, this, checkpointName);
         return this;
     }
 
