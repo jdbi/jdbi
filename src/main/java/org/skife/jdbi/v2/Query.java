@@ -158,6 +158,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @return The return value from the last invocation of {@link Folder#fold(Object, java.sql.ResultSet)}
      *
      * @see org.skife.jdbi.v2.Folder
+     * @deprecated Use {@link Query#fold(Object, Folder2)}
      */
     public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder<AccumulatorType> folder)
     {
@@ -193,11 +194,11 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         final QueryPostMungeCleanup cleaner = new QueryPostMungeCleanup()
         {
             private boolean skipNextClose = true;
-            private SQLStatement query;
+            private SQLStatement<?> query;
             private Statement stmt;
             private ResultSet rs;
 
-            public void cleanup(SQLStatement query, Statement stmt, ResultSet rs)
+            public void cleanup(SQLStatement<?> query, Statement stmt, ResultSet rs)
             {
                 if (skipNextClose) {
                     this.query = query;

@@ -34,6 +34,7 @@ public class TestQueryObjectGenerator extends DBITestCase
 
     public void testApiWhichTakesDatasource() throws Exception
     {
+        @SuppressWarnings("unused")
         final Handle h = openHandle();
         MyQueries qo = QueryObjectFactory.createQueryObject(MyQueries.class, Tools.getDataSource());
         assertNotNull(qo);

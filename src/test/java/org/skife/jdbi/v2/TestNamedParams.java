@@ -90,6 +90,7 @@ public class TestNamedParams extends DBITestCase
         s.bindFromMap(args);
         s.bindFromProperties(new Object()
         {
+            @SuppressWarnings("unused")
             public String getName() { return "Keith"; }
         });
         int insert_count = s.execute();

@@ -16,13 +16,16 @@
 
 package org.skife.jdbi.v2.unstable.grammar;
 
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.*;
-import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
-import org.antlr.runtime.ANTLRReaderStream;
-import org.antlr.runtime.Lexer;
-import org.antlr.runtime.ANTLRStringStream;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.EOF;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
 
-import java.io.Reader;
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.Lexer;
+import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
+
 
 /**
  *

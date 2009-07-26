@@ -37,7 +37,7 @@ class DataAccessHandler implements InvocationHandler
         this.handle = handle;
     }
 
-    private void bindArguments(BindType type, SQLStatement sql, Object... args)
+    private void bindArguments(BindType type, SQLStatement<?> sql, Object... args)
     {
         switch (type)
         {
@@ -95,7 +95,7 @@ class DataAccessHandler implements InvocationHandler
         if (args != null) bindArguments(method.isAnnotationPresent(BindBy.class) ?
                                         method.getAnnotation(BindBy.class).value() :
                                         BindType.Position, u, args);
-        Class rt = method.getReturnType();
+        Class<?> rt = method.getReturnType();
         int changed = u.execute();
         if (method.getReturnType() == null)
         {
@@ -122,7 +122,7 @@ class DataAccessHandler implements InvocationHandler
         else if (method.isAnnotationPresent(Select.class))
         {
             final Select s = method.getAnnotation(Select.class);
-            final Class returnTypeClass = method.getReturnType();
+            final Class<?> returnTypeClass = method.getReturnType();
             if (List.class.isAssignableFrom(returnTypeClass))
             {
                 return this.execute(s, method, args, LISTIFIER);
@@ -153,12 +153,12 @@ class DataAccessHandler implements InvocationHandler
 
     private interface Foo
     {
-        Object doit(Query q);
+        Object doit(Query<?> q);
     }
 
     private static final Foo LISTIFIER = new Foo()
     {
-        public Object doit(Query q)
+        public Object doit(Query<?> q)
         {
             return q.list();
         }
@@ -166,7 +166,7 @@ class DataAccessHandler implements InvocationHandler
 
     private static final Foo ITTIFIER = new Foo()
     {
-        public Object doit(Query q)
+        public Object doit(Query<?> q)
         {
             return q.iterator();
         }

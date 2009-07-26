@@ -83,7 +83,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 			PropertyDescriptor descriptor = properties.get(name);
 
 			if (descriptor != null) {
-				Class type = descriptor.getPropertyType();
+				Class<?> type = descriptor.getPropertyType();
 
 				Object value;
 

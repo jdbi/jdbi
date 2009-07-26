@@ -139,7 +139,7 @@ public class TestTransactions extends DBITestCase
     {
         Handle h = openHandle();
         try {
-            h.inTransaction(new TransactionCallback() {
+            h.inTransaction(new TransactionCallback<Object>() {
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     throw new IllegalArgumentException();

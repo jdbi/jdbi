@@ -47,6 +47,6 @@ class MapArguments implements LazyArguments
 
     @Override
     public String toString() {
-        return new LinkedHashMap(args).toString();
+        return new LinkedHashMap<String, Object>(args).toString();
     }
 }

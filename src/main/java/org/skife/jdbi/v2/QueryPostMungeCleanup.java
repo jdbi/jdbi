@@ -24,7 +24,7 @@ interface QueryPostMungeCleanup
 {
     final QueryPostMungeCleanup CLOSE_RESOURCES_QUIETLY = new QueryPostMungeCleanup()
     {
-        public void cleanup(SQLStatement query, Statement stmt, ResultSet rs)
+        public void cleanup(SQLStatement<?> query, Statement stmt, ResultSet rs)
         {
             if (query != null) {
                 try {
@@ -57,11 +57,11 @@ interface QueryPostMungeCleanup
 
     final QueryPostMungeCleanup NO_OP = new QueryPostMungeCleanup()
     {
-        public void cleanup(SQLStatement query, Statement stmt, ResultSet rs)
+        public void cleanup(SQLStatement<?> query, Statement stmt, ResultSet rs)
         {
 
         }
     };
 
-    void cleanup(SQLStatement query, Statement stmt, ResultSet rs);
+    void cleanup(SQLStatement<?> query, Statement stmt, ResultSet rs);
 }

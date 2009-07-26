@@ -66,7 +66,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     private final List<int[]> binds = new ArrayList<int[]>();
     private StatementContext context;
     private List<ResultType> results;
-	private Class oraclePS ;
+	private Class<?> oraclePS ;
 	private Method registerReturnParameter ;
 	private Method getReturnResultSet ;
 	private Object stmt ;

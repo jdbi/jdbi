@@ -153,8 +153,8 @@ public class TestTooManyCursors extends DBITestCase
         public static Statement newInstance(Statement stmt, ConnectionInvocationHandler connectionHandler)
         {
 
-            Class o = stmt.getClass();
-            List<Class> interfaces = new ArrayList<Class>();
+            Class<?> o = stmt.getClass();
+            List<Class<?>> interfaces = new ArrayList<Class<?>>();
             while (!o.equals(Object.class)) {
                 interfaces.addAll(Arrays.asList(o.getInterfaces()));
                 o = o.getSuperclass();

@@ -23,7 +23,6 @@ import org.skife.jdbi.v2.IDBI;
 import org.skife.jdbi.v2.util.IntegerMapper;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 

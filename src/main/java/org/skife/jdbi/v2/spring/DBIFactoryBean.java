@@ -56,7 +56,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     /**
      * See org.springframework.beans.factory.FactoryBean#getObjectType
      */
-    public Class getObjectType()
+    public Class<?> getObjectType()
     {
         return IDBI.class;
     }

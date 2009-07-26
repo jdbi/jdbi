@@ -281,9 +281,9 @@ public class TestQueries extends DBITestCase
                 .execute();
 
         Map<String, Integer> rs = h.createQuery("select id, name from something")
-                .fold(new HashMap<String, Integer>(), new Folder<Map<String, Integer>>()
+                .fold(new HashMap<String, Integer>(), new Folder2<Map<String, Integer>>()
                 {
-                    public Map<String, Integer> fold(Map<String, Integer> a, ResultSet rs) throws SQLException {
+                    public Map<String, Integer> fold(Map<String, Integer> a, ResultSet rs, StatementContext context) throws SQLException {
                         a.put(rs.getString("name"), rs.getInt("id"));
                         return a;
                     }
@@ -298,7 +298,7 @@ public class TestQueries extends DBITestCase
             h.createStatement("insert into something (id, name) values (:id, :name)")
                     .bind("name", "brian")
                     .bind(7, 8)
-                    .bindFromMap(new HandyMapThing().add("one", "two"))
+                    .bindFromMap(new HandyMapThing<String>().add("one", "two"))
                     .bindFromProperties(new Object())
                     .execute();
         }

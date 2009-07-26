@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class OutParameters
 {
-    private final Map map = new HashMap();
+    private final Map<Object, Object> map = new HashMap<Object, Object>();
 
     /**
      * Type-casting convenience method which obtains an object from the map, the
@@ -211,7 +211,7 @@ public class OutParameters
         }
     }
 
-    Map getMap() {
+    Map<Object, Object> getMap() {
         return map;
     }
 }
