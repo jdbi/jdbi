@@ -16,14 +16,14 @@
 
 package org.skife.jdbi.v2;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements
@@ -36,9 +36,10 @@ public class Update extends SQLStatement<Update>
            StatementBuilder cache,
            String sql,
            StatementContext ctx,
-           SQLLog log)
+           SQLLog log,
+           TimingCollector timingCollector)
     {
-        super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log);
+        super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector);
     }
 
     /**

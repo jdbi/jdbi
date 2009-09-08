@@ -28,9 +28,10 @@ public class Call extends SQLStatement<Call>
          StatementBuilder cache,
          String sql,
          StatementContext ctx,
-         SQLLog log)
+         SQLLog log,
+         TimingCollector timingCollector)
 	{
-		super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log);
+		super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector);
 	}
 
 	/**

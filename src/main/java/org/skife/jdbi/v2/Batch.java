@@ -38,12 +38,14 @@ public class Batch
     private final Connection connection;
     private final SQLLog log;
     private final StatementContext context;
+    private final TimingCollector timingCollector;
 
-    Batch(StatementRewriter rewriter, Connection connection, Map<String, Object> globalStatementAttributes, SQLLog log)
+    Batch(StatementRewriter rewriter, Connection connection, Map<String, Object> globalStatementAttributes, SQLLog log, TimingCollector timingCollector)
     {
         this.rewriter = rewriter;
         this.connection = connection;
         this.log = log;
+        this.timingCollector = timingCollector;
         this.context = new StatementContext(globalStatementAttributes);
     }
 
@@ -111,7 +113,10 @@ public class Batch
             {
                 final long start = System.nanoTime();
                 final int[] rs = stmt.executeBatch();
-                logger.log((System.nanoTime() - start) / 1000000L);
+                final long elapsedTime = (System.nanoTime() - start);
+                logger.log(elapsedTime / 1000000L);
+                // Null for statement, because for batches, we don't really have a good way to keep the sql around.
+                timingCollector.collect(null, context, elapsedTime);
                 return rs;
 
             }

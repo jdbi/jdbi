@@ -40,9 +40,10 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       StatementBuilder cache,
                       String sql,
                       StatementContext context,
-                      SQLLog log)
+                      SQLLog log,
+                      TimingCollector timingCollector)
     {
-        super(new Binding(), locator, rewriter, connection, cache, sql, context, log);
+        super(new Binding(), locator, rewriter, connection, cache, sql, context, log, timingCollector);
         this.batch = batch;
         this.context = context;
     }

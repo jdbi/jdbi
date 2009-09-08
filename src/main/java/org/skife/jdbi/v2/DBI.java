@@ -16,6 +16,15 @@
 
 package org.skife.jdbi.v2;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.sql.DataSource;
+
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.logging.NoOpLog;
@@ -28,14 +37,6 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
@@ -50,6 +51,7 @@ public class DBI implements IDBI
     private StatementBuilderFactory statementBuilderFactory = new DefaultStatementBuilderFactory();
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private SQLLog log = new NoOpLog();
+    private TimingCollector timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
 
     /**
      * Constructor for use with a DataSource which will provide
@@ -187,7 +189,8 @@ public class DBI implements IDBI
                                        statementRewriter,
                                        conn,
                                        globalStatementAttributes,
-                                       log);
+                                       log,
+                                       timingCollector);
             log.logObtainHandle((stop - start) / 1000000L, h);
             return h;
         }
@@ -348,5 +351,18 @@ public class DBI implements IDBI
     public void setSQLLog(SQLLog log)
     {
         this.log = log;
+    }
+
+    /**
+     * Add a callback to accumulate timing information about the queries running from this
+     * data source.
+     */
+    public void setTimingCollector(final TimingCollector timingCollector) {
+        if (timingCollector == null) {
+            this.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
+        }
+        else {
+            this.timingCollector = timingCollector;
+        }
     }
 }

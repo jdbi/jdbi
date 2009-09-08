@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
  */
 public abstract class DBITestCase extends TestCase
 {
-    private final List<BasicHandle> handles = new ArrayList<BasicHandle>();
+    protected final List<BasicHandle> handles = new ArrayList<BasicHandle>();
     private ExecutorService executor;
 
     public void setUp() throws Exception
@@ -68,7 +68,8 @@ public abstract class DBITestCase extends TestCase
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         conn,
                                         new HashMap<String, Object>(),
-                                        new NoOpLog());
+                                        new NoOpLog(),
+                                        TimingCollector.NOP_TIMING_COLLECTOR);
         handles.add(h);
         return h;
     }

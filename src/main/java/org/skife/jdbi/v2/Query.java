@@ -50,9 +50,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           StatementBuilder cache,
           String sql,
           StatementContext ctx,
-          SQLLog log)
+          SQLLog log,
+          TimingCollector timingCollector)
     {
-        super(params, locator, statementRewriter, connection, cache, sql, ctx, log);
+        super(params, locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector);
         this.mapper = mapper;
     }
 
@@ -274,7 +275,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getStatementBuilder(),
                             getSql(),
                             getContext(),
-                            getLog());
+                            getLog(),
+                            getTimingCollector());
     }
 
     /**

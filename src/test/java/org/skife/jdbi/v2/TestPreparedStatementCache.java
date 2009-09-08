@@ -46,7 +46,8 @@ public class TestPreparedStatementCache extends DBITestCase
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         c,
                                         new HashMap<String, Object>(),
-                                        new NoOpLog());
+                                        new NoOpLog(),
+                                        TimingCollector.NOP_TIMING_COLLECTOR);
 
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bindFromProperties(new Something(0, "Keith"))

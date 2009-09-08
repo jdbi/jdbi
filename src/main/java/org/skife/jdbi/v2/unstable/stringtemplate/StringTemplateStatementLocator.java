@@ -57,6 +57,12 @@ public class StringTemplateStatementLocator implements StatementLocator
         final String template_name = tok.nextToken();
         final StringTemplateGroup group = loader.loadGroup(group_name);
         final StringTemplate template = group.getInstanceOf(template_name);
+
+        // Put the location in the context; this can be used by other consumers to
+        // figure out, which statement was run.
+        ctx.setAttribute(StatementContext.STATEMENT_GROUP, group_name);
+        ctx.setAttribute(StatementContext.STATEMENT_NAME, template_name);
+
         template.setAttributes(ctx.getAttributes());
         return template.toString();
     }

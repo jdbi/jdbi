@@ -66,6 +66,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private RewrittenStatement rewritten;
     private PreparedStatement stmt;
     private final SQLLog log;
+    private final TimingCollector timingCollector;
 
     SQLStatement(Binding params,
                  StatementLocator locator,
@@ -74,7 +75,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                  StatementBuilder preparedStatementCache,
                  String sql,
                  StatementContext ctx,
-                 SQLLog log)
+                 SQLLog log,
+                 TimingCollector timingCollector)
     {
         this.log = log;
         assert (verifyOurNastyDowncastIsOkay());
@@ -83,6 +85,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         this.rewriter = rewriter;
         this.connection = conn;
         this.sql = sql;
+        this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
 
@@ -1270,7 +1273,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             try {
                 final long start = System.nanoTime();
                 stmt.execute();
-                log.logSQL((System.nanoTime() - start) / 1000000L,  rewritten.getSql());
+                final long elapsedTime = System.nanoTime() - start;
+                log.logSQL(elapsedTime / 1000000L,  rewritten.getSql());
+                timingCollector.collect(rewritten.getSql(), context, elapsedTime);
             }
             catch (SQLException e) {
                 throw new UnableToExecuteStatementException(e, context);
@@ -1306,5 +1311,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     protected SQLLog getLog()
     {
         return log;
+    }
+
+    protected TimingCollector getTimingCollector()
+    {
+        return timingCollector;
     }
 }
