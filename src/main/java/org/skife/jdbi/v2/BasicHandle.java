@@ -40,6 +40,26 @@ class BasicHandle implements Handle
     private StatementBuilder statementBuilder;
     private final Map<String, Object> globalStatementAttributes;
 
+    /**
+     * @deprecated
+     */
+    public BasicHandle(TransactionHandler transactions,
+                       StatementLocator statementLocator,
+                       StatementBuilder preparedStatementCache,
+                       StatementRewriter statementRewriter,
+                       Connection connection,
+                       Map<String, Object> globalStatementAttributes,
+                       SQLLog log) {
+        this(transactions,
+                statementLocator,
+                preparedStatementCache,
+                statementRewriter,
+                connection,
+                globalStatementAttributes,
+                log,
+                TimingCollector.NOP_TIMING_COLLECTOR);
+    }
+
     public BasicHandle(TransactionHandler transactions,
                        StatementLocator statementLocator,
                        StatementBuilder preparedStatementCache,
