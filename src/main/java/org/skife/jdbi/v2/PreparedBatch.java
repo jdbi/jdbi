@@ -123,7 +123,7 @@ public class PreparedBatch
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = (System.nanoTime() - start);
                 log.logPreparedBatch(elapsedTime / 1000000L,  rewritten.getSql(), parts.size());
-                timingCollector.collect(rewritten.getSql(), context, elapsedTime);
+                timingCollector.collect(elapsedTime, context);
                 return rs;
             }
             catch (SQLException e) {

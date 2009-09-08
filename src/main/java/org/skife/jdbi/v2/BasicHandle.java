@@ -34,10 +34,10 @@ class BasicHandle implements Handle
 {
     private final TransactionHandler transactions;
     private final Connection connection;
-    private final TimingCollector timingCollector;
     private StatementRewriter statementRewriter;
     private StatementLocator statementLocator;
     private SQLLog log;
+    private TimingCollector timingCollector;
     private StatementBuilder statementBuilder;
     private final Map<String, Object> globalStatementAttributes;
 
@@ -157,6 +157,16 @@ class BasicHandle implements Handle
     public void setSQLLog(SQLLog log) {
         this.log = log;
     }
+
+    public void setTimingCollector(final TimingCollector timingCollector) {
+        if (timingCollector == null) {
+            this.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
+        }
+        else {
+            this.timingCollector = timingCollector;
+        }
+    }
+
 
     /**
      * Rollback a transaction to a named checkpoint

@@ -33,6 +33,7 @@ public class TestTimingCollector extends DBITestCase
 
     private TTC tc;
 
+    @Override
     protected BasicHandle openHandle() throws SQLException
     {
         tc = new TTC();
@@ -51,12 +52,14 @@ public class TestTimingCollector extends DBITestCase
     }
 
 
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();
         h = openHandle();
     }
 
+    @Override
     public void tearDown() throws Exception
     {
         if (h != null) h.close();
@@ -120,9 +123,9 @@ public class TestTimingCollector extends DBITestCase
     {
         private List<String> statements = new ArrayList<String>();
 
-        public synchronized void collect(final String sql, final StatementContext ctx, final long elapsedTime)
+        public synchronized void collect(final long elapsedTime, final StatementContext ctx)
         {
-            statements.add(sql);
+            statements.add(ctx.getRawSql());
         }
 
         public synchronized List<String> getStatements()

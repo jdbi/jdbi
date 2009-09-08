@@ -9,11 +9,11 @@ public interface TimingCollector
      * This method is executed every time there is information to collect. Grouping of the
      * timing information is up to the implementation of this interface.
      *
-     * @param sql The rewritten SQL that was executed.
-     * @param ctx The Statement Context.
+     * @param ctx The Statement Context, which contains additional information about the
+     * statement that just ran.
      * @param elapsedTime The elapsed time in nanoseconds.
      */
-    void collect(String sql, StatementContext ctx, long elapsedTime);
+    void collect(long elapsedTime, StatementContext ctx);
 
     /**
      * A No Operation Timing Collector. It can be used to "plug" into DBI if more sophisticated
@@ -23,7 +23,7 @@ public interface TimingCollector
 
     public static final class NopTimingCollector implements TimingCollector
     {
-        public void collect(final String sql, final StatementContext ctx, final long elapsedTime)
+        public void collect(final long elapsedTime, final StatementContext ctx)
         {
             // GNDN
         }

@@ -16,15 +16,15 @@
 
 package org.skife.jdbi.v2;
 
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This represents a connection to the database system. It ususally is a wrapper around
@@ -199,4 +199,10 @@ public interface Handle
      * to create this Handle.
      */
     void setSQLLog(SQLLog log);
+
+    /**
+     * Specify the class used to collect timing information. The default is inherited from the DBI used
+     * to create this Handle.
+     */
+    void setTimingCollector(TimingCollector timingCollector);
 }

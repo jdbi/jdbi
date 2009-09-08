@@ -1275,7 +1275,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                 stmt.execute();
                 final long elapsedTime = System.nanoTime() - start;
                 log.logSQL(elapsedTime / 1000000L,  rewritten.getSql());
-                timingCollector.collect(rewritten.getSql(), context, elapsedTime);
+                timingCollector.collect(elapsedTime, context);
             }
             catch (SQLException e) {
                 throw new UnableToExecuteStatementException(e, context);

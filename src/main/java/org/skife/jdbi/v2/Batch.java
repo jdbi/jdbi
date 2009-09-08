@@ -116,7 +116,7 @@ public class Batch
                 final long elapsedTime = (System.nanoTime() - start);
                 logger.log(elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                timingCollector.collect(null, context, elapsedTime);
+                timingCollector.collect(elapsedTime, context);
                 return rs;
 
             }
