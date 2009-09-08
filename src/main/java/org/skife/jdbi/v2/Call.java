@@ -116,9 +116,14 @@ public class Call extends SQLStatement<Call>
 				return mapper.map(position, stmt);
 			}
 			switch ( sqlType ) {
-				case Types.CLOB : case Types.VARCHAR : case Types.LONGNVARCHAR : case Types.LONGVARCHAR : case Types.NCLOB : case Types.NVARCHAR :
+				case Types.CLOB : case Types.VARCHAR :
+			    case Types.LONGNVARCHAR :
+		        case Types.LONGVARCHAR :
+	            case Types.NCLOB :
+                case Types.NVARCHAR :
 					return stmt.getString(position) ;
-				case Types.BLOB : case Types.VARBINARY :
+				case Types.BLOB :
+			    case Types.VARBINARY :
 					return stmt.getBytes(position) ;
 				case Types.SMALLINT :
 					return stmt.getShort(position);
