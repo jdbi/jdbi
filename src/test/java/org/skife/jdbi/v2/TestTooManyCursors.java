@@ -156,7 +156,7 @@ public class TestTooManyCursors extends DBITestCase
             Class<?> o = stmt.getClass();
             List<Class<?>> interfaces = new ArrayList<Class<?>>();
             while (!o.equals(Object.class)) {
-                interfaces.addAll(Arrays.asList(o.getInterfaces()));
+                interfaces.addAll(Arrays.asList((Class<?> [])o.getInterfaces()));
                 o = o.getSuperclass();
             }
 
