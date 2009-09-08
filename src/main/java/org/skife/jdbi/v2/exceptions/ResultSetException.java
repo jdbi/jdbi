@@ -23,4 +23,11 @@ public class ResultSetException extends StatementException
     public ResultSetException(String msg, Exception e, StatementContext ctx) {
         super(msg, e, ctx);
     }
+
+    /**
+     * @deprecated
+     */
+    public ResultSetException(String msg, Exception e) {
+        super(msg, e, null);
+    }
 }

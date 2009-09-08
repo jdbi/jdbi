@@ -30,4 +30,20 @@ public class UnableToCreateStatementException extends StatementException
     {
         super(e, ctx);
     }
+
+    /**
+     * @deprecated
+     */
+    public UnableToCreateStatementException(String string, Throwable throwable)
+    {
+        super(string, throwable, null);
+    }
+
+    /**
+     * @deprecated
+     */
+    public UnableToCreateStatementException(Exception e)
+    {
+        super(e, null);
+    }
 }

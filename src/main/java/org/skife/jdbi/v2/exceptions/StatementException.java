@@ -24,6 +24,30 @@ public abstract class StatementException extends DBIException
         this.statementContext = ctx;
     }
 
+    /**
+     * @deprecated
+     */
+    public StatementException(String string, Throwable throwable) {
+        super(string, throwable);
+        this.statementContext = null;
+    }
+
+    /**
+     * @deprecated
+     */
+    public StatementException(Throwable cause) {
+        super(cause);
+        this.statementContext = null;
+    }
+
+    /**
+     * @deprecated
+     */
+    public StatementException(String message) {
+        super(message);
+        this.statementContext = null;
+    }
+
     public StatementContext getStatementContext() {
         return statementContext;
     }
