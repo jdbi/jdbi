@@ -323,6 +323,7 @@
             <groupId>org.antlr</groupId>
             <artifactId>stringtemplate</artifactId>
             <version>3.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
