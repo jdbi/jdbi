@@ -29,12 +29,6 @@ import java.util.Map;
  */
 public class StatementContext
 {
-    /** The statement loader can store the group in which it found a statemnt using this key. */
-    public static final String STATEMENT_GROUP = "_jdbi_group";
-
-    /** The statement loader can store the name of a statemnt using this key. */
-    public static final String STATEMENT_NAME = "_jdbi_name";
-
     private final Map<String, Object> attributes = new HashMap<String, Object>();
     private String rawSql;
     private String rewrittenSql;

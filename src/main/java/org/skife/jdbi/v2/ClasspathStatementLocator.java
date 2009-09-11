@@ -92,11 +92,6 @@ public class ClasspathStatementLocator implements StatementLocator
                 throw new UnableToCreateStatementException(e.getMessage(), e, ctx);
             }
 
-            // Put the location in the context; this can be used by other consumers to
-            // figure out, which statement was run.
-            ctx.setAttribute(StatementContext.STATEMENT_GROUP, "sql");
-            ctx.setAttribute(StatementContext.STATEMENT_NAME, name);
-
             return buffer.toString();
         }
         finally {
