@@ -1,4 +1,12 @@
-2.6.1-SNAPSHOT
+2.7.0
+  - A TimingCollector was added which can be registered on the DBI or handle which then
+    gets called with nanosecond resolution elapsed time every time a statement is run
+    against the data base.
+  - re-added some Exception constructors that were accidentially removed in 2.3.0 making
+    2.4.0-2.6.x non-backwards compatible.
+  - Bind java.util.Date as a timestamp because it contains time and date.
+  - BasicHandle constructor is now package private (which it always should have been)
+  - add Clirr Report to the Maven Site
   - convert all calls to System.currentTimeMillis() to System.nanoTime(), which is more
     accurate and much more lightweight. As we only calculate time differences, it is 
     good enough.
