@@ -18,13 +18,16 @@ package org.skife.jdbi.v2;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
 import org.skife.jdbi.v2.tweak.Argument;
 
 /**
- *
+ * Binds a @{link Date) argument to a prepared statement. A Java Date is really a timestamp because
+ * it contains both a time and a date. If you need explicit binding for only time or only date, use
+ * {@link SqlDateArgument} or {@link TimeArgument}.
  */
 class JavaDateArgument implements Argument
 {
@@ -38,10 +41,10 @@ class JavaDateArgument implements Argument
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
         if (value != null) {
-            statement.setDate(position, new java.sql.Date(value.getTime()));
+            statement.setTimestamp(position, new Timestamp(value.getTime()));
         }
         else {
-            statement.setNull(position, Types.DATE);
+            statement.setNull(position, Types.TIMESTAMP);
         }
     }
 
