@@ -1,3 +1,20 @@
+jDBI provides a convenience interface for SQL operations in Java. It is not intended as an abstraction layer, but rather a library which makes the common things easy and the hard things possible, to paraphrase Larry Wall.
+
+The primary entry point for using jDBI is the DBI class. This is used to create Handle instances, each of which represents a connection to the RDBMS. A Handle wraps a JDBC Connection instance, and makes use of that same Connection for all of its operations.
+
+Generally, you will explicitely create statements, queries, and batch operations for working with data in the database. Seperate objects are used to represent these things, and they are designed to be used in a somewhat literate-programming style. Here is an example:
+
+  DBI dbi = new DBI("jdbc:derby:testing");
+  Handle handle = dbi.open();
+  Query<Something> query = handle.createQuery("select * from something where name like :name")
+                                 .bind("name", "Eri%")
+                                 .map(Something.class);
+  List<Something> rs = query.list();
+  handle.close();
+
+
+INSTALLATION
+
 Building requires Apache Ant ( http://ant.apache.org/ )
 
 If ant complains that it cannot find the JUnit task, copy
