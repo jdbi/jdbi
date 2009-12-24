@@ -20,12 +20,14 @@ import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +72,8 @@ class BasicHandle implements Handle
                                               sql,
                                               new StatementContext(globalStatementAttributes),
                                               log,
-                                              timingCollector);
+                                              timingCollector,
+                                              Collections.<StatementCustomizer>emptyList());
     }
 
     /**
@@ -203,7 +206,8 @@ class BasicHandle implements Handle
                         sql,
                         new StatementContext(globalStatementAttributes),
                         log,
-                        timingCollector);
+                        timingCollector,
+                        Collections.<StatementCustomizer>emptyList());
     }
 
     public int insert(String sql, Object... args) {

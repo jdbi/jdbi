@@ -19,9 +19,11 @@ package org.skife.jdbi.v2;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
@@ -39,7 +41,7 @@ public class Update extends SQLStatement<Update>
            SQLLog log,
            TimingCollector timingCollector)
     {
-        super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector);
+        super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList());
     }
 
     /**

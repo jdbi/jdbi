@@ -18,10 +18,12 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
+import java.util.Collections;
 
 /**
  * Represents a single statement in a prepared batch
@@ -43,7 +45,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       SQLLog log,
                       TimingCollector timingCollector)
     {
-        super(new Binding(), locator, rewriter, connection, cache, sql, context, log, timingCollector);
+        super(new Binding(), locator, rewriter, connection, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList());
         this.batch = batch;
         this.context = context;
     }

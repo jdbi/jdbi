@@ -3,6 +3,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
@@ -13,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,14 +26,15 @@ public class Call extends SQLStatement<Call>
 
 	Call(Connection connection,
          StatementLocator locator,
-         StatementRewriter statementRewriter,
+         StatementRewriter rewriter,
          StatementBuilder cache,
          String sql,
          StatementContext ctx,
          SQLLog log,
-         TimingCollector timingCollector)
+         TimingCollector timingCollector,
+         Collection<StatementCustomizer> customizers)
 	{
-		super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector);
+		super(new Binding(), locator, rewriter, connection, cache, sql, ctx, log, timingCollector, customizers);
 	}
 
 	/**

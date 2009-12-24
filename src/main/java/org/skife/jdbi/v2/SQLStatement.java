@@ -16,6 +16,17 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.SQLLog;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -32,17 +43,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-
-import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
-import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.RewrittenStatement;
-import org.skife.jdbi.v2.tweak.SQLLog;
-import org.skife.jdbi.v2.tweak.StatementBuilder;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.tweak.StatementLocator;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -76,7 +76,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                  String sql,
                  StatementContext ctx,
                  SQLLog log,
-                 TimingCollector timingCollector)
+                 TimingCollector timingCollector,
+                 Collection<StatementCustomizer> statementCustomizers)
     {
         this.log = log;
         assert (verifyOurNastyDowncastIsOkay());
@@ -88,12 +89,17 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
+        this.customizers.addAll(statementCustomizers);
 
         ctx.setConnection(conn);
         ctx.setRawSql(sql);
         ctx.setBinding(params);
     }
 
+    protected Collection<StatementCustomizer> getStatementCustomizers()
+    {
+        return this.customizers;
+    }
 
     /**
      * Define a value on the {@link StatementContext}

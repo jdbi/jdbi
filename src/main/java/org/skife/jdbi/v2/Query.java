@@ -32,6 +32,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -51,9 +53,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           String sql,
           StatementContext ctx,
           SQLLog log,
-          TimingCollector timingCollector)
+          TimingCollector timingCollector,
+          Collection<StatementCustomizer> customizers)
     {
-        super(params, locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector);
+        super(params, locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector, customizers);
         this.mapper = mapper;
     }
 
@@ -276,7 +279,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getSql(),
                             getContext(),
                             getLog(),
-                            getTimingCollector());
+                            getTimingCollector(),
+                            getStatementCustomizers());
     }
 
     /**

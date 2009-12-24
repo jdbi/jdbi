@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.HandyMapThing;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -305,5 +306,18 @@ public class TestQueries extends DBITestCase
         catch (StatementException e) {
             assertTrue(e.getMessage().contains("arguments:{ positional:{7:8}, named:{name:'brian'}, lazy:[{one=two},{lazy bean proprty arguments \"java.lang.Object"));
         }
+    }
+
+    public void testStatementCustomizersPersistAfterMap() throws Exception
+    {
+        h.insert("insert into something (id, name) values (?, ?)", 1, "hello");
+        h.insert("insert into something (id, name) values (?, ?)", 2, "world");
+
+        List<Something> rs = h.createQuery("select id, name from something")
+            .setMaxRows(1)
+            .map(Something.class)
+            .list();
+
+        assertEquals(1, rs.size());
     }
 }
