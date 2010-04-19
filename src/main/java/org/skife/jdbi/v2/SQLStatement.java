@@ -234,14 +234,17 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Binds named parameters from a map of String to Object instances
      *
-     * @param args map where keys are matched to named parameters in order to bind arguments
+     * @param args map where keys are matched to named parameters in order to bind arguments.
+     * Can be null, in this case, the binding has no effect.
      *
      * @return modified statement
      */
     @SuppressWarnings("unchecked")
     public SelfType bindFromMap(Map<String, ? extends Object> args)
     {
-        params.addLazyNamedArguments(new MapArguments(args));
+        if (args != null) {
+            params.addLazyNamedArguments(new MapArguments(args));
+        }
         return (SelfType) this;
     }
 
