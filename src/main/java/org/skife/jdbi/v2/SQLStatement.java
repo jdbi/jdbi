@@ -102,9 +102,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
-     * Define a value on the {@link StatementContext}
+     * Define a value on the {@link StatementContext}.
      *
-     * @param key Key to acces this value from the StatementContext
+     * @param key Key to access this value from the StatementContext
      * @param value Value to setAttribute on the StatementContext
      * @return this
      */
@@ -112,6 +112,26 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     public SelfType define(String key, Object value)
     {
         getContext().setAttribute(key, value);
+        return (SelfType)this;
+    }
+
+    /**
+     * Adds all key/value pairs in the Map to the {@link StatementContext}.
+     *
+     * @param map containing key/value pairs.
+     * @return this
+     */
+    @SuppressWarnings("unchecked")
+    public SelfType define(final Map<String, ? extends Object> values)
+    {
+        final StatementContext context = getContext();
+
+        if (values != null) {
+            for (Map.Entry<String, ? extends Object> entry: values.entrySet())
+            {
+                context.setAttribute(entry.getKey(), entry.getValue());
+            }
+        }
         return (SelfType)this;
     }
 

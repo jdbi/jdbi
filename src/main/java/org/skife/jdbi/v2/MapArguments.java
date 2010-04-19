@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 /**
- *
+ * Binds all fields of a map as arguments.
  */
 class MapArguments implements LazyArguments
 {
