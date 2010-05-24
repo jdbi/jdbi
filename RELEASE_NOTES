@@ -1,3 +1,8 @@
+2.8.0
+  - Add methods to SQLStatement and PreparedBatch that allow adding a set of defines
+    to the context in one go.
+  - Add ~ { and } as legal characters in the colon prefix grammar
+
 2.7.0
   - A TimingCollector was added which can be registered on the DBI or handle which then
     gets called with nanosecond resolution elapsed time every time a statement is run
@@ -8,7 +13,7 @@
   - BasicHandle constructor is now package private (which it always should have been)
   - add Clirr Report to the Maven Site
   - convert all calls to System.currentTimeMillis() to System.nanoTime(), which is more
-    accurate and much more lightweight. As we only calculate time differences, it is 
+    accurate and much more lightweight. As we only calculate time differences, it is
     good enough.
   - fix more compiler warnings
   - add null checks for all object types on SQLStatement
@@ -39,7 +44,7 @@
 2.4.5
     Move source code to github
 
-2.4.4 
+2.4.4
     Fix several dependency and shading issues which came up from the
     ant to conversion.
 
