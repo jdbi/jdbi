@@ -44,9 +44,9 @@ public class TestColonStatementRewriter extends TestCase
 
     public void testOddCharacters() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite(":boo ':nope' _%&^& *@ :id", new Binding(),
+        RewrittenStatement rws = rw.rewrite("~* :boo ':nope' _%&^& *@ :id", new Binding(),
                                             new StatementContext(new HashMap<String, Object>()));
-        assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
+        assertEquals("~* ? ':nope' _%&^& *@ ?", rws.getSql());
     }
 
     public void testNumbers() throws Exception
