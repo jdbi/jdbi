@@ -1,3 +1,6 @@
+2.9.0
+  - Make the DefaultMapper public.
+
 2.8.0
   - Add methods to SQLStatement and PreparedBatch that allow adding a set of defines
     to the context in one go.

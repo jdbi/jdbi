@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-class DefaultMapper implements ResultSetMapper<Map<String, Object>>
+public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
 {
     public Map<String, Object> map(int index, ResultSet r, StatementContext ctx)
     {
