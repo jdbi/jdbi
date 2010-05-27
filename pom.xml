@@ -401,6 +401,7 @@
         </developer>
     </developers>
 
+    <!--
     <profiles>
         <profile>
             <id>release-sign-artifacts</id>
@@ -430,5 +431,5 @@
             </build>
         </profile>
     </profiles>
-
+    -->
 </project>
