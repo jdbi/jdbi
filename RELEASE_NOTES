@@ -1,5 +1,9 @@
+2.9.1
+  - First 2.9 series release
+
 2.9.0
   - Make the DefaultMapper public.
+  - Aborted, trying to make gpg signing work correctly
 
 2.8.0
   - Add methods to SQLStatement and PreparedBatch that allow adding a set of defines
