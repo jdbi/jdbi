@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.jdbi</groupId>
@@ -13,6 +14,14 @@
         statements, and provides named parameter support for any database
         being used.
     </description>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <scm>
         <connection>scm:git:git://github.com/brianm/jdbi.git</connection>
@@ -30,22 +39,20 @@
     </properties>
 
     <distributionManagement>
-        <repository>
-            <id>codehaus.org</id>
-            <name>jDBI Central Repository</name>
-            <url>dav:https://dav.codehaus.org/repository/jdbi/</url>
-        </repository>
 
         <snapshotRepository>
-            <id>codehaus.org</id>
-            <name>jDBI Central Development Repository</name>
-            <url>dav:https://dav.codehaus.org/snapshots.repository/jdbi/</url>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
 
-        <site>
-            <id>codehaus.org</id>
-            <url>dav:https://dav.codehaus.org/jdbi/</url>
-        </site>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+
+
     </distributionManagement>
 
     <build>
@@ -211,21 +218,21 @@
     <reporting>
         <plugins>
 
-  	    <plugin>
-	        <groupId>org.codehaus.mojo</groupId>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>clirr-maven-plugin</artifactId>
                 <version>2.2.2</version>
-		<configuration>
-		  <minSeverity>info</minSeverity>
-		  <comparisonVersion>2.6.0</comparisonVersion>
-		  <includes>
-		    <include>org/skife/jdbi/**/*</include>
-		  </includes>
-		  <excludes>
-		    <exclude>org/skife/jdbi/org/antlr/**/*</exclude>
-		    <exclude>org/skife/jdbi/rewriter/**/*</exclude>
-		  </excludes>
-		</configuration>
+                <configuration>
+                    <minSeverity>info</minSeverity>
+                    <comparisonVersion>2.6.0</comparisonVersion>
+                    <includes>
+                        <include>org/skife/jdbi/**/*</include>
+                    </includes>
+                    <excludes>
+                        <exclude>org/skife/jdbi/org/antlr/**/*</exclude>
+                        <exclude>org/skife/jdbi/rewriter/**/*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -360,17 +367,68 @@
             <scope>test</scope>
         </dependency>
 
-	<dependency>
-	    <groupId>org.easymock</groupId>
-	    <artifactId>easymock</artifactId>
-	    <version>2.4</version>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>org.easymock</groupId>
-	    <artifactId>easymockclassextension</artifactId>
-	    <version>2.4</version>
-	    <scope>test</scope>
-	</dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>2.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <version>2.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <developers>
+        <developer>
+            <id>brianm</id>
+            <name>Brian McCallister</name>
+            <email>brianm@skife.org</email>
+        </developer>
+        <developer>
+            <id>martint</id>
+            <name>Martin Traverso</name>
+        </developer>
+        <developer>
+            <id>hgschmie</id>
+            <name>Henning Schmiedehausen</name>
+        </developer>
+        <developer>
+            <id>arosien</id>
+            <name>Adam Rosien</name>
+        </developer>
+    </developers>
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.0</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
