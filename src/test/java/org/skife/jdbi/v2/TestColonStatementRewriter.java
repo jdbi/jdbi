@@ -63,6 +63,14 @@ public class TestColonStatementRewriter extends TestCase
 	    assertEquals("select * from v$session", rws.getSql());
 	}
 
+    public void testBacktickOkay() throws Exception
+    {
+        RewrittenStatement rws = rw.rewrite("select * from `v$session", new Binding(),
+                                            new StatementContext(new HashMap<String, Object>()));
+        assertEquals("select * from `v$session", rws.getSql());
+    }
+
+
     public void testBailsOutOnInvalidInput() throws Exception
     {
         try {
