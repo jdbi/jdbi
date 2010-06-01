@@ -12,6 +12,7 @@
         statements, and provides named parameter support for any database
         being used.
     </description>
+    <url>http://jdbi.org/</url>
 
     <licenses>
         <license>
