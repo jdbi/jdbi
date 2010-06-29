@@ -1,3 +1,6 @@
+2.x.x
+  - minor code cleanups to reduce number of warnings
+
 2.9.3
   - Add <url /> element to pom so can get into central :-)
 
