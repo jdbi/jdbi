@@ -24,7 +24,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Types;
 
 /**
  *
@@ -59,16 +58,7 @@ class BeanPropertyArguments implements LazyArguments
             {
                 try
                 {
-                    final Object result = descriptor.getReadMethod().invoke(bean);
-                    if (result == null) {
-                        return new NullArgument(Types.VARCHAR);
-                    }
-                    else if (result instanceof Argument) {
-                        return (Argument) result;
-                    }
-                    else {
-                        return new ObjectArgument(result);
-                    }
+                    return new ObjectArgument(descriptor.getReadMethod().invoke(bean));
                 }
                 catch (IllegalAccessException e)
                 {
