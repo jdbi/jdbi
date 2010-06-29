@@ -1101,12 +1101,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(int position, Object value)
     {
-        if (value != null) {
-            return bind(position, new ObjectArgument(value));
-        }
-        else {
-            return bind(position, new NullArgument(Types.VARCHAR));
-        }
+        return bind(position, new ObjectArgument(value));
     }
 
     /**
@@ -1119,12 +1114,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public final SelfType bind(String name, Object value)
     {
-        if (value != null) {
-            return bind(name, new ObjectArgument(value));
-        }
-        else {
-            return bind(name, new NullArgument(Types.VARCHAR));
-        }
+        return bind(name, new ObjectArgument(value));
     }
 
     /**
@@ -1274,12 +1264,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         ResultSet rs = null;
         try {
             try {
-                if (getClass().isAssignableFrom(Call.class)) {
-                    stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);
-                }
-                else {
+	            if (getClass().isAssignableFrom(Call.class)) {
+		            stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);
+	            }
+	            else {
                     stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
-                }
+	            }
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e,context);
