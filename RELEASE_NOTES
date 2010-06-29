@@ -1,3 +1,8 @@
+2.x.x
+  - minor code cleanups to reduce number of warnings
+  - MapArguments and BeanPropertyArguments treat null values and Argument values smarter (return NullArgument for null and not wrapping existing Argument instances in ObjectArgument).
+  - binding a null value as Object now uses NullArgument to avoid problems with some JDBC drivers ("Not all databases allow for a non-typed Null to be sent to the backend.")
+
 2.9.3
   - Add <url /> element to pom so can get into central :-)
 
