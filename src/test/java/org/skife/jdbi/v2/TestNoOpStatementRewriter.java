@@ -25,6 +25,7 @@ public class TestNoOpStatementRewriter extends DBITestCase
 {
     private DBI dbi;
 
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();

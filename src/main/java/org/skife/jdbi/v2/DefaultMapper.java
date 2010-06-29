@@ -62,16 +62,19 @@ public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
     {
         public static final long serialVersionUID = 1L;
 
+        @Override
         public Object get(Object o)
         {
             return super.get(((String)o).toLowerCase());
         }
 
+        @Override
         public Object put(String key, Object value)
         {
             return super.put(key.toLowerCase(), value);
         }
 
+        @Override
         public boolean containsKey(Object key)
         {
             return super.containsKey(((String)key).toLowerCase());

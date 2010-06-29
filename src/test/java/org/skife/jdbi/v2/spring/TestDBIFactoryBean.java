@@ -37,15 +37,18 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
     static {
         BasicConfigurator.configure(new AppenderSkeleton() {
 
+            @Override
             protected void append(LoggingEvent event)
             {
             }
 
+            @Override
             public boolean requiresLayout()
             {
                 return false;
             }
 
+            @Override
             public void close()
             {
             }
@@ -65,17 +68,20 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
         this.derby = derby;
     }
 
+    @Override
     protected void onSetUp() throws Exception
     {
         Tools.start();
         Tools.dropAndCreateSomething();
     }
 
+    @Override
     protected void onTearDown() throws Exception
     {
         Tools.stop();
     }
 
+    @Override
     protected String[] getConfigLocations()
     {
         return new String[]{"org/skife/jdbi/v2/spring/test-context.xml"};

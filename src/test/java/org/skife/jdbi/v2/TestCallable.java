@@ -8,6 +8,7 @@ public class TestCallable extends DBITestCase
 {
     private BasicHandle h;
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         h = openHandle();
@@ -23,6 +24,7 @@ public class TestCallable extends DBITestCase
                   "EXTERNAL NAME 'java.lang.Math.toDegrees'");
     }
 
+    @Override
     public void tearDown() throws Exception {
         try {
             h.execute("drop function to_degrees");

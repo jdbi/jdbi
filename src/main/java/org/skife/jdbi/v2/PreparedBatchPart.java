@@ -72,6 +72,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
         return batch.add();
     }
 
+    @Override
     public StatementContext getContext()
     {
         return context;

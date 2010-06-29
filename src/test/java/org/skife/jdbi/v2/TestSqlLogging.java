@@ -25,6 +25,7 @@ public class TestSqlLogging extends DBITestCase
     private List<String> logged;
     private SQLLog log;
 
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();
@@ -101,6 +102,7 @@ public class TestSqlLogging extends DBITestCase
         h.setSQLLog(log);
     }
 
+    @Override
     public void tearDown() throws Exception
     {
         if (h != null) h.close();
@@ -136,16 +138,19 @@ public class TestSqlLogging extends DBITestCase
     {
         BasicConfigurator.configure(new AppenderSkeleton()
         {
+            @Override
             protected void append(LoggingEvent loggingEvent)
             {
                 logged.add(loggingEvent.getRenderedMessage());
             }
 
+            @Override
             public boolean requiresLayout()
             {
                 return false;
             }
 
+            @Override
             public void close()
             {
             }

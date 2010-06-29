@@ -71,16 +71,19 @@ public class DBIUtil
             this.handle = handle;
         }
 
+        @Override
         public void resume()
         {
             TransactionSynchronizationManager.bindResource(dbi, handle);
         }
 
+        @Override
         public void suspend()
         {
             TransactionSynchronizationManager.unbindResource(dbi);
         }
 
+        @Override
         public void beforeCompletion()
         {
             TRANSACTIONAL_HANDLES.remove(handle);

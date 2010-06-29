@@ -60,11 +60,13 @@ public class TimestampMapper extends TypedMapper<Timestamp>
         super(name);
     }
 
+    @Override
     protected Timestamp extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getTimestamp(name);
     }
 
+    @Override
     protected Timestamp extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getTimestamp(index);

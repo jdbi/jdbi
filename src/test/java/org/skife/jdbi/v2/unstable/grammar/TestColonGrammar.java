@@ -69,6 +69,7 @@ public class TestColonGrammar extends GrammarTestCase
         expect("select1 != 2 from dual", LITERAL, EOF);
     }
 
+    @Override
     protected String nameOf(int type)
     {
         switch (type) {
@@ -85,6 +86,7 @@ public class TestColonGrammar extends GrammarTestCase
     }
 
 
+    @Override
     protected Lexer createLexer(String s)
     {
         return new ColonStatementLexer(new ANTLRStringStream(s));

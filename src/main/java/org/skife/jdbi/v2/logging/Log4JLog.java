@@ -39,11 +39,13 @@ public final class Log4JLog extends FormattedLog
         this.level = level;
     }
 
+    @Override
     protected final boolean isEnabled()
     {
         return log.isEnabledFor(level);
     }
 
+    @Override
     protected final void log(String msg)
     {
         log.log(level, msg);

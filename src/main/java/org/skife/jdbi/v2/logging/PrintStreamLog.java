@@ -26,11 +26,13 @@ public class PrintStreamLog extends FormattedLog
         this.out = out;
     }
 
+    @Override
     protected final boolean isEnabled()
     {
         return true;
     }
 
+    @Override
     protected void log(String msg)
     {
         synchronized(out) {

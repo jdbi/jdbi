@@ -26,11 +26,13 @@ import org.skife.jdbi.v2.util.StringMapper;
  */
 public class TestStringTemplateLoader extends DBITestCase
 {
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();
     }
 
+    @Override
     protected StatementLocator getStatementLocator()
     {
         final ClasspathGroupLoader loader = new ClasspathGroupLoader(AngleBracketTemplateLexer.class,

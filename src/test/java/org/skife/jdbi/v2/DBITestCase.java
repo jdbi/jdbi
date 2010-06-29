@@ -40,12 +40,14 @@ public abstract class DBITestCase extends TestCase
     protected final List<BasicHandle> handles = new ArrayList<BasicHandle>();
     private ExecutorService executor;
 
+    @Override
     public void setUp() throws Exception
     {
         Tools.start();
         Tools.dropAndCreateSomething();
     }
 
+    @Override
     public void tearDown() throws Exception
     {
         for (BasicHandle handle : handles)

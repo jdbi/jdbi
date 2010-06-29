@@ -33,6 +33,7 @@ public class TestPrintfGrammar extends GrammarTestCase
                LITERAL, QUOTED_TEXT, LITERAL, INTEGER, LITERAL, STRING, EOF);
     }
 
+    @Override
     protected String nameOf(int type)
     {
         switch (type) {
@@ -51,6 +52,7 @@ public class TestPrintfGrammar extends GrammarTestCase
     }
 
 
+    @Override
     protected Lexer createLexer(String s)
     {
         return new FormatterStatementLexer(new ANTLRStringStream(s));

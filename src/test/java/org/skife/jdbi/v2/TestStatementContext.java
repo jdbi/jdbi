@@ -24,6 +24,7 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 public class TestStatementContext extends DBITestCase
 {
 
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();

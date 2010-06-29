@@ -77,6 +77,7 @@ public class Binding
         lazyArguments.add(args);
     }
 
+    @Override
     public String toString() {
         boolean wrote = false;
         StringBuilder b = new StringBuilder();

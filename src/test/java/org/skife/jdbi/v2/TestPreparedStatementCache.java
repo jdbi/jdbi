@@ -32,6 +32,7 @@ public class TestPreparedStatementCache extends DBITestCase
 
         Connection c = new DelegatingConnection(Tools.getConnection())
         {
+            @Override
             public PreparedStatement prepareStatement(String s) throws SQLException
             {
                 prep_count[0]++;

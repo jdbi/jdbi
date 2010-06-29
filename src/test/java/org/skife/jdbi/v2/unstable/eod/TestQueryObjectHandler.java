@@ -31,6 +31,7 @@ public class TestQueryObjectHandler extends DBITestCase
     private Handle handle;
     private MyQueries q;
 
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();
@@ -38,6 +39,7 @@ public class TestQueryObjectHandler extends DBITestCase
         this.q = QueryObjectFactory.createQueryObject(MyQueries.class, handle.getConnection());
     }
 
+    @Override
     public void tearDown() throws Exception
     {
         q.close();

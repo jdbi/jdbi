@@ -24,12 +24,14 @@ public class TestDataSourceConnectionFactory extends TestCase
 {
     private DataSourceConnectionFactory f;
 
+    @Override
     public void setUp() throws Exception
     {
         Tools.start();
         this.f = new DataSourceConnectionFactory(Tools.getDataSource());
     }
 
+    @Override
     public void tearDown() throws Exception
     {
         Tools.stop();

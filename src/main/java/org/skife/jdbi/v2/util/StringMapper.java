@@ -60,11 +60,13 @@ public class StringMapper extends TypedMapper<String>
         super(name);
     }
 
+    @Override
     protected String extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getString(name);
     }
 
+    @Override
     protected String extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getString(index);

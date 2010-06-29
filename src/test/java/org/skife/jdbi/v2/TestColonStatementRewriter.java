@@ -29,6 +29,7 @@ public class TestColonStatementRewriter extends TestCase
 {
     private ColonPrefixNamedParamStatementRewriter rw;
 
+    @Override
     public void setUp() throws Exception
     {
         this.rw = new ColonPrefixNamedParamStatementRewriter();
@@ -56,12 +57,12 @@ public class TestColonStatementRewriter extends TestCase
         assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
     }
 
-	public void testDollarSignOkay() throws Exception
-	{
-	    RewrittenStatement rws = rw.rewrite("select * from v$session", new Binding(),
-	                                        new StatementContext(new HashMap<String, Object>()));
-	    assertEquals("select * from v$session", rws.getSql());
-	}
+    public void testDollarSignOkay() throws Exception
+    {
+        RewrittenStatement rws = rw.rewrite("select * from v$session", new Binding(),
+                                            new StatementContext(new HashMap<String, Object>()));
+        assertEquals("select * from v$session", rws.getSql());
+    }
 
     public void testBacktickOkay() throws Exception
     {

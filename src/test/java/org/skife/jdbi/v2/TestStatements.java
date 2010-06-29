@@ -24,12 +24,14 @@ public class TestStatements extends DBITestCase
 {
     private BasicHandle h;
 
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();
         h = openHandle();
     }
 
+    @Override
     public void tearDown() throws Exception
     {
         if (h != null) h.close();

@@ -24,6 +24,7 @@ public class TestPositionalParameterBinding extends DBITestCase
 {
     private BasicHandle h;
 
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();

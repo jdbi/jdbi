@@ -20,7 +20,6 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.HandyMapThing;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,11 +31,13 @@ public class TestQueries extends DBITestCase
 {
     private BasicHandle h;
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         h = openHandle();
     }
 
+    @Override
     public void tearDown() throws Exception {
         if (h != null) h.close();
         Tools.stop();
