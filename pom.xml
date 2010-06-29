@@ -199,7 +199,6 @@
                 <version>2.2.2</version>
                 <configuration>
                     <minSeverity>info</minSeverity>
-                    <comparisonVersion>2.6.0</comparisonVersion>
                     <includes>
                         <include>org/skife/jdbi/**/*</include>
                     </includes>
