@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.NamedArgumentFinder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class Binding
 {
     private Map<Integer, Argument> positionals = new HashMap<Integer, Argument>();
     private Map<String, Argument> named = new HashMap<String, Argument>();
-    private List<LazyArguments> lazyArguments = new ArrayList<LazyArguments>();
+    private List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<NamedArgumentFinder>();
 
     void addPositional(int position, Argument parameter) {
         positionals.put(position, parameter);
@@ -48,7 +49,7 @@ public class Binding
             return named.get(name);
         }
         else {
-            for (LazyArguments arguments : lazyArguments) {
+            for (NamedArgumentFinder arguments : namedArgumentFinder) {
                 Argument arg = arguments.find(name);
                 if (arg != null) {
                     return arg;
@@ -73,8 +74,8 @@ public class Binding
         this.named.put(name, argument);
     }
 
-    void addLazyNamedArguments(LazyArguments args) {
-        lazyArguments.add(args);
+    void addNamedArgumentFinder(NamedArgumentFinder args) {
+        namedArgumentFinder.add(args);
     }
 
     @Override
@@ -103,8 +104,8 @@ public class Binding
         }
         b.append("}");
 
-        b.append(", lazy:[");
-        for (LazyArguments argument : lazyArguments) {
+        b.append(", finder:[");
+        for (NamedArgumentFinder argument : namedArgumentFinder) {
             wrote = true;
             b.append(argument).append(",");
         }

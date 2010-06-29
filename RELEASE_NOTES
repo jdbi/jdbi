@@ -1,5 +1,7 @@
-2.x.x
+2.10.0
   - minor code cleanups to reduce number of warnings
+  - Expose NamedArgumentFinder to allow custom lookup of Arguments. JDBI already provides
+    two implementations of the Interface, one for Maps and one for BeanProperties. 
 
 2.9.3
   - Add <url /> element to pom so can get into central :-)

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2;
+package org.skife.jdbi.v2.tweak;
 
-import org.skife.jdbi.v2.tweak.Argument;
 
 /**
- *
+ * Returns an Argument based on a name. Used to lookup multiple properties e.g. in a Bean or a Map.
  */
-interface LazyArguments
+public interface NamedArgumentFinder
 {
     Argument find(String name);
 }

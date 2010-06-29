@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.NamedArgumentFinder;
 
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -24,7 +25,7 @@ import java.util.LinkedHashMap;
 /**
  * Binds all fields of a map as arguments.
  */
-class MapArguments implements LazyArguments
+class MapArguments implements NamedArgumentFinder
 {
     private final Map<String, ? extends Object> args;
 

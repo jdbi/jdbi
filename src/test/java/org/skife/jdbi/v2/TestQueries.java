@@ -305,7 +305,7 @@ public class TestQueries extends DBITestCase
                     .execute();
         }
         catch (StatementException e) {
-            assertTrue(e.getMessage().contains("arguments:{ positional:{7:8}, named:{name:'brian'}, lazy:[{one=two},{lazy bean proprty arguments \"java.lang.Object"));
+            assertTrue(e.getMessage().contains("arguments:{ positional:{7:8}, named:{name:'brian'}, finder:[{one=two},{lazy bean proprty arguments \"java.lang.Object"));
         }
     }
 

@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.NamedArgumentFinder;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -244,11 +245,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      *
      * @return modified statement
      */
-    @SuppressWarnings("unchecked")
     public SelfType bindFromProperties(Object o)
     {
-        params.addLazyNamedArguments(new BeanPropertyArguments(o, context));
-        return (SelfType) this;
+        return bindNamedArgumentFinder(new BeanPropertyArguments(o, context));
     }
 
     /**
@@ -263,8 +262,25 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     public SelfType bindFromMap(Map<String, ? extends Object> args)
     {
         if (args != null) {
-            params.addLazyNamedArguments(new MapArguments(args));
+            return bindNamedArgumentFinder(new MapArguments(args));
         }
+        else {
+            return (SelfType) this;
+        }
+    }
+
+    /**
+     * Binds a new {@link NamedArgumentFinder}.
+     *
+     * @param namedArgumentFinder A NamedArgumentFinder to bind. Can be null.
+     */
+    @SuppressWarnings("unchecked")
+    public SelfType bindNamedArgumentFinder(final NamedArgumentFinder namedArgumentFinder)
+    {
+        if (namedArgumentFinder != null) {
+            params.addNamedArgumentFinder(namedArgumentFinder);
+        }
+
         return (SelfType) this;
     }
 
@@ -1264,12 +1280,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         ResultSet rs = null;
         try {
             try {
-	            if (getClass().isAssignableFrom(Call.class)) {
-		            stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);
-	            }
-	            else {
+                if (getClass().isAssignableFrom(Call.class)) {
+                    stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);
+                }
+                else {
                     stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
-	            }
+                }
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e,context);

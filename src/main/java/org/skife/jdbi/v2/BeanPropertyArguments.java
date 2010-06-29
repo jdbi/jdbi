@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.NamedArgumentFinder;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -28,7 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  *
  */
-class BeanPropertyArguments implements LazyArguments
+class BeanPropertyArguments implements NamedArgumentFinder
 {
     private final Object bean;
     private final StatementContext ctx;
