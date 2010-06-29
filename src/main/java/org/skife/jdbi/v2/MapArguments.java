@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.Argument;
 
+import java.sql.Types;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
@@ -37,7 +38,16 @@ class MapArguments implements LazyArguments
     {
         if (args.containsKey(name))
         {
-            return new ObjectArgument(args.get(name));
+            final Object value = args.get(name);
+            if (value == null) {
+                return new NullArgument(Types.VARCHAR);
+            }
+            else if (value instanceof Argument) {
+                return (Argument) value;
+            }
+            else {
+                return new ObjectArgument(args.get(name));
+            }
         }
         else
         {
