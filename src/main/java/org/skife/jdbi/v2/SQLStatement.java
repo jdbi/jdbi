@@ -210,12 +210,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
-     * Set the query timeout, in seconds on the prepared statement
+     * Set the query timeout, in seconds, on the prepared statement
      *
      * @param seconds number of seconds before timing out
      * @return the same instance
      */
-    public SelfType setQueryTimeoutInSeconds(final int seconds) {
+    public SelfType setQueryTimeout(final int seconds) {
         return addStatementCustomizer(new StatementCustomizer() {
 
             public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
