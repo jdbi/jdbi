@@ -44,6 +44,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -206,6 +207,26 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     protected Binding getParameters()
     {
         return params;
+    }
+
+    /**
+     * Set the query timeout, in seconds on the prepared statement
+     *
+     * @param seconds number of seconds before timing out
+     * @return the same instance
+     */
+    public SelfType setQueryTimeoutInSeconds(final int seconds) {
+        return addStatementCustomizer(new StatementCustomizer() {
+
+            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
+                stmt.setQueryTimeout(seconds);
+            }
+
+            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
+            }
+        });
     }
 
     /**
