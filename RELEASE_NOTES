@@ -2,6 +2,7 @@
   - minor code cleanups to reduce number of warnings
   - Expose NamedArgumentFinder to allow custom lookup of Arguments. JDBI already provides
     two implementations of the Interface, one for Maps and one for BeanProperties. 
+  - Add ability to set query timeout (in seconds) on SQLStatement
 
 2.9.3
   - Add <url /> element to pom so can get into central :-)
