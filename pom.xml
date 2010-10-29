@@ -51,6 +51,10 @@
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
 
+        <site>
+            <id>codehaus</id>
+            <url>dav:https://dav.codehaus.org/jdbi</url>
+        </site>
 
     </distributionManagement>
 
