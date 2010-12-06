@@ -21,11 +21,12 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 class ResultSetResultIterator<Type> implements ResultIterator<Type>
 {
     private final ResultSetMapper<Type> mapper;
-    private final QueryPostMungeCleanup cleaner;
+    private final SQLStatement jdbiStatement;
     private final ResultSet results;
     private final StatementContext context;
     private boolean alreadyAdvanced = false;
@@ -33,13 +34,14 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private boolean hasNext = false;
 
     ResultSetResultIterator(ResultSetMapper<Type> mapper,
-                            QueryPostMungeCleanup cleaner,
-                            ResultSet results,
+                            SQLStatement jdbiStatement,
+                            Statement stmt,
                             StatementContext context)
+            throws SQLException
     {
         this.mapper = mapper;
-        this.cleaner = cleaner;
-        this.results = results;
+        this.jdbiStatement = jdbiStatement;
+        this.results = stmt.getResultSet();
         this.context = context;
     }
 
@@ -50,7 +52,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
 
     public void close()
     {
-        cleaner.cleanup(null, null, null);
+        QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
     }
 
     public boolean hasNext()

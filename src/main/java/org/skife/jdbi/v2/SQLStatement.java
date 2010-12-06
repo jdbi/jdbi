@@ -36,7 +36,6 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -1298,7 +1297,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         this.context.setLocatedSql(located_sql);
         rewritten = rewriter.rewrite(located_sql, getParameters(), this.context);
         this.context.setRewrittenSql(rewritten.getSql());
-        ResultSet rs = null;
         try {
             try {
                 if (getClass().isAssignableFrom(Call.class)) {
@@ -1357,7 +1355,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             }
 
             try {
-                rs = stmt.getResultSet();
                 return munger.munge(stmt);
             }
             catch (SQLException e) {
@@ -1365,7 +1362,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             }
         }
         finally {
-            cleanup.cleanup(this, null, rs);
+            cleanup.cleanup(this, null, null);
         }
     }
 

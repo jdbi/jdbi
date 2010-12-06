@@ -72,11 +72,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public List<ResultType> list()
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<List<ResultType>>()
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<List<ResultType>>()
         {
-            public List<ResultType> munge(Statement stmt) throws SQLException
+            public List<ResultType> munge(ResultSet rs) throws SQLException
             {
-                ResultSet rs = stmt.getResultSet();
                 List<ResultType> result_list = new ArrayList<ResultType>();
                 int index = 0;
                 while (rs.next()) {
@@ -103,11 +102,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public List<ResultType> list(final int maxRows)
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<List<ResultType>>()
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<List<ResultType>>()
         {
-            public List<ResultType> munge(Statement stmt) throws SQLException
+            public List<ResultType> munge(ResultSet rs) throws SQLException
             {
-                ResultSet rs = stmt.getResultSet();
                 List<ResultType> result_list = new ArrayList<ResultType>();
                 int index = 0;
                 while (rs.next() && index < maxRows) {
@@ -135,11 +133,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
-        this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Void>()
+        this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<Void>()
         {
-            public Void munge(Statement stmt) throws SQLException
+            public Void munge(ResultSet rs) throws SQLException
             {
-                ResultSet rs = stmt.getResultSet();
                 while (rs.next()) {
                     acc.set(folder.fold(acc.get(), rs, getContext()));
                 }
@@ -167,11 +164,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
-        this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Void>()
+        this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<Void>()
         {
-            public Void munge(Statement stmt) throws SQLException
+            public Void munge(ResultSet rs) throws SQLException
             {
-                ResultSet rs = stmt.getResultSet();
                 while (rs.next()) {
                     acc.set(folder.fold(acc.get(), rs));
                 }
@@ -187,45 +183,16 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public ResultIterator<ResultType> iterator()
     {
-        /**
-         * Okay, so this is a bit dodgy. It relies on the internal behavior so beware :-)
-         *
-         * Basically, the cleaner will be called right after execution and will *not* do anything
-         * except store the values. When the iterator is closed, it will be called again and will
-         * close the stored values
-         */
-        final QueryPostMungeCleanup cleaner = new QueryPostMungeCleanup()
-        {
-            private boolean skipNextClose = true;
-            private SQLStatement<?> query;
-            private Statement stmt;
-            private ResultSet rs;
-
-            public void cleanup(SQLStatement<?> query, Statement stmt, ResultSet rs)
-            {
-                if (skipNextClose) {
-                    this.query = query;
-                    this.stmt = stmt;
-                    this.rs = rs;
-                    skipNextClose = false;
-                }
-                else {
-                    QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(this.query, this.stmt, this.rs);
-                }
-            }
-        };
-
         return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<ResultIterator<ResultType>>()
         {
-            public ResultIterator<ResultType> munge(Statement results) throws SQLException
+            public ResultIterator<ResultType> munge(Statement stmt) throws SQLException
             {
-
                 return new ResultSetResultIterator<ResultType>(mapper,
-                                                               cleaner,
-                                                               results.getResultSet(),
+                                                               Query.this,
+                                                               stmt,
                                                                getContext());
             }
-        }, cleaner);
+        }, QueryPostMungeCleanup.NO_OP);
     }
 
     /**
@@ -238,11 +205,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public ResultType first()
     {
-        return this.internalExecute(QueryPreperator.MAX_ROWS_ONE, new QueryResultMunger<ResultType>()
+        return this.internalExecute(QueryPreperator.MAX_ROWS_ONE, new QueryResultSetMunger<ResultType>()
         {
-            public final ResultType munge(final Statement stt) throws SQLException
+            public final ResultType munge(final ResultSet rs) throws SQLException
             {
-                ResultSet rs = stt.getResultSet();
                 if (rs.next()) {
                     return mapper.map(0, rs, getContext());
                 }
