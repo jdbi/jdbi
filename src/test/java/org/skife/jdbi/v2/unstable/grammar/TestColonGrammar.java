@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2.unstable.grammar;
 
 import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.EOF;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.ESCAPED_TEXT;
 import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
 import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
 import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
@@ -49,6 +50,12 @@ public class TestColonGrammar extends GrammarTestCase
     {
         expect("select '\\''",
                LITERAL, QUOTED_TEXT, EOF);
+    }
+
+    public void testEscapedColon() throws Exception
+    {
+        expect("insert into foo (val) VALUE (:bar\\:\\:type)",
+               LITERAL, NAMED_PARAM, ESCAPED_TEXT, ESCAPED_TEXT, LITERAL, EOF);
     }
 
 

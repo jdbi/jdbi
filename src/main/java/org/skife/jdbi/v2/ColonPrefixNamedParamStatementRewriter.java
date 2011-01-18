@@ -75,6 +75,9 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                         b.append("?");
                         stmt.addPositionalParamAt();
                         break;
+                    case ESCAPED_TEXT:
+                        b.append(t.getText());
+                        break;
                 }
                 t = lexer.nextToken();
             }

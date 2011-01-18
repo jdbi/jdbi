@@ -1,3 +1,7 @@
+2.10.2
+  - Bugfix: Allow escaping of arbitrary characters in the SQL source, especially allow 
+            escaping of ':' (which is needed for postgres type casts
+   
 2.10.0
   - minor code cleanups to reduce number of warnings
   - Expose NamedArgumentFinder to allow custom lookup of Arguments. JDBI already provides
