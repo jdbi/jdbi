@@ -18,6 +18,6 @@ NAMED_PARAM: ':' ('a'..'z' | 'A'..'Z' | '0'..'9' | '_')+;
 POSITIONAL_PARAM: '?';
 QUOTED_TEXT: ('\'' ( ESCAPE_SEQUENCE | ~'\'')* '\'');
 DOUBLE_QUOTED_TEXT: ('"' (~'"')+ '"');
-ESCAPED_TEXT : '\\' ( . );
+ESCAPED_TEXT : '\\' . ;
 
 fragment ESCAPE_SEQUENCE:   '\\' '\'';

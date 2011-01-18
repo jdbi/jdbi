@@ -51,42 +51,48 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
      */
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
-        StringBuilder b = new StringBuilder();
-        ParsedStatement stmt = new ParsedStatement();
-        ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
+        final ParsedStatement stmt = new ParsedStatement();
         try {
-            Token t = lexer.nextToken();
-            while (t.getType() != ColonStatementLexer.EOF) {
-                switch (t.getType()) {
-                    case LITERAL:
-                        b.append(t.getText());
-                        break;
-                    case NAMED_PARAM:
-                        stmt.addNamedParamAt(t.getText().substring(1, t.getText().length()));
-                        b.append("?");
-                        break;
-                    case QUOTED_TEXT:
-                        b.append(t.getText());
-                        break;
-                    case DOUBLE_QUOTED_TEXT:
-                        b.append(t.getText());
-                        break;
-                    case POSITIONAL_PARAM:
-                        b.append("?");
-                        stmt.addPositionalParamAt();
-                        break;
-                    case ESCAPED_TEXT:
-                        b.append(t.getText());
-                        break;
-                }
-                t = lexer.nextToken();
-            }
+            final String parsedSql = parseString(sql, stmt);
+            return new MyRewrittenStatement(parsedSql, stmt, ctx);
         }
         catch (IllegalArgumentException e) {
             throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
         }
 
-        return new MyRewrittenStatement(b.toString(), stmt, ctx);
+    }
+
+    String parseString(final String sql, final ParsedStatement stmt) throws IllegalArgumentException
+    {
+        StringBuilder b = new StringBuilder();
+        ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
+        Token t = lexer.nextToken();
+        while (t.getType() != ColonStatementLexer.EOF) {
+            switch (t.getType()) {
+            case LITERAL:
+                b.append(t.getText());
+                break;
+            case NAMED_PARAM:
+                stmt.addNamedParamAt(t.getText().substring(1, t.getText().length()));
+                b.append("?");
+                break;
+            case QUOTED_TEXT:
+                b.append(t.getText());
+                break;
+            case DOUBLE_QUOTED_TEXT:
+                b.append(t.getText());
+                break;
+            case POSITIONAL_PARAM:
+                b.append("?");
+                stmt.addPositionalParamAt();
+                break;
+            case ESCAPED_TEXT:
+                b.append(t.getText().substring(1));
+                break;
+            }
+            t = lexer.nextToken();
+        }
+        return b.toString();
     }
 
     private static class MyRewrittenStatement implements RewrittenStatement
@@ -160,7 +166,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
         }
     }
 
-    private static class ParsedStatement
+    static class ParsedStatement
     {
 
         private boolean positionalOnly = true;
