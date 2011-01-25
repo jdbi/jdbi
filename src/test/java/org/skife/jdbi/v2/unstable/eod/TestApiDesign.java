@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.Something;
 
 import java.io.Closeable;
@@ -38,8 +39,8 @@ public class TestApiDesign extends TestCase
 
         MyDAO db = b.open(MyDAO.class);
 
-        QueryObject<Something> ranger = db.findByIdRange(0, 10);
-        ranger.setTimeout(10);
+        Query<Something> ranger = db.findByIdRange(0, 10);
+        ranger.setQueryTimeout(10);
         ranger.setFetchSize(10);
         List<Something> rs = ranger.list();
 
@@ -55,7 +56,7 @@ public class TestApiDesign extends TestCase
         public List<Something> findByPattern(@Bind("pattern") String pattern);
 
         @Sql("select id, name from something where id > :from and id < :to")
-        public QueryObject<Something> findByIdRange(@Bind("from") int from, @Bind("to") int to);
+        public Query<Something> findByIdRange(@Bind("from") int from, @Bind("to") int to);
     }
 
 

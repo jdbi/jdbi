@@ -7,7 +7,7 @@ import org.skife.jdbi.v2.Handle;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class SqlHandler implements Handler
+class SqlHandler implements Handler
 {
     private final ResolvedMethod method;
     private final String sql;
@@ -31,7 +31,7 @@ public class SqlHandler implements Handler
             ResolvedType elem_type = ptypes.get(0);
             if (elem_type.isInstanceOf(String.class)) {
                 // List<String> so first elem, as string
-                
+
             }
 
         }
