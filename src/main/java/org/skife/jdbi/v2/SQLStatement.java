@@ -43,7 +43,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class provides the common functions between <code>Query</code> and
