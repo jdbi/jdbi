@@ -13,7 +13,7 @@ import java.util.List;
 public class TestApiDesign extends TestCase
 {
 
-    private DBI dbi;
+    private DBI    dbi;
     private Handle handle;
 
     public void setUp() throws Exception
@@ -32,8 +32,13 @@ public class TestApiDesign extends TestCase
         handle.close();
     }
 
+    public void testSanity() throws Exception
+    {
+        assertEquals(1 + 1, 2);
+    }
 
-    public void testFoo() throws Exception
+
+    public void _testFoo() throws Exception
     {
         SqlObjectBuilder b = new SqlObjectBuilder(dbi);
 
@@ -50,7 +55,8 @@ public class TestApiDesign extends TestCase
 
     }
 
-    public interface MyDAO extends Closeable {
+    public interface MyDAO extends Closeable
+    {
 
         @Sql("select id, name from something where name like :pattern")
         public List<Something> findByPattern(@Bind("pattern") String pattern);

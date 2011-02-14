@@ -7,23 +7,32 @@ import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.io.Closeable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SqlObjectBuilder
 {
     private final static TypeResolver tr = new TypeResolver();
 
     private final DBI dbi;
+    private final Mapamajig mapamajig = new Mapamajig();
 
     public SqlObjectBuilder(DBI dbi)
     {
         this.dbi = dbi;
+    }
+
+    public void addMapper(ResultSetMapper mapper) {
+        mapamajig.add(mapper);
     }
 
     public <T extends Closeable> T open(Class<T> sqlObjectType)
@@ -35,7 +44,15 @@ public class SqlObjectBuilder
         final Map<Method, Handler> handlers = new HashMap<Method, Handler>();
         for (ResolvedMethod method : d.getMemberMethods()) {
             if (method.getRawMember().isAnnotationPresent(Sql.class)) {
-                handlers.put(method.getRawMember(), new SqlHandler(method));
+
+                if (method.getReturnType().isInstanceOf(Query.class)) {
+                    handlers.put(method.getRawMember(), new SqlReturningQueryHandler(method, mapamajig));
+                }
+                else {
+                    handlers.put(method.getRawMember(), new SqlHandler(method));
+                }
+
+
             }
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
                 handlers.put(method.getRawMember(), new CloseHandler());
