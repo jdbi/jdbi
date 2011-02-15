@@ -20,7 +20,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.Map;
 
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
@@ -57,5 +59,30 @@ public class Update extends SQLStatement<Update>
                 return results.getUpdateCount();
             }
         }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+    }
+
+    /**
+     * Execute the statement and returns any auto-generated keys. This requires the JDBC driver to support
+     * the {@link Statement#getGeneratedKeys()} method.
+     * @param the mapper to generate the resulting key object
+     * @return the generated key or null if none was returned
+     */
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper)
+    {
+        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>()
+        {
+            public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
+            {
+                return new GeneratedKeys<GeneratedKeyType>(mapper,
+                                                           Update.this,
+                                                           results,
+                                                           getContext());
+            }
+        }, QueryPostMungeCleanup.NO_OP);
+    }
+
+    public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()
+    {
+        return executeAndReturnGeneratedKeys(new DefaultMapper());
     }
 }
