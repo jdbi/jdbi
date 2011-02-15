@@ -36,7 +36,6 @@ public class TestReturningQuery extends TestCase
         handle.close();
     }
 
-
     public void testWithRegisteredMapper() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
@@ -63,7 +62,6 @@ public class TestReturningQuery extends TestCase
                             .first();
         assertEquals("Tim", s.getName());
     }
-
 
     public static interface Spiffy extends Closeable
     {

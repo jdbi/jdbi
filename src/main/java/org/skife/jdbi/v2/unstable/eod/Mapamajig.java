@@ -10,7 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 class Mapamajig
 {
-    public List<MapperFactory> factories = new CopyOnWriteArrayList<MapperFactory>();
+    private final List<MapperFactory> factories = new CopyOnWriteArrayList<MapperFactory>();
 
     private final ConcurrentHashMap<ResolvedType, ResultSetMapper> cache = new ConcurrentHashMap<ResolvedType, ResultSetMapper>();
 
