@@ -7,7 +7,6 @@ import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.reflect.InvocationHandler;
@@ -64,7 +63,7 @@ public class EOD
         final Map<Method, Handler> handlers = new HashMap<Method, Handler>();
         for (final ResolvedMethod method : d.getMemberMethods()) {
             if (method.getRawMember().isAnnotationPresent(Sql.class)) {
-                if (method.getReturnType().isInstanceOf(Query.class)) {
+                if (method.getReturnType().isInstanceOf(org.skife.jdbi.v2.Query.class)) {
                     handlers.put(method.getRawMember(), new QueryHandler(method, dbi));
                 }
                 else if (method.getReturnType().isInstanceOf(List.class)) {
@@ -103,7 +102,7 @@ public class EOD
         }
 
         @Override
-        protected Object resultType(Query q)
+        protected Object resultType(org.skife.jdbi.v2.Query q)
         {
             return q.first();
         }
@@ -123,7 +122,7 @@ public class EOD
         }
 
         @Override
-        protected Object resultType(Query q)
+        protected Object resultType(org.skife.jdbi.v2.Query q)
         {
             return q.iterator();
         }
@@ -146,7 +145,7 @@ public class EOD
         }
 
         @Override
-        protected Object resultType(Query q)
+        protected Object resultType(org.skife.jdbi.v2.Query q)
         {
             return q.list();
         }
@@ -170,7 +169,7 @@ public class EOD
         }
 
         @Override
-        protected Object resultType(Query q)
+        protected Object resultType(org.skife.jdbi.v2.Query q)
         {
             return q;
         }
@@ -180,7 +179,7 @@ public class EOD
         {
             // extract T from Query<T>
             ResolvedType query_type = getMethod().getReturnType();
-            List<ResolvedType> query_return_types = query_type.typeParametersFor(Query.class);
+            List<ResolvedType> query_return_types = query_type.typeParametersFor(org.skife.jdbi.v2.Query.class);
             return query_return_types.get(0);
         }
     }

@@ -5,11 +5,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -99,13 +95,4 @@ public class TestReturningQueryResults extends TestCase
         public List<Something> findTwoByIds(@Bind("first") int from, @Bind("second") int to);
 
     }
-
-    public static class SomethingMapper implements ResultSetMapper<Something>
-    {
-        public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
-        {
-            return new Something(r.getInt("id"), r.getString("name"));
-        }
-    }
-
 }

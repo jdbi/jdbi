@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface Bind
 {
     String value();
+
+    Class<? extends Binder> binder() default PrimitiveBindifier.class;
 }

@@ -3,7 +3,6 @@ package org.skife.jdbi.v2.unstable.eod;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.annotation.Annotation;
@@ -12,7 +11,7 @@ import java.util.List;
 
 abstract class BaseHandler implements Handler
 {
-    private final List<Binder> binders = new ArrayList<Binder>();
+    private final List<Bindifier> binders = new ArrayList<Bindifier>();
 
     private final ResultSetMapper mapper;
     private final String          sql;
@@ -30,7 +29,12 @@ abstract class BaseHandler implements Handler
             for (Annotation annotation : annotations) {
                 if (Bind.class.isAssignableFrom(annotation.getClass())) {
                     Bind bind = (Bind) annotation;
-                    binders.add(new Binder(bind, param_idx));
+                    try {
+                        binders.add(new Bindifier(bind, param_idx, bind.binder().newInstance()));
+                    }
+                    catch (Exception e) {
+                        throw new IllegalStateException("unable to instantiate specified binder", e);
+                    }
                 }
             }
         }
@@ -38,15 +42,15 @@ abstract class BaseHandler implements Handler
 
     public Object invoke(Handle h, Object[] args)
     {
-        Query q = h.createQuery(sql);
-        for (Binder binder : binders) {
+        org.skife.jdbi.v2.Query q = h.createQuery(sql);
+        for (Bindifier binder : binders) {
             binder.bind(q, args);
         }
         return resultType(q.map(mapper));
 
     }
 
-    protected abstract Object resultType(Query q);
+    protected abstract Object resultType(org.skife.jdbi.v2.Query q);
 
     protected abstract ResolvedType mapTo();
 
