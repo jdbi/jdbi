@@ -64,7 +64,6 @@ public class EOD
         final Map<Method, Handler> handlers = new HashMap<Method, Handler>();
         for (final ResolvedMethod method : d.getMemberMethods()) {
             if (method.getRawMember().isAnnotationPresent(Sql.class)) {
-
                 if (method.getReturnType().isInstanceOf(Query.class)) {
                     handlers.put(method.getRawMember(), new QueryHandler(method, dbi));
                 }

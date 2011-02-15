@@ -43,9 +43,9 @@ public class TestReturningQuery extends TestCase
 
         Spiffy spiffy = EOD.open(dbi, Spiffy.class);
 
-
         Something s = spiffy.findById(7)
                             .first();
+
         assertEquals("Tim", s.getName());
     }
 
@@ -57,6 +57,7 @@ public class TestReturningQuery extends TestCase
 
         Something s = spiffy.findByIdWithExplicitMapper(7)
                             .first();
+
         assertEquals("Tim", s.getName());
     }
 
@@ -71,8 +72,6 @@ public class TestReturningQuery extends TestCase
         @Sql("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
         public Query<Something> findByIdWithExplicitMapper(@Bind("id") int id);
-
-
     }
 
     public static class SomethingMapper implements ResultSetMapper<Something>
