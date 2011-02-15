@@ -36,8 +36,7 @@ class SqlReturningQueryHandler implements Handler
         List<ResolvedType> query_return_types = query_type.typeParametersFor(Query.class);
         ResolvedType returnType = query_return_types.get(0);
 
-
-        mapper = mappers.mapperFor(returnType);
+        mapper = mappers.mapperFor(method, returnType);
 
     }
 

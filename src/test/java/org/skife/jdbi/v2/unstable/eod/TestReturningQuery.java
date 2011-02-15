@@ -32,26 +32,34 @@ public class TestReturningQuery extends TestCase
 
     public void tearDown() throws Exception
     {
+        handle.execute("drop table something");
         handle.close();
     }
 
 
-    public void testWiffleKabob() throws Exception
+    public void testWithRegisteredMapper() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
         SqlObjectBuilder b = new SqlObjectBuilder(dbi);
-        b.addMapper(new ResultSetMapper<Something>() {
+        b.addMapper(new SomethingMapper());
 
-            public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
-            {
-                return new Something(r.getInt("id"), r.getString("name"));
-            }
-        });
         Spiffy spiffy = b.open(Spiffy.class);
 
 
         Something s = spiffy.findById(7)
+                            .first();
+        assertEquals("Tim", s.getName());
+    }
+
+    public void testWithExplicitMapper() throws Exception
+    {
+        handle.execute("insert into something (id, name) values (7, 'Tim')");
+
+        SqlObjectBuilder b = new SqlObjectBuilder(dbi);
+        Spiffy2 spiffy = b.open(Spiffy2.class);
+
+        Something s = spiffy.findByIdWithExplicitMapper(7)
                             .first();
         assertEquals("Tim", s.getName());
     }
@@ -63,4 +71,20 @@ public class TestReturningQuery extends TestCase
         public Query<Something> findById(@Bind("id") int id);
     }
 
+    public static interface Spiffy2 extends Closeable
+    {
+        @Sql("select id, name from something where id = :id")
+        @Mapper(SomethingMapper.class)
+        public Query<Something> findByIdWithExplicitMapper(@Bind("id") int id);
+
+
+    }
+
+    public static class SomethingMapper implements ResultSetMapper<Something>
+    {
+        public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        {
+            return new Something(r.getInt("id"), r.getString("name"));
+        }
+    }
 }
