@@ -19,13 +19,25 @@ class Mapamajig
         this.add(new InferredMapperFactory(mapper));
     }
 
-    public void add(MapperFactory factory) {
+    public void add(MapperFactory factory)
+    {
         factories.add(factory);
         cache.clear();
     }
 
     ResultSetMapper mapperFor(ResolvedMethod method, ResolvedType returnType)
     {
+        if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
+            Mapper mapper = method.getRawMember().getAnnotation(Mapper.class);
+            try {
+                return mapper.value().newInstance();
+            }
+            catch (Exception e) {
+                throw new RuntimeException("unable to invoke default ctor on " + method, e);
+            }
+        }
+
+
         ResultSetMapper cached_mapper = cache.get(returnType);
         if (cached_mapper != null) {
             return cached_mapper;
