@@ -15,16 +15,21 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
+
+/**
+ * Methods on this class will move to DBI and Handle when this stabilizes
+ */
 public class SqlObjectBuilder
 {
     private final static TypeResolver tr = new TypeResolver();
 
     private final DBI dbi;
     private final Mapamajig mapamajig = new Mapamajig();
+
 
     public SqlObjectBuilder(DBI dbi)
     {
@@ -48,8 +53,14 @@ public class SqlObjectBuilder
                 if (method.getReturnType().isInstanceOf(Query.class)) {
                     handlers.put(method.getRawMember(), new SqlReturningQueryHandler(method, mapamajig));
                 }
+                else if (method.getReturnType().isInstanceOf(List.class)) {
+                    handlers.put(method.getRawMember(), new SqlReturningListHandler(method, mapamajig));
+                }
+                else if (method.getReturnType().isInstanceOf(Iterator.class)) {
+                    handlers.put(method.getRawMember(), new SqlReturningIteratorHandler(method, mapamajig));
+                }
                 else {
-                    handlers.put(method.getRawMember(), new SqlHandler(method));
+                    handlers.put(method.getRawMember(), new SqlReturningSingleObjectHandler(method, mapamajig));
                 }
 
 

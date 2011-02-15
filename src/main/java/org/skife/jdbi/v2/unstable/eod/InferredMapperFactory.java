@@ -6,7 +6,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.util.List;
 
-public class InferredMapperFactory implements MapperFactory
+class InferredMapperFactory implements MapperFactory
 {
     private final static TypeResolver tr = new TypeResolver();
     private final Class maps;

@@ -74,5 +74,25 @@ public class Something
 	public void setIntValue(int intValue)
 	{
 		this.intValue = intValue;
-	}
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Something something = (Something) o;
+
+        return id == something.id && !(name != null ? !name.equals(something.name) : something.name != null);
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = id;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
 }
