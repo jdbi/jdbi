@@ -1,5 +1,6 @@
 package org.skife.jdbi.v2.unstable.eod;
 
+import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
@@ -9,17 +10,18 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-class SqlReturningListHandler implements Handler
+abstract class BaseHandler implements Handler
 {
     private final List<Binder> binders = new ArrayList<Binder>();
 
-
     private final ResultSetMapper mapper;
     private final String          sql;
+    private final ResolvedMethod method;
 
-    public SqlReturningListHandler(ResolvedMethod method, Mapamajig mapamajig)
+    public BaseHandler(ResolvedMethod method, Mapamajig mapamajig)
     {
-        this.mapper = mapamajig.mapperFor(method, method.getReturnType());
+        this.method = method;
+        this.mapper = mapamajig.mapperFor(method, mapTo());
         this.sql = method.getRawMember().getAnnotation(Sql.class).value();
 
         Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
@@ -32,7 +34,6 @@ class SqlReturningListHandler implements Handler
                 }
             }
         }
-
     }
 
     public Object invoke(Handle h, Object[] args)
@@ -41,7 +42,16 @@ class SqlReturningListHandler implements Handler
         for (Binder binder : binders) {
             binder.bind(q, args);
         }
-        return q.map(mapper).list();
+        return resultType(q.map(mapper));
+
     }
 
+    protected abstract Object resultType(Query q);
+
+    protected abstract ResolvedType mapTo();
+
+    protected ResolvedMethod getMethod()
+    {
+        return method;
+    }
 }

@@ -8,7 +8,6 @@ import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.io.Closeable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -43,8 +42,7 @@ public class TestReturningQueryResults extends TestCase
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        SqlObjectBuilder b = new SqlObjectBuilder(dbi);
-        Spiffy spiffy = b.open(Spiffy.class);
+        Spiffy spiffy = EOD.open(dbi, Spiffy.class);
 
 
         Something s = spiffy.findById(7);
@@ -56,8 +54,7 @@ public class TestReturningQueryResults extends TestCase
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        SqlObjectBuilder b = new SqlObjectBuilder(dbi);
-        Spiffy spiffy = b.open(Spiffy.class);
+        Spiffy spiffy = EOD.open(dbi, Spiffy.class);
 
 
         Iterator<Something> itty = spiffy.findByIdRange(2, 10);
@@ -77,8 +74,7 @@ public class TestReturningQueryResults extends TestCase
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        SqlObjectBuilder b = new SqlObjectBuilder(dbi);
-        Spiffy spiffy = b.open(Spiffy.class);
+        Spiffy spiffy = EOD.open(dbi, Spiffy.class);
 
 
         List<Something> all = spiffy.findTwoByIds(3, 7);
@@ -88,7 +84,7 @@ public class TestReturningQueryResults extends TestCase
         assertTrue(all.contains(new Something(3, "Diego")));
     }
 
-    public static interface Spiffy extends Closeable
+    public static interface Spiffy extends CloseMe
     {
         @Sql("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)

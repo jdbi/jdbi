@@ -9,7 +9,6 @@ import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.io.Closeable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -40,10 +39,9 @@ public class TestReturningQuery extends TestCase
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        SqlObjectBuilder b = new SqlObjectBuilder(dbi);
-        b.addMapper(new SomethingMapper());
+        EOD.addMapper(dbi, new SomethingMapper());
 
-        Spiffy spiffy = b.open(Spiffy.class);
+        Spiffy spiffy = EOD.open(dbi, Spiffy.class);
 
 
         Something s = spiffy.findById(7)
@@ -55,21 +53,20 @@ public class TestReturningQuery extends TestCase
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        SqlObjectBuilder b = new SqlObjectBuilder(dbi);
-        Spiffy2 spiffy = b.open(Spiffy2.class);
+        Spiffy2 spiffy = EOD.open(dbi, Spiffy2.class);
 
         Something s = spiffy.findByIdWithExplicitMapper(7)
                             .first();
         assertEquals("Tim", s.getName());
     }
 
-    public static interface Spiffy extends Closeable
+    public static interface Spiffy extends CloseMe
     {
         @Sql("select id, name from something where id = :id")
         public Query<Something> findById(@Bind("id") int id);
     }
 
-    public static interface Spiffy2 extends Closeable
+    public static interface Spiffy2 extends CloseMe
     {
         @Sql("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
