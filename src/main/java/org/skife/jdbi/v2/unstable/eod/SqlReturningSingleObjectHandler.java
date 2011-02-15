@@ -9,7 +9,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SqlReturningSingleObjectHandler implements Handler
+class SqlReturningSingleObjectHandler implements Handler
 {
 
     private final List<Binder> binders = new ArrayList<Binder>();
