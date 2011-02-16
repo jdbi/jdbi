@@ -8,6 +8,10 @@ import java.util.List;
 import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+/**
+ * Wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
+ * @param <Type> the key type returned
+ */
 public class GeneratedKeys<Type>
 {
     private final ResultSetMapper<Type> mapper;
