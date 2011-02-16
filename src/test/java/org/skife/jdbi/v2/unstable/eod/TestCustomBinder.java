@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.Something;
 
 public class TestCustomBinder extends TestCase
@@ -51,7 +52,7 @@ public class TestCustomBinder extends TestCase
 
     public static class SomethingBinder implements Binder<Something>
     {
-        public void bind(org.skife.jdbi.v2.Query q, Bind bind, Something it)
+        public void bind(Query q, Bind bind, Something it)
         {
             q.bind(bind.value() + ".id", it.getId());
             q.bind(bind.value() + ".name", it.getName());
