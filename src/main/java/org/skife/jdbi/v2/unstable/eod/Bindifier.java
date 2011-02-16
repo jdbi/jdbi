@@ -17,6 +17,6 @@ class Bindifier
 
     void bind(Query q, Object[] args)
     {
-        binder.bind(q, bind, param_idx, args);
+        binder.bind(q, bind, args[param_idx]);
     }
 }

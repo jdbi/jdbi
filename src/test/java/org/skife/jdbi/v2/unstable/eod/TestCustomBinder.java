@@ -49,11 +49,10 @@ public class TestCustomBinder extends TestCase
         public Something findSame(@Bind(value = "it", binder = SomethingBinder.class) Something something);
     }
 
-    public static class SomethingBinder implements Binder
+    public static class SomethingBinder implements Binder<Something>
     {
-        public void bind(org.skife.jdbi.v2.Query q, Bind bind, int index, Object[] args)
+        public void bind(org.skife.jdbi.v2.Query q, Bind bind, Something it)
         {
-            Something it = (Something) args[index];
             q.bind(bind.value() + ".id", it.getId());
             q.bind(bind.value() + ".name", it.getName());
         }
