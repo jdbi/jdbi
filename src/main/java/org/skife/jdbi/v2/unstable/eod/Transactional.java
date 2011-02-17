@@ -96,7 +96,7 @@ public interface Transactional
                 h.put(Transactional.class.getMethod("commit"), new CommitHandler());
                 h.put(Transactional.class.getMethod("rollback"), new RollbackHandler());
 
-                h.put(Transactional.class.getMethod("checkpoint", String.classte), new CheckpointHandler());
+                h.put(Transactional.class.getMethod("checkpoint", String.class), new CheckpointHandler());
                 h.put(Transactional.class.getMethod("release", String.class), new ReleaseCheckpointHandler());
                 h.put(Transactional.class.getMethod("rollback", String.class), new RollbackCheckpointHandler());
                 return h;
