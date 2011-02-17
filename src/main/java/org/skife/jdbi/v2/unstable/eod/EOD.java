@@ -115,6 +115,15 @@ public class EOD
             else if (GetHandle.class.getMethod("getHandle").equals(method.getRawMember())) {
                 handlers.put(method.getRawMember(), new GetHandle.GetHandleHandler());
             }
+            else if (Transactional.class.getMethod("begin").equals(method.getRawMember())) {
+                handlers.put(method.getRawMember(), new Transactional.BeginHandler());
+            }
+            else if (Transactional.class.getMethod("commit").equals(method.getRawMember())) {
+                handlers.put(method.getRawMember(), new Transactional.CommitHandler());
+            }
+            else if (Transactional.class.getMethod("rollback").equals(method.getRawMember())) {
+                handlers.put(method.getRawMember(), new Transactional.RollbackHandler());
+            }
 
         }
         return handlers;

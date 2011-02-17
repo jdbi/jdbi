@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Something;
 
 public class TestMixinInterfaces extends TestCase
 {
@@ -53,8 +54,37 @@ public class TestMixinInterfaces extends TestCase
         assertSame(handle, h);
     }
 
+    public void testBeginAndCommitTransaction() throws Exception
+    {
+        TransactionStuff txl = EOD.attach(handle, TransactionStuff.class);
+
+        txl.insert(8, "Mike");
+
+        txl.begin();
+        txl.updateName(8, "Miker");
+        assertEquals("Miker", txl.byId(8).getName());
+        txl.rollback();
+
+        assertEquals("Mike", txl.byId(8).getName());
+
+    }
+
     public static interface WithGetHandle extends CloseMe, GetHandle
     {
 
     }
+
+    public static interface TransactionStuff extends CloseMe, Transactional {
+
+        @SqlQuery("select id, name from something where id = :id")
+        @Mapper(SomethingMapper.class)
+        public Something byId(@Bind("id") long id);
+
+        @SqlUpdate("update something set name = :name where id = :id")
+        public void updateName(@Bind("id") long id, @Bind("name") String name);
+
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        public void insert(@Bind("id") long id, @Bind("name") String name);
+    }
 }
+
