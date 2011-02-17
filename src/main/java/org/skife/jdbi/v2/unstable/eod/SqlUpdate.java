@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2;
+package org.skife.jdbi.v2.unstable.eod;
 
-final class Pair<FirstType, SecondType>
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface SqlUpdate
 {
-    private final FirstType first;
-    private final SecondType second;
-
-    Pair(final FirstType first, final SecondType second)
-    {
-        this.first = first;
-        this.second = second;
-    }
-
-    final FirstType getFirst()
-    {
-        return first;
-    }
-
-    final SecondType getSecond()
-    {
-        return second;
-    }
+    String value();
 }

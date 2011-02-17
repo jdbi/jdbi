@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2;
+package org.skife.jdbi.v2.unstable.eod;
 
-final class Pair<FirstType, SecondType>
+import org.skife.jdbi.v2.Query;
+import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.Something;
+
+public class SomethingBinder implements Binder<Something>
 {
-    private final FirstType first;
-    private final SecondType second;
-
-    Pair(final FirstType first, final SecondType second)
+    public void bind(SQLStatement q, Bind bind, Something it)
     {
-        this.first = first;
-        this.second = second;
-    }
-
-    final FirstType getFirst()
-    {
-        return first;
-    }
-
-    final SecondType getSecond()
-    {
-        return second;
+        q.bind(bind.value() + ".id", it.getId());
+        q.bind(bind.value() + ".name", it.getName());
     }
 }

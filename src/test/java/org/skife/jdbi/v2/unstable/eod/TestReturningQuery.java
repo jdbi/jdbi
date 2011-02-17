@@ -58,13 +58,13 @@ public class TestReturningQuery extends TestCase
 
     public static interface Spiffy extends CloseMe
     {
-        @Sql("select id, name from something where id = :id")
+        @SqlQuery("select id, name from something where id = :id")
         public Query<Something> findById(@Bind("id") int id);
     }
 
     public static interface Spiffy2 extends CloseMe
     {
-        @Sql("select id, name from something where id = :id")
+        @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
         public Query<Something> findByIdWithExplicitMapper(@Bind("id") int id);
     }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2004 - 2011 Brian McCallister
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.skife.jdbi.v2.unstable.eod;
 
 import com.fasterxml.classmate.MemberResolver;
@@ -7,11 +23,14 @@ import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Update;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,34 +73,21 @@ public class EOD
     }
 
 
-    public static <T extends CloseMe> T open(DBI dbi, Class<T> sqlObjectType)
+    public static <T> T attach(Handle handle, Class<T> sqlObjectType)
     {
-        final ResolvedType sql_object_type = tr.resolve(sqlObjectType);
+        Mapamajig mapa = new Mapamajig();
+        return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType, mapa), handle);
+    }
 
-        MemberResolver mr = new MemberResolver(tr);
-        ResolvedTypeWithMembers d = mr.resolve(sql_object_type, null, null);
-        final Map<Method, Handler> handlers = new HashMap<Method, Handler>();
-        for (final ResolvedMethod method : d.getMemberMethods()) {
-            if (method.getRawMember().isAnnotationPresent(Sql.class)) {
-                if (method.getReturnType().isInstanceOf(org.skife.jdbi.v2.Query.class)) {
-                    handlers.put(method.getRawMember(), new QueryHandler(method, dbi));
-                }
-                else if (method.getReturnType().isInstanceOf(List.class)) {
-                    handlers.put(method.getRawMember(), new ListHandler(method, dbi));
-                }
-                else if (method.getReturnType().isInstanceOf(Iterator.class)) {
-                    handlers.put(method.getRawMember(), new IteratorHandler(method, dbi));
-                }
-                else {
-                    handlers.put(method.getRawMember(), new SingleValueHandler(method, dbi));
-                }
-            }
-            else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
-                handlers.put(method.getRawMember(), new CloseHandler());
-            }
-        }
+    public static <T> T open(DBI dbi, Class<T> sqlObjectType)
+    {
+        return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType, mapamaget(dbi)), dbi.open());
+    }
 
-        final Handle handle = dbi.open();
+    private static <T> T buildSqlObject(final Class<T> sqlObjectType,
+                                        final Map<Method, Handler> handlers,
+                                        final Handle handle)
+    {
         final InvocationHandler handler = new InvocationHandler()
         {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
@@ -93,12 +99,90 @@ public class EOD
         return (T) Proxy.newProxyInstance(sqlObjectType.getClassLoader(), new Class[]{sqlObjectType}, handler);
     }
 
-
-    private static class SingleValueHandler extends BaseHandler
+    private static Map<Method, Handler> buildHandlersFor(Class sqlObjectType, Mapamajig dbi)
     {
-        public SingleValueHandler(ResolvedMethod method, DBI dbi)
+        final MemberResolver mr = new MemberResolver(tr);
+        final ResolvedType sql_object_type = tr.resolve(sqlObjectType);
+
+        final ResolvedTypeWithMembers d = mr.resolve(sql_object_type, null, null);
+
+        final Map<Method, Handler> handlers = new HashMap<Method, Handler>();
+        for (final ResolvedMethod method : d.getMemberMethods()) {
+            final Method raw_method = method.getRawMember();
+            final ResolvedType return_type = method.getReturnType();
+
+            if (raw_method.isAnnotationPresent(SqlQuery.class)) {
+                // is a query
+                if (return_type.isInstanceOf(org.skife.jdbi.v2.Query.class)) {
+                    handlers.put(raw_method, new QueryQueryHandler(method, dbi));
+                }
+                else if (return_type.isInstanceOf(List.class)) {
+                    handlers.put(raw_method, new ListQueryHandler(method, dbi));
+                }
+                else if (return_type.isInstanceOf(Iterator.class)) {
+                    handlers.put(raw_method, new IteratorQueryHandler(method, dbi));
+                }
+                else {
+                    handlers.put(raw_method, new SingleValueQueryHandler(method, dbi));
+                }
+            }
+            else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
+                // is an update
+                handlers.put(raw_method, new UpdateHandler(method));
+            }
+            else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
+                handlers.put(method.getRawMember(), new CloseHandler());
+            }
+        }
+        return handlers;
+    }
+
+
+    private static class UpdateHandler implements Handler
+    {
+        private final List<Bindifier> binders = new ArrayList<Bindifier>();
+
+        private final String sql;
+        private final ResolvedMethod method;
+
+        public UpdateHandler(ResolvedMethod method)
         {
-            super(method, EOD.mapamaget(dbi));
+            this.method = method;
+            this.sql = method.getRawMember().getAnnotation(SqlUpdate.class).value();
+
+            Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
+            for (int param_idx = 0; param_idx < param_annotations.length; param_idx++) {
+                Annotation[] annotations = param_annotations[param_idx];
+                for (Annotation annotation : annotations) {
+                    if (Bind.class.isAssignableFrom(annotation.getClass())) {
+                        Bind bind = (Bind) annotation;
+                        try {
+                            binders.add(new Bindifier(bind, param_idx, bind.binder().newInstance()));
+                        }
+                        catch (Exception e) {
+                            throw new IllegalStateException("unable to instantiate specified binder", e);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        public Object invoke(Handle h, Object[] args)
+        {
+            Update q = h.createStatement(sql);
+            for (Bindifier binder : binders) {
+                binder.bind(q, args);
+            }
+            return q.execute();
+        }
+    }
+
+    private static class SingleValueQueryHandler extends BaseQueryHandler
+    {
+        public SingleValueQueryHandler(ResolvedMethod method, Mapamajig dbi)
+        {
+            super(method, dbi);
         }
 
         @Override
@@ -114,11 +198,11 @@ public class EOD
         }
     }
 
-    private static class IteratorHandler extends BaseHandler
+    private static class IteratorQueryHandler extends BaseQueryHandler
     {
-        public IteratorHandler(ResolvedMethod method, DBI dbi)
+        public IteratorQueryHandler(ResolvedMethod method, Mapamajig dbi)
         {
-            super(method, EOD.mapamaget(dbi));
+            super(method, dbi);
         }
 
         @Override
@@ -137,11 +221,11 @@ public class EOD
         }
     }
 
-    private static class ListHandler extends BaseHandler
+    private static class ListQueryHandler extends BaseQueryHandler
     {
-        public ListHandler(ResolvedMethod method, DBI dbi)
+        public ListQueryHandler(ResolvedMethod method, Mapamajig dbi)
         {
-            super(method, EOD.mapamaget(dbi));
+            super(method, dbi);
         }
 
         @Override
@@ -161,11 +245,11 @@ public class EOD
         }
     }
 
-    private static class QueryHandler extends BaseHandler
+    private static class QueryQueryHandler extends BaseQueryHandler
     {
-        public QueryHandler(ResolvedMethod method, DBI dbi)
+        public QueryQueryHandler(ResolvedMethod method, Mapamajig dbi)
         {
-            super(method, EOD.mapamaget(dbi));
+            super(method, dbi);
         }
 
         @Override

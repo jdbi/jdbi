@@ -6,9 +6,9 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 
-public class TestCustomBinder extends TestCase
+public class TestVariousOddities extends TestCase
 {
-    private DBI    dbi;
+    private DBI dbi;
     private Handle handle;
 
 
@@ -29,23 +29,24 @@ public class TestCustomBinder extends TestCase
         handle.close();
     }
 
-    public void testFoo() throws Exception
+    public void testAttach() throws Exception
     {
-        handle.execute("insert into something (id, name) values (2, 'Martin')");
-        Spiffy spiffy = EOD.open(dbi, Spiffy.class);
+        Spiffy s = EOD.attach(handle, Spiffy.class);
+        s.insert(new Something(14, "Tom"));
 
-        Something s = spiffy.findSame(new Something(2, "Unknown"));
-
-        assertEquals("Martin", s.getName());
-
-        spiffy.close();
+        Something tom = s.byId(14);
+        assertEquals("Tom", tom.getName());
     }
-
 
     public static interface Spiffy extends CloseMe
     {
-        @SqlQuery("select id, name from something where id = :it.id")
+
+        @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
-        public Something findSame(@Bind(value = "it", binder = SomethingBinder.class) Something something);
+        public Something byId(@Bind("id") long id);
+
+        @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
+        public void insert(@Bind(value = "it", binder = SomethingBinder.class) Something it);
     }
+
 }

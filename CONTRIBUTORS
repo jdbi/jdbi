@@ -1,7 +1,7 @@
 Contributors:
     Brian McCallister
     Martin Traverso
-    Henning Schmiedehausen 
+    Henning Schmiedehausen
     Jax Law
     maniax for finding a nasty bug in named parameter substitution
     Robert Sfeir for batch processing feature requests
@@ -9,3 +9,4 @@ Contributors:
     Patrick Burleson for showing that DBIException should extend RuntimeException
     Thomas Risberg for the Spring DataAccessException wrapping code
     Simone Gianni for finding (and finding the fix for) a nasty setNull bug
+    Thomas Dudziak

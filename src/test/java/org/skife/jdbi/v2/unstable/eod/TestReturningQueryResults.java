@@ -82,15 +82,15 @@ public class TestReturningQueryResults extends TestCase
 
     public static interface Spiffy extends CloseMe
     {
-        @Sql("select id, name from something where id = :id")
+        @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
         public Something findById(@Bind("id") int id);
 
-        @Sql("select id, name from something where id >= :from and id <= :to")
+        @SqlQuery("select id, name from something where id >= :from and id <= :to")
         @Mapper(SomethingMapper.class)
         public Iterator<Something> findByIdRange(@Bind("from") int from, @Bind("to") int to);
 
-        @Sql("select id, name from something where id = :first or id = :second")
+        @SqlQuery("select id, name from something where id = :first or id = :second")
         @Mapper(SomethingMapper.class)
         public List<Something> findTwoByIds(@Bind("first") int from, @Bind("second") int to);
 
