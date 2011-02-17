@@ -24,6 +24,7 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Update;
+import org.skife.jdbi.v2.exceptions.DBIException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -44,12 +45,22 @@ public class EOD
 
     public static <T> T attach(Handle handle, Class<T> sqlObjectType)
     {
-        return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), handle);
+        try {
+            return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), handle);
+        }
+        catch (NoSuchMethodException e) {
+            throw new DBIException(e) {};
+        }
     }
 
     public static <T> T open(DBI dbi, Class<T> sqlObjectType)
     {
-        return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), dbi.open());
+        try {
+            return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), dbi.open());
+        }
+        catch (NoSuchMethodException e) {
+            throw new DBIException(e) {};
+        }
     }
 
     private static <T> T buildSqlObject(final Class<T> sqlObjectType,
@@ -67,7 +78,7 @@ public class EOD
         return (T) Proxy.newProxyInstance(sqlObjectType.getClassLoader(), new Class[]{sqlObjectType}, handler);
     }
 
-    private static Map<Method, Handler> buildHandlersFor(Class sqlObjectType)
+    private static Map<Method, Handler> buildHandlersFor(Class sqlObjectType) throws NoSuchMethodException
     {
         final MemberResolver mr = new MemberResolver(tr);
         final ResolvedType sql_object_type = tr.resolve(sqlObjectType);
@@ -101,6 +112,10 @@ public class EOD
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
                 handlers.put(method.getRawMember(), new CloseHandler());
             }
+            else if (GetHandle.class.getMethod("getHandle").equals(method.getRawMember())) {
+                handlers.put(method.getRawMember(), new GetHandle.GetHandleHandler());
+            }
+
         }
         return handlers;
     }

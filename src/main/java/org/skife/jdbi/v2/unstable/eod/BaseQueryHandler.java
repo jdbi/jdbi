@@ -26,7 +26,6 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 abstract class BaseQueryHandler implements Handler
 {
