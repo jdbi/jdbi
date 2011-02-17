@@ -18,15 +18,35 @@ package org.skife.jdbi.v2.unstable.eod;
 
 import org.skife.jdbi.v2.Handle;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 public interface GetHandle
 {
     public Handle getHandle();
 
-    static class GetHandleHandler implements Handler {
-
+    static class GetHandleHandler implements Handler
+    {
         public Object invoke(Handle h, Object[] args)
         {
             return h;
+        }
+    }
+
+    static class Helper
+    {
+        static Map<Method, Handler> handlers()
+        {
+            try {
+                Map<Method, Handler> h = new HashMap<Method, Handler>();
+                h.put(GetHandle.class.getMethod("getHandle"), new GetHandleHandler());
+                return h;
+            }
+            catch (NoSuchMethodException e) {
+                throw new IllegalStateException("someone wonkered up the bytecode", e);
+            }
+
         }
     }
 }

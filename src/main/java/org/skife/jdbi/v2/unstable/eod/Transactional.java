@@ -18,13 +18,22 @@ package org.skife.jdbi.v2.unstable.eod;
 
 import org.skife.jdbi.v2.Handle;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 public interface Transactional
 {
     public void begin();
     public void commit();
     public void rollback();
 
-    static class BeginHandler implements Handler {
+    public void checkpoint(String name);
+    public void release(String name);
+    public void rollback(String name);
+
+    static class BeginHandler implements Handler
+    {
         public Object invoke(Handle h, Object[] args)
         {
             h.begin();
@@ -32,7 +41,35 @@ public interface Transactional
         }
     }
 
-    static class CommitHandler implements Handler {
+    static class CheckpointHandler implements Handler
+    {
+        public Object invoke(Handle h, Object[] args)
+        {
+            h.checkpoint(String.valueOf(args[0]));
+            return null;
+        }
+    }
+
+    static class ReleaseCheckpointHandler implements Handler
+    {
+        public Object invoke(Handle h, Object[] args)
+        {
+            h.release(String.valueOf(args[0]));
+            return null;
+        }
+    }
+
+    static class RollbackCheckpointHandler implements Handler
+    {
+        public Object invoke(Handle h, Object[] args)
+        {
+            h.rollback(String.valueOf(args[0]));
+            return null;
+        }
+    }
+
+    static class CommitHandler implements Handler
+    {
         public Object invoke(Handle h, Object[] args)
         {
             h.commit();
@@ -40,12 +77,33 @@ public interface Transactional
         }
     }
 
-    static class RollbackHandler implements Handler {
-
+    static class RollbackHandler implements Handler
+    {
         public Object invoke(Handle h, Object[] args)
         {
             h.rollback();
             return null;
+        }
+    }
+
+    static class Helper
+    {
+        static Map<Method, Handler> handlers()
+        {
+            try {
+                Map<Method, Handler> h = new HashMap<Method, Handler>();
+                h.put(Transactional.class.getMethod("begin"), new BeginHandler());
+                h.put(Transactional.class.getMethod("commit"), new CommitHandler());
+                h.put(Transactional.class.getMethod("rollback"), new RollbackHandler());
+
+                h.put(Transactional.class.getMethod("checkpoint", String.classte), new CheckpointHandler());
+                h.put(Transactional.class.getMethod("release", String.class), new ReleaseCheckpointHandler());
+                h.put(Transactional.class.getMethod("rollback", String.class), new RollbackCheckpointHandler());
+                return h;
+            }
+            catch (NoSuchMethodException e) {
+                throw new IllegalStateException("someone wonkered up the bytecode", e);
+            }
         }
     }
 }

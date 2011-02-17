@@ -42,6 +42,12 @@ import java.util.Map;
 public class EOD
 {
     private static final TypeResolver tr = new TypeResolver();
+    private static final Map<Method, Handler> mixinHandlers = new HashMap<Method, Handler>();
+
+    static {
+        mixinHandlers.putAll(Transactional.Helper.handlers());
+        mixinHandlers.putAll(GetHandle.Helper.handlers());
+    }
 
     public static <T> T attach(Handle handle, Class<T> sqlObjectType)
     {
@@ -49,7 +55,9 @@ public class EOD
             return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), handle);
         }
         catch (NoSuchMethodException e) {
-            throw new DBIException(e) {};
+            throw new DBIException(e)
+            {
+            };
         }
     }
 
@@ -59,7 +67,9 @@ public class EOD
             return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), dbi.open());
         }
         catch (NoSuchMethodException e) {
-            throw new DBIException(e) {};
+            throw new DBIException(e)
+            {
+            };
         }
     }
 
@@ -91,7 +101,6 @@ public class EOD
             final ResolvedType return_type = method.getReturnType();
 
             if (raw_method.isAnnotationPresent(SqlQuery.class)) {
-                // is a query
                 if (return_type.isInstanceOf(org.skife.jdbi.v2.Query.class)) {
                     handlers.put(raw_method, new QueryQueryHandler(method));
                 }
@@ -106,23 +115,16 @@ public class EOD
                 }
             }
             else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
-                // is an update
                 handlers.put(raw_method, new UpdateHandler(method));
             }
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
-                handlers.put(method.getRawMember(), new CloseHandler());
+                handlers.put(raw_method, new CloseHandler());
             }
-            else if (GetHandle.class.getMethod("getHandle").equals(method.getRawMember())) {
-                handlers.put(method.getRawMember(), new GetHandle.GetHandleHandler());
+            else if (mixinHandlers.containsKey(raw_method)) {
+                handlers.put(raw_method, mixinHandlers.get(raw_method));
             }
-            else if (Transactional.class.getMethod("begin").equals(method.getRawMember())) {
-                handlers.put(method.getRawMember(), new Transactional.BeginHandler());
-            }
-            else if (Transactional.class.getMethod("commit").equals(method.getRawMember())) {
-                handlers.put(method.getRawMember(), new Transactional.CommitHandler());
-            }
-            else if (Transactional.class.getMethod("rollback").equals(method.getRawMember())) {
-                handlers.put(method.getRawMember(), new Transactional.RollbackHandler());
+            else {
+                throw new UnsupportedOperationException("Not Yet Implemented!");
             }
 
         }
