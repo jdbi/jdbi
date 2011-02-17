@@ -19,26 +19,26 @@ package org.skife.jdbi.v2.unstable.eod;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.MappingRegistry;
 import org.skife.jdbi.v2.Query;
+import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 abstract class BaseQueryHandler implements Handler
 {
     private final List<Bindifier> binders = new ArrayList<Bindifier>();
 
-    private final ResultSetMapper mapper;
-    private final String          sql;
+    private final String sql;
     private final ResolvedMethod method;
+    private final MapFunc mapFunc;
 
-    public BaseQueryHandler(ResolvedMethod method, MappingRegistry mapamajig)
+    public BaseQueryHandler(ResolvedMethod method)
     {
         this.method = method;
-        this.mapper = findMapper(mapamajig);
         this.sql = method.getRawMember().getAnnotation(SqlQuery.class).value();
 
         Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
@@ -56,21 +56,31 @@ abstract class BaseQueryHandler implements Handler
                 }
             }
         }
-    }
 
-    private ResultSetMapper findMapper(MappingRegistry mapamajig) {
-        ResolvedType map_to = mapTo();
         if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
-            Mapper mapper = method.getRawMember().getAnnotation(Mapper.class);
             try {
-                return mapper.value().newInstance();
+                final ResultSetMapper mapper = method.getRawMember().getAnnotation(Mapper.class).value().newInstance();
+                this.mapFunc = new MapFunc()
+                {
+                    public Query map(Query q)
+                    {
+                        return q.map(mapper);
+                    }
+                };
             }
             catch (Exception e) {
-                throw new RuntimeException("unable to invoke default ctor on " + method, e);
+                throw new DBIException("Unable to instantiate declared mapper", e) {};
             }
         }
-
-        return mapamajig.mapperFor(map_to.getErasedType());
+        else {
+            this.mapFunc = new MapFunc()
+            {
+                public Query map(Query q)
+                {
+                    return q.mapTo(mapTo().getErasedType());
+                }
+            };
+        }
     }
 
     public Object invoke(Handle h, Object[] args)
@@ -79,7 +89,7 @@ abstract class BaseQueryHandler implements Handler
         for (Bindifier binder : binders) {
             binder.bind(q, args);
         }
-        return resultType(q.map(mapper));
+        return resultType(mapFunc.map(q));
 
     }
 
@@ -90,5 +100,10 @@ abstract class BaseQueryHandler implements Handler
     protected ResolvedMethod getMethod()
     {
         return method;
+    }
+
+    private static interface MapFunc
+    {
+        public Query map(Query q);
     }
 }

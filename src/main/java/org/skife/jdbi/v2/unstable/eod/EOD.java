@@ -23,21 +23,17 @@ import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.MappingRegistry;
 import org.skife.jdbi.v2.Update;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * All methods will be moved onto DBI or Handle when this moves out of unstable.
@@ -46,43 +42,14 @@ public class EOD
 {
     private static final TypeResolver tr = new TypeResolver();
 
-    private static final Map<DBI, MappingRegistry> attributes = Collections
-        .synchronizedMap(new WeakHashMap<DBI, MappingRegistry>());
-
-    public static void addMapper(DBI dbi, ResultSetMapper mapper)
-    {
-        mapamaget(dbi).add(mapper);
-    }
-
-    private static MappingRegistry mapamaget(DBI dbi)
-    {
-        if (attributes.containsKey(dbi)) {
-            return attributes.get(dbi);
-        }
-        else {
-            synchronized (attributes) {
-                if (attributes.containsKey(dbi)) {
-                    return attributes.get(dbi);
-                }
-                else {
-                    MappingRegistry m = new MappingRegistry();
-                    attributes.put(dbi, m);
-                    return m;
-                }
-            }
-        }
-    }
-
-
     public static <T> T attach(Handle handle, Class<T> sqlObjectType)
     {
-        MappingRegistry mapa = new MappingRegistry();
-        return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType, mapa), handle);
+        return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), handle);
     }
 
     public static <T> T open(DBI dbi, Class<T> sqlObjectType)
     {
-        return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType, mapamaget(dbi)), dbi.open());
+        return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), dbi.open());
     }
 
     private static <T> T buildSqlObject(final Class<T> sqlObjectType,
@@ -100,7 +67,7 @@ public class EOD
         return (T) Proxy.newProxyInstance(sqlObjectType.getClassLoader(), new Class[]{sqlObjectType}, handler);
     }
 
-    private static Map<Method, Handler> buildHandlersFor(Class sqlObjectType, MappingRegistry dbi)
+    private static Map<Method, Handler> buildHandlersFor(Class sqlObjectType)
     {
         final MemberResolver mr = new MemberResolver(tr);
         final ResolvedType sql_object_type = tr.resolve(sqlObjectType);
@@ -115,16 +82,16 @@ public class EOD
             if (raw_method.isAnnotationPresent(SqlQuery.class)) {
                 // is a query
                 if (return_type.isInstanceOf(org.skife.jdbi.v2.Query.class)) {
-                    handlers.put(raw_method, new QueryQueryHandler(method, dbi));
+                    handlers.put(raw_method, new QueryQueryHandler(method));
                 }
                 else if (return_type.isInstanceOf(List.class)) {
-                    handlers.put(raw_method, new ListQueryHandler(method, dbi));
+                    handlers.put(raw_method, new ListQueryHandler(method));
                 }
                 else if (return_type.isInstanceOf(Iterator.class)) {
-                    handlers.put(raw_method, new IteratorQueryHandler(method, dbi));
+                    handlers.put(raw_method, new IteratorQueryHandler(method));
                 }
                 else {
-                    handlers.put(raw_method, new SingleValueQueryHandler(method, dbi));
+                    handlers.put(raw_method, new SingleValueQueryHandler(method));
                 }
             }
             else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
@@ -181,9 +148,9 @@ public class EOD
 
     private static class SingleValueQueryHandler extends BaseQueryHandler
     {
-        public SingleValueQueryHandler(ResolvedMethod method, MappingRegistry dbi)
+        public SingleValueQueryHandler(ResolvedMethod method)
         {
-            super(method, dbi);
+            super(method);
         }
 
         @Override
@@ -201,9 +168,9 @@ public class EOD
 
     private static class IteratorQueryHandler extends BaseQueryHandler
     {
-        public IteratorQueryHandler(ResolvedMethod method, MappingRegistry dbi)
+        public IteratorQueryHandler(ResolvedMethod method)
         {
-            super(method, dbi);
+            super(method);
         }
 
         @Override
@@ -224,9 +191,9 @@ public class EOD
 
     private static class ListQueryHandler extends BaseQueryHandler
     {
-        public ListQueryHandler(ResolvedMethod method, MappingRegistry dbi)
+        public ListQueryHandler(ResolvedMethod method)
         {
-            super(method, dbi);
+            super(method);
         }
 
         @Override
@@ -248,9 +215,9 @@ public class EOD
 
     private static class QueryQueryHandler extends BaseQueryHandler
     {
-        public QueryQueryHandler(ResolvedMethod method, MappingRegistry dbi)
+        public QueryQueryHandler(ResolvedMethod method)
         {
-            super(method, dbi);
+            super(method);
         }
 
         @Override

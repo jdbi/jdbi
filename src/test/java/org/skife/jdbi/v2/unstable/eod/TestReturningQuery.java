@@ -34,7 +34,7 @@ public class TestReturningQuery extends TestCase
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        EOD.addMapper(dbi, new SomethingMapper());
+        dbi.registerMapper(new SomethingMapper());
 
         Spiffy spiffy = EOD.open(dbi, Spiffy.class);
 
