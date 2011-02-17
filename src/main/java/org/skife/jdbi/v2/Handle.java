@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
@@ -205,4 +206,18 @@ public interface Handle
      * to create this Handle.
      */
     void setTimingCollector(TimingCollector timingCollector);
+
+    /**
+     * Register a result set mapper which will have its parameterized type inspected to determine what it maps to
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     */
+    public void registerMapper(ResultSetMapper mapper);
+
+    /**
+     * Register a result set mapper factory.
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
+     */
+    public void registerMapper(ResultSetMapperFactory factory);
 }

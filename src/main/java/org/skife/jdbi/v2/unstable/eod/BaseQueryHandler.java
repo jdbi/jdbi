@@ -19,6 +19,7 @@ package org.skife.jdbi.v2.unstable.eod;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.MappingRegistry;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -34,7 +35,7 @@ abstract class BaseQueryHandler implements Handler
     private final String          sql;
     private final ResolvedMethod method;
 
-    public BaseQueryHandler(ResolvedMethod method, Mapamajig mapamajig)
+    public BaseQueryHandler(ResolvedMethod method, MappingRegistry mapamajig)
     {
         this.method = method;
         this.mapper = mapamajig.mapperFor(method, mapTo());

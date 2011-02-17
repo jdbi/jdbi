@@ -18,11 +18,12 @@ package org.skife.jdbi.v2.unstable.eod;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
+import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.util.List;
 
-class InferredMapperFactory implements MapperFactory
+public class InferredMapperFactory implements ResultSetMapperFactory
 {
     private final static TypeResolver tr = new TypeResolver();
     private final Class maps;

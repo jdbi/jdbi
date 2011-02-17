@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2.unstable.eod;
+package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-public interface MapperFactory<T>
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class RegisteredMapper<T> implements ResultSetMapper<T>
 {
+    private final ResultSetMapper<T> mapper;
 
-    public boolean accepts(Class type);
+    public RegisteredMapper(Class<T> type, MappingRegistry registry) {
+        this.mapper = registry.mapperFor(type);
+    }
 
-    public ResultSetMapper mapperFor(Class type);
+    public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
+    {
+        return mapper.map(index, r, ctx);
+    }
 }

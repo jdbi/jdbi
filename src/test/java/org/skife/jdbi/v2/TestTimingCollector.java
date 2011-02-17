@@ -46,7 +46,8 @@ public class TestTimingCollector extends DBITestCase
                                         conn,
                                         new HashMap<String, Object>(),
                                         new NoOpLog(),
-                                        tc);
+                                        tc,
+                                        new MappingRegistry());
         handles.add(h);
         return h;
     }

@@ -71,7 +71,8 @@ public abstract class DBITestCase extends TestCase
                                         conn,
                                         new HashMap<String, Object>(),
                                         new NoOpLog(),
-                                        TimingCollector.NOP_TIMING_COLLECTOR);
+                                        TimingCollector.NOP_TIMING_COLLECTOR,
+                                        new MappingRegistry());
         handles.add(h);
         return h;
     }

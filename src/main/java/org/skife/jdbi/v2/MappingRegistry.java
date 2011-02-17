@@ -14,34 +14,59 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2.unstable.eod;
+package org.skife.jdbi.v2;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
+import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.unstable.eod.InferredMapperFactory;
+import org.skife.jdbi.v2.unstable.eod.Mapper;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-class Mapamajig
+public class MappingRegistry
 {
-    private final List<MapperFactory> factories = new CopyOnWriteArrayList<MapperFactory>();
+    private final List<ResultSetMapperFactory> factories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
 
     private final ConcurrentHashMap<ResolvedType, ResultSetMapper> cache = new ConcurrentHashMap<ResolvedType, ResultSetMapper>();
+
+    /**
+     * Copy Constructor
+     */
+    public MappingRegistry(MappingRegistry parent)
+    {
+        factories.addAll(parent.factories);
+        cache.clear();
+    }
+
+    public MappingRegistry() {
+
+    }
 
     public void add(ResultSetMapper mapper)
     {
         this.add(new InferredMapperFactory(mapper));
     }
 
-    public void add(MapperFactory factory)
+    public void add(ResultSetMapperFactory factory)
     {
         factories.add(factory);
         cache.clear();
     }
 
-    ResultSetMapper mapperFor(ResolvedMethod method, ResolvedType returnType)
+    public ResultSetMapper mapperFor(Class type) {
+        for (ResultSetMapperFactory factory : factories) {
+            if (factory.accepts(type)) {
+                return factory.mapperFor(type);
+            }
+        }
+        throw new DBIException("No mapper registered for " + type.getName()) {};
+    }
+
+    public ResultSetMapper mapperFor(ResolvedMethod method, ResolvedType returnType)
     {
         if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
             Mapper mapper = method.getRawMember().getAnnotation(Mapper.class);
@@ -72,7 +97,7 @@ class Mapamajig
         }
 
 
-        for (MapperFactory factory : factories) {
+        for (ResultSetMapperFactory factory : factories) {
             if (factory.accepts(returnType.getErasedType())) {
                 final ResultSetMapper mapper = factory.mapperFor(returnType.getErasedType());
                 cache.put(returnType, mapper);

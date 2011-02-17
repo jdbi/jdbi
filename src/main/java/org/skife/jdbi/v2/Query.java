@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements Iterable<ResultType>
 {
     private final ResultSetMapper<ResultType> mapper;
+    private final MappingRegistry mappingRegistry;
 
     Query(Binding params,
           ResultSetMapper<ResultType> mapper,
@@ -53,10 +54,12 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           StatementContext ctx,
           SQLLog log,
           TimingCollector timingCollector,
-          Collection<StatementCustomizer> customizers)
+          Collection<StatementCustomizer> customizers,
+          MappingRegistry mappingRegistry)
     {
         super(params, locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector, customizers);
         this.mapper = mapper;
+        this.mappingRegistry = mappingRegistry;
     }
 
     /**
@@ -233,6 +236,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this.map(new BeanMapper<Type>(resultType));
     }
 
+    public <T> Query<T> mapTo(Class<T> resultType) {
+        return this.map(new RegisteredMapper(resultType, mappingRegistry));
+    }
+
     public <T> Query<T> map(ResultSetMapper<T> mapper)
     {
         return new Query<T>(getParameters(),
@@ -245,7 +252,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getContext(),
                             getLog(),
                             getTimingCollector(),
-                            getStatementCustomizers());
+                            getStatementCustomizers(),
+                            new MappingRegistry(mappingRegistry));
     }
 
     /**

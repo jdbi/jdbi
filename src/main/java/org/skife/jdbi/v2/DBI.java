@@ -30,6 +30,7 @@ import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
@@ -45,11 +46,12 @@ import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 public class DBI implements IDBI
 {
     private final ConnectionFactory connectionFactory;
+    private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
+    private final MappingRegistry mappingRegistry = new MappingRegistry();
     private StatementRewriter statementRewriter = new ColonPrefixNamedParamStatementRewriter();
     private StatementLocator statementLocator = new ClasspathStatementLocator();
     private TransactionHandler transactionhandler = new LocalTransactionHandler();
     private StatementBuilderFactory statementBuilderFactory = new DefaultStatementBuilderFactory();
-    private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private SQLLog log = new NoOpLog();
     private TimingCollector timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
 
@@ -190,13 +192,32 @@ public class DBI implements IDBI
                                        conn,
                                        globalStatementAttributes,
                                        log,
-                                       timingCollector);
+                                       timingCollector,
+                                       new MappingRegistry(mappingRegistry));
             log.logObtainHandle((stop - start) / 1000000L, h);
             return h;
         }
         catch (SQLException e) {
             throw new UnableToObtainConnectionException(e);
         }
+    }
+
+    /**
+     * Register a result set mapper which will have its parameterized type inspected to determine what it maps to
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     */
+    public void registerMapper(ResultSetMapper mapper) {
+        mappingRegistry.add(mapper);
+    }
+
+    /**
+     * Register a result set mapper factory.
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
+     */
+    public void registerMapper(ResultSetMapperFactory factory) {
+        mappingRegistry.add(factory);
     }
 
     /**

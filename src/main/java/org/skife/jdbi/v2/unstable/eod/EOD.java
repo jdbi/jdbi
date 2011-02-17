@@ -23,6 +23,7 @@ import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.MappingRegistry;
 import org.skife.jdbi.v2.Update;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -45,15 +46,15 @@ public class EOD
 {
     private static final TypeResolver tr = new TypeResolver();
 
-    private static final Map<DBI, Mapamajig> attributes = Collections
-        .synchronizedMap(new WeakHashMap<DBI, Mapamajig>());
+    private static final Map<DBI, MappingRegistry> attributes = Collections
+        .synchronizedMap(new WeakHashMap<DBI, MappingRegistry>());
 
     public static void addMapper(DBI dbi, ResultSetMapper mapper)
     {
         mapamaget(dbi).add(mapper);
     }
 
-    private static Mapamajig mapamaget(DBI dbi)
+    private static MappingRegistry mapamaget(DBI dbi)
     {
         if (attributes.containsKey(dbi)) {
             return attributes.get(dbi);
@@ -64,7 +65,7 @@ public class EOD
                     return attributes.get(dbi);
                 }
                 else {
-                    Mapamajig m = new Mapamajig();
+                    MappingRegistry m = new MappingRegistry();
                     attributes.put(dbi, m);
                     return m;
                 }
@@ -75,7 +76,7 @@ public class EOD
 
     public static <T> T attach(Handle handle, Class<T> sqlObjectType)
     {
-        Mapamajig mapa = new Mapamajig();
+        MappingRegistry mapa = new MappingRegistry();
         return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType, mapa), handle);
     }
 
@@ -99,7 +100,7 @@ public class EOD
         return (T) Proxy.newProxyInstance(sqlObjectType.getClassLoader(), new Class[]{sqlObjectType}, handler);
     }
 
-    private static Map<Method, Handler> buildHandlersFor(Class sqlObjectType, Mapamajig dbi)
+    private static Map<Method, Handler> buildHandlersFor(Class sqlObjectType, MappingRegistry dbi)
     {
         final MemberResolver mr = new MemberResolver(tr);
         final ResolvedType sql_object_type = tr.resolve(sqlObjectType);
@@ -180,7 +181,7 @@ public class EOD
 
     private static class SingleValueQueryHandler extends BaseQueryHandler
     {
-        public SingleValueQueryHandler(ResolvedMethod method, Mapamajig dbi)
+        public SingleValueQueryHandler(ResolvedMethod method, MappingRegistry dbi)
         {
             super(method, dbi);
         }
@@ -200,7 +201,7 @@ public class EOD
 
     private static class IteratorQueryHandler extends BaseQueryHandler
     {
-        public IteratorQueryHandler(ResolvedMethod method, Mapamajig dbi)
+        public IteratorQueryHandler(ResolvedMethod method, MappingRegistry dbi)
         {
             super(method, dbi);
         }
@@ -223,7 +224,7 @@ public class EOD
 
     private static class ListQueryHandler extends BaseQueryHandler
     {
-        public ListQueryHandler(ResolvedMethod method, Mapamajig dbi)
+        public ListQueryHandler(ResolvedMethod method, MappingRegistry dbi)
         {
             super(method, dbi);
         }
@@ -247,7 +248,7 @@ public class EOD
 
     private static class QueryQueryHandler extends BaseQueryHandler
     {
-        public QueryQueryHandler(ResolvedMethod method, Mapamajig dbi)
+        public QueryQueryHandler(ResolvedMethod method, MappingRegistry dbi)
         {
             super(method, dbi);
         }
