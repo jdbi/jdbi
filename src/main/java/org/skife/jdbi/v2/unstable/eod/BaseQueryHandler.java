@@ -38,7 +38,7 @@ abstract class BaseQueryHandler implements Handler
     public BaseQueryHandler(ResolvedMethod method, MappingRegistry mapamajig)
     {
         this.method = method;
-        this.mapper = mapamajig.mapperFor(method, mapTo());
+        this.mapper = findMapper(mapamajig);
         this.sql = method.getRawMember().getAnnotation(SqlQuery.class).value();
 
         Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
@@ -56,6 +56,21 @@ abstract class BaseQueryHandler implements Handler
                 }
             }
         }
+    }
+
+    private ResultSetMapper findMapper(MappingRegistry mapamajig) {
+        ResolvedType map_to = mapTo();
+        if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
+            Mapper mapper = method.getRawMember().getAnnotation(Mapper.class);
+            try {
+                return mapper.value().newInstance();
+            }
+            catch (Exception e) {
+                throw new RuntimeException("unable to invoke default ctor on " + method, e);
+            }
+        }
+
+        return mapamajig.mapperFor(map_to.getErasedType());
     }
 
     public Object invoke(Handle h, Object[] args)

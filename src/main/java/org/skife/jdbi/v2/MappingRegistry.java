@@ -16,12 +16,9 @@
 
 package org.skife.jdbi.v2;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.unstable.eod.InferredMapperFactory;
-import org.skife.jdbi.v2.unstable.eod.Mapper;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,8 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MappingRegistry
 {
     private final List<ResultSetMapperFactory> factories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
-
-    private final ConcurrentHashMap<ResolvedType, ResultSetMapper> cache = new ConcurrentHashMap<ResolvedType, ResultSetMapper>();
+    private final ConcurrentHashMap<Class, ResultSetMapper> cache = new ConcurrentHashMap<Class, ResultSetMapper>();
 
     /**
      * Copy Constructor
@@ -39,7 +35,7 @@ public class MappingRegistry
     public MappingRegistry(MappingRegistry parent)
     {
         factories.addAll(parent.factories);
-        cache.clear();
+        cache.putAll(parent.cache);
     }
 
     public MappingRegistry() {
@@ -58,53 +54,20 @@ public class MappingRegistry
     }
 
     public ResultSetMapper mapperFor(Class type) {
-        for (ResultSetMapperFactory factory : factories) {
-            if (factory.accepts(type)) {
-                return factory.mapperFor(type);
-            }
-        }
-        throw new DBIException("No mapper registered for " + type.getName()) {};
-    }
-
-    public ResultSetMapper mapperFor(ResolvedMethod method, ResolvedType returnType)
-    {
-        if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
-            Mapper mapper = method.getRawMember().getAnnotation(Mapper.class);
-            try {
-                return mapper.value().newInstance();
-            }
-            catch (Exception e) {
-                throw new RuntimeException("unable to invoke default ctor on " + method, e);
-            }
-        }
-
-
-        ResultSetMapper cached_mapper = cache.get(returnType);
-        if (cached_mapper != null) {
-            return cached_mapper;
-        }
-
-        if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
-            Mapper mapper = method.getRawMember().getAnnotation(Mapper.class);
-            try {
-                final ResultSetMapper rsm = mapper.value().newInstance();
-                cache.put(returnType, rsm);
-                return rsm;
-            }
-            catch (Exception e) {
-                throw new RuntimeException("unable to invoke default ctor on " + method, e);
-            }
-        }
-
-
-        for (ResultSetMapperFactory factory : factories) {
-            if (factory.accepts(returnType.getErasedType())) {
-                final ResultSetMapper mapper = factory.mapperFor(returnType.getErasedType());
-                cache.put(returnType, mapper);
+        if (cache.containsKey(type)) {
+            ResultSetMapper mapper = cache.get(type);
+            if (mapper != null) {
                 return mapper;
             }
         }
 
-        throw new UnsupportedOperationException("Not Yet Implemented!");
+        for (ResultSetMapperFactory factory : factories) {
+            if (factory.accepts(type)) {
+                ResultSetMapper mapper =  factory.mapperFor(type);
+                cache.put(type, mapper);
+                return mapper;
+            }
+        }
+        throw new DBIException("No mapper registered for " + type.getName()) {};
     }
 }
