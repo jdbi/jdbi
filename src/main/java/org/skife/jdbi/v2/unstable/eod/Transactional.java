@@ -17,20 +17,29 @@
 package org.skife.jdbi.v2.unstable.eod;
 
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Transaction;
+import org.skife.jdbi.v2.TransactionCallback;
+import org.skife.jdbi.v2.TransactionStatus;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface Transactional
+public interface Transactional<SelfType extends Transactional>
 {
     public void begin();
+
     public void commit();
+
     public void rollback();
 
     public void checkpoint(String name);
+
     public void release(String name);
+
     public void rollback(String name);
+
+    public <ReturnType> ReturnType inTransaction(Transaction<ReturnType, SelfType> func);
 
     static class BeginHandler implements Handler
     {
@@ -86,6 +95,21 @@ public interface Transactional
         }
     }
 
+    static class InTransactionHandler implements Handler
+    {
+
+        public Object invoke(Handle h, Object[] args)
+        {
+            return h.inTransaction(new TransactionCallback() {
+
+                public Object inTransaction(Object conn, TransactionStatus status) throws Exception
+                {
+                    return null;
+                }
+            });
+        }
+    }
+
     static class Helper
     {
         static Map<Method, Handler> handlers()
@@ -99,6 +123,8 @@ public interface Transactional
                 h.put(Transactional.class.getMethod("checkpoint", String.class), new CheckpointHandler());
                 h.put(Transactional.class.getMethod("release", String.class), new ReleaseCheckpointHandler());
                 h.put(Transactional.class.getMethod("rollback", String.class), new RollbackCheckpointHandler());
+
+                h.put(Transactional.class.getMethod("inTransaction", Transaction.class), new RollbackCheckpointHandler());
                 return h;
             }
             catch (NoSuchMethodException e) {

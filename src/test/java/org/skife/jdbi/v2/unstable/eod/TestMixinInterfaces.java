@@ -21,6 +21,8 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.Transaction;
+import org.skife.jdbi.v2.TransactionStatus;
 
 public class TestMixinInterfaces extends TestCase
 {
@@ -69,12 +71,24 @@ public class TestMixinInterfaces extends TestCase
 
     }
 
+    public void testInTransaction() throws Exception
+    {
+        TransactionStuff txl = EOD.attach(handle, TransactionStuff.class);
+
+        Something s = txl.inTransaction(new Transaction<Something, TransactionStuff>() {
+            public Something inTransaction(TransactionStuff conn, TransactionStatus status) throws Exception
+            {
+                return null;
+            }
+        });
+    }
+
     public static interface WithGetHandle extends CloseMe, GetHandle
     {
 
     }
 
-    public static interface TransactionStuff extends CloseMe, Transactional {
+    public static interface TransactionStuff extends CloseMe, Transactional<TransactionStuff> {
 
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)

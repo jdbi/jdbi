@@ -16,11 +16,7 @@
 
 package org.skife.jdbi.v2;
 
-/**
- * Used as a callback which guarantees that the inTransaction method is invoked in
- * a transaction, and will be committed or rolled back as specified.
- */
-public interface TransactionCallback<ReturnType> extends Transaction<ReturnType, Handle>
+public interface Transaction<ReturnType, ConnectionType>
 {
     /**
      * Execute in a transaction. Will be committed afterwards, or rolled back if a transaction
@@ -29,10 +25,10 @@ public interface TransactionCallback<ReturnType> extends Transaction<ReturnType,
      * If the transaction fails a {@link org.skife.jdbi.v2.exceptions.TransactionFailedException}
      * will be thrown from the {@link Handle#inTransaction(TransactionCallback<ReturnType>)}
      *
-     * @param handle a transactional handle instance which can be used in the callback
+     * @param conn The object communicating with the database.
      * @param status a handle on the transaction, kind of
      * @return Something to return from {@link Handle#inTransaction(TransactionCallback<ReturnType>)}
      * @throws Exception will cause the transaction be aborted
      */
-    public ReturnType inTransaction(Handle handle, TransactionStatus status) throws Exception;
+    public ReturnType inTransaction(ConnectionType conn, TransactionStatus status) throws Exception;
 }
