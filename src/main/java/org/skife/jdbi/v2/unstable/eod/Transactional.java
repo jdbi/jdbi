@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface Transactional<SelfType extends Transactional>
+public interface Transactional<SelfType extends Transactional<SelfType>>
 {
     public void begin();
 
