@@ -20,6 +20,6 @@ import org.skife.jdbi.v2.Handle;
 
 interface Handler
 {
-    public Object invoke(Handle h, Object[] args);
+    public Object invoke(Handle h, Object target, Object[] args);
 
 }

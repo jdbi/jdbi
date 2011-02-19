@@ -26,6 +26,7 @@ import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 /**
  * This represents a connection to the database system. It ususally is a wrapper around

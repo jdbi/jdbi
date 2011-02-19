@@ -34,7 +34,7 @@ class SqlHandler implements Handler
         this.sql = method.getRawMember().getAnnotation(SqlQuery.class).value();
     }
 
-    public Object invoke(Handle h, Object[] args)
+    public Object invoke(Handle h, Object target, Object[] args)
     {
 
         Method m = method.getRawMember();

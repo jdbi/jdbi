@@ -82,7 +82,7 @@ abstract class BaseQueryHandler implements Handler
         }
     }
 
-    public Object invoke(Handle h, Object[] args)
+    public Object invoke(Handle h, Object target, Object[] args)
     {
         Query q = h.createQuery(sql);
         for (Bindifier binder : binders) {

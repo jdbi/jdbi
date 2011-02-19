@@ -43,7 +43,7 @@ public interface Transactional<SelfType extends Transactional>
 
     static class BeginHandler implements Handler
     {
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, Object target, Object[] args)
         {
             h.begin();
             return null;
@@ -52,7 +52,7 @@ public interface Transactional<SelfType extends Transactional>
 
     static class CheckpointHandler implements Handler
     {
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, Object target, Object[] args)
         {
             h.checkpoint(String.valueOf(args[0]));
             return null;
@@ -61,7 +61,7 @@ public interface Transactional<SelfType extends Transactional>
 
     static class ReleaseCheckpointHandler implements Handler
     {
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, Object target, Object[] args)
         {
             h.release(String.valueOf(args[0]));
             return null;
@@ -70,7 +70,7 @@ public interface Transactional<SelfType extends Transactional>
 
     static class RollbackCheckpointHandler implements Handler
     {
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, Object target, Object[] args)
         {
             h.rollback(String.valueOf(args[0]));
             return null;
@@ -79,7 +79,7 @@ public interface Transactional<SelfType extends Transactional>
 
     static class CommitHandler implements Handler
     {
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, Object target, Object[] args)
         {
             h.commit();
             return null;
@@ -88,7 +88,7 @@ public interface Transactional<SelfType extends Transactional>
 
     static class RollbackHandler implements Handler
     {
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, Object target, Object[] args)
         {
             h.rollback();
             return null;
@@ -97,14 +97,13 @@ public interface Transactional<SelfType extends Transactional>
 
     static class InTransactionHandler implements Handler
     {
-
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, final Object target, Object[] args)
         {
+            final Transaction t = (Transaction) args[0];
             return h.inTransaction(new TransactionCallback() {
-
                 public Object inTransaction(Object conn, TransactionStatus status) throws Exception
                 {
-                    return null;
+                    return t.inTransaction(target, status);
                 }
             });
         }
@@ -124,7 +123,7 @@ public interface Transactional<SelfType extends Transactional>
                 h.put(Transactional.class.getMethod("release", String.class), new ReleaseCheckpointHandler());
                 h.put(Transactional.class.getMethod("rollback", String.class), new RollbackCheckpointHandler());
 
-                h.put(Transactional.class.getMethod("inTransaction", Transaction.class), new RollbackCheckpointHandler());
+                h.put(Transactional.class.getMethod("inTransaction", Transaction.class), new InTransactionHandler());
                 return h;
             }
             catch (NoSuchMethodException e) {

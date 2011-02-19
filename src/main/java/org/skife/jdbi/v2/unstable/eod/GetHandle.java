@@ -28,7 +28,7 @@ public interface GetHandle
 
     static class GetHandleHandler implements Handler
     {
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, Object target, Object[] args)
         {
             return h;
         }

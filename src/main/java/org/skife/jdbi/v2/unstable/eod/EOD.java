@@ -81,7 +81,7 @@ public class EOD
         {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
             {
-                return handlers.get(method).invoke(handle, args);
+                return handlers.get(method).invoke(handle, proxy, args);
             }
         };
 
@@ -162,7 +162,7 @@ public class EOD
         }
 
 
-        public Object invoke(Handle h, Object[] args)
+        public Object invoke(Handle h, Object target, Object[] args)
         {
             Update q = h.createStatement(sql);
             for (Bindifier binder : binders) {

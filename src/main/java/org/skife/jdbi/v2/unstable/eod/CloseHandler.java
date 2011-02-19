@@ -20,7 +20,7 @@ import org.skife.jdbi.v2.Handle;
 
 class CloseHandler implements Handler
 {
-    public Object invoke(Handle h, Object[] args)
+    public Object invoke(Handle h, Object target, Object[] args)
     {
         h.close();
         return null;

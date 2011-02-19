@@ -74,13 +74,16 @@ public class TestMixinInterfaces extends TestCase
     public void testInTransaction() throws Exception
     {
         TransactionStuff txl = EOD.attach(handle, TransactionStuff.class);
+        txl.insert(7, "Keith");
 
         Something s = txl.inTransaction(new Transaction<Something, TransactionStuff>() {
             public Something inTransaction(TransactionStuff conn, TransactionStatus status) throws Exception
             {
-                return null;
+                return conn.byId(7);
             }
         });
+
+        assertEquals("Keith", s.getName());
     }
 
     public static interface WithGetHandle extends CloseMe, GetHandle

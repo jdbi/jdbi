@@ -22,17 +22,5 @@ package org.skife.jdbi.v2;
  */
 public interface TransactionCallback<ReturnType> extends Transaction<ReturnType, Handle>
 {
-    /**
-     * Execute in a transaction. Will be committed afterwards, or rolled back if a transaction
-     * is thrown
-     * <p>
-     * If the transaction fails a {@link org.skife.jdbi.v2.exceptions.TransactionFailedException}
-     * will be thrown from the {@link Handle#inTransaction(TransactionCallback<ReturnType>)}
-     *
-     * @param handle a transactional handle instance which can be used in the callback
-     * @param status a handle on the transaction, kind of
-     * @return Something to return from {@link Handle#inTransaction(TransactionCallback<ReturnType>)}
-     * @throws Exception will cause the transaction be aborted
-     */
-    public ReturnType inTransaction(Handle handle, TransactionStatus status) throws Exception;
+
 }
