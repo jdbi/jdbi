@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class EOD
 {
-    private static final TypeResolver tr = new TypeResolver();
+    private static final TypeResolver         tr            = new TypeResolver();
     private static final Map<Method, Handler> mixinHandlers = new HashMap<Method, Handler>();
 
     static {
@@ -71,6 +71,31 @@ public class EOD
             {
             };
         }
+    }
+
+    /**
+     * Creating a sql object via this method will cause it to obtain a database connection when it is needed, and
+     * release it as soon as it is able to. This means to two calls, back to back, will cause the sql object to obtain
+     * a database connection separately for each one.
+     * <p/>
+     * In the case of a transaction, via {@link Transactional}, the database connection which started the
+     * transaction will be held until the transaction is completed.
+     *
+     * @param dbi           source of database connections
+     * @param sqlObjectType the type of sql object to instantiate
+     *
+     * @return an on-demand sql object
+     */
+    public static <T> T onDemand(final DBI dbi, final Class<T> sqlObjectType)
+    {
+        return (T) Proxy
+            .newProxyInstance(sqlObjectType.getClassLoader(), new Class[]{sqlObjectType}, new InvocationHandler()
+            {
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+                {
+                    throw new UnsupportedOperationException("Not Yet Implemented!");
+                }
+            });
     }
 
     private static <T> T buildSqlObject(final Class<T> sqlObjectType,
@@ -136,7 +161,7 @@ public class EOD
     {
         private final List<Bindifier> binders = new ArrayList<Bindifier>();
 
-        private final String sql;
+        private final String         sql;
         private final ResolvedMethod method;
 
         public UpdateHandler(ResolvedMethod method)
