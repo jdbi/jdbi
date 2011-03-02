@@ -20,7 +20,7 @@ package org.skife.jdbi.v2;
  * Used as a callback which guarantees that the inTransaction method is invoked in
  * a transaction, and will be committed or rolled back as specified.
  */
-public interface TransactionCallback<ReturnType> extends Transaction<ReturnType, Handle>
+public interface TransactionCallback<ReturnType>
 {
-
+    ReturnType inTransaction(Handle conn, TransactionStatus status) throws Exception;
 }

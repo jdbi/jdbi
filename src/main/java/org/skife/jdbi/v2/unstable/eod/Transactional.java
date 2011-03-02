@@ -101,7 +101,7 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
         {
             final Transaction t = (Transaction) args[0];
             return h.inTransaction(new TransactionCallback() {
-                public Object inTransaction(Object conn, TransactionStatus status) throws Exception
+                public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return t.inTransaction(target, status);
                 }

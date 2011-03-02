@@ -1,19 +1,3 @@
-/*
- * Copyright 2004 - 2011 Brian McCallister
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.skife.jdbi.v2.unstable.eod;
 
 import com.fasterxml.classmate.MemberResolver;
@@ -21,11 +5,8 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
-import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Update;
-import org.skife.jdbi.v2.exceptions.DBIException;
-import org.skife.jdbi.v2.tweak.HandleCallback;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -37,11 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * All methods will be moved onto DBI or Handle when this moves out of unstable.
- */
-public class EOD
+class SqlObject implements InvocationHandler
 {
+
     private static final TypeResolver         tr            = new TypeResolver();
     private static final Map<Method, Handler> mixinHandlers = new HashMap<Method, Handler>();
 
@@ -50,65 +29,22 @@ public class EOD
         mixinHandlers.putAll(GetHandle.Helper.handlers());
     }
 
-    public static <T> T attach(Handle handle, Class<T> sqlObjectType)
+    private final HandleFactory handles;
+
+    SqlObject(Class iface, HandleFactory handles)
     {
-        try {
-            return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), handle);
-        }
-        catch (NoSuchMethodException e) {
-            throw new DBIException(e)
-            {
-            };
-        }
+        this.handles = handles;
     }
 
-    public static <T> T open(DBI dbi, Class<T> sqlObjectType)
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {
-        try {
-            return buildSqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), dbi.open());
-        }
-        catch (NoSuchMethodException e) {
-            throw new DBIException(e)
-            {
-            };
-        }
+        return null;
     }
 
-    /**
-     * Creating a sql object via this method will cause it to obtain a database connection when it is needed, and
-     * release it as soon as it is able to. This means to two calls, back to back, will cause the sql object to obtain
-     * a database connection separately for each one.
-     * <p/>
-     * In the case of a transaction, via {@link Transactional}, the database connection which started the
-     * transaction will be held until the transaction is completed.
-     *
-     * @param dbi           source of database connections
-     * @param sqlObjectType the type of sql object to instantiate
-     *
-     * @return an on-demand sql object
-     */
-    public static <T> T onDemand(final DBI dbi, final Class<T> sqlObjectType)
-    {
-        try {
-            final Map<Method, Handler> handlers = buildHandlersFor(sqlObjectType);
-            InvocationHandler ih = new InvocationHandler()
-            {
-                public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable
-                {
-                    return dbi.withHandle(new HandleCallback<Object>() {
 
-                        public Object withHandle(Handle handle) throws Exception
-                        {
-                            return handlers.get(method).invoke(handle, proxy, args);
-                        }
-                    });
-                }
-            };
-            return (T) Proxy.newProxyInstance(sqlObjectType.getClassLoader(), new Class[]{sqlObjectType}, ih);
-        }
-        catch (Exception e) {
-            throw new DBIException(e){};
-        }
+    static class HandleFactory
+    {
+
     }
 
     private static <T> T buildSqlObject(final Class<T> sqlObjectType,
@@ -299,4 +235,5 @@ public class EOD
             return query_return_types.get(0);
         }
     }
+
 }

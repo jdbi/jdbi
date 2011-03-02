@@ -30,7 +30,7 @@ public class TestOnDemandSqlObject extends TestCase
     }
 
 
-    public void testGetHandle() throws Exception
+    public void testAPIWorks() throws Exception
     {
         Spiffy s = EOD.onDemand(dbi, Spiffy.class);
 
@@ -41,8 +41,13 @@ public class TestOnDemandSqlObject extends TestCase
         assertEquals("Bill", bill);
     }
 
+    public void _testTransactionBindsTheHandle() throws Exception
+    {
+        throw new UnsupportedOperationException("Not Yet Implemented!");
+    }
+
     public static interface Spiffy {
-        @SqlUpdate("insert into something (id, name) values (:id, :name")
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
         public void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
