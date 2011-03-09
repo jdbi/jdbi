@@ -23,6 +23,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionStatus;
+import org.skife.jdbi.v2.util.StringMapper;
 
 public class TestMixinInterfaces extends TestCase
 {
@@ -33,7 +34,7 @@ public class TestMixinInterfaces extends TestCase
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
+        ds.setURL("jdbc:h2:mem:test;MVCC=TRUE");
         dbi = new DBI(ds);
         handle = dbi.open();
 
@@ -84,6 +85,43 @@ public class TestMixinInterfaces extends TestCase
         });
 
         assertEquals("Keith", s.getName());
+    }
+
+    public void testTransactionIsolationActuallyHappens() throws Exception
+    {
+        TransactionStuff txl = EOD.attach(handle, TransactionStuff.class);
+        TransactionStuff tx2 = EOD.open(dbi, TransactionStuff.class);
+
+
+        txl.insert(8, "Mike");
+
+        txl.begin();
+
+        txl.updateName(8, "Miker");
+        assertEquals("Miker", txl.byId(8).getName());
+        assertEquals("Mike", tx2.byId(8).getName());
+
+        txl.commit();
+
+        assertEquals("Miker", tx2.byId(8).getName());
+
+        tx2.close();
+    }
+
+    public void testJustJdbiTransactions() throws Exception
+    {
+        Handle h1 = dbi.open();
+        Handle h2 = dbi.open();
+
+        h1.execute("insert into something (id, name) values (8, 'Mike')");
+
+        h1.begin();
+        h1.execute("update something set name = 'Miker' where id = 8");
+
+        assertEquals("Mike", h2.createQuery("select name from something where id = 8").map(StringMapper.FIRST).first());
+        h1.commit();
+        h1.close();
+        h2.close();
     }
 
     public static interface WithGetHandle extends CloseMe, GetHandle
