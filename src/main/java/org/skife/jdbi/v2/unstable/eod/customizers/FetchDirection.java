@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.unstable.eod;
+package org.skife.jdbi.v2.unstable.eod.customizers;
 
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
@@ -13,12 +13,13 @@ import java.sql.SQLException;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
-@Customizer(FetchSize.Factory.class)
-public @interface FetchSize
+@Customizer(FetchDirection.Factory.class)
+public @interface FetchDirection
 {
-    int value() default 0;
+    int value() default Integer.MAX_VALUE;
 
-    static class Factory implements StatementCustomizerFactory {
+    static class Factory implements StatementCustomizerFactory
+    {
         public StatementCustomizer createForParameter(Annotation annotation, Object arg)
         {
             final Integer va = (Integer) arg;
@@ -26,7 +27,7 @@ public @interface FetchSize
 
                 public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
                 {
-                    stmt.setFetchSize(va);
+                    stmt.setFetchDirection(va);
                 }
 
                 public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
@@ -37,12 +38,12 @@ public @interface FetchSize
 
         public StatementCustomizer createForMethod(Annotation annotation)
         {
-            final FetchSize fs = (FetchSize) annotation;
+            final FetchDirection fs = (FetchDirection) annotation;
             return new StatementCustomizer() {
 
                 public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
                 {
-                    stmt.setFetchSize(fs.value());
+                    stmt.setFetchDirection(fs.value());
                 }
 
                 public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
@@ -51,4 +52,6 @@ public @interface FetchSize
             };
         }
     }
+
+
 }

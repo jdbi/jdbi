@@ -21,13 +21,12 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class BaseQueryHandler extends BaseHandler
+abstract class BaseQueryHandler extends CustomizingStatementHandler
 {
     private final List<Bindifier> binders = new ArrayList<Bindifier>();
 

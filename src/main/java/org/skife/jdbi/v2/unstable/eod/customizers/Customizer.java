@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.unstable.eod;
+package org.skife.jdbi.v2.unstable.eod.customizers;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

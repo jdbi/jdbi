@@ -5,6 +5,9 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.unstable.eod.customizers.FetchSize;
+import org.skife.jdbi.v2.unstable.eod.customizers.MaxRows;
+import org.skife.jdbi.v2.unstable.eod.customizers.QueryTimeOut;
 
 import java.util.List;
 
@@ -54,6 +57,50 @@ public class TestModifiers extends TestCase
         assertEquals(3, things.size());
     }
 
+    public void testMaxSizeOnMethod() throws Exception
+    {
+        Spiffy s = EOD.attach(handle, Spiffy.class);
+        s.insert(14, "Tom");
+        s.insert(15, "JFA");
+        s.insert(16, "Sunny");
+
+        List<Something> things = s.findAllWithMaxRows();
+        assertEquals(1, things.size());
+    }
+
+    public void testMaxSizeOnParam() throws Exception
+    {
+        Spiffy s = EOD.attach(handle, Spiffy.class);
+        s.insert(14, "Tom");
+        s.insert(15, "JFA");
+        s.insert(16, "Sunny");
+
+        List<Something> things = s.findAllWithMaxRows(2);
+        assertEquals(2, things.size());
+    }
+
+    public void testQueryTimeOutOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
+    {
+        Spiffy s = EOD.attach(handle, Spiffy.class);
+        s.insert(14, "Tom");
+        s.insert(15, "JFA");
+        s.insert(16, "Sunny");
+
+        List<Something> things = s.findAllWithQueryTimeOut();
+        assertEquals(3, things.size());
+    }
+
+    public void testQueryTimeOutOnParamOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
+    {
+        Spiffy s = EOD.attach(handle, Spiffy.class);
+        s.insert(14, "Tom");
+        s.insert(15, "JFA");
+        s.insert(16, "Sunny");
+
+        List<Something> things = s.findAllWithQueryTimeOut(2);
+        assertEquals(3, things.size());
+    }
+
     public static interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
@@ -65,6 +112,21 @@ public class TestModifiers extends TestCase
         @SqlQuery("select id, name from something")
         @FetchSize(2)
         public List<Something> findAll();
+
+
+        @SqlQuery("select id, name from something")
+        public List<Something> findAllWithMaxRows(@MaxRows(1) int fetchSize);
+
+        @SqlQuery("select id, name from something")
+        @MaxRows(1)
+        public List<Something> findAllWithMaxRows();
+
+        @SqlQuery("select id, name from something")
+        public List<Something> findAllWithQueryTimeOut(@QueryTimeOut(1) int timeOutInSeconds);
+
+        @SqlQuery("select id, name from something")
+        @QueryTimeOut(1)
+        public List<Something> findAllWithQueryTimeOut();
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         public void insert(@Bind("id") long id, @Bind("name") String name);

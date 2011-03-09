@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.unstable.eod;
+package org.skife.jdbi.v2.unstable.eod.customizers;
 
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 

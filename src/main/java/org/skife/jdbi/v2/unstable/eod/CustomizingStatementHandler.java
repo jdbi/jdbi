@@ -3,17 +3,19 @@ package org.skife.jdbi.v2.unstable.eod;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
+import org.skife.jdbi.v2.unstable.eod.customizers.Customizer;
+import org.skife.jdbi.v2.unstable.eod.customizers.StatementCustomizerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class BaseHandler implements Handler
+abstract class CustomizingStatementHandler implements Handler
 {
     private final List<MethodCustomizer> methodCustomizers = new ArrayList<MethodCustomizer>();
     private final List<ParameterCustomizer> paramCustomizers  = new ArrayList<ParameterCustomizer>();
 
-    BaseHandler(ResolvedMethod method)
+    CustomizingStatementHandler(ResolvedMethod method)
     {
         Annotation[] method_annotations = method.getRawMember().getAnnotations();
         for (Annotation method_annotation : method_annotations) {
@@ -54,22 +56,12 @@ abstract class BaseHandler implements Handler
 
     }
 
-    protected List<ParameterCustomizer> getParamCustomizers()
-    {
-        return paramCustomizers;
-    }
-
-    protected List<MethodCustomizer> getMethodCustomizers()
-    {
-        return methodCustomizers;
-    }
-
     protected void applyCustomizers(SQLStatement q, Object[] args) {
-        for (MethodCustomizer customizer : getMethodCustomizers()) {
+        for (MethodCustomizer customizer : methodCustomizers) {
             q.addStatementCustomizer(customizer.build());
         }
 
-        for (ParameterCustomizer customizer : getParamCustomizers()) {
+        for (ParameterCustomizer customizer : paramCustomizers) {
             q.addStatementCustomizer(customizer.build(args[customizer.getIndex()]));
         }
 
