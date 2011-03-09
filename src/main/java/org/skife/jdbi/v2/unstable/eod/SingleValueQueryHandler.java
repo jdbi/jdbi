@@ -4,7 +4,7 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Query;
 
-public class SingleValueQueryHandler extends BaseQueryHandler
+class SingleValueQueryHandler extends BaseQueryHandler
 {
     public SingleValueQueryHandler(ResolvedMethod method)
     {

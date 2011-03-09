@@ -6,7 +6,7 @@ import org.skife.jdbi.v2.Query;
 
 import java.util.List;
 
-public class ListQueryHandler extends BaseQueryHandler
+class ListQueryHandler extends BaseQueryHandler
 {
     public ListQueryHandler(ResolvedMethod method)
     {

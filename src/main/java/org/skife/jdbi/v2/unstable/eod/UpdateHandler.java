@@ -7,7 +7,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateHandler extends CustomizingStatementHandler
+class UpdateHandler extends CustomizingStatementHandler
 {
     final List<Bindifier> binders = new ArrayList<Bindifier>();
     final String sql;

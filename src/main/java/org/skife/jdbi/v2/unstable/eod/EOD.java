@@ -18,13 +18,6 @@ package org.skife.jdbi.v2.unstable.eod;
 
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.exceptions.DBIException;
-import org.skife.jdbi.v2.tweak.HandleCallback;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Map;
 
 /**
  * All methods will be moved onto DBI or Handle when this moves out of unstable.

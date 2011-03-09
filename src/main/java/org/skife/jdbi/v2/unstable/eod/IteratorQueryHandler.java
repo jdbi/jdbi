@@ -8,7 +8,7 @@ import org.skife.jdbi.v2.ResultIterator;
 import java.util.Iterator;
 import java.util.List;
 
-public class IteratorQueryHandler extends BaseQueryHandler
+class IteratorQueryHandler extends BaseQueryHandler
 {
     public IteratorQueryHandler(ResolvedMethod method)
     {

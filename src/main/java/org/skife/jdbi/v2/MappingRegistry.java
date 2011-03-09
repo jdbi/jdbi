@@ -18,7 +18,6 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.v2.unstable.eod.InferredMapperFactory;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

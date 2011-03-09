@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2.unstable.eod;
+package org.skife.jdbi.v2;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
@@ -23,7 +23,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.util.List;
 
-public class InferredMapperFactory implements ResultSetMapperFactory
+class InferredMapperFactory implements ResultSetMapperFactory
 {
     private final static TypeResolver tr = new TypeResolver();
     private final Class maps;
