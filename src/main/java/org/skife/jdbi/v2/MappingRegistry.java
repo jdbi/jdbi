@@ -39,7 +39,7 @@ class MappingRegistry
     }
 
     public MappingRegistry() {
-
+        factories.add(new BuiltInsMapperFactory());
     }
 
     public void add(ResultSetMapper mapper)

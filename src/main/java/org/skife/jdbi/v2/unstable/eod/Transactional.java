@@ -43,64 +43,68 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
 
     static class BeginHandler implements Handler
     {
-        public Object invoke(Handle h, Object target, Object[] args)
+        public Object invoke(HandleDing h, Object target, Object[] args)
         {
-            h.begin();
+            h.retain("transaction");
+            h.getHandle().begin();
             return null;
         }
     }
 
     static class CheckpointHandler implements Handler
     {
-        public Object invoke(Handle h, Object target, Object[] args)
+        public Object invoke(HandleDing h, Object target, Object[] args)
         {
-            h.checkpoint(String.valueOf(args[0]));
+            h.getHandle().checkpoint(String.valueOf(args[0]));
             return null;
         }
     }
 
     static class ReleaseCheckpointHandler implements Handler
     {
-        public Object invoke(Handle h, Object target, Object[] args)
+        public Object invoke(HandleDing h, Object target, Object[] args)
         {
-            h.release(String.valueOf(args[0]));
+            h.getHandle().release(String.valueOf(args[0]));
             return null;
         }
     }
 
     static class RollbackCheckpointHandler implements Handler
     {
-        public Object invoke(Handle h, Object target, Object[] args)
+        public Object invoke(HandleDing h, Object target, Object[] args)
         {
-            h.rollback(String.valueOf(args[0]));
+            h.getHandle().rollback(String.valueOf(args[0]));
             return null;
         }
     }
 
     static class CommitHandler implements Handler
     {
-        public Object invoke(Handle h, Object target, Object[] args)
+        public Object invoke(HandleDing h, Object target, Object[] args)
         {
-            h.commit();
+            h.release("transaction");
+            h.getHandle().commit();
             return null;
         }
     }
 
     static class RollbackHandler implements Handler
     {
-        public Object invoke(Handle h, Object target, Object[] args)
+        public Object invoke(HandleDing h, Object target, Object[] args)
         {
-            h.rollback();
+            h.release("transaction");
+            h.getHandle().rollback();
             return null;
         }
     }
 
     static class InTransactionHandler implements Handler
     {
-        public Object invoke(Handle h, final Object target, Object[] args)
+        public Object invoke(HandleDing h, final Object target, Object[] args)
         {
             final Transaction t = (Transaction) args[0];
-            return h.inTransaction(new TransactionCallback() {
+            return h.getHandle().inTransaction(new TransactionCallback()
+            {
                 public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return t.inTransaction(target, status);

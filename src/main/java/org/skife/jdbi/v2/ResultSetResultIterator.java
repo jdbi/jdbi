@@ -45,11 +45,6 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         this.context = context;
     }
 
-    protected ResultSet getResults()
-    {
-        return results;
-    }
-
     public void close()
     {
         QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
@@ -102,23 +97,6 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
 
     public void remove()
     {
-//        if (!allowDeletes) {
         throw new UnsupportedOperationException("Deleting from a result set iterator is not yet supported");
-//                                                    "in order to call remove()");
-//        }
-//        try
-//        {
-//            if (alreadyAdvanced) {
-//                results.previous();
-//            }
-//            results.deleteRow();
-//            if (alreadyAdvanced) {
-//                results.previous();
-//            }
-//        }
-//        catch (SQLException e)
-//        {
-//            throw new ResultSetException("Unable to delete row from result set", e);
-//        }
     }
 }

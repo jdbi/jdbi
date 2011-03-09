@@ -18,25 +18,26 @@ package org.skife.jdbi.v2.unstable.eod;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
-import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class BaseQueryHandler implements Handler
+abstract class BaseQueryHandler extends BaseHandler
 {
     private final List<Bindifier> binders = new ArrayList<Bindifier>();
 
-    private final String sql;
+    private final String         sql;
     private final ResolvedMethod method;
-    private final MapFunc mapFunc;
+    private final MapFunc        mapFunc;
 
     public BaseQueryHandler(ResolvedMethod method)
     {
+        super(method);
         this.method = method;
         this.sql = method.getRawMember().getAnnotation(SqlQuery.class).value();
 
@@ -44,7 +45,8 @@ abstract class BaseQueryHandler implements Handler
         for (int param_idx = 0; param_idx < param_annotations.length; param_idx++) {
             Annotation[] annotations = param_annotations[param_idx];
             for (Annotation annotation : annotations) {
-                if (Bind.class.isAssignableFrom(annotation.getClass())) {
+                Class<? extends Annotation> anno_class = annotation.annotationType();
+                if (Bind.class.isAssignableFrom(anno_class)) {
                     Bind bind = (Bind) annotation;
                     try {
                         binders.add(new Bindifier(bind, param_idx, bind.binder().newInstance()));
@@ -68,7 +70,9 @@ abstract class BaseQueryHandler implements Handler
                 };
             }
             catch (Exception e) {
-                throw new DBIException("Unable to instantiate declared mapper", e) {};
+                throw new DBIException("Unable to instantiate declared mapper", e)
+                {
+                };
             }
         }
         else {
@@ -82,17 +86,18 @@ abstract class BaseQueryHandler implements Handler
         }
     }
 
-    public Object invoke(Handle h, Object target, Object[] args)
+    public Object invoke(HandleDing h, Object target, Object[] args)
     {
-        Query q = h.createQuery(sql);
+        Query q = h.getHandle().createQuery(sql);
         for (Bindifier binder : binders) {
             binder.bind(q, args);
         }
-        return resultType(mapFunc.map(q));
+        applyCustomizers(q,args);
+        return result(mapFunc.map(q), h);
 
     }
 
-    protected abstract Object resultType(org.skife.jdbi.v2.Query q);
+    protected abstract Object result(Query q, HandleDing baton);
 
     protected abstract ResolvedType mapTo();
 

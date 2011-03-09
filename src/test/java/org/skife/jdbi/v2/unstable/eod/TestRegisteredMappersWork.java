@@ -6,9 +6,9 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 
-public class TestVariousOddities extends TestCase
+public class TestRegisteredMappersWork extends TestCase
 {
-    private DBI dbi;
+    private DBI    dbi;
     private Handle handle;
 
 
@@ -20,7 +20,6 @@ public class TestVariousOddities extends TestCase
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
-
     }
 
     public void tearDown() throws Exception
@@ -29,29 +28,41 @@ public class TestVariousOddities extends TestCase
         handle.close();
     }
 
-    public void testAttach() throws Exception
+    public void testRegistered() throws Exception
     {
-        Spiffy s = EOD.attach(handle, Spiffy.class);
-        s.insert(new Something(14, "Tom"));
+        handle.registerMapper(new SomethingMapper());
 
-        Something tom = s.byId(14);
-        assertEquals("Tom", tom.getName());
+        Spiffy s = EOD.attach(handle, Spiffy.class);
+
+        s.insert(1, "Tatu");
+
+        Something t = s.byId(1);
+        assertEquals(1, t.getId());
+        assertEquals("Tatu", t.getName());
     }
 
-    public void testRegisteredMappersWork() throws Exception
+    public void testBuiltIn() throws Exception
     {
 
+        Spiffy s = EOD.attach(handle, Spiffy.class);
+
+        s.insert(1, "Tatu");
+
+        assertEquals("Tatu", s.findNameBy(1));
     }
 
     public static interface Spiffy extends CloseMe
     {
 
         @SqlQuery("select id, name from something where id = :id")
-        @Mapper(SomethingMapper.class)
         public Something byId(@Bind("id") long id);
 
-        @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
-        public void insert(@Bind(value = "it", binder = SomethingBinder.class) Something it);
+        @SqlQuery("select name from something where id = :id")
+        public String findNameBy(@Bind("id") long id);
+
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        public void insert(@Bind("id") long id, @Bind("name") String name);
     }
+
 
 }
