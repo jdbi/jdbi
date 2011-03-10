@@ -26,7 +26,6 @@ class SqlObject implements InvocationHandler
     static {
         mixinHandlers.putAll(Transactional.Helper.handlers());
         mixinHandlers.putAll(GetHandle.Helper.handlers());
-        mixinHandlers.putAll(CloseInternal.Helper.handlers());
     }
 
     static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)
@@ -80,6 +79,9 @@ class SqlObject implements InvocationHandler
             }
 
         }
+
+        // this is an implicit mixin, not an explicit one, so we need to *always* add it
+        handlers.putAll(CloseInternal.Helper.handlers());
 
         handlersCache.putIfAbsent(sqlObjectType, handlers);
         return handlers;

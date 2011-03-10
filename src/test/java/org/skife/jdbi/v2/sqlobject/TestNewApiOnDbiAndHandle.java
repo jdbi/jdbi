@@ -40,6 +40,7 @@ public class TestNewApiOnDbiAndHandle extends TestCase
         finally {
             dbi.close(spiffy);
         }
+        assertTrue(spiffy.getHandle().getConnection().isClosed());
     }
 
     public void testOnDemandSpiffy() throws Exception
@@ -63,7 +64,7 @@ public class TestNewApiOnDbiAndHandle extends TestCase
     }
 
 
-    static interface Spiffy
+    static interface Spiffy extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
         void insert(@Bind(value = "it", binder = SomethingBinder.class) Something s);
