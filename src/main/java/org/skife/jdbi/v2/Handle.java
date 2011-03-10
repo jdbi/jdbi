@@ -230,5 +230,5 @@ public interface Handle
      * @param <SqlObjectType>
      * @return the new sql object bound to this handle
      */
-    <SqlObjectType> SqlObjectType attachSqlObject(Class<SqlObjectType> sqlObjectType);
+    <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType);
 }

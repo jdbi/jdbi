@@ -73,12 +73,12 @@ public interface IDBI
 
     /**
      * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
-     * sql object (via a close() method, or calling {@link IDBI#closeSqlObject(Object)}
+     * sql object (via a close() method, or calling {@link IDBI#close(Object)}
      * @param sqlObjectType an interface with annotations declaring desired behavior
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    <SqlObjectType> SqlObjectType openSqlObject(Class<SqlObjectType> sqlObjectType);
+    <SqlObjectType> SqlObjectType open(Class<SqlObjectType> sqlObjectType);
 
     /**
      * Create a new sql object which will obtain and release connections from this dbi instance, as it needs to,
@@ -88,11 +88,11 @@ public interface IDBI
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    <SqlObjectType> SqlObjectType createOnDemandSqlObject(Class<SqlObjectType> sqlObjectType);
+    <SqlObjectType> SqlObjectType onDemand(Class<SqlObjectType> sqlObjectType);
 
     /**
      * Used to close a sql object which lacks a close() method.
      * @param sqlObject the sql object to close
      */
-    void closeSqlObject(Object sqlObject);
+    void close(Object sqlObject);
 }

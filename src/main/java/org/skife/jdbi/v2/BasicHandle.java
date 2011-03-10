@@ -345,7 +345,7 @@ class BasicHandle implements Handle
         mappingRegistry.add(factory);
     }
 
-    public <SqlObjectType> SqlObjectType attachSqlObject(Class<SqlObjectType> sqlObjectType)
+    public <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.attach(this, sqlObjectType);
     }

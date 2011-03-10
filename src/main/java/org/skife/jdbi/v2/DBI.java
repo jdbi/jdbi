@@ -283,12 +283,12 @@ public class DBI implements IDBI
 
     /**
      * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
-     * sql object (via a close() method, or calling {@link IDBI#closeSqlObject(Object)}
+     * sql object (via a close() method, or calling {@link IDBI#close(Object)}
      * @param sqlObjectType an interface with annotations declaring desired behavior
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    public <SqlObjectType> SqlObjectType openSqlObject(Class<SqlObjectType> sqlObjectType)
+    public <SqlObjectType> SqlObjectType open(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.open(this, sqlObjectType);
     }
@@ -301,7 +301,7 @@ public class DBI implements IDBI
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    public <SqlObjectType> SqlObjectType createOnDemandSqlObject(Class<SqlObjectType> sqlObjectType)
+    public <SqlObjectType> SqlObjectType onDemand(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.onDemand(this, sqlObjectType);
     }
@@ -310,9 +310,16 @@ public class DBI implements IDBI
      * Used to close a sql object which lacks a close() method.
      * @param sqlObject the sql object to close
      */
-    public void closeSqlObject(Object sqlObject)
+    public void close(Object sqlObject)
     {
-        SqlObjectBuilder.close(sqlObject);
+        if (sqlObject instanceof Handle) {
+            // just because someone is *sure* to do it
+            Handle h = (Handle) sqlObject;
+            h.close();
+        }
+        else {
+            SqlObjectBuilder.close(sqlObject);
+        }
     }
 
     /**
