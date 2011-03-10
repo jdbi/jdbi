@@ -3,6 +3,7 @@ package org.skife.jdbi.v2.sqlobject;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.sqlobject.binders.BinderFactory;
+import org.skife.jdbi.v2.sqlobject.binders.BindingAnnotation;
 import org.skife.jdbi.v2.sqlobject.customizers.CustomizerAnnotation;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.sqlobject.customizers.StatementCustomizerFactory;

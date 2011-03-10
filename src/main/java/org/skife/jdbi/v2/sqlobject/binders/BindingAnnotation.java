@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.sqlobject;
+package org.skife.jdbi.v2.sqlobject.binders;
 
 import org.skife.jdbi.v2.sqlobject.binders.BinderFactory;
 

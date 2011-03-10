@@ -1,7 +1,6 @@
 package org.skife.jdbi.v2.sqlobject.binders;
 
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.BindingAnnotation;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;

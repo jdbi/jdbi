@@ -16,8 +16,6 @@
 
 package org.skife.jdbi.v2.sqlobject.binders;
 
-import org.skife.jdbi.v2.sqlobject.BindingAnnotation;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
