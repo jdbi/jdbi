@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
-@Customizer(FetchSize.Factory.class)
+@CustomizerAnnotation(FetchSize.Factory.class)
 public @interface FetchSize
 {
     int value() default 0;

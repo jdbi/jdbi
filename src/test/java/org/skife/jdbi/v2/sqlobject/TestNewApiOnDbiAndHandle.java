@@ -5,6 +5,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.sqlobject.binders.Bind;
 
 public class TestNewApiOnDbiAndHandle extends TestCase
 {
@@ -67,7 +68,7 @@ public class TestNewApiOnDbiAndHandle extends TestCase
     static interface Spiffy extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
-        void insert(@Bind(value = "it", binder = SomethingBinder.class) Something s);
+        void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something s);
 
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind("id") int id);

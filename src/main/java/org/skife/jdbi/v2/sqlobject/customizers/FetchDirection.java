@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
-@Customizer(FetchDirection.Factory.class)
+@CustomizerAnnotation(FetchDirection.Factory.class)
 public @interface FetchDirection
 {
     int value() default Integer.MAX_VALUE;

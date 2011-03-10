@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
-@Customizer(QueryTimeOut.Factory.class)
+@CustomizerAnnotation(QueryTimeOut.Factory.class)
 public @interface QueryTimeOut
 {
     int value() default Integer.MAX_VALUE;

@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2.sqlobject;
+package org.skife.jdbi.v2.sqlobject.binders;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.skife.jdbi.v2.SQLStatement;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER})
-public @interface Bind
+import java.lang.annotation.Annotation;
+
+class DefaultObjectBinder implements Binder<Bind, Object>
 {
-    String value();
+    public void bind(SQLStatement q, Bind b, Object arg)
+    {
+        q.bind(b.value(), arg);
+    }
 
-    Class<? extends Binder> binder() default DefaultObjectBinder.class;
 }

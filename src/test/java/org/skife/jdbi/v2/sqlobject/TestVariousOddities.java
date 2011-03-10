@@ -5,6 +5,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.sqlobject.binders.Bind;
 
 public class TestVariousOddities extends TestCase
 {
@@ -51,7 +52,7 @@ public class TestVariousOddities extends TestCase
         public Something byId(@Bind("id") long id);
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
-        public void insert(@Bind(value = "it", binder = SomethingBinder.class) Something it);
+        public void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
     }
 
 }

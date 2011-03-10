@@ -28,8 +28,6 @@ import java.util.List;
 
 abstract class BaseQueryHandler extends CustomizingStatementHandler
 {
-    private final List<Bindifier> binders = new ArrayList<Bindifier>();
-
     private final String         sql;
     private final ResolvedMethod method;
     private final MapFunc        mapFunc;
@@ -39,23 +37,6 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
         super(method);
         this.method = method;
         this.sql = method.getRawMember().getAnnotation(SqlQuery.class).value();
-
-        Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
-        for (int param_idx = 0; param_idx < param_annotations.length; param_idx++) {
-            Annotation[] annotations = param_annotations[param_idx];
-            for (Annotation annotation : annotations) {
-                Class<? extends Annotation> anno_class = annotation.annotationType();
-                if (Bind.class.isAssignableFrom(anno_class)) {
-                    Bind bind = (Bind) annotation;
-                    try {
-                        binders.add(new Bindifier(bind, param_idx, bind.binder().newInstance()));
-                    }
-                    catch (Exception e) {
-                        throw new IllegalStateException("unable to instantiate specified binder", e);
-                    }
-                }
-            }
-        }
 
         if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
             try {
@@ -88,9 +69,7 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
     public Object invoke(HandleDing h, Object target, Object[] args)
     {
         Query q = h.getHandle().createQuery(sql);
-        for (Bindifier binder : binders) {
-            binder.bind(q, args);
-        }
+        applyBinders(q, args);
         applyCustomizers(q,args);
         return result(mapFunc.map(q), h);
 

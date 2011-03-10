@@ -17,22 +17,25 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.sqlobject.binders.Binder;
+
+import java.lang.annotation.Annotation;
 
 class Bindifier
 {
-    private final Bind   bind;
     private final int    param_idx;
     private final Binder binder;
+    private final Annotation annotation;
 
-    Bindifier(Bind bind, int param_idx, Binder binder)
+    Bindifier(Annotation bind, int param_idx, Binder binder)
     {
-        this.bind = bind;
+        this.annotation = bind;
         this.param_idx = param_idx;
         this.binder = binder;
     }
 
     void bind(SQLStatement q, Object[] args)
     {
-        binder.bind(q, bind, args[param_idx]);
+        binder.bind(q, annotation, args[param_idx]);
     }
 }

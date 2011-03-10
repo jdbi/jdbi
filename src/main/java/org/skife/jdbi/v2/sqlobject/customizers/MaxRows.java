@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
-@Customizer(MaxRows.Factory.class)
+@CustomizerAnnotation(MaxRows.Factory.class)
 public @interface MaxRows
 {
     int value() default Integer.MAX_VALUE;

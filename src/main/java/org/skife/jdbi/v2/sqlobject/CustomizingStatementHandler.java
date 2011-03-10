@@ -2,8 +2,9 @@ package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.sqlobject.binders.BinderFactory;
+import org.skife.jdbi.v2.sqlobject.customizers.CustomizerAnnotation;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.customizers.Customizer;
 import org.skife.jdbi.v2.sqlobject.customizers.StatementCustomizerFactory;
 
 import java.lang.annotation.Annotation;
@@ -14,14 +15,16 @@ abstract class CustomizingStatementHandler implements Handler
 {
     private final List<MethodCustomizer> methodCustomizers = new ArrayList<MethodCustomizer>();
     private final List<ParameterCustomizer> paramCustomizers  = new ArrayList<ParameterCustomizer>();
+    private final List<Bindifier> binders = new ArrayList<Bindifier>();
+
 
     CustomizingStatementHandler(ResolvedMethod method)
     {
         Annotation[] method_annotations = method.getRawMember().getAnnotations();
         for (Annotation method_annotation : method_annotations) {
             Class<? extends Annotation> m_anno_class = method_annotation.annotationType();
-            if (m_anno_class.isAnnotationPresent(Customizer.class)) {
-                Customizer c = m_anno_class.getAnnotation(Customizer.class);
+            if (m_anno_class.isAnnotationPresent(CustomizerAnnotation.class)) {
+                CustomizerAnnotation c = m_anno_class.getAnnotation(CustomizerAnnotation.class);
                 try {
                     StatementCustomizerFactory fact = c.value().newInstance();
                     methodCustomizers.add(new MethodCustomizer(fact, method_annotation));
@@ -38,9 +41,24 @@ abstract class CustomizingStatementHandler implements Handler
             for (Annotation annotation : annotations) {
                 Class<? extends Annotation> anno_class = annotation.annotationType();
 
-                if (anno_class.isAnnotationPresent(Customizer.class)) {
+
+                if (anno_class.isAnnotationPresent(BindingAnnotation.class)) {
+                    // we have a binder
+                    BindingAnnotation ba = annotation.annotationType().getAnnotation(BindingAnnotation.class);
+                    try {
+                        BinderFactory fact = ba.value().newInstance();
+                        binders.add(new Bindifier(annotation, param_idx, fact.build(annotation)));
+
+                    }
+                    catch (Exception e) {
+                        throw new IllegalStateException("unable to instantiate cusotmizer", e);
+                    }
+                }
+
+
+                if (anno_class.isAnnotationPresent(CustomizerAnnotation.class)) {
                     // we have a customizer annotation on one of the parameters
-                    Customizer ca = annotation.annotationType().getAnnotation(Customizer.class);
+                    CustomizerAnnotation ca = annotation.annotationType().getAnnotation(CustomizerAnnotation.class);
                     try {
                         StatementCustomizerFactory fact = ca.value().newInstance();
                         paramCustomizers.add(new ParameterCustomizer(annotation, fact, param_idx));
@@ -54,6 +72,12 @@ abstract class CustomizingStatementHandler implements Handler
         }
 
 
+    }
+
+    protected void applyBinders(SQLStatement q, Object[] args) {
+        for (Bindifier binder : binders) {
+            binder.bind(q, args);
+        }
     }
 
     protected void applyCustomizers(SQLStatement q, Object[] args) {

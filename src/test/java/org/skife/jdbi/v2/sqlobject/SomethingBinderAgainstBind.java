@@ -18,8 +18,12 @@ package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.sqlobject.binders.Bind;
+import org.skife.jdbi.v2.sqlobject.binders.Binder;
 
-public class SomethingBinder implements Binder<Something>
+import java.lang.annotation.Annotation;
+
+public class SomethingBinderAgainstBind implements Binder<Bind, Something>
 {
     public void bind(SQLStatement q, Bind bind, Something it)
     {
