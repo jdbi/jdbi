@@ -7,8 +7,8 @@ Handle instances, each of which represents a connection to the RDBMS. A Handle
 wraps a JDBC Connection instance, and makes use of that same Connection for all
 of its operations.
 
-Generally, you will explicitely create statements, queries, and batch
-operations for working with data in the database. Seperate objects are used to
+Generally, you will explicitly create statements, queries, and batch
+operations for working with data in the database. Separate objects are used to
 represent these things, and they are designed to be used in a somewhat
 literate-programming style. Here is an example:
 
@@ -20,4 +20,4 @@ literate-programming style. Here is an example:
   List<Something> rs = query.list();
   handle.close();
 
-
+There is a mailing list at http://groups.google.com/group/jdbi
