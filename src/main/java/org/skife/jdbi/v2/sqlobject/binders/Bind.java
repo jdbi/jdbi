@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 @BindingAnnotation(Bind.Factory.class)
 public @interface Bind
 {
-    String value();
+    String value() default "it";
 
     Class<? extends Binder> binder() default DefaultObjectBinder.class;
 

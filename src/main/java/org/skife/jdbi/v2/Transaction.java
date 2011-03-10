@@ -30,5 +30,5 @@ public interface Transaction<ReturnType, ConnectionType>
      * @return Something to return from {@link Handle#inTransaction(TransactionCallback<ReturnType>)}
      * @throws Exception will cause the transaction be aborted
      */
-    public ReturnType inTransaction(ConnectionType conn, TransactionStatus status) throws Exception;
+    public ReturnType inTransaction(ConnectionType transactional, TransactionStatus status) throws Exception;
 }

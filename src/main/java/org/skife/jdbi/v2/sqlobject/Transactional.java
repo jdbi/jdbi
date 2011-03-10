@@ -102,14 +102,20 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
     {
         public Object invoke(HandleDing h, final Object target, Object[] args)
         {
-            final Transaction t = (Transaction) args[0];
-            return h.getHandle().inTransaction(new TransactionCallback()
-            {
-                public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
+            h.retain("transaction");
+            try {
+                final Transaction t = (Transaction) args[0];
+                return h.getHandle().inTransaction(new TransactionCallback()
                 {
-                    return t.inTransaction(target, status);
-                }
-            });
+                    public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
+                    {
+                        return t.inTransaction(target, status);
+                    }
+                });
+            }
+            finally {
+                h.release("transaction");
+            }
         }
     }
 
