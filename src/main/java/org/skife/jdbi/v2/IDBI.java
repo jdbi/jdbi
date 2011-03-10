@@ -71,4 +71,28 @@ public interface IDBI
      */
     <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws CallbackFailedException;
 
+    /**
+     * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
+     * sql object (via a close() method, or calling {@link IDBI#closeSqlObject(Object)}
+     * @param sqlObjectType an interface with annotations declaring desired behavior
+     * @param <SqlObjectType>
+     * @return a new sql object of the specified type, with a dedicated handle
+     */
+    <SqlObjectType> SqlObjectType openSqlObject(Class<SqlObjectType> sqlObjectType);
+
+    /**
+     * Create a new sql object which will obtain and release connections from this dbi instance, as it needs to,
+     * and can, respectively. You should not explicitely close this sql object
+     *
+     * @param sqlObjectType an interface with annotations declaring desired behavior
+     * @param <SqlObjectType>
+     * @return a new sql object of the specified type, with a dedicated handle
+     */
+    <SqlObjectType> SqlObjectType createOnDemandSqlObject(Class<SqlObjectType> sqlObjectType);
+
+    /**
+     * Used to close a sql object which lacks a close() method.
+     * @param sqlObject the sql object to close
+     */
+    void closeSqlObject(Object sqlObject);
 }

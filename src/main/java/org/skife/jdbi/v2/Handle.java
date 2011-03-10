@@ -221,4 +221,14 @@ public interface Handle
      * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
      */
     public void registerMapper(ResultSetMapperFactory factory);
+
+    /**
+     * Create a a sql object of the specified type bound to this handle. Any state changes to the handle, or the
+     * sql object, such as transaction status, closing it, etc, will apply to both the object and the handle.
+     *
+     * @param sqlObjectType
+     * @param <SqlObjectType>
+     * @return the new sql object bound to this handle
+     */
+    <SqlObjectType> SqlObjectType attachSqlObject(Class<SqlObjectType> sqlObjectType);
 }

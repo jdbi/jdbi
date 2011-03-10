@@ -28,6 +28,7 @@ import javax.sql.DataSource;
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.logging.NoOpLog;
+import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -278,6 +279,40 @@ public class DBI implements IDBI
                 return handle.inTransaction(callback);
             }
         });
+    }
+
+    /**
+     * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
+     * sql object (via a close() method, or calling {@link IDBI#closeSqlObject(Object)}
+     * @param sqlObjectType an interface with annotations declaring desired behavior
+     * @param <SqlObjectType>
+     * @return a new sql object of the specified type, with a dedicated handle
+     */
+    public <SqlObjectType> SqlObjectType openSqlObject(Class<SqlObjectType> sqlObjectType)
+    {
+        return SqlObjectBuilder.open(this, sqlObjectType);
+    }
+
+    /**
+     * Create a new sql object which will obtain and release connections from this dbi instance, as it needs to,
+     * and can, respectively. You should not explicitely close this sql object
+     *
+     * @param sqlObjectType an interface with annotations declaring desired behavior
+     * @param <SqlObjectType>
+     * @return a new sql object of the specified type, with a dedicated handle
+     */
+    public <SqlObjectType> SqlObjectType createOnDemandSqlObject(Class<SqlObjectType> sqlObjectType)
+    {
+        return SqlObjectBuilder.onDemand(this, sqlObjectType);
+    }
+
+    /**
+     * Used to close a sql object which lacks a close() method.
+     * @param sqlObject the sql object to close
+     */
+    public void closeSqlObject(Object sqlObject)
+    {
+        SqlObjectBuilder.close(sqlObject);
     }
 
     /**

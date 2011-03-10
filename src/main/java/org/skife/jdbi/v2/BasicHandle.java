@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
+import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -342,5 +343,10 @@ class BasicHandle implements Handle
 
     public void registerMapper(ResultSetMapperFactory factory) {
         mappingRegistry.add(factory);
+    }
+
+    public <SqlObjectType> SqlObjectType attachSqlObject(Class<SqlObjectType> sqlObjectType)
+    {
+        return SqlObjectBuilder.attach(this, sqlObjectType);
     }
 }
