@@ -47,7 +47,7 @@ public class TestOnDemandSqlObject extends TestCase
         assertEquals("Bill", bill);
     }
 
-    public void _testTransactionBindsTheHandle() throws Exception
+    public void testTransactionBindsTheHandle() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.onDemand(dbi, TransactionStuff.class);
         TransactionStuff tx2 = SqlObjectBuilder.onDemand(dbi, TransactionStuff.class);
