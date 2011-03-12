@@ -70,6 +70,10 @@ public class SqlObjectBuilder
         return SqlObject.buildSqlObject(sqlObjectType, new OnDemandHandleDing(dbi));
     }
 
+    /**
+     * Used to close a sql object which lacks a close() method.
+     * @param sqlObject the sql object to close
+     */
     public static void close(Object sqlObject)
     {
         SqlObject.close(sqlObject);
