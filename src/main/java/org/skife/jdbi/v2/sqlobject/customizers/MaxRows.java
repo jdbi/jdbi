@@ -11,12 +11,19 @@ import java.lang.annotation.Target;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Used to specify the maximum numb er of rows to return on a result set. Passes through to
+ * setMaxRows on the JDBC prepared statement.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 @CustomizerAnnotation(MaxRows.Factory.class)
 public @interface MaxRows
 {
-    int value() default Integer.MAX_VALUE;
+    /**
+     * The max number of rows to return from the query.
+     */
+    int value();
 
     static class Factory implements StatementCustomizerFactory
     {

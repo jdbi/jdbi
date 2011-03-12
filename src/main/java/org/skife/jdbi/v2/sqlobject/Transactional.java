@@ -25,6 +25,11 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A mixin interface to expose transaction methods on the sql object.
+ *
+ * @param <SelfType> must match the interface that is extending this one.
+ */
 public interface Transactional<SelfType extends Transactional<SelfType>>
 {
     public void begin();
@@ -40,6 +45,8 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
     public void rollback(String name);
 
     public <ReturnType> ReturnType inTransaction(Transaction<ReturnType, SelfType> func);
+
+
 
     static class BeginHandler implements Handler
     {

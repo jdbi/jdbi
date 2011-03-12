@@ -20,32 +20,50 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
 /**
- * All methods will be moved onto DBI or Handle when this moves out of unstable.
+ * This duplicates the API on {@link DBI} and {@link Handle} for creating sql objects. While it is fine to use these
+ * methods to create sql objects, there is no real difference between them and the oones on DBI and Handle.
  */
 public class SqlObjectBuilder
 {
+
+    /**
+     * Create a a sql object of the specified type bound to this handle. Any state changes to the handle, or the
+     * sql object, such as transaction status, closing it, etc, will apply to both the object and the handle.
+     *
+     * @param handle the Handle instance to attach ths sql object to
+     * @param sqlObjectType
+     * @param <SqlObjectType>
+     * @return the new sql object bound to this handle
+     */
     public static <T> T attach(Handle handle, Class<T> sqlObjectType)
     {
         return SqlObject.buildSqlObject(sqlObjectType, new FixedHandleDing(handle));
     }
 
+    /**
+     * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
+     * sql object (via a close() method, or calling {@link org.skife.jdbi.v2.IDBI#close(Object)}
+     *
+     * @param dbi             the dbi to be used for opening the underlying handle
+     * @param sqlObjectType   an interface with annotations declaring desired behavior
+     * @param <SqlObjectType>
+     *
+     * @return a new sql object of the specified type, with a dedicated handle
+     */
     public static <T> T open(DBI dbi, Class<T> sqlObjectType)
     {
         return SqlObject.buildSqlObject(sqlObjectType, new FixedHandleDing(dbi.open()));
     }
 
     /**
-     * Creating a sql object via this method will cause it to obtain a database connection when it is needed, and
-     * release it as soon as it is able to. This means to two calls, back to back, will cause the sql object to obtain
-     * a database connection separately for each one.
-     * <p/>
-     * In the case of a transaction, via {@link Transactional}, the database connection which started the
-     * transaction will be held until the transaction is completed.
+     * Create a new sql object which will obtain and release connections from this dbi instance, as it needs to,
+     * and can, respectively. You should not explicitely close this sql object
      *
-     * @param dbi           source of database connections
-     * @param sqlObjectType the type of sql object to instantiate
+     * @param dbi the DBI instance to be used for obtaining connections when they are required
+     * @param sqlObjectType   an interface with annotations declaring desired behavior
+     * @param <SqlObjectType>
      *
-     * @return an on-demand sql object
+     * @return a new sql object of the specified type, with a dedicated handle
      */
     public static <T> T onDemand(final DBI dbi, final Class<T> sqlObjectType)
     {

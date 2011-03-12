@@ -11,12 +11,18 @@ import java.lang.annotation.Target;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Used to specify the fetch direction, per JDBC, of a result set.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 @CustomizerAnnotation(FetchDirection.Factory.class)
 public @interface FetchDirection
 {
-    int value() default Integer.MAX_VALUE;
+    /**
+     * Set to a value valid for fetch direction on the jdc statement
+     */
+    int value();
 
     static class Factory implements StatementCustomizerFactory
     {

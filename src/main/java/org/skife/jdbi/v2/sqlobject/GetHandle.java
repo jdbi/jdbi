@@ -22,6 +22,9 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A mixin interface to define a method for obtaining the Handle attached to a sql object
+ */
 public interface GetHandle
 {
     public Handle getHandle();

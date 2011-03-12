@@ -18,11 +18,20 @@ package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
+/**
+ * Used to specify specific result set mapper on a query method.
+ */
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
 public @interface Mapper
 {
+    /**
+     * The class implementing {@link ResultSetMapper}. It must have constructor
+     */
     Class<? extends ResultSetMapper> value();
 }

@@ -17,9 +17,12 @@
 package org.skife.jdbi.v2.sqlobject;
 
 /**
- * Do not implement this yourself
+ * A convenience mixin interface which defines the close() method.
  */
 public interface CloseMe
 {
+    /**
+     * Close the underlying handle on the sql object
+     */
     public void close();
 }
