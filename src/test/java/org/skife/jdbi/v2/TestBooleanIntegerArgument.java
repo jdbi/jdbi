@@ -3,10 +3,12 @@ package org.skife.jdbi.v2;
 import java.sql.PreparedStatement;
 
 import org.easymock.classextension.EasyMock;
+import org.junit.Test;
 import org.skife.jdbi.v2.tweak.Argument;
 
 public class TestBooleanIntegerArgument {
 
+    @Test
     public void testTrue() throws Exception {
 
         PreparedStatement mockStmt = EasyMock.createMock(PreparedStatement.class);
@@ -21,6 +23,7 @@ public class TestBooleanIntegerArgument {
         EasyMock.verify(mockStmt);
     }
 
+    @Test
     public void testFalse() throws Exception {
 
         PreparedStatement mockStmt = EasyMock.createMock(PreparedStatement.class);

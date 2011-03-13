@@ -1,0 +1,36 @@
+<html>
+    <h1>SQL Objects</h1>
+    <p>
+        The sql objects API allows for declarative definition of interfaces which will handle
+        the generation of sql statements and queries on your behalf when needed. Take the following interface:
+    </p>
+    <code>
+        public interface TheBasics
+        {
+            @SqlUpdate("insert into something (id, name) values (:id, :name)")
+            int insert(@BindBean Something something);
+
+            @SqlQuery("select id, name from something where id = :id")
+            Something findById(@Bind("id") long id);
+        }
+    </code>
+    <p>
+        You obtain an instance of <code>TheBasics</code> via one of three means, the first opens a new
+        handle against a DBI instance, the second attaches the object to an already open handle, and the third
+        will obtain and release connections on demand against a DBI instance.
+    </p>
+    <code>
+        DBI dbi = new DBI(dataSource);
+        Handle handle = dbi.open();
+
+        TheBasics via_open = dbi.open(TheBasics.class);
+        TheBasics attached = handle.attach(TheBasics.class);
+        TheBasics on_demand = dbi.onDemand(TheBasics.class);
+    </code>
+
+    <h1>Closing Objects</h1>
+
+    <h1>Mixin Interfaces</h1>
+
+
+</html>
