@@ -27,6 +27,9 @@ import java.util.Map;
  */
 public interface GetHandle
 {
+    /**
+     * Obtain the handle associated this sql object
+     */
     public Handle getHandle();
 
     static class GetHandleHandler implements Handler
