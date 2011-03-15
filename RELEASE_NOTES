@@ -1,6 +1,9 @@
-2.11
+2.12
   - Registered Mappers on DBi and Handle, and the Query#mapTo addition
   - Sql Object API
+
+2.11
+  - Botched release attempt with Maven 3
 
 2.10.2
   - Bugfix: Allow escaping of arbitrary characters in the SQL source, especially allow
