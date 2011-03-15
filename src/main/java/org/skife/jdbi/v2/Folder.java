@@ -36,8 +36,7 @@ public interface Folder<AccumulatorType>
      *           correct row. Callbacks should not call {@link java.sql.ResultSet#next()}
      * @return A value which will be passed to the next invocation of this function. The final
      *         invocation will be returned from the {@link org.skife.jdbi.v2.Query#fold(Object, Folder)} call.
-     * @throws SQLException will be wrapped and rethrown as a
-               {@link org.skife.jdbi.v2.exceptions.CallbackFailedException
+     * @throws SQLException will be wrapped and rethrown as a {@link org.skife.jdbi.v2.exceptions.CallbackFailedException}
      */
     AccumulatorType fold(AccumulatorType accumulator, ResultSet rs) throws SQLException;
 }

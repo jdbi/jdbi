@@ -31,8 +31,7 @@ public class SqlObjectBuilder
      * sql object, such as transaction status, closing it, etc, will apply to both the object and the handle.
      *
      * @param handle the Handle instance to attach ths sql object to
-     * @param sqlObjectType
-     * @param <SqlObjectType>
+     * @param sqlObjectType the type of sql object to create
      * @return the new sql object bound to this handle
      */
     public static <T> T attach(Handle handle, Class<T> sqlObjectType)
@@ -46,7 +45,6 @@ public class SqlObjectBuilder
      *
      * @param dbi             the dbi to be used for opening the underlying handle
      * @param sqlObjectType   an interface with annotations declaring desired behavior
-     * @param <SqlObjectType>
      *
      * @return a new sql object of the specified type, with a dedicated handle
      */
@@ -61,7 +59,6 @@ public class SqlObjectBuilder
      *
      * @param dbi the DBI instance to be used for obtaining connections when they are required
      * @param sqlObjectType   an interface with annotations declaring desired behavior
-     * @param <SqlObjectType>
      *
      * @return a new sql object of the specified type, with a dedicated handle
      */

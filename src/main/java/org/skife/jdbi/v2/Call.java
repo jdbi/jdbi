@@ -55,9 +55,6 @@ public class Call extends SQLStatement<Call>
 
 	/**
 	 * Register output parameter
-	 * @param position
-	 * @param sqlType
-	 * @return
 	 */
 	public Call registerOutParameter(int position, int sqlType)
 	{
@@ -72,9 +69,6 @@ public class Call extends SQLStatement<Call>
 
 	/**
 	 * Register output parameter
-	 * @param name
-	 * @param sqlType
-	 * @return
 	 */
 	public Call registerOutParameter(String name, int sqlType)
 	{
@@ -89,7 +83,6 @@ public class Call extends SQLStatement<Call>
 
 	/**
 	 * Invoke the callable statement
-	 * @return
 	 */
 	public OutParameters invoke()
 	{

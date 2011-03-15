@@ -118,7 +118,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     /**
      * Adds all key/value pairs in the Map to the {@link StatementContext}.
      *
-     * @param map containing key/value pairs.
+     * @param values containing key/value pairs.
      * @return this
      */
     @SuppressWarnings("unchecked")
@@ -195,7 +195,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 
     /**
      * The un-translated SQL used to create this statement
-     * @return
      */
     protected String getSql()
     {

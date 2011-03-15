@@ -23,11 +23,11 @@ public interface Transaction<ReturnType, ConnectionType>
      * is thrown
      * <p>
      * If the transaction fails a {@link org.skife.jdbi.v2.exceptions.TransactionFailedException}
-     * will be thrown from the {@link Handle#inTransaction(TransactionCallback<ReturnType>)}
+     * will be thrown from the {@link Handle#inTransaction(TransactionCallback)}
      *
-     * @param conn The object communicating with the database.
+     * @param transactional The object communicating with the database.
      * @param status a handle on the transaction, kind of
-     * @return Something to return from {@link Handle#inTransaction(TransactionCallback<ReturnType>)}
+     * @return Something to return from {@link Handle#inTransaction(TransactionCallback)}
      * @throws Exception will cause the transaction be aborted
      */
     public ReturnType inTransaction(ConnectionType transactional, TransactionStatus status) throws Exception;

@@ -82,7 +82,7 @@ public class PreparedBatch
     /**
      * Adds all key/value pairs in the Map to the {@link StatementContext}.
      *
-     * @param map containing key/value pairs.
+     * @param values containing key/value pairs.
      * @return this
      */
     public PreparedBatch define(final Map<String, ? extends Object> values)

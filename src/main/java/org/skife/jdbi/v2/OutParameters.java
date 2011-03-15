@@ -57,7 +57,6 @@ public class OutParameters
      * object obtained should have been created with {@link org.skife.jdbi.v2.CallableStatementMapper}
      *
      * @param position The out parameter name
-     * @param type The java type to obtain
      * @return the output of name as type T
      */
     public Object getObject(int position) {

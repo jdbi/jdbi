@@ -30,7 +30,7 @@ public abstract class BaseResultSetMapper<ResultType> implements ResultSetMapper
     private static final DefaultMapper mapper = new DefaultMapper();
 
     /**
-     * Defers to {@link BaseResultSetMapper#mapInternal(int, java.util.Map<java.lang.String,java.lang.Object>)}
+     * Defers to mapInternal
      */
     public final ResultType map(int index, ResultSet r, StatementContext ctx)
     {

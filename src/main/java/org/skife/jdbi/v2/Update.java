@@ -64,7 +64,7 @@ public class Update extends SQLStatement<Update>
     /**
      * Execute the statement and returns any auto-generated keys. This requires the JDBC driver to support
      * the {@link Statement#getGeneratedKeys()} method.
-     * @param the mapper to generate the resulting key object
+     * @param mapper the mapper to generate the resulting key object
      * @return the generated key or null if none was returned
      */
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper)

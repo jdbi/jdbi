@@ -83,7 +83,6 @@ public interface SQLLog
 
     /**
      * Called when a transaction checkpoint is rolled back to
-     * @param name the checkpoint name
      */
     void logRollbackToCheckpoint(long time, Handle h, String checkpointName);
 

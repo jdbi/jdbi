@@ -73,7 +73,7 @@ public interface Handle
 
     /**
      * Rollback a transaction to a named checkpoint
-     * @param checkpointName the name of the checkpoint, previously declared with {@see Handle#checkpoint}
+     * @param checkpointName the name of the checkpoint, previously declared with {@link Handle#checkpoint}
      */
     Handle rollback(String checkpointName);
 

@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * A StringTemplateGroupLoader, appropriate for use with
- * {@see StringTemplateStatementLocator} which loads string template groups from the
+ * {@link StringTemplateStatementLocator} which loads string template groups from the
  * classpath. It is essentially similar to the <code>CommonGroupLoader</code> in
  * StringTemplate except that it allows mor control over the template lexing, and accepts
  * root paths differently.
@@ -40,7 +40,7 @@ public class ClasspathGroupLoader implements StringTemplateGroupLoader
 {
     /**
      * A great deal of this class was  taken from PathGroupLoader in StringTemplate,
-     * it makes osme bad assumptions though, so CommonGroupLoader is reimplemented here
+     * it makes some bad assumptions though, so CommonGroupLoader is reimplemented here
      */
 
     private String fileCharEncoding = System.getProperty("file.encoding");

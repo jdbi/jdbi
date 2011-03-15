@@ -22,7 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Used with a {@link org.skife.jdbi.v2.Query#map(ResultSetMapper<T>)} call to specify
+ * Used with a {@link org.skife.jdbi.v2.Query#map(ResultSetMapper)} call to specify
  * what to do with each row of a result set
  */
 public interface ResultSetMapper<T>

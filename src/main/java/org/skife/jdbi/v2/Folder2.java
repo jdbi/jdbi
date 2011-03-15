@@ -34,8 +34,7 @@ public interface Folder2<AccumulatorType>
      * @param ctx The statement context for execution
      * @return A value which will be passed to the next invocation of this function. The final
      *         invocation will be returned from the {@link org.skife.jdbi.v2.Query#fold(Object, Folder)} call.
-     * @throws java.sql.SQLException will be wrapped and rethrown as a
-               {@link org.skife.jdbi.v2.exceptions.CallbackFailedException
+     * @throws java.sql.SQLException will be wrapped and rethrown as a {@link org.skife.jdbi.v2.exceptions.CallbackFailedException}
      */
     AccumulatorType fold(AccumulatorType accumulator, ResultSet rs, StatementContext ctx) throws SQLException;
 
