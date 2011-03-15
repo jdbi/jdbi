@@ -1,11 +1,15 @@
+2.11
+  - Registered Mappers and the Handle#mapTo addition
+  - Sql Object API
+
 2.10.2
-  - Bugfix: Allow escaping of arbitrary characters in the SQL source, especially allow 
-            escaping of ':' (which is needed for postgres type casts
-   
+  - Bugfix: Allow escaping of arbitrary characters in the SQL source, especially allow
+            escaping of ':' (which is needed for postgres type casts)
+
 2.10.0
   - minor code cleanups to reduce number of warnings
   - Expose NamedArgumentFinder to allow custom lookup of Arguments. JDBI already provides
-    two implementations of the Interface, one for Maps and one for BeanProperties. 
+    two implementations of the Interface, one for Maps and one for BeanProperties.
   - Add ability to set query timeout (in seconds) on SQLStatement
 
 2.9.3
@@ -13,7 +17,7 @@
 
 2.9.2
   - Add ` as a legal SQL character in colon prefix grammar
-  - non-existant release, fighting maven
+  - non-existent release, fighting maven
 
 2.9.1
   - First 2.9 series release
