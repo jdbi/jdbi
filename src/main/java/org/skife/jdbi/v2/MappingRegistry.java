@@ -52,7 +52,7 @@ class MappingRegistry
         cache.clear();
     }
 
-    public ResultSetMapper mapperFor(Class type) {
+    public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
         if (cache.containsKey(type)) {
             ResultSetMapper mapper = cache.get(type);
             if (mapper != null) {
@@ -61,8 +61,8 @@ class MappingRegistry
         }
 
         for (ResultSetMapperFactory factory : factories) {
-            if (factory.accepts(type)) {
-                ResultSetMapper mapper =  factory.mapperFor(type);
+            if (factory.accepts(type, ctx)) {
+                ResultSetMapper mapper =  factory.mapperFor(type, ctx);
                 cache.put(type, mapper);
                 return mapper;
             }

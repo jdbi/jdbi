@@ -23,14 +23,17 @@ import java.sql.SQLException;
 
 class RegisteredMapper<T> implements ResultSetMapper<T>
 {
-    private final ResultSetMapper<T> mapper;
+
+    private final Class<T> type;
+    private final MappingRegistry registry;
 
     public RegisteredMapper(Class<T> type, MappingRegistry registry) {
-        this.mapper = registry.mapperFor(type);
+        this.type = type;
+        this.registry = registry;
     }
 
     public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
-        return mapper.map(index, r, ctx);
+        return (T) registry.mapperFor(type, ctx).map(index, r, ctx);
     }
 }

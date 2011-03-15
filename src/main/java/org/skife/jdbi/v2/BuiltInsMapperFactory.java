@@ -26,12 +26,12 @@ class BuiltInsMapperFactory implements ResultSetMapperFactory
         mappers.put(String.class, StringMapper.FIRST);
     }
 
-    public boolean accepts(Class type)
+    public boolean accepts(Class type, StatementContext ctx)
     {
         return mappers.containsKey(type);
     }
 
-    public ResultSetMapper mapperFor(Class type)
+    public ResultSetMapper mapperFor(Class type, StatementContext ctx)
     {
         return mappers.get(type);
     }

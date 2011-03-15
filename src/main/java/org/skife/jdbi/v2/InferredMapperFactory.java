@@ -41,12 +41,12 @@ class InferredMapperFactory implements ResultSetMapperFactory
         maps = rs.get(0).getErasedType();
     }
 
-    public boolean accepts(Class type)
+    public boolean accepts(Class type, StatementContext ctx)
     {
         return maps.equals(type);
     }
 
-    public ResultSetMapper mapperFor(Class type)
+    public ResultSetMapper mapperFor(Class type, StatementContext ctx)
     {
         return mapper;
     }

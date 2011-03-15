@@ -236,6 +236,17 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this.map(new BeanMapper<Type>(resultType));
     }
 
+    /**
+     * Makes use of registered mappers to map the result set to the desired type.
+     *
+     * @see DBI#registerMapper(org.skife.jdbi.v2.tweak.ResultSetMapper)
+     * @see DBI#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(org.skife.jdbi.v2.tweak.ResultSetMapper)
+     *
+     * @param resultType the type to map the query results to
+     * @return a new query instance which will map to the desired type
+     */
     public <T> Query<T> mapTo(Class<T> resultType) {
         return this.map(new RegisteredMapper(resultType, mappingRegistry));
     }

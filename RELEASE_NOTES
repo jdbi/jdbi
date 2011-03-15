@@ -1,5 +1,5 @@
 2.11
-  - Registered Mappers and the Handle#mapTo addition
+  - Registered Mappers on DBi and Handle, and the Query#mapTo addition
   - Sql Object API
 
 2.10.2
