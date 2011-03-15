@@ -25,6 +25,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 class MappingRegistry
 {
+    private static final BuiltInsMapperFactory BUILT_IN_MAPPERS = new BuiltInsMapperFactory();
+
     private final List<ResultSetMapperFactory> factories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
     private final ConcurrentHashMap<Class, ResultSetMapper> cache = new ConcurrentHashMap<Class, ResultSetMapper>();
 
@@ -38,7 +40,7 @@ class MappingRegistry
     }
 
     public MappingRegistry() {
-        factories.add(new BuiltInsMapperFactory());
+
     }
 
     public void add(ResultSetMapper mapper)
@@ -67,6 +69,13 @@ class MappingRegistry
                 return mapper;
             }
         }
+
+        if (BUILT_IN_MAPPERS.accepts(type, ctx)) {
+            ResultSetMapper mapper = BUILT_IN_MAPPERS.mapperFor(type, ctx);
+            cache.put(type, mapper);
+            return mapper;
+        }
+
         throw new DBIException("No mapper registered for " + type.getName()) {};
     }
 }
