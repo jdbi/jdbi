@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 
 @SQLStatementCustomizingAnnotation(RegisterMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterMapper
 {
     Class<? extends ResultSetMapper> value();
@@ -22,7 +22,24 @@ public @interface RegisterMapper
     {
         public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
-            throw new UnsupportedOperationException("Not defined for Method");
+            final RegisterMapper ma = (RegisterMapper) annotation;
+            final ResultSetMapper m;
+            try {
+                m = ma.value().newInstance();
+            }
+            catch (Exception e) {
+                throw new IllegalStateException("unable to create a specified result set mapper", e);
+            }
+            return new SQLStatementCustomizer()
+            {
+                public void apply(SQLStatement statement)
+                {
+                    if (statement instanceof Query) {
+                        Query q = (Query) statement;
+                        q.registerMapper(m);
+                    }
+                }
+            };
         }
 
         public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)

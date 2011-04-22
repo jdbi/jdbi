@@ -14,13 +14,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Map;
 
 @SQLStatementCustomizingAnnotation(StringTemplate3Locator.LocatorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
 public @interface StringTemplate3Locator
 {
     static final String DEFAULT_VALUE = " ~ ";
