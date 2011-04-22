@@ -5,7 +5,7 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.skife.jdbi.v2.ColonPrefixNamedParamStatementRewriter;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.sqlobject.SqlPreperationAnnotation;
+import org.skife.jdbi.v2.sqlobject.StatementLocatorAnnotation;
 import org.skife.jdbi.v2.sqlobject.StatementLocatorFactory;
 import org.skife.jdbi.v2.sqlobject.StatementRewriterFactory;
 import org.skife.jdbi.v2.tweak.StatementLocator;
@@ -19,29 +19,27 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 
-@SqlPreperationAnnotation(locator = StringTemplateSqlSelector.LocatorFactory.class,
-                        rewriter = StringTemplateSqlSelector.RewriterFactory.class)
+@StatementLocatorAnnotation(StringTemplate3Locator.LocatorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface StringTemplateSqlSelector
+public @interface StringTemplate3Locator
 {
-    static final String DEFAULT_VALUE = "~~~~~%%%%%$$$$$";
+    static final String DEFAULT_VALUE = " ~ ";
 
     String value() default DEFAULT_VALUE;
-
 
     public static class LocatorFactory implements StatementLocatorFactory
     {
         private final static String sep = System.getProperty("file.separator");
 
-        private static final String mungify(String path)
+        private static String mungify(String path)
         {
             return path.replaceAll("\\.", sep);
         }
 
-        public StatementLocator create(Annotation anno, Class sqlObjectType, StatementContext ctx)
+        public StatementLocator create(Annotation anno, Class sqlObjectType, StatementLocator parent)
         {
             final String base;
-            final StringTemplateSqlSelector a = (StringTemplateSqlSelector) anno;
+            final StringTemplate3Locator a = (StringTemplate3Locator) anno;
             if (DEFAULT_VALUE.equals(a.value())) {
                 base = mungify("/" + sqlObjectType.getName()) + ".sql.stg";
             }
@@ -71,14 +69,4 @@ public @interface StringTemplateSqlSelector
             };
         }
     }
-
-    public static class RewriterFactory implements StatementRewriterFactory
-    {
-        public StatementRewriter create(SqlPreperationAnnotation anno, Class sqlObjectType, StatementContext ctx)
-        {
-            return new ColonPrefixNamedParamStatementRewriter();
-        }
-    }
-
-
 }
