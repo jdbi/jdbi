@@ -5,20 +5,27 @@ import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 @SQLStatementCustomizingAnnotation(RegisterMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface RegisterMapper
 {
     Class<? extends ResultSetMapper> value();
 
     static class Factory implements SQLStatementCustomizerFactory
     {
+        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        {
+            throw new UnsupportedOperationException("Not defined for Method");
+        }
 
-        public SQLStatementCustomizer create(Annotation annotation, Class sqlObjectType, Method method)
+        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
             final ResultSetMapper m;
@@ -38,6 +45,11 @@ public @interface RegisterMapper
                     }
                 }
             };
+        }
+
+        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        {
+            throw new UnsupportedOperationException("Not defined for paremeter");
         }
     }
 }

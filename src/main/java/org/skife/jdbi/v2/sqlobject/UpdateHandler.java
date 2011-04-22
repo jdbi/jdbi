@@ -21,8 +21,8 @@ class UpdateHandler extends CustomizingStatementHandler
     {
         Update q = h.getHandle().createStatement(sql);
         applyBinders(q, args);
-        applyCustomizers(q,args);
-        applySqlStatementCustomizers(q);
+        applyCustomizers(q, args);
+        applySqlStatementCustomizers(q, args);
         return q.execute();
     }
 }

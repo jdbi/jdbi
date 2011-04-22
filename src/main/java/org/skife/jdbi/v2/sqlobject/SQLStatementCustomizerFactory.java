@@ -5,5 +5,9 @@ import java.lang.reflect.Method;
 
 public interface SQLStatementCustomizerFactory
 {
-    public SQLStatementCustomizer create(Annotation annotation, Class sqlObjectType, Method method);
+    public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method);
+
+    public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType);
+
+    public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg);
 }

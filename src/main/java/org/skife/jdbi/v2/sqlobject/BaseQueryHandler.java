@@ -70,8 +70,8 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
     {
         Query q = h.getHandle().createQuery(sql);
         applyBinders(q, args);
-        applyCustomizers(q,args);
-        applySqlStatementCustomizers(q);
+        applyCustomizers(q, args);
+        applySqlStatementCustomizers(q, args);
         return result(mapFunc.map(q), h);
 
     }

@@ -70,6 +70,25 @@ public class TestStringTemplateSqlSelector
         assertThat(s.getName(), equalTo("Martin"));
     }
 
+    @Test
+    public void testBap() throws Exception
+    {
+        handle.execute("insert into something (id, name) values (2, 'Bean')");
+        Wombat w = handle.attach(Wombat.class);
+        assertThat(w.findNameFor(2), equalTo("Bean"));
+    }
+
+    @Test
+    public void testDefines() throws Exception
+    {
+        handle.attach(Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
+        String name = handle.createQuery("select name from something where id = 5")
+                            .map(StringMapper.FIRST)
+                            .first();
+
+        assertThat(name, equalTo("Bouncer"));
+    }
+
     @StringTemplate3Locator
     @RegisterMapper(SomethingMapper.class)
     static interface Wombat
@@ -79,5 +98,15 @@ public class TestStringTemplateSqlSelector
 
         @SqlQuery
         public Something findById(@Bind("id") Long id);
+
+        @SqlQuery("select name from something where id = :it")
+        String findNameFor(@Bind int id);
+
+        @SqlUpdate
+        void weirdInsert(@Define("table") String table,
+                         @Define("id_column") String idColumn,
+                         @Define("value_column") String valueColumn,
+                         @Bind("id") int id,
+                         @Bind("value") String name);
     }
 }

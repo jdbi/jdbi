@@ -36,7 +36,7 @@ public @interface StringTemplate3Locator
             return path.replaceAll("\\.", sep);
         }
 
-        public SQLStatementCustomizer create(Annotation annotation, Class sqlObjectType, Method method)
+        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final String base;
             final StringTemplate3Locator a = (StringTemplate3Locator) annotation;
@@ -56,15 +56,22 @@ public @interface StringTemplate3Locator
             catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            final StatementLocator l =  new StatementLocator()
+            final StatementLocator l = new StatementLocator()
             {
                 public String locate(String name, StatementContext ctx) throws Exception
                 {
-                    StringTemplate t = group.lookupTemplate(name);
-                    for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
-                        t.setAttribute(entry.getKey(), entry.getValue());
+                    if (group.isDefined(name)) {
+                        StringTemplate t = group.lookupTemplate(name);
+                        for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
+                            t.setAttribute(entry.getKey(), entry.getValue());
+                        }
+                        return t.toString();
                     }
-                    return t.toString();
+                    else {
+                        // no template matches name, so just return it
+                        return name;
+                    }
+
                 }
             };
 
@@ -75,6 +82,16 @@ public @interface StringTemplate3Locator
                     q.setStatementLocator(l);
                 }
             };
+        }
+
+        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        {
+            throw new UnsupportedOperationException("Not Defined on Method");
+        }
+
+        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        {
+            throw new UnsupportedOperationException("Not defined on parameter");
         }
     }
 }
