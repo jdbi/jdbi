@@ -110,10 +110,30 @@ class SqlObject implements InvocationHandler
 
     public static void close(Object sqlObject)
     {
-        if (! (sqlObject instanceof CloseInternal)) {
+        if (!(sqlObject instanceof CloseInternal)) {
             throw new IllegalArgumentException(sqlObject + " is not a sql object");
         }
         CloseInternal closer = (CloseInternal) sqlObject;
         closer.___jdbi_close___();
+    }
+
+    static String getSql(SqlQuery q, Method m)
+    {
+        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
+            return m.getName();
+        }
+        else {
+            return q.value();
+        }
+    }
+
+    static String getSql(SqlUpdate q, Method m)
+    {
+        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
+            return m.getName();
+        }
+        else {
+            return q.value();
+        }
     }
 }

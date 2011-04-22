@@ -14,7 +14,7 @@ class UpdateHandler extends CustomizingStatementHandler
     public UpdateHandler(ResolvedMethod method)
     {
         super(method);
-        this.sql = method.getRawMember().getAnnotation(SqlUpdate.class).value();
+        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
     }
 
     public Object invoke(HandleDing h, Object target, Object[] args)

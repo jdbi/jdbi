@@ -1,0 +1,3 @@
+group Wombat;
+
+kangaroo(name) ::= << hello <name> >>

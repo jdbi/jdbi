@@ -25,5 +25,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface SqlUpdate
 {
-    String value();
+    String value() default SqlQuery.DEFAULT_VALUE;
 }

@@ -332,7 +332,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>stringtemplate</artifactId>
-            <version>3.0</version>
+            <version>3.2.1</version>
             <scope>provided</scope>
         </dependency>
 

@@ -36,7 +36,7 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
     {
         super(method);
         this.method = method;
-        this.sql = method.getRawMember().getAnnotation(SqlQuery.class).value();
+        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlQuery.class), method.getRawMember());
 
         if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
             try {

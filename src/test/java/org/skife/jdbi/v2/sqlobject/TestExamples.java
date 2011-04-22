@@ -2,6 +2,7 @@ package org.skife.jdbi.v2.sqlobject;
 
 import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -9,6 +10,8 @@ import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.binders.BindBean;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplateSqlSelector;
+import org.skife.jdbi.v2.unstable.stringtemplate.StringTemplateStatementLocator;
 import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.util.List;
@@ -28,7 +31,8 @@ public class TestExamples extends TestCase
         Something findById(@Bind("id") long id);
     }
 
-    public void testUseTheBasics() throws Exception
+    @Test
+    public void useTheBasics() throws Exception
     {
         TheBasics dao = dbi.onDemand(TheBasics.class);
 
@@ -89,7 +93,8 @@ public class TestExamples extends TestCase
         Something findById(@Bind int id);
     }
 
-    public void testExerciseTransactional() throws Exception
+    @Test
+    public void exerciseTransactional() throws Exception
     {
         UsesTransactions one = dbi.onDemand(UsesTransactions.class);
         UsesTransactions two = dbi.onDemand(UsesTransactions.class);
@@ -106,7 +111,8 @@ public class TestExamples extends TestCase
         assertEquals("Michael", two.findById(8).getName());
     }
 
-    public void testExerciseTransactionalWithCallback() throws Exception
+    @Test
+    public void exerciseTransactionalWithCallback() throws Exception
     {
         UsesTransactions dao = dbi.onDemand(UsesTransactions.class);
         dao.insert(new Something(8, "Mike"));
@@ -127,6 +133,30 @@ public class TestExamples extends TestCase
 
         assertEquals(1, rows_updated);
     }
+
+
+
+
+    @StringTemplateSqlSelector
+    static interface UsesLocator extends CloseMe
+    {
+        @SqlQuery
+        public Something findById(@Bind("id") Long id);
+    }
+
+//    @StringTemplateSqlSelector("woof.stg")
+//    static interface UsesLocator extends CloseMe
+//    {
+//        @NamedQuery("meow")
+//        public Something findById(@Bind("id") Long id);
+//    }
+//
+//    @Test
+//    public void testWaffles() throws Exception
+//    {
+//
+//    }
+
 
 
 

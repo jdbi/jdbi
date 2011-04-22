@@ -54,11 +54,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final Binding params;
     private final Connection connection;
     private final String sql;
-    private final StatementRewriter rewriter;
     private final StatementBuilder statementBuilder;
-    private final StatementLocator locator;
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
     private final StatementContext context;
+
+    private StatementLocator locator;
+    private StatementRewriter rewriter;
 
     /**
      * This will be set on execution, not before
@@ -99,6 +100,22 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     protected Collection<StatementCustomizer> getStatementCustomizers()
     {
         return this.customizers;
+    }
+
+    /**
+     * Override the statement locator used for this statement
+     */
+    public void setStatementLocator(StatementLocator locator)
+    {
+        this.locator = locator;
+    }
+
+    /**
+     * Override the statement rewriter used for this statement
+     */
+    public void setStatementRewriter(StatementRewriter rewriter)
+    {
+        this.rewriter = rewriter;
     }
 
     /**

@@ -37,7 +37,7 @@ public class StatementContext
     private Connection connection;
     private Binding binding;
 
-    StatementContext(Map<String, Object> globalAttributes) {
+    protected StatementContext(Map<String, Object> globalAttributes) {
         attributes.putAll(globalAttributes);
     }
 
