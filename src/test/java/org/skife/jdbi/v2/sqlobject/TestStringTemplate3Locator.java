@@ -19,7 +19,7 @@ import java.util.HashMap;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class TestStringTemplateSqlSelector
+public class TestStringTemplate3Locator
 {
     private DBI    dbi;
     private Handle handle;
