@@ -59,7 +59,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         super(params, locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector, customizers);
         this.mapper = mapper;
-        this.mappingRegistry = mappingRegistry;
+        this.mappingRegistry = new MappingRegistry(mappingRegistry);
     }
 
     /**
@@ -386,5 +386,14 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
         });
         return this;
+    }
+
+    public void registerMapper(ResultSetMapper m)
+    {
+        this.mappingRegistry.add(new InferredMapperFactory(m));
+    }
+    public void registerMapper(ResultSetMapperFactory m)
+    {
+        this.mappingRegistry.add(m);
     }
 }

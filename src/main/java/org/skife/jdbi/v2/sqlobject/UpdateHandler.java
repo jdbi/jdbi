@@ -11,9 +11,9 @@ class UpdateHandler extends CustomizingStatementHandler
 {
     final String sql;
 
-    public UpdateHandler(ResolvedMethod method)
+    public UpdateHandler(Class sqlObjectType, ResolvedMethod method)
     {
-        super(method);
+        super(sqlObjectType, method);
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
     }
 
@@ -22,6 +22,7 @@ class UpdateHandler extends CustomizingStatementHandler
         Update q = h.getHandle().createStatement(sql);
         applyBinders(q, args);
         applyCustomizers(q,args);
+        applySqlStatementCustomizers(q);
         return q.execute();
     }
 }

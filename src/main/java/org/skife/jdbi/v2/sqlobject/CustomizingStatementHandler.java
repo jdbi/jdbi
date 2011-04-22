@@ -14,13 +14,31 @@ import java.util.List;
 
 abstract class CustomizingStatementHandler implements Handler
 {
-    private final List<MethodCustomizer> methodCustomizers = new ArrayList<MethodCustomizer>();
-    private final List<ParameterCustomizer> paramCustomizers  = new ArrayList<ParameterCustomizer>();
-    private final List<Bindifier> binders = new ArrayList<Bindifier>();
+    private final List<MethodCustomizer>       methodCustomizers    = new ArrayList<MethodCustomizer>();
+    private final List<ParameterCustomizer>    paramCustomizers     = new ArrayList<ParameterCustomizer>();
+    private final List<Bindifier>              binders              = new ArrayList<Bindifier>();
+    private final List<SQLStatementCustomizer> statementCustomizers = new ArrayList<SQLStatementCustomizer>();
 
-
-    CustomizingStatementHandler(ResolvedMethod method)
+    CustomizingStatementHandler(Class sqlObjectType, ResolvedMethod method)
     {
+
+        for (Annotation annotation : sqlObjectType.getAnnotations()) {
+            if (annotation.annotationType().isAnnotationPresent(SQLStatementCustomizingAnnotation.class)) {
+                SQLStatementCustomizingAnnotation a = annotation.annotationType()
+                                                                .getAnnotation(SQLStatementCustomizingAnnotation.class);
+                final SQLStatementCustomizerFactory f;
+                try {
+                    f = a.value().newInstance();
+                }
+                catch (Exception e) {
+                    throw new IllegalStateException("unable to create sql statement customizer factory", e);
+                }
+                SQLStatementCustomizer c = f.create(annotation, sqlObjectType, method.getRawMember());
+                statementCustomizers.add(c);
+            }
+        }
+
+
         Annotation[] method_annotations = method.getRawMember().getAnnotations();
         for (Annotation method_annotation : method_annotations) {
             Class<? extends Annotation> m_anno_class = method_annotation.annotationType();
@@ -75,13 +93,15 @@ abstract class CustomizingStatementHandler implements Handler
 
     }
 
-    protected void applyBinders(SQLStatement q, Object[] args) {
+    protected void applyBinders(SQLStatement q, Object[] args)
+    {
         for (Bindifier binder : binders) {
             binder.bind(q, args);
         }
     }
 
-    protected void applyCustomizers(SQLStatement q, Object[] args) {
+    protected void applyCustomizers(SQLStatement q, Object[] args)
+    {
         for (MethodCustomizer customizer : methodCustomizers) {
             q.addStatementCustomizer(customizer.build());
         }
@@ -89,7 +109,13 @@ abstract class CustomizingStatementHandler implements Handler
         for (ParameterCustomizer customizer : paramCustomizers) {
             q.addStatementCustomizer(customizer.build(args[customizer.getIndex()]));
         }
+    }
 
+    protected void applySqlStatementCustomizers(SQLStatement q)
+    {
+        for (SQLStatementCustomizer customizer : statementCustomizers) {
+            customizer.apply(q);
+        }
     }
 
 

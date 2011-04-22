@@ -53,20 +53,20 @@ class SqlObject implements InvocationHandler
 
             if (raw_method.isAnnotationPresent(SqlQuery.class)) {
                 if (return_type.isInstanceOf(org.skife.jdbi.v2.Query.class)) {
-                    handlers.put(raw_method, new QueryQueryHandler(method));
+                    handlers.put(raw_method, new QueryQueryHandler(sqlObjectType, method));
                 }
                 else if (return_type.isInstanceOf(List.class)) {
-                    handlers.put(raw_method, new ListQueryHandler(method));
+                    handlers.put(raw_method, new ListQueryHandler(sqlObjectType, method));
                 }
                 else if (return_type.isInstanceOf(Iterator.class)) {
-                    handlers.put(raw_method, new IteratorQueryHandler(method));
+                    handlers.put(raw_method, new IteratorQueryHandler(sqlObjectType, method));
                 }
                 else {
-                    handlers.put(raw_method, new SingleValueQueryHandler(method));
+                    handlers.put(raw_method, new SingleValueQueryHandler(sqlObjectType, method));
                 }
             }
             else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
-                handlers.put(raw_method, new UpdateHandler(method));
+                handlers.put(raw_method, new UpdateHandler(sqlObjectType, method));
             }
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
                 handlers.put(raw_method, new CloseHandler());

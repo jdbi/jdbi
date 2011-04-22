@@ -6,9 +6,9 @@ import org.skife.jdbi.v2.Query;
 
 class SingleValueQueryHandler extends BaseQueryHandler
 {
-    public SingleValueQueryHandler(ResolvedMethod method)
+    public SingleValueQueryHandler(Class sqlObjectType, ResolvedMethod method)
     {
-        super(method);
+        super(sqlObjectType, method);
     }
 
     @Override

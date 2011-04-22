@@ -8,9 +8,9 @@ import java.util.List;
 
 class ListQueryHandler extends BaseQueryHandler
 {
-    public ListQueryHandler(ResolvedMethod method)
+    public ListQueryHandler(Class sqlObjectType, ResolvedMethod method)
     {
-        super(method);
+        super(sqlObjectType, method);
     }
 
     @Override

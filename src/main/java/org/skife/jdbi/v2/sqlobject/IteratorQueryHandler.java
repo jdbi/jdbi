@@ -10,9 +10,9 @@ import java.util.List;
 
 class IteratorQueryHandler extends BaseQueryHandler
 {
-    public IteratorQueryHandler(ResolvedMethod method)
+    public IteratorQueryHandler(Class sqlObjectType, ResolvedMethod method)
     {
-        super(method);
+        super(sqlObjectType, method);
     }
 
     @Override

@@ -4,7 +4,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface StatementLocatorAnnotation
+public @interface SQLStatementCustomizingAnnotation
 {
-    public Class<? extends StatementLocatorFactory> value();
+    Class<? extends SQLStatementCustomizerFactory> value();
 }

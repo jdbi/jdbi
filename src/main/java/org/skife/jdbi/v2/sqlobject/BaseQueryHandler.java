@@ -32,9 +32,9 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
     private final ResolvedMethod method;
     private final MapFunc        mapFunc;
 
-    public BaseQueryHandler(ResolvedMethod method)
+    public BaseQueryHandler(Class sqlObjectType, ResolvedMethod method)
     {
-        super(method);
+        super(sqlObjectType, method);
         this.method = method;
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlQuery.class), method.getRawMember());
 
@@ -71,6 +71,7 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
         Query q = h.getHandle().createQuery(sql);
         applyBinders(q, args);
         applyCustomizers(q,args);
+        applySqlStatementCustomizers(q);
         return result(mapFunc.map(q), h);
 
     }

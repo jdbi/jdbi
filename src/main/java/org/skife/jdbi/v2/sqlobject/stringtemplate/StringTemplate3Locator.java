@@ -3,13 +3,12 @@ package org.skife.jdbi.v2.sqlobject.stringtemplate;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
-import org.skife.jdbi.v2.ColonPrefixNamedParamStatementRewriter;
+import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.sqlobject.StatementLocatorAnnotation;
-import org.skife.jdbi.v2.sqlobject.StatementLocatorFactory;
-import org.skife.jdbi.v2.sqlobject.StatementRewriterFactory;
+import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
+import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
 import org.skife.jdbi.v2.tweak.StatementLocator;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,9 +16,10 @@ import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
 import java.util.Map;
 
-@StatementLocatorAnnotation(StringTemplate3Locator.LocatorFactory.class)
+@SQLStatementCustomizingAnnotation(StringTemplate3Locator.LocatorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface StringTemplate3Locator
 {
@@ -27,7 +27,7 @@ public @interface StringTemplate3Locator
 
     String value() default DEFAULT_VALUE;
 
-    public static class LocatorFactory implements StatementLocatorFactory
+    public static class LocatorFactory implements SQLStatementCustomizerFactory
     {
         private final static String sep = System.getProperty("file.separator");
 
@@ -36,10 +36,10 @@ public @interface StringTemplate3Locator
             return path.replaceAll("\\.", sep);
         }
 
-        public StatementLocator create(Annotation anno, Class sqlObjectType, StatementLocator parent)
+        public SQLStatementCustomizer create(Annotation annotation, Class sqlObjectType, Method method)
         {
             final String base;
-            final StringTemplate3Locator a = (StringTemplate3Locator) anno;
+            final StringTemplate3Locator a = (StringTemplate3Locator) annotation;
             if (DEFAULT_VALUE.equals(a.value())) {
                 base = mungify("/" + sqlObjectType.getName()) + ".sql.stg";
             }
@@ -56,7 +56,7 @@ public @interface StringTemplate3Locator
             catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            return new StatementLocator()
+            final StatementLocator l =  new StatementLocator()
             {
                 public String locate(String name, StatementContext ctx) throws Exception
                 {
@@ -65,6 +65,14 @@ public @interface StringTemplate3Locator
                         t.setAttribute(entry.getKey(), entry.getValue());
                     }
                     return t.toString();
+                }
+            };
+
+            return new SQLStatementCustomizer()
+            {
+                public void apply(SQLStatement q)
+                {
+                    q.setStatementLocator(l);
                 }
             };
         }
