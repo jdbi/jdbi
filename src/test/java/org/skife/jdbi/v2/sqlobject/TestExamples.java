@@ -10,7 +10,7 @@ import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.binders.BindBean;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplate3Locator;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
 import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.util.List;
@@ -136,7 +136,7 @@ public class TestExamples extends TestCase
 
 
 
-    @StringTemplate3Locator
+    @ExternalizedSqlViaStringTemplate3
     static interface UsesLocator extends CloseMe
     {
         @SqlQuery

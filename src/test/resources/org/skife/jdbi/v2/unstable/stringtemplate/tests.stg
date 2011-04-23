@@ -1,8 +1,0 @@
-group sql;
-
-insert_one() ::= "insert into something (id, name) values (7, 'Martin')"
-
-// arguments are bound via defined values on the statement context
-parameterized_insert(table, column_one, column_two) ::=<<
-    insert into <table> (<column_one>, <column_two>) values (:column_one, :column_two)
->>

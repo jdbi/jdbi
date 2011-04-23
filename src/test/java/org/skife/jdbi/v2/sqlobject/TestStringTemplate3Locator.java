@@ -7,14 +7,10 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.binders.BindBean;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplate3Locator;
-import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
 import org.skife.jdbi.v2.util.StringMapper;
-
-import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -40,12 +36,6 @@ public class TestStringTemplate3Locator
     {
         handle.execute("drop table something");
         handle.close();
-    }
-
-    @Test
-    public void testFoo() throws Exception
-    {
-        assertThat(Wombat.class.getName(), equalTo("org.skife.jdbi.v2.sqlobject.TestStringTemplateSqlSelector$Wombat"));
     }
 
     @Test
@@ -89,7 +79,7 @@ public class TestStringTemplate3Locator
         assertThat(name, equalTo("Bouncer"));
     }
 
-    @StringTemplate3Locator
+    @ExternalizedSqlViaStringTemplate3
     @RegisterMapper(SomethingMapper.class)
     static interface Wombat
     {
