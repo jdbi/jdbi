@@ -24,24 +24,16 @@ public @interface ExternalizedSqlViaStringTemplate3
 
     public static class LocatorFactory implements SQLStatementCustomizerFactory
     {
-        private final static String sep = System.getProperty("file.separator");
-
-        private static String mungify(String path)
-        {
-            return path.replaceAll("\\.", sep);
-        }
-
         public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
-            final String base;
             final ExternalizedSqlViaStringTemplate3 a = (ExternalizedSqlViaStringTemplate3) annotation;
+            final StatementLocator l;
             if (DEFAULT_VALUE.equals(a.value())) {
-                base = mungify("/" + sqlObjectType.getName()) + ".sql.stg";
+                l = new StringTemplate3StatementLocator(sqlObjectType);
             }
             else {
-                base = a.value();
+                l = new StringTemplate3StatementLocator(a.value());
             }
-            final StatementLocator l = new StringTemplate3StatementLocator(base);
 
             return new SQLStatementCustomizer()
             {
@@ -52,12 +44,16 @@ public @interface ExternalizedSqlViaStringTemplate3
             };
         }
 
-        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SQLStatementCustomizer createForMethod(Annotation annotation,
+                                                      Class sqlObjectType,
+                                                      Method method)
         {
             throw new UnsupportedOperationException("Not Defined on Method");
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        public SQLStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class sqlObjectType,
+                                                         Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not defined on parameter");
         }

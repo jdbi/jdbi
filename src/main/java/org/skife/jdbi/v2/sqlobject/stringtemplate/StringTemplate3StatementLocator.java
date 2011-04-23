@@ -15,6 +15,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
 {
     private final StringTemplateGroup group;
 
+    public StringTemplate3StatementLocator(Class baseClass)
+    {
+        this(mungify("/" + baseClass.getName()) + ".sql.stg");
+    }
+
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath)
     {
         InputStream ins = getClass().getResourceAsStream(templateGroupFilePathOnClasspath);
@@ -43,4 +48,12 @@ public class StringTemplate3StatementLocator implements StatementLocator
             return name;
         }
     }
+
+    private final static String sep = System.getProperty("file.separator");
+
+    private static String mungify(String path)
+    {
+        return path.replaceAll("\\.", sep);
+    }
+
 }

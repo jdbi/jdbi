@@ -9,7 +9,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.binders.BindBean;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplate3StatementLocator;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -79,9 +79,31 @@ public class TestStringTemplate3Locator
         assertThat(name, equalTo("Bouncer"));
     }
 
-    @ExternalizedSqlViaStringTemplate3
+    //@ExternalizedSqlViaStringTemplate3
+    @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
     @RegisterMapper(SomethingMapper.class)
     static interface Wombat
+    {
+        @SqlUpdate
+        public void insert(@BindBean Something s);
+
+        @SqlQuery
+        public Something findById(@Bind("id") Long id);
+
+        @SqlQuery("select name from something where id = :it")
+        String findNameFor(@Bind int id);
+
+        @SqlUpdate
+        void weirdInsert(@Define("table") String table,
+                         @Define("id_column") String idColumn,
+                         @Define("value_column") String valueColumn,
+                         @Bind("id") int id,
+                         @Bind("value") String name);
+    }
+
+    @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
+    @RegisterMapper(SomethingMapper.class)
+    static interface Kangaroo
     {
         @SqlUpdate
         public void insert(@BindBean Something s);
