@@ -9,6 +9,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.binders.BindBean;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplate3StatementLocator;
 import org.skife.jdbi.v2.util.StringMapper;
 
@@ -17,7 +18,6 @@ import static org.junit.Assert.assertThat;
 
 public class TestStringTemplate3Locator
 {
-    private DBI    dbi;
     private Handle handle;
 
     @Before
@@ -25,7 +25,7 @@ public class TestStringTemplate3Locator
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:test");
-        dbi = new DBI(ds);
+        DBI dbi = new DBI(ds);
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
@@ -79,8 +79,8 @@ public class TestStringTemplate3Locator
         assertThat(name, equalTo("Bouncer"));
     }
 
-    //@ExternalizedSqlViaStringTemplate3
-    @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
+    @ExternalizedSqlViaStringTemplate3
+//    @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
     @RegisterMapper(SomethingMapper.class)
     static interface Wombat
     {
