@@ -1,3 +1,5 @@
+This file describes the changes expected in some eventual 3.0 release.
+
 * Change package name (org.skife.jdbi.v2 -> org.skife.jdbi.v3)
 * Make hashed prefix statement rewriter the default
 * Clean up exceptions, a lot

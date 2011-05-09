@@ -11,11 +11,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
+/**
+ * Used to register a result set mapper with either a sql object type or for a specific method.
+ */
 @SQLStatementCustomizingAnnotation(RegisterMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterMapper
 {
+    /**
+     * The result set mapper class to register
+     */
     Class<? extends ResultSetMapper> value();
 
     static class Factory implements SQLStatementCustomizerFactory

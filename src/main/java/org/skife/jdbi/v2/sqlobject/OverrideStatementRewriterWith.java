@@ -27,11 +27,18 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+/**
+ * Use this to override the statement rewriter on a sql object, May be specified on either the interface
+ * or method level.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @SQLStatementCustomizingAnnotation(OverrideStatementRewriterWith.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface OverrideStatementRewriterWith
 {
+    /**
+     * Specify the StatementRewriter class to use.
+     */
     Class<? extends StatementRewriter> value();
 
     public static class Factory implements SQLStatementCustomizerFactory

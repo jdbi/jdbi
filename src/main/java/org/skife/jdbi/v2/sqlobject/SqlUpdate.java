@@ -21,9 +21,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Used to indicate that a method should execute a non-query sql statement
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface SqlUpdate
 {
+    /**
+     * The sql (or statement name if using a statement locator) to be executed. The default value will use
+     * the method name of the method being annotated. This default behavior is only useful in conjunction
+     * with a statement locator.
+     */
     String value() default SqlQuery.DEFAULT_VALUE;
 }
