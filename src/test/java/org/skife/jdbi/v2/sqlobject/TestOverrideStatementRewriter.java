@@ -65,7 +65,6 @@ public class TestOverrideStatementRewriter
         h.insert(new Something(1, "Joy"));
         Something s = h.findById(1);
         assertThat(s.getName(), equalTo("Joy"));
-
     }
 
 

@@ -32,6 +32,9 @@ import java.util.List;
 
 import static org.skife.jdbi.rewriter.hash.HashStatementLexer.*;
 
+/**
+ * Statement rewriter which replaces named parameter tokens of the form #tokenName
+ */
 public class HashPrefixStatementRewriter implements StatementRewriter
 {
     /**
