@@ -15,12 +15,12 @@ import java.util.List;
 
 abstract class CustomizingStatementHandler implements Handler
 {
-    private final List<MethodCustomizer>             methodCustomizers              = new ArrayList<MethodCustomizer>();
-    private final List<ParameterCustomizer>          paramCustomizers               = new ArrayList<ParameterCustomizer>();
-    private final List<Bindifier>                    binders                        = new ArrayList<Bindifier>();
-    private final List<FactoryAnnotationPair>        typeBasedCustomizerFactories   = new ArrayList<FactoryAnnotationPair>();
-    private final List<FactoryAnnotationPair>        methodBasedCustomizerFactories = new ArrayList<FactoryAnnotationPair>();
-    private final List<FactoryAnnotationIndexTriple> paramBasedCustomizerFactories  = new ArrayList<FactoryAnnotationIndexTriple>();
+    private final List<MethodCustomizer> methodCustomizers = new ArrayList<MethodCustomizer>();
+    private final List<ParameterCustomizer> paramCustomizers = new ArrayList<ParameterCustomizer>();
+    private final List<Bindifier> binders = new ArrayList<Bindifier>();
+    private final List<FactoryAnnotationPair> typeBasedCustomizerFactories = new ArrayList<FactoryAnnotationPair>();
+    private final List<FactoryAnnotationPair> methodBasedCustomizerFactories = new ArrayList<FactoryAnnotationPair>();
+    private final List<FactoryAnnotationIndexTriple> paramBasedCustomizerFactories = new ArrayList<FactoryAnnotationIndexTriple>();
     private final Class sqlObjectType;
     private final Method method;
 
@@ -29,10 +29,10 @@ abstract class CustomizingStatementHandler implements Handler
         this.sqlObjectType = sqlObjectType;
         this.method = method.getRawMember();
 
-        for (Annotation annotation : sqlObjectType.getAnnotations()) {
+        for (final Annotation annotation : sqlObjectType.getAnnotations()) {
             if (annotation.annotationType().isAnnotationPresent(SQLStatementCustomizingAnnotation.class)) {
-                SQLStatementCustomizingAnnotation a = annotation.annotationType()
-                                                                .getAnnotation(SQLStatementCustomizingAnnotation.class);
+                final SQLStatementCustomizingAnnotation a = annotation.annotationType()
+                    .getAnnotation(SQLStatementCustomizingAnnotation.class);
                 final SQLStatementCustomizerFactory f;
                 try {
                     f = a.value().newInstance();
@@ -45,13 +45,13 @@ abstract class CustomizingStatementHandler implements Handler
         }
 
 
-        Annotation[] method_annotations = method.getRawMember().getAnnotations();
-        for (Annotation method_annotation : method_annotations) {
-            Class<? extends Annotation> m_anno_class = method_annotation.annotationType();
+        final Annotation[] method_annotations = method.getRawMember().getAnnotations();
+        for (final Annotation method_annotation : method_annotations) {
+            final Class<? extends Annotation> m_anno_class = method_annotation.annotationType();
             if (m_anno_class.isAnnotationPresent(CustomizerAnnotation.class)) {
-                CustomizerAnnotation c = m_anno_class.getAnnotation(CustomizerAnnotation.class);
+                final CustomizerAnnotation c = m_anno_class.getAnnotation(CustomizerAnnotation.class);
                 try {
-                    StatementCustomizerFactory fact = c.value().newInstance();
+                    final StatementCustomizerFactory fact = c.value().newInstance();
                     methodCustomizers.add(new MethodCustomizer(fact, method_annotation));
                 }
                 catch (Exception e) {
@@ -60,8 +60,9 @@ abstract class CustomizingStatementHandler implements Handler
             }
 
             if (m_anno_class.isAnnotationPresent(SQLStatementCustomizingAnnotation.class)) {
-                final SQLStatementCustomizingAnnotation scf = m_anno_class.getAnnotation(SQLStatementCustomizingAnnotation.class);
-                SQLStatementCustomizerFactory f = null;
+                final SQLStatementCustomizingAnnotation scf =
+                    m_anno_class.getAnnotation(SQLStatementCustomizingAnnotation.class);
+                final SQLStatementCustomizerFactory f;
                 try {
                     f = scf.value().newInstance();
                 }
@@ -73,11 +74,11 @@ abstract class CustomizingStatementHandler implements Handler
 
         }
 
-        Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
+        final Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
         for (int param_idx = 0; param_idx < param_annotations.length; param_idx++) {
-            Annotation[] annotations = param_annotations[param_idx];
-            for (Annotation annotation : annotations) {
-                Class<? extends Annotation> anno_class = annotation.annotationType();
+            final Annotation[] annotations = param_annotations[param_idx];
+            for (final Annotation annotation : annotations) {
+                final Class<? extends Annotation> anno_class = annotation.annotationType();
 
 
                 if (anno_class.isAnnotationPresent(BindingAnnotation.class)) {
@@ -109,7 +110,7 @@ abstract class CustomizingStatementHandler implements Handler
 
                 if (anno_class.isAnnotationPresent(SQLStatementCustomizingAnnotation.class)) {
                     SQLStatementCustomizingAnnotation sca = annotation.annotationType()
-                                                                      .getAnnotation(SQLStatementCustomizingAnnotation.class);
+                        .getAnnotation(SQLStatementCustomizingAnnotation.class);
                     final SQLStatementCustomizerFactory f;
                     try {
                         f = sca.value().newInstance();
@@ -162,7 +163,7 @@ abstract class CustomizingStatementHandler implements Handler
     {
 
         private final StatementCustomizerFactory factory;
-        private final Annotation                 annotation;
+        private final Annotation annotation;
 
         public MethodCustomizer(StatementCustomizerFactory factory, Annotation annotation)
         {
@@ -179,9 +180,9 @@ abstract class CustomizingStatementHandler implements Handler
 
     protected class ParameterCustomizer
     {
-        private final Annotation                 annotation;
+        private final Annotation annotation;
         private final StatementCustomizerFactory factory;
-        private final int                        index;
+        private final int index;
 
         ParameterCustomizer(Annotation annotation, StatementCustomizerFactory factory, int idx)
         {
@@ -205,7 +206,7 @@ abstract class CustomizingStatementHandler implements Handler
     private static class FactoryAnnotationPair
     {
         private final SQLStatementCustomizerFactory factory;
-        private final Annotation                    annotation;
+        private final Annotation annotation;
 
         FactoryAnnotationPair(SQLStatementCustomizerFactory factory, Annotation annotation)
         {
@@ -217,8 +218,8 @@ abstract class CustomizingStatementHandler implements Handler
     private static class FactoryAnnotationIndexTriple
     {
         private final SQLStatementCustomizerFactory factory;
-        private final Annotation                    annotation;
-        private final int                           index;
+        private final Annotation annotation;
+        private final int index;
 
         FactoryAnnotationIndexTriple(SQLStatementCustomizerFactory factory, Annotation annotation, int index)
         {
