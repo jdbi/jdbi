@@ -80,12 +80,17 @@ public class Something
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Something)) return false;
 
         Something something = (Something) o;
 
-        return id == something.id && !(name != null ? !name.equals(something.name) : something.name != null);
+        if (id != something.id) return false;
+        if (intValue != something.intValue) return false;
+        if (integerValue != null ? !integerValue.equals(something.integerValue) : something.integerValue != null)
+            return false;
+        if (name != null ? !name.equals(something.name) : something.name != null) return false;
 
+        return true;
     }
 
     @Override
@@ -93,6 +98,19 @@ public class Something
     {
         int result = id;
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (integerValue != null ? integerValue.hashCode() : 0);
+        result = 31 * result + intValue;
         return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Something{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", integerValue=" + integerValue +
+               ", intValue=" + intValue +
+               '}';
     }
 }

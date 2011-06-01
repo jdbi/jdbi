@@ -1,9 +1,6 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -21,6 +18,9 @@ import java.lang.reflect.Method;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Define
 {
+    /**
+     * The key for the attribute to set. The value will be the value passed to the annotated argument
+     */
     String value();
 
     static class Factory implements SQLStatementCustomizerFactory

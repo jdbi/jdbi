@@ -16,11 +16,10 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.Argument;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.Argument;
 
 /**
  * Takes a boolean and converts it into integer 0/1 column values. This is useful if your database does

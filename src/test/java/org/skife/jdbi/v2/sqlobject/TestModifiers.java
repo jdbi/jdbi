@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.customizers.FetchSize;
 import org.skife.jdbi.v2.sqlobject.customizers.MaxRows;
@@ -13,6 +14,10 @@ import org.skife.jdbi.v2.sqlobject.customizers.QueryTimeOut;
 import org.skife.jdbi.v2.sqlobject.customizers.TransactionIsolation;
 
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class TestModifiers extends TestCase
 {
@@ -107,10 +112,25 @@ public class TestModifiers extends TestCase
     @Test
     public void testIsolationLevel() throws Exception
     {
+        Spiffy spiffy = dbi.open(Spiffy.class);
+        IsoLevels iso = dbi.open(IsoLevels.class);
 
+        spiffy.begin();
+        spiffy.insert(1, "Tom");
+
+        Something tom = iso.findById(1);
+        assertThat(tom, notNullValue());
+
+        spiffy.rollback();
+
+        Something not_tom = iso.findById(1);
+        assertThat(not_tom, nullValue());
+
+        spiffy.close();
+        iso.close();
     }
 
-    public static interface Spiffy
+    public static interface Spiffy extends CloseMe, Transactional<Spiffy>
     {
         @SqlQuery("select id, name from something where id = :id")
         public Something byId(@Bind("id") long id);
@@ -141,9 +161,9 @@ public class TestModifiers extends TestCase
         public void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
-    @TransactionIsolation()
-    public static interface IsoLevels
+    public static interface IsoLevels extends CloseMe
     {
+        @TransactionIsolation(TransactionIsolationLevel.READ_UNCOMMITTED)
         @SqlQuery("select id, name from something where id = :id")
         public Something findById(@Bind("id") int id);
     }

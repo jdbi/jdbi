@@ -1,3 +1,19 @@
+/*
+ * Copyright 2004 - 2011 Brian McCallister
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
@@ -16,7 +32,7 @@ import org.skife.jdbi.v2.util.StringMapper;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class TestStringTemplate3Locator
+public class TestOverrideStatementLocatorWith
 {
     private Handle handle;
 
@@ -41,7 +57,7 @@ public class TestStringTemplate3Locator
     @Test
     public void testBaz() throws Exception
     {
-        Wombat wombat = handle.attach(Wombat.class);
+        Kangaroo wombat = handle.attach(Kangaroo.class);
         wombat.insert(new Something(7, "Henning"));
 
         String name = handle.createQuery("select name from something where id = 7")
@@ -56,7 +72,7 @@ public class TestStringTemplate3Locator
     {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
-        Something s = handle.attach(Wombat.class).findById(6L);
+        Something s = handle.attach(Kangaroo.class).findById(6L);
         assertThat(s.getName(), equalTo("Martin"));
     }
 
@@ -64,14 +80,14 @@ public class TestStringTemplate3Locator
     public void testBap() throws Exception
     {
         handle.execute("insert into something (id, name) values (2, 'Bean')");
-        Wombat w = handle.attach(Wombat.class);
+        Kangaroo w = handle.attach(Kangaroo.class);
         assertThat(w.findNameFor(2), equalTo("Bean"));
     }
 
     @Test
     public void testDefines() throws Exception
     {
-        handle.attach(Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
+        handle.attach(Kangaroo.class).weirdInsert("something", "id", "name", 5, "Bouncer");
         String name = handle.createQuery("select name from something where id = 5")
                             .map(StringMapper.FIRST)
                             .first();
@@ -79,27 +95,6 @@ public class TestStringTemplate3Locator
         assertThat(name, equalTo("Bouncer"));
     }
 
-    @ExternalizedSqlViaStringTemplate3
-//    @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
-    @RegisterMapper(SomethingMapper.class)
-    static interface Wombat
-    {
-        @SqlUpdate
-        public void insert(@BindBean Something s);
-
-        @SqlQuery
-        public Something findById(@Bind("id") Long id);
-
-        @SqlQuery("select name from something where id = :it")
-        String findNameFor(@Bind int id);
-
-        @SqlUpdate
-        void weirdInsert(@Define("table") String table,
-                         @Define("id_column") String idColumn,
-                         @Define("value_column") String valueColumn,
-                         @Bind("id") int id,
-                         @Bind("value") String name);
-    }
 
     @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
     @RegisterMapper(SomethingMapper.class)
@@ -121,4 +116,5 @@ public class TestStringTemplate3Locator
                          @Bind("id") int id,
                          @Bind("value") String name);
     }
+
 }

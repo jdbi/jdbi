@@ -2,9 +2,6 @@ package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.annotation.Annotation;
@@ -23,6 +20,9 @@ import java.lang.reflect.Method;
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterMapper
 {
+    /**
+     * The result set mapper class to register
+     */
     Class<? extends ResultSetMapper> value();
 
     static class Factory implements SQLStatementCustomizerFactory

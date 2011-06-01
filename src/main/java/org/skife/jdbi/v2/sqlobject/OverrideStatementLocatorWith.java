@@ -1,9 +1,6 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import java.lang.annotation.Annotation;

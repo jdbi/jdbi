@@ -12,11 +12,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
+/**
+ * Used to set attributes on the StatementContext for the statement generated for this method.
+ * These values will be available to other customizers, such as the statement locator or rewriter.
+ */
 @SQLStatementCustomizingAnnotation(Define.Factory.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Define
 {
+    /**
+     * The key for the attribute to set. The value will be the value passed to the annotated argument
+     */
     String value();
 
     static class Factory implements SQLStatementCustomizerFactory

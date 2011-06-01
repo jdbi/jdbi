@@ -16,15 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.sql.DataSource;
-
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.logging.NoOpLog;
@@ -39,6 +30,14 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class  provides the access point for jDBI. Use it to obtain Handle instances

@@ -26,6 +26,7 @@ class SqlObject implements InvocationHandler
     static {
         mixinHandlers.putAll(Transactional.Helper.handlers());
         mixinHandlers.putAll(GetHandle.Helper.handlers());
+        mixinHandlers.putAll(Transmogrifier.Helper.handlers());
     }
 
     static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)

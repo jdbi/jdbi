@@ -16,13 +16,14 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 /**
  * Wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}

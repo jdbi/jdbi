@@ -18,8 +18,6 @@ package org.skife.jdbi.v2.sqlobject.binders;
 
 import org.skife.jdbi.v2.SQLStatement;
 
-import java.lang.annotation.Annotation;
-
 class DefaultObjectBinder implements Binder<Bind, Object>
 {
     public void bind(SQLStatement q, Bind b, Object arg)

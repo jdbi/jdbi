@@ -14,11 +14,18 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+/**
+ * Use this to override the statement locator on a sql object, May be specified on either the interface
+ * or method level.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @SQLStatementCustomizingAnnotation(OverrideStatementLocatorWith.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface OverrideStatementLocatorWith
 {
+    /**
+     * Specify the statement locator class to use
+     */
     Class<? extends org.skife.jdbi.v2.tweak.StatementLocator> value();
 
     static class Factory implements SQLStatementCustomizerFactory

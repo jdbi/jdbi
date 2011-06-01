@@ -16,18 +16,18 @@
 
 package org.skife.jdbi.v2;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collections;
-import java.util.Map;
-
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements

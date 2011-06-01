@@ -16,12 +16,12 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.Argument;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
-
-import org.skife.jdbi.v2.tweak.Argument;
 
 /**
  *

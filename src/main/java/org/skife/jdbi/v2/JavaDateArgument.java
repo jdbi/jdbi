@@ -16,13 +16,13 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.Argument;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
-
-import org.skife.jdbi.v2.tweak.Argument;
 
 /**
  * Binds a @{link Date) argument to a prepared statement. A Java Date is really a timestamp because

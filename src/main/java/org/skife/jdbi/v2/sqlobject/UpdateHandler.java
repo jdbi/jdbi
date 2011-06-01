@@ -4,10 +4,7 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Update;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 
-import java.lang.annotation.Annotation;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 class UpdateHandler extends CustomizingStatementHandler
 {

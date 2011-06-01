@@ -18,6 +18,7 @@ package org.skife.jdbi.v2.sqlobject;
 
 import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -26,6 +27,9 @@ import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.util.StringMapper;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class TestMixinInterfaces extends TestCase
 {
@@ -124,9 +128,26 @@ public class TestMixinInterfaces extends TestCase
         h2.close();
     }
 
+    @Test
+    public void testTransmogrifiable() throws Exception
+    {
+        Hobbsian h = handle.attach(Hobbsian.class);
+        h.insert(2, "Cora");
+        Something s = h.become(TransactionStuff.class).byId(2);
+        assertThat(s, equalTo(new Something(2, "Cora")));
+    }
+
     public static interface WithGetHandle extends CloseMe, GetHandle
     {
 
+    }
+
+
+    public static interface Hobbsian extends Transmogrifier
+    {
+
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        public void insert(@Bind("id") int id, @Bind("name") String name);
     }
 
     public static interface TransactionStuff extends CloseMe, Transactional<TransactionStuff> {
