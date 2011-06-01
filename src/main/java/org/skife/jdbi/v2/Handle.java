@@ -143,6 +143,20 @@ public interface Handle
     <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException;
 
     /**
+     * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
+     * result of the callback will be returned. If it fails a {@link TransactionFailedException}
+     * will be thrown.
+     * <p>
+     * This form accepts a transaction isolation level which will be applied to the connection
+     * for the scope of this transaction, after which the original isolation level will be restored.
+     * </p>
+     * @return value returned from the callback
+     * @throws TransactionFailedException if the transaction failed in the callback
+     */
+    <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
+                                          TransactionCallback<ReturnType> callback) throws TransactionFailedException;
+
+    /**
      * Convenience method which executes a select with purely positional arguments
      * @param sql SQL or named statement
      * @param args arguments to bind positionally
@@ -230,4 +244,25 @@ public interface Handle
      * @return the new sql object bound to this handle
      */
     <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType);
+
+    /**
+     * Set the transaction isolation level on the underlying connection
+     *
+     * @param level the isolation level to use
+     */
+    public void setTransactionIsolation(TransactionIsolationLevel level);
+
+    /**
+     * Set the transaction isolation level on the underlying connection
+     *
+     * @param level the isolation level to use
+     */
+    public void setTransactionIsolation(int level);
+
+    /**
+     * Obtain the current transaction isolation level
+     *
+     * @return the current isolation level on the underlying connection
+     */
+    public TransactionIsolationLevel getTransactionIsolationLevel();
 }

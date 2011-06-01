@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
+import org.skife.jdbi.v2.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
@@ -36,14 +37,14 @@ import java.util.Map;
 
 class BasicHandle implements Handle
 {
-    private final TransactionHandler transactions;
-    private final Connection connection;
-    private StatementRewriter statementRewriter;
-    private StatementLocator statementLocator;
-    private SQLLog log;
-    private TimingCollector timingCollector;
-    private final MappingRegistry mappingRegistry;
-    private StatementBuilder statementBuilder;
+    private final TransactionHandler  transactions;
+    private final Connection          connection;
+    private       StatementRewriter   statementRewriter;
+    private       StatementLocator    statementLocator;
+    private       SQLLog              log;
+    private       TimingCollector     timingCollector;
+    private final MappingRegistry     mappingRegistry;
+    private       StatementBuilder    statementBuilder;
     private final Map<String, Object> globalStatementAttributes;
 
     BasicHandle(TransactionHandler transactions,
@@ -269,7 +270,7 @@ class BasicHandle implements Handle
                          timingCollector);
     }
 
-    public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException
+    public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
     {
         final boolean[] failed = {false};
         TransactionStatus status = new TransactionStatus()
@@ -307,6 +308,19 @@ class BasicHandle implements Handle
         }
     }
 
+    public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
+                                                 TransactionCallback<ReturnType> callback)
+    {
+        final TransactionIsolationLevel initial = getTransactionIsolationLevel();
+        try {
+            setTransactionIsolation(level);
+            return inTransaction(callback);
+        }
+        finally {
+            setTransactionIsolation(initial);
+        }
+    }
+
     public List<Map<String, Object>> select(String sql, Object... args)
     {
         Query<Map<String, Object>> query = this.createQuery(sql);
@@ -337,16 +351,43 @@ class BasicHandle implements Handle
         this.update(sql, args);
     }
 
-    public void registerMapper(ResultSetMapper mapper) {
+    public void registerMapper(ResultSetMapper mapper)
+    {
         mappingRegistry.add(mapper);
     }
 
-    public void registerMapper(ResultSetMapperFactory factory) {
+    public void registerMapper(ResultSetMapperFactory factory)
+    {
         mappingRegistry.add(factory);
     }
 
     public <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.attach(this, sqlObjectType);
+    }
+
+    public void setTransactionIsolation(TransactionIsolationLevel level)
+    {
+        level.intValue();
+    }
+
+    public void setTransactionIsolation(int level)
+    {
+        try {
+            connection.setTransactionIsolation(level);
+        }
+        catch (SQLException e) {
+            throw new UnableToManipulateTransactionIsolationLevelException(level, e);
+        }
+    }
+
+    public TransactionIsolationLevel getTransactionIsolationLevel()
+    {
+        try {
+            return TransactionIsolationLevel.valueOf(connection.getTransactionIsolation());
+        }
+        catch (SQLException e) {
+                throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
+        }
     }
 }
