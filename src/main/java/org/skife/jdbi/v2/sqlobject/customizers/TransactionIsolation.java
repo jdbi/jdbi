@@ -17,6 +17,11 @@ import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Used to specify the transaction isolation level for an object or method (via annotating the method
+ * or passing it in as an annotated param). If used on a parameter, the parameter type must be a
+ * {@link org.skife.jdbi.v2.TransactionIsolationLevel}
+ */
 @SQLStatementCustomizingAnnotation(TransactionIsolation.Factory.class)
 @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

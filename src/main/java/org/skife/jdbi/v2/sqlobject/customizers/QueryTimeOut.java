@@ -13,6 +13,9 @@ import java.lang.annotation.Target;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Specify the query timeout in seconds. May be used on a method or parameter, the parameter must be of an int type.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 @CustomizerAnnotation(QueryTimeOut.Factory.class)
