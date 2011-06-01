@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.sqlobject.customizers;
+package org.skife.jdbi.v2.sqlobject;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

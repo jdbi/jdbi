@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.sqlobject;
+package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.SQLStatement;
@@ -14,10 +14,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-/**
- * @deprecated use {@link org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper} instead
- */
-@Deprecated
 @SQLStatementCustomizingAnnotation(RegisterMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})

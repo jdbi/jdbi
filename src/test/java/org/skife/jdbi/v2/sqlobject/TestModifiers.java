@@ -2,6 +2,7 @@ package org.skife.jdbi.v2.sqlobject;
 
 import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -9,6 +10,7 @@ import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.customizers.FetchSize;
 import org.skife.jdbi.v2.sqlobject.customizers.MaxRows;
 import org.skife.jdbi.v2.sqlobject.customizers.QueryTimeOut;
+import org.skife.jdbi.v2.sqlobject.customizers.TransactionIsolation;
 
 import java.util.List;
 
@@ -101,6 +103,13 @@ public class TestModifiers extends TestCase
         assertEquals(3, things.size());
     }
 
+
+    @Test
+    public void testIsolationLevel() throws Exception
+    {
+
+    }
+
     public static interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
@@ -132,5 +141,11 @@ public class TestModifiers extends TestCase
         public void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
+    @TransactionIsolation()
+    public static interface IsoLevels
+    {
+        @SqlQuery("select id, name from something where id = :id")
+        public Something findById(@Bind("id") int id);
+    }
 
 }

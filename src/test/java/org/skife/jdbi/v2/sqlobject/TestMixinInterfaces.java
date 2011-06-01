@@ -24,6 +24,7 @@ import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
+import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.util.StringMapper;
 
 public class TestMixinInterfaces extends TestCase

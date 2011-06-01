@@ -1,11 +1,11 @@
-package org.skife.jdbi.v2.sqlobject.customizers;
+package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
 import java.lang.annotation.Annotation;
 
 /**
- * This interface is used in conjuntion with the {@link CustomizerAnnotation} to create
+ * This interface is used in conjuntion with the {@link org.skife.jdbi.v2.sqlobject.CustomizerAnnotation} to create
  * statement customizers. It will be instantiated each time it is needed, via a no-arg constructor.
  */
 public interface StatementCustomizerFactory

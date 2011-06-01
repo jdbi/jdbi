@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.sqlobject;
+package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
@@ -14,10 +14,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-/**
- * @deprecated use {@link org.skife.jdbi.v2.sqlobject.customizers.OverrideStatementLocatorWith} instead
- */
-@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @SQLStatementCustomizingAnnotation(OverrideStatementLocatorWith.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})

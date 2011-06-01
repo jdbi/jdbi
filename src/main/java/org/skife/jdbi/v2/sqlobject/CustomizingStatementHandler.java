@@ -4,12 +4,11 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.sqlobject.binders.BinderFactory;
 import org.skife.jdbi.v2.sqlobject.binders.BindingAnnotation;
-import org.skife.jdbi.v2.sqlobject.customizers.CustomizerAnnotation;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.customizers.StatementCustomizerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,7 +141,7 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    protected void applySqlStatementCustomizers(SQLStatement q, Object[] args)
+    protected void applySqlStatementCustomizers(SQLStatement q, Object[] args) throws SQLException
     {
         for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
             pair.factory.createForType(pair.annotation, sqlObjectType).apply(q);

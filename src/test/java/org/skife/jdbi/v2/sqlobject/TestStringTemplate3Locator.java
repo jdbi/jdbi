@@ -9,6 +9,9 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.binders.BindBean;
+import org.skife.jdbi.v2.sqlobject.customizers.Define;
+import org.skife.jdbi.v2.sqlobject.customizers.OverrideStatementLocatorWith;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplate3StatementLocator;
 import org.skife.jdbi.v2.util.StringMapper;
 
@@ -79,7 +82,6 @@ public class TestStringTemplate3Locator
         assertThat(name, equalTo("Bouncer"));
     }
 
-    //@ExternalizedSqlViaStringTemplate3
     @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
     @RegisterMapper(SomethingMapper.class)
     static interface Wombat

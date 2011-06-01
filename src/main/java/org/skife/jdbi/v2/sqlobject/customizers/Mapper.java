@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2.sqlobject;
+package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -24,9 +24,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @deprecated use {@link org.skife.jdbi.v2.sqlobject.customizers.Mapper} instead
+ * Used to specify specific result set mapper on a query method.
  */
-@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Mapper

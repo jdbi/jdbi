@@ -7,6 +7,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
+import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 
 public class TestReturningQuery extends TestCase
 {
