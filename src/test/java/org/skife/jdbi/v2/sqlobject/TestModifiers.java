@@ -109,7 +109,7 @@ public class TestModifiers extends TestCase
     }
 
 
-    @Test
+    @Test//(timeout = 1)
     public void testIsolationLevel() throws Exception
     {
         Spiffy spiffy = dbi.open(Spiffy.class);
