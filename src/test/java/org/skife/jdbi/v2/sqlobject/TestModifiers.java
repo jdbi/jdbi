@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import static org.skife.jdbi.v2.TransactionIsolationLevel.*;
+
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.customizers.FetchSize;
@@ -109,8 +111,8 @@ public class TestModifiers extends TestCase
     }
 
 
-    @Test//(timeout = 1)
-    public void testIsolationLevel() throws Exception
+    @Test
+    public void testIsolationLevelOnMethod() throws Exception
     {
         Spiffy spiffy = dbi.open(Spiffy.class);
         IsoLevels iso = dbi.open(IsoLevels.class);
@@ -119,6 +121,27 @@ public class TestModifiers extends TestCase
         spiffy.insert(1, "Tom");
 
         Something tom = iso.findById(1);
+        assertThat(tom, notNullValue());
+
+        spiffy.rollback();
+
+        Something not_tom = iso.findById(1);
+        assertThat(not_tom, nullValue());
+
+        spiffy.close();
+        iso.close();
+    }
+
+    @Test
+    public void testIsolationLevelOnParam() throws Exception
+    {
+        Spiffy spiffy = dbi.open(Spiffy.class);
+        IsoLevels iso = dbi.open(IsoLevels.class);
+
+        spiffy.begin();
+        spiffy.insert(1, "Tom");
+
+        Something tom = iso.findById(1, READ_UNCOMMITTED);
         assertThat(tom, notNullValue());
 
         spiffy.rollback();
@@ -163,9 +186,13 @@ public class TestModifiers extends TestCase
 
     public static interface IsoLevels extends CloseMe
     {
-        @TransactionIsolation(TransactionIsolationLevel.READ_UNCOMMITTED)
+        @TransactionIsolation(READ_UNCOMMITTED)
         @SqlQuery("select id, name from something where id = :id")
         public Something findById(@Bind("id") int id);
+
+        @SqlQuery("select id, name from something where id = :id")
+        public Something findById(@Bind("id") int id, @TransactionIsolation TransactionIsolationLevel iso);
+
     }
 
 }
