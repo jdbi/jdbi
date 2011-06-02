@@ -69,7 +69,7 @@ class SqlObject implements InvocationHandler
             else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
                 handlers.put(raw_method, new UpdateHandler(sqlObjectType, method));
             }
-            else if (raw_method.isAnnotationPresent(Batch.class)) {
+            else if (raw_method.isAnnotationPresent(SqlBatch.class)) {
                 handlers.put(raw_method, new BatchHandler(sqlObjectType, method));
             }
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
@@ -141,7 +141,7 @@ class SqlObject implements InvocationHandler
         }
     }
 
-    static String getSql(Batch q, Method m)
+    static String getSql(SqlBatch q, Method m)
     {
         if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
             return m.getName();

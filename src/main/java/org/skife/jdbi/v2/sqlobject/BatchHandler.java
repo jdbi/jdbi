@@ -17,7 +17,7 @@ public class BatchHandler extends CustomizingStatementHandler
     public BatchHandler(Class sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
-        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(Batch.class), method.getRawMember());
+        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlBatch.class), method.getRawMember());
 
     }
 

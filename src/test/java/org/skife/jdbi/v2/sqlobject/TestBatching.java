@@ -91,13 +91,13 @@ public class TestBatching
 
     public static interface UsesBatching
     {
-        @Batch("insert into something (id, name) values (:id, :name)")
+        @SqlBatch("insert into something (id, name) values (:id, :name)")
         public int[] insertBeans(@BindBean Iterable<Something> elements);
 
-        @Batch("insert into something (id, name) values (:id, :name)")
+        @SqlBatch("insert into something (id, name) values (:id, :name)")
         public int[] withConstantValue(@Bind("id") Iterable<Integer> ids, @Bind("name") String name);
 
-        @Batch("insert into something (id, name) values (:id, :name)")
+        @SqlBatch("insert into something (id, name) values (:id, :name)")
         public int[] zipArgumentsTogether(@Bind("id") Iterable<Integer> ids, @Bind("name") List<String> name);
 
 
