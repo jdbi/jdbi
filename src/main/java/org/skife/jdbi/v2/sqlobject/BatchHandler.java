@@ -30,6 +30,9 @@ public class BatchHandler extends CustomizingStatementHandler
             if (arg instanceof Iterable) {
                 extras.add(((Iterable) arg).iterator());
             }
+            else if (arg instanceof Iterator) {
+                extras.add((Iterator)arg);
+            }
             else {
                 extras.add(new Iterator()
                 {
