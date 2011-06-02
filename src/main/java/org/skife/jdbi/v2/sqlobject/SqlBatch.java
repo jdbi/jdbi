@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface SqlBatch
 {
-    String value();
+    String value() default SqlQuery.DEFAULT_VALUE;
+    boolean transactional() default true;
 }

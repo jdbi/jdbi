@@ -12,6 +12,7 @@ import org.skife.jdbi.v2.sqlobject.binders.BindBean;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -43,7 +44,7 @@ public class TestBatching
 
 
     @Test
-    public void testAPIDesign() throws Exception
+    public void testInsertSingleIterable() throws Exception
     {
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
@@ -57,10 +58,24 @@ public class TestBatching
     }
 
     @Test
+    public void testInsertSingleIteratorNoTx() throws Exception
+    {
+        UsesBatching b = handle.attach(UsesBatching.class);
+        List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
+        int[] counts = b.insertBeansNoTx(to_insert.iterator());
+
+        assertThat(counts.length, equalTo(2));
+        assertThat(counts[0], equalTo(1));
+        assertThat(counts[1], equalTo(1));
+
+        assertThat(b.size(), equalTo(2));
+    }
+
+    @Test
     public void testBindConstantValue() throws Exception
     {
         UsesBatching b = handle.attach(UsesBatching.class);
-        List<Integer> ids = Arrays.asList(1,2,3,4,5);
+        List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
 
         b.withConstantValue(ids, "Johan");
 
@@ -84,8 +99,8 @@ public class TestBatching
         assertThat(b.size(), equalTo(3));
 
         List<String> ins_names = handle.createQuery("select distinct name from something order by name")
-                                   .map(StringMapper.FIRST)
-                                   .list();
+                                       .map(StringMapper.FIRST)
+                                       .list();
         assertThat(ins_names, equalTo(Arrays.asList("David", "Mike", "Tim")));
     }
 
@@ -93,6 +108,9 @@ public class TestBatching
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         public int[] insertBeans(@BindBean Iterable<Something> elements);
+
+        @SqlBatch(value = "insert into something (id, name) values (:id, :name)", transactional = false)
+        public int[] insertBeansNoTx(@BindBean Iterator<Something> elements);
 
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         public int[] withConstantValue(@Bind("id") Iterable<Integer> ids, @Bind("name") String name);
