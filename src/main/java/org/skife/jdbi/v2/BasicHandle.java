@@ -368,7 +368,7 @@ class BasicHandle implements Handle
 
     public void setTransactionIsolation(TransactionIsolationLevel level)
     {
-        level.intValue();
+        setTransactionIsolation(level.intValue());
     }
 
     public void setTransactionIsolation(int level)

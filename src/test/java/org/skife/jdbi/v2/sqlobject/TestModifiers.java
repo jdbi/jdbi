@@ -26,7 +26,6 @@ public class TestModifiers extends TestCase
     private DBI    dbi;
     private Handle handle;
 
-
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
