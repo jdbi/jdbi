@@ -19,7 +19,6 @@ import static org.junit.Assert.assertThat;
 
 public class TestBatching
 {
-
     private DBI    dbi;
     private Handle handle;
 
@@ -49,6 +48,7 @@ public class TestBatching
         UsesBatching b = handle.attach(UsesBatching.class);
         List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeans(to_insert);
+
         assertThat(counts.length, equalTo(2));
         assertThat(counts[0], equalTo(1));
         assertThat(counts[1], equalTo(1));
@@ -63,6 +63,7 @@ public class TestBatching
         List<Integer> ids = Arrays.asList(1,2,3,4,5);
 
         b.withConstantValue(ids, "Johan");
+
         assertThat(b.size(), equalTo(5));
 
         List<String> names = handle.createQuery("select distinct name from something")
@@ -79,6 +80,7 @@ public class TestBatching
         List<String> names = Arrays.asList("David", "Tim", "Mike");
 
         b.zipArgumentsTogether(ids, names);
+
         assertThat(b.size(), equalTo(3));
 
         List<String> ins_names = handle.createQuery("select distinct name from something order by name")
