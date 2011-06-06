@@ -14,12 +14,17 @@
  *    limitations under the License.
  */
 
-package org.skife.jdbi.v2.sqlobject;
+package org.skife.jdbi.v2.sqlobject.mixins;
 
 /**
- * @deprecated use {@link org.skife.jdbi.v2.sqlobject.mixins.Transmogrifier}
+ * Mixin interface which provides a means of creating a sql object from another sql object.
+ * The created sql object will obtain handles from the same source as the original.
  */
-@Deprecated
-public interface Transmogrifier extends org.skife.jdbi.v2.sqlobject.mixins.Transmogrifier
+public interface Transmogrifier
 {
+    /**
+     * Create a new sql object of the specified type, which shares the same means of obtaining
+     * handles (or same handle, as the case may be!)
+     */
+    public <T> T become(Class<T> typeToBecome);
 }

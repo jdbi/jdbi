@@ -24,9 +24,9 @@ class SqlObject implements InvocationHandler
         new ConcurrentHashMap<Class, Map<Method, Handler>>();
 
     static {
-        mixinHandlers.putAll(Transactional.Helper.handlers());
-        mixinHandlers.putAll(GetHandle.Helper.handlers());
-        mixinHandlers.putAll(Transmogrifier.Helper.handlers());
+        mixinHandlers.putAll(TransactionalHelper.handlers());
+        mixinHandlers.putAll(GetHandleHelper.handlers());
+        mixinHandlers.putAll(TransmogrifierHelper.handlers());
     }
 
     static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)

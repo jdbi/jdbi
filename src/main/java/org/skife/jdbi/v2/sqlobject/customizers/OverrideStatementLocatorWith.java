@@ -1,9 +1,9 @@
 package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import java.lang.annotation.Annotation;
@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
  * or method level.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@SQLStatementCustomizingAnnotation(OverrideStatementLocatorWith.Factory.class)
+@SqlStatementCustomizingAnnotation(OverrideStatementLocatorWith.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface OverrideStatementLocatorWith
 {
@@ -28,10 +28,10 @@ public @interface OverrideStatementLocatorWith
      */
     Class<? extends org.skife.jdbi.v2.tweak.StatementLocator> value();
 
-    static class Factory implements SQLStatementCustomizerFactory
+    static class Factory implements SqlStatementCustomizerFactory
     {
 
-        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             OverrideStatementLocatorWith sl = (OverrideStatementLocatorWith) annotation;
             final org.skife.jdbi.v2.tweak.StatementLocator f;
@@ -41,7 +41,7 @@ public @interface OverrideStatementLocatorWith
             catch (Exception e) {
                 throw new IllegalStateException("unable to instantiate a statement locator", e);
             }
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement q)
                 {
@@ -50,7 +50,7 @@ public @interface OverrideStatementLocatorWith
             };
         }
 
-        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             OverrideStatementLocatorWith sl = (OverrideStatementLocatorWith) annotation;
             final StatementLocator f;
@@ -60,7 +60,7 @@ public @interface OverrideStatementLocatorWith
             catch (Exception e) {
                 throw new IllegalStateException("unable to instantiate a statement locator", e);
             }
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement q)
                 {
@@ -95,7 +95,7 @@ public @interface OverrideStatementLocatorWith
 
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not applicable to parameter");
         }

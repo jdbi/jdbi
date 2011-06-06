@@ -26,6 +26,9 @@ import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
+import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
+import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -150,7 +153,8 @@ public class TestMixinInterfaces extends TestCase
         public void insert(@Bind("id") int id, @Bind("name") String name);
     }
 
-    public static interface TransactionStuff extends CloseMe, Transactional<TransactionStuff> {
+    public static interface TransactionStuff extends CloseMe, Transactional<TransactionStuff>
+    {
 
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)

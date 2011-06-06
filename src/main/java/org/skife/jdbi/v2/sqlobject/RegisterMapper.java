@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
  * @deprecated use {@link org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper} instead
  */
 @Deprecated
-@SQLStatementCustomizingAnnotation(RegisterMapper.Factory.class)
+@SqlStatementCustomizingAnnotation(RegisterMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterMapper
@@ -25,9 +25,9 @@ public @interface RegisterMapper
      */
     Class<? extends ResultSetMapper> value();
 
-    static class Factory implements SQLStatementCustomizerFactory
+    static class Factory implements SqlStatementCustomizerFactory
     {
-        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
             final ResultSetMapper m;
@@ -37,7 +37,7 @@ public @interface RegisterMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
             }
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement statement)
                 {
@@ -49,7 +49,7 @@ public @interface RegisterMapper
             };
         }
 
-        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
             final ResultSetMapper m;
@@ -59,7 +59,7 @@ public @interface RegisterMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
             }
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement statement)
                 {
@@ -71,7 +71,7 @@ public @interface RegisterMapper
             };
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not defined for paremeter");
         }

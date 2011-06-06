@@ -17,9 +17,6 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.lang.annotation.Annotation;
@@ -35,7 +32,7 @@ import java.lang.reflect.Method;
  */
 @Deprecated
 @Retention(RetentionPolicy.RUNTIME)
-@SQLStatementCustomizingAnnotation(OverrideStatementRewriterWith.Factory.class)
+@SqlStatementCustomizingAnnotation(OverrideStatementRewriterWith.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface OverrideStatementRewriterWith
 {
@@ -44,14 +41,18 @@ public @interface OverrideStatementRewriterWith
      */
     Class<? extends StatementRewriter> value();
 
-    public static class Factory implements SQLStatementCustomizerFactory
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public static class Factory implements SqlStatementCustomizerFactory
     {
-        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, method);
-                return new SQLStatementCustomizer()
+                return new SqlStatementCustomizer()
                 {
                     public void apply(SQLStatement q)
                     {
@@ -64,12 +65,12 @@ public @interface OverrideStatementRewriterWith
             }
         }
 
-        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, null);
-                return new SQLStatementCustomizer()
+                return new SqlStatementCustomizer()
                 {
                     public void apply(SQLStatement q)
                     {
@@ -82,7 +83,7 @@ public @interface OverrideStatementRewriterWith
             }
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             throw new IllegalStateException("Not defined on parameters!");
         }

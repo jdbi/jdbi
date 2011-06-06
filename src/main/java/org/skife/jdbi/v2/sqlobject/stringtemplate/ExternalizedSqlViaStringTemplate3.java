@@ -1,9 +1,9 @@
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import java.lang.annotation.Annotation;
@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-@SQLStatementCustomizingAnnotation(ExternalizedSqlViaStringTemplate3.LocatorFactory.class)
+@SqlStatementCustomizingAnnotation(ExternalizedSqlViaStringTemplate3.LocatorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface ExternalizedSqlViaStringTemplate3
@@ -22,9 +22,9 @@ public @interface ExternalizedSqlViaStringTemplate3
 
     String value() default DEFAULT_VALUE;
 
-    public static class LocatorFactory implements SQLStatementCustomizerFactory
+    public static class LocatorFactory implements SqlStatementCustomizerFactory
     {
-        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final ExternalizedSqlViaStringTemplate3 a = (ExternalizedSqlViaStringTemplate3) annotation;
             final StatementLocator l;
@@ -35,7 +35,7 @@ public @interface ExternalizedSqlViaStringTemplate3
                 l = new StringTemplate3StatementLocator(a.value());
             }
 
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement q)
                 {
@@ -44,14 +44,14 @@ public @interface ExternalizedSqlViaStringTemplate3
             };
         }
 
-        public SQLStatementCustomizer createForMethod(Annotation annotation,
+        public SqlStatementCustomizer createForMethod(Annotation annotation,
                                                       Class sqlObjectType,
                                                       Method method)
         {
             throw new UnsupportedOperationException("Not Defined on Method");
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                          Class sqlObjectType,
                                                          Method method, Object arg)
         {

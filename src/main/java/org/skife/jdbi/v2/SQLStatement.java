@@ -1395,4 +1395,19 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     {
         return timingCollector;
     }
+
+    public void setFetchDirection(final int value)
+    {
+        addStatementCustomizer(new StatementCustomizer()
+        {
+            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
+                stmt.setFetchDirection(value);
+            }
+
+            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            {
+            }
+        });
+    }
 }

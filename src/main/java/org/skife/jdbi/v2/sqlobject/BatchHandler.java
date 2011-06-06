@@ -114,7 +114,6 @@ class BatchHandler extends CustomizingStatementHandler
             PreparedBatchPart part = batch.add();
             applyBinders(part, _args);
             applyCustomizers(part, _args);
-            applySqlStatementCustomizers(part, _args);
 
             if (++processed == chunk_size) {
                 // execute this chunk

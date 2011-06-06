@@ -2,12 +2,12 @@ package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.Handle;
 
-class FixedHandleDing implements HandleDing
+class ConstantHandleDing implements HandleDing
 {
 
     private final Handle handle;
 
-    FixedHandleDing(Handle handle) {
+    ConstantHandleDing(Handle handle) {
         this.handle = handle;
     }
 

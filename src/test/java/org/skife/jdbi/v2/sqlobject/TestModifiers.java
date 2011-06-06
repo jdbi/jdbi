@@ -14,6 +14,8 @@ import org.skife.jdbi.v2.sqlobject.customizers.FetchSize;
 import org.skife.jdbi.v2.sqlobject.customizers.MaxRows;
 import org.skife.jdbi.v2.sqlobject.customizers.QueryTimeOut;
 import org.skife.jdbi.v2.sqlobject.customizers.TransactionIsolation;
+import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
+import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 
 import java.util.List;
 

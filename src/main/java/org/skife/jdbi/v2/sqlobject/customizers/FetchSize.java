@@ -1,55 +1,63 @@
 package org.skife.jdbi.v2.sqlobject.customizers;
 
-import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.sqlobject.CustomizerAnnotation;
-import org.skife.jdbi.v2.sqlobject.StatementCustomizerFactory;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
+import org.skife.jdbi.v2.Query;
+import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.sql.PreparedStatement;
+import java.lang.reflect.Method;
 import java.sql.SQLException;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
-@CustomizerAnnotation(FetchSize.Factory.class)
+@SqlStatementCustomizingAnnotation(FetchSize.Factory.class)
 public @interface FetchSize
 {
     int value() default 0;
 
-    static class Factory implements StatementCustomizerFactory
+    static class Factory implements SqlStatementCustomizerFactory
     {
-        public StatementCustomizer createForParameter(Annotation annotation, Object arg)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
-            final Integer va = (Integer) arg;
-            return new StatementCustomizer() {
-
-                public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            final FetchSize fs = (FetchSize) annotation;
+            return new SqlStatementCustomizer()
+            {
+                public void apply(SQLStatement q) throws SQLException
                 {
-                    stmt.setFetchSize(va);
-                }
-
-                public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-                {
+                    assert q instanceof Query;
+                    ((Query) q).setFetchSize(fs.value());
                 }
             };
         }
 
-        public StatementCustomizer createForMethod(Annotation annotation)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final FetchSize fs = (FetchSize) annotation;
-            return new StatementCustomizer() {
-
-                public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+            return new SqlStatementCustomizer()
+            {
+                public void apply(SQLStatement q) throws SQLException
                 {
-                    stmt.setFetchSize(fs.value());
+                    assert q instanceof Query;
+                    ((Query) q).setFetchSize(fs.value());
                 }
+            };
+        }
 
-                public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        {
+            final Integer va = (Integer) arg;
+            return new SqlStatementCustomizer()
+            {
+                public void apply(SQLStatement q) throws SQLException
                 {
+                    assert q instanceof Query;
+                    ((Query) q).setFetchSize(va);
                 }
             };
         }

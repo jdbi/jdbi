@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  * @deprecated use {@link org.skife.jdbi.v2.sqlobject.customizers.Define} instead
  */
 @Deprecated()
-@SQLStatementCustomizingAnnotation(Define.Factory.class)
+@SqlStatementCustomizingAnnotation(Define.Factory.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Define
@@ -23,23 +23,27 @@ public @interface Define
      */
     String value();
 
-    static class Factory implements SQLStatementCustomizerFactory
+    /**
+     * @deprecated use {@link org.skife.jdbi.v2.sqlobject.customizers.Define} instead
+     */
+    @Deprecated
+    static class Factory implements SqlStatementCustomizerFactory
     {
-        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             throw new UnsupportedOperationException("Not allowed on Type");
         }
 
-        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             throw new UnsupportedOperationException("Not allowed on Method");
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
         {
             Define d = (Define) annotation;
             final String key = d.value();
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement q)
                 {

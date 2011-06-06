@@ -6,6 +6,7 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
+import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 
 public class TestNewApiOnDbiAndHandle extends TestCase
 {

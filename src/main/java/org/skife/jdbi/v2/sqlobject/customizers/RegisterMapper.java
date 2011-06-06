@@ -2,9 +2,9 @@ package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.annotation.Annotation;
@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 /**
  * Used to register a result set mapper with either a sql object type or for a specific method.
  */
-@SQLStatementCustomizingAnnotation(RegisterMapper.Factory.class)
+@SqlStatementCustomizingAnnotation(RegisterMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterMapper
@@ -27,9 +27,9 @@ public @interface RegisterMapper
      */
     Class<? extends ResultSetMapper> value();
 
-    static class Factory implements SQLStatementCustomizerFactory
+    static class Factory implements SqlStatementCustomizerFactory
     {
-        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
             final ResultSetMapper m;
@@ -39,7 +39,7 @@ public @interface RegisterMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
             }
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement statement)
                 {
@@ -51,7 +51,7 @@ public @interface RegisterMapper
             };
         }
 
-        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
             final ResultSetMapper m;
@@ -61,7 +61,7 @@ public @interface RegisterMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
             }
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement statement)
                 {
@@ -73,7 +73,7 @@ public @interface RegisterMapper
             };
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not defined for paremeter");
         }

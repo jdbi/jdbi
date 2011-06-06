@@ -4,10 +4,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
- * Interface used in conjunction with {@link SQLStatementCustomizingAnnotation} to generate
- * {@link SQLStatementCustomizer} instances.
+ * Interface used in conjunction with {@link SqlStatementCustomizingAnnotation} to generate
+ * {@link SqlStatementCustomizer} instances.
  */
-public interface SQLStatementCustomizerFactory
+public interface SqlStatementCustomizerFactory
 {
     /**
      * Used to create customizers for annotations on methods.
@@ -17,7 +17,7 @@ public interface SQLStatementCustomizerFactory
      * @param method the method which was annotated
      * @return the customizer which will be applied to the generated statement
      */
-    public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method);
+    public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method);
 
     /**
      * Used to create customizers for annotations on sql object interfaces
@@ -26,7 +26,7 @@ public interface SQLStatementCustomizerFactory
      * @param sqlObjectType sql object class (interface)
      * @return the customizer which will be applied to the generated statement
      */
-    public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType);
+    public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType);
 
     /**
      * Used to create customizers for annotations on parameters
@@ -37,5 +37,5 @@ public interface SQLStatementCustomizerFactory
      * @param arg the argument value for the annotated parameter
      * @return the customizer which will be applied to the generated statement
      */
-    public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg);
+    public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg);
 }

@@ -2,9 +2,6 @@ package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Update;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-
-import java.sql.SQLException;
 
 class UpdateHandler extends CustomizingStatementHandler
 {
@@ -21,7 +18,6 @@ class UpdateHandler extends CustomizingStatementHandler
         Update q = h.getHandle().createStatement(sql);
         applyBinders(q, args);
         applyCustomizers(q, args);
-        applySqlStatementCustomizers(q, args);
 
         return q.execute();
     }

@@ -3,9 +3,9 @@ package org.skife.jdbi.v2.sqlobject.customizers;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
 import java.lang.annotation.Annotation;
@@ -22,7 +22,7 @@ import java.sql.SQLException;
  * or passing it in as an annotated param). If used on a parameter, the parameter type must be a
  * {@link org.skife.jdbi.v2.TransactionIsolationLevel}
  */
-@SQLStatementCustomizingAnnotation(TransactionIsolation.Factory.class)
+@SqlStatementCustomizingAnnotation(TransactionIsolation.Factory.class)
 @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TransactionIsolation
@@ -30,26 +30,28 @@ public @interface TransactionIsolation
 
     TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
 
-    static class Factory implements SQLStatementCustomizerFactory {
+    static class Factory implements SqlStatementCustomizerFactory
+    {
 
-        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             return new MyCustomizer(((TransactionIsolation) annotation).value());
         }
 
-        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             return new MyCustomizer(((TransactionIsolation) annotation).value());
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             assert arg instanceof TransactionIsolationLevel;
             return new MyCustomizer((TransactionIsolationLevel) arg);
         }
     }
 
-    static class MyCustomizer implements SQLStatementCustomizer {
+    static class MyCustomizer implements SqlStatementCustomizer
+    {
 
         private final TransactionIsolationLevel level;
 

@@ -20,11 +20,8 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.exceptions.DBIException;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-
-import java.sql.SQLException;
 
 abstract class BaseQueryHandler extends CustomizingStatementHandler
 {
@@ -71,7 +68,6 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
         Query q = h.getHandle().createQuery(sql);
         applyBinders(q, args);
         applyCustomizers(q, args);
-        applySqlStatementCustomizers(q, args);
         return result(mapFunc.map(q), h);
 
     }

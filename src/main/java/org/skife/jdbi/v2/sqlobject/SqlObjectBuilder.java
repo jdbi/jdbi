@@ -36,7 +36,7 @@ public class SqlObjectBuilder
      */
     public static <T> T attach(Handle handle, Class<T> sqlObjectType)
     {
-        return SqlObject.buildSqlObject(sqlObjectType, new FixedHandleDing(handle));
+        return SqlObject.buildSqlObject(sqlObjectType, new ConstantHandleDing(handle));
     }
 
     /**
@@ -50,7 +50,7 @@ public class SqlObjectBuilder
      */
     public static <T> T open(DBI dbi, Class<T> sqlObjectType)
     {
-        return SqlObject.buildSqlObject(sqlObjectType, new FixedHandleDing(dbi.open()));
+        return SqlObject.buildSqlObject(sqlObjectType, new ConstantHandleDing(dbi.open()));
     }
 
     /**

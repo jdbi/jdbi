@@ -1,9 +1,9 @@
 package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SQLStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
  * Used to set attributes on the StatementContext for the statement generated for this method.
  * These values will be available to other customizers, such as the statement locator or rewriter.
  */
-@SQLStatementCustomizingAnnotation(Define.Factory.class)
+@SqlStatementCustomizingAnnotation(Define.Factory.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Define
@@ -26,23 +26,23 @@ public @interface Define
      */
     String value();
 
-    static class Factory implements SQLStatementCustomizerFactory
+    static class Factory implements SqlStatementCustomizerFactory
     {
-        public SQLStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             throw new UnsupportedOperationException("Not allowed on Type");
         }
 
-        public SQLStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             throw new UnsupportedOperationException("Not allowed on Method");
         }
 
-        public SQLStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
         {
             Define d = (Define) annotation;
             final String key = d.value();
-            return new SQLStatementCustomizer()
+            return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement q)
                 {

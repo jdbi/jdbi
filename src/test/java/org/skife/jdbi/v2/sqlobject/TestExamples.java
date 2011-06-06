@@ -10,6 +10,8 @@ import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.binders.BindBean;
+import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
+import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
 import org.skife.jdbi.v2.util.IntegerMapper;
 
@@ -80,7 +82,8 @@ public class TestExamples extends TestCase
     }
 
 
-    interface UsesTransactions extends Transactional<UsesTransactions> {
+    interface UsesTransactions extends Transactional<UsesTransactions>
+    {
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something something);
