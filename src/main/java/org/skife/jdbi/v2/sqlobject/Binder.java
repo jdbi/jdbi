@@ -20,7 +20,7 @@ import org.skife.jdbi.v2.SQLStatement;
 
 import java.lang.annotation.Annotation;
 
-interface Binder<AnnotationType extends Annotation, ArgType>
+public interface Binder<AnnotationType extends Annotation, ArgType>
 {
     public void bind(SQLStatement q, AnnotationType bind, ArgType arg);
 }
