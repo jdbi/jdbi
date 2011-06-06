@@ -91,7 +91,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     }
 
     /**
-     * @see StatementCustomizer#beforeExecution(java.sql.PreparedStatement,org.skife.jdbi.v2.StatementContext)
+     * @see org.skife.jdbi.v2.tweak.StatementCustomizer#beforeExecution(java.sql.PreparedStatement,org.skife.jdbi.v2.StatementContext)
      */
     public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {

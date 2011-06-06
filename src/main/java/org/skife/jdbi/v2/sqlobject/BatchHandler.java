@@ -19,9 +19,9 @@ import java.util.List;
 
 public class BatchHandler extends CustomizingStatementHandler
 {
-    private final String sql;
+    private final String  sql;
     private final boolean transactional;
-    private final int batchChunkSize;
+    private final int     batchChunkSize;
 
     public BatchHandler(Class sqlObjectType, ResolvedMethod method)
     {
@@ -54,7 +54,7 @@ public class BatchHandler extends CustomizingStatementHandler
                 extras.add(((Iterable) arg).iterator());
             }
             else if (arg instanceof Iterator) {
-                extras.add((Iterator)arg);
+                extras.add((Iterator) arg);
             }
             else {
                 extras.add(new Iterator()
@@ -80,18 +80,14 @@ public class BatchHandler extends CustomizingStatementHandler
 
         int processed = 0;
         List<int[]> rs_parts = new ArrayList<int[]>();
+
         PreparedBatch batch = handle.prepareBatch(sql);
         Object[] _args = null;
         while ((_args = next(extras)) != null) {
             PreparedBatchPart part = batch.add();
             applyBinders(part, _args);
             applyCustomizers(part, _args);
-            try {
-                applySqlStatementCustomizers(part, _args);
-            }
-            catch (SQLException e) {
-                throw new UnableToCreateStatementException("exception raised in statement customizer application", e);
-            }
+            applySqlStatementCustomizers(part, _args);
 
             if (++processed == batchChunkSize) {
                 // execute this chunk
@@ -124,7 +120,8 @@ public class BatchHandler extends CustomizingStatementHandler
         if (transactional) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
-            return handle.inTransaction(new TransactionCallback<int[]>() {
+            return handle.inTransaction(new TransactionCallback<int[]>()
+            {
                 public int[] inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return batch.execute();

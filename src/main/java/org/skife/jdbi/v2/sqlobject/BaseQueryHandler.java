@@ -71,12 +71,7 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
         Query q = h.getHandle().createQuery(sql);
         applyBinders(q, args);
         applyCustomizers(q, args);
-        try {
-            applySqlStatementCustomizers(q, args);
-        }
-        catch (SQLException e) {
-            throw new UnableToCreateStatementException("exception raised in statement customizer application", e);
-        }
+        applySqlStatementCustomizers(q, args);
         return result(mapFunc.map(q), h);
 
     }

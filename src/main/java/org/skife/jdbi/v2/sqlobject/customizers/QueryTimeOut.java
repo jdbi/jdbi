@@ -2,7 +2,7 @@ package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.CustomizerAnnotation;
-import org.skife.jdbi.v2.sqlobject.StatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.JDBCStatementCustomizerFactory;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
 import java.lang.annotation.Annotation;
@@ -23,7 +23,7 @@ public @interface QueryTimeOut
 {
     int value() default Integer.MAX_VALUE;
 
-    static class Factory implements StatementCustomizerFactory
+    static class Factory implements JDBCStatementCustomizerFactory
     {
         public StatementCustomizer createForParameter(Annotation annotation, Object arg)
         {
