@@ -21,7 +21,7 @@ class BatchHandler extends CustomizingStatementHandler
     private final boolean transactional;
     private final ChunkSizeFunction batchChunkSize;
 
-    public BatchHandler(Class sqlObjectType, ResolvedMethod method)
+    public BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
         Method raw_method = method.getRawMember();
@@ -31,7 +31,7 @@ class BatchHandler extends CustomizingStatementHandler
         this.batchChunkSize = determineBatchChunkSize(sqlObjectType, raw_method);
     }
 
-    private ChunkSizeFunction determineBatchChunkSize(Class sqlObjectType, Method raw_method)
+    private ChunkSizeFunction determineBatchChunkSize(Class<?> sqlObjectType, Method raw_method)
     {
         // this next big if chain determines the batch chunk size. It looks from most specific
         // scope to least, that is: as an argument, then on the method, then on the class,

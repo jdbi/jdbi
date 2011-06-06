@@ -8,7 +8,7 @@ class UpdateHandler extends CustomizingStatementHandler
 {
     final String sql;
 
-    public UpdateHandler(Class sqlObjectType, ResolvedMethod method)
+    public UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());

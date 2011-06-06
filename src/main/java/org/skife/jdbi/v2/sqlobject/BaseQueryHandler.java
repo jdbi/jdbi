@@ -20,7 +20,6 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Query;
-import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -31,7 +30,7 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
     private final ResolvedMethod method;
     private final MapFunc        mapFunc;
 
-    public BaseQueryHandler(Class sqlObjectType, ResolvedMethod method)
+    public BaseQueryHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
         this.method = method;

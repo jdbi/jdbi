@@ -17,7 +17,7 @@ public final class ConcreteStatementContext implements StatementContext
     private PreparedStatement statement;
     private Connection        connection;
     private Binding           binding;
-    private Class sqlObjectType;
+    private Class<?>          sqlObjectType;
     private Method            sqlObjectMethod;
 
     ConcreteStatementContext(Map<String, Object> globalAttributes)
@@ -152,7 +152,7 @@ public final class ConcreteStatementContext implements StatementContext
         return binding;
     }
 
-    public final void setSqlObjectType(Class sqlObjectType)
+    public final void setSqlObjectType(Class<?> sqlObjectType)
     {
         this.sqlObjectType = sqlObjectType;
     }

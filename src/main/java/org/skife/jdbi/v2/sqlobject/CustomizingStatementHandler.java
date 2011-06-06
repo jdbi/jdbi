@@ -3,7 +3,6 @@ package org.skife.jdbi.v2.sqlobject;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.binders.BinderFactory;
 import org.skife.jdbi.v2.sqlobject.binders.BindingAnnotation;
@@ -20,10 +19,10 @@ abstract class CustomizingStatementHandler implements Handler
     private final List<FactoryAnnotationPair>        typeBasedCustomizerFactories   = new ArrayList<FactoryAnnotationPair>();
     private final List<FactoryAnnotationPair>        methodBasedCustomizerFactories = new ArrayList<FactoryAnnotationPair>();
     private final List<FactoryAnnotationIndexTriple> paramBasedCustomizerFactories  = new ArrayList<FactoryAnnotationIndexTriple>();
-    private final Class  sqlObjectType;
+    private final Class<?> sqlObjectType;
     private final Method method;
 
-    CustomizingStatementHandler(Class sqlObjectType, ResolvedMethod method)
+    CustomizingStatementHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         this.sqlObjectType = sqlObjectType;
         this.method = method.getRawMember();
@@ -105,14 +104,14 @@ abstract class CustomizingStatementHandler implements Handler
         q.setSqlObjectType(sqlObjectType);
     }
 
-    protected void applyBinders(SQLStatement q, Object[] args)
+    protected void applyBinders(SQLStatement<?> q, Object[] args)
     {
         for (Bindifier binder : binders) {
             binder.bind(q, args);
         }
     }
 
-    protected void applyCustomizers(SQLStatement q, Object[] args)
+    protected void applyCustomizers(SQLStatement<?> q, Object[] args)
     {
         for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
             try {

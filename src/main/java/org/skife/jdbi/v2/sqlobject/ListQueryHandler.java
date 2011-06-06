@@ -8,7 +8,7 @@ import java.util.List;
 
 class ListQueryHandler extends BaseQueryHandler
 {
-    public ListQueryHandler(Class sqlObjectType, ResolvedMethod method)
+    public ListQueryHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
     }

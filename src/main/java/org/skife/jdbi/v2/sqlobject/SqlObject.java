@@ -20,8 +20,8 @@ class SqlObject implements InvocationHandler
 {
     private static final TypeResolver                               typeResolver  = new TypeResolver();
     private static final Map<Method, Handler>                       mixinHandlers = new HashMap<Method, Handler>();
-    private static final ConcurrentMap<Class, Map<Method, Handler>> handlersCache =
-        new ConcurrentHashMap<Class, Map<Method, Handler>>();
+    private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache =
+        new ConcurrentHashMap<Class<?>, Map<Method, Handler>>();
 
     static {
         mixinHandlers.putAll(TransactionalHelper.handlers());
@@ -29,6 +29,7 @@ class SqlObject implements InvocationHandler
         mixinHandlers.putAll(TransmogrifierHelper.handlers());
     }
 
+    @SuppressWarnings("unchecked")
     static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)
     {
         return (T) Proxy.newProxyInstance(sqlObjectType.getClassLoader(),
@@ -36,7 +37,7 @@ class SqlObject implements InvocationHandler
                                           new SqlObject(buildHandlersFor(sqlObjectType), handle));
     }
 
-    private static Map<Method, Handler> buildHandlersFor(Class sqlObjectType)
+    private static Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType)
     {
         if (handlersCache.containsKey(sqlObjectType)) {
             return handlersCache.get(sqlObjectType);
