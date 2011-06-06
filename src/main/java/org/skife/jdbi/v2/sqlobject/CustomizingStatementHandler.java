@@ -4,8 +4,6 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.sqlobject.binders.BinderFactory;
-import org.skife.jdbi.v2.sqlobject.binders.BindingAnnotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

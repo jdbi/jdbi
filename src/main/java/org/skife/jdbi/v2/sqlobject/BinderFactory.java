@@ -1,8 +1,8 @@
-package org.skife.jdbi.v2.sqlobject.binders;
+package org.skife.jdbi.v2.sqlobject;
 
 import java.lang.annotation.Annotation;
 
-public interface BinderFactory
+interface BinderFactory
 {
     Binder build(Annotation annotation);
 }

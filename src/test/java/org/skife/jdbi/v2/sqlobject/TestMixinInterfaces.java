@@ -24,7 +24,6 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionStatus;
-import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
@@ -146,7 +145,7 @@ public class TestMixinInterfaces extends TestCase
     }
 
 
-    public static interface Hobbsian extends Transmogrifier
+    public static interface Hobbsian extends org.skife.jdbi.v2.sqlobject.mixins.Transmogrifier
     {
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

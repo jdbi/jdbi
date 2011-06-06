@@ -3,9 +3,6 @@ package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.sqlobject.binders.Binder;
-import org.skife.jdbi.v2.sqlobject.binders.BinderFactory;
-import org.skife.jdbi.v2.sqlobject.binders.BindingAnnotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;

@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.sqlobject.binders;
+package org.skife.jdbi.v2.sqlobject;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,9 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.ANNOTATION_TYPE})
-public @interface BindingAnnotation
+@Target({ElementType.PARAMETER})
+@BindingAnnotation(BindBeanFactory.class)
+public @interface BindBean
 {
-    Class<? extends BinderFactory> value();
+    String value() default "___jdbi_bare___";
 
 }

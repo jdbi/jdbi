@@ -20,7 +20,6 @@ import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.util.StringMapper;
 

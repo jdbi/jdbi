@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2.sqlobject.binders;
+package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.SQLStatement;
 
 import java.lang.annotation.Annotation;
 
-public interface Binder<AnnotationType extends Annotation, ArgType>
+interface Binder<AnnotationType extends Annotation, ArgType>
 {
     public void bind(SQLStatement q, AnnotationType bind, ArgType arg);
 }
