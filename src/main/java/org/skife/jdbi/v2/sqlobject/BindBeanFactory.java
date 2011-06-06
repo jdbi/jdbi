@@ -7,7 +7,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 
-public class BindBeanFactory implements BinderFactory
+class BindBeanFactory implements BinderFactory
 {
     public Binder build(Annotation annotation)
     {
