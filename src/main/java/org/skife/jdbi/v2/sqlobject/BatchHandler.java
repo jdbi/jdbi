@@ -1,32 +1,24 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
-import com.sun.xml.internal.ws.handler.HandlerException;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.OutParameters;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.PreparedBatchPart;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionStatus;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
-import sun.reflect.annotation.AnnotationParser;
-import sun.text.normalizer.IntTrie;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.jar.JarEntry;
 
 class BatchHandler extends CustomizingStatementHandler
 {
     private final String  sql;
     private final boolean transactional;
-    private final F       batchChunkSize;
+    private final ChunkSizeFunction batchChunkSize;
 
     public BatchHandler(Class sqlObjectType, ResolvedMethod method)
     {
@@ -35,51 +27,32 @@ class BatchHandler extends CustomizingStatementHandler
         SqlBatch anno = raw_method.getAnnotation(SqlBatch.class);
         this.sql = SqlObject.getSql(anno, raw_method);
         this.transactional = anno.transactional();
+        this.batchChunkSize = determineBatchChunkSize(sqlObjectType, raw_method);
+    }
 
-        // this next big if chain determines the batch chunk size.
+    private ChunkSizeFunction determineBatchChunkSize(Class sqlObjectType, Method raw_method)
+    {
+        // this next big if chain determines the batch chunk size. It looks from most specific
+        // scope to least, that is: as an argument, then on the method, then on the class,
+        // then default to Integer.MAX_VALUE
+
         int index_of_batch_chunk_size_annotation_on_parameter;
-
         if ((index_of_batch_chunk_size_annotation_on_parameter = findBatchChunkSizeFromParam(raw_method)) >= 0) {
-            final int idx = index_of_batch_chunk_size_annotation_on_parameter;
-            this.batchChunkSize = new F()
-            {
-                public int call(Object[] args)
-                {
-                    return (Integer) args[idx];
-                }
-            };
+            return new ParamBasedChunkSizeFunction(index_of_batch_chunk_size_annotation_on_parameter);
         }
-        else if (method.getRawMember().isAnnotationPresent(BatchChunkSize.class)) {
+        else if (raw_method.isAnnotationPresent(BatchChunkSize.class)) {
             final int size = raw_method.getAnnotation(BatchChunkSize.class).value();
             if (size <= 0) {
                 throw new IllegalArgumentException("Batch chunk size must be >= 0");
             }
-            batchChunkSize = new F()
-            {
-                public int call(Object[] args)
-                {
-                    return size;
-                }
-            };
+            return new ConstantChunkSizeFunction(size);
         }
         else if (sqlObjectType.isAnnotationPresent(BatchChunkSize.class)) {
             final int size = BatchChunkSize.class.cast(sqlObjectType.getAnnotation(BatchChunkSize.class)).value();
-            this.batchChunkSize = new F()
-            {
-                public int call(Object[] args)
-                {
-                    return size;
-                }
-            };
+            return new ConstantChunkSizeFunction(size);
         }
         else {
-            this.batchChunkSize = new F()
-            {
-                public int call(Object[] args)
-                {
-                    return Integer.MAX_VALUE;
-                }
-            };
+            return new ConstantChunkSizeFunction(Integer.MAX_VALUE);
         }
     }
 
@@ -201,8 +174,38 @@ class BatchHandler extends CustomizingStatementHandler
         return rs.toArray();
     }
 
-    private static interface F
+    private static interface ChunkSizeFunction
     {
         int call(Object[] args);
+    }
+
+    private static class ConstantChunkSizeFunction implements ChunkSizeFunction
+    {
+
+        private final int value;
+
+        ConstantChunkSizeFunction(int value) {
+            this.value = value;
+        }
+
+        public int call(Object[] args)
+        {
+            return value;
+        }
+    }
+
+    private static class ParamBasedChunkSizeFunction implements ChunkSizeFunction
+    {
+
+        private final int index;
+
+        ParamBasedChunkSizeFunction(int index) {
+            this.index = index;
+        }
+
+        public int call(Object[] args)
+        {
+            return (Integer)args[index];
+        }
     }
 }
