@@ -108,6 +108,7 @@ class BatchHandler extends CustomizingStatementHandler
         List<int[]> rs_parts = new ArrayList<int[]>();
 
         PreparedBatch batch = handle.prepareBatch(sql);
+        populateSqlObjectData(batch.getContext());
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
         while ((_args = next(extras)) != null) {

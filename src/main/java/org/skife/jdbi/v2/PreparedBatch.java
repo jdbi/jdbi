@@ -68,6 +68,11 @@ public class PreparedBatch
         this.context = new StatementContext(globalStatementAttributes);
     }
 
+    public StatementContext getContext()
+    {
+        return context;
+    }
+
     /**
      * Specify a value on the statement context for this batch
      *

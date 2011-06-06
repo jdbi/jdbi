@@ -16,6 +16,7 @@
 
 package org.skife.jdbi.v2;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
@@ -30,14 +31,17 @@ import java.util.Map;
 public class StatementContext
 {
     private final Map<String, Object> attributes = new HashMap<String, Object>();
-    private String rawSql;
-    private String rewrittenSql;
-    private String locatedSql;
+    private String            rawSql;
+    private String            rewrittenSql;
+    private String            locatedSql;
     private PreparedStatement statement;
-    private Connection connection;
-    private Binding binding;
+    private Connection        connection;
+    private Binding           binding;
+    private Class sqlObjectType;
+    private Method sqlObjectMethod;
 
-    protected StatementContext(Map<String, Object> globalAttributes) {
+    protected StatementContext(Map<String, Object> globalAttributes)
+    {
         attributes.putAll(globalAttributes);
     }
 
@@ -58,6 +62,7 @@ public class StatementContext
      * Obtain the value of an attribute
      *
      * @param key The name of the attribute
+     *
      * @return the value of the attribute
      */
     public Object getAttribute(String key)
@@ -68,6 +73,7 @@ public class StatementContext
     /**
      * Obtain all the attributes associated with this context as a map. Changes to the map
      * or to the attributes on the context will be reflected across both
+     *
      * @return a map f attributes
      */
     public Map<String, Object> getAttributes()
@@ -75,77 +81,114 @@ public class StatementContext
         return attributes;
     }
 
-    void setRawSql(String rawSql) {
+    void setRawSql(String rawSql)
+    {
         this.rawSql = rawSql;
     }
 
     /**
      * Obtain the initial sql for the statement used to create the statement
+     *
      * @return the initial sql
      */
-    public String getRawSql() {
+    public String getRawSql()
+    {
         return rawSql;
     }
 
-    void setLocatedSql(String locatedSql) {
+    void setLocatedSql(String locatedSql)
+    {
         this.locatedSql = locatedSql;
     }
 
-    void setRewrittenSql(String rewrittenSql) {
+    void setRewrittenSql(String rewrittenSql)
+    {
         this.rewrittenSql = rewrittenSql;
     }
 
     /**
      * Obtain the located and rewritten sql
-     *
+     * <p/>
      * Not available until until statement execution time
+     *
      * @return the sql as it will be executed against the database
      */
-    public String getRewrittenSql() {
+    public String getRewrittenSql()
+    {
         return rewrittenSql;
     }
 
     /**
      * Obtain the located sql
-     *
+     * <p/>
      * Not available until until statement execution time
+     *
      * @return the sql which will be passed to the statement rewriter
      */
-    public String getLocatedSql() {
+    public String getLocatedSql()
+    {
         return locatedSql;
     }
 
-    void setStatement(PreparedStatement stmt) {
+    void setStatement(PreparedStatement stmt)
+    {
         statement = stmt;
     }
 
     /**
      * Obtain the actual prepared statement being used.
-     *
+     * <p/>
      * Not available until execution time
+     *
      * @return Obtain the actual prepared statement being used.
      */
-    public PreparedStatement getStatement() {
+    public PreparedStatement getStatement()
+    {
         return statement;
     }
 
-    void setConnection(Connection connection) {
+    void setConnection(Connection connection)
+    {
         this.connection = connection;
     }
 
     /**
      * Obtain the JDBC connection being used for this statement
+     *
      * @return the JDBC connection
      */
-    public Connection getConnection() {
+    public Connection getConnection()
+    {
         return connection;
     }
 
-    public void setBinding(Binding b) {
+    public void setBinding(Binding b)
+    {
         this.binding = b;
     }
 
-    public Binding getBinding() {
+    public Binding getBinding()
+    {
         return binding;
+    }
+
+    final void setSqlObjectType(Class sqlObjectType)
+    {
+        this.sqlObjectType = sqlObjectType;
+    }
+
+    public Class getSqlObjectType()
+    {
+        return sqlObjectType;
+    }
+
+    final void setSqlObjectMethod(Method sqlObjectMethod)
+    {
+        this.sqlObjectMethod = sqlObjectMethod;
+    }
+
+    public Method getSqlObjectMethod()
+    {
+        return sqlObjectMethod;
     }
 }

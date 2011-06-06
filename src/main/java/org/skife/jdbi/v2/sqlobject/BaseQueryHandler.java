@@ -66,10 +66,10 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
     public Object invoke(HandleDing h, Object target, Object[] args)
     {
         Query q = h.getHandle().createQuery(sql);
+        populateSqlObjectData(q.getContext());
         applyBinders(q, args);
         applyCustomizers(q, args);
         return result(mapFunc.map(q), h);
-
     }
 
     protected abstract Object result(Query q, HandleDing baton);
