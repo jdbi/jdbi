@@ -18,9 +18,11 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.sqlobject.binders.BindingAnnotation;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
@@ -37,9 +39,9 @@ import java.util.Map;
  * a very efficient way to execute large numbers of the same statement where
  * the statement only varies by the arguments bound to it.
  */
-public class PreparedBatch
+public class PreparedBatch // extends SQLStatement<PreparedBatch>
 {
-    private List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
+    private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private final StatementLocator locator;
     private final StatementRewriter rewriter;
     private final Connection connection;
@@ -58,6 +60,17 @@ public class PreparedBatch
                   SQLLog log,
                   TimingCollector timingCollector)
     {
+//        super(new Binding(),
+//              locator,
+//              rewriter,
+//              connection,
+//              preparedStatementCache,
+//              sql,
+//              new StatementContext(globalStatementAttributes),
+//              log,
+//              timingCollector,
+//              new ArrayList<StatementCustomizer>());
+
         this.locator = locator;
         this.rewriter = rewriter;
         this.connection = connection;

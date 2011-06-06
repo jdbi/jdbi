@@ -6,10 +6,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.HashPrefixStatementRewriter;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.binders.BindBean;
+import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.util.StringMapper;
+import org.skife.jdbi.v2.sqlobject.customizers.OverrideStatementRewriterWith;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -104,6 +107,22 @@ public class TestBatching
         assertThat(ins_names, equalTo(Arrays.asList("David", "Mike", "Tim")));
     }
 
+    @Test
+    public void testChunkedBatching() throws Exception
+    {
+        UsesBatching b = handle.attach(UsesBatching.class);
+        List<Something> things = Arrays.asList(new Something(1, "Brian"),
+                                               new Something(2, "Henri"),
+                                               new Something(3, "Patrick"),
+                                               new Something(4, "Robert"),
+                                               new Something(5, "Maniax"));
+        int[] counts = b.insertChunked(things);
+        assertThat(counts.length, equalTo(5));
+        for (int count : counts) {
+            assertThat(count, equalTo(1));
+        }
+    }
+
     public static interface UsesBatching
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
@@ -117,6 +136,11 @@ public class TestBatching
 
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         public int[] zipArgumentsTogether(@Bind("id") Iterable<Integer> ids, @Bind("name") List<String> name);
+
+        @SqlBatch("insert into something (id, name) values (:it.id, :it.name)")
+        @BatchChunkSize(2)
+//        @OverrideStatementRewriterWith(HashPrefixStatementRewriter.class)
+        public int[] insertChunked(@BindBean("it") Iterable<Something> its);
 
 
         @SqlQuery("select count(*) from something")
