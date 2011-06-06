@@ -20,6 +20,7 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.exceptions.DBIException;
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -47,9 +48,7 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
                 };
             }
             catch (Exception e) {
-                throw new DBIException("Unable to instantiate declared mapper", e)
-                {
-                };
+                throw new UnableToCreateStatementException("unable to access mapper", e);
             }
         }
         else {
