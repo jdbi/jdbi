@@ -18,6 +18,7 @@ package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
+import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
@@ -65,7 +66,7 @@ abstract class BaseQueryHandler extends CustomizingStatementHandler
     public Object invoke(HandleDing h, Object target, Object[] args)
     {
         Query q = h.getHandle().createQuery(sql);
-        populateSqlObjectData(q.getContext());
+        populateSqlObjectData((ConcreteStatementContext)q.getContext());
         applyBinders(q, args);
         applyCustomizers(q, args);
         return result(mapFunc.map(q), h);

@@ -47,7 +47,7 @@ public class PreparedBatch
     private final String sql;
     private final SQLLog log;
     private final TimingCollector timingCollector;
-    private final StatementContext context;
+    private final ConcreteStatementContext context;
 
     PreparedBatch(StatementLocator locator,
                   StatementRewriter rewriter,
@@ -65,7 +65,7 @@ public class PreparedBatch
         this.sql = sql;
         this.log = log;
         this.timingCollector = timingCollector;
-        this.context = new StatementContext(globalStatementAttributes);
+        this.context = new ConcreteStatementContext(globalStatementAttributes);
     }
 
     public StatementContext getContext()
@@ -166,7 +166,15 @@ public class PreparedBatch
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context, log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this,
+                                                       locator,
+                                                       rewriter,
+                                                       connection,
+                                                       preparedStatementCache,
+                                                       sql,
+                                                       context,
+                                                       log,
+                                                       timingCollector);
         parts.add(part);
         return part;
     }

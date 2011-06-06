@@ -45,7 +45,7 @@ public class Call extends SQLStatement<Call>
          StatementRewriter rewriter,
          StatementBuilder cache,
          String sql,
-         StatementContext ctx,
+         ConcreteStatementContext ctx,
          SQLLog log,
          TimingCollector timingCollector,
          Collection<StatementCustomizer> customizers)

@@ -39,7 +39,7 @@ public class Update extends SQLStatement<Update>
            StatementRewriter statementRewriter,
            StatementBuilder cache,
            String sql,
-           StatementContext ctx,
+           ConcreteStatementContext ctx,
            SQLLog log,
            TimingCollector timingCollector)
     {

@@ -28,23 +28,8 @@ import java.util.Map;
  * to all statement customizers. This makes it possible to parameterize the processing of
  * the tweakable parts of the statement processing cycle.
  */
-public class StatementContext
+public interface StatementContext
 {
-    private final Map<String, Object> attributes = new HashMap<String, Object>();
-    private String            rawSql;
-    private String            rewrittenSql;
-    private String            locatedSql;
-    private PreparedStatement statement;
-    private Connection        connection;
-    private Binding           binding;
-    private Class sqlObjectType;
-    private Method sqlObjectMethod;
-
-    protected StatementContext(Map<String, Object> globalAttributes)
-    {
-        attributes.putAll(globalAttributes);
-    }
-
     /**
      * Specify an attribute on the statement context
      *
@@ -53,10 +38,7 @@ public class StatementContext
      *
      * @return previous value of this attribute
      */
-    public Object setAttribute(String key, Object value)
-    {
-        return attributes.put(key, value);
-    }
+    public Object setAttribute(String key, Object value);
 
     /**
      * Obtain the value of an attribute
@@ -65,10 +47,7 @@ public class StatementContext
      *
      * @return the value of the attribute
      */
-    public Object getAttribute(String key)
-    {
-        return this.attributes.get(key);
-    }
+    public Object getAttribute(String key);
 
     /**
      * Obtain all the attributes associated with this context as a map. Changes to the map
@@ -76,35 +55,15 @@ public class StatementContext
      *
      * @return a map f attributes
      */
-    public Map<String, Object> getAttributes()
-    {
-        return attributes;
-    }
+    public Map<String, Object> getAttributes();
 
-    void setRawSql(String rawSql)
-    {
-        this.rawSql = rawSql;
-    }
 
     /**
      * Obtain the initial sql for the statement used to create the statement
      *
      * @return the initial sql
      */
-    public String getRawSql()
-    {
-        return rawSql;
-    }
-
-    void setLocatedSql(String locatedSql)
-    {
-        this.locatedSql = locatedSql;
-    }
-
-    void setRewrittenSql(String rewrittenSql)
-    {
-        this.rewrittenSql = rewrittenSql;
-    }
+    public String getRawSql();
 
     /**
      * Obtain the located and rewritten sql
@@ -113,10 +72,7 @@ public class StatementContext
      *
      * @return the sql as it will be executed against the database
      */
-    public String getRewrittenSql()
-    {
-        return rewrittenSql;
-    }
+    public String getRewrittenSql();
 
     /**
      * Obtain the located sql
@@ -125,15 +81,7 @@ public class StatementContext
      *
      * @return the sql which will be passed to the statement rewriter
      */
-    public String getLocatedSql()
-    {
-        return locatedSql;
-    }
-
-    void setStatement(PreparedStatement stmt)
-    {
-        statement = stmt;
-    }
+    public String getLocatedSql();
 
     /**
      * Obtain the actual prepared statement being used.
@@ -142,53 +90,18 @@ public class StatementContext
      *
      * @return Obtain the actual prepared statement being used.
      */
-    public PreparedStatement getStatement()
-    {
-        return statement;
-    }
-
-    void setConnection(Connection connection)
-    {
-        this.connection = connection;
-    }
+    public PreparedStatement getStatement();
 
     /**
      * Obtain the JDBC connection being used for this statement
      *
      * @return the JDBC connection
      */
-    public Connection getConnection()
-    {
-        return connection;
-    }
+    public Connection getConnection();
 
-    public void setBinding(Binding b)
-    {
-        this.binding = b;
-    }
+    public Binding getBinding();
 
-    public Binding getBinding()
-    {
-        return binding;
-    }
+    public Class<?> getSqlObjectType();
 
-    final void setSqlObjectType(Class sqlObjectType)
-    {
-        this.sqlObjectType = sqlObjectType;
-    }
-
-    public Class getSqlObjectType()
-    {
-        return sqlObjectType;
-    }
-
-    final void setSqlObjectMethod(Method sqlObjectMethod)
-    {
-        this.sqlObjectMethod = sqlObjectMethod;
-    }
-
-    public Method getSqlObjectMethod()
-    {
-        return sqlObjectMethod;
-    }
+    public Method getSqlObjectMethod();
 }

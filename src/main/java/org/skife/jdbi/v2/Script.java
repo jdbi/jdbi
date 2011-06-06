@@ -51,7 +51,7 @@ public class Script
     public int[] execute()
     {
         final String script;
-        final StatementContext ctx = new StatementContext(globalStatementAttributes);
+        final StatementContext ctx = new ConcreteStatementContext(globalStatementAttributes);
         try
         {
             script = locator.locate(name, ctx);

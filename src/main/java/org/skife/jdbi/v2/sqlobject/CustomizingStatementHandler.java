@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
+import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
@@ -98,30 +99,10 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    private static final Method setSqlObjectMethod;
-    private static final Method setSqlObjectType;
-
-    static {
-        try {
-            setSqlObjectMethod = StatementContext.class.getDeclaredMethod("setSqlObjectMethod", Method.class);
-            setSqlObjectMethod.setAccessible(true);
-            setSqlObjectType = StatementContext.class.getDeclaredMethod("setSqlObjectType", Class.class);
-            setSqlObjectType.setAccessible(true);
-        }
-        catch (Exception e) {
-            throw new IllegalStateException("needed methods on StatementContext are missing", e);
-        }
-    }
-
-    protected final void populateSqlObjectData(StatementContext q)
+    protected final void populateSqlObjectData(ConcreteStatementContext q)
     {
-        try {
-            setSqlObjectMethod.invoke(q, method);
-            setSqlObjectType.invoke(q, sqlObjectType);
-        }
-        catch (Exception e) {
-            throw new IllegalStateException("needed methods on StatementContext are not callable", e);
-        }
+        q.setSqlObjectMethod(method);
+        q.setSqlObjectType(sqlObjectType);
     }
 
     protected void applyBinders(SQLStatement q, Object[] args)

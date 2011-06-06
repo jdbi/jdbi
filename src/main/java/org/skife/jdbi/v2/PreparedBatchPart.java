@@ -41,7 +41,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       Connection connection,
                       StatementBuilder cache,
                       String sql,
-                      StatementContext context,
+                      ConcreteStatementContext context,
                       SQLLog log,
                       TimingCollector timingCollector)
     {

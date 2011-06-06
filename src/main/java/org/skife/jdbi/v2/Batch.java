@@ -46,7 +46,7 @@ public class Batch
         this.connection = connection;
         this.log = log;
         this.timingCollector = timingCollector;
-        this.context = new StatementContext(globalStatementAttributes);
+        this.context = new ConcreteStatementContext(globalStatementAttributes);
     }
 
     /**

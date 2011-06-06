@@ -78,7 +78,7 @@ class BasicHandle implements Handle
                                               connection,
                                               statementBuilder,
                                               sql,
-                                              new StatementContext(globalStatementAttributes),
+                                              new ConcreteStatementContext(globalStatementAttributes),
                                               log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
@@ -216,7 +216,7 @@ class BasicHandle implements Handle
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new StatementContext(globalStatementAttributes),
+                          new ConcreteStatementContext(globalStatementAttributes),
                           log,
                           timingCollector);
     }
@@ -228,7 +228,7 @@ class BasicHandle implements Handle
                         statementRewriter,
                         statementBuilder,
                         sql,
-                        new StatementContext(globalStatementAttributes),
+                        new ConcreteStatementContext(globalStatementAttributes),
                         log,
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList());

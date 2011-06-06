@@ -56,7 +56,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     private final String sql;
     private final StatementBuilder statementBuilder;
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
-    private final StatementContext context;
+    private final ConcreteStatementContext context;
 
     private StatementLocator locator;
     private StatementRewriter rewriter;
@@ -75,7 +75,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                  Connection conn,
                  StatementBuilder preparedStatementCache,
                  String sql,
-                 StatementContext ctx,
+                 ConcreteStatementContext ctx,
                  SQLLog log,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers)
@@ -95,6 +95,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         ctx.setConnection(conn);
         ctx.setRawSql(sql);
         ctx.setBinding(params);
+    }
+
+    protected ConcreteStatementContext getConcreteContext() {
+        return this.context;
     }
 
     protected Collection<StatementCustomizer> getStatementCustomizers()

@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
+import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.PreparedBatchPart;
@@ -108,7 +109,7 @@ class BatchHandler extends CustomizingStatementHandler
         List<int[]> rs_parts = new ArrayList<int[]>();
 
         PreparedBatch batch = handle.prepareBatch(sql);
-        populateSqlObjectData(batch.getContext());
+        populateSqlObjectData((ConcreteStatementContext) batch.getContext());
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
         while ((_args = next(extras)) != null) {
