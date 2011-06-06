@@ -9,7 +9,6 @@ import org.skife.jdbi.v2.Something;
 import static org.skife.jdbi.v2.TransactionIsolationLevel.*;
 
 import org.skife.jdbi.v2.TransactionIsolationLevel;
-import org.skife.jdbi.v2.sqlobject.binders.Bind;
 import org.skife.jdbi.v2.sqlobject.customizers.FetchSize;
 import org.skife.jdbi.v2.sqlobject.customizers.MaxRows;
 import org.skife.jdbi.v2.sqlobject.customizers.QueryTimeOut;

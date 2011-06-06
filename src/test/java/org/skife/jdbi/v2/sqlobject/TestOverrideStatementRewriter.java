@@ -25,9 +25,8 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.HashPrefixStatementRewriter;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.sqlobject.binders.Bind;
-import org.skife.jdbi.v2.sqlobject.binders.BindBean;
 import org.skife.jdbi.v2.sqlobject.customizers.OverrideStatementRewriterWith;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;

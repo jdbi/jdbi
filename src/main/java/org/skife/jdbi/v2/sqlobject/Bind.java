@@ -16,23 +16,21 @@
 
 package org.skife.jdbi.v2.sqlobject;
 
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @deprecated use {@link org.skife.jdbi.v2.sqlobject.customizers.Mapper} instead
+ * A binding annotation
  */
-@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface Mapper
+@Target({ElementType.PARAMETER})
+@BindingAnnotation(BindFactory.class)
+public @interface Bind
 {
-    /**
-     * The class implementing {@link ResultSetMapper}. It must have constructor
-     */
-    Class<? extends ResultSetMapper> value();
+    String value() default "it";
+
+    Class<? extends Binder> binder() default DefaultObjectBinder.class;
+
 }

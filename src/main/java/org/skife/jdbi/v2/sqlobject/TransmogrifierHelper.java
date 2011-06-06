@@ -1,5 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
+import org.skife.jdbi.v2.sqlobject.mixins.Transmogrifier;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;

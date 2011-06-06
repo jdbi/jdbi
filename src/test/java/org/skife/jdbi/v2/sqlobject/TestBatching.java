@@ -6,13 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.HashPrefixStatementRewriter;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.sqlobject.binders.Bind;
-import org.skife.jdbi.v2.sqlobject.binders.BindBean;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.util.StringMapper;
-import org.skife.jdbi.v2.sqlobject.customizers.OverrideStatementRewriterWith;
 
 import java.util.Arrays;
 import java.util.Iterator;
