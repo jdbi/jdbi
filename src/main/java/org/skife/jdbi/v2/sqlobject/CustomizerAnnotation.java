@@ -19,5 +19,5 @@ public @interface CustomizerAnnotation
      * Specify the factory object which will create your statement customizer. The class
      * must have a no-arg constructor.
      */
-    Class<? extends JDBCStatementCustomizerFactory> value();
+    Class<? extends StatementCustomizerFactory> value();
 }

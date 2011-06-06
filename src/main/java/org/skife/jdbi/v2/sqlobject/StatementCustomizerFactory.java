@@ -8,7 +8,7 @@ import java.lang.annotation.Annotation;
  * This interface is used in conjuntion with the {@link org.skife.jdbi.v2.sqlobject.CustomizerAnnotation} to create
  * statement customizers. It will be instantiated each time it is needed, via a no-arg constructor.
  */
-public interface JDBCStatementCustomizerFactory
+public interface StatementCustomizerFactory
 {
     /**
      * This will be called when a customizer annotation is found on a method parameter.

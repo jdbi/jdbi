@@ -123,6 +123,23 @@ public class TestBatching
         }
     }
 
+    @Test
+    public void testChunkedBatchingOnParam() throws Exception
+    {
+        UsesBatching b = handle.attach(UsesBatching.class);
+        List<Something> things = Arrays.asList(new Something(1, "Brian"),
+                                               new Something(2, "Henri"),
+                                               new Something(3, "Patrick"),
+                                               new Something(4, "Robert"),
+                                               new Something(5, "Maniax"));
+        int[] counts = b.insertChunked(3, things);
+        assertThat(counts.length, equalTo(5));
+        for (int count : counts) {
+            assertThat(count, equalTo(1));
+        }
+    }
+
+    @BatchChunkSize(4)
     public static interface UsesBatching
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
@@ -139,8 +156,10 @@ public class TestBatching
 
         @SqlBatch("insert into something (id, name) values (:it.id, :it.name)")
         @BatchChunkSize(2)
-//        @OverrideStatementRewriterWith(HashPrefixStatementRewriter.class)
         public int[] insertChunked(@BindBean("it") Iterable<Something> its);
+
+        @SqlBatch("insert into something (id, name) values (:it.id, :it.name)")
+        public int[] insertChunked(@BatchChunkSize int size, @BindBean("it") Iterable<Something> its);
 
 
         @SqlQuery("select count(*) from something")

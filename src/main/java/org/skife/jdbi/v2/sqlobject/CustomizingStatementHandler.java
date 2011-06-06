@@ -2,7 +2,6 @@ package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.binders.BinderFactory;
 import org.skife.jdbi.v2.sqlobject.binders.BindingAnnotation;
@@ -52,7 +51,7 @@ abstract class CustomizingStatementHandler implements Handler
             if (m_anno_class.isAnnotationPresent(CustomizerAnnotation.class)) {
                 final CustomizerAnnotation c = m_anno_class.getAnnotation(CustomizerAnnotation.class);
                 try {
-                    final JDBCStatementCustomizerFactory fact = c.value().newInstance();
+                    final StatementCustomizerFactory fact = c.value().newInstance();
                     methodCustomizers.add(new MethodCustomizer(fact, method_annotation));
                 }
                 catch (Exception e) {
@@ -100,7 +99,7 @@ abstract class CustomizingStatementHandler implements Handler
                     // we have a customizer annotation on one of the parameters
                     CustomizerAnnotation ca = annotation.annotationType().getAnnotation(CustomizerAnnotation.class);
                     try {
-                        JDBCStatementCustomizerFactory fact = ca.value().newInstance();
+                        StatementCustomizerFactory fact = ca.value().newInstance();
                         paramCustomizers.add(new ParameterCustomizer(annotation, fact, param_idx));
 
                     }
@@ -182,10 +181,10 @@ abstract class CustomizingStatementHandler implements Handler
     protected class MethodCustomizer
     {
 
-        private final JDBCStatementCustomizerFactory factory;
+        private final StatementCustomizerFactory factory;
         private final Annotation                     annotation;
 
-        public MethodCustomizer(JDBCStatementCustomizerFactory factory, Annotation annotation)
+        public MethodCustomizer(StatementCustomizerFactory factory, Annotation annotation)
         {
             this.factory = factory;
             this.annotation = annotation;
@@ -201,10 +200,10 @@ abstract class CustomizingStatementHandler implements Handler
     protected class ParameterCustomizer
     {
         private final Annotation                     annotation;
-        private final JDBCStatementCustomizerFactory factory;
+        private final StatementCustomizerFactory factory;
         private final int                            index;
 
-        ParameterCustomizer(Annotation annotation, JDBCStatementCustomizerFactory factory, int idx)
+        ParameterCustomizer(Annotation annotation, StatementCustomizerFactory factory, int idx)
         {
             this.annotation = annotation;
             this.factory = factory;
