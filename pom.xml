@@ -52,7 +52,7 @@
 
         <site>
             <id>codehaus</id>
-            <url>dav:https://dav.codehaus.org/jdbi</url>
+            <url>dav:https://dav.codehaus.org/jdbi/maven_site/</url>
         </site>
 
     </distributionManagement>
