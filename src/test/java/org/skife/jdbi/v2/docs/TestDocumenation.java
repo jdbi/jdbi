@@ -1,22 +1,28 @@
 package org.skife.jdbi.v2.docs;
 
 import org.h2.jdbcx.JdbcConnectionPool;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
+import org.skife.jdbi.v2.Folder2;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.Query;
-import org.skife.jdbi.v2.ResultIterator;
+import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
+import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import javax.sql.DataSource;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.skife.jdbi.v2.ExtraMatchers.equalsOneOf;
@@ -44,9 +50,9 @@ public class TestDocumenation
         h.execute("insert into something (id, name) values (?, ?)", 1, "Brian");
 
         String name = h.createQuery("select name from something where id = :id")
-            .bind("id", 1)
-            .map(StringMapper.FIRST)
-            .first();
+                       .bind("id", 1)
+                       .map(StringMapper.FIRST)
+                       .first();
         assertThat(name, equalTo("Brian"));
 
         h.close();
@@ -73,11 +79,7 @@ public class TestDocumenation
     @Test
     public void testFiveMinuteSqlObjectExample() throws Exception
     {
-        // using in-memory H2 database via a pooled DataSource
-        JdbcConnectionPool ds = JdbcConnectionPool.create("jdbc:h2:mem:test2",
-                                                          "username",
-                                                          "password");
-        DBI dbi = new DBI(ds);
+        DBI dbi = new DBI("jdbc:h2:mem:test");
 
         MyDAO dao = dbi.open(MyDAO.class);
 
@@ -90,87 +92,89 @@ public class TestDocumenation
         assertThat(name, equalTo("Aaron"));
 
         dao.close();
-        ds.dispose();
+    }
+
+
+    @Test
+    public void testObtainHandleViaOpen() throws Exception
+    {
+        DBI dbi = new DBI("jdbc:h2:mem:test");
+        Handle handle = dbi.open();
+
+        // make sure to close it!
+        handle.close();
     }
 
     @Test
-    public void testMappingExample() throws Exception
+    public void testObtainHandleInCallback() throws Exception
+    {
+        DBI dbi = new DBI("jdbc:h2:mem:test");
+        dbi.withHandle(new HandleCallback<Void>()
+        {
+            public Void withHandle(Handle handle) throws Exception
+            {
+                handle.execute("create table silly (id int)");
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void testExecuteSomeStatements() throws Exception
     {
         DBI dbi = new DBI("jdbc:h2:mem:test");
         Handle h = dbi.open();
+
         h.execute("create table something (id int primary key, name varchar(100))");
-        h.execute("insert into something (id, name) values (1, 'Brian')");
-        h.execute("insert into something (id, name) values (2, 'Keith')");
+        h.execute("insert into something (id, name) values (?, ?)", 3, "Patrick");
 
+        List<Map<String, Object>> rs = h.select("select id, name from something");
+        assertThat(rs.size(), equalTo(1));
 
-        Query<Map<String, Object>> q =
-            h.createQuery("select name from something order by id");
-        Query<String> q2 = q.map(StringMapper.FIRST);
-        List<String> rs = q2.list();
-
-        assertThat(rs, equalTo(asList("Brian", "Keith")));
+        Map<String, Object> row = rs.get(0);
+        assertThat((Integer) row.get("id"), equalTo(3));
+        assertThat((String) row.get("name"), equalTo("Patrick"));
 
         h.close();
     }
 
     @Test
-    public void testMappingExampleChained() throws Exception
+    public void testFluentUpdate() throws Exception
     {
         DBI dbi = new DBI("jdbc:h2:mem:test");
         Handle h = dbi.open();
         h.execute("create table something (id int primary key, name varchar(100))");
-        h.execute("insert into something (id, name) values (1, 'Brian')");
-        h.execute("insert into something (id, name) values (2, 'Keith')");
 
-
-        List<String> rs = h.createQuery("select name from something order by id")
-            .map(StringMapper.FIRST)
-            .list();
-
-        assertThat(rs, equalTo(asList("Brian", "Keith")));
+        h.createStatement("insert into something(id, name) values (:id, :name)")
+         .bind("id", 4)
+         .bind("name", "Martin")
+         .execute();
 
         h.close();
     }
 
     @Test
-    public void testMappingExampleChainedFirst() throws Exception
+    public void testFold() throws Exception
     {
         DBI dbi = new DBI("jdbc:h2:mem:test");
         Handle h = dbi.open();
         h.execute("create table something (id int primary key, name varchar(100))");
-        h.execute("insert into something (id, name) values (1, 'Brian')");
-        h.execute("insert into something (id, name) values (2, 'Keith')");
+        h.execute("insert into something (id, name) values (7, 'Mark')");
+        h.execute("insert into something (id, name) values (8, 'Tatu')");
 
 
-        String rs = h.createQuery("select name from something order by id")
-            .map(StringMapper.FIRST)
-            .first();
-
-        assertThat(rs, equalTo("Brian"));
-
-        h.close();
-    }
-
-    @Test
-    public void testMappingExampleChainedIterator() throws Exception
-    {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
-        Handle h = dbi.open();
-        h.execute("create table something (id int primary key, name varchar(100))");
-        h.execute("insert into something (id, name) values (1, 'Brian')");
-        h.execute("insert into something (id, name) values (2, 'Keith')");
-
-
-        ResultIterator<String> rs = h.createQuery("select name from something order by id")
-            .map(StringMapper.FIRST)
-            .iterator();
-
-        assertThat(rs.next(), equalTo("Brian"));
-        assertThat(rs.next(), equalTo("Keith"));
-        assertThat(rs.hasNext(), equalTo(false));
-
-        rs.close();
-
+        StringBuilder rs = h.createQuery("select name from something order by id")
+                            .map(StringMapper.FIRST)
+                            .fold(new StringBuilder(), new Folder2<StringBuilder>()
+                            {
+                                public StringBuilder fold(StringBuilder acc, ResultSet rs, StatementContext ctx) throws SQLException
+                                {
+                                    acc.append(rs.getString(1)).append(", ");
+                                    return acc;
+                                }
+                            });
+        rs.delete(rs.length() - 2, rs.length()); // trim the extra ", "
+        assertThat(rs.toString(), equalTo("Mark, Tatu"));
         h.close();
     }
 
@@ -212,6 +216,5 @@ public class TestDocumenation
 
         h.close();
     }
-
 
 }
