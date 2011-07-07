@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Folder2;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -303,7 +304,6 @@ public class TestDocumenation
         Handle h = dbi.open();
 
         h.execute("create table something (id int primary key, name varchar(32))");
-
         h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
                                              new Something(3, "Patrick"),
                                              new Something(2, "Robert"));
@@ -313,6 +313,32 @@ public class TestDocumenation
 
         assertThat(yaq.findById(3), equalTo(new Something(3, "Patrick")));
         assertThat(aq.findById(2), equalTo(new Something(2, "Robert")));
+
+        h.close();
+    }
+
+    public static interface QueryReturningQuery
+    {
+        @SqlQuery("select name from something where id = :id")
+        Query<String> findById(@Bind("id") int id);
+    }
+
+    @Test
+    public void testFoo() throws Exception
+    {
+        DBI dbi = new DBI("jdbc:h2:mem:test");
+        Handle h = dbi.open();
+
+        h.execute("create table something (id int primary key, name varchar(32))");
+        h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
+                                             new Something(3, "Patrick"),
+                                             new Something(2, "Robert"));
+
+        QueryReturningQuery qrq = h.attach(QueryReturningQuery.class);
+
+        Query<String> q = qrq.findById(1);
+        q.setMaxFieldSize(100);
+        assertThat(q.first(), equalTo("Brian"));
 
         h.close();
     }
