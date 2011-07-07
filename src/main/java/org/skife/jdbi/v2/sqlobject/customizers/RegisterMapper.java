@@ -75,7 +75,7 @@ public @interface RegisterMapper
 
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
-            throw new UnsupportedOperationException("Not defined for paremeter");
+            throw new UnsupportedOperationException("Not defined for parameter");
         }
     }
 }

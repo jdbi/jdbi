@@ -12,6 +12,7 @@ import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -82,6 +83,9 @@ class BatchHandler extends CustomizingStatementHandler
             }
             else if (arg instanceof Iterator) {
                 extras.add((Iterator) arg);
+            }
+            else if (arg.getClass().isArray()) {
+                extras.add(Arrays.asList((Object[])arg).iterator());
             }
             else {
                 extras.add(new Iterator()

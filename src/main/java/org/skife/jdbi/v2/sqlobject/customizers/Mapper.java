@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 public @interface Mapper
 {
     /**
-     * The class implementing {@link ResultSetMapper}. It must have constructor
+     * The class implementing {@link ResultSetMapper}. It must have a no-arg constructor.
      */
     Class<? extends ResultSetMapper> value();
 }
