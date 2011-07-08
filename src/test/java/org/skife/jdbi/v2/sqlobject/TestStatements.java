@@ -18,6 +18,7 @@ package org.skife.jdbi.v2.sqlobject;
 
 import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
@@ -82,6 +83,5 @@ public class TestStatements extends TestCase
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         public void insertWithVoidReturn(@Bind("id") long id, @Bind("name") String name);
-
     }
 }

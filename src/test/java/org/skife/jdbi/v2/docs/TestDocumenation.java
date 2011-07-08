@@ -7,19 +7,30 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Folder2;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
+import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
+import org.skife.jdbi.v2.sqlobject.Binder;
+import org.skife.jdbi.v2.sqlobject.BinderFactory;
+import org.skife.jdbi.v2.sqlobject.BindingAnnotation;
 import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -27,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.skife.jdbi.v2.ExtraMatchers.equalsOneOf;
@@ -342,4 +354,129 @@ public class TestDocumenation
 
         h.close();
     }
+
+    public static interface Update
+    {
+        @SqlUpdate("create table something (id integer primary key, name varchar(32))")
+        void createSomethingTable();
+
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        int insert(@Bind("id") int id, @Bind("name") String name);
+
+        @SqlUpdate("update something set name = :name where id = :id")
+        int update(@BindBean Something s);
+    }
+
+    @Test
+    public void testUpdateAPI() throws Exception
+    {
+        DBI dbi = new DBI("jdbc:h2:mem:test");
+        Handle h = dbi.open();
+
+        Update u = h.attach(Update.class);
+        u.createSomethingTable();
+        u.insert(17, "David");
+        u.update(new Something(17, "David P."));
+
+        String name = h.createQuery("select name from something where id = 17")
+            .map(StringMapper.FIRST)
+            .first();
+        assertThat(name, equalTo("David P."));
+
+        h.close();
+    }
+
+    public static interface BatchExample
+    {
+        @SqlBatch("insert into something (id, name) values (:id, :first || ' ' || :last)")
+        void insertFamily(@Bind("id") List<Integer> ids,
+                          @Bind("first") Iterator<String> firstNames,
+                          @Bind("last") String lastName);
+
+
+        @SqlUpdate("create table something(id int primary key, name varchar(32))")
+        void createSomethingTable();
+
+        @SqlQuery("select name from something where id = :it")
+        String findNameById(@Bind int id);
+    }
+
+    @Test
+    public void testBatchExample() throws Exception
+    {
+        DBI dbi = new DBI("jdbc:h2:mem:test");
+        Handle h = dbi.open();
+
+        BatchExample b = h.attach(BatchExample.class);
+        b.createSomethingTable();
+
+        List<Integer> ids = asList(1, 2, 3, 4, 5);
+        Iterator<String> first_names = asList("Tip", "Jane", "Brian", "Keith", "Eric").iterator();
+
+        b.insertFamily(ids, first_names, "McCallister");
+
+        assertThat(b.findNameById(1), equalTo("Tip McCallister"));
+        assertThat(b.findNameById(2), equalTo("Jane McCallister"));
+        assertThat(b.findNameById(3), equalTo("Brian McCallister"));
+        assertThat(b.findNameById(4), equalTo("Keith McCallister"));
+        assertThat(b.findNameById(5), equalTo("Eric McCallister"));
+
+        h.close();
+    }
+
+    public static interface ChunkedBatchExample
+    {
+        @SqlBatch("insert into something (id, name) values (:id, :first || ' ' || :last)")
+        @BatchChunkSize(2)
+        void insertFamily(@Bind("id") List<Integer> ids,
+                          @Bind("first") Iterator<String> firstNames,
+                          @Bind("last") String lastName);
+
+        @SqlUpdate("create table something(id int primary key, name varchar(32))")
+        void createSomethingTable();
+
+        @SqlQuery("select name from something where id = :it")
+        String findNameById(@Bind int id);
+    }
+
+    public static interface BindExamples
+    {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@Bind("id") int id, @Bind("name") String name);
+
+        @SqlUpdate("delete from something where name = :it")
+        void deleteByName(@Bind String name);
+    }
+
+    public static interface BindBeanExample
+    {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindBean Something s);
+
+        @SqlUpdate("update something set name = :s.name where id = :s.id")
+        void update(@BindBean("s") Something something);
+    }
+
+//    @BindingAnnotation(SomethingBinderFactory.class)
+//    @Retention(RetentionPolicy.RUNTIME)
+//    @Target({ElementType.PARAMETER})
+//    public static @interface BindSomething { }
+//
+//    public static class SomethingBinderFactory implements BinderFactory
+//    {
+//        public Binder build(Annotation annotation)
+//        {
+//            return new Binder<BindSomething, Something>()
+//            {
+//                public void bind(SQLStatement q, BindSomething bind, Something arg)
+//                {
+//                    q.bind("ident", arg.getId());
+//                    q.bind("nom", arg.getName());
+//                }
+//            };
+//        }
+//    }
+
 }
+
+
