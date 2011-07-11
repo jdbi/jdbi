@@ -25,7 +25,7 @@ public @interface RegisterMapper
     /**
      * The result set mapper class to register
      */
-    Class<? extends ResultSetMapper> value();
+    Class<? extends ResultSetMapper<?>> value();
 
     static class Factory implements SqlStatementCustomizerFactory
     {
