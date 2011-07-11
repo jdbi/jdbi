@@ -33,5 +33,5 @@ public @interface Mapper
     /**
      * The class implementing {@link ResultSetMapper}. It must have a no-arg constructor.
      */
-    Class<? extends ResultSetMapper> value();
+    Class<? extends ResultSetMapper<?>> value();
 }
