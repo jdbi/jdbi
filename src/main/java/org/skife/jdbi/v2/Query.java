@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Statement prviding convenience result handling for SQL queries.
  */
-public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements Iterable<ResultType>
+public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implements ResultBearing<ResultType>
 {
     private final ResultSetMapper<ResultType> mapper;
     private final MappingRegistry mappingRegistry;

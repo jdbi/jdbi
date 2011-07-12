@@ -29,7 +29,7 @@ import java.util.List;
  * Wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
  * @param <Type> the key type returned
  */
-public class GeneratedKeys<Type>
+public class GeneratedKeys<Type> implements ResultBearing<Type>
 {
     private final ResultSetMapper<Type> mapper;
     private final SQLStatement<?> jdbiStatement;

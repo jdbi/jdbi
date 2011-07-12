@@ -10,8 +10,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -51,21 +49,9 @@ class SqlObject implements InvocationHandler
         final Map<Method, Handler> handlers = new HashMap<Method, Handler>();
         for (final ResolvedMethod method : d.getMemberMethods()) {
             final Method raw_method = method.getRawMember();
-            final ResolvedType return_type = method.getReturnType();
 
             if (raw_method.isAnnotationPresent(SqlQuery.class)) {
-                if (return_type.isInstanceOf(org.skife.jdbi.v2.Query.class)) {
-                    handlers.put(raw_method, new QueryQueryHandler(sqlObjectType, method));
-                }
-                else if (return_type.isInstanceOf(List.class)) {
-                    handlers.put(raw_method, new ListQueryHandler(sqlObjectType, method));
-                }
-                else if (return_type.isInstanceOf(Iterator.class)) {
-                    handlers.put(raw_method, new IteratorQueryHandler(sqlObjectType, method));
-                }
-                else {
-                    handlers.put(raw_method, new SingleValueQueryHandler(sqlObjectType, method));
-                }
+                handlers.put(raw_method, new BaseQueryHandler(sqlObjectType, method, Magic.forType(method)));
             }
             else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
                 handlers.put(raw_method, new UpdateHandler(sqlObjectType, method));

@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 class MappingRegistry
 {
-    private static final BuiltInsMapperFactory BUILT_IN_MAPPERS = new BuiltInsMapperFactory();
+    private static final PrimitivesMapperFactory BUILT_IN_MAPPERS = new PrimitivesMapperFactory();
 
     private final List<ResultSetMapperFactory> factories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
     private final ConcurrentHashMap<Class, ResultSetMapper> cache = new ConcurrentHashMap<Class, ResultSetMapper>();

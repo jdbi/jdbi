@@ -16,72 +16,31 @@
 
 package org.skife.jdbi.v2.sqlobject;
 
-import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Query;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-abstract class BaseQueryHandler extends CustomizingStatementHandler
+class BaseQueryHandler extends CustomizingStatementHandler
 {
     private final String         sql;
     private final ResolvedMethod method;
-    private final MapFunc        mapFunc;
+    private final Magic          magic;
 
-    public BaseQueryHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    public BaseQueryHandler(Class<?> sqlObjectType, ResolvedMethod method, Magic magic)
     {
         super(sqlObjectType, method);
         this.method = method;
+        this.magic = magic;
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlQuery.class), method.getRawMember());
-
-        if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
-            try {
-                final ResultSetMapper mapper = method.getRawMember().getAnnotation(Mapper.class).value().newInstance();
-                this.mapFunc = new MapFunc()
-                {
-                    public Query map(Query q)
-                    {
-                        return q.map(mapper);
-                    }
-                };
-            }
-            catch (Exception e) {
-                throw new UnableToCreateStatementException("unable to access mapper", e);
-            }
-        }
-        else {
-            this.mapFunc = new MapFunc()
-            {
-                public Query map(Query q)
-                {
-                    return q.mapTo(mapTo().getErasedType());
-                }
-            };
-        }
     }
 
     public Object invoke(HandleDing h, Object target, Object[] args)
     {
         Query q = h.getHandle().createQuery(sql);
-        populateSqlObjectData((ConcreteStatementContext)q.getContext());
+        populateSqlObjectData((ConcreteStatementContext) q.getContext());
         applyBinders(q, args);
         applyCustomizers(q, args);
-        return result(mapFunc.map(q), h);
-    }
 
-    protected abstract Object result(Query q, HandleDing baton);
-
-    protected abstract ResolvedType mapTo();
-
-    protected ResolvedMethod getMethod()
-    {
-        return method;
-    }
-
-    private static interface MapFunc
-    {
-        public Query map(Query q);
+        return magic.map(method, q, h);
     }
 }
