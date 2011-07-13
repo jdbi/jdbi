@@ -51,7 +51,7 @@ class SqlObject implements InvocationHandler
             final Method raw_method = method.getRawMember();
 
             if (raw_method.isAnnotationPresent(SqlQuery.class)) {
-                handlers.put(raw_method, new BaseQueryHandler(sqlObjectType, method, Magic.forType(method)));
+                handlers.put(raw_method, new QueryHandler(sqlObjectType, method, Magic.forType(method)));
             }
             else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
                 handlers.put(raw_method, new UpdateHandler(sqlObjectType, method));

@@ -20,13 +20,13 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Query;
 
-class BaseQueryHandler extends CustomizingStatementHandler
+class QueryHandler extends CustomizingStatementHandler
 {
     private final String         sql;
     private final ResolvedMethod method;
     private final Magic          magic;
 
-    public BaseQueryHandler(Class<?> sqlObjectType, ResolvedMethod method, Magic magic)
+    public QueryHandler(Class<?> sqlObjectType, ResolvedMethod method, Magic magic)
     {
         super(sqlObjectType, method);
         this.method = method;
