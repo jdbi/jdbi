@@ -12,7 +12,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import java.util.Iterator;
 import java.util.List;
 
-abstract class Magic
+abstract class ResultReturnThing
 {
     public Object map(ResolvedMethod method, Query q, HandleDing h)
     {
@@ -31,20 +31,20 @@ abstract class Magic
         }
     }
 
-    static Magic forType(ResolvedMethod method)
+    static ResultReturnThing forType(ResolvedMethod method)
     {
         ResolvedType return_type = method.getReturnType();
         if (return_type.isInstanceOf(ResultBearing.class)) {
-            return new ResultBearingMagic(method);
+            return new ResultBearingResultReturnThing(method);
         }
         else if (return_type.isInstanceOf(List.class)) {
-            return new Magic.ListMagic(method);
+            return new ListResultReturnThing(method);
         }
         else if (return_type.isInstanceOf(Iterator.class)) {
-            return new Magic.IteratorMagic(method);
+            return new IteratorResultReturnThing(method);
         }
         else {
-            return new Magic.SingleValueMagic(method);
+            return new SingleValueResultReturnThing(method);
         }
     }
 
@@ -53,11 +53,11 @@ abstract class Magic
     protected abstract ResolvedType mapTo(ResolvedMethod method);
 
 
-    static class SingleValueMagic extends Magic
+    static class SingleValueResultReturnThing extends ResultReturnThing
     {
         private final ResolvedType returnType;
 
-        public SingleValueMagic(ResolvedMethod method)
+        public SingleValueResultReturnThing(ResolvedMethod method)
         {
             this.returnType = method.getReturnType();
         }
@@ -75,12 +75,12 @@ abstract class Magic
         }
     }
 
-    static class ResultBearingMagic extends Magic
+    static class ResultBearingResultReturnThing extends ResultReturnThing
     {
 
         private final ResolvedType resolvedType;
 
-        public ResultBearingMagic(ResolvedMethod method)
+        public ResultBearingResultReturnThing(ResolvedMethod method)
         {
             // extract T from Query<T>
             ResolvedType query_type = method.getReturnType();
@@ -102,11 +102,11 @@ abstract class Magic
         }
     }
 
-    static class IteratorMagic extends Magic
+    static class IteratorResultReturnThing extends ResultReturnThing
     {
         private final ResolvedType resolvedType;
 
-        public IteratorMagic(ResolvedMethod method)
+        public IteratorResultReturnThing(ResolvedMethod method)
         {
             ResolvedType query_type = method.getReturnType();
             List<ResolvedType> query_return_types = query_type.typeParametersFor(Iterator.class);
@@ -160,11 +160,11 @@ abstract class Magic
         }
     }
 
-    static class ListMagic extends Magic
+    static class ListResultReturnThing extends ResultReturnThing
     {
         private final ResolvedType resolvedType;
 
-        public ListMagic(ResolvedMethod method)
+        public ListResultReturnThing(ResolvedMethod method)
         {
             // extract T from List<T>
             ResolvedType query_type = method.getReturnType();

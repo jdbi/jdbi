@@ -1,15 +1,11 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.GeneratedKeys;
 import org.skife.jdbi.v2.Update;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-
-import javax.swing.*;
-import java.util.List;
 
 class UpdateHandler extends CustomizingStatementHandler
 {
@@ -22,7 +18,7 @@ class UpdateHandler extends CustomizingStatementHandler
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
         if (method.getRawMember().isAnnotationPresent(GetGeneratedKeys.class)) {
 
-            final Magic magic = Magic.forType(method);
+            final ResultReturnThing magic = ResultReturnThing.forType(method);
             final GetGeneratedKeys ggk = method.getRawMember().getAnnotation(GetGeneratedKeys.class);
             final ResultSetMapper mapper;
             try {
