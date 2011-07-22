@@ -8,14 +8,7 @@ public class HashCodeHandler implements Handler
 {
     public Object invoke(final HandleDing h, final Object target, final Object[] args)
     {
-        // Because I'm too lazy to be clever, I stole/adapted this from:
-        // http://www.ibm.com/developerworks/java/library/j-jtp05273/index.html
-        int hash = 1;
-        hash = hash * 31 + h.hashCode();
-        for (Class<?> cls : target.getClass().getInterfaces())
-            hash = hash * 31 + cls.hashCode();
-
-        return hash;
+        return System.identityHashCode(target);
     }
 
     static Map<Method, Handler> handler()
