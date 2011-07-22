@@ -5,6 +5,7 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
+import org.skife.jdbi.v2.Handle;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -68,7 +69,15 @@ class SqlObject implements InvocationHandler
             else {
                 throw new UnsupportedOperationException("Not Yet Implemented!");
             }
+        }
 
+        try {
+            handlers.put(Object.class.getMethod("toString"), new ToStringHandler(sqlObjectType));
+            handlers.put(Object.class.getMethod("equals", Object.class), EQUALS);
+            handlers.put(Object.class.getMethod("hashCode"), HASHCODE);
+        }
+        catch (NoSuchMethodException e) {
+            throw new IllegalStateException("methods on java.lang.Object seem to have gone away. Not good.", e);
         }
 
         // this is an implicit mixin, not an explicit one, so we need to *always* add it
@@ -138,4 +147,35 @@ class SqlObject implements InvocationHandler
         }
     }
 
+
+    private static Handler HASHCODE = new Handler()
+    {
+        public Object invoke(HandleDing h, Object target, Object[] args)
+        {
+            return System.identityHashCode(target);
+        }
+    };
+
+    private static Handler EQUALS = new Handler() {
+
+        public Object invoke(HandleDing h, Object target, Object[] args)
+        {
+            return target == args[0];
+        }
+    };
+
+    private static class ToStringHandler implements Handler
+    {
+        private final String classname;
+
+        public ToStringHandler(Class<?> sqlObjectType)
+        {
+            classname = sqlObjectType.getName();
+        }
+
+        public Object invoke(HandleDing h, Object target, Object[] args)
+        {
+            return "{SQL Object from " + classname + " }";
+        }
+    }
 }
