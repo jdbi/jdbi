@@ -45,6 +45,33 @@ public class TestVariousOddities extends TestCase
 
     }
 
+    public void testEquals()
+    {
+        Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s2 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        assertEquals(s1, s1);
+        assertNotSame(s1, s2);
+        assertFalse(s1.equals(s2));
+    }
+
+    public void testToString()
+    {
+        Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s2 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        assertNotNull(s1.toString());
+        assertNotNull(s2.toString());
+        assertTrue(s1.toString() != s2.toString());
+    }
+
+    public void testHashCode()
+    {
+        Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s2 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        assertFalse(0 == s1.hashCode());
+        assertFalse(0 == s2.hashCode());
+        assertTrue(s1.hashCode() != s2.hashCode());
+    }
+
     public static interface Spiffy extends CloseMe
     {
 

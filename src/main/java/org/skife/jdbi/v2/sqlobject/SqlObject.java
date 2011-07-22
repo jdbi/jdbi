@@ -83,6 +83,10 @@ class SqlObject implements InvocationHandler
         // this is an implicit mixin, not an explicit one, so we need to *always* add it
         handlers.putAll(CloseInternal.Helper.handlers());
 
+        handlers.putAll(EqualsHandler.handler());
+        handlers.putAll(ToStringHandler.handler());
+        handlers.putAll(HashCodeHandler.handler());
+
         handlersCache.putIfAbsent(sqlObjectType, handlers);
         return handlers;
     }
