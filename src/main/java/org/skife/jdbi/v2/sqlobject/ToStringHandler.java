@@ -4,19 +4,26 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ToStringHandler implements Handler
+class ToStringHandler implements Handler
 {
-    public Object invoke(final HandleDing h, final Object target, final Object[] args)
+    private final String className;
+
+    ToStringHandler(String className)
     {
-        return target.getClass().getName() + '@' + Integer.toHexString(target.hashCode());
+        this.className = className;
     }
 
-    static Map<Method, Handler> handler()
+    public Object invoke(final HandleDing h, final Object target, final Object[] args)
+    {
+        return className + '@' + Integer.toHexString(target.hashCode());
+    }
+
+    static Map<Method, Handler> handler(String className)
     {
         try
         {
             Map<Method, Handler> handler = new HashMap<Method, Handler>();
-            handler.put(Object.class.getMethod("toString"), new ToStringHandler());
+            handler.put(Object.class.getMethod("toString"), new ToStringHandler(className));
             return handler;
         }
         catch (NoSuchMethodException e)

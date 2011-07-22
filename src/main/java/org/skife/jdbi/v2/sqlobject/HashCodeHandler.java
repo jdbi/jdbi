@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HashCodeHandler implements Handler
+class HashCodeHandler implements Handler
 {
     public Object invoke(final HandleDing h, final Object target, final Object[] args)
     {
