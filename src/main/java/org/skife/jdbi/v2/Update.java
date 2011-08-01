@@ -69,6 +69,7 @@ public class Update extends SQLStatement<Update>
      */
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper)
     {
+        getConcreteContext().setReturningGeneratedKeys(true);
         return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>()
         {
             public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException

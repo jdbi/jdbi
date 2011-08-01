@@ -28,7 +28,9 @@ import java.util.Map;
 
 /**
  * A StatementBuilder which decorates another StatementBuilder and caches
+ * @deprecated This should be done in the JDBC driver, not here
  */
+@Deprecated
 public class CachingStatementBuilder implements StatementBuilder
 {
     private Map<String, PreparedStatement> cache = new HashMap<String, PreparedStatement>();

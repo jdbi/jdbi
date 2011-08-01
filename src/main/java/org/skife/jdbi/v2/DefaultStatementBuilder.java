@@ -41,7 +41,12 @@ public class DefaultStatementBuilder implements StatementBuilder
      */
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
-		return conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        if (ctx.isReturningGeneratedKeys()) {
+            return conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        }
+        else {
+            return conn.prepareStatement(sql);
+        }
     }
 
     /**

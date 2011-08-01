@@ -38,6 +38,13 @@ public class TestPreparedStatementCache extends DBITestCase
                 prep_count[0]++;
                 return super.prepareStatement(s, flag);
             }
+
+            @Override
+            public PreparedStatement prepareStatement(String s) throws SQLException
+            {
+                prep_count[0]++;
+                return super.prepareStatement(s);
+            }
         };
         CachingStatementBuilder builder = new CachingStatementBuilder(new DefaultStatementBuilder());
 
