@@ -18,6 +18,7 @@ package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.IDBI;
 
 /**
  * This duplicates the API on {@link DBI} and {@link Handle} for creating sql objects. While it is fine to use these
@@ -48,7 +49,7 @@ public class SqlObjectBuilder
      *
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    public static <T> T open(DBI dbi, Class<T> sqlObjectType)
+    public static <T> T open(IDBI dbi, Class<T> sqlObjectType)
     {
         return SqlObject.buildSqlObject(sqlObjectType, new ConstantHandleDing(dbi.open()));
     }
@@ -62,7 +63,7 @@ public class SqlObjectBuilder
      *
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    public static <T> T onDemand(final DBI dbi, final Class<T> sqlObjectType)
+    public static <T> T onDemand(final IDBI dbi, final Class<T> sqlObjectType)
     {
         return SqlObject.buildSqlObject(sqlObjectType, new OnDemandHandleDing(dbi));
     }
