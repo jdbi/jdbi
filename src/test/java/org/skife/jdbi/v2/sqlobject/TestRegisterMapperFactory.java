@@ -109,17 +109,10 @@ public class TestRegisterMapperFactory
         }
     }
 
-
-    @Retention(RetentionPolicy.RUNTIME)
-    public static @interface MapWith
-    {
-        Class<? extends ResultSetMapper> value();
-    }
-
     @MapWith(FooMapper.class)
     public static class Foo
     {
-        private final int id;
+        private final int    id;
         private final String name;
 
         Foo(final int id, final String name)
