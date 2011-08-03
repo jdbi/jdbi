@@ -2,6 +2,7 @@ package org.skife.jdbi.v2.sqlobject;
 
 import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,10 +15,17 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import javax.swing.event.ListSelectionEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -88,13 +96,28 @@ public class TestRegisteredMappersWork
         h.insert("insert into something (id, name) values (1, 'Henning')");
         try {
             Something henning = h.createQuery("select id, name from something where id = 1")
-                .mapTo(Something.class)
-                .first();
+                                 .mapTo(Something.class)
+                                 .first();
             fail("should have raised an exception");
         }
         finally {
             h.close();
         }
+    }
+
+    @Test
+    public void testNoErrorOnNoData() throws Exception
+    {
+        Kabob bob = dbi.onDemand(Kabob.class);
+
+        Something henning = bob.find(1);
+        assertThat(henning, nullValue());
+
+        List<Something> rs = bob.listAll();
+        assertThat(rs.isEmpty(), equalTo(true));
+
+        Iterator<Something> itty = bob.iterateAll();
+        assertThat(itty.hasNext(), equalTo(false));
     }
 
     public static interface Spiffy extends CloseMe
@@ -119,6 +142,12 @@ public class TestRegisteredMappersWork
 
         @SqlQuery("select id, name from something where id = :id")
         public Something find(@Bind("id") int id);
+
+        @SqlQuery("select id, name from something order by id")
+        public List<Something> listAll();
+
+        @SqlQuery("select id, name from something order by id")
+        public Iterator<Something> iterateAll();
     }
 
     public static class MySomethingMapper implements ResultSetMapper<Something>
