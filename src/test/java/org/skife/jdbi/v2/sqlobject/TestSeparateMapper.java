@@ -16,6 +16,8 @@
 
 package org.skife.jdbi.v2.sqlobject;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -27,9 +29,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.TestSeparateMapper.Foo.FooMapper;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 
@@ -74,6 +78,7 @@ public class TestSeparateMapper
 
     }
 
+    @RegisterMapperFactory(MyFactory.class)
     public static interface FooDao
     {
         @SqlQuery("select * from something")
@@ -83,7 +88,36 @@ public class TestSeparateMapper
         void insert(@Bind("id") int id, @Bind("name") String name);
     }
 
-    @RegisterMapper(FooMapper.class)
+
+    public static class MyFactory implements ResultSetMapperFactory
+    {
+
+        public boolean accepts(Class type, StatementContext ctx)
+        {
+            return type.isAnnotationPresent(MapWith.class);
+        }
+
+        public ResultSetMapper mapperFor(Class type, StatementContext ctx)
+        {
+
+            MapWith rm = (MapWith) type.getAnnotation(MapWith.class);
+            try {
+                return rm.value().newInstance();
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public static @interface MapWith
+    {
+        Class<? extends ResultSetMapper> value();
+    }
+
+    @MapWith(FooMapper.class)
     public static class Foo
     {
         private final int id;

@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterMapperFactory
 {
-
     Class<? extends ResultSetMapperFactory>[] value();
 
     public static class Factory implements SqlStatementCustomizerFactory
