@@ -16,12 +16,6 @@
 
 package org.skife.jdbi.v2.sqlobject;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Assert;
@@ -31,13 +25,18 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.sqlobject.TestSeparateMapper.Foo.FooMapper;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.skife.jdbi.v2.sqlobject.TestRegisterMapperFactory.Foo.FooMapper;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
-public class TestSeparateMapper
+
+public class TestRegisterMapperFactory
 {
     private Handle handle;
 
