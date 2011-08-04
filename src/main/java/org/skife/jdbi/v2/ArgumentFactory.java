@@ -2,9 +2,9 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.Argument;
 
-public interface ArgumentFactory
+public interface ArgumentFactory<T>
 {
-    boolean accepts(Class expectedType, Object it, StatementContext ctx);
+    boolean accepts(Class<? super T> expectedType, T it, StatementContext ctx);
 
-    Argument build(Class expectedType, Object it, StatementContext ctx);
+    Argument build(Class<? super T> expectedType, T it, StatementContext ctx);
 }
