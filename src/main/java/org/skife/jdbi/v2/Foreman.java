@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
 
 import java.sql.Types;
 import java.util.ArrayList;
@@ -16,14 +17,14 @@ class Foreman
         factories.add(new BuiltInArgumentFactory());
     }
 
-    public Argument waffle(Class expectedType, Object it, StatementContext ctx, Argument arg)
+    public Argument waffle(Class expectedType, Object it, StatementContext ctx)
     {
         for (ArgumentFactory factory : factories) {
             if (factory.accepts(expectedType, it, ctx)) {
                 return factory.build(expectedType, it, ctx);
             }
         }
-        return arg;
+        throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(it));
     }
 
     private static final class BuiltInArgumentFactory implements ArgumentFactory
@@ -38,14 +39,14 @@ class Foreman
 
         }
 
-        public boolean accepts(Class expectedType, Object it, StatementContext ctx)
+        public boolean accepts(Class expectedType, Object value, StatementContext ctx)
         {
             return primitives.containsKey(expectedType);
         }
 
-        public Argument build(Class expectedType, Object it, StatementContext ctx)
+        public Argument build(Class expectedType, Object value, StatementContext ctx)
         {
-            return primitives.get(expectedType).build(it);
+            return primitives.get(expectedType).build(value);
         }
 
 
