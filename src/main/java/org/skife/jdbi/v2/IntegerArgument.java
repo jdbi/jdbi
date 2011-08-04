@@ -20,26 +20,34 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  *
  */
 class IntegerArgument implements Argument
 {
-    private final int value;
+    private final Integer value;
 
-    IntegerArgument(int value)
+    IntegerArgument(Integer value)
     {
         this.value = value;
     }
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setInt(position, value);
+        if (value == null) {
+            statement.setNull(position, Types.INTEGER);
+        }
+        else {
+            statement.setInt(position, value);
+        }
+
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.valueOf(value);
     }
 }
