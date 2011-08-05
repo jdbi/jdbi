@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <title>JDBI : SQL Object Data Manipulation</title>
+  <script language="JavaScript" type="text/javascript">
+    if (top.location != self.location) top.location.replace(self.location);
+  </script>
+  <link href='http://fonts.googleapis.com/css?family=Cardo' rel='stylesheet' type='text/css' />
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css' />
+  
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23947671-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+</head>
+<body>
+  <div id="site">
+    <div id="header">
+      <h1>
+	<a href="/">JDBI</a>
+        <span id="navigation">
+          <a href="/archive.html">Docs</a> |
+          <a href="http://github.com/brianm/jdbi/">Source</a> |
+          <a href="/getting_jdbi/">Download</a> |
+          <a href="/maven_site/apidocs">Javadoc</a>
+        </span>
+      </h1>
+    </div>
+    <div id="content">
+      <div id="page">
+    <h1 class="emphnext">
+      	<a href="">SQL Object Data Manipulation</a> 
+    </h1>
+<p>Update, insert, and data definition statements are indicated in the SQL Object API via the <code>@SqlUpdate</code> annotation. The methods for these statements must have either <code>void</code> or <code>int</code> return types. If the return type is <code>int</code>, the the value will be the number of rows changed.</p>
+
+<p>Update methods look like</p>
+<div class='highlight'><pre><code class='java'><span class='kd'>public</span> <span class='kd'>static</span> <span class='kd'>interface</span> <span class='nc'>Update</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;create table something (id integer primary key, name varchar(32))&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>createSomethingTable</span><span class='o'>();</span>
+
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (:id, :name)&quot;</span><span class='o'>)</span>
+  <span class='kt'>int</span> <span class='nf'>insert</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>,</span> <span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;name&quot;</span><span class='o'>)</span> <span class='n'>String</span> <span class='n'>name</span><span class='o'>);</span>
+
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;update something set name = :name where id = :id&quot;</span><span class='o'>)</span>
+  <span class='kt'>int</span> <span class='nf'>update</span><span class='o'>(</span><span class='nd'>@BindBean</span> <span class='n'>Something</span> <span class='n'>s</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>As with <a href='/sql_object_api_queries/'>queries</a>, arguments to the statements are <a href='/sql_object_api_argument_binding'>bound from arguments to the method</a>.</p>
+
+<p>We can exercise this code by creating and instance and just calling the methods:</p>
+<div class='highlight'><pre><code class='java'><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
+<span class='n'>Handle</span> <span class='n'>h</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
+        
+<span class='n'>Update</span> <span class='n'>u</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>attach</span><span class='o'>(</span><span class='n'>Update</span><span class='o'>.</span><span class='na'>class</span><span class='o'>);</span>
+<span class='n'>u</span><span class='o'>.</span><span class='na'>createSomethingTable</span><span class='o'>();</span>
+<span class='n'>u</span><span class='o'>.</span><span class='na'>insert</span><span class='o'>(</span><span class='mi'>17</span><span class='o'>,</span> <span class='s'>&quot;David&quot;</span><span class='o'>);</span>
+<span class='n'>u</span><span class='o'>.</span><span class='na'>update</span><span class='o'>(</span><span class='k'>new</span> <span class='n'>Something</span><span class='o'>(</span><span class='mi'>17</span><span class='o'>,</span> <span class='s'>&quot;David P.&quot;</span><span class='o'>));</span>
+
+<span class='n'>String</span> <span class='n'>name</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something where id = 17&quot;</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringMapper</span><span class='o'>.</span><span class='na'>FIRST</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>first</span><span class='o'>();</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>name</span><span class='o'>,</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;David P.&quot;</span><span class='o'>));</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+</code></pre>
+</div>
+    <div id="pagination">
+        
+            <a href="/sql_object_api_queries" class="back">❮❮ SQL Object Queries </a>
+        
+        
+        <a href="/">Home</a> | <a href="/archive.html">Docs</a>
+        
+        
+            <a href="/sql_object_api_batching" class="forward"> SQL Object Batching ❯❯</a>
+        
+    </div>
+</div>
+
+
+    </div>
+    <div id="footer">
+      &copy; 2011 Brian McCallister
+    </div>
+  </div>
+</body>
+</html>
+

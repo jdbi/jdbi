@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <title>JDBI : Convenient SQL for Java</title>
+  <script language="JavaScript" type="text/javascript">
+    if (top.location != self.location) top.location.replace(self.location);
+  </script>
+  <link href='http://fonts.googleapis.com/css?family=Cardo' rel='stylesheet' type='text/css' />
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css' />
+  
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23947671-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+</head>
+<body>
+  <div id="site">
+    <div id="header">
+      <h1>
+	<a href="/">JDBI</a>
+        <span id="navigation">
+          <a href="/archive.html">Docs</a> |
+          <a href="http://github.com/brianm/jdbi/">Source</a> |
+          <a href="/getting_jdbi/">Download</a> |
+          <a href="/maven_site/apidocs">Javadoc</a>
+        </span>
+      </h1>
+    </div>
+    <div id="content">
+      <div id="page">
+  
+  <h1 class="emphnext">
+    <a href="/sql_object_api_batching">SQL Object Batching</a> 
+  </h1>
+  <p>The SQL Object API supports prepared batch operations via the <code>@SqlBatch</code> annotation. Batch methods must return either <code>void</code> or <code>int[]</code>. In the case of an integer array, the values represent the number of rows modified for that element in the batch.</p>
+
+<p>The contents of each binding in the prepared batch are determined by finding the bound arguments which are either arrays, <code>java.util.Iterable</code>, or <code>java.util.Iterator</code> instances, henceforth called iterable arguments. The various iterable arguments will be zipped together, stopping at the end of the shortest. Any non-iterable bound arguments will be considered constant values.</p>
+
+<p>Take the following method as an example:</p>
+<div class='highlight'><pre><code class='java'><span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>BatchExample</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlBatch</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (:id, :first || &#39; &#39; || :last)&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>insertFamily</span><span class='o'>(</span><span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;id&quot;</span><span class='o'>)</span> <span class='n'>List</span><span class='o'>&lt;</span><span class='n'>Integer</span><span class='o'>&gt;</span> <span class='n'>ids</span><span class='o'>,</span>
+                    <span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;first&quot;</span><span class='o'>)</span> <span class='n'>Iterator</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='n'>firstNames</span><span class='o'>,</span>
+                    <span class='nd'>@Bind</span><span class='o'>(</span><span class='s'>&quot;last&quot;</span><span class='o'>)</span> <span class='n'>String</span> <span class='n'>lastName</span><span class='o'>);</span>
+
+  <span class='nd'>@SqlUpdate</span><span class='o'>(</span><span class='s'>&quot;create table something(id int primary key, name varchar(32))&quot;</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>createSomethingTable</span><span class='o'>();</span>
+
+  <span class='nd'>@SqlQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something where id = :it&quot;</span><span class='o'>)</span>
+  <span class='n'>String</span> <span class='nf'>findNameById</span><span class='o'>(</span><span class='nd'>@Bind</span> <span class='kt'>int</span> <span class='n'>id</span><span class='o'>);</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>The first method, <code>insertFamily</code>, is the batch method. It takes three arguments: the first is a list of integers which will be bound to <code>id</code>; the second is an iterator of first names, which will be bound to <code>first</code>; the final value is a constant argument which will be bound to <code>last</code>.</p>
+
+<p>If we then exercise it as follows</p>
+<div class='highlight'><pre><code class='java'><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
+<span class='n'>Handle</span> <span class='n'>h</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
+
+<span class='n'>BatchExample</span> <span class='n'>b</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>attach</span><span class='o'>(</span><span class='n'>BatchExample</span><span class='o'>.</span><span class='na'>class</span><span class='o'>);</span>
+<span class='n'>b</span><span class='o'>.</span><span class='na'>createSomethingTable</span><span class='o'>();</span>
+
+<span class='n'>List</span><span class='o'>&lt;</span><span class='n'>Integer</span><span class='o'>&gt;</span> <span class='n'>ids</span> <span class='o'>=</span> <span class='n'>asList</span><span class='o'>(</span><span class='mi'>1</span><span class='o'>,</span> <span class='mi'>2</span><span class='o'>,</span> <span class='mi'>3</span><span class='o'>,</span> <span class='mi'>4</span><span class='o'>,</span> <span class='mi'>5</span><span class='o'>);</span>
+<span class='n'>Iterator</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='n'>first_names</span> <span class='o'>=</span> <span class='n'>asList</span><span class='o'>(</span><span class='s'>&quot;Tip&quot;</span><span class='o'>,</span> <span class='s'>&quot;Jane&quot;</span><span class='o'>,</span> <span class='s'>&quot;Brian&quot;</span><span class='o'>,</span> <span class='s'>&quot;Keith&quot;</span><span class='o'>,</span> <span class='s'>&quot;Eric&quot;</span><span class='o'>).</span><span class='na'>iterator</span><span class='o'>();</span>
+
+<span class='n'>b</span><span class='o'>.</span><span class='na'>insertFamily</span><span class='o'>(</span><span class='n'>ids</span><span class='o'>,</span> <span class='n'>first_names</span><span class='o'>,</span> <span class='s'>&quot;McCallister&quot;</span><span class='o'>);</span>
+
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>b</span><span class='o'>.</span><span class='na'>findNameById</span><span class='o'>(</span><span class='mi'>1</span><span class='o'>),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Tip McCallister&quot;</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>b</span><span class='o'>.</span><span class='na'>findNameById</span><span class='o'>(</span><span class='mi'>2</span><span class='o'>),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Jane McCallister&quot;</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>b</span><span class='o'>.</span><span class='na'>findNameById</span><span class='o'>(</span><span class='mi'>3</span><span class='o'>),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Brian McCallister&quot;</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>b</span><span class='o'>.</span><span class='na'>findNameById</span><span class='o'>(</span><span class='mi'>4</span><span class='o'>),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Keith McCallister&quot;</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>b</span><span class='o'>.</span><span class='na'>findNameById</span><span class='o'>(</span><span class='mi'>5</span><span class='o'>),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Eric McCallister&quot;</span><span class='o'>));</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>The values which will be bound for each binding into the the prepared batch are therefore</p>
+<pre>
+id | first | last
+------------------------
+1  | Tip   | McCallister
+2  | Jane  | McCallister
+3  | Brian | McCallister
+4  | Keith | McCallister
+5  | Eric  | McCallister 
+</pre>
+<p>A common case for batching is to apply bulk updates in incremental batches, say of a thousand or so rows at a time, in order to be gentle on the transaction log. The <code>@BatchChunkSize</code> annotation causes the batch to be processed in chunks of the specified size. Take the following batch method:</p>
+<div class='highlight'><pre><code class='java'><span class='kd'>public</span> <span class='kd'>interface</span> <span class='nc'>ChunkedBatchExample</span>
+<span class='o'>{</span>
+  <span class='nd'>@SqlBatch</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (:id, :name)&quot;</span><span class='o'>)</span>
+  <span class='nd'>@BatchChunkSize</span><span class='o'>(</span><span class='mi'>1000</span><span class='o'>)</span>
+  <span class='kt'>void</span> <span class='nf'>insertAll</span><span class='o'>(</span><span class='nd'>@BindBean</span> <span class='n'>Iterator</span><span class='o'>&lt;</span><span class='n'>Something</span><span class='o'>&gt;</span> <span class='n'>somethings</span><span class='o'>);</span>
+<span class='o'>}</span>                          
+</code></pre>
+</div>
+<p>If we a two-hundred thousand line CSV file of ids and names to insert, we could define an iterator across the rows in the file and pass that iterator to this method. The sql object would then create and execute prepared batches of 1000 rows at a time, 200 times.</p>
+
+  
+
+  <div id="pagination">
+    <a href="/getting_jdbi/" class="forward">Getting JDBI ❯❯</a>
+    <a href="/">Home</a> | <a href="/archive.html">Docs</a>
+  </div>
+</div>
+
+    </div>
+    <div id="footer">
+      &copy; 2011 Brian McCallister
+    </div>
+  </div>
+</body>
+</html>
+

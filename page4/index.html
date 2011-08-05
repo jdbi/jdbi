@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+  <title>JDBI : Convenient SQL for Java</title>
+  <script language="JavaScript" type="text/javascript">
+    if (top.location != self.location) top.location.replace(self.location);
+  </script>
+  <link href='http://fonts.googleapis.com/css?family=Cardo' rel='stylesheet' type='text/css' />
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css' />
+  
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23947671-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+</head>
+<body>
+  <div id="site">
+    <div id="header">
+      <h1>
+	<a href="/">JDBI</a>
+        <span id="navigation">
+          <a href="/archive.html">Docs</a> |
+          <a href="http://github.com/brianm/jdbi/">Source</a> |
+          <a href="/getting_jdbi/">Download</a> |
+          <a href="/maven_site/apidocs">Javadoc</a>
+        </span>
+      </h1>
+    </div>
+    <div id="content">
+      <div id="page">
+  
+  <h1 class="emphnext">
+    <a href="/fluent_queries">Fluent Queries</a> 
+  </h1>
+  <p><a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/Query.html'>Query</a> instances are <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/SQLStatement.html'>SQLStatement</a> instances specialized for SQL queries. They are created from <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/Handle.html'>Handle</a> instances, and support fluent-style method chaining.</p>
+
+<p>Queries are parameterized with the type each row in the result set will be mapped to, for example:</p>
+<div class='highlight'><pre><code class='java'><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
+<span class='n'>Handle</span> <span class='n'>h</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;create table something (id int primary key, name varchar(100))&quot;</span><span class='o'>);</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (1, &#39;Brian&#39;)&quot;</span><span class='o'>);</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (2, &#39;Keith&#39;)&quot;</span><span class='o'>);</span>
+
+
+<span class='n'>Query</span><span class='o'>&lt;</span><span class='n'>Map</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>,</span> <span class='n'>Object</span><span class='o'>&gt;&gt;</span> <span class='n'>q</span> <span class='o'>=</span>
+    <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something order by id&quot;</span><span class='o'>);</span>
+<span class='n'>Query</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='n'>q2</span> <span class='o'>=</span> <span class='n'>q</span><span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringMapper</span><span class='o'>.</span><span class='na'>FIRST</span><span class='o'>);</span>
+<span class='n'>List</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='n'>rs</span> <span class='o'>=</span> <span class='n'>q2</span><span class='o'>.</span><span class='na'>list</span><span class='o'>();</span>
+
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>,</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='n'>asList</span><span class='o'>(</span><span class='s'>&quot;Brian&quot;</span><span class='o'>,</span> <span class='s'>&quot;Keith&quot;</span><span class='o'>)));</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>The defauly representation of a result row is a Map&#60;String, Object&#62;, as can be seen when the Query is first created. To map the rows to something else we use a <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/tweak/ResultSetMapper.html'>ResultSetMapper</a>. A number of mappers are included, such as the <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/util/StringMapper.html'>StringMapper</a> static instance we use here to extract a String from position 1 (the first thing) in each row.</p>
+
+<p>Finally, we execute the query via one of several methods, in this case list(), which eagerly maps all rows and stores them in a List.</p>
+
+<p>This example uses intermediate assignment to make clear what is happening at each step, more a more idiommatic way of writing the above would be to chain the calls to the initial Query:</p>
+<div class='highlight'><pre><code class='java'><span class='n'>DBI</span> <span class='n'>dbi</span> <span class='o'>=</span> <span class='k'>new</span> <span class='n'>DBI</span><span class='o'>(</span><span class='s'>&quot;jdbc:h2:mem:test&quot;</span><span class='o'>);</span>
+<span class='n'>Handle</span> <span class='n'>h</span> <span class='o'>=</span> <span class='n'>dbi</span><span class='o'>.</span><span class='na'>open</span><span class='o'>();</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;create table something (id int primary key, name varchar(100))&quot;</span><span class='o'>);</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (1, &#39;Brian&#39;)&quot;</span><span class='o'>);</span>
+<span class='n'>h</span><span class='o'>.</span><span class='na'>execute</span><span class='o'>(</span><span class='s'>&quot;insert into something (id, name) values (2, &#39;Keith&#39;)&quot;</span><span class='o'>);</span>
+
+
+<span class='n'>List</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='n'>rs</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something order by id&quot;</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringMapper</span><span class='o'>.</span><span class='na'>FIRST</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>list</span><span class='o'>();</span>
+
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>,</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='n'>asList</span><span class='o'>(</span><span class='s'>&quot;Brian&quot;</span><span class='o'>,</span> <span class='s'>&quot;Keith&quot;</span><span class='o'>)));</span>
+
+<span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>There are several other methods for executing the query, depending on how you want to retrieve the results:</p>
+<div class='highlight'><pre><code class='java'><span class='n'>String</span> <span class='n'>rs</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something order by id&quot;</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringMapper</span><span class='o'>.</span><span class='na'>FIRST</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>first</span><span class='o'>();</span>
+
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>,</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Brian&quot;</span><span class='o'>));</span>
+</code></pre>
+</div>
+<p>The first() method sets the max rows to 1, then extracts the value from just that first row of the result set.</p>
+
+<p>The iterator() method works a bit differently then first() and list(). It returns an Interator which lazily traverses the result set, leaving them open until either the iterator is closed, or the end is reached.</p>
+<div class='highlight'><pre><code class='java'><span class='n'>ResultIterator</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='n'>rs</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something order by id&quot;</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringMapper</span><span class='o'>.</span><span class='na'>FIRST</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>iterator</span><span class='o'>();</span>
+
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>next</span><span class='o'>(),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Brian&quot;</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>next</span><span class='o'>(),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Keith&quot;</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>hasNext</span><span class='o'>(),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='kc'>false</span><span class='o'>));</span>
+
+<span class='n'>rs</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
+</code></pre>
+</div>
+<p>Here we can see we actually get back a sub-interface of Iterator called <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/ResultIterator.html'>ResultIterator</a> which defines a close() method. We can call the close() to close the result set and prepared statement underlying the query.</p>
+
+<p>If we know we will traverse to the end of the result set, we don&#8217;t need to call close() explicitely. The call to Iterator#hasNext which returns false will automatically close the results, so we can write the above as</p>
+<div class='highlight'><pre><code class='java'><span class='n'>Iterator</span><span class='o'>&lt;</span><span class='n'>String</span><span class='o'>&gt;</span> <span class='n'>rs</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something order by id&quot;</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringMapper</span><span class='o'>.</span><span class='na'>FIRST</span><span class='o'>)</span>
+    <span class='o'>.</span><span class='na'>iterator</span><span class='o'>();</span>
+
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>next</span><span class='o'>(),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Brian&quot;</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>next</span><span class='o'>(),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Keith&quot;</span><span class='o'>));</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>hasNext</span><span class='o'>(),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='kc'>false</span><span class='o'>));</span>
+</code></pre>
+</div>
+<p>Additionally, Query implements <a href='http://download.oracle.com/javase/6/docs/api/java/lang/Iterable.html'>Iterable</a> so we can do things like</p>
+<div class='highlight'><pre><code class='java'><span class='k'>for</span> <span class='o'>(</span><span class='n'>String</span> <span class='n'>name</span> <span class='o'>:</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something order by id&quot;</span><span class='o'>).</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringMapper</span><span class='o'>.</span><span class='na'>FIRST</span><span class='o'>))</span>
+<span class='o'>{</span>
+    <span class='n'>assertThat</span><span class='o'>(</span><span class='n'>name</span><span class='o'>,</span> <span class='n'>equalsOneOf</span><span class='o'>(</span><span class='s'>&quot;Brian&quot;</span><span class='o'>,</span> <span class='s'>&quot;Keith&quot;</span><span class='o'>));</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>The final means of traversing a result set is to <a href='http://en.wikipedia.org/wiki/Fold_(higher-order_function'>fold across it</a>)</p>
+<div class='highlight'><pre><code class='java'><span class='n'>StringBuilder</span> <span class='n'>rs</span> <span class='o'>=</span> <span class='n'>h</span><span class='o'>.</span><span class='na'>createQuery</span><span class='o'>(</span><span class='s'>&quot;select name from something order by id&quot;</span><span class='o'>)</span>
+                    <span class='o'>.</span><span class='na'>map</span><span class='o'>(</span><span class='n'>StringMapper</span><span class='o'>.</span><span class='na'>FIRST</span><span class='o'>)</span>
+                    <span class='o'>.</span><span class='na'>fold</span><span class='o'>(</span><span class='k'>new</span> <span class='n'>StringBuilder</span><span class='o'>(),</span> <span class='k'>new</span> <span class='n'>Folder2</span><span class='o'>&lt;</span><span class='n'>StringBuilder</span><span class='o'>&gt;()</span>
+                    <span class='o'>{</span>
+                        <span class='kd'>public</span> <span class='n'>StringBuilder</span> <span class='nf'>fold</span><span class='o'>(</span><span class='n'>StringBuilder</span> <span class='n'>acc</span><span class='o'>,</span> <span class='n'>ResultSet</span> <span class='n'>rs</span><span class='o'>,</span> <span class='n'>StatementContext</span> <span class='n'>ctx</span><span class='o'>)</span> <span class='kd'>throws</span> <span class='n'>SQLException</span>
+                        <span class='o'>{</span>
+                            <span class='n'>acc</span><span class='o'>.</span><span class='na'>append</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>getString</span><span class='o'>(</span><span class='mi'>1</span><span class='o'>)).</span><span class='na'>append</span><span class='o'>(</span><span class='s'>&quot;, &quot;</span><span class='o'>);</span>
+                            <span class='k'>return</span> <span class='n'>acc</span><span class='o'>;</span>
+                        <span class='o'>}</span>
+                    <span class='o'>});</span>
+
+<span class='n'>rs</span><span class='o'>.</span><span class='na'>delete</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>length</span><span class='o'>()</span> <span class='o'>-</span> <span class='mi'>2</span><span class='o'>,</span> <span class='n'>rs</span><span class='o'>.</span><span class='na'>length</span><span class='o'>());</span> <span class='c1'>// trim the extra &quot;, &quot;</span>
+<span class='n'>assertThat</span><span class='o'>(</span><span class='n'>rs</span><span class='o'>.</span><span class='na'>toString</span><span class='o'>(),</span> <span class='n'>equalTo</span><span class='o'>(</span><span class='s'>&quot;Mark, Tatu&quot;</span><span class='o'>));</span>
+</code></pre>
+</div>
+<p>We supply an implementation of <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/Folder2.html'>Folder2</a> which receives the first argument and first row to the fold() call to the initial invocation, and returns a value to be passed to the next invocation, along with the next row, and so on until the last row in the result set, the value returned from the last invocation will be returned from the fold() call.</p>
+
+  
+
+  <div id="pagination">
+    <a href="/getting_jdbi/" class="forward">Getting JDBI ❯❯</a>
+    <a href="/">Home</a> | <a href="/archive.html">Docs</a>
+  </div>
+</div>
+
+    </div>
+    <div id="footer">
+      &copy; 2011 Brian McCallister
+    </div>
+  </div>
+</body>
+</html>
+
