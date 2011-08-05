@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Arrays;
 
 /**
@@ -36,7 +37,12 @@ class ByteArrayArgument implements Argument
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setBytes(position, value);
+        if (value != null) {
+            statement.setBytes(position, value);
+        }
+        else {
+            statement.setNull(position, Types.VARBINARY);
+        }
     }
 
     @Override

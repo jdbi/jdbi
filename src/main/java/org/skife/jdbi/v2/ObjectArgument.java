@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  *
@@ -35,7 +36,12 @@ class ObjectArgument implements Argument
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setObject(position, value);
+        if (value != null) {
+            statement.setObject(position, value);
+        }
+        else {
+            statement.setNull(position, Types.OTHER);
+        }
     }
 
     @Override

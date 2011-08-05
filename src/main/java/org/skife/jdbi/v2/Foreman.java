@@ -14,16 +14,17 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 class Foreman
 {
 
-    private final List<ArgumentFactory> factories = new ArrayList<ArgumentFactory>();
+    private final Stack<ArgumentFactory> factories = new Stack<ArgumentFactory>();
     {
-        factories.add(BUILT_INS);
+        factories.push(BUILT_INS);
     }
 
-    public Argument waffle(Class expectedType, Object it, StatementContext ctx)
+    Argument waffle(Class expectedType, Object it, StatementContext ctx)
     {
         for (ArgumentFactory factory : factories) {
             if (factory.accepts(expectedType, it, ctx)) {
