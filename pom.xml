@@ -404,6 +404,10 @@
             <id>arosien</id>
             <name>Adam Rosien</name>
         </developer>
+        <developer>
+          <id>tomdz</id>
+          <name>Thomas Dudziak</name>
+        </developer>
     </developers>
 
 
