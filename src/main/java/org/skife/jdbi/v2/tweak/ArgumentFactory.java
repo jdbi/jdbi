@@ -1,7 +1,6 @@
 package org.skife.jdbi.v2.tweak;
 
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.Argument;
 
 public interface ArgumentFactory<T>
 {

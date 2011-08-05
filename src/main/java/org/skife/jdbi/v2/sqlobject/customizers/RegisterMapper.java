@@ -2,9 +2,9 @@ package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
-import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.annotation.Annotation;

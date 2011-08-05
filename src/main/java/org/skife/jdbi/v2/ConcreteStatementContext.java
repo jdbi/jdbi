@@ -1,7 +1,5 @@
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.StatementContext;
-
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
