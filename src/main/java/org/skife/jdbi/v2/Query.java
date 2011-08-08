@@ -75,7 +75,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public List<ResultType> list()
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<List<ResultType>>()
+        return this.internalExecute(new QueryResultSetMunger<List<ResultType>>()
         {
             public List<ResultType> munge(ResultSet rs) throws SQLException
             {
@@ -105,7 +105,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public List<ResultType> list(final int maxRows)
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<List<ResultType>>()
+        return this.internalExecute(new QueryResultSetMunger<List<ResultType>>()
         {
             public List<ResultType> munge(ResultSet rs) throws SQLException
             {
@@ -136,7 +136,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
-        this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<Void>()
+        this.internalExecute(new QueryResultSetMunger<Void>()
         {
             public Void munge(ResultSet rs) throws SQLException
             {
@@ -167,7 +167,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
-        this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<Void>()
+        this.internalExecute(new QueryResultSetMunger<Void>()
         {
             public Void munge(ResultSet rs) throws SQLException
             {
@@ -186,7 +186,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public ResultIterator<ResultType> iterator()
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<ResultIterator<ResultType>>()
+        return this.internalExecute(new QueryResultMunger<ResultIterator<ResultType>>()
         {
             public ResultIterator<ResultType> munge(Statement stmt) throws SQLException
             {
@@ -208,7 +208,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public ResultType first()
     {
-        return this.internalExecute(QueryPreperator.MAX_ROWS_ONE, new QueryResultSetMunger<ResultType>()
+        addStatementCustomizer(InternalStatementCustomizers.MAX_ROW_ONE);
+        return this.internalExecute(new QueryResultSetMunger<ResultType>()
         {
             public final ResultType munge(final ResultSet rs) throws SQLException
             {

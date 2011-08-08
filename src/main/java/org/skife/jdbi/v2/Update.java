@@ -52,7 +52,7 @@ public class Update extends SQLStatement<Update>
      */
     public int execute()
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Integer>()
+        return this.internalExecute(new QueryResultMunger<Integer>()
         {
             public Integer munge(Statement results) throws SQLException
             {
@@ -70,7 +70,7 @@ public class Update extends SQLStatement<Update>
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper)
     {
         getConcreteContext().setReturningGeneratedKeys(true);
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>()
+        return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>()
         {
             public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
             {

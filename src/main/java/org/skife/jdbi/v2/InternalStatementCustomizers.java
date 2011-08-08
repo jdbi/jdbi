@@ -19,23 +19,24 @@ package org.skife.jdbi.v2;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-interface QueryPreperator
-{
-    final QueryPreperator NO_OP = new QueryPreperator()
-    {
-        public final void prepare(final PreparedStatement stmt)
-        {
-            // no op
-        }
-    };
+import org.skife.jdbi.v2.tweak.BaseStatementCustomizer;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
-    final QueryPreperator MAX_ROWS_ONE = new QueryPreperator()
+class InternalStatementCustomizers
+{
+    private InternalStatementCustomizers()
     {
-        public final void prepare(final PreparedStatement stmt) throws SQLException
+    }
+
+    /**
+     * Hint to the statement, that we want only a single row. Used by {@link Query#first()} to limit the number
+     * of rows returned by the database.
+     */
+    static final StatementCustomizer MAX_ROW_ONE = new BaseStatementCustomizer()
+    {
+        public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException
         {
             stmt.setMaxRows(1);
         }
     };
-
-    void prepare(PreparedStatement stmt) throws SQLException;
 }

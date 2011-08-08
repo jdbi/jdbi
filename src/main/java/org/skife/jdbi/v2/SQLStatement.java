@@ -1308,8 +1308,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         }
     }
 
-    protected <Result> Result internalExecute(final QueryPreperator prep,
-                                              final QueryResultMunger<Result> munger,
+    protected <Result> Result internalExecute(final QueryResultMunger<Result> munger,
                                               final QueryPostMungeCleanup cleanup)
     {
         final String located_sql = wrapLookup(sql);
@@ -1335,13 +1334,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             }
             catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, context);
-            }
-
-            try {
-                prep.prepare(stmt);
-            }
-            catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to prepare JDBC statement", e, context);
             }
 
             for (StatementCustomizer customizer : customizers) {

@@ -86,7 +86,7 @@ public class Call extends SQLStatement<Call>
 	 */
 	public OutParameters invoke()
 	{
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<OutParameters>(){
+        return this.internalExecute(new QueryResultMunger<OutParameters>(){
 	        public OutParameters munge(Statement results) throws SQLException
 	        {
 		        OutParameters out = new OutParameters();
