@@ -234,17 +234,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * @return the same instance
      */
     public SelfType setQueryTimeout(final int seconds) {
-        return addStatementCustomizer(new StatementCustomizer() {
-
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setQueryTimeout(seconds);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-        });
+        return addStatementCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
     }
 
     /**
@@ -1394,16 +1384,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 
     public void setFetchDirection(final int value)
     {
-        addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setFetchDirection(value);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-        });
+        addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
     }
 }

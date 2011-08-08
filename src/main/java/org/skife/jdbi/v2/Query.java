@@ -27,7 +27,6 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -208,7 +207,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public ResultType first()
     {
-        addStatementCustomizer(InternalStatementCustomizers.MAX_ROW_ONE);
+        addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
         return this.internalExecute(new QueryResultSetMunger<ResultType>()
         {
             public final ResultType munge(final ResultSet rs) throws SQLException
@@ -278,19 +277,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      *
      * @return the modified query
      */
-    public Query<ResultType> setFetchSize(final int i)
+    public Query<ResultType> setFetchSize(final int fetchSize)
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setFetchSize(i);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-        });
+        this.addStatementCustomizer(new StatementCustomizers.FetchSizeCustomizer(fetchSize));
         return this;
     }
 
@@ -302,19 +291,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      *
      * @return modified query
      */
-    public Query<ResultType> setMaxRows(final int i)
+    public Query<ResultType> setMaxRows(final int maxRows)
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setMaxRows(i);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-        });
+        this.addStatementCustomizer(new StatementCustomizers.MaxRowsCustomizer(maxRows));
         return this;
     }
 
@@ -326,20 +305,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      *
      * @return modified query
      */
-    public Query<ResultType> setMaxFieldSize(final int i)
+    public Query<ResultType> setMaxFieldSize(final int maxFields)
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setMaxFieldSize(i);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-
-        });
+        this.addStatementCustomizer(new StatementCustomizers.MaxFieldSizeCustomizer(maxFields));
         return this;
     }
 
@@ -351,18 +319,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public Query<ResultType> fetchReverse()
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setFetchDirection(ResultSet.FETCH_REVERSE);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-
-        });
+        setFetchDirection(ResultSet.FETCH_REVERSE);
         return this;
     }
 
@@ -374,18 +331,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public Query<ResultType> fetchForward()
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-
-        });
+        setFetchDirection(ResultSet.FETCH_FORWARD);
         return this;
     }
 
