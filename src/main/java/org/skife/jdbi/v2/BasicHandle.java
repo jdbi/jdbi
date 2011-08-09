@@ -47,6 +47,8 @@ class BasicHandle implements Handle
     private       StatementBuilder    statementBuilder;
     private final Map<String, Object> globalStatementAttributes;
 
+    private boolean closed = false;
+
     BasicHandle(TransactionHandler transactions,
                 StatementLocator statementLocator,
                 StatementBuilder preparedStatementCache,
@@ -97,13 +99,18 @@ class BasicHandle implements Handle
 
     public void close()
     {
-        statementBuilder.close(getConnection());
-        try {
-            connection.close();
-            log.logReleaseHandle(this);
-        }
-        catch (SQLException e) {
-            throw new UnableToCloseResourceException("Unable to close Connection", e);
+        if (!closed) {
+            statementBuilder.close(getConnection());
+            try {
+                connection.close();
+                log.logReleaseHandle(this);
+            }
+            catch (SQLException e) {
+                throw new UnableToCloseResourceException("Unable to close Connection", e);
+            }
+            finally {
+                closed = true;
+            }
         }
     }
 

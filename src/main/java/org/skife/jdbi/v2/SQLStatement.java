@@ -223,7 +223,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      * Close the handle when the statement is closed.
      */
     @SuppressWarnings("unchecked")
-    public SelfType setCloseHandle(final Handle handle)
+    public SelfType cleanupHandle()
     {
         super.addCleanable(JdbiCleanables.forHandle(handle));
         return (SelfType) this;
