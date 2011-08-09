@@ -37,7 +37,7 @@ import java.util.Map;
  * a very efficient way to execute large numbers of the same statement where
  * the statement only varies by the arguments bound to it.
  */
-public class PreparedBatch
+public class PreparedBatch extends AbstractJdbiStatement
 {
     private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private final StatementLocator locator;
@@ -47,7 +47,6 @@ public class PreparedBatch
     private final String sql;
     private final SQLLog log;
     private final TimingCollector timingCollector;
-    private final ConcreteStatementContext context;
 
     PreparedBatch(StatementLocator locator,
                   StatementRewriter rewriter,
@@ -58,6 +57,8 @@ public class PreparedBatch
                   SQLLog log,
                   TimingCollector timingCollector)
     {
+        super(new ConcreteStatementContext(globalStatementAttributes));
+
         this.locator = locator;
         this.rewriter = rewriter;
         this.connection = connection;
@@ -65,12 +66,6 @@ public class PreparedBatch
         this.sql = sql;
         this.log = log;
         this.timingCollector = timingCollector;
-        this.context = new ConcreteStatementContext(globalStatementAttributes);
-    }
-
-    public StatementContext getContext()
-    {
-        return context;
     }
 
     /**
@@ -80,7 +75,7 @@ public class PreparedBatch
      */
     public PreparedBatch define(String key, Object value)
     {
-        context.setAttribute(key, value);
+        getContext().setAttribute(key, value);
         return this;
     }
 
@@ -95,7 +90,7 @@ public class PreparedBatch
         if (values != null) {
             for (Map.Entry<String, ? extends Object> entry: values.entrySet())
             {
-                context.setAttribute(entry.getKey(), entry.getValue());
+                getContext().setAttribute(entry.getKey(), entry.getValue());
             }
         }
         return this;
@@ -114,20 +109,20 @@ public class PreparedBatch
         PreparedBatchPart current = parts.get(0);
         final String my_sql ;
         try {
-            my_sql = locator.locate(sql, context);
+            my_sql = locator.locate(sql, getContext());
         }
         catch (Exception e) {
             throw new UnableToCreateStatementException(String.format("Exception while locating statement for [%s]",
-                                                                     sql), e, context);
+                                                                     sql), e, getContext());
         }
-        final RewrittenStatement rewritten = rewriter.rewrite(my_sql, current.getParameters(), context);
+        final RewrittenStatement rewritten = rewriter.rewrite(my_sql, current.getParameters(), getContext());
         PreparedStatement stmt = null;
         try {
             try {
                 stmt = connection.prepareStatement(rewritten.getSql());
             }
             catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, context);
+                throw new UnableToCreateStatementException(e, getContext());
             }
 
             try {
@@ -172,7 +167,7 @@ public class PreparedBatch
                                                        connection,
                                                        preparedStatementCache,
                                                        sql,
-                                                       context,
+                                                       getConcreteContext(),
                                                        log,
                                                        timingCollector);
         parts.add(part);
@@ -181,7 +176,7 @@ public class PreparedBatch
 
 	public PreparedBatch add(Object... args)
 	{
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context, log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
 
 		for (int i = 0; i < args.length; ++i) {
 			part.bind(i, args[i]);
@@ -203,7 +198,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context, log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
         parts.add(part);
         part.bindFromMap(args);
         return part;

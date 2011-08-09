@@ -33,7 +33,6 @@ import java.util.Collections;
 public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
-    private final StatementContext context;
 
     PreparedBatchPart(PreparedBatch batch,
                       StatementLocator locator,
@@ -47,7 +46,6 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
     {
         super(new Binding(), locator, rewriter, connection, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList());
         this.batch = batch;
-        this.context = context;
     }
 
     /**
@@ -70,11 +68,5 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
     public PreparedBatchPart next()
     {
         return batch.add();
-    }
-
-    @Override
-    public StatementContext getContext()
-    {
-        return context;
     }
 }

@@ -16,13 +16,11 @@
 
 package org.skife.jdbi.v2;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.tweak.BaseStatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public final class StatementCustomizers
 {
@@ -35,7 +33,7 @@ public final class StatementCustomizers
      * of rows returned by the database.
      */
     public static final StatementCustomizer MAX_ROW_ONE = new MaxRowsCustomizer(1);
-    
+
     /**
      * Sets the fetch direction on a query. Can be used as a Statement customizer or a SqlStatementCustomizer.
      */

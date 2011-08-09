@@ -40,7 +40,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -49,14 +48,12 @@ import java.util.Map;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
+public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> extends AbstractJdbiStatement
 {
     private final Binding params;
     private final Connection connection;
     private final String sql;
     private final StatementBuilder statementBuilder;
-    private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
-    private final ConcreteStatementContext context;
 
     private StatementLocator locator;
     private StatementRewriter rewriter;
@@ -73,37 +70,29 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                  StatementLocator locator,
                  StatementRewriter rewriter,
                  Connection conn,
-                 StatementBuilder preparedStatementCache,
+                 StatementBuilder statementBuilder,
                  String sql,
                  ConcreteStatementContext ctx,
                  SQLLog log,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers)
     {
+        super(ctx);
+        addCustomizers(statementCustomizers);
+
         this.log = log;
         assert (verifyOurNastyDowncastIsOkay());
-        this.context = ctx;
-        this.statementBuilder = preparedStatementCache;
+        this.statementBuilder = statementBuilder;
         this.rewriter = rewriter;
         this.connection = conn;
         this.sql = sql;
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
-        this.customizers.addAll(statementCustomizers);
 
         ctx.setConnection(conn);
         ctx.setRawSql(sql);
         ctx.setBinding(params);
-    }
-
-    protected ConcreteStatementContext getConcreteContext() {
-        return this.context;
-    }
-
-    protected Collection<StatementCustomizer> getStatementCustomizers()
-    {
-        return this.customizers;
     }
 
     /**
@@ -157,13 +146,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
-     * Obtain the statement context associated with this statement
-     */
-    public StatementContext getContext() {
-        return context;
-    }
-
-    /**
      * Provides a means for custom statement modification. Common cusotmizations
      * have their own methods, such as {@link Query#setMaxRows(int)}
      *
@@ -174,7 +156,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     @SuppressWarnings("unchecked")
     public SelfType addStatementCustomizer(StatementCustomizer customizer)
     {
-        this.customizers.add(customizer);
+        super.addCustomizer(customizer);
         return (SelfType) this;
     }
 
@@ -233,7 +215,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      * @param seconds number of seconds before timing out
      * @return the same instance
      */
-    public SelfType setQueryTimeout(final int seconds) {
+    public SelfType setQueryTimeout(final int seconds)
+    {
         return addStatementCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
     }
 
@@ -276,7 +259,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public SelfType bindFromProperties(Object o)
     {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(o, context));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(o, getContext()));
     }
 
     /**
@@ -1294,7 +1277,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             return locator.locate(sql, this.getContext());
         }
         catch (Exception e) {
-            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e, context);
+            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e, getContext());
         }
     }
 
@@ -1302,9 +1285,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
                                               final QueryPostMungeCleanup cleanup)
     {
         final String located_sql = wrapLookup(sql);
-        this.context.setLocatedSql(located_sql);
-        rewritten = rewriter.rewrite(located_sql, getParameters(), this.context);
-        this.context.setRewrittenSql(rewritten.getSql());
+        getConcreteContext().setLocatedSql(located_sql);
+        rewritten = rewriter.rewrite(located_sql, getParameters(), getContext());
+        getConcreteContext().setRewrittenSql(rewritten.getSql());
         try {
             try {
                 if (getClass().isAssignableFrom(Call.class)) {
