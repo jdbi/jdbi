@@ -60,5 +60,82 @@ public class TestClosingHandle extends DBITestCase
         assertEquals("eric", first_row.get("name"));
         assertTrue(h.isClosed());
     }
+
+    public void testIterateKeepHandle() throws Exception {
+        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+
+        ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
+            .iterator();
+
+        int cnt = 0;
+        while(it.hasNext()) {
+            cnt++;
+            it.next();
+        }
+
+        assertEquals(2, cnt);
+        assertFalse(h.isClosed());
+    }
+
+    public void testIterateAllTheWay() throws Exception {
+        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+
+        ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
+            .cleanupHandle()
+            .iterator();
+
+        int cnt = 0;
+        while(it.hasNext()) {
+            cnt++;
+            it.next();
+        }
+
+        assertEquals(2, cnt);
+        assertTrue(h.isClosed());
+    }
+
+    public void testIteratorBehaviour() throws Exception {
+        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+
+        ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
+            .cleanupHandle()
+            .iterator();
+
+        assertTrue(it.hasNext());
+        assertFalse(h.isClosed());
+        it.next();
+        assertTrue(it.hasNext());
+        assertFalse(h.isClosed());
+        it.next();
+        assertTrue(it.hasNext());
+        assertFalse(h.isClosed());
+        it.next();
+        assertFalse(it.hasNext());
+        assertTrue(h.isClosed());
+    }
+
+    public void testIteratorClose() throws Exception {
+        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+
+        ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
+            .cleanupHandle()
+            .iterator();
+
+        assertTrue(it.hasNext());
+        assertFalse(h.isClosed());
+        it.next();
+        assertTrue(it.hasNext());
+        assertFalse(h.isClosed());
+
+        it.close();
+        assertFalse(it.hasNext());
+        assertTrue(h.isClosed());
+    }
 }
 
