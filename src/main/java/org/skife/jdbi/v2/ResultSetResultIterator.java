@@ -82,14 +82,9 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
             throw new IllegalStateException("iterator is closed");
         }
 
-        if (!alreadyAdvanced) {
-            if (!safeNext()) {
-                close();
-                throw new IllegalStateException("No element to advance to");
-            }
-        }
-        else {
-            alreadyAdvanced = false;
+        if (!hasNext()) {
+            close();
+            throw new IllegalStateException("No element to advance to");
         }
 
         try {
@@ -97,6 +92,12 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         }
         catch (SQLException e) {
             throw new ResultSetException("Error thrown mapping result set into return type", e, context);
+        }
+        finally {
+            alreadyAdvanced = safeNext();
+            if (!alreadyAdvanced) {
+                close();
+            }
         }
     }
 
