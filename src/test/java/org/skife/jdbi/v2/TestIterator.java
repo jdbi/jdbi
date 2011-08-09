@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.junit.Test;
 import org.skife.jdbi.derby.Tools;
 
 import java.util.Map;
@@ -175,5 +174,19 @@ public class TestIterator extends DBITestCase
         catch (IllegalStateException iae) {
             // TestCase does not deal with the annotations...
         }
+    }
+
+    public void testNonPathologicalJustNext() throws Exception {
+        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+
+        // Yes, you *should* use first(). But sometimes, an iterator is passed 17 levels deep and then
+        // used in this way (Hello Jackson!).
+        final Map<String, Object> result = h.createQuery("select * from something order by id")
+            .cleanupHandle()
+            .iterator()
+            .next();
+
+        assertEquals(1, result.get("id"));
+        assertEquals("eric", result.get("name"));
     }
 }
