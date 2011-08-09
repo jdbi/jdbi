@@ -13,12 +13,9 @@ import org.skife.jdbi.v2.util.StringMapper;
 import org.skife.jdbi.v2.util.TimestampMapper;
 import org.skife.jdbi.v2.util.URLMapper;
 
-import javax.swing.plaf.basic.BasicTextAreaUI;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
