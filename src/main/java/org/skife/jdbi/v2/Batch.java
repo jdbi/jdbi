@@ -87,7 +87,7 @@ public class Batch extends BaseStatement
             try
             {
                 stmt = connection.createStatement();
-                addCleanable(JdbiCleanables.forStatement(stmt));
+                addCleanable(Cleanables.forStatement(stmt));
             }
             catch (SQLException e)
             {

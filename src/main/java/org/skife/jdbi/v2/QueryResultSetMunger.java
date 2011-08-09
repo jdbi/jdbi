@@ -34,7 +34,7 @@ abstract class QueryResultSetMunger<T>
             throws SQLException
     {
         ResultSet rs = results.getResultSet();
-        stmt.addCleanable(JdbiCleanables.forResultSet(rs));
+        stmt.addCleanable(Cleanables.forResultSet(rs));
         return munge(rs);
     }
 

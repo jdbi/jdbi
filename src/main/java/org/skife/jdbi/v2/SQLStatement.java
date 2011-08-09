@@ -225,7 +225,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     @SuppressWarnings("unchecked")
     public SelfType cleanupHandle()
     {
-        super.addCleanable(JdbiCleanables.forHandle(handle));
+        super.addCleanable(Cleanables.forHandle(handle));
         return (SelfType) this;
     }
 
@@ -1310,7 +1310,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
         // caching statement builder relies on the statement *not* being closed.
-        addCleanable(new JdbiCleanables.StatementBuilderCleanable(statementBuilder, handle.getConnection(), sql, stmt));
+        addCleanable(new Cleanables.StatementBuilderCleanable(statementBuilder, handle.getConnection(), sql, stmt));
 
         getConcreteContext().setStatement(stmt);
 

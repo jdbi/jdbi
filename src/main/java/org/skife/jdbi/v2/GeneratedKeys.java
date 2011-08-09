@@ -57,7 +57,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         this.results = stmt.getGeneratedKeys();
         this.context = context;
 
-        this.jdbiStatement.addCleanable(JdbiCleanables.forResultSet(results));
+        this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
     }
 
     /**

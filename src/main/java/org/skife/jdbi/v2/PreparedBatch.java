@@ -119,7 +119,7 @@ public class PreparedBatch extends BaseStatement
         try {
             try {
                 stmt = handle.getConnection().prepareStatement(rewritten.getSql());
-                addCleanable(JdbiCleanables.forStatement(stmt));
+                addCleanable(Cleanables.forStatement(stmt));
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());

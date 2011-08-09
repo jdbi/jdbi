@@ -45,7 +45,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         this.jdbiStatement = jdbiStatement;
         this.results = stmt.getResultSet();
 
-        this.jdbiStatement.addCleanable(JdbiCleanables.forResultSet(results));
+        this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
     }
 
     public void close()
