@@ -23,9 +23,9 @@ import java.sql.Statement;
 abstract class QueryResultSetMunger<T>
         implements QueryResultMunger<T>
 {
-    private AbstractJdbiStatement stmt;
+    private BaseStatement stmt;
 
-    QueryResultSetMunger(final AbstractJdbiStatement stmt)
+    QueryResultSetMunger(final BaseStatement stmt)
     {
         this.stmt = stmt;
     }

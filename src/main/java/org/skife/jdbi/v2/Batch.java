@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
  */
-public class Batch extends AbstractJdbiStatement
+public class Batch extends BaseStatement
 {
     private List<String> parts = new ArrayList<String>();
     private final StatementRewriter rewriter;

@@ -37,7 +37,7 @@ import java.util.Map;
  * a very efficient way to execute large numbers of the same statement where
  * the statement only varies by the arguments bound to it.
  */
-public class PreparedBatch extends AbstractJdbiStatement
+public class PreparedBatch extends BaseStatement
 {
     private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private final StatementLocator locator;

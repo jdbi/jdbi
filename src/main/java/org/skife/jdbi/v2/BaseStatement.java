@@ -12,13 +12,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-abstract class AbstractJdbiStatement
+abstract class BaseStatement
 {
     private final List<JdbiCleanable> cleanables = new ArrayList<JdbiCleanable>();
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
     private final ConcreteStatementContext context;
 
-    protected AbstractJdbiStatement(final ConcreteStatementContext context)
+    protected BaseStatement(final ConcreteStatementContext context)
     {
         this.context = context;
         addCustomizer(new StatementCleaningCustomizer());
@@ -99,7 +99,7 @@ abstract class AbstractJdbiStatement
         public final void cleanup(final StatementContext ctx)
             throws SQLException
         {
-            SQLException lastException = null;
+            final List<SQLException> exceptions = new ArrayList<SQLException>();
             try {
                 Collections.reverse(cleanables);
                 for (JdbiCleanable cleanable : cleanables) {
@@ -107,14 +107,21 @@ abstract class AbstractJdbiStatement
                         cleanable.cleanup();
                     }
                     catch (SQLException sqlException) {
-                        lastException = sqlException;
+                        exceptions.add(sqlException);
                     }
                 }
                 cleanables.clear();
             }
             finally {
-                if (lastException != null)  {
-                    throw lastException;
+                if (exceptions.size() > 1) {
+                    // Chain multiple SQLExceptions together to be one big exceptions.
+                    // (Wonder if that actually works...)
+                    for (int i = 0; i < (exceptions.size() - 1); i++) {
+                        exceptions.get(i).setNextException(exceptions.get(i+1));
+                    }
+                }
+                if (exceptions.size() > 0) {
+                    throw exceptions.get(0);
                 }
             }
         }

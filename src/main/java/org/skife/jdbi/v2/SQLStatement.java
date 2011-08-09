@@ -48,7 +48,7 @@ import java.util.Map;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> extends AbstractJdbiStatement
+public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> extends BaseStatement
 {
     private final Binding params;
     private final Connection connection;
