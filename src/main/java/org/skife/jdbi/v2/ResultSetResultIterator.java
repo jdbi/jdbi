@@ -29,10 +29,11 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private final SQLStatement jdbiStatement;
     private final ResultSet results;
     private final StatementContext context;
-    private boolean alreadyAdvanced = false;
-    private int count = 0;
-    private boolean hasNext = false;
-    private boolean closed = false;
+
+    private volatile boolean alreadyAdvanced = false;
+    private volatile int count = 0;
+    private volatile boolean hasNext = false;
+    private volatile boolean closed = false;
 
     ResultSetResultIterator(ResultSetMapper<Type> mapper,
                             SQLStatement jdbiStatement,
