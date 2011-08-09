@@ -114,6 +114,11 @@ class BasicHandle implements Handle
         }
     }
 
+    boolean isClosed()
+    {
+        return closed;
+    }
+
     public void define(String key, Object value)
     {
         this.globalStatementAttributes.put(key, value);
