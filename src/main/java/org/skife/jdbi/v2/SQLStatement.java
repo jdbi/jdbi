@@ -34,7 +34,6 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -51,7 +50,7 @@ import java.util.Map;
 public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> extends BaseStatement
 {
     private final Binding params;
-    private final Connection connection;
+    private final Handle handle;
     private final String sql;
     private final StatementBuilder statementBuilder;
 
@@ -69,7 +68,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     SQLStatement(Binding params,
                  StatementLocator locator,
                  StatementRewriter rewriter,
-                 Connection conn,
+                 Handle handle,
                  StatementBuilder statementBuilder,
                  String sql,
                  ConcreteStatementContext ctx,
@@ -84,13 +83,13 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         assert (verifyOurNastyDowncastIsOkay());
         this.statementBuilder = statementBuilder;
         this.rewriter = rewriter;
-        this.connection = conn;
+        this.handle = handle;
         this.sql = sql;
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
 
-        ctx.setConnection(conn);
+        ctx.setConnection(handle.getConnection());
         ctx.setRawSql(sql);
         ctx.setBinding(params);
     }
@@ -191,9 +190,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return params;
     }
 
-    protected Connection getConnection()
+    protected Handle getHandle()
     {
-        return connection;
+        return handle;
     }
 
     /**
@@ -1299,10 +1298,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         getConcreteContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), getContext());
+                stmt = statementBuilder.createCall(handle.getConnection(), rewritten.getSql(), getContext());
             }
             else {
-                stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), getContext());
+                stmt = statementBuilder.create(handle.getConnection(), rewritten.getSql(), getContext());
             }
         }
         catch (SQLException e) {
@@ -1311,7 +1310,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
         // caching statement builder relies on the statement *not* being closed.
-        addCleanable(new JdbiCleanables.StatementBuilderCleanable(statementBuilder, connection, sql, stmt));
+        addCleanable(new JdbiCleanables.StatementBuilderCleanable(statementBuilder, handle.getConnection(), sql, stmt));
 
         getConcreteContext().setStatement(stmt);
 

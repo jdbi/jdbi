@@ -75,7 +75,7 @@ class BasicHandle implements Handle
                                               new DefaultMapper(),
                                               statementLocator,
                                               statementRewriter,
-                                              connection,
+                                              this,
                                               statementBuilder,
                                               sql,
                                               new ConcreteStatementContext(globalStatementAttributes),
@@ -211,7 +211,7 @@ class BasicHandle implements Handle
 
     public Update createStatement(String sql)
     {
-        return new Update(connection,
+        return new Update(this,
                           statementLocator,
                           statementRewriter,
                           statementBuilder,
@@ -223,7 +223,7 @@ class BasicHandle implements Handle
 
     public Call createCall(String sql)
     {
-        return new Call(connection,
+        return new Call(this,
                         statementLocator,
                         statementRewriter,
                         statementBuilder,
@@ -253,7 +253,7 @@ class BasicHandle implements Handle
     {
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
-                                 connection,
+                                 this,
                                  statementBuilder,
                                  sql,
                                  globalStatementAttributes,

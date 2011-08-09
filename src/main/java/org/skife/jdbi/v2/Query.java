@@ -26,7 +26,6 @@ import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -47,7 +46,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
           ResultSetMapper<ResultType> mapper,
           StatementLocator locator,
           StatementRewriter statementRewriter,
-          Connection connection,
+          Handle handle,
           StatementBuilder cache,
           String sql,
           ConcreteStatementContext ctx,
@@ -56,7 +55,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
           Collection<StatementCustomizer> customizers,
           MappingRegistry mappingRegistry)
     {
-        super(params, locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector, customizers);
+        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers);
         this.mapper = mapper;
         this.mappingRegistry = new MappingRegistry(mappingRegistry);
     }
@@ -277,7 +276,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
                             mapper,
                             getStatementLocator(),
                             getRewriter(),
-                            getConnection(),
+                            getHandle(),
                             getStatementBuilder(),
                             getSql(),
                             getConcreteContext(),

@@ -22,7 +22,6 @@ import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import java.sql.Connection;
 import java.util.Collections;
 
 /**
@@ -37,14 +36,14 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
     PreparedBatchPart(PreparedBatch batch,
                       StatementLocator locator,
                       StatementRewriter rewriter,
-                      Connection connection,
+                      Handle handle,
                       StatementBuilder cache,
                       String sql,
                       ConcreteStatementContext context,
                       SQLLog log,
                       TimingCollector timingCollector)
     {
-        super(new Binding(), locator, rewriter, connection, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList());
+        super(new Binding(), locator, rewriter, handle, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList());
         this.batch = batch;
     }
 

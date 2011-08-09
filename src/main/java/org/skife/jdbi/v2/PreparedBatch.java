@@ -24,7 +24,6 @@ import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class PreparedBatch extends BaseStatement
     private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private final StatementLocator locator;
     private final StatementRewriter rewriter;
-    private final Connection connection;
+    private final Handle handle;
     private final StatementBuilder preparedStatementCache;
     private final String sql;
     private final SQLLog log;
@@ -50,7 +49,7 @@ public class PreparedBatch extends BaseStatement
 
     PreparedBatch(StatementLocator locator,
                   StatementRewriter rewriter,
-                  Connection connection,
+                  Handle handle,
                   StatementBuilder preparedStatementCache,
                   String sql,
                   Map<String, Object> globalStatementAttributes,
@@ -61,7 +60,7 @@ public class PreparedBatch extends BaseStatement
 
         this.locator = locator;
         this.rewriter = rewriter;
-        this.connection = connection;
+        this.handle = handle;
         this.preparedStatementCache = preparedStatementCache;
         this.sql = sql;
         this.log = log;
@@ -119,7 +118,7 @@ public class PreparedBatch extends BaseStatement
         PreparedStatement stmt = null;
         try {
             try {
-                stmt = connection.prepareStatement(rewritten.getSql());
+                stmt = handle.getConnection().prepareStatement(rewritten.getSql());
                 addCleanable(JdbiCleanables.forStatement(stmt));
             }
             catch (SQLException e) {
@@ -174,7 +173,7 @@ public class PreparedBatch extends BaseStatement
         PreparedBatchPart part = new PreparedBatchPart(this,
                                                        locator,
                                                        rewriter,
-                                                       connection,
+                                                       handle,
                                                        preparedStatementCache,
                                                        sql,
                                                        getConcreteContext(),
@@ -186,7 +185,7 @@ public class PreparedBatch extends BaseStatement
 
 	public PreparedBatch add(Object... args)
 	{
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, handle, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
 
 		for (int i = 0; i < args.length; ++i) {
 			part.bind(i, args[i]);
@@ -208,7 +207,7 @@ public class PreparedBatch extends BaseStatement
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, handle, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
         parts.add(part);
         part.bindFromMap(args);
         return part;

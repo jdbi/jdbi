@@ -24,7 +24,6 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,7 +39,7 @@ public class Call extends SQLStatement<Call>
 {
 	private final List<OutParamArgument> params = new ArrayList<OutParamArgument>();
 
-	Call(Connection connection,
+	Call(Handle handle,
          StatementLocator locator,
          StatementRewriter rewriter,
          StatementBuilder cache,
@@ -50,7 +49,7 @@ public class Call extends SQLStatement<Call>
          TimingCollector timingCollector,
          Collection<StatementCustomizer> customizers)
 	{
-		super(new Binding(), locator, rewriter, connection, cache, sql, ctx, log, timingCollector, customizers);
+		super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers);
 	}
 
 	/**
