@@ -31,22 +31,21 @@ import java.util.Map;
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
  */
-public class Batch
+public class Batch extends BaseStatement
 {
     private List<String> parts = new ArrayList<String>();
     private final StatementRewriter rewriter;
     private final Connection connection;
     private final SQLLog log;
-    private final StatementContext context;
     private final TimingCollector timingCollector;
 
     Batch(StatementRewriter rewriter, Connection connection, Map<String, Object> globalStatementAttributes, SQLLog log, TimingCollector timingCollector)
     {
+        super(new ConcreteStatementContext(globalStatementAttributes));
         this.rewriter = rewriter;
         this.connection = connection;
         this.log = log;
         this.timingCollector = timingCollector;
-        this.context = new ConcreteStatementContext(globalStatementAttributes);
     }
 
     /**
@@ -67,7 +66,7 @@ public class Batch
      * @return self
      */
     public Batch define(String key, Object value) {
-        this.context.setAttribute(key, value);
+        getContext().setAttribute(key, value);
         return this;
     }
 
@@ -88,10 +87,11 @@ public class Batch
             try
             {
                 stmt = connection.createStatement();
+                addCleanable(Cleanables.forStatement(stmt));
             }
             catch (SQLException e)
             {
-                throw new UnableToCreateStatementException(e, context);
+                throw new UnableToCreateStatementException(e, getContext());
             }
 
             final SQLLog.BatchLogger logger = log.logBatch();
@@ -99,14 +99,14 @@ public class Batch
             {
                 for (String part : parts)
                 {
-                    final String sql= rewriter.rewrite(part, empty, context).getSql();
+                    final String sql = rewriter.rewrite(part, empty, getContext()).getSql();
                     logger.add(sql);
                     stmt.addBatch(sql);
                 }
             }
             catch (SQLException e)
             {
-                throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, context);
+                throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, getContext());
             }
 
             try
@@ -116,20 +116,17 @@ public class Batch
                 final long elapsedTime = (System.nanoTime() - start);
                 logger.log(elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                timingCollector.collect(elapsedTime, context);
+                timingCollector.collect(elapsedTime, getContext());
                 return rs;
 
             }
             catch (SQLException e)
             {
-                throw new UnableToExecuteStatementException(e, context);
+                throw new UnableToExecuteStatementException(e, getContext());
             }
         }
-        finally
-        {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(null, stmt, null);
+        finally {
+            cleanup();
         }
-
     }
-
 }

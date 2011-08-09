@@ -34,7 +34,6 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -49,14 +48,12 @@ import java.util.Map;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
+public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> extends BaseStatement
 {
-
-    private final Binding                  params;
-    private final Connection               connection;
-    private final String                   sql;
-    private final StatementBuilder         statementBuilder;
-    private final ConcreteStatementContext context;
+    private final Binding params;
+    private final Handle handle;
+    private final String sql;
+    private final StatementBuilder statementBuilder;
 
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
     private final Foreman                         foreman     = new Foreman();
@@ -76,39 +73,30 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     SQLStatement(Binding params,
                  StatementLocator locator,
                  StatementRewriter rewriter,
-                 Connection conn,
-                 StatementBuilder preparedStatementCache,
+                 Handle handle,
+                 StatementBuilder statementBuilder,
                  String sql,
                  ConcreteStatementContext ctx,
                  SQLLog log,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers)
     {
+        super(ctx);
+        addCustomizers(statementCustomizers);
+
         this.log = log;
         assert (verifyOurNastyDowncastIsOkay());
-        this.context = ctx;
-        this.statementBuilder = preparedStatementCache;
+        this.statementBuilder = statementBuilder;
         this.rewriter = rewriter;
-        this.connection = conn;
+        this.handle = handle;
         this.sql = sql;
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
-        this.customizers.addAll(statementCustomizers);
 
-        ctx.setConnection(conn);
+        ctx.setConnection(handle.getConnection());
         ctx.setRawSql(sql);
         ctx.setBinding(params);
-    }
-
-    protected ConcreteStatementContext getConcreteContext()
-    {
-        return this.context;
-    }
-
-    protected Collection<StatementCustomizer> getStatementCustomizers()
-    {
-        return this.customizers;
     }
 
     /**
@@ -163,14 +151,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     }
 
     /**
-     * Obtain the statement context associated with this statement
-     */
-    public StatementContext getContext()
-    {
-        return context;
-    }
-
-    /**
      * Provides a means for custom statement modification. Common cusotmizations
      * have their own methods, such as {@link Query#setMaxRows(int)}
      *
@@ -181,7 +161,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
     @SuppressWarnings("unchecked")
     public SelfType addStatementCustomizer(StatementCustomizer customizer)
     {
-        this.customizers.add(customizer);
+        super.addCustomizer(customizer);
         return (SelfType) this;
     }
 
@@ -216,9 +196,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
         return params;
     }
 
-    protected Connection getConnection()
+    protected Handle getHandle()
     {
-        return connection;
+        return handle;
     }
 
     /**
@@ -243,18 +223,17 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public SelfType setQueryTimeout(final int seconds)
     {
-        return addStatementCustomizer(new StatementCustomizer()
-        {
+        return addStatementCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
+    }
 
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setQueryTimeout(seconds);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-        });
+    /**
+     * Close the handle when the statement is closed.
+     */
+    @SuppressWarnings("unchecked")
+    public SelfType cleanupHandle()
+    {
+        super.addCleanable(Cleanables.forHandle(handle));
+        return (SelfType) this;
     }
 
     /**
@@ -296,7 +275,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
      */
     public SelfType bindFromProperties(Object o)
     {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(o, context));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(o, getContext()));
     }
 
     /**
@@ -1248,90 +1227,62 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
             return locator.locate(sql, this.getContext());
         }
         catch (Exception e) {
-            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e, context);
+            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e, getContext());
         }
     }
 
-    protected <Result> Result internalExecute(final QueryPreperator prep,
-                                              final QueryResultMunger<Result> munger,
-                                              final QueryPostMungeCleanup cleanup)
+    protected <Result> Result internalExecute(final QueryResultMunger<Result> munger)
     {
         final String located_sql = wrapLookup(sql);
-        this.context.setLocatedSql(located_sql);
-        rewritten = rewriter.rewrite(located_sql, getParameters(), this.context);
-        this.context.setRewrittenSql(rewritten.getSql());
+        getConcreteContext().setLocatedSql(located_sql);
+        rewritten = rewriter.rewrite(located_sql, getParameters(), getContext());
+        getConcreteContext().setRewrittenSql(rewritten.getSql());
         try {
-            try {
-                if (getClass().isAssignableFrom(Call.class)) {
-                    stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);
-                }
-                else {
-                    stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
-                }
+            if (getClass().isAssignableFrom(Call.class)) {
+                stmt = statementBuilder.createCall(handle.getConnection(), rewritten.getSql(), getContext());
             }
-            catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, context);
-            }
-
-            this.context.setStatement(stmt);
-            try {
-                rewritten.bind(getParameters(), stmt);
-            }
-            catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, context);
-            }
-
-            try {
-                prep.prepare(stmt);
-            }
-            catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to prepare JDBC statement", e, context);
-            }
-
-            for (StatementCustomizer customizer : customizers) {
-                try {
-                    customizer.beforeExecution(stmt, context);
-                }
-                catch (SQLException e) {
-                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, context);
-                }
-            }
-
-            try {
-                final long start = System.nanoTime();
-                stmt.execute();
-                final long elapsedTime = System.nanoTime() - start;
-                log.logSQL(elapsedTime / 1000000L, rewritten.getSql());
-                timingCollector.collect(elapsedTime, context);
-            }
-            catch (SQLException e) {
-                throw new UnableToExecuteStatementException(e, context);
-            }
-
-            for (StatementCustomizer customizer : customizers) {
-                try {
-                    customizer.afterExecution(stmt, context);
-                }
-                catch (SQLException e) {
-                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, context);
-                }
-            }
-
-            try {
-                return munger.munge(stmt);
-            }
-            catch (SQLException e) {
-                throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
+            else {
+                stmt = statementBuilder.create(handle.getConnection(), rewritten.getSql(), getContext());
             }
         }
-        finally {
-            cleanup.cleanup(this, null, null);
+        catch (SQLException e) {
+            throw new UnableToCreateStatementException(e, getContext());
         }
-    }
 
-    void close() throws SQLException
-    {
-        this.statementBuilder.close(getConnection(), rewritten.getSql(), stmt);
+        // The statement builder might (or might not) clean up the statement when called. E.g. the
+        // caching statement builder relies on the statement *not* being closed.
+        addCleanable(new Cleanables.StatementBuilderCleanable(statementBuilder, handle.getConnection(), sql, stmt));
+
+        getConcreteContext().setStatement(stmt);
+
+        try {
+            rewritten.bind(getParameters(), stmt);
+        }
+        catch (SQLException e) {
+            throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, getContext());
+        }
+
+        beforeExecution(stmt);
+
+        try {
+            final long start = System.nanoTime();
+            stmt.execute();
+            final long elapsedTime = System.nanoTime() - start;
+            log.logSQL(elapsedTime / 1000000L,  rewritten.getSql());
+            timingCollector.collect(elapsedTime, getContext());
+        }
+        catch (SQLException e) {
+            throw new UnableToExecuteStatementException(e, getContext());
+        }
+
+        afterExecution(stmt);
+
+        try {
+            return munger.munge(stmt);
+        }
+        catch (SQLException e) {
+            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, getContext());
+        }
     }
 
     protected SQLLog getLog()
@@ -1346,16 +1297,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>>
 
     public void setFetchDirection(final int value)
     {
-        addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setFetchDirection(value);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-        });
+        addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
     }
 }

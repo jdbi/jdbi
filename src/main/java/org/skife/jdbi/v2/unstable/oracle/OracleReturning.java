@@ -18,6 +18,7 @@ package org.skife.jdbi.v2.unstable.oracle;
 
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.tweak.BaseStatementCustomizer;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
@@ -60,7 +61,7 @@ import java.util.List;
  * Though you can bind multiple params, and whatnot
  */
 @Deprecated
-public class OracleReturning<ResultType> implements StatementCustomizer
+public class OracleReturning<ResultType> extends BaseStatementCustomizer implements StatementCustomizer
 {
     private ResultSetMapper<ResultType> mapper;
     private final List<int[]> binds = new ArrayList<int[]>();
@@ -93,6 +94,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     /**
      * @see org.skife.jdbi.v2.tweak.StatementCustomizer#beforeExecution(java.sql.PreparedStatement,org.skife.jdbi.v2.StatementContext)
      */
+    @Override
     public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
         this.context = ctx;
@@ -126,6 +128,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
         }
     }
 
+    @Override
     public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
         ResultSet rs;

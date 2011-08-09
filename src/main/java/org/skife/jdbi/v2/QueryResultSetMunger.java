@@ -23,23 +23,19 @@ import java.sql.Statement;
 abstract class QueryResultSetMunger<T>
         implements QueryResultMunger<T>
 {
+    private BaseStatement stmt;
+
+    QueryResultSetMunger(final BaseStatement stmt)
+    {
+        this.stmt = stmt;
+    }
+
     public final T munge(Statement results)
             throws SQLException
     {
         ResultSet rs = results.getResultSet();
-        try {
-            return munge(rs);
-        }
-        finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                }
-                catch (SQLException e) {
-                    // ignore
-                }
-            }
-        }
+        stmt.addCleanable(Cleanables.forResultSet(rs));
+        return munge(rs);
     }
 
     protected abstract T munge(ResultSet rs)

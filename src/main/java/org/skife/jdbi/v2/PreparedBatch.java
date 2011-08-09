@@ -24,7 +24,6 @@ import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,40 +36,35 @@ import java.util.Map;
  * a very efficient way to execute large numbers of the same statement where
  * the statement only varies by the arguments bound to it.
  */
-public class PreparedBatch
+public class PreparedBatch extends BaseStatement
 {
     private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private final StatementLocator locator;
     private final StatementRewriter rewriter;
-    private final Connection connection;
+    private final Handle handle;
     private final StatementBuilder preparedStatementCache;
     private final String sql;
     private final SQLLog log;
     private final TimingCollector timingCollector;
-    private final ConcreteStatementContext context;
 
     PreparedBatch(StatementLocator locator,
                   StatementRewriter rewriter,
-                  Connection connection,
+                  Handle handle,
                   StatementBuilder preparedStatementCache,
                   String sql,
                   Map<String, Object> globalStatementAttributes,
                   SQLLog log,
                   TimingCollector timingCollector)
     {
+        super(new ConcreteStatementContext(globalStatementAttributes));
+
         this.locator = locator;
         this.rewriter = rewriter;
-        this.connection = connection;
+        this.handle = handle;
         this.preparedStatementCache = preparedStatementCache;
         this.sql = sql;
         this.log = log;
         this.timingCollector = timingCollector;
-        this.context = new ConcreteStatementContext(globalStatementAttributes);
-    }
-
-    public StatementContext getContext()
-    {
-        return context;
     }
 
     /**
@@ -80,7 +74,7 @@ public class PreparedBatch
      */
     public PreparedBatch define(String key, Object value)
     {
-        context.setAttribute(key, value);
+        getContext().setAttribute(key, value);
         return this;
     }
 
@@ -95,7 +89,7 @@ public class PreparedBatch
         if (values != null) {
             for (Map.Entry<String, ? extends Object> entry: values.entrySet())
             {
-                context.setAttribute(entry.getKey(), entry.getValue());
+                getContext().setAttribute(entry.getKey(), entry.getValue());
             }
         }
         return this;
@@ -114,20 +108,21 @@ public class PreparedBatch
         PreparedBatchPart current = parts.get(0);
         final String my_sql ;
         try {
-            my_sql = locator.locate(sql, context);
+            my_sql = locator.locate(sql, getContext());
         }
         catch (Exception e) {
             throw new UnableToCreateStatementException(String.format("Exception while locating statement for [%s]",
-                                                                     sql), e, context);
+                                                                     sql), e, getContext());
         }
-        final RewrittenStatement rewritten = rewriter.rewrite(my_sql, current.getParameters(), context);
+        final RewrittenStatement rewritten = rewriter.rewrite(my_sql, current.getParameters(), getContext());
         PreparedStatement stmt = null;
         try {
             try {
-                stmt = connection.prepareStatement(rewritten.getSql());
+                stmt = handle.getConnection().prepareStatement(rewritten.getSql());
+                addCleanable(Cleanables.forStatement(stmt));
             }
             catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, context);
+                throw new UnableToCreateStatementException(e, getContext());
             }
 
             try {
@@ -137,24 +132,33 @@ public class PreparedBatch
                 }
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception while binding parameters", e, context);
+                throw new UnableToExecuteStatementException("Exception while binding parameters", e, getContext());
             }
+
+            beforeExecution(stmt);
 
             try {
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = (System.nanoTime() - start);
                 log.logPreparedBatch(elapsedTime / 1000000L,  rewritten.getSql(), parts.size());
-                timingCollector.collect(elapsedTime, context);
+                timingCollector.collect(elapsedTime, getContext());
+
+                afterExecution(stmt);
+
                 return rs;
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException(e, context);
+                throw new UnableToExecuteStatementException(e, getContext());
             }
         }
         finally {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(null, stmt, null);
-            this.parts.clear();
+            try {
+                cleanup();
+            }
+            finally {
+                this.parts.clear();
+            }
         }
     }
 
@@ -169,10 +173,10 @@ public class PreparedBatch
         PreparedBatchPart part = new PreparedBatchPart(this,
                                                        locator,
                                                        rewriter,
-                                                       connection,
+                                                       handle,
                                                        preparedStatementCache,
                                                        sql,
-                                                       context,
+                                                       getConcreteContext(),
                                                        log,
                                                        timingCollector);
         parts.add(part);
@@ -181,7 +185,7 @@ public class PreparedBatch
 
 	public PreparedBatch add(Object... args)
 	{
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context, log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, handle, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
 
 		for (int i = 0; i < args.length; ++i) {
 			part.bind(i, args[i]);
@@ -203,7 +207,7 @@ public class PreparedBatch
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, connection, preparedStatementCache, sql, context, log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, handle, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
         parts.add(part);
         part.bindFromMap(args);
         return part;

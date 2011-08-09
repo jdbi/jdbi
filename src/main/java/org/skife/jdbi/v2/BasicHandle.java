@@ -47,6 +47,8 @@ class BasicHandle implements Handle
     private       StatementBuilder    statementBuilder;
     private final Map<String, Object> globalStatementAttributes;
 
+    private boolean closed = false;
+
     BasicHandle(TransactionHandler transactions,
                 StatementLocator statementLocator,
                 StatementBuilder preparedStatementCache,
@@ -75,7 +77,7 @@ class BasicHandle implements Handle
                                               new DefaultMapper(),
                                               statementLocator,
                                               statementRewriter,
-                                              connection,
+                                              this,
                                               statementBuilder,
                                               sql,
                                               new ConcreteStatementContext(globalStatementAttributes),
@@ -97,14 +99,24 @@ class BasicHandle implements Handle
 
     public void close()
     {
-        statementBuilder.close(getConnection());
-        try {
-            connection.close();
-            log.logReleaseHandle(this);
+        if (!closed) {
+            statementBuilder.close(getConnection());
+            try {
+                connection.close();
+            }
+            catch (SQLException e) {
+                throw new UnableToCloseResourceException("Unable to close Connection", e);
+            }
+            finally {
+                log.logReleaseHandle(this);
+                closed = true;
+            }
         }
-        catch (SQLException e) {
-            throw new UnableToCloseResourceException("Unable to close Connection", e);
-        }
+    }
+
+    boolean isClosed()
+    {
+        return closed;
     }
 
     public void define(String key, Object value)
@@ -211,7 +223,7 @@ class BasicHandle implements Handle
 
     public Update createStatement(String sql)
     {
-        return new Update(connection,
+        return new Update(this,
                           statementLocator,
                           statementRewriter,
                           statementBuilder,
@@ -223,7 +235,7 @@ class BasicHandle implements Handle
 
     public Call createCall(String sql)
     {
-        return new Call(connection,
+        return new Call(this,
                         statementLocator,
                         statementRewriter,
                         statementBuilder,
@@ -253,7 +265,7 @@ class BasicHandle implements Handle
     {
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
-                                 connection,
+                                 this,
                                  statementBuilder,
                                  sql,
                                  globalStatementAttributes,

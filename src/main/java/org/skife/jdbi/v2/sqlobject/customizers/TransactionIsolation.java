@@ -6,7 +6,7 @@ import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
+import org.skife.jdbi.v2.tweak.BaseStatementCustomizer;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -61,13 +61,15 @@ public @interface TransactionIsolation
         {
             final int initial_level = q.getContext().getConnection().getTransactionIsolation();
 
-            q.addStatementCustomizer(new StatementCustomizer()
+            q.addStatementCustomizer(new BaseStatementCustomizer()
             {
+                @Override
                 public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
                 {
                     ctx.getConnection().setTransactionIsolation(level.intValue());
                 }
 
+                @Override
                 public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
                 {
                     ctx.getConnection().setTransactionIsolation(initial_level);

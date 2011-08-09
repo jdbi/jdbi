@@ -26,8 +26,6 @@ import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -48,7 +46,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
           ResultSetMapper<ResultType> mapper,
           StatementLocator locator,
           StatementRewriter statementRewriter,
-          Connection connection,
+          Handle handle,
           StatementBuilder cache,
           String sql,
           ConcreteStatementContext ctx,
@@ -57,7 +55,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
           Collection<StatementCustomizer> customizers,
           MappingRegistry mappingRegistry)
     {
-        super(params, locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector, customizers);
+        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers);
         this.mapper = mapper;
         this.mappingRegistry = new MappingRegistry(mappingRegistry);
     }
@@ -75,18 +73,22 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public List<ResultType> list()
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<List<ResultType>>()
-        {
-            public List<ResultType> munge(ResultSet rs) throws SQLException
-            {
-                List<ResultType> result_list = new ArrayList<ResultType>();
-                int index = 0;
-                while (rs.next()) {
-                    result_list.add(mapper.map(index++, rs, getContext()));
+        try {
+            return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this) {
+                public List<ResultType> munge(ResultSet rs) throws SQLException
+                {
+                    List<ResultType> result_list = new ArrayList<ResultType>();
+                    int index = 0;
+                    while (rs.next()) {
+                        result_list.add(mapper.map(index++, rs, getContext()));
+                    }
+                    return result_list;
                 }
-                return result_list;
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -105,18 +107,22 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public List<ResultType> list(final int maxRows)
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<List<ResultType>>()
-        {
-            public List<ResultType> munge(ResultSet rs) throws SQLException
-            {
-                List<ResultType> result_list = new ArrayList<ResultType>();
-                int index = 0;
-                while (rs.next() && index < maxRows) {
-                    result_list.add(mapper.map(index++, rs, getContext()));
+        try {
+            return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this) {
+                public List<ResultType> munge(ResultSet rs) throws SQLException
+                {
+                    List<ResultType> result_list = new ArrayList<ResultType>();
+                    int index = 0;
+                    while (rs.next() && index < maxRows) {
+                        result_list.add(mapper.map(index++, rs, getContext()));
+                    }
+                    return result_list;
                 }
-                return result_list;
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -136,17 +142,21 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
-        this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<Void>()
-        {
-            public Void munge(ResultSet rs) throws SQLException
-            {
-                while (rs.next()) {
-                    acc.set(folder.fold(acc.get(), rs, getContext()));
+        try {
+            this.internalExecute(new QueryResultSetMunger<Void>(this) {
+                public Void munge(ResultSet rs) throws SQLException
+                {
+                    while (rs.next()) {
+                        acc.set(folder.fold(acc.get(), rs, getContext()));
+                    }
+                    return null;
                 }
-                return null;
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
-        return acc.get();
+            });
+            return acc.get();
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -167,17 +177,21 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
-        this.internalExecute(QueryPreperator.NO_OP, new QueryResultSetMunger<Void>()
-        {
-            public Void munge(ResultSet rs) throws SQLException
-            {
-                while (rs.next()) {
-                    acc.set(folder.fold(acc.get(), rs));
+        try {
+            this.internalExecute(new QueryResultSetMunger<Void>(this) {
+                public Void munge(ResultSet rs) throws SQLException
+                {
+                    while (rs.next()) {
+                        acc.set(folder.fold(acc.get(), rs));
+                    }
+                    return null;
                 }
-                return null;
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
-        return acc.get();
+            });
+            return acc.get();
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -186,8 +200,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public ResultIterator<ResultType> iterator()
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<ResultIterator<ResultType>>()
-        {
+        return this.internalExecute(new QueryResultMunger<ResultIterator<ResultType>>() {
             public ResultIterator<ResultType> munge(Statement stmt) throws SQLException
             {
                 return new ResultSetResultIterator<ResultType>(mapper,
@@ -195,7 +208,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
                                                                stmt,
                                                                getContext());
             }
-        }, QueryPostMungeCleanup.NO_OP);
+        });
     }
 
     /**
@@ -208,19 +221,25 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public ResultType first()
     {
-        return this.internalExecute(QueryPreperator.MAX_ROWS_ONE, new QueryResultSetMunger<ResultType>()
-        {
-            public final ResultType munge(final ResultSet rs) throws SQLException
-            {
-                if (rs.next()) {
-                    return mapper.map(0, rs, getContext());
+        addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
+
+        try {
+            return this.internalExecute(new QueryResultSetMunger<ResultType>(this) {
+                public final ResultType munge(final ResultSet rs) throws SQLException
+                {
+                    if (rs.next()) {
+                        return mapper.map(0, rs, getContext());
+                    }
+                    else {
+                        // no result matches
+                        return null;
+                    }
                 }
-                else {
-                    // no result matches
-                    return null;
-                }
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -257,7 +276,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
                             mapper,
                             getStatementLocator(),
                             getRewriter(),
-                            getConnection(),
+                            getHandle(),
                             getStatementBuilder(),
                             getSql(),
                             getConcreteContext(),
@@ -277,19 +296,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      *
      * @return the modified query
      */
-    public Query<ResultType> setFetchSize(final int i)
+    public Query<ResultType> setFetchSize(final int fetchSize)
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setFetchSize(i);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-        });
+        this.addStatementCustomizer(new StatementCustomizers.FetchSizeCustomizer(fetchSize));
         return this;
     }
 
@@ -301,19 +310,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      *
      * @return modified query
      */
-    public Query<ResultType> setMaxRows(final int i)
+    public Query<ResultType> setMaxRows(final int maxRows)
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setMaxRows(i);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-        });
+        this.addStatementCustomizer(new StatementCustomizers.MaxRowsCustomizer(maxRows));
         return this;
     }
 
@@ -325,20 +324,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      *
      * @return modified query
      */
-    public Query<ResultType> setMaxFieldSize(final int i)
+    public Query<ResultType> setMaxFieldSize(final int maxFields)
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setMaxFieldSize(i);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-
-        });
+        this.addStatementCustomizer(new StatementCustomizers.MaxFieldSizeCustomizer(maxFields));
         return this;
     }
 
@@ -350,18 +338,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public Query<ResultType> fetchReverse()
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setFetchDirection(ResultSet.FETCH_REVERSE);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-
-        });
+        setFetchDirection(ResultSet.FETCH_REVERSE);
         return this;
     }
 
@@ -373,18 +350,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public Query<ResultType> fetchForward()
     {
-        this.addStatementCustomizer(new StatementCustomizer()
-        {
-            public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-                stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
-            }
-
-            public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
-            {
-            }
-
-        });
+        setFetchDirection(ResultSet.FETCH_FORWARD);
         return this;
     }
 
@@ -392,6 +358,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     {
         this.mappingRegistry.add(new InferredMapperFactory(m));
     }
+
     public void registerMapper(ResultSetMapperFactory m)
     {
         this.mappingRegistry.add(m);

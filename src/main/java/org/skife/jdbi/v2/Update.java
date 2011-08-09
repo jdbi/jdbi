@@ -23,7 +23,6 @@ import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -34,16 +33,16 @@ import java.util.Map;
  */
 public class Update extends SQLStatement<Update>
 {
-    Update(Connection connection,
+    Update(Handle handle,
            StatementLocator locator,
            StatementRewriter statementRewriter,
-           StatementBuilder cache,
+           StatementBuilder statementBuilder,
            String sql,
            ConcreteStatementContext ctx,
            SQLLog log,
            TimingCollector timingCollector)
     {
-        super(new Binding(), locator, statementRewriter, connection, cache, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList());
+        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList());
     }
 
     /**
@@ -52,13 +51,17 @@ public class Update extends SQLStatement<Update>
      */
     public int execute()
     {
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<Integer>()
-        {
-            public Integer munge(Statement results) throws SQLException
-            {
-                return results.getUpdateCount();
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+        try {
+            return this.internalExecute(new QueryResultMunger<Integer>() {
+                public Integer munge(Statement results) throws SQLException
+                {
+                    return results.getUpdateCount();
+                }
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -70,8 +73,7 @@ public class Update extends SQLStatement<Update>
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper)
     {
         getConcreteContext().setReturningGeneratedKeys(true);
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>()
-        {
+        return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>() {
             public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
             {
                 return new GeneratedKeys<GeneratedKeyType>(mapper,
@@ -79,7 +81,7 @@ public class Update extends SQLStatement<Update>
                                                            results,
                                                            getContext());
             }
-        }, QueryPostMungeCleanup.NO_OP);
+        });
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

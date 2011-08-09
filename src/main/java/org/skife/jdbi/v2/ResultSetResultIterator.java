@@ -29,9 +29,11 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private final SQLStatement jdbiStatement;
     private final ResultSet results;
     private final StatementContext context;
-    private boolean alreadyAdvanced = false;
-    private int count = 0;
-    private boolean hasNext = false;
+
+    private volatile boolean alreadyAdvanced = false;
+    private volatile int count = 0;
+    private volatile boolean hasNext = false;
+    private volatile boolean closed = false;
 
     ResultSetResultIterator(ResultSetMapper<Type> mapper,
                             SQLStatement jdbiStatement,
@@ -40,63 +42,78 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
             throws SQLException
     {
         this.mapper = mapper;
+        this.context = context;
         this.jdbiStatement = jdbiStatement;
         this.results = stmt.getResultSet();
-        this.context = context;
+
+        this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
     }
 
     public void close()
     {
-        QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
+        closed = true;
+        jdbiStatement.cleanup();
     }
 
     public boolean hasNext()
     {
+        if (closed) {
+            return false;
+        }
+
         if (alreadyAdvanced) {
             return hasNext;
         }
 
-        try {
-            hasNext = results.next();
+        hasNext = safeNext();
+
+        if (hasNext) {
+            alreadyAdvanced = true;
         }
-        catch (SQLException e) {
-            throw new ResultSetException("Unable to advance result set", e, context);
+        else {
+            close();
         }
-        if (!hasNext) {
-            try {
-                results.close();
-            }
-            catch (SQLException e) {
-                throw new ResultSetException("Unable to close result set after iterating through to the end", e, context);
-            }
-        }
-        alreadyAdvanced = true;
+
         return hasNext;
     }
 
     public Type next()
     {
-        if (!alreadyAdvanced) {
-            try {
-                if (!results.next()) {
-                    throw new IllegalStateException("No element to advance to");
-                }
-            }
-            catch (SQLException e) {
-                throw new ResultSetException("Unable to advance result set", e, context);
-            }
+        if (closed) {
+            throw new IllegalStateException("iterator is closed");
         }
-        alreadyAdvanced = false;
+
+        if (!hasNext()) {
+            close();
+            throw new IllegalStateException("No element to advance to");
+        }
+
         try {
             return mapper.map(count++, results, context);
         }
         catch (SQLException e) {
             throw new ResultSetException("Error thrown mapping result set into return type", e, context);
         }
+        finally {
+            alreadyAdvanced = safeNext();
+            if (!alreadyAdvanced) {
+                close();
+            }
+        }
     }
 
     public void remove()
     {
         throw new UnsupportedOperationException("Deleting from a result set iterator is not yet supported");
+    }
+
+    private boolean safeNext()
+    {
+        try {
+            return results.next();
+        }
+        catch (SQLException e) {
+            throw new ResultSetException("Unable to advance result set", e, context);
+        }
     }
 }
