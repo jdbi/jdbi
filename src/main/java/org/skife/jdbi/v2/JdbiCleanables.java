@@ -34,11 +34,11 @@ class JdbiCleanables
         };
     }
 
-    static JdbiCleanable forConnection(final Connection conn) {
+    static JdbiCleanable forHandle(final Handle handle) {
         return new JdbiCleanable() {
             public void cleanup() throws SQLException {
-                if (conn != null) {
-                    conn.close();
+                if (handle != null) {
+                    handle.close();
                 }
             }
         };

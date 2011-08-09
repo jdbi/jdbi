@@ -221,6 +221,16 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     /**
+     * Close the handle when the statement is closed.
+     */
+    @SuppressWarnings("unchecked")
+    public SelfType setCloseHandle(final Handle handle)
+    {
+        super.addCleanable(JdbiCleanables.forHandle(handle));
+        return (SelfType) this;
+    }
+
+    /**
      * Used if you need to have some exotic parameter bound.
      *
      * @param position position to bindBinaryStream this argument, starting at 0
