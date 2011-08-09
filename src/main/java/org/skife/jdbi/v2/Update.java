@@ -52,13 +52,17 @@ public class Update extends SQLStatement<Update>
      */
     public int execute()
     {
-        return this.internalExecute(new QueryResultMunger<Integer>()
-        {
-            public Integer munge(Statement results) throws SQLException
-            {
-                return results.getUpdateCount();
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+        try {
+            return this.internalExecute(new QueryResultMunger<Integer>() {
+                public Integer munge(Statement results) throws SQLException
+                {
+                    return results.getUpdateCount();
+                }
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -70,8 +74,7 @@ public class Update extends SQLStatement<Update>
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper)
     {
         getConcreteContext().setReturningGeneratedKeys(true);
-        return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>()
-        {
+        return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>() {
             public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
             {
                 return new GeneratedKeys<GeneratedKeyType>(mapper,
@@ -79,7 +82,7 @@ public class Update extends SQLStatement<Update>
                                                            results,
                                                            getContext());
             }
-        }, QueryPostMungeCleanup.NO_OP);
+        });
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

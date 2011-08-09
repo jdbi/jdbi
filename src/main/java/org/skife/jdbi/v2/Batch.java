@@ -87,6 +87,7 @@ public class Batch extends AbstractJdbiStatement
             try
             {
                 stmt = connection.createStatement();
+                addCleanable(JdbiCleanables.forStatement(stmt));
             }
             catch (SQLException e)
             {
@@ -124,9 +125,8 @@ public class Batch extends AbstractJdbiStatement
                 throw new UnableToExecuteStatementException(e, getContext());
             }
         }
-        finally
-        {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(null, stmt, null);
+        finally {
+            cleanup();
         }
     }
 }

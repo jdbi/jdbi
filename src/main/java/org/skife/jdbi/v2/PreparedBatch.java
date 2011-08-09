@@ -120,6 +120,7 @@ public class PreparedBatch extends AbstractJdbiStatement
         try {
             try {
                 stmt = connection.prepareStatement(rewritten.getSql());
+                addCleanable(JdbiCleanables.forStatement(stmt));
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
@@ -132,24 +133,33 @@ public class PreparedBatch extends AbstractJdbiStatement
                 }
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception while binding parameters", e, context);
+                throw new UnableToExecuteStatementException("Exception while binding parameters", e, getContext());
             }
+
+            beforeExecution(stmt);
 
             try {
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = (System.nanoTime() - start);
                 log.logPreparedBatch(elapsedTime / 1000000L,  rewritten.getSql(), parts.size());
-                timingCollector.collect(elapsedTime, context);
+                timingCollector.collect(elapsedTime, getContext());
+
+                afterExecution(stmt);
+
                 return rs;
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException(e, context);
+                throw new UnableToExecuteStatementException(e, getContext());
             }
         }
         finally {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(null, stmt, null);
-            this.parts.clear();
+            try {
+                cleanup();
+            }
+            finally {
+                this.parts.clear();
+            }
         }
     }
 

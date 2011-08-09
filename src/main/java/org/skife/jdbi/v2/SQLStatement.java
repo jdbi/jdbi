@@ -1281,78 +1281,58 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         }
     }
 
-    protected <Result> Result internalExecute(final QueryResultMunger<Result> munger,
-                                              final QueryPostMungeCleanup cleanup)
+    protected <Result> Result internalExecute(final QueryResultMunger<Result> munger)
     {
         final String located_sql = wrapLookup(sql);
         getConcreteContext().setLocatedSql(located_sql);
         rewritten = rewriter.rewrite(located_sql, getParameters(), getContext());
         getConcreteContext().setRewrittenSql(rewritten.getSql());
         try {
-            try {
-                if (getClass().isAssignableFrom(Call.class)) {
-                    stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), context);
-                }
-                else {
-                    stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), context);
-                }
+            if (getClass().isAssignableFrom(Call.class)) {
+                stmt = statementBuilder.createCall(this.getConnection(), rewritten.getSql(), getContext());
             }
-            catch (SQLException e) {
-                throw new UnableToCreateStatementException(e,context);
-            }
-
-            this.context.setStatement(stmt);
-            try {
-                rewritten.bind(getParameters(), stmt);
-            }
-            catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, context);
-            }
-
-            for (StatementCustomizer customizer : customizers) {
-                try {
-                    customizer.beforeExecution(stmt, context);
-                }
-                catch (SQLException e) {
-                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, context);
-                }
-            }
-
-            try {
-                final long start = System.nanoTime();
-                stmt.execute();
-                final long elapsedTime = System.nanoTime() - start;
-                log.logSQL(elapsedTime / 1000000L,  rewritten.getSql());
-                timingCollector.collect(elapsedTime, context);
-            }
-            catch (SQLException e) {
-                throw new UnableToExecuteStatementException(e, context);
-            }
-
-            for (StatementCustomizer customizer : customizers) {
-                try {
-                    customizer.afterExecution(stmt, context);
-                }
-                catch (SQLException e) {
-                    throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, context);
-                }
-            }
-
-            try {
-                return munger.munge(stmt);
-            }
-            catch (SQLException e) {
-                throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
+            else {
+                stmt = statementBuilder.create(this.getConnection(), rewritten.getSql(), getContext());
             }
         }
-        finally {
-            cleanup.cleanup(this, null, null);
+        catch (SQLException e) {
+            throw new UnableToCreateStatementException(e, getContext());
         }
-    }
 
-    void close() throws SQLException
-    {
-        this.statementBuilder.close(getConnection(), rewritten.getSql(), stmt);
+        // The statement builder might (or might not) clean up the statement when called. E.g. the
+        // caching statement builder relies on the statement *not* being closed.
+        addCleanable(new JdbiCleanables.StatementBuilderCleanable(statementBuilder, connection, sql, stmt));
+
+        getConcreteContext().setStatement(stmt);
+
+        try {
+            rewritten.bind(getParameters(), stmt);
+        }
+        catch (SQLException e) {
+            throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, getContext());
+        }
+
+        beforeExecution(stmt);
+
+        try {
+            final long start = System.nanoTime();
+            stmt.execute();
+            final long elapsedTime = System.nanoTime() - start;
+            log.logSQL(elapsedTime / 1000000L,  rewritten.getSql());
+            timingCollector.collect(elapsedTime, getContext());
+        }
+        catch (SQLException e) {
+            throw new UnableToExecuteStatementException(e, getContext());
+        }
+
+        afterExecution(stmt);
+
+        try {
+            return munger.munge(stmt);
+        }
+        catch (SQLException e) {
+            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, getContext());
+        }
     }
 
     protected SQLLog getLog()

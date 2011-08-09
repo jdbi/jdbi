@@ -46,7 +46,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      * @param stmt The corresponding sql statement
      * @param context The statement context
      */
-    public GeneratedKeys(ResultSetMapper<Type> mapper,
+    GeneratedKeys(ResultSetMapper<Type> mapper,
                          SQLStatement<?> jdbiStatement,
                          Statement stmt,
                          StatementContext context) throws SQLException
@@ -56,6 +56,8 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         this.stmt = stmt;
         this.results = stmt.getGeneratedKeys();
         this.context = context;
+
+        this.jdbiStatement.addCleanable(JdbiCleanables.forResultSet(results));
     }
 
     /**
@@ -77,7 +79,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
+            jdbiStatement.cleanup();
         }
     }
 
@@ -102,7 +104,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
+            jdbiStatement.cleanup();
         }
     }
 
@@ -149,7 +151,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
+            jdbiStatement.cleanup();
         }
     }
 }

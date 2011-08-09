@@ -86,20 +86,25 @@ public class Call extends SQLStatement<Call>
 	 */
 	public OutParameters invoke()
 	{
-        return this.internalExecute(new QueryResultMunger<OutParameters>(){
-	        public OutParameters munge(Statement results) throws SQLException
-	        {
-		        OutParameters out = new OutParameters();
-		        for ( OutParamArgument param : params ) {
-			        Object obj = param.map((CallableStatement)results);
-			        out.getMap().put(param.position, obj);
-			        if ( param.name != null ) {
-				        out.getMap().put(param.name, obj);
-			        }
-		        }
-		        return out;
-	        }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+	    try {
+	        return this.internalExecute(new QueryResultMunger<OutParameters>() {
+	            public OutParameters munge(Statement results) throws SQLException
+	            {
+	                OutParameters out = new OutParameters();
+	                for ( OutParamArgument param : params ) {
+	                    Object obj = param.map((CallableStatement)results);
+	                    out.getMap().put(param.position, obj);
+	                    if ( param.name != null ) {
+	                        out.getMap().put(param.name, obj);
+	                    }
+	                }
+	                return out;
+	            }
+	        });
+	    }
+	    finally {
+	        cleanup();
+	    }
 	}
 
 	private class OutParamArgument implements Argument

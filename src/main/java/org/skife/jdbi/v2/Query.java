@@ -74,18 +74,22 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public List<ResultType> list()
     {
-        return this.internalExecute(new QueryResultSetMunger<List<ResultType>>()
-        {
-            public List<ResultType> munge(ResultSet rs) throws SQLException
-            {
-                List<ResultType> result_list = new ArrayList<ResultType>();
-                int index = 0;
-                while (rs.next()) {
-                    result_list.add(mapper.map(index++, rs, getContext()));
+        try {
+            return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this) {
+                public List<ResultType> munge(ResultSet rs) throws SQLException
+                {
+                    List<ResultType> result_list = new ArrayList<ResultType>();
+                    int index = 0;
+                    while (rs.next()) {
+                        result_list.add(mapper.map(index++, rs, getContext()));
+                    }
+                    return result_list;
                 }
-                return result_list;
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -104,18 +108,22 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public List<ResultType> list(final int maxRows)
     {
-        return this.internalExecute(new QueryResultSetMunger<List<ResultType>>()
-        {
-            public List<ResultType> munge(ResultSet rs) throws SQLException
-            {
-                List<ResultType> result_list = new ArrayList<ResultType>();
-                int index = 0;
-                while (rs.next() && index < maxRows) {
-                    result_list.add(mapper.map(index++, rs, getContext()));
+        try {
+            return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this) {
+                public List<ResultType> munge(ResultSet rs) throws SQLException
+                {
+                    List<ResultType> result_list = new ArrayList<ResultType>();
+                    int index = 0;
+                    while (rs.next() && index < maxRows) {
+                        result_list.add(mapper.map(index++, rs, getContext()));
+                    }
+                    return result_list;
                 }
-                return result_list;
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -135,17 +143,21 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
-        this.internalExecute(new QueryResultSetMunger<Void>()
-        {
-            public Void munge(ResultSet rs) throws SQLException
-            {
-                while (rs.next()) {
-                    acc.set(folder.fold(acc.get(), rs, getContext()));
+        try {
+            this.internalExecute(new QueryResultSetMunger<Void>(this) {
+                public Void munge(ResultSet rs) throws SQLException
+                {
+                    while (rs.next()) {
+                        acc.set(folder.fold(acc.get(), rs, getContext()));
+                    }
+                    return null;
                 }
-                return null;
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
-        return acc.get();
+            });
+            return acc.get();
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -166,17 +178,21 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
-        this.internalExecute(new QueryResultSetMunger<Void>()
-        {
-            public Void munge(ResultSet rs) throws SQLException
-            {
-                while (rs.next()) {
-                    acc.set(folder.fold(acc.get(), rs));
+        try {
+            this.internalExecute(new QueryResultSetMunger<Void>(this) {
+                public Void munge(ResultSet rs) throws SQLException
+                {
+                    while (rs.next()) {
+                        acc.set(folder.fold(acc.get(), rs));
+                    }
+                    return null;
                 }
-                return null;
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
-        return acc.get();
+            });
+            return acc.get();
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -185,8 +201,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
      */
     public ResultIterator<ResultType> iterator()
     {
-        return this.internalExecute(new QueryResultMunger<ResultIterator<ResultType>>()
-        {
+        return this.internalExecute(new QueryResultMunger<ResultIterator<ResultType>>() {
             public ResultIterator<ResultType> munge(Statement stmt) throws SQLException
             {
                 return new ResultSetResultIterator<ResultType>(mapper,
@@ -194,7 +209,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
                                                                stmt,
                                                                getContext());
             }
-        }, QueryPostMungeCleanup.NO_OP);
+        });
     }
 
     /**
@@ -208,19 +223,24 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     public ResultType first()
     {
         addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
-        return this.internalExecute(new QueryResultSetMunger<ResultType>()
-        {
-            public final ResultType munge(final ResultSet rs) throws SQLException
-            {
-                if (rs.next()) {
-                    return mapper.map(0, rs, getContext());
+
+        try {
+            return this.internalExecute(new QueryResultSetMunger<ResultType>(this) {
+                public final ResultType munge(final ResultSet rs) throws SQLException
+                {
+                    if (rs.next()) {
+                        return mapper.map(0, rs, getContext());
+                    }
+                    else {
+                        // no result matches
+                        return null;
+                    }
                 }
-                else {
-                    // no result matches
-                    return null;
-                }
-            }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**
@@ -339,6 +359,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
     {
         this.mappingRegistry.add(new InferredMapperFactory(m));
     }
+
     public void registerMapper(ResultSetMapperFactory m)
     {
         this.mappingRegistry.add(m);
