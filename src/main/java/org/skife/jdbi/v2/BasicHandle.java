@@ -103,12 +103,12 @@ class BasicHandle implements Handle
             statementBuilder.close(getConnection());
             try {
                 connection.close();
-                log.logReleaseHandle(this);
             }
             catch (SQLException e) {
                 throw new UnableToCloseResourceException("Unable to close Connection", e);
             }
             finally {
+                log.logReleaseHandle(this);
                 closed = true;
             }
         }
