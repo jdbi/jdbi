@@ -1,19 +1,14 @@
 package org.skife.jdbi.v2;
 
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
-import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.util.StringMapper;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -21,26 +16,27 @@ import static org.junit.Assert.assertThat;
 public class TestArgumentFactory
 {
     private DBI                dbi;
-    private JdbcConnectionPool ds;
     private Handle             h;
 
     @Before
     public void setUp() throws Exception
     {
-        ds = JdbcConnectionPool.create("jdbc:h2:mem:test",
-                                       "username",
-                                       "password");
+        JdbcDataSource ds = new JdbcDataSource();
+        ds.setURL("jdbc:h2:mem:test");
         dbi = new DBI(ds);
-        this.h = dbi.open();
+        h = dbi.open();
+
         h.execute("create table something (id int primary key, name varchar(100))");
+
     }
 
     @After
     public void tearDown() throws Exception
     {
+        h.execute("drop table something");
         h.close();
-        ds.dispose();
     }
+
 
     @Test
     public void testRegisterOnDBI() throws Exception
