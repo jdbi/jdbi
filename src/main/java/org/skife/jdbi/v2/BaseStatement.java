@@ -14,17 +14,23 @@ import java.util.List;
 
 abstract class BaseStatement
 {
-    private final List<Cleanable> cleanables = new ArrayList<Cleanable>();
+    private final List<Cleanable>                 cleanables  = new ArrayList<Cleanable>();
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
     private final ConcreteStatementContext context;
+    private final Foreman                  foreman;
 
-    protected BaseStatement(final ConcreteStatementContext context)
+    protected BaseStatement(final ConcreteStatementContext context, Foreman foreman)
     {
         this.context = context;
+        this.foreman = foreman;
         addCustomizer(new StatementCleaningCustomizer());
     }
 
-    protected ConcreteStatementContext getConcreteContext()
+    protected final Foreman getForeman() {
+        return foreman;
+    }
+
+    protected final ConcreteStatementContext getConcreteContext()
     {
         return this.context;
     }
@@ -117,7 +123,7 @@ abstract class BaseStatement
                     // Chain multiple SQLExceptions together to be one big exceptions.
                     // (Wonder if that actually works...)
                     for (int i = 0; i < (exceptions.size() - 1); i++) {
-                        exceptions.get(i).setNextException(exceptions.get(i+1));
+                        exceptions.get(i).setNextException(exceptions.get(i + 1));
                     }
                 }
                 if (exceptions.size() > 0) {

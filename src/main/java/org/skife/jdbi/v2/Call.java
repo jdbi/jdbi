@@ -47,9 +47,10 @@ public class Call extends SQLStatement<Call>
          ConcreteStatementContext ctx,
          SQLLog log,
          TimingCollector timingCollector,
-         Collection<StatementCustomizer> customizers)
+         Collection<StatementCustomizer> customizers,
+         Foreman foreman)
 	{
-		super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers);
+		super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman);
 	}
 
 	/**

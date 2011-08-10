@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Statement prviding convenience result handling for SQL queries.
  */
-public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implements ResultBearing<ResultType>
+public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements ResultBearing<ResultType>
 {
     private final ResultSetMapper<ResultType> mapper;
     private final MappingRegistry mappingRegistry;
@@ -53,9 +53,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
           SQLLog log,
           TimingCollector timingCollector,
           Collection<StatementCustomizer> customizers,
-          MappingRegistry mappingRegistry)
+          MappingRegistry mappingRegistry,
+          Foreman foreman)
     {
-        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers);
+        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman);
         this.mapper = mapper;
         this.mappingRegistry = new MappingRegistry(mappingRegistry);
     }
@@ -283,7 +284,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>>  implemen
                             getLog(),
                             getTimingCollector(),
                             getStatementCustomizers(),
-                            new MappingRegistry(mappingRegistry));
+                            new MappingRegistry(mappingRegistry),
+                            getForeman().createChild());
     }
 
     /**

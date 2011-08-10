@@ -16,6 +16,7 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -40,9 +41,10 @@ public class Update extends SQLStatement<Update>
            String sql,
            ConcreteStatementContext ctx,
            SQLLog log,
-           TimingCollector timingCollector)
+           TimingCollector timingCollector,
+           Foreman foreman)
     {
-        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList());
+        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
     }
 
     /**

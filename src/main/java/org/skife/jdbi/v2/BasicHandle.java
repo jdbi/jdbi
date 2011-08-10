@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -44,6 +45,7 @@ class BasicHandle implements Handle
     private       SQLLog              log;
     private       TimingCollector     timingCollector;
     private final MappingRegistry     mappingRegistry;
+    private final Foreman foreman;
     private       StatementBuilder    statementBuilder;
     private final Map<String, Object> globalStatementAttributes;
 
@@ -57,7 +59,8 @@ class BasicHandle implements Handle
                 Map<String, Object> globalStatementAttributes,
                 SQLLog log,
                 TimingCollector timingCollector,
-                MappingRegistry mappingRegistry)
+                MappingRegistry mappingRegistry,
+                Foreman foreman)
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
@@ -67,6 +70,7 @@ class BasicHandle implements Handle
         this.log = log;
         this.timingCollector = timingCollector;
         this.mappingRegistry = mappingRegistry;
+        this.foreman = foreman;
         this.globalStatementAttributes = new HashMap<String, Object>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
     }
@@ -84,7 +88,8 @@ class BasicHandle implements Handle
                                               log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
-                                              new MappingRegistry(mappingRegistry));
+                                              new MappingRegistry(mappingRegistry),
+                                              foreman.createChild());
     }
 
     /**
@@ -230,7 +235,8 @@ class BasicHandle implements Handle
                           sql,
                           new ConcreteStatementContext(globalStatementAttributes),
                           log,
-                          timingCollector);
+                          timingCollector,
+                          foreman.createChild());
     }
 
     public Call createCall(String sql)
@@ -243,7 +249,8 @@ class BasicHandle implements Handle
                         new ConcreteStatementContext(globalStatementAttributes),
                         log,
                         timingCollector,
-                        Collections.<StatementCustomizer>emptyList());
+                        Collections.<StatementCustomizer>emptyList(),
+                        foreman.createChild());
     }
 
     public int insert(String sql, Object... args)
@@ -270,7 +277,8 @@ class BasicHandle implements Handle
                                  sql,
                                  globalStatementAttributes,
                                  log,
-                                 timingCollector);
+                                 timingCollector,
+                                 foreman.createChild());
     }
 
     public Batch createBatch()
@@ -279,7 +287,8 @@ class BasicHandle implements Handle
                          this.connection,
                          globalStatementAttributes,
                          log,
-                         timingCollector);
+                         timingCollector,
+                         foreman.createChild());
     }
 
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
@@ -401,5 +410,10 @@ class BasicHandle implements Handle
         catch (SQLException e) {
                 throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
         }
+    }
+
+    public void registerArgumentFactory(ArgumentFactory argumentFactory)
+    {
+        this.foreman.register(argumentFactory);
     }
 }

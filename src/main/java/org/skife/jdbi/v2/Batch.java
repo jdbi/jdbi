@@ -39,9 +39,14 @@ public class Batch extends BaseStatement
     private final SQLLog log;
     private final TimingCollector timingCollector;
 
-    Batch(StatementRewriter rewriter, Connection connection, Map<String, Object> globalStatementAttributes, SQLLog log, TimingCollector timingCollector)
+    Batch(StatementRewriter rewriter,
+          Connection connection,
+          Map<String, Object> globalStatementAttributes,
+          SQLLog log,
+          TimingCollector timingCollector,
+          Foreman foreman)
     {
-        super(new ConcreteStatementContext(globalStatementAttributes));
+        super(new ConcreteStatementContext(globalStatementAttributes), foreman);
         this.rewriter = rewriter;
         this.connection = connection;
         this.log = log;

@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -45,9 +46,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DBI implements IDBI
 {
-    private final ConnectionFactory connectionFactory;
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private final MappingRegistry mappingRegistry = new MappingRegistry();
+    private final Foreman foreman = new Foreman();
+
+    private final ConnectionFactory connectionFactory;
+
     private StatementRewriter statementRewriter = new ColonPrefixNamedParamStatementRewriter();
     private StatementLocator statementLocator = new ClasspathStatementLocator();
     private TransactionHandler transactionhandler = new LocalTransactionHandler();
@@ -193,7 +197,8 @@ public class DBI implements IDBI
                                        globalStatementAttributes,
                                        log,
                                        timingCollector,
-                                       new MappingRegistry(mappingRegistry));
+                                       new MappingRegistry(mappingRegistry),
+                                       foreman.createChild());
             log.logObtainHandle((stop - start) / 1000000L, h);
             return h;
         }
@@ -426,5 +431,10 @@ public class DBI implements IDBI
         else {
             this.timingCollector = timingCollector;
         }
+    }
+
+    public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
+    {
+        foreman.register(argumentFactory);
     }
 }

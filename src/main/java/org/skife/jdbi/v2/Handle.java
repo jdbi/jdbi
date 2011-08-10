@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -265,4 +266,6 @@ public interface Handle
      * @return the current isolation level on the underlying connection
      */
     public TransactionIsolationLevel getTransactionIsolationLevel();
+
+    public void registerArgumentFactory(ArgumentFactory argumentFactory);
 }

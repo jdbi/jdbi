@@ -11,20 +11,31 @@ import java.sql.Clob;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 class Foreman
 {
 
-    private final Stack<ArgumentFactory> factories = new Stack<ArgumentFactory>();
+    private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<ArgumentFactory>();
+
+    public Foreman()
     {
-        factories.push(BUILT_INS);
+        factories.add(BUILT_INS);
+    }
+
+    public Foreman(List<ArgumentFactory> factories)
+    {
+        this.factories.addAll(factories);
     }
 
     Argument waffle(Class expectedType, Object it, StatementContext ctx)
     {
-        for (ArgumentFactory factory : factories) {
+        for (int i = factories.size() - 1; i >= 0; i--) {
+            ArgumentFactory factory = factories.get(i);
             if (factory.accepts(expectedType, it, ctx)) {
                 return factory.build(expectedType, it, ctx);
             }
@@ -33,6 +44,16 @@ class Foreman
     }
 
     private static final ArgumentFactory BUILT_INS = new BuiltInArgumentFactory();
+
+    public void register(ArgumentFactory<?> argumentFactory)
+    {
+        factories.add(argumentFactory);
+    }
+
+    public Foreman createChild()
+    {
+        return new Foreman(factories);
+    }
 
     private static final class BuiltInArgumentFactory implements ArgumentFactory
     {

@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -46,6 +47,7 @@ public class PreparedBatch extends BaseStatement
     private final String sql;
     private final SQLLog log;
     private final TimingCollector timingCollector;
+    private final Foreman foreman;
 
     PreparedBatch(StatementLocator locator,
                   StatementRewriter rewriter,
@@ -54,9 +56,10 @@ public class PreparedBatch extends BaseStatement
                   String sql,
                   Map<String, Object> globalStatementAttributes,
                   SQLLog log,
-                  TimingCollector timingCollector)
+                  TimingCollector timingCollector,
+                  Foreman foreman)
     {
-        super(new ConcreteStatementContext(globalStatementAttributes));
+        super(new ConcreteStatementContext(globalStatementAttributes), foreman);
 
         this.locator = locator;
         this.rewriter = rewriter;
@@ -65,6 +68,7 @@ public class PreparedBatch extends BaseStatement
         this.sql = sql;
         this.log = log;
         this.timingCollector = timingCollector;
+        this.foreman = foreman;
     }
 
     /**
@@ -178,14 +182,15 @@ public class PreparedBatch extends BaseStatement
                                                        sql,
                                                        getConcreteContext(),
                                                        log,
-                                                       timingCollector);
+                                                       timingCollector,
+                                                       foreman);
         parts.add(part);
         return part;
     }
 
 	public PreparedBatch add(Object... args)
 	{
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, handle, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, handle, preparedStatementCache, sql, getConcreteContext(), log, timingCollector, foreman);
 
 		for (int i = 0; i < args.length; ++i) {
 			part.bind(i, args[i]);
@@ -207,7 +212,7 @@ public class PreparedBatch extends BaseStatement
      */
     public PreparedBatchPart add(Map<String, ? extends Object> args)
     {
-        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, handle, preparedStatementCache, sql, getConcreteContext(), log, timingCollector);
+        PreparedBatchPart part = new PreparedBatchPart(this, locator, rewriter, handle, preparedStatementCache, sql, getConcreteContext(), log, timingCollector, foreman);
         parts.add(part);
         part.bindFromMap(args);
         return part;
@@ -227,5 +232,10 @@ public class PreparedBatch extends BaseStatement
     public int size()
     {
         return parts.size();
+    }
+
+    public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
+    {
+        getForeman().register(argumentFactory);
     }
 }
