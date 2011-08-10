@@ -116,7 +116,6 @@ public class TestArgumentFactory
 
         public Name(String first, String last)
         {
-
             this.first = first;
             this.last = last;
         }
