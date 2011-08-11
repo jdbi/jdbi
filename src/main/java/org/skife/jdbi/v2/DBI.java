@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
@@ -52,12 +53,12 @@ public class DBI implements IDBI
 
     private final ConnectionFactory connectionFactory;
 
-    private StatementRewriter statementRewriter = new ColonPrefixNamedParamStatementRewriter();
-    private StatementLocator statementLocator = new ClasspathStatementLocator();
-    private TransactionHandler transactionhandler = new LocalTransactionHandler();
-    private StatementBuilderFactory statementBuilderFactory = new DefaultStatementBuilderFactory();
-    private SQLLog log = new NoOpLog();
-    private TimingCollector timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
+    private AtomicReference<StatementRewriter> statementRewriter = new AtomicReference<StatementRewriter>(new ColonPrefixNamedParamStatementRewriter());
+    private AtomicReference<StatementLocator> statementLocator = new AtomicReference<StatementLocator>(new ClasspathStatementLocator());
+    private AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<TransactionHandler>(new LocalTransactionHandler());
+    private AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
+    private AtomicReference<SQLLog> log = new AtomicReference<SQLLog>(new NoOpLog());
+    private AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
 
     /**
      * Constructor for use with a DataSource which will provide
@@ -145,7 +146,7 @@ public class DBI implements IDBI
     public void setStatementLocator(StatementLocator locator)
     {
         assert (locator != null);
-        this.statementLocator = locator;
+        this.statementLocator.set(locator);
     }
 
     /**
@@ -157,7 +158,7 @@ public class DBI implements IDBI
     public void setStatementRewriter(StatementRewriter rewriter)
     {
         assert (rewriter != null);
-        this.statementRewriter = rewriter;
+        this.statementRewriter.set(rewriter);
     }
 
     /**
@@ -174,7 +175,7 @@ public class DBI implements IDBI
     public void setTransactionHandler(TransactionHandler handler)
     {
         assert (handler != null);
-        this.transactionhandler = handler;
+        this.transactionhandler.set(handler);
     }
 
     /**
@@ -188,18 +189,18 @@ public class DBI implements IDBI
             final long start = System.nanoTime();
             Connection conn = connectionFactory.openConnection();
             final long stop = System.nanoTime();
-            StatementBuilder cache = statementBuilderFactory.createStatementBuilder(conn);
-            Handle h = new BasicHandle(transactionhandler,
-                                       statementLocator,
+            StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
+            Handle h = new BasicHandle(transactionhandler.get(),
+                                       statementLocator.get(),
                                        cache,
-                                       statementRewriter,
+                                       statementRewriter.get(),
                                        conn,
                                        globalStatementAttributes,
-                                       log,
-                                       timingCollector,
+                                       log.get(),
+                                       timingCollector.get(),
                                        new MappingRegistry(mappingRegistry),
                                        foreman.createChild());
-            log.logObtainHandle((stop - start) / 1000000L, h);
+            log.get().logObtainHandle((stop - start) / 1000000L, h);
             return h;
         }
         catch (SQLException e) {
@@ -408,7 +409,7 @@ public class DBI implements IDBI
      */
     public void setStatementBuilderFactory(StatementBuilderFactory factory)
     {
-        this.statementBuilderFactory = factory;
+        this.statementBuilderFactory.set(factory);
     }
 
     /**
@@ -417,7 +418,7 @@ public class DBI implements IDBI
      */
     public void setSQLLog(SQLLog log)
     {
-        this.log = log;
+        this.log.set(log);
     }
 
     /**
@@ -426,10 +427,10 @@ public class DBI implements IDBI
      */
     public void setTimingCollector(final TimingCollector timingCollector) {
         if (timingCollector == null) {
-            this.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
+            this.timingCollector.set(TimingCollector.NOP_TIMING_COLLECTOR);
         }
         else {
-            this.timingCollector = timingCollector;
+            this.timingCollector.set(timingCollector);
         }
     }
 

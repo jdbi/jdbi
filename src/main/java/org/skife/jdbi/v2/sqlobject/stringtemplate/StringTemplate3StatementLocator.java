@@ -23,6 +23,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath)
     {
         InputStream ins = getClass().getResourceAsStream(templateGroupFilePathOnClasspath);
+        if (ins == null) {
+            throw new IllegalStateException("unable to find group file "
+                                            + templateGroupFilePathOnClasspath
+                                            + " on classpath");
+        }
         InputStreamReader reader = new InputStreamReader(ins);
         try {
             this.group = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);

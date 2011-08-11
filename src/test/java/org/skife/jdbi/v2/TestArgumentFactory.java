@@ -3,11 +3,18 @@ package org.skife.jdbi.v2;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
+import org.skife.jdbi.v2.util.IntegerMapper;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import java.sql.Array;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -15,8 +22,8 @@ import static org.junit.Assert.assertThat;
 
 public class TestArgumentFactory
 {
-    private DBI                dbi;
-    private Handle             h;
+    private DBI    dbi;
+    private Handle h;
 
     @Before
     public void setUp() throws Exception
@@ -37,6 +44,46 @@ public class TestArgumentFactory
         h.close();
     }
 
+
+    @Test
+    @Ignore("h2 does not implement jdbc4 so this fails")
+    public void testSQLArrayStuff() throws Exception
+    {
+        h.registerArgumentFactory(new ArgumentFactory<Collection<String>>()
+        {
+            public boolean accepts(Class<? super Collection<String>> expectedType, Object value, StatementContext ctx)
+            {
+                return value instanceof Collection;
+            }
+
+            public Argument build(Class<? super Collection<String>> expectedType, Collection<String> value, StatementContext ctx)
+            {
+                try {
+                    final Array ary = ctx.getConnection().createArrayOf("varchar", value.toArray());
+                    return new Argument()
+                    {
+                        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
+                        {
+                            statement.setArray(position, ary);
+                        }
+                    };
+                }
+                catch (SQLException e) {
+                    throw new IllegalStateException("bonkers creating array!");
+                }
+            }
+        });
+
+        h.execute("insert into something (id, name) values (1, 'Brian'), (2, 'Henning'), (3, 'Tom')");
+
+        List<Integer> rs = h.createQuery("select id from something where name in :names order by id")
+                            .map(IntegerMapper.FIRST)
+                            .bind("names", Arrays.asList("Brian", "Tom"))
+                            .list();
+        assertThat(rs.get(0), equalTo(1));
+        assertThat(rs.get(0), equalTo(3));
+
+    }
 
     @Test
     public void testRegisterOnDBI() throws Exception
