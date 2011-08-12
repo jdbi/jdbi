@@ -6,3 +6,7 @@ findById() ::= << select id, name from something where id = :id >>
 weirdInsert(table, id_column, value_column) ::= <<
     insert into <table> (<id_column>, <value_column>) values (:id, :value)
 >>
+
+insertBunches() ::= <<
+    insert into something (id, name) values (:id, :name)
+>>

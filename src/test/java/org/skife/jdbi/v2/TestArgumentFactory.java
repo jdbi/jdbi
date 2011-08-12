@@ -53,6 +53,7 @@ public class TestArgumentFactory
         {
             public boolean accepts(Class<? super Collection<String>> expectedType, Object value, StatementContext ctx)
             {
+
                 return value instanceof Collection;
             }
 
