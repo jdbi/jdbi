@@ -144,4 +144,21 @@ public class TestPreparedBatch extends DBITestCase
                      Arrays.asList("Jeff", "Tom"));
 
     }
+
+    public void testMixedBatchSetting() throws Exception
+    {
+        Handle h = openHandle();
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        b.bind("id", 1);
+        b.add().bind("name", "Jeff");
+
+        b.bind("id", 2);
+        b.add().bind("name", "Tom");
+
+        b.execute();
+
+        assertEquals(h.createQuery("select name from something order by id").map(StringMapper.FIRST).list(),
+                     Arrays.asList("Jeff", "Tom"));
+    }
 }
