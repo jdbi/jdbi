@@ -17,9 +17,11 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.util.StringMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -121,5 +123,25 @@ public class TestPreparedBatch extends DBITestCase
         List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
         assertEquals(1, r.size());
         assertEquals("Keith", r.get(0).getName());
+    }
+
+    public void testSetOnTheBatchItself() throws Exception
+    {
+        Handle h = openHandle();
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+
+        b.bind("id", 1);
+        b.bind("name", "Jeff");
+        b.add();
+
+        b.bind("id", 2);
+        b.bind("name", "Tom");
+        b.add();
+
+        b.execute();
+
+        assertEquals(h.createQuery("select name from something order by id").map(StringMapper.FIRST).list(),
+                     Arrays.asList("Jeff", "Tom"));
+
     }
 }

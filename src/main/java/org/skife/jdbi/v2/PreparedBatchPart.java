@@ -33,7 +33,8 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
 
-    PreparedBatchPart(PreparedBatch batch,
+    PreparedBatchPart(Binding binding,
+                      PreparedBatch batch,
                       StatementLocator locator,
                       StatementRewriter rewriter,
                       Handle handle,
@@ -44,7 +45,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       TimingCollector timingCollector,
                       Foreman foreman)
     {
-        super(new Binding(), locator, rewriter, handle, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
+        super(binding, locator, rewriter, handle, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
         this.batch = batch;
     }
 

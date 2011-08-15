@@ -275,9 +275,10 @@ class BasicHandle implements Handle
                                  this,
                                  statementBuilder,
                                  sql,
-                                 globalStatementAttributes,
+                                 new ConcreteStatementContext(this.globalStatementAttributes),
                                  log,
                                  timingCollector,
+                                 Collections.<StatementCustomizer>emptyList(),
                                  foreman.createChild());
     }
 

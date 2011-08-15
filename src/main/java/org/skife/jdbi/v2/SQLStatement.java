@@ -252,7 +252,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     @SuppressWarnings("unchecked")
     public SelfType bind(int position, Argument argument)
     {
-        params.addPositional(position, argument);
+        getParams().addPositional(position, argument);
         return (SelfType) this;
     }
 
@@ -267,7 +267,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     @SuppressWarnings("unchecked")
     public SelfType bind(String name, Argument argument)
     {
-        params.addNamed(name, argument);
+        getParams().addNamed(name, argument);
         return (SelfType) this;
     }
 
@@ -311,7 +311,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     public SelfType bindNamedArgumentFinder(final NamedArgumentFinder namedArgumentFinder)
     {
         if (namedArgumentFinder != null) {
-            params.addNamedArgumentFinder(namedArgumentFinder);
+            getParams().addNamedArgumentFinder(namedArgumentFinder);
         }
 
         return (SelfType) this;
