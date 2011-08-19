@@ -1,0 +1,5 @@
+group DAO;
+
+findIdsForNames(names) ::= <<
+    select id from something where name in(<names>) order by id
+>>
