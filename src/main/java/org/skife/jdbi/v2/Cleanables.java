@@ -41,10 +41,19 @@ class Cleanables
         };
     }
 
-    static Cleanable forHandle(final Handle handle) {
+    static Cleanable forHandle(final Handle handle, final TransactionState state) {
         return new Cleanable() {
             public void cleanup() throws SQLException {
                 if (handle != null) {
+                    if (handle.isInTransaction()) {
+                        if (state == TransactionState.COMMIT) {
+                            handle.commit();
+                        }
+                        else {
+                            handle.rollback();
+                        }
+                    }   
+
                     handle.close();
                 }
             }

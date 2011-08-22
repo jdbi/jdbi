@@ -237,9 +237,19 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     @SuppressWarnings("unchecked")
     public SelfType cleanupHandle()
     {
-        super.addCleanable(Cleanables.forHandle(handle));
+        super.addCleanable(Cleanables.forHandle(handle, TransactionState.ROLLBACK));
         return (SelfType) this;
     }
+
+    /**
+     * Force transaction state when the statement is cleaned up.
+     */
+    public SelfType cleanupHandle(final TransactionState state)
+    {
+        super.addCleanable(Cleanables.forHandle(handle, state));
+        return (SelfType) this;
+    }
+
 
     /**
      * Used if you need to have some exotic parameter bound.
