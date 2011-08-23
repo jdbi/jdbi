@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 public class StringTemplate3StatementLocator implements StatementLocator
 {
@@ -58,7 +59,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     private static String mungify(String path)
     {
-        return path.replaceAll("\\.", sep);
+        return path.replaceAll("\\.", Matcher.quoteReplacement(sep));
     }
 
 }
