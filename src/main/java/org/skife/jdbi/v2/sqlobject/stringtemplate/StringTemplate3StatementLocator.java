@@ -55,7 +55,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
     }
 
-    private final static String sep = System.getProperty("file.separator");
+    private final static String sep = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
 
     private static String mungify(String path)
     {
