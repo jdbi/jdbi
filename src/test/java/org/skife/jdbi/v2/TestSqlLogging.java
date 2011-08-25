@@ -167,6 +167,8 @@ public class TestSqlLogging extends DBITestCase
         assertTrue(logged.get(0).matches("batch:\\[\\[insert into something \\(id, name\\) values \\(1, 'Eric'\\)\\], \\[insert into something \\(id, name\\) values \\(2, 'Keith'\\)\\]\\] took \\d+ millis"));
     }
 
+    private static final String linesep = System.getProperty("line.separator");
+
     public void testPrintStream() throws Exception
     {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -175,7 +177,7 @@ public class TestSqlLogging extends DBITestCase
         h.insert(sql, 1, "Brian");
 
         assertTrue(new String(bout.toByteArray())
-                .matches("statement:\\[insert into something \\(id, name\\) values \\(\\?, \\?\\)\\] took \\d+ millis\n"));
+                .matches("statement:\\[insert into something \\(id, name\\) values \\(\\?, \\?\\)\\] took \\d+ millis" + linesep));
     }
 
     public void testCloseLogged() throws Exception
