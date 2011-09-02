@@ -16,6 +16,8 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.NoResultsException;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -34,6 +36,9 @@ abstract class QueryResultSetMunger<T>
             throws SQLException
     {
         ResultSet rs = results.getResultSet();
+        if (rs == null)
+            throw new NoResultsException("Query did not have a result set, perhaps you meant update?", stmt.getContext());
+
         stmt.addCleanable(Cleanables.forResultSet(rs));
         return munge(rs);
     }

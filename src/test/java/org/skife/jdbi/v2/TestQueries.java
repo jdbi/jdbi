@@ -16,6 +16,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.exceptions.NoResultsException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -320,5 +321,16 @@ public class TestQueries extends DBITestCase
             .list();
 
         assertEquals(1, rs.size());
+    }
+
+    public void testQueriesWithNullResultSets() throws Exception
+    {
+        try {
+            h.select("insert into something (id, name) values (?, ?)", 1, "hello");
+        }
+        catch (NoResultsException e) {
+            return;
+        }
+        fail("expected NoResultsException");
     }
 }
