@@ -73,7 +73,8 @@ public abstract class DBITestCase extends TestCase
                                         new NoOpLog(),
                                         TimingCollector.NOP_TIMING_COLLECTOR,
                                         new MappingRegistry(),
-                                        new Foreman());
+                                        new Foreman(),
+                                        new ContainerFactoryRegistry());
         handles.add(h);
         return h;
     }

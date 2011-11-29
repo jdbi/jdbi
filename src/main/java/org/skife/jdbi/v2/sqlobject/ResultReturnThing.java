@@ -163,6 +163,7 @@ abstract class ResultReturnThing
     static class ListResultReturnThing extends ResultReturnThing
     {
         private final ResolvedType resolvedType;
+        private final Class<?> erased_type;
 
         public ListResultReturnThing(ResolvedMethod method)
         {
@@ -170,12 +171,13 @@ abstract class ResultReturnThing
             ResolvedType query_type = method.getReturnType();
             List<ResolvedType> query_return_types = query_type.typeParametersFor(List.class);
             this.resolvedType = query_return_types.get(0);
+            erased_type = method.getReturnType().getErasedType();
         }
 
         @Override
         protected Object result(ResultBearing q, HandleDing baton)
         {
-            return q.list();
+            return q.list(erased_type);
         }
 
         @Override

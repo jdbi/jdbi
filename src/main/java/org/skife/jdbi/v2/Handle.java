@@ -16,8 +16,11 @@
 
 package org.skife.jdbi.v2;
 
+import com.google.common.collect.ImmutableList;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
+import org.skife.jdbi.v2.guava.ImmutableListContainerFactory;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
+import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -268,4 +271,6 @@ public interface Handle
     public TransactionIsolationLevel getTransactionIsolationLevel();
 
     public void registerArgumentFactory(ArgumentFactory argumentFactory);
+
+    public void registerContainerFactory(ContainerFactory<?> factory);
 }

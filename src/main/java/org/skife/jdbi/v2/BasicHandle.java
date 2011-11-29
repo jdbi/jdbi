@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
+import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -38,18 +39,22 @@ import java.util.Map;
 
 class BasicHandle implements Handle
 {
-    private final TransactionHandler  transactions;
-    private final Connection          connection;
-    private       StatementRewriter   statementRewriter;
-    private       StatementLocator    statementLocator;
-    private       SQLLog              log;
-    private       TimingCollector     timingCollector;
-    private final MappingRegistry     mappingRegistry;
-    private final Foreman foreman;
-    private       StatementBuilder    statementBuilder;
-    private final Map<String, Object> globalStatementAttributes;
+
+    private StatementRewriter statementRewriter;
+    private StatementLocator  statementLocator;
+    private SQLLog            log;
+    private TimingCollector   timingCollector;
+    private StatementBuilder  statementBuilder;
 
     private boolean closed = false;
+
+    private final Map<String, Object>      globalStatementAttributes;
+    private final MappingRegistry          mappingRegistry;
+    private final ContainerFactoryRegistry containerFactoryRegistry;
+    private final Foreman                  foreman;
+    private final TransactionHandler       transactions;
+    private final Connection               connection;
+
 
     BasicHandle(TransactionHandler transactions,
                 StatementLocator statementLocator,
@@ -60,7 +65,8 @@ class BasicHandle implements Handle
                 SQLLog log,
                 TimingCollector timingCollector,
                 MappingRegistry mappingRegistry,
-                Foreman foreman)
+                Foreman foreman,
+                ContainerFactoryRegistry containerFactoryRegistry)
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
@@ -73,6 +79,7 @@ class BasicHandle implements Handle
         this.foreman = foreman;
         this.globalStatementAttributes = new HashMap<String, Object>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
+        this.containerFactoryRegistry = containerFactoryRegistry.createChild();
     }
 
     public Query<Map<String, Object>> createQuery(String sql)
@@ -89,7 +96,8 @@ class BasicHandle implements Handle
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
                                               new MappingRegistry(mappingRegistry),
-                                              foreman.createChild());
+                                              foreman.createChild(),
+                                              containerFactoryRegistry.createChild());
     }
 
     /**
@@ -236,7 +244,8 @@ class BasicHandle implements Handle
                           new ConcreteStatementContext(globalStatementAttributes),
                           log,
                           timingCollector,
-                          foreman.createChild());
+                          foreman,
+                          containerFactoryRegistry);
     }
 
     public Call createCall(String sql)
@@ -250,7 +259,8 @@ class BasicHandle implements Handle
                         log,
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
-                        foreman.createChild());
+                        foreman,
+                        containerFactoryRegistry);
     }
 
     public int insert(String sql, Object... args)
@@ -279,7 +289,8 @@ class BasicHandle implements Handle
                                  log,
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
-                                 foreman.createChild());
+                                 foreman,
+                                 containerFactoryRegistry);
     }
 
     public Batch createBatch()
@@ -409,12 +420,17 @@ class BasicHandle implements Handle
             return TransactionIsolationLevel.valueOf(connection.getTransactionIsolation());
         }
         catch (SQLException e) {
-                throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
+            throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
         }
     }
 
     public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         this.foreman.register(argumentFactory);
+    }
+
+    public void registerContainerFactory(ContainerFactory<?> factory)
+    {
+        this.containerFactoryRegistry.register(factory);
     }
 }

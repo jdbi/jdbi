@@ -57,7 +57,8 @@ public class TestPreparedStatementCache extends DBITestCase
                                         new NoOpLog(),
                                         TimingCollector.NOP_TIMING_COLLECTOR,
                                         new MappingRegistry(),
-                                        new Foreman());
+                                        new Foreman(),
+                                        new ContainerFactoryRegistry());
 
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bindFromProperties(new Something(0, "Keith"))

@@ -41,9 +41,10 @@ public class Update extends SQLStatement<Update>
            ConcreteStatementContext ctx,
            SQLLog log,
            TimingCollector timingCollector,
-           Foreman foreman)
+           Foreman foreman,
+           ContainerFactoryRegistry containerFactoryRegistry)
     {
-        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
+        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman, containerFactoryRegistry);
     }
 
     /**
@@ -80,7 +81,8 @@ public class Update extends SQLStatement<Update>
                 return new GeneratedKeys<GeneratedKeyType>(mapper,
                                                            Update.this,
                                                            results,
-                                                           getContext());
+                                                           getContext(),
+                                                           getContainerMapperRegistry());
             }
         });
     }

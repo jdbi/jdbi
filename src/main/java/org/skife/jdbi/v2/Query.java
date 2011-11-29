@@ -16,9 +16,13 @@
 
 package org.skife.jdbi.v2;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.guava.OptionalContainerFactory;
+import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -30,6 +34,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,9 +59,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           TimingCollector timingCollector,
           Collection<StatementCustomizer> customizers,
           MappingRegistry mappingRegistry,
-          Foreman foreman)
+          Foreman foreman,
+          ContainerFactoryRegistry containerFactoryRegistry)
     {
-        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman);
+        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
         this.mapper = mapper;
         this.mappingRegistry = new MappingRegistry(mappingRegistry);
     }
@@ -90,6 +96,12 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         finally {
             cleanup();
         }
+    }
+
+    public <ContainerType> ContainerType list(Class<ContainerType> containerType)
+    {
+        List<ResultType> rs = list();
+        return this.getContainerMapperRegistry().lookup(containerType).create(rs);
     }
 
     /**
@@ -243,6 +255,30 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         }
     }
 
+    public <T> T first(Class<T> containerType)
+    {
+        addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
+        ResultType result;
+        try {
+            result = this.internalExecute(new QueryResultSetMunger<ResultType>(this) {
+                public final ResultType munge(final ResultSet rs) throws SQLException
+                {
+                    if (rs.next()) {
+                        return mapper.map(0, rs, getContext());
+                    }
+                    else {
+                        // no result matches
+                        return null;
+                    }
+                }
+            });
+        }
+        finally {
+            cleanup();
+        }
+        return getContainerMapperRegistry().lookup(containerType).create(Arrays.asList(result));
+    }
+
     /**
      * Provide basic JavaBean mapping capabilities. Will instantiate an instance of resultType
      * for each row and set the JavaBean properties which match fields in the result set.
@@ -285,7 +321,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getTimingCollector(),
                             getStatementCustomizers(),
                             new MappingRegistry(mappingRegistry),
-                            getForeman().createChild());
+                            getForeman().createChild(),
+                            getContainerMapperRegistry().createChild());
     }
 
     /**

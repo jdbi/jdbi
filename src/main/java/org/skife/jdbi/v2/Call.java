@@ -48,9 +48,10 @@ public class Call extends SQLStatement<Call>
          SQLLog log,
          TimingCollector timingCollector,
          Collection<StatementCustomizer> customizers,
-         Foreman foreman)
+         Foreman foreman,
+         ContainerFactoryRegistry containerFactoryRegistry )
 	{
-		super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman);
+		super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
 	}
 
 	/**

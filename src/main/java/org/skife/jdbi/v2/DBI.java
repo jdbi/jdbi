@@ -16,12 +16,15 @@
 
 package org.skife.jdbi.v2;
 
+import com.google.common.base.Optional;
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
+import org.skife.jdbi.v2.guava.OptionalContainerFactory;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
+import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
@@ -49,6 +52,7 @@ public class DBI implements IDBI
 {
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private final MappingRegistry mappingRegistry = new MappingRegistry();
+    private final ContainerFactoryRegistry containerFactoryRegistry = new ContainerFactoryRegistry();
     private final Foreman foreman = new Foreman();
 
     private final ConnectionFactory connectionFactory;
@@ -199,7 +203,8 @@ public class DBI implements IDBI
                                        log.get(),
                                        timingCollector.get(),
                                        new MappingRegistry(mappingRegistry),
-                                       foreman.createChild());
+                                       foreman.createChild(),
+                                       containerFactoryRegistry.createChild());
             log.get().logObtainHandle((stop - start) / 1000000L, h);
             return h;
         }
@@ -437,5 +442,10 @@ public class DBI implements IDBI
     public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
     {
         foreman.register(argumentFactory);
+    }
+
+    public void registerContainerFactory(ContainerFactory<?> factory)
+    {
+        this.containerFactoryRegistry.register(factory);
     }
 }

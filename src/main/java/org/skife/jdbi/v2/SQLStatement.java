@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
+import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.NamedArgumentFinder;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.SQLLog;
@@ -67,6 +68,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     private       PreparedStatement  stmt;
     private final SQLLog             log;
     private final TimingCollector    timingCollector;
+    private final ContainerFactoryRegistry containerMapperRegistry;
 
     SQLStatement(Binding params,
                  StatementLocator locator,
@@ -78,13 +80,15 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
                  SQLLog log,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers,
-                 Foreman foreman)
+                 Foreman foreman,
+                 ContainerFactoryRegistry containerFactoryRegistry)
     {
         super(ctx, foreman);
+        assert (verifyOurNastyDowncastIsOkay());
+
         addCustomizers(statementCustomizers);
 
         this.log = log;
-        assert (verifyOurNastyDowncastIsOkay());
         this.statementBuilder = statementBuilder;
         this.rewriter = rewriter;
         this.handle = handle;
@@ -92,11 +96,23 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
+        this.containerMapperRegistry = containerFactoryRegistry.createChild();
 
         ctx.setConnection(handle.getConnection());
         ctx.setRawSql(sql);
         ctx.setBinding(params);
     }
+
+    protected ContainerFactoryRegistry getContainerMapperRegistry()
+    {
+        return containerMapperRegistry;
+    }
+
+    public SelfType registerContainerFactory(ContainerFactory<?> containerFactory) {
+        this.getContainerMapperRegistry().register(containerFactory);
+        return (SelfType) this;
+    }
+
 
     public SelfType registerArgumentFactory(ArgumentFactory<?> argumentFactory)
     {

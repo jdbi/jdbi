@@ -48,7 +48,8 @@ public class TestTimingCollector extends DBITestCase
                                         new NoOpLog(),
                                         tc,
                                         new MappingRegistry(),
-                                        new Foreman());
+                                        new Foreman(),
+                                        new ContainerFactoryRegistry());
         handles.add(h);
         return h;
     }

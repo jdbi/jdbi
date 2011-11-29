@@ -43,9 +43,19 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private Binding currentBinding;
 
-    PreparedBatch(StatementLocator locator, StatementRewriter rewriter, Handle handle, StatementBuilder statementBuilder, String sql, ConcreteStatementContext ctx, SQLLog log, TimingCollector timingCollector, Collection<StatementCustomizer> statementCustomizers, Foreman foreman)
+    PreparedBatch(StatementLocator locator,
+                  StatementRewriter rewriter,
+                  Handle handle,
+                  StatementBuilder statementBuilder,
+                  String sql,
+                  ConcreteStatementContext ctx,
+                  SQLLog log,
+                  TimingCollector timingCollector,
+                  Collection<StatementCustomizer> statementCustomizers,
+                  Foreman foreman,
+                  ContainerFactoryRegistry containerFactoryRegistry)
     {
-        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, log, timingCollector, statementCustomizers, foreman);
+        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, log, timingCollector, statementCustomizers, foreman, containerFactoryRegistry);
         this.currentBinding = new Binding();
     }
 
@@ -163,7 +173,8 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                                                        getConcreteContext(),
                                                        getLog(),
                                                        getTimingCollector(),
-                                                       getForeman());
+                                                       getForeman(),
+                                                       getContainerMapperRegistry());
         parts.add(part);
         this.currentBinding = new Binding();
         return part;
