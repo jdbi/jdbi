@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +14,8 @@ import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -44,9 +47,9 @@ public class TestContainerFactory
         h.registerContainerFactory(new MaybeContainerFactory());
 
         Maybe<String> rs = h.createQuery("select name from something where id = :id")
-                               .bind("id", 1)
-                               .map(StringMapper.FIRST)
-                               .first(Maybe.class);
+                            .bind("id", 1)
+                            .map(StringMapper.FIRST)
+                            .first(Maybe.class);
 
         assertThat(rs.isKnown(), equalTo(true));
         assertThat(rs.getValue(), equalTo("Coda"));
@@ -59,9 +62,9 @@ public class TestContainerFactory
         h.registerContainerFactory(new MaybeContainerFactory());
 
         Maybe<String> rs = h.createQuery("select name from something where id = :id")
-                               .bind("id", 2)
-                               .map(StringMapper.FIRST)
-                               .first(Maybe.class);
+                            .bind("id", 2)
+                            .map(StringMapper.FIRST)
+                            .first(Maybe.class);
 
         assertThat(rs.isKnown(), equalTo(false));
     }
@@ -103,6 +106,17 @@ public class TestContainerFactory
         assertThat(rs, equalTo(Maybe.definitely("Coda")));
     }
 
+    @Test
+    public void testWithSqlObjectSetReturnValue() throws Exception
+    {
+        Dao dao = dbi.onDemand(Dao.class);
+        dao.insert(new Something(1, "Coda"));
+        dao.insert(new Something(2, "Brian"));
+
+        Set<String> rs = dao.findAllAsSet();
+        assertThat(rs, equalTo((Set<String>)ImmutableSet.of("Coda", "Brian")));
+    }
+
 
     @RegisterContainerMapper({ImmutableListContainerFactory.class, MaybeContainerFactory.class})
     public static interface Dao
@@ -110,12 +124,44 @@ public class TestContainerFactory
         @SqlQuery("select name from something order by id")
         public ImmutableList<String> findAll();
 
+        @SqlQuery("select name from something order by id")
+        public Set<String> findAllAsSet();
+
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         public void insert(@BindBean Something it);
 
         @SqlQuery("select name from something where id = :id")
         @SingleValueResult(String.class)
         public Maybe<String> findNameById(@Bind("id") int id);
+    }
+
+
+    public static class SetContainerFactory implements ContainerFactory<Set<?>>
+    {
+
+        public boolean accepts(Class<?> type)
+        {
+            return Set.class.equals(type);
+        }
+
+        public ContainerBuilder<Set<?>> newContainerBuilderFor(Class<?> type)
+        {
+            return new ContainerBuilder<Set<?>>()
+            {
+                private Set<Object> rs = new LinkedHashSet<Object>();
+
+                public ContainerBuilder<Set<?>> add(Object it)
+                {
+                    rs.add(it);
+                    return this;
+                }
+
+                public Set<?> build()
+                {
+                    return rs;
+                }
+            };
+        }
     }
 
     public static class ImmutableListContainerFactory implements ContainerFactory<ImmutableList<?>>
@@ -130,7 +176,7 @@ public class TestContainerFactory
         {
             return new ContainerBuilder<ImmutableList<?>>()
             {
-                private final ImmutableList.Builder<Object> b =  ImmutableList.builder();
+                private final ImmutableList.Builder<Object> b = ImmutableList.builder();
 
                 public ContainerBuilder<ImmutableList<?>> add(Object it)
                 {
