@@ -113,7 +113,7 @@ public class TestContainerFactory
         {
             return new ContainerBuilder<ImmutableList<?>>()
             {
-                private final ImmutableList.Builder<?> b =  ImmutableList.builder();
+                private final ImmutableList.Builder<Object> b =  ImmutableList.builder();
 
                 public ContainerBuilder<ImmutableList<?>> add(Object it)
                 {
@@ -159,7 +159,6 @@ public class TestContainerFactory
 
     public static abstract class Maybe<T>
     {
-        public abstract T otherwise(T defaultValue);
 
         public abstract Maybe<T> otherwise(Maybe<T> maybeDefaultValue);
 
@@ -167,18 +166,9 @@ public class TestContainerFactory
 
         public abstract boolean isKnown();
 
-        public abstract <E extends Exception> T otherwise(E e) throws E;
-
-
         public static <T> Maybe<T> definitely(final T theValue)
         {
             return new DefiniteValue<T>(theValue);
-        }
-
-
-        public static <T> Maybe<T> elideNull(T value)
-        {
-            return value == null ? Maybe.<T>unknown() : definitely(value);
         }
 
 
@@ -193,12 +183,6 @@ public class TestContainerFactory
                 }
 
                 @Override
-                public T otherwise(T defaultValue)
-                {
-                    return defaultValue;
-                }
-
-                @Override
                 public Maybe<T> otherwise(Maybe<T> maybeDefaultValue)
                 {
                     return maybeDefaultValue;
@@ -208,12 +192,6 @@ public class TestContainerFactory
                 public T getValue()
                 {
                     throw new IllegalStateException("No value known!");
-                }
-
-                @Override
-                public <E extends Exception> T otherwise(E e) throws E
-                {
-                    throw e;
                 }
 
                 @Override
@@ -253,12 +231,6 @@ public class TestContainerFactory
             }
 
             @Override
-            public T otherwise(T defaultValue)
-            {
-                return theValue;
-            }
-
-            @Override
             public Maybe<T> otherwise(Maybe<T> maybeDefaultValue)
             {
                 return this;
@@ -266,12 +238,6 @@ public class TestContainerFactory
 
             @Override
             public T getValue()
-            {
-                return theValue;
-            }
-
-            @Override
-            public <E extends Exception> T otherwise(E e) throws E
             {
                 return theValue;
             }
