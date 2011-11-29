@@ -120,7 +120,7 @@ class ContainerFactoryRegistry
 
         public boolean accepts(Class<?> type)
         {
-            return type.equals(List.class) || type.equals(Collection.class);
+            return type.equals(List.class) || type.equals(Collection.class) || type.equals(Iterable.class);
         }
 
         public ContainerBuilder<List<?>> newContainerBuilderFor(Class<?> type)
