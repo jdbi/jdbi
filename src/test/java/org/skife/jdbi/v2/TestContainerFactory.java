@@ -1,17 +1,14 @@
 package org.skife.jdbi.v2;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.skife.jdbi.v2.guava.ImmutableListContainerFactory;
-import org.skife.jdbi.v2.guava.OptionalContainerFactory;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
+import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.UUID;
@@ -28,7 +25,7 @@ public class TestContainerFactory
     public void setUp() throws Exception
     {
         this.dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID().toString());
-        this.dbi.registerContainerFactory(new OptionalContainerFactory());
+        this.dbi.registerContainerFactory(new MaybeContainerFactory());
         this.h = dbi.open();
         h.execute("create table something (id int primary key, name varchar)");
     }
@@ -44,13 +41,13 @@ public class TestContainerFactory
     {
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
-        Optional<String> rs = h.createQuery("select name from something where id = :id")
+        Maybe<String> rs = h.createQuery("select name from something where id = :id")
                                .bind("id", 1)
                                .map(StringMapper.FIRST)
-                               .first(Optional.class);
+                               .first(Maybe.class);
 
-        assertThat(rs.isPresent(), equalTo(true));
-        assertThat(rs.get(), equalTo("Coda"));
+        assertThat(rs.isKnown(), equalTo(true));
+        assertThat(rs.getValue(), equalTo("Coda"));
     }
 
     @Test
@@ -58,12 +55,12 @@ public class TestContainerFactory
     {
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
-        Optional<String> rs = h.createQuery("select name from something where id = :id")
+        Maybe<String> rs = h.createQuery("select name from something where id = :id")
                                .bind("id", 2)
                                .map(StringMapper.FIRST)
-                               .first(Optional.class);
+                               .first(Maybe.class);
 
-        assertThat(rs.isPresent(), equalTo(false));
+        assertThat(rs.isKnown(), equalTo(false));
     }
 
     @Test
@@ -103,4 +100,203 @@ public class TestContainerFactory
         public void insert(@BindBean Something it);
 
     }
+
+    public static class ImmutableListContainerFactory implements ContainerFactory<ImmutableList<?>>
+    {
+
+        public boolean accepts(Class<?> type)
+        {
+            return ImmutableList.class.equals(type);
+        }
+
+        public ContainerBuilder<ImmutableList<?>> newContainerBuilderFor(Class<?> type)
+        {
+            return new ContainerBuilder<ImmutableList<?>>()
+            {
+                private final ImmutableList.Builder<?> b =  ImmutableList.builder();
+
+                public ContainerBuilder<ImmutableList<?>> add(Object it)
+                {
+                    b.add(it);
+                    return this;
+                }
+
+                public ImmutableList<?> build()
+                {
+                    return b.build();
+                }
+            };
+        }
+    }
+
+    public static class MaybeContainerFactory implements ContainerFactory<Maybe<?>>
+    {
+
+        public boolean accepts(Class<?> type)
+        {
+            return type.equals(Maybe.class);
+        }
+
+        public ContainerBuilder<Maybe<?>> newContainerBuilderFor(Class<?> type)
+        {
+            return new ContainerBuilder<Maybe<?>>()
+            {
+                private Maybe<Object> value = Maybe.unknown();
+
+                public ContainerBuilder<Maybe<?>> add(Object it)
+                {
+                    value = value.otherwise(Maybe.definitely(it));
+                    return this;
+                }
+
+                public Maybe<?> build()
+                {
+                    return value;
+                }
+            };
+        }
+    }
+
+    public static abstract class Maybe<T>
+    {
+        public abstract T otherwise(T defaultValue);
+
+        public abstract Maybe<T> otherwise(Maybe<T> maybeDefaultValue);
+
+        public abstract T getValue();
+
+        public abstract boolean isKnown();
+
+        public abstract <E extends Exception> T otherwise(E e) throws E;
+
+
+        public static <T> Maybe<T> definitely(final T theValue)
+        {
+            return new DefiniteValue<T>(theValue);
+        }
+
+
+        public static <T> Maybe<T> elideNull(T value)
+        {
+            return value == null ? Maybe.<T>unknown() : definitely(value);
+        }
+
+
+        public static <T> Maybe<T> unknown()
+        {
+            return new Maybe<T>()
+            {
+                @Override
+                public boolean isKnown()
+                {
+                    return false;
+                }
+
+                @Override
+                public T otherwise(T defaultValue)
+                {
+                    return defaultValue;
+                }
+
+                @Override
+                public Maybe<T> otherwise(Maybe<T> maybeDefaultValue)
+                {
+                    return maybeDefaultValue;
+                }
+
+                @Override
+                public T getValue()
+                {
+                    throw new IllegalStateException("No value known!");
+                }
+
+                @Override
+                public <E extends Exception> T otherwise(E e) throws E
+                {
+                    throw e;
+                }
+
+                @Override
+                public String toString()
+                {
+                    return "unknown";
+                }
+
+                @Override
+                @SuppressWarnings({"EqualsWhichDoesntCheckParameterClass"})
+                public boolean equals(Object obj)
+                {
+                    return false;
+                }
+
+                @Override
+                public int hashCode()
+                {
+                    return 0;
+                }
+            };
+        }
+
+        private static class DefiniteValue<T> extends Maybe<T>
+        {
+            private final T theValue;
+
+            public DefiniteValue(T theValue)
+            {
+                this.theValue = theValue;
+            }
+
+            @Override
+            public boolean isKnown()
+            {
+                return true;
+            }
+
+            @Override
+            public T otherwise(T defaultValue)
+            {
+                return theValue;
+            }
+
+            @Override
+            public Maybe<T> otherwise(Maybe<T> maybeDefaultValue)
+            {
+                return this;
+            }
+
+            @Override
+            public T getValue()
+            {
+                return theValue;
+            }
+
+            @Override
+            public <E extends Exception> T otherwise(E e) throws E
+            {
+                return theValue;
+            }
+
+            @Override
+            public String toString()
+            {
+                return "definitely " + theValue.toString();
+            }
+
+            @Override
+            public boolean equals(Object o)
+            {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                DefiniteValue that = (DefiniteValue) o;
+                return theValue.equals(that.theValue);
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return theValue.hashCode();
+            }
+        }
+    }
+
 }
