@@ -6,42 +6,37 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.omg.DynamicAny.DynAnyOperations;
 import org.skife.jdbi.v2.guava.ImmutableListContainerFactory;
 import org.skife.jdbi.v2.guava.OptionalContainerFactory;
-import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import java.util.UUID;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class TestContainerFactory
 {
-    private JdbcConnectionPool ds;
-    private DBI                dbi;
+    private DBI    dbi;
     private Handle h;
 
     @Before
     public void setUp() throws Exception
     {
-        this.ds = JdbcConnectionPool.create("jdbc:h2:mem:test", "username", "password");
-        this.dbi = new DBI(ds);
+        this.dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID().toString());
         this.dbi.registerContainerFactory(new OptionalContainerFactory());
         this.h = dbi.open();
         h.execute("create table something (id int primary key, name varchar)");
-
-
     }
 
     @After
     public void tearDown() throws Exception
     {
         h.close();
-        ds.dispose();
     }
 
     @Test
@@ -80,8 +75,8 @@ public class TestContainerFactory
         h.execute("insert into something (id, name) values (2, 'Brian')");
 
         ImmutableList<String> rs = h.createQuery("select name from something order by id")
-                               .map(StringMapper.FIRST)
-                               .list(ImmutableList.class);
+                                    .map(StringMapper.FIRST)
+                                    .list(ImmutableList.class);
 
         assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));
     }

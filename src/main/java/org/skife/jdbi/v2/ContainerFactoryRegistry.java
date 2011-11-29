@@ -50,7 +50,7 @@ class ContainerFactoryRegistry
         throw new IllegalStateException("No container builder available for " + type.getName());
     }
 
-    public static class ListContainerFactory implements ContainerFactory<List>
+    public static class ListContainerFactory implements ContainerFactory<List<?>>
     {
 
         public boolean accepts(Class<?> type)
@@ -58,7 +58,7 @@ class ContainerFactoryRegistry
             return type.equals(List.class);
         }
 
-        public ContainerBuilder<List> newContainerBuilderFor(Class<?> type)
+        public ContainerBuilder<List<?>> newContainerBuilderFor(Class<?> type)
         {
             return new ListContainerBuilder();
         }
