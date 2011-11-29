@@ -1,9 +1,8 @@
 package org.skife.jdbi.v2.guava;
 
 import com.google.common.collect.ImmutableList;
+import org.skife.jdbi.v2.ContainerBuilder;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
-
-import java.util.List;
 
 public class ImmutableListContainerFactory implements ContainerFactory<ImmutableList>
 {
@@ -12,8 +11,22 @@ public class ImmutableListContainerFactory implements ContainerFactory<Immutable
         return ImmutableList.class.equals(type);
     }
 
-    public ImmutableList create(List<?> items)
+    public ContainerBuilder<ImmutableList> newContainerBuilderFor(Class<?> type)
     {
-        return ImmutableList.copyOf(items);
+        return new ContainerBuilder<ImmutableList>()
+        {
+            private final ImmutableList.Builder builder = ImmutableList.builder();
+
+            public ContainerBuilder<ImmutableList> add(Object it)
+            {
+                builder.add(it);
+                return this;
+            }
+
+            public ImmutableList build()
+            {
+                return builder.build();
+            }
+        };
     }
 }

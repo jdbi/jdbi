@@ -22,8 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-abstract class QueryResultSetMunger<T>
-        implements QueryResultMunger<T>
+abstract class QueryResultSetMunger<T> implements QueryResultMunger<T>
 {
     private BaseStatement stmt;
 

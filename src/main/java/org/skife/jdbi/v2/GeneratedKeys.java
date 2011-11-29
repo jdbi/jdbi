@@ -23,7 +23,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -90,12 +89,14 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
 
     public <T> T first(Class<T> containerType)
     {
-        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(first()));
+//        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(first()));
+        throw new UnsupportedOperationException("Not Yet Implemented!");
     }
 
     public <ContainerType> ContainerType list(Class<ContainerType> containerType)
     {
-        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(list()));
+//        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(list()));
+        throw new UnsupportedOperationException("Not Yet Implemented!");
     }
 
     public List<Type> list(int maxRows)

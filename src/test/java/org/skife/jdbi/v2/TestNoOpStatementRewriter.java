@@ -42,7 +42,8 @@ public class TestNoOpStatementRewriter extends DBITestCase
         String name = h.createQuery("select name from something where id = ?")
                 .bind(0, 1)
                 .map(Something.class)
-                .first().getName();
+                .first()
+                .getName();
         assertEquals("Keith", name);
     }
 

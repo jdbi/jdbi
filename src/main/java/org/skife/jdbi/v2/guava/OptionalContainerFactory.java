@@ -1,9 +1,8 @@
 package org.skife.jdbi.v2.guava;
 
 import com.google.common.base.Optional;
+import org.skife.jdbi.v2.ContainerBuilder;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
-
-import java.util.List;
 
 public class OptionalContainerFactory implements ContainerFactory<Optional<?>>
 {
@@ -12,13 +11,23 @@ public class OptionalContainerFactory implements ContainerFactory<Optional<?>>
         return Optional.class.equals(type);
     }
 
-    public Optional<?> create(List<?> items)
+    public ContainerBuilder<Optional<?>> newContainerBuilderFor(Class<?> type)
     {
-        if (items.isEmpty()) {
-            return Optional.absent();
-        }
-        else {
-            return Optional.fromNullable(items.get(0));
-        }
+        return new ContainerBuilder<Optional<?>>()
+        {
+            private Object it = null;
+
+            public ContainerBuilder<Optional<?>> add(Object it)
+            {
+                this.it = it;
+                return this;
+            }
+
+            public Optional<?> build()
+            {
+                return Optional.fromNullable(it);
+            }
+        };
     }
+
 }

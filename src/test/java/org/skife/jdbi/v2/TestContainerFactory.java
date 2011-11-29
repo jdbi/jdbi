@@ -23,6 +23,7 @@ public class TestContainerFactory
 {
     private JdbcConnectionPool ds;
     private DBI                dbi;
+    private Handle h;
 
     @Before
     public void setUp() throws Exception
@@ -30,22 +31,22 @@ public class TestContainerFactory
         this.ds = JdbcConnectionPool.create("jdbc:h2:mem:test", "username", "password");
         this.dbi = new DBI(ds);
         this.dbi.registerContainerFactory(new OptionalContainerFactory());
-        Handle h = dbi.open();
+        this.h = dbi.open();
         h.execute("create table something (id int primary key, name varchar)");
-        h.close();
+
 
     }
 
     @After
     public void tearDown() throws Exception
     {
+        h.close();
         ds.dispose();
     }
 
     @Test
     public void testExists() throws Exception
     {
-        Handle h = dbi.open();
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -55,13 +56,11 @@ public class TestContainerFactory
 
         assertThat(rs.isPresent(), equalTo(true));
         assertThat(rs.get(), equalTo("Coda"));
-        h.close();
     }
 
     @Test
     public void testDoesNotExist() throws Exception
     {
-        Handle h = dbi.open();
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -70,13 +69,11 @@ public class TestContainerFactory
                                .first(Optional.class);
 
         assertThat(rs.isPresent(), equalTo(false));
-        h.close();
     }
 
     @Test
     public void testOnList() throws Exception
     {
-        Handle h = dbi.open();
         h.registerContainerFactory(new ImmutableListContainerFactory());
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
@@ -87,7 +84,6 @@ public class TestContainerFactory
                                .list(ImmutableList.class);
 
         assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));
-        h.close();
     }
 
     @Test

@@ -16,10 +16,8 @@
 
 package org.skife.jdbi.v2;
 
-import com.google.common.base.Optional;
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
-import org.skife.jdbi.v2.guava.OptionalContainerFactory;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;

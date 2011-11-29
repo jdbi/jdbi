@@ -16,13 +16,9 @@
 
 package org.skife.jdbi.v2;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
-import org.skife.jdbi.v2.guava.OptionalContainerFactory;
-import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -34,18 +30,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Statement prviding convenience result handling for SQL queries.
+ * Statement providing convenience result handling for SQL queries.
  */
 public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements ResultBearing<ResultType>
 {
     private final ResultSetMapper<ResultType> mapper;
-    private final MappingRegistry mappingRegistry;
+    private final MappingRegistry             mappingRegistry;
 
     Query(Binding params,
           ResultSetMapper<ResultType> mapper,
@@ -80,28 +75,23 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public List<ResultType> list()
     {
-        try {
-            return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this) {
-                public List<ResultType> munge(ResultSet rs) throws SQLException
-                {
-                    List<ResultType> result_list = new ArrayList<ResultType>();
-                    int index = 0;
-                    while (rs.next()) {
-                        result_list.add(mapper.map(index++, rs, getContext()));
-                    }
-                    return result_list;
-                }
-            });
-        }
-        finally {
-            cleanup();
-        }
+        return list(List.class);
     }
 
     public <ContainerType> ContainerType list(Class<ContainerType> containerType)
     {
-        List<ResultType> rs = list();
-        return this.getContainerMapperRegistry().lookup(containerType).create(rs);
+        ContainerBuilder<ContainerType> builder = getContainerMapperRegistry().createBuilderFor(containerType);
+        return fold(builder, new Folder3<ContainerBuilder<ContainerType>, ResultType>()
+        {
+            public ContainerBuilder<ContainerType> fold(ContainerBuilder<ContainerType> accumulator,
+                                                        ResultType rs,
+                                                        FoldController ctl,
+                                                        StatementContext ctx) throws SQLException
+            {
+                accumulator.add(rs);
+                return accumulator;
+            }
+        }).build();
     }
 
     /**
@@ -121,7 +111,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     public List<ResultType> list(final int maxRows)
     {
         try {
-            return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this) {
+            return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this)
+            {
                 public List<ResultType> munge(ResultSet rs) throws SQLException
                 {
                     List<ResultType> result_list = new ArrayList<ResultType>();
@@ -150,13 +141,15 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @return The return value from the last invocation of {@link Folder#fold(Object, java.sql.ResultSet)}
      *
      * @see org.skife.jdbi.v2.Folder
+     * @deprecated Use {@link Query#fold(Object, Folder3)}
      */
     public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder2<AccumulatorType> folder)
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
         try {
-            this.internalExecute(new QueryResultSetMunger<Void>(this) {
+            this.internalExecute(new QueryResultSetMunger<Void>(this)
+            {
                 public Void munge(ResultSet rs) throws SQLException
                 {
                     while (rs.next()) {
@@ -171,6 +164,33 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
             cleanup();
         }
     }
+
+    public <AccumulatorType> AccumulatorType fold(final AccumulatorType accumulator,
+                                                  final Folder3<AccumulatorType, ResultType> folder)
+    {
+        try {
+            return this.internalExecute(new QueryResultSetMunger<AccumulatorType>(this)
+            {
+                private int idx = 0;
+                private AccumulatorType ac = accumulator;
+
+                @Override
+                protected AccumulatorType munge(ResultSet rs) throws SQLException
+                {
+                    FoldController ctl = new FoldController();
+                    while (!ctl.isAborted() && rs.next()) {
+                        ResultType row_value = mapper.map(idx++, rs, getContext());
+                        this.ac = folder.fold(ac, row_value, ctl, getContext());
+                    }
+                    return ac;
+                }
+            });
+        }
+        finally {
+            cleanup();
+        }
+    }
+
 
     /**
      * Used to execute the query and traverse the result set with a accumulator.
@@ -191,7 +211,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
 
         try {
-            this.internalExecute(new QueryResultSetMunger<Void>(this) {
+            this.internalExecute(new QueryResultSetMunger<Void>(this)
+            {
                 public Void munge(ResultSet rs) throws SQLException
                 {
                     while (rs.next()) {
@@ -213,7 +234,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public ResultIterator<ResultType> iterator()
     {
-        return this.internalExecute(new QueryResultMunger<ResultIterator<ResultType>>() {
+        return this.internalExecute(new QueryResultMunger<ResultIterator<ResultType>>()
+        {
             public ResultIterator<ResultType> munge(Statement stmt) throws SQLException
             {
                 return new ResultSetResultIterator<ResultType>(mapper,
@@ -234,49 +256,25 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public ResultType first()
     {
-        addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
-
-        try {
-            return this.internalExecute(new QueryResultSetMunger<ResultType>(this) {
-                public final ResultType munge(final ResultSet rs) throws SQLException
-                {
-                    if (rs.next()) {
-                        return mapper.map(0, rs, getContext());
-                    }
-                    else {
-                        // no result matches
-                        return null;
-                    }
-                }
-            });
-        }
-        finally {
-            cleanup();
-        }
+        return (ResultType) first(UnwrappedSingleValue.class);
     }
 
     public <T> T first(Class<T> containerType)
     {
+
+
         addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
-        ResultType result;
-        try {
-            result = this.internalExecute(new QueryResultSetMunger<ResultType>(this) {
-                public final ResultType munge(final ResultSet rs) throws SQLException
-                {
-                    if (rs.next()) {
-                        return mapper.map(0, rs, getContext());
-                    }
-                    else {
-                        // no result matches
-                        return null;
-                    }
-                }
-            });
-        }
-        finally {
-            cleanup();
-        }
-        return getContainerMapperRegistry().lookup(containerType).create(Arrays.asList(result));
+        ContainerBuilder builder = getContainerMapperRegistry().createBuilderFor(containerType);
+
+        return (T) this.fold(builder, new Folder3<ContainerBuilder, ResultType>()
+        {
+            public ContainerBuilder fold(ContainerBuilder accumulator, ResultType rs, FoldController control, StatementContext ctx) throws SQLException
+            {
+                accumulator.add(rs);
+                control.abort();
+                return accumulator;
+            }
+        }).build();
     }
 
     /**
@@ -295,15 +293,17 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     /**
      * Makes use of registered mappers to map the result set to the desired type.
      *
+     * @param resultType the type to map the query results to
+     *
+     * @return a new query instance which will map to the desired type
+     *
      * @see DBI#registerMapper(org.skife.jdbi.v2.tweak.ResultSetMapper)
      * @see DBI#registerMapper(ResultSetMapperFactory)
      * @see Handle#registerMapper(ResultSetMapperFactory)
      * @see Handle#registerMapper(org.skife.jdbi.v2.tweak.ResultSetMapper)
-     *
-     * @param resultType the type to map the query results to
-     * @return a new query instance which will map to the desired type
      */
-    public <T> Query<T> mapTo(Class<T> resultType) {
+    public <T> Query<T> mapTo(Class<T> resultType)
+    {
         return this.map(new RegisteredMapper(resultType, mappingRegistry));
     }
 
