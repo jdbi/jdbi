@@ -261,8 +261,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     public <T> T first(Class<T> containerType)
     {
-
-
         addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
         ContainerBuilder builder = getContainerMapperRegistry().createBuilderFor(containerType);
 

@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
+import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.util.StringMapper;
 
@@ -25,7 +27,6 @@ public class TestContainerFactory
     public void setUp() throws Exception
     {
         this.dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID().toString());
-        this.dbi.registerContainerFactory(new MaybeContainerFactory());
         this.h = dbi.open();
         h.execute("create table something (id int primary key, name varchar)");
     }
@@ -40,6 +41,7 @@ public class TestContainerFactory
     public void testExists() throws Exception
     {
         h.execute("insert into something (id, name) values (1, 'Coda')");
+        h.registerContainerFactory(new MaybeContainerFactory());
 
         Maybe<String> rs = h.createQuery("select name from something where id = :id")
                                .bind("id", 1)
@@ -54,6 +56,7 @@ public class TestContainerFactory
     public void testDoesNotExist() throws Exception
     {
         h.execute("insert into something (id, name) values (1, 'Coda')");
+        h.registerContainerFactory(new MaybeContainerFactory());
 
         Maybe<String> rs = h.createQuery("select name from something where id = :id")
                                .bind("id", 2)
@@ -89,8 +92,19 @@ public class TestContainerFactory
         assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));
     }
 
+    @Test
+    public void testWithSqlObjectSingleValue() throws Exception
+    {
+        Dao dao = dbi.onDemand(Dao.class);
+        dao.insert(new Something(1, "Coda"));
+        dao.insert(new Something(2, "Brian"));
 
-    @RegisterContainerMapper(ImmutableListContainerFactory.class)
+        Maybe<String> rs = dao.findNameById(1);
+        assertThat(rs, equalTo(Maybe.definitely("Coda")));
+    }
+
+
+    @RegisterContainerMapper({ImmutableListContainerFactory.class, MaybeContainerFactory.class})
     public static interface Dao
     {
         @SqlQuery("select name from something order by id")
@@ -99,6 +113,9 @@ public class TestContainerFactory
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         public void insert(@BindBean Something it);
 
+        @SqlQuery("select name from something where id = :id")
+        @SingleValueResult(String.class)
+        public Maybe<String> findNameById(@Bind("id") int id);
     }
 
     public static class ImmutableListContainerFactory implements ContainerFactory<ImmutableList<?>>
