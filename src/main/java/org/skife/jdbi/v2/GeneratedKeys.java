@@ -27,35 +27,40 @@ import java.util.List;
 
 /**
  * Wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
+ *
  * @param <Type> the key type returned
  */
 public class GeneratedKeys<Type> implements ResultBearing<Type>
 {
-    private final ResultSetMapper<Type> mapper;
-    private final SQLStatement<?> jdbiStatement;
-    private final Statement stmt;
-    private final ResultSet results;
-    private final StatementContext context;
+    private final ResultSetMapper<Type>    mapper;
+    private final SQLStatement<?>          jdbiStatement;
+    private final Statement                stmt;
+    private final ResultSet                results;
+    private final StatementContext         context;
+    private final ContainerFactoryRegistry containerFactoryRegistry;
 
     /**
      * Creates a new wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
      * method for update and insert statement for drivers that support this function.
      *
-     * @param mapper Maps the generated keys result set to an object
+     * @param mapper        Maps the generated keys result set to an object
      * @param jdbiStatement The original jDBI statement
-     * @param stmt The corresponding sql statement
-     * @param context The statement context
+     * @param stmt          The corresponding sql statement
+     * @param context       The statement context
      */
-    public GeneratedKeys(ResultSetMapper<Type> mapper,
-                         SQLStatement<?> jdbiStatement,
-                         Statement stmt,
-                         StatementContext context) throws SQLException
+    GeneratedKeys(ResultSetMapper<Type> mapper,
+                  SQLStatement<?> jdbiStatement,
+                  Statement stmt,
+                  StatementContext context,
+                  ContainerFactoryRegistry containerFactoryRegistry) throws SQLException
     {
         this.mapper = mapper;
         this.jdbiStatement = jdbiStatement;
         this.stmt = stmt;
         this.results = stmt.getGeneratedKeys();
         this.context = context;
+        this.containerFactoryRegistry = containerFactoryRegistry.createChild();
+        this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
     }
 
     /**
@@ -63,7 +68,8 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      *
      * @return The key or null if no keys were returned
      */
-    public Type first() {
+    public Type first()
+    {
         try {
             if ((results != null) && results.next()) {
                 return mapper.map(0, results, context);
@@ -77,20 +83,29 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
+            jdbiStatement.cleanup();
         }
     }
 
-    /**
-     * Returns a list of all generated keys.
-     *
-     * @return The list of keys or an empty list if no keys were returned
-     */
-    public List<Type> list() {
+    public <T> T first(Class<T> containerType)
+    {
+//        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(first()));
+        throw new UnsupportedOperationException("Not Yet Implemented!");
+    }
+
+    public <ContainerType> ContainerType list(Class<ContainerType> containerType)
+    {
+//        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(list()));
+        throw new UnsupportedOperationException("Not Yet Implemented!");
+    }
+
+    public List<Type> list(int maxRows)
+    {
         try {
+            int idx = 0;
             List<Type> resultList = new ArrayList<Type>();
 
-            if ((results != null) && !results.isClosed()) {
+            if ((results != null) && ++idx <= maxRows && !results.isClosed()) {
                 int index = 0;
                 while (results.next()) {
                     resultList.add(mapper.map(index++, results, context));
@@ -102,8 +117,18 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
+            jdbiStatement.cleanup();
         }
+    }
+
+    /**
+     * Returns a list of all generated keys.
+     *
+     * @return The list of keys or an empty list if no keys were returned
+     */
+    public List<Type> list()
+    {
+        return list(Integer.MAX_VALUE);
     }
 
     /**
@@ -111,7 +136,8 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      *
      * @return The key iterator
      */
-    public ResultIterator<Type> iterator() {
+    public ResultIterator<Type> iterator()
+    {
         try {
             return new ResultSetResultIterator<Type>(mapper, jdbiStatement, stmt, context);
         }
@@ -149,7 +175,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
-            QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY.cleanup(jdbiStatement, null, results);
+            jdbiStatement.cleanup();
         }
     }
 }

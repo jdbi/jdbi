@@ -20,22 +20,28 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  *
  */
 class ShortArgument implements Argument
 {
-    private final short value;
+    private final Short value;
 
-    ShortArgument(short value)
+    ShortArgument(Short value)
     {
         this.value = value;
     }
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setShort(position, value);
+        if (value != null) {
+            statement.setShort(position, value);
+        }
+        else {
+            statement.setNull(position, Types.SMALLINT);
+        }
     }
 
     @Override

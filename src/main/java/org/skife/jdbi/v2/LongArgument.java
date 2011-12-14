@@ -20,22 +20,28 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  *
  */
 class LongArgument implements Argument
 {
-    private final long value;
+    private final Long value;
 
-    LongArgument(long value)
+    LongArgument(Long value)
     {
         this.value = value;
     }
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setLong(position, value);
+        if (value != null) {
+            statement.setLong(position, value);
+        }
+        else {
+            statement.setNull(position, Types.INTEGER);
+        }
     }
 
     @Override

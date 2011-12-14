@@ -38,6 +38,13 @@ public class TestPreparedStatementCache extends DBITestCase
                 prep_count[0]++;
                 return super.prepareStatement(s, flag);
             }
+
+            @Override
+            public PreparedStatement prepareStatement(String s) throws SQLException
+            {
+                prep_count[0]++;
+                return super.prepareStatement(s);
+            }
         };
         CachingStatementBuilder builder = new CachingStatementBuilder(new DefaultStatementBuilder());
 
@@ -49,7 +56,9 @@ public class TestPreparedStatementCache extends DBITestCase
                                         new HashMap<String, Object>(),
                                         new NoOpLog(),
                                         TimingCollector.NOP_TIMING_COLLECTOR,
-                                        new MappingRegistry());
+                                        new MappingRegistry(),
+                                        new Foreman(),
+                                        new ContainerFactoryRegistry());
 
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bindFromProperties(new Something(0, "Keith"))

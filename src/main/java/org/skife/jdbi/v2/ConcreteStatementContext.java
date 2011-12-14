@@ -1,7 +1,5 @@
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.StatementContext;
-
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,6 +17,7 @@ public final class ConcreteStatementContext implements StatementContext
     private Binding           binding;
     private Class<?>          sqlObjectType;
     private Method            sqlObjectMethod;
+    private boolean           returningGeneratedKeys;
 
     ConcreteStatementContext(Map<String, Object> globalAttributes)
     {
@@ -172,4 +171,13 @@ public final class ConcreteStatementContext implements StatementContext
         return sqlObjectMethod;
     }
 
+    public void setReturningGeneratedKeys(boolean b)
+    {
+        this.returningGeneratedKeys = b;
+    }
+
+    public boolean isReturningGeneratedKeys()
+    {
+        return returningGeneratedKeys;
+    }
 }

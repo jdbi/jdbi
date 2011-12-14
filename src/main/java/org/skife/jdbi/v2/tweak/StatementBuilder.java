@@ -55,7 +55,7 @@ public interface StatementBuilder
 
 
     /**
-     * Called to close an individual prepared statement created from this builder
+     * Called to close an individual prepared statement created from this builder.
      *
      * @param sql the translated SQL which was prepared
      * @param stmt the statement

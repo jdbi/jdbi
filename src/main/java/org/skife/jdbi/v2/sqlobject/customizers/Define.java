@@ -1,9 +1,9 @@
 package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
-import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -46,7 +46,7 @@ public @interface Define
             {
                 public void apply(SQLStatement q)
                 {
-                    q.define(key,  arg);
+                    q.define(key, arg);
                 }
             };
         }

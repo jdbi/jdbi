@@ -22,8 +22,8 @@ import org.skife.jdbi.v2.Query;
 
 class QueryHandler extends CustomizingStatementHandler
 {
-    private final String         sql;
-    private final ResolvedMethod method;
+    private final String            sql;
+    private final ResolvedMethod    method;
     private final ResultReturnThing magic;
 
     public QueryHandler(Class<?> sqlObjectType, ResolvedMethod method, ResultReturnThing magic)
@@ -38,8 +38,8 @@ class QueryHandler extends CustomizingStatementHandler
     {
         Query q = h.getHandle().createQuery(sql);
         populateSqlObjectData((ConcreteStatementContext) q.getContext());
-        applyBinders(q, args);
         applyCustomizers(q, args);
+        applyBinders(q, args);
 
         return magic.map(method, q, h);
     }

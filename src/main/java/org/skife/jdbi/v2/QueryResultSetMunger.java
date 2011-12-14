@@ -16,30 +16,30 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.NoResultsException;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-abstract class QueryResultSetMunger<T>
-        implements QueryResultMunger<T>
+abstract class QueryResultSetMunger<T> implements QueryResultMunger<T>
 {
+    private BaseStatement stmt;
+
+    QueryResultSetMunger(final BaseStatement stmt)
+    {
+        this.stmt = stmt;
+    }
+
     public final T munge(Statement results)
             throws SQLException
     {
         ResultSet rs = results.getResultSet();
-        try {
-            return munge(rs);
-        }
-        finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                }
-                catch (SQLException e) {
-                    // ignore
-                }
-            }
-        }
+        if (rs == null)
+            throw new NoResultsException("Query did not have a result set, perhaps you meant update?", stmt.getContext());
+
+        stmt.addCleanable(Cleanables.forResultSet(rs));
+        return munge(rs);
     }
 
     protected abstract T munge(ResultSet rs)

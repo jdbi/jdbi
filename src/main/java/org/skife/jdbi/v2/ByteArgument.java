@@ -20,27 +20,33 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  *
  */
 class ByteArgument implements Argument
 {
-    private final byte value;
+    private final Byte value;
 
-    ByteArgument(byte value)
+    ByteArgument(Byte value)
     {
-
         this.value = value;
     }
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setByte(position, value);
+        if (value == null) {
+            statement.setNull(position, Types.TINYINT);
+        }
+        else {
+            statement.setByte(position, value);
+        }
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.valueOf(value);
     }
 }

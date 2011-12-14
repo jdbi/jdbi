@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  *
@@ -35,11 +36,17 @@ class DoubleArgument implements Argument
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setDouble(position, value);
+        if (value != null) {
+            statement.setDouble(position, value);
+        }
+        else {
+            statement.setNull(position, Types.DOUBLE);
+        }
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.valueOf(value);
     }
 }

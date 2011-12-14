@@ -20,19 +20,25 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 class BooleanArgument implements Argument
 {
-    private final boolean value;
+    private final Boolean value;
 
-    BooleanArgument(boolean value)
+    BooleanArgument(Boolean value)
     {
         this.value = value;
     }
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setBoolean(position, value);
+        if (value == null) {
+            statement.setNull(position, Types.BOOLEAN);
+        }
+        else {
+            statement.setBoolean(position, value);
+        }
     }
 
     @Override

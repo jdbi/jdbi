@@ -103,4 +103,10 @@ public interface StatementContext
     public Class<?> getSqlObjectType();
 
     public Method getSqlObjectMethod();
+
+    /**
+     * Is the statement being generated expected to return the generated keys?
+     */
+    public boolean isReturningGeneratedKeys();
+
 }

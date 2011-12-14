@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  *
@@ -35,11 +36,17 @@ class FloatArgument implements Argument
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setFloat(position, value);
+        if (value != null) {
+            statement.setFloat(position, value);
+        }
+        else {
+            statement.setNull(position, Types.FLOAT);
+        }
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.valueOf(value);
     }
 }

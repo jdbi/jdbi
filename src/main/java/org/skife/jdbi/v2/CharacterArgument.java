@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.tweak.Argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 class CharacterArgument implements Argument
 {
@@ -32,11 +33,17 @@ class CharacterArgument implements Argument
 
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
-        statement.setString(position, String.valueOf(value));
+        if (value != null) {
+            statement.setString(position, String.valueOf(value));
+        }
+        else {
+            statement.setNull(position, Types.CHAR);
+        }
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.valueOf(value);
     }
 }

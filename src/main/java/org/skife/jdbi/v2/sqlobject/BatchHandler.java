@@ -114,12 +114,13 @@ class BatchHandler extends CustomizingStatementHandler
 
         PreparedBatch batch = handle.prepareBatch(sql);
         populateSqlObjectData((ConcreteStatementContext) batch.getContext());
+        applyCustomizers(batch, args);
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
+
         while ((_args = next(extras)) != null) {
             PreparedBatchPart part = batch.add();
             applyBinders(part, _args);
-            applyCustomizers(part, _args);
 
             if (++processed == chunk_size) {
                 // execute this chunk

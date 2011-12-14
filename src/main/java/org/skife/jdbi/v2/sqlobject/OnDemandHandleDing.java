@@ -1,17 +1,17 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.IDBI;
 
 import java.util.HashSet;
 import java.util.Set;
 
 class OnDemandHandleDing implements HandleDing
 {
-    private final DBI dbi;
+    private final IDBI dbi;
     private final ThreadLocal<LocalDing> threadDing = new ThreadLocal<LocalDing>();
 
-    OnDemandHandleDing(DBI dbi)
+    OnDemandHandleDing(IDBI dbi)
     {
         this.dbi = dbi;
     }

@@ -22,7 +22,6 @@ import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
-import java.sql.Connection;
 import java.util.Collections;
 
 /**
@@ -33,21 +32,22 @@ import java.util.Collections;
 public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
-    private final StatementContext context;
 
-    PreparedBatchPart(PreparedBatch batch,
+    PreparedBatchPart(Binding binding,
+                      PreparedBatch batch,
                       StatementLocator locator,
                       StatementRewriter rewriter,
-                      Connection connection,
+                      Handle handle,
                       StatementBuilder cache,
                       String sql,
                       ConcreteStatementContext context,
                       SQLLog log,
-                      TimingCollector timingCollector)
+                      TimingCollector timingCollector,
+                      Foreman foreman,
+                      ContainerFactoryRegistry containerFactoryRegistry)
     {
-        super(new Binding(), locator, rewriter, connection, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList());
+        super(binding, locator, rewriter, handle, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman, containerFactoryRegistry);
         this.batch = batch;
-        this.context = context;
     }
 
     /**
@@ -70,11 +70,5 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
     public PreparedBatchPart next()
     {
         return batch.add();
-    }
-
-    @Override
-    public StatementContext getContext()
-    {
-        return context;
     }
 }

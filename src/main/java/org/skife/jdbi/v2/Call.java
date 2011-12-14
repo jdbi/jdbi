@@ -24,7 +24,6 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,7 +39,7 @@ public class Call extends SQLStatement<Call>
 {
 	private final List<OutParamArgument> params = new ArrayList<OutParamArgument>();
 
-	Call(Connection connection,
+	Call(Handle handle,
          StatementLocator locator,
          StatementRewriter rewriter,
          StatementBuilder cache,
@@ -48,9 +47,11 @@ public class Call extends SQLStatement<Call>
          ConcreteStatementContext ctx,
          SQLLog log,
          TimingCollector timingCollector,
-         Collection<StatementCustomizer> customizers)
+         Collection<StatementCustomizer> customizers,
+         Foreman foreman,
+         ContainerFactoryRegistry containerFactoryRegistry )
 	{
-		super(new Binding(), locator, rewriter, connection, cache, sql, ctx, log, timingCollector, customizers);
+		super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
 	}
 
 	/**
@@ -86,20 +87,25 @@ public class Call extends SQLStatement<Call>
 	 */
 	public OutParameters invoke()
 	{
-        return this.internalExecute(QueryPreperator.NO_OP, new QueryResultMunger<OutParameters>(){
-	        public OutParameters munge(Statement results) throws SQLException
-	        {
-		        OutParameters out = new OutParameters();
-		        for ( OutParamArgument param : params ) {
-			        Object obj = param.map((CallableStatement)results);
-			        out.getMap().put(param.position, obj);
-			        if ( param.name != null ) {
-				        out.getMap().put(param.name, obj);
-			        }
-		        }
-		        return out;
-	        }
-        }, QueryPostMungeCleanup.CLOSE_RESOURCES_QUIETLY);
+	    try {
+	        return this.internalExecute(new QueryResultMunger<OutParameters>() {
+	            public OutParameters munge(Statement results) throws SQLException
+	            {
+	                OutParameters out = new OutParameters();
+	                for ( OutParamArgument param : params ) {
+	                    Object obj = param.map((CallableStatement)results);
+	                    out.getMap().put(param.position, obj);
+	                    if ( param.name != null ) {
+	                        out.getMap().put(param.name, obj);
+	                    }
+	                }
+	                return out;
+	            }
+	        });
+	    }
+	    finally {
+	        cleanup();
+	    }
 	}
 
 	private class OutParamArgument implements Argument

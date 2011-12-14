@@ -43,7 +43,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.skife.jdbi.v2.ExtraMatchers.equalsOneOf;
 
-public class TestDocumenation
+public class TestDocumentation
 {
 
     @Before

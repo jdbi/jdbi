@@ -7,6 +7,7 @@ import org.skife.jdbi.v2.ResultBearing;
 import org.skife.jdbi.v2.ResultIterator;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.util.Iterator;
@@ -27,7 +28,7 @@ abstract class ResultReturnThing
             return result(q.map(mapper), h);
         }
         else {
-            return result(q.mapTo(mapTo(method).getErasedType()), h);
+            return result(q.mapTo(mapTo(method)), h);
         }
     }
 
@@ -37,8 +38,8 @@ abstract class ResultReturnThing
         if (return_type.isInstanceOf(ResultBearing.class)) {
             return new ResultBearingResultReturnThing(method);
         }
-        else if (return_type.isInstanceOf(List.class)) {
-            return new ListResultReturnThing(method);
+        else if (return_type.isInstanceOf(Iterable.class)) {
+            return new IterableReturningThing(method);
         }
         else if (return_type.isInstanceOf(Iterator.class)) {
             return new IteratorResultReturnThing(method);
@@ -50,26 +51,36 @@ abstract class ResultReturnThing
 
     protected abstract Object result(ResultBearing q, HandleDing baton);
 
-    protected abstract ResolvedType mapTo(ResolvedMethod method);
+    protected abstract Class<?> mapTo(ResolvedMethod method);
 
 
     static class SingleValueResultReturnThing extends ResultReturnThing
     {
-        private final ResolvedType returnType;
+        private final Class<?> returnType;
+        private final Class<?> containerType;
 
         public SingleValueResultReturnThing(ResolvedMethod method)
         {
-            this.returnType = method.getReturnType();
+            if (method.getRawMember().isAnnotationPresent(SingleValueResult.class)) {
+                SingleValueResult svr = method.getRawMember().getAnnotation(SingleValueResult.class);
+                this.returnType = svr.value();
+                this.containerType = method.getReturnType().getErasedType();
+            }
+            else {
+                this.returnType = method.getReturnType().getErasedType();
+                this.containerType = null;
+            }
+
         }
 
         @Override
         protected Object result(ResultBearing q, HandleDing baton)
         {
-            return q.first();
+            return null == containerType ? q.first() : q.first(containerType);
         }
 
         @Override
-        protected ResolvedType mapTo(ResolvedMethod method)
+        protected Class<?> mapTo(ResolvedMethod method)
         {
             return returnType;
         }
@@ -96,9 +107,9 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected ResolvedType mapTo(ResolvedMethod method)
+        protected Class<?> mapTo(ResolvedMethod method)
         {
-            return resolvedType;
+            return resolvedType.getErasedType();
         }
     }
 
@@ -154,34 +165,36 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected ResolvedType mapTo(ResolvedMethod method)
+        protected Class<?> mapTo(ResolvedMethod method)
         {
-            return resolvedType;
+            return resolvedType.getErasedType();
         }
     }
 
-    static class ListResultReturnThing extends ResultReturnThing
+    static class IterableReturningThing extends ResultReturnThing
     {
         private final ResolvedType resolvedType;
+        private final Class<?> erased_type;
 
-        public ListResultReturnThing(ResolvedMethod method)
+        public IterableReturningThing(ResolvedMethod method)
         {
             // extract T from List<T>
             ResolvedType query_type = method.getReturnType();
-            List<ResolvedType> query_return_types = query_type.typeParametersFor(List.class);
+            List<ResolvedType> query_return_types = query_type.typeParametersFor(Iterable.class);
             this.resolvedType = query_return_types.get(0);
+            erased_type = method.getReturnType().getErasedType();
         }
 
         @Override
         protected Object result(ResultBearing q, HandleDing baton)
         {
-            return q.list();
+            return q.list(erased_type);
         }
 
         @Override
-        protected ResolvedType mapTo(ResolvedMethod method)
+        protected Class<?> mapTo(ResolvedMethod method)
         {
-            return resolvedType;
+            return resolvedType.getErasedType();
         }
     }
 }

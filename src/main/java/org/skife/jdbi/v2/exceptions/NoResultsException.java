@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-package org.skife.jdbi.v2;
+package org.skife.jdbi.v2.exceptions;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import org.skife.jdbi.v2.StatementContext;
 
-interface QueryPreperator
+public class NoResultsException extends StatementException
 {
-    final QueryPreperator NO_OP = new QueryPreperator()
-    {
-        public final void prepare(final PreparedStatement stmt)
-        {
-            // no op
-        }
-    };
+    public NoResultsException(String msg, Throwable e, StatementContext ctx) {
+        super(msg, e, ctx);
+    }
 
-    final QueryPreperator MAX_ROWS_ONE = new QueryPreperator()
-    {
-        public final void prepare(final PreparedStatement stmt) throws SQLException
-        {
-            stmt.setMaxRows(1);
-        }
-    };
+    public NoResultsException(Throwable e, StatementContext ctx) {
+        super(e, ctx);
+    }
 
-    void prepare(PreparedStatement stmt) throws SQLException;
+    public NoResultsException(String msg, StatementContext ctx) {
+        super(msg, ctx);
+    }
 }

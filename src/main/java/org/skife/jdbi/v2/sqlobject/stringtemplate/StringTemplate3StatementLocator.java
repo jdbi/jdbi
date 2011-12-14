@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 public class StringTemplate3StatementLocator implements StatementLocator
 {
@@ -23,6 +24,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath)
     {
         InputStream ins = getClass().getResourceAsStream(templateGroupFilePathOnClasspath);
+        if (ins == null) {
+            throw new IllegalStateException("unable to find group file "
+                                            + templateGroupFilePathOnClasspath
+                                            + " on classpath");
+        }
         InputStreamReader reader = new InputStreamReader(ins);
         try {
             this.group = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
@@ -49,11 +55,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
     }
 
-    private final static String sep = System.getProperty("file.separator");
+    private final static String sep = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
 
     private static String mungify(String path)
     {
-        return path.replaceAll("\\.", sep);
+        return path.replaceAll("\\.", Matcher.quoteReplacement(sep));
     }
 
 }

@@ -51,4 +51,16 @@ public class BaseStatementCustomizer implements StatementCustomizer
     public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
     }
+
+
+    /**
+     * Invoked at cleanup time to clean resources used by this statement.
+     *
+     * @param stmt Prepared statement being customized
+     * @param ctx Statement context associated with the statement being customized
+     * @throws SQLException go ahead and percolate it for jDBI to handle
+     */
+    public void cleanup(final StatementContext ctx) throws SQLException
+    {
+    }
 }

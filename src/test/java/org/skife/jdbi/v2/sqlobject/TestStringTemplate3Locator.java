@@ -80,8 +80,18 @@ public class TestStringTemplate3Locator
         assertThat(name, equalTo("Bouncer"));
     }
 
+
+    @Test
+    public void testBatching() throws Exception
+    {
+        Wombat roo = handle.attach(Wombat.class);
+        roo.insertBunches(new Something(1, "Jeff"), new Something(2, "Brian"));
+
+        assertThat(roo.findById(1L), equalTo(new Something(1, "Jeff")));
+        assertThat(roo.findById(2L), equalTo(new Something(2, "Brian")));
+    }
+
     @ExternalizedSqlViaStringTemplate3
-//    @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
     @RegisterMapper(SomethingMapper.class)
     static interface Wombat
     {
@@ -100,26 +110,7 @@ public class TestStringTemplate3Locator
                          @Define("value_column") String valueColumn,
                          @Bind("id") int id,
                          @Bind("value") String name);
-    }
-
-    @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
-    @RegisterMapper(SomethingMapper.class)
-    static interface Kangaroo
-    {
-        @SqlUpdate
-        public void insert(@BindBean Something s);
-
-        @SqlQuery
-        public Something findById(@Bind("id") Long id);
-
-        @SqlQuery("select name from something where id = :it")
-        String findNameFor(@Bind int id);
-
-        @SqlUpdate
-        void weirdInsert(@Define("table") String table,
-                         @Define("id_column") String idColumn,
-                         @Define("value_column") String valueColumn,
-                         @Bind("id") int id,
-                         @Bind("value") String name);
+        @SqlBatch
+        void insertBunches(@BindBean Something... somethings);
     }
 }

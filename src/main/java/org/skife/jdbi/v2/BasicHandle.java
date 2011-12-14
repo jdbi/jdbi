@@ -20,6 +20,8 @@ import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
+import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -37,15 +39,22 @@ import java.util.Map;
 
 class BasicHandle implements Handle
 {
-    private final TransactionHandler  transactions;
-    private final Connection          connection;
-    private       StatementRewriter   statementRewriter;
-    private       StatementLocator    statementLocator;
-    private       SQLLog              log;
-    private       TimingCollector     timingCollector;
-    private final MappingRegistry     mappingRegistry;
-    private       StatementBuilder    statementBuilder;
-    private final Map<String, Object> globalStatementAttributes;
+
+    private StatementRewriter statementRewriter;
+    private StatementLocator  statementLocator;
+    private SQLLog            log;
+    private TimingCollector   timingCollector;
+    private StatementBuilder  statementBuilder;
+
+    private boolean closed = false;
+
+    private final Map<String, Object>      globalStatementAttributes;
+    private final MappingRegistry          mappingRegistry;
+    private final ContainerFactoryRegistry containerFactoryRegistry;
+    private final Foreman                  foreman;
+    private final TransactionHandler       transactions;
+    private final Connection               connection;
+
 
     BasicHandle(TransactionHandler transactions,
                 StatementLocator statementLocator,
@@ -55,7 +64,9 @@ class BasicHandle implements Handle
                 Map<String, Object> globalStatementAttributes,
                 SQLLog log,
                 TimingCollector timingCollector,
-                MappingRegistry mappingRegistry)
+                MappingRegistry mappingRegistry,
+                Foreman foreman,
+                ContainerFactoryRegistry containerFactoryRegistry)
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
@@ -65,8 +76,10 @@ class BasicHandle implements Handle
         this.log = log;
         this.timingCollector = timingCollector;
         this.mappingRegistry = mappingRegistry;
+        this.foreman = foreman;
         this.globalStatementAttributes = new HashMap<String, Object>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
+        this.containerFactoryRegistry = containerFactoryRegistry.createChild();
     }
 
     public Query<Map<String, Object>> createQuery(String sql)
@@ -75,14 +88,16 @@ class BasicHandle implements Handle
                                               new DefaultMapper(),
                                               statementLocator,
                                               statementRewriter,
-                                              connection,
+                                              this,
                                               statementBuilder,
                                               sql,
                                               new ConcreteStatementContext(globalStatementAttributes),
                                               log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
-                                              new MappingRegistry(mappingRegistry));
+                                              new MappingRegistry(mappingRegistry),
+                                              foreman.createChild(),
+                                              containerFactoryRegistry.createChild());
     }
 
     /**
@@ -97,14 +112,24 @@ class BasicHandle implements Handle
 
     public void close()
     {
-        statementBuilder.close(getConnection());
-        try {
-            connection.close();
-            log.logReleaseHandle(this);
+        if (!closed) {
+            statementBuilder.close(getConnection());
+            try {
+                connection.close();
+            }
+            catch (SQLException e) {
+                throw new UnableToCloseResourceException("Unable to close Connection", e);
+            }
+            finally {
+                log.logReleaseHandle(this);
+                closed = true;
+            }
         }
-        catch (SQLException e) {
-            throw new UnableToCloseResourceException("Unable to close Connection", e);
-        }
+    }
+
+    boolean isClosed()
+    {
+        return closed;
     }
 
     public void define(String key, Object value)
@@ -211,19 +236,21 @@ class BasicHandle implements Handle
 
     public Update createStatement(String sql)
     {
-        return new Update(connection,
+        return new Update(this,
                           statementLocator,
                           statementRewriter,
                           statementBuilder,
                           sql,
                           new ConcreteStatementContext(globalStatementAttributes),
                           log,
-                          timingCollector);
+                          timingCollector,
+                          foreman,
+                          containerFactoryRegistry);
     }
 
     public Call createCall(String sql)
     {
-        return new Call(connection,
+        return new Call(this,
                         statementLocator,
                         statementRewriter,
                         statementBuilder,
@@ -231,7 +258,9 @@ class BasicHandle implements Handle
                         new ConcreteStatementContext(globalStatementAttributes),
                         log,
                         timingCollector,
-                        Collections.<StatementCustomizer>emptyList());
+                        Collections.<StatementCustomizer>emptyList(),
+                        foreman,
+                        containerFactoryRegistry);
     }
 
     public int insert(String sql, Object... args)
@@ -253,12 +282,15 @@ class BasicHandle implements Handle
     {
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
-                                 connection,
+                                 this,
                                  statementBuilder,
                                  sql,
-                                 globalStatementAttributes,
+                                 new ConcreteStatementContext(this.globalStatementAttributes),
                                  log,
-                                 timingCollector);
+                                 timingCollector,
+                                 Collections.<StatementCustomizer>emptyList(),
+                                 foreman,
+                                 containerFactoryRegistry);
     }
 
     public Batch createBatch()
@@ -267,7 +299,8 @@ class BasicHandle implements Handle
                          this.connection,
                          globalStatementAttributes,
                          log,
-                         timingCollector);
+                         timingCollector,
+                         foreman.createChild());
     }
 
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
@@ -387,7 +420,17 @@ class BasicHandle implements Handle
             return TransactionIsolationLevel.valueOf(connection.getTransactionIsolation());
         }
         catch (SQLException e) {
-                throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
+            throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
         }
+    }
+
+    public void registerArgumentFactory(ArgumentFactory argumentFactory)
+    {
+        this.foreman.register(argumentFactory);
+    }
+
+    public void registerContainerFactory(ContainerFactory<?> factory)
+    {
+        this.containerFactoryRegistry.register(factory);
     }
 }

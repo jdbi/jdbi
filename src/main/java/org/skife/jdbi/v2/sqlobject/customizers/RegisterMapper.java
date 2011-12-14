@@ -2,9 +2,9 @@ package org.skife.jdbi.v2.sqlobject.customizers;
 
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
-import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.annotation.Annotation;
@@ -25,16 +25,20 @@ public @interface RegisterMapper
     /**
      * The result set mapper class to register
      */
-    Class<? extends ResultSetMapper<?>> value();
+    Class<? extends ResultSetMapper<?>>[] value();
 
     static class Factory implements SqlStatementCustomizerFactory
     {
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
-            final ResultSetMapper m;
+            final ResultSetMapper[] m = new ResultSetMapper[ma.value().length];
             try {
-                m = ma.value().newInstance();
+                Class<? extends ResultSetMapper<?>>[] mcs = ma.value();
+                for (int i = 0; i < mcs.length; i++) {
+                    m[i] = mcs[i].newInstance();
+                }
+
             }
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
@@ -45,7 +49,10 @@ public @interface RegisterMapper
                 {
                     if (statement instanceof Query) {
                         Query q = (Query) statement;
-                        q.registerMapper(m);
+                        for (ResultSetMapper mapper : m) {
+                            q.registerMapper(mapper);
+                        }
+
                     }
                 }
             };
@@ -54,9 +61,12 @@ public @interface RegisterMapper
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
-            final ResultSetMapper m;
+            final ResultSetMapper[] m = new ResultSetMapper[ma.value().length];
             try {
-                m = ma.value().newInstance();
+                Class<? extends ResultSetMapper<?>>[] mcs = ma.value();
+                for (int i = 0; i < mcs.length; i++) {
+                    m[i] = mcs[i].newInstance();
+                }
             }
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
@@ -67,7 +77,9 @@ public @interface RegisterMapper
                 {
                     if (statement instanceof Query) {
                         Query q = (Query) statement;
-                        q.registerMapper(m);
+                        for (ResultSetMapper mapper : m) {
+                            q.registerMapper(mapper);
+                        }
                     }
                 }
             };

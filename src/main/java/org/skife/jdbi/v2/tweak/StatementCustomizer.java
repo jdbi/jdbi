@@ -22,7 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Used t beforeExecution a prepared statement.
+ * Allows tweaking of statement behaviour.
  */
 public interface StatementCustomizer
 {
@@ -34,7 +34,7 @@ public interface StatementCustomizer
      * @param ctx Statement context associated with the statement being customized
      * @throws SQLException go ahead and percolate it for jDBI to handle
      */
-    public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException;
+    void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException;
 
     /**
      * This will be invoked after execution of the prepared statement, but before any results
@@ -44,5 +44,13 @@ public interface StatementCustomizer
      * @param ctx Statement context associated with the statement being customized
      * @throws SQLException go ahead and percolate it for jDBI to handle
      */
-    public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException;
+    void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException;
+
+    /**
+     * Invoked at cleanup time to clean resources used by this statement.
+     *
+     * @param ctx Statement context associated with the statement being customized
+     * @throws SQLException go ahead and percolate it for jDBI to handle
+     */
+    void cleanup(StatementContext ctx) throws SQLException;
 }

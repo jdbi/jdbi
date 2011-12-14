@@ -22,8 +22,9 @@ import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
 import java.sql.Connection;
 
 /**
- * The default StatementBuilderFactory. Provides StatementBuilder instances
+ * Provides StatementBuilder instances
  * which cache all prepared statements for a given handle instance.
+ * @deprecated let the data source handle prepared statement caching
  */
 public class CachingStatementBuilderFactory implements StatementBuilderFactory
 {
