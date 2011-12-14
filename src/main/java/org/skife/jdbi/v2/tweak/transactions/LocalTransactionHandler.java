@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LocalTransactionHandler implements TransactionHandler
 {
-    private ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<Handle, LocalStuff>();
+    private final ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<Handle, LocalStuff>();
 
     /**
      * Called when a transaction is started
@@ -42,9 +42,11 @@ public class LocalTransactionHandler implements TransactionHandler
     public void begin(Handle handle)
     {
         try {
-            boolean initial = handle.getConnection().getAutoCommit();
-            localStuff.put(handle, new LocalStuff(initial));
-            handle.getConnection().setAutoCommit(false);
+            if (!localStuff.containsKey(handle)) {
+                boolean initial = handle.getConnection().getAutoCommit();
+                localStuff.put(handle, new LocalStuff(initial));
+                handle.getConnection().setAutoCommit(false);
+            }
         }
         catch (SQLException e) {
             throw new TransactionException("Failed to start transaction", e);
