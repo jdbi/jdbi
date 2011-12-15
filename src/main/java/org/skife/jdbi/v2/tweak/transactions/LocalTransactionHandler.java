@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions
- * demarcated explicitely on the handle and passed through to be handled
+ * demarcated explicitly on the handle and passed through to be handled
  * directly on the JDBC Connection instance.
  */
 public class LocalTransactionHandler implements TransactionHandler
@@ -43,7 +43,7 @@ public class LocalTransactionHandler implements TransactionHandler
     {
         try {
             if (!localStuff.containsKey(handle)) {
-                boolean initial = handle.getConnection().getAutoCommit();
+           te     boolean initial = handle.getConnection().getAutoCommit();
                 localStuff.put(handle, new LocalStuff(initial));
                 handle.getConnection().setAutoCommit(false);
             }
