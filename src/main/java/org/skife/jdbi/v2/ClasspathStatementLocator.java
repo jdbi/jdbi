@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.regex.Matcher;
 
 /**
  * looks for [name], then [name].sql on the classpath
@@ -72,6 +73,12 @@ public class ClasspathStatementLocator implements StatementLocator
             if (in_stream == null) {
                 in_stream = loader.getResourceAsStream(name + ".sql");
             }
+
+            if ((in_stream == null) && (ctx.getSqlObjectType() != null)) {
+                String filename = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
+                in_stream = getClass().getResourceAsStream(filename);
+            }
+
             if (in_stream == null) {
                 return name;
             }
@@ -122,5 +129,11 @@ public class ClasspathStatementLocator implements StatementLocator
 
     private static boolean isComment(final String line) {
         return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
+    }
+
+    private final static String sep = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
+
+    private static String mungify(String path) {
+        return path.replaceAll("\\.", Matcher.quoteReplacement(sep));
     }
 }
