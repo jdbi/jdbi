@@ -48,6 +48,17 @@ public class TestTransactions extends DBITestCase
         h.rollback();
     }
 
+    public void testDoubleOpen() throws Exception
+    {
+        Handle h = openHandle();
+        assertTrue(h.getConnection().getAutoCommit());
+
+        h.begin();
+        h.begin();
+        assertFalse(h.getConnection().getAutoCommit());
+        h.commit();
+        assertTrue(h.getConnection().getAutoCommit());
+    }
 
     public void testExceptionAbortsTransaction() throws Exception
     {
