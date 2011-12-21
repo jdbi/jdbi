@@ -16,11 +16,6 @@ import java.sql.Statement;
  */
 class Cleanables
 {
-    interface Cleanable
-    {
-        void cleanup() throws SQLException;
-    }
-
     static Cleanable forResultSet(final ResultSet rs) {
         return new Cleanable() {
             public void cleanup() throws SQLException {
@@ -52,7 +47,7 @@ class Cleanables
                         else {
                             handle.rollback();
                         }
-                    }   
+                    }
 
                     handle.close();
                 }

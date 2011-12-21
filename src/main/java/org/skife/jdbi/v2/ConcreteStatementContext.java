@@ -3,12 +3,16 @@ package org.skife.jdbi.v2;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class ConcreteStatementContext implements StatementContext
 {
-    private final Map<String, Object> attributes = new HashMap<String, Object>();
+    private final List<Cleanable> cleanables = new ArrayList<Cleanable>();
+    private final Map<String, Object>        attributes = new HashMap<String, Object>();
+
     private String            rawSql;
     private String            rewrittenSql;
     private String            locatedSql;
@@ -179,5 +183,15 @@ public final class ConcreteStatementContext implements StatementContext
     public boolean isReturningGeneratedKeys()
     {
         return returningGeneratedKeys;
+    }
+
+    public void addCleanable(Cleanable cleanable)
+    {
+        this.cleanables.add(cleanable);
+    }
+
+    public List<Cleanable> getCleanables()
+    {
+        return cleanables;
     }
 }

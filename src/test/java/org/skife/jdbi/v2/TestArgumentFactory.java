@@ -51,13 +51,13 @@ public class TestArgumentFactory
     {
         h.registerArgumentFactory(new ArgumentFactory<Collection<String>>()
         {
-            public boolean accepts(Class<? super Collection<String>> expectedType, Object value, StatementContext ctx)
+            public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
             {
 
                 return value instanceof Collection;
             }
 
-            public Argument build(Class<? super Collection<String>> expectedType, Collection<String> value, StatementContext ctx)
+            public Argument build(Class<?> expectedType, Collection<String> value, StatementContext ctx)
             {
                 try {
                     final Array ary = ctx.getConnection().createArrayOf("varchar", value.toArray());
@@ -146,12 +146,12 @@ public class TestArgumentFactory
 
     public static class NameAF implements ArgumentFactory<Name>
     {
-        public boolean accepts(Class<? super Name> expectedType, Object value, StatementContext ctx)
+        public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
             return expectedType == Object.class && value instanceof Name;
         }
 
-        public Argument build(Class<? super Name> expectedType, Name value, StatementContext ctx)
+        public Argument build(Class<?> expectedType, Name value, StatementContext ctx)
         {
             return new StringArgument(value.getFullName());
         }

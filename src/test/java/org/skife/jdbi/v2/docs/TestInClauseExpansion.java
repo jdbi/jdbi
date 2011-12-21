@@ -9,6 +9,7 @@ import org.skife.jdbi.v2.logging.PrintStreamLog;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
 import org.skife.jdbi.v2.tweak.SQLLog;
+import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.List;
 

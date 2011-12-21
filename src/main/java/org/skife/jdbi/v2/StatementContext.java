@@ -109,4 +109,6 @@ public interface StatementContext
      */
     public boolean isReturningGeneratedKeys();
 
+    public void addCleanable(Cleanable cleanable);
+
 }

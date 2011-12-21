@@ -66,12 +66,12 @@ public class TestRegisterArgumentFactory
 
     public static class NameAF implements ArgumentFactory<Name>
     {
-        public boolean accepts(Class<? super Name> expectedType, Object value, StatementContext ctx)
+        public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
             return expectedType == Object.class && value instanceof Name;
         }
 
-        public Argument build(Class<? super Name> expectedType, final Name value, StatementContext ctx)
+        public Argument build(Class<?> expectedType, final Name value, StatementContext ctx)
         {
             return new Argument()
             {

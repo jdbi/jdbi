@@ -1,6 +1,5 @@
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.Cleanables.Cleanable;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.BaseStatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
@@ -14,7 +13,6 @@ import java.util.List;
 
 abstract class BaseStatement
 {
-    private final List<Cleanable>                 cleanables  = new ArrayList<Cleanable>();
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
     private final ConcreteStatementContext context;
     private final Foreman                  foreman;
@@ -96,7 +94,7 @@ abstract class BaseStatement
 
     protected void addCleanable(final Cleanable cleanable)
     {
-        cleanables.add(cleanable);
+        this.context.getCleanables().add(cleanable);
     }
 
     class StatementCleaningCustomizer extends BaseStatementCustomizer
@@ -107,8 +105,8 @@ abstract class BaseStatement
         {
             final List<SQLException> exceptions = new ArrayList<SQLException>();
             try {
-                Collections.reverse(cleanables);
-                for (Cleanable cleanable : cleanables) {
+                Collections.reverse(context.getCleanables());
+                for (Cleanable cleanable : context.getCleanables()) {
                     try {
                         cleanable.cleanup();
                     }
@@ -116,7 +114,7 @@ abstract class BaseStatement
                         exceptions.add(sqlException);
                     }
                 }
-                cleanables.clear();
+                context.getCleanables().clear();
             }
             finally {
                 if (exceptions.size() > 1) {
