@@ -74,6 +74,14 @@ public class ClasspathStatementLocator implements StatementLocator
                 in_stream = loader.getResourceAsStream(name + ".sql");
             }
 
+      			if (in_stream == null) {
+      				in_stream = this.getClass().getResourceAsStream(name);
+      			}
+
+      			if (in_stream == null) {
+      				in_stream = this.getClass().getResourceAsStream(name + ".sql");
+      			}
+            
             if ((in_stream == null) && (ctx.getSqlObjectType() != null)) {
                 String filename = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
                 in_stream = getClass().getResourceAsStream(filename);
