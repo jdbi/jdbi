@@ -68,6 +68,7 @@
                     <source>1.5</source>
                     <target>1.5</target>
                     <encoding>UTF-8</encoding>
+                    <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
 
