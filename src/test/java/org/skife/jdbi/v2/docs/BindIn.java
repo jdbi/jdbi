@@ -23,7 +23,6 @@ import java.util.List;
 @BindingAnnotation(BindIn.BindingFactory.class)
 public @interface BindIn
 {
-
     String value();
 
     public static final class CustomizerFactory implements SqlStatementCustomizerFactory
@@ -31,12 +30,12 @@ public @interface BindIn
 
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
-            throw new UnsupportedOperationException("Not Yet Implemented!");
+            throw new UnsupportedOperationException("Not supported on method!");
         }
 
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
-            throw new UnsupportedOperationException("Not Yet Implemented!");
+            throw new UnsupportedOperationException("Not supported on type");
         }
 
         public SqlStatementCustomizer createForParameter(Annotation annotation,
@@ -68,7 +67,6 @@ public @interface BindIn
                     q.define(key, ns);
                 }
             };
-
         }
     }
 

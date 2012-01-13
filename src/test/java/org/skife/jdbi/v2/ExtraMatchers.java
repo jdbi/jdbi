@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2;
 
 import org.hamcrest.BaseMatcher;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
@@ -27,6 +28,11 @@ import java.util.Set;
 
 public class ExtraMatchers
 {
+
+    public static <T, S extends T> Matcher<T> isEqualTo(S it) {
+        return (Matcher<T>) CoreMatchers.equalTo(it);
+    }
+
     public static <T> Matcher<T> equalsOneOf(T... options)
     {
         final List opts = Arrays.asList(options);
