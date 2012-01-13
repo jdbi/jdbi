@@ -22,9 +22,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ExtraMatchers
 {

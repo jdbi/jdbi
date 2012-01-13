@@ -15,12 +15,12 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.HandyMapThing;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.NoResultsException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.exceptions.StatementException;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.HandyMapThing;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import java.sql.ResultSet;

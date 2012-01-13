@@ -16,16 +16,11 @@
 
 package org.skife.jdbi.v2.unstable.grammar;
 
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.EOF;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.ESCAPED_TEXT;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
-
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Lexer;
 import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
+
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.*;
 
 
 /**

@@ -15,14 +15,14 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.logging.NoOpLog;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v2.logging.NoOpLog;
 
 /**
  *

@@ -18,7 +18,6 @@ package org.skife.jdbi.v2.sqlobject;
 
 import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
-import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;

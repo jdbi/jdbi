@@ -16,15 +16,15 @@
 
 package org.skife.jdbi.v2.spring;
 
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.spi.LoggingEvent;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.IDBI;
 import org.skife.jdbi.v2.util.IntegerMapper;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.LoggingEvent;
 
 import javax.sql.DataSource;
 

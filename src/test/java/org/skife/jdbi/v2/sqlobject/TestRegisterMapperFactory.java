@@ -29,8 +29,6 @@ import org.skife.jdbi.v2.sqlobject.TestRegisterMapperFactory.Foo.FooMapper;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;

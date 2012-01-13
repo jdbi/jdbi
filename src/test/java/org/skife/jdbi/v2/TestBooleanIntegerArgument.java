@@ -1,10 +1,10 @@
 package org.skife.jdbi.v2;
 
-import java.sql.PreparedStatement;
-
 import org.easymock.classextension.EasyMock;
 import org.junit.Test;
 import org.skife.jdbi.v2.tweak.Argument;
+
+import java.sql.PreparedStatement;
 
 public class TestBooleanIntegerArgument {
 

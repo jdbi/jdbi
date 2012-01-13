@@ -15,10 +15,10 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
 import junit.framework.Assert;
-import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import junit.framework.TestCase;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
 
 import java.util.HashMap;
 

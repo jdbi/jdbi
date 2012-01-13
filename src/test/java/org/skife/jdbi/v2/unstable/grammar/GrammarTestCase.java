@@ -17,7 +17,6 @@
 package org.skife.jdbi.v2.unstable.grammar;
 
 import junit.framework.TestCase;
-
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Token;
 

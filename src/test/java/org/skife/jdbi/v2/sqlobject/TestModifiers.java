@@ -6,8 +6,6 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
-import static org.skife.jdbi.v2.TransactionIsolationLevel.*;
-
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.sqlobject.customizers.FetchSize;
 import org.skife.jdbi.v2.sqlobject.customizers.MaxRows;
@@ -21,6 +19,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.skife.jdbi.v2.TransactionIsolationLevel.READ_UNCOMMITTED;
 
 public class TestModifiers extends TestCase
 {

@@ -1,9 +1,10 @@
 package org.skife.jdbi.v2;
 
-import java.sql.Connection;
-import java.sql.Statement;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.util.LongMapper;
+
+import java.sql.Connection;
+import java.sql.Statement;
 
 public class TestUpdateGeneratedKeys extends DBITestCase
 {

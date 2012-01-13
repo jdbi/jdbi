@@ -16,8 +16,8 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.StatementException;
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 
 /**
  *
