@@ -1,4 +1,4 @@
-package org.skife.jdbi.v2.docs;
+package org.skife.jdbi.v2.unstable;
 
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.sqlobject.Binder;

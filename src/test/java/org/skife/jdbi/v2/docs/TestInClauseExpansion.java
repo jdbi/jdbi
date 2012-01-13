@@ -12,9 +12,7 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterArgumentFactory;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
-import org.skife.jdbi.v2.tweak.ContainerFactory;
-import org.skife.jdbi.v2.tweak.SQLLog;
-import org.skife.jdbi.v2.util.StringMapper;
+import org.skife.jdbi.v2.unstable.BindIn;
 
 import java.util.List;
 
