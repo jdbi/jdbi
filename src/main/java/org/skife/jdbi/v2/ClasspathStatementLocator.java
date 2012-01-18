@@ -19,6 +19,9 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
+import static org.apache.commons.lang3.StringUtils.left;
+import static org.apache.commons.lang3.StringUtils.stripStart;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +37,7 @@ public class ClasspathStatementLocator implements StatementLocator
      * Very basic sanity test to see if a string looks like it might be sql
      */
     public static boolean looksLikeSql(String sql) {
-        final String local = sql.substring(0, 7).toLowerCase();
+        final String local = left(stripStart(sql, null), 7).toLowerCase();
         return local.startsWith("insert ")
                || local.startsWith("update ")
                || local.startsWith("select ")
