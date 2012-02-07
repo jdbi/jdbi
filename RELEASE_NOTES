@@ -1,3 +1,6 @@
+2.31
+  - Add access to ResultSet on FoldController
+
 2.12
   - Registered Mappers on DBi and Handle, and the Query#mapTo addition
   - Sql Object API
