@@ -92,6 +92,21 @@ public class TestOnDemandSqlObject extends TestCase
 
     }
 
+    public void testSqlFromExternalFileWorks() throws Exception
+    {
+        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        ExternalSql external = SqlObjectBuilder.onDemand(dbi, ExternalSql.class);
+
+        spiffy.insert(1, "Tom");
+        spiffy.insert(2, "Sam");
+
+        Iterator<Something> all = external.findAll();
+
+        all.next();
+        all.next();
+        assertFalse(all.hasNext());
+    }
+
     public static interface Spiffy extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
@@ -113,5 +128,12 @@ public class TestOnDemandSqlObject extends TestCase
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         public void insert(@Bind("id") long id, @Bind("name") String name);
+    }
+
+    public static interface ExternalSql extends GetHandle
+    {
+        @SqlQuery("all-something")
+        @Mapper(SomethingMapper.class)
+        Iterator<Something> findAll();
     }
 }

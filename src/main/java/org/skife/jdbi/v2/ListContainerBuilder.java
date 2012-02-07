@@ -9,13 +9,13 @@ class ListContainerBuilder implements ContainerBuilder<List<?>>
 
     ListContainerBuilder()
     {
-        this.list = new ArrayList();
+        this.list = new ArrayList<Object>();
     }
 
     @Override
     public ListContainerBuilder add(Object it)
     {
-        list.add(it );
+        list.add(it);
         return this;
     }
 
