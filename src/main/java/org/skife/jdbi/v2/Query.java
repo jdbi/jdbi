@@ -177,7 +177,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                 @Override
                 protected AccumulatorType munge(ResultSet rs) throws SQLException
                 {
-                    FoldController ctl = new FoldController();
+                    final FoldController ctl = new FoldController(rs);
                     while (!ctl.isAborted() && rs.next()) {
                         ResultType row_value = mapper.map(idx++, rs, getContext());
                         this.ac = folder.fold(ac, row_value, ctl, getContext());
