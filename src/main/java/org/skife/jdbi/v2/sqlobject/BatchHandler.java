@@ -150,7 +150,7 @@ class BatchHandler extends CustomizingStatementHandler
 
     private int[] executeBatch(final Handle handle, final PreparedBatch batch)
     {
-        if (transactional) {
+        if ((!handle.isInTransaction()) && transactional) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
             return handle.inTransaction(new TransactionCallback<int[]>()
