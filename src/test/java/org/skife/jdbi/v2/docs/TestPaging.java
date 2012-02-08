@@ -42,7 +42,7 @@ public class TestPaging
     }
 
     @Test
-    public void testBatchInsertWorksRight() throws Exception
+    public void pagingExample() throws Exception
     {
         Sql sql = handle.attach(Sql.class);
 
