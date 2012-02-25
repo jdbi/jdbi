@@ -2,6 +2,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.util.BigDecimalMapper;
+import org.skife.jdbi.v2.util.BooleanMapper;
 import org.skife.jdbi.v2.util.ByteArrayMapper;
 import org.skife.jdbi.v2.util.ByteMapper;
 import org.skife.jdbi.v2.util.DoubleMapper;
@@ -29,6 +30,9 @@ public class PrimitivesMapperFactory implements ResultSetMapperFactory
     static {
 
         mappers.put(BigDecimal.class, BigDecimalMapper.FIRST);
+
+        mappers.put(Boolean.class, BooleanMapper.FIRST);
+        mappers.put(boolean.class, BooleanMapper.FIRST);
 
         mappers.put(byte[].class, ByteArrayMapper.FIRST);
 

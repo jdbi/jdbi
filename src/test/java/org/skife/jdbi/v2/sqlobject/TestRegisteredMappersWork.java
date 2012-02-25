@@ -45,6 +45,19 @@ public class TestRegisteredMappersWork
         handle.close();
     }
 
+
+    public static interface BooleanDao {
+        @SqlQuery("select 1+1 = 2")
+        public boolean fetchABoolean();
+    }
+
+    @Test
+    public void testFoo() throws Exception
+    {
+        boolean world_is_right = handle.attach(BooleanDao.class).fetchABoolean();
+        assertThat(world_is_right, equalTo(true));
+    }
+
     @Test
     public void testRegistered() throws Exception
     {

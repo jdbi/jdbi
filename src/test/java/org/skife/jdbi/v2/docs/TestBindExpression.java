@@ -39,7 +39,9 @@ public class TestBindExpression
     private DBI    dbi;
     private Handle handle;
 
-    @Before {
+    @Before
+    public void setUp() throws Exception
+    {
         dbi = new DBI("jdbc:h2:mem:test");
         handle = dbi.open();
         handle.execute("create table something( id integer primary key, name varchar(100) )");
