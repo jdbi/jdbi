@@ -264,6 +264,7 @@
                 <version>2.0-beta-2</version>
             </plugin>
 
+            <!--
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
@@ -274,7 +275,7 @@
                     <failOnError>false</failOnError>
                 </configuration>
             </plugin>
-
+            -->
         </plugins>
     </reporting>
 

@@ -22,7 +22,11 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-abstract class TypedMapper<T> implements ResultSetMapper<T>
+/**
+ * Convenience base class for implementing typed result set mappers. Provides
+ * frequently used functionality.
+ */
+public abstract class TypedMapper<T> implements ResultSetMapper<T>
 {
     private final ResultSetMapper<T> internal;
 
@@ -55,7 +59,7 @@ abstract class TypedMapper<T> implements ResultSetMapper<T>
         internal = new StringMapper(name);
     }
 
-    public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
+    public final T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
         return internal.map(index, r, ctx);
     }
