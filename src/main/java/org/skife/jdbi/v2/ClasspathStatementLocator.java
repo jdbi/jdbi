@@ -114,7 +114,7 @@ public class ClasspathStatementLocator implements StatementLocator
     }
 
     /**
-     * There *must* be a better place to put this without creating a util class just for it
+     * There *must* be a better place to put this without creating a helpers class just for it
      */
     private static ClassLoader selectClassLoader() {
         ClassLoader loader;
