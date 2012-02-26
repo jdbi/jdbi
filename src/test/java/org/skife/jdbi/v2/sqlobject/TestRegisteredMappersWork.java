@@ -58,6 +58,62 @@ public class TestRegisteredMappersWork
         assertThat(world_is_right, equalTo(true));
     }
 
+    public static class Bean
+    {
+        private String name;
+        private String color;
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public void setName(String name)
+        {
+            this.name = name;
+        }
+
+        public String getColor()
+        {
+            return color;
+        }
+
+        public void setColor(String color)
+        {
+            this.color = color;
+        }
+    }
+
+    public static interface BeanMappingDao
+    {
+        @SqlUpdate("create table beans ( name varchar primary key, color varchar )")
+        public void createBeanTable();
+
+        @SqlUpdate("insert into beans (name, color) values (:name, :color)")
+        public void insertBean(@BindBean Bean bean);
+
+        @SqlQuery("select name, color from beans where name = :name")
+        @MapResultAsBean
+        public Bean findByName(@Bind("name") String name);
+    }
+
+    @Test
+    public void testBeanMapperFactory() throws Exception
+    {
+        BeanMappingDao db = handle.attach(BeanMappingDao.class);
+        db.createBeanTable();
+
+        Bean lima = new Bean();
+        lima.setColor("green");
+        lima.setName("lima");
+
+        db.insertBean(lima);
+
+        Bean another_lima = db.findByName("lima");
+        assertThat(another_lima.getName(), equalTo(lima.getName()));
+        assertThat(another_lima.getColor(), equalTo(lima.getColor()));
+    }
+
     @Test
     public void testRegistered() throws Exception
     {
