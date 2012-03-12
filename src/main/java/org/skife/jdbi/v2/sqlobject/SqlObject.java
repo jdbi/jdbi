@@ -59,6 +59,9 @@ class SqlObject implements InvocationHandler
             else if (raw_method.isAnnotationPresent(SqlBatch.class)) {
                 handlers.put(raw_method, new BatchHandler(sqlObjectType, method));
             }
+            else if (raw_method.isAnnotationPresent(SqlCall.class)) {
+                handlers.put(raw_method, new CallHandler(sqlObjectType, method));
+            }
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
                 handlers.put(raw_method, new CloseHandler());
             }
@@ -109,6 +112,16 @@ class SqlObject implements InvocationHandler
         }
         CloseInternal closer = (CloseInternal) sqlObject;
         closer.___jdbi_close___();
+    }
+
+    static String getSql(SqlCall q, Method m)
+    {
+        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
+            return m.getName();
+        }
+        else {
+            return q.value();
+        }
     }
 
     static String getSql(SqlQuery q, Method m)
