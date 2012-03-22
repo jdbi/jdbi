@@ -16,7 +16,7 @@ public class TestVariousOddities extends TestCase
 
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem");
+        dbi = new DBI("jdbc:h2:mem:");
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");

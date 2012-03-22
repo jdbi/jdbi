@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -28,7 +29,7 @@ public class TestArgumentFactory
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem");
+        dbi = new DBI("jdbc:h2:mem:");
         h = dbi.open();
 
         h.execute("create table something (id int primary key, name varchar(100))");

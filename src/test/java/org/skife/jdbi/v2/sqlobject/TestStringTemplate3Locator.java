@@ -1,6 +1,5 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +21,7 @@ public class TestStringTemplate3Locator
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test3");
-        DBI dbi = new DBI(ds);
+        DBI dbi = new DBI("jdbc:h2:mem:");
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
