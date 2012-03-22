@@ -16,9 +16,7 @@ public class TestVariousOddities extends TestCase
 
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
-        dbi = new DBI(ds);
+        dbi = new DBI("jdbc:h2:mem");
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");

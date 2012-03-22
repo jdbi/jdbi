@@ -33,12 +33,14 @@ class BeanPropertyArguments implements NamedArgumentFinder
 {
     private final Object bean;
     private final StatementContext ctx;
+    private final Foreman foreman;
     private BeanInfo info;
 
-    BeanPropertyArguments(Object bean, StatementContext ctx)
+    BeanPropertyArguments(Object bean, StatementContext ctx, Foreman foreman)
     {
         this.bean = bean;
         this.ctx = ctx;
+        this.foreman = foreman;
         try
         {
             this.info = Introspector.getBeanInfo(bean.getClass());
@@ -59,7 +61,9 @@ class BeanPropertyArguments implements NamedArgumentFinder
             {
                 try
                 {
-                    return new ObjectArgument(descriptor.getReadMethod().invoke(bean));
+                    return foreman.waffle(descriptor.getReadMethod().getReturnType(),
+                                   descriptor.getReadMethod().invoke(bean),
+                                   ctx);
                 }
                 catch (IllegalAccessException e)
                 {

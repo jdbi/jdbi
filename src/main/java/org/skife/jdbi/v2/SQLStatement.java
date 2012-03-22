@@ -306,7 +306,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public SelfType bindFromProperties(Object o)
     {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(o, getContext()));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(o, getContext(), getForeman()));
     }
 
     /**

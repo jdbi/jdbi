@@ -28,9 +28,7 @@ public class TestArgumentFactory
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
-        dbi = new DBI(ds);
+        dbi = new DBI("jdbc:h2:mem");
         h = dbi.open();
 
         h.execute("create table something (id int primary key, name varchar(100))");

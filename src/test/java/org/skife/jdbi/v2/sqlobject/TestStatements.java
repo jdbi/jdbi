@@ -32,7 +32,7 @@ public class TestStatements extends TestCase
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
+        ds.setURL("jdbc:h2:mem:test2");
         dbi = new DBI(ds);
         handle = dbi.open();
 
