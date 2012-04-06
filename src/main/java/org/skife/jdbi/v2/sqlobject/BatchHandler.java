@@ -127,6 +127,8 @@ class BatchHandler extends CustomizingStatementHandler
                 processed = 0;
                 rs_parts.add(executeBatch(handle, batch));
                 batch = handle.prepareBatch(sql);
+                populateSqlObjectData((ConcreteStatementContext) batch.getContext());
+                applyCustomizers(batch, args);
             }
         }
 
