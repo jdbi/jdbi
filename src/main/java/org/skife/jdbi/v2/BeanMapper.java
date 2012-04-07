@@ -78,7 +78,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 		ResultSetMetaData metadata = rs.getMetaData();
 
 		for (int i = 1; i <= metadata.getColumnCount(); ++i) {
-			String name = metadata.getColumnName(i).toLowerCase();
+			String name = metadata.getColumnLabel(i).toLowerCase();
 
 			PropertyDescriptor descriptor = properties.get(name);
 
