@@ -64,7 +64,7 @@
 <span class='n'>h</span><span class='o'>.</span><span class='na'>close</span><span class='o'>();</span>
 </code></pre>
 </div>
-<p>The defauly representation of a result row is a Map&#60;String, Object&#62;, as can be seen when the Query is first created. To map the rows to something else we use a <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/tweak/ResultSetMapper.html'>ResultSetMapper</a>. A number of mappers are included, such as the <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/util/StringMapper.html'>StringMapper</a> static instance we use here to extract a String from position 1 (the first thing) in each row.</p>
+<p>The default representation of a result row is a Map&#60;String, Object&#62;, as can be seen when the Query is first created. To map the rows to something else we use a <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/tweak/ResultSetMapper.html'>ResultSetMapper</a>. A number of mappers are included, such as the <a href='http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/util/StringMapper.html'>StringMapper</a> static instance we use here to extract a String from position 1 (the first thing) in each row.</p>
 
 <p>Finally, we execute the query via one of several methods, in this case list(), which eagerly maps all rows and stores them in a List.</p>
 
