@@ -34,7 +34,7 @@ public class ClasspathStatementLocator implements StatementLocator
      * Very basic sanity test to see if a string looks like it might be sql
      */
     public static boolean looksLikeSql(String sql) {
-        final String local = sql.substring(0, 7).toLowerCase();
+        final String local = left(stripStart(sql), 7).toLowerCase();
         return local.startsWith("insert ")
                || local.startsWith("update ")
                || local.startsWith("select ")
@@ -135,5 +135,29 @@ public class ClasspathStatementLocator implements StatementLocator
 
     private static String mungify(String path) {
         return path.replaceAll("\\.", Matcher.quoteReplacement(sep));
+    }
+
+
+    // (scs) Logic copied from commons-lang3 3.1 with minor edits, per discussion on commit 023a14ade2d33bf8ccfa0f68294180455233ad52
+    private static String stripStart(String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return "";
+        }
+        int start = 0;
+        while (start != strLen && Character.isWhitespace(str.charAt(start))) {
+            start++;
+        }
+        return str.substring(start);
+    }
+
+    private static String left(String str, int len) {
+        if (str == null || len < 0) {
+            return "";
+        }
+        if (str.length() <= len) {
+            return str;
+        }
+        return str.substring(0, len);
     }
 }
