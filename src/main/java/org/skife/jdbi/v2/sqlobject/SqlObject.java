@@ -69,7 +69,7 @@ class SqlObject implements InvocationHandler
                 handlers.put(raw_method, mixinHandlers.get(raw_method));
             }
             else {
-                throw new UnsupportedOperationException("Not Yet Implemented!");
+                throw new IllegalArgumentException("Method " + raw_method.getDeclaringClass().getName() + "#" + raw_method.getName() + " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
             }
         }
 
