@@ -28,6 +28,7 @@ import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
+import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -54,13 +55,27 @@ public class TestMixinInterfaces extends TestCase
         handle.close();
     }
 
-
     public void testGetHandle() throws Exception
     {
         WithGetHandle g = SqlObjectBuilder.attach(handle, WithGetHandle.class);
         Handle h = g.getHandle();
 
         assertSame(handle, h);
+    }
+
+    public void testWithHandle() throws Exception
+    {
+        WithGetHandle g = SqlObjectBuilder.attach(handle, WithGetHandle.class);
+        String name = g.withHandle(new HandleCallback<String>() {
+            @Override
+            public String withHandle(Handle handle) throws Exception {
+                handle.execute("insert into something (id, name) values (8, 'Mike')");
+
+                return handle.createQuery("select name from something where id = 8").map(StringMapper.FIRST).first();
+            }
+        });
+
+        assertEquals("Mike", name);
     }
 
     public void testBeginAndCommitTransaction() throws Exception

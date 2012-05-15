@@ -17,6 +17,8 @@
 package org.skife.jdbi.v2.sqlobject.mixins;
 
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.exceptions.CallbackFailedException;
+import org.skife.jdbi.v2.tweak.HandleCallback;
 
 /**
  * A mixin interface to define a method for obtaining the Handle attached to a sql object
@@ -24,8 +26,22 @@ import org.skife.jdbi.v2.Handle;
 public interface GetHandle
 {
     /**
-     * Obtain the handle associated this sql object
+     * Obtain the handle associated to this sql object.
+     *
+     * @return the handle
      */
     public Handle getHandle();
 
+    /**
+     * A convenience function which manages the lifecycle of the handle associated to this sql object,
+     * and yields it to a callback for use by clients.
+     *
+     * @param callback A callback which will receive the handle associated to this sql object
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    public <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException;
 }
