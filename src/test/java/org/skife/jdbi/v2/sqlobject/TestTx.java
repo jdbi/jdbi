@@ -79,7 +79,7 @@ public class TestTx
             return findById(id);
         }
 
-        @Transaction(TransactionIsolationLevel.READ_COMMITTED)
+        @Transaction
         public Something failed(int id, String name) throws IOException
         {
             insert(id, name);
