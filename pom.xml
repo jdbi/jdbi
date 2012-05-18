@@ -127,6 +127,11 @@
                                     <shadedPattern>org.skife.jdbi.org.antlr.runtime</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>net.sf.cglib</pattern>
+                                    <shadedPattern>org.skife.jdbi.net.sf.cglib</shadedPattern>
+                                </relocation>
+
+                                <relocation>
                                     <pattern>com.fasterxml.classmate</pattern>
                                     <shadedPattern>org.skife.jdbi.com.fasterxml.classmate</shadedPattern>
                                 </relocation>
@@ -280,6 +285,12 @@
     </reporting>
 
     <dependencies>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>2.2.2</version>
+        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>

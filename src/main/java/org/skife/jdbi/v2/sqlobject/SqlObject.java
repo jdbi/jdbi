@@ -5,21 +5,25 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 class SqlObject implements InvocationHandler
 {
-    private static final TypeResolver                               typeResolver  = new TypeResolver();
-    private static final Map<Method, Handler>                       mixinHandlers = new HashMap<Method, Handler>();
-    private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache =
-        new ConcurrentHashMap<Class<?>, Map<Method, Handler>>();
+    private static final TypeResolver                                  typeResolver  = new TypeResolver();
+    private static final Map<Method, Handler>                          mixinHandlers = new HashMap<Method, Handler>();
+    private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<Class<?>, Map<Method, Handler>>();
+    private static final ConcurrentMap<Class<?>, Factory>              factories     = new ConcurrentHashMap<Class<?>, Factory>();
 
     static {
         mixinHandlers.putAll(TransactionalHelper.handlers());
@@ -30,9 +34,44 @@ class SqlObject implements InvocationHandler
     @SuppressWarnings("unchecked")
     static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)
     {
-        return (T) Proxy.newProxyInstance(sqlObjectType.getClassLoader(),
-                                          new Class[]{sqlObjectType, CloseInternal.class},
-                                          new SqlObject(buildHandlersFor(sqlObjectType), handle));
+        Factory f;
+        if (factories.containsKey(sqlObjectType)) {
+            f = factories.get(sqlObjectType);
+        }
+        else {
+            Enhancer e = new Enhancer();
+            List<Class> interfaces = new ArrayList<Class>();
+            interfaces.add(CloseInternal.class);
+            if (sqlObjectType.isInterface()) {
+                interfaces.add(sqlObjectType);
+            }
+            else {
+                e.setSuperclass(sqlObjectType);
+            }
+            e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
+            final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
+            e.setCallback(new net.sf.cglib.proxy.InvocationHandler()
+            {
+                @Override
+                public Object invoke(Object o, Method method, Object[] objects) throws Throwable
+                {
+                    return so.invoke(o, method, objects);
+                }
+            });
+            T t = (T) e.create();
+            factories.putIfAbsent(sqlObjectType, (Factory) t);
+            return t;
+        }
+
+        final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
+        return (T) f.newInstance(new net.sf.cglib.proxy.InvocationHandler()
+        {
+            @Override
+            public Object invoke(Object o, Method method, Object[] objects) throws Throwable
+            {
+                return so.invoke(o, method, objects);
+            }
+        });
     }
 
     private static Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType)
@@ -69,7 +108,8 @@ class SqlObject implements InvocationHandler
                 handlers.put(raw_method, mixinHandlers.get(raw_method));
             }
             else {
-                throw new IllegalArgumentException("Method " + raw_method.getDeclaringClass().getName() + "#" + raw_method.getName() + " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
+                throw new IllegalArgumentException("Method " + raw_method.getDeclaringClass()
+                                                                         .getName() + "#" + raw_method.getName() + " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
             }
         }
 
@@ -80,7 +120,6 @@ class SqlObject implements InvocationHandler
         handlers.putAll(ToStringHandler.handler(sqlObjectType.getName()));
         handlers.putAll(HashCodeHandler.handler());
 
-        handlersCache.putIfAbsent(sqlObjectType, handlers);
         return handlers;
     }
 
