@@ -1,5 +1,6 @@
 package org.skife.jdbi.v2.sqlobject;
 
+import net.sf.cglib.proxy.MethodProxy;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionCallback;
@@ -7,7 +8,7 @@ import org.skife.jdbi.v2.TransactionStatus;
 
 class InTransactionHandler implements Handler
 {
-    public Object invoke(HandleDing h, final Object target, Object[] args)
+    public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
     {
         h.retain("transaction");
         try {

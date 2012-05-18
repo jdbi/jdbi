@@ -1,16 +1,13 @@
 package org.skife.jdbi.v2.sqlobject;
 
+import net.sf.cglib.proxy.MethodProxy;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 class HashCodeHandler implements Handler
 {
-    public Object invoke(final HandleDing h, final Object target, final Object[] args)
-    {
-        return System.identityHashCode(target);
-    }
-
     static Map<Method, Handler> handler()
     {
         try
@@ -25,4 +22,9 @@ class HashCodeHandler implements Handler
         }
     }
 
+    @Override
+    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    {
+        return System.identityHashCode(target);
+    }
 }

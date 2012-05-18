@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
+import net.sf.cglib.proxy.MethodProxy;
 import org.skife.jdbi.v2.Call;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Handle;
@@ -31,7 +32,7 @@ class CallHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(HandleDing ding, Object target, Object[] args)
+    public Object invoke(HandleDing ding, Object target, Object[] args, MethodProxy mp)
     {
         Handle h = ding.getHandle();
         Call call = h.createCall(sql);

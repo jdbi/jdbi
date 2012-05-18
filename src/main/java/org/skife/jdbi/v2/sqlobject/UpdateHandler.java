@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
+import net.sf.cglib.proxy.MethodProxy;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.GeneratedKeys;
 import org.skife.jdbi.v2.Update;
@@ -47,7 +48,7 @@ class UpdateHandler extends CustomizingStatementHandler
         }
     }
 
-    public Object invoke(HandleDing h, Object target, Object[] args)
+    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         Update q = h.getHandle().createStatement(sql);
         populateSqlObjectData((ConcreteStatementContext)q.getContext());

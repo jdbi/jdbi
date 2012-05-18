@@ -1,5 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
+import net.sf.cglib.proxy.MethodProxy;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +12,7 @@ interface CloseInternal
 
     static class CloseHandler implements Handler
     {
-        public Object invoke(HandleDing h, Object target, Object[] args)
+        public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
         {
             h.getHandle().close();
             return null;

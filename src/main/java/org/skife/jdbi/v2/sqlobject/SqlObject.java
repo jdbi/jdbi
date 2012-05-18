@@ -7,10 +7,11 @@ import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+import org.springframework.transaction.config.TxNamespaceHandler;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-class SqlObject implements InvocationHandler
+class SqlObject
 {
     private static final TypeResolver                                  typeResolver  = new TypeResolver();
     private static final Map<Method, Handler>                          mixinHandlers = new HashMap<Method, Handler>();
@@ -50,12 +51,12 @@ class SqlObject implements InvocationHandler
             }
             e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
             final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
-            e.setCallback(new net.sf.cglib.proxy.InvocationHandler()
+            e.setCallback(new MethodInterceptor()
             {
                 @Override
-                public Object invoke(Object o, Method method, Object[] objects) throws Throwable
+                public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable
                 {
-                    return so.invoke(o, method, objects);
+                    return so.invoke(o, method, objects, methodProxy);
                 }
             });
             T t = (T) e.create();
@@ -64,12 +65,12 @@ class SqlObject implements InvocationHandler
         }
 
         final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
-        return (T) f.newInstance(new net.sf.cglib.proxy.InvocationHandler()
+        return (T) f.newInstance(new MethodInterceptor()
         {
             @Override
-            public Object invoke(Object o, Method method, Object[] objects) throws Throwable
+            public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable
             {
-                return so.invoke(o, method, objects);
+                return so.invoke(o, method, objects, methodProxy);
             }
         });
     }
@@ -104,6 +105,9 @@ class SqlObject implements InvocationHandler
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
                 handlers.put(raw_method, new CloseHandler());
             }
+            else if (raw_method.isAnnotationPresent(Transaction.class)) {
+                handlers.put(raw_method, new PassThroughTransactionHandler(raw_method, raw_method.getAnnotation(Transaction.class)));
+            }
             else if (mixinHandlers.containsKey(raw_method)) {
                 handlers.put(raw_method, mixinHandlers.get(raw_method));
             }
@@ -133,11 +137,11 @@ class SqlObject implements InvocationHandler
         this.ding = ding;
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+    public Object invoke(Object proxy, Method method, Object[] args, MethodProxy mp) throws Throwable
     {
         try {
             ding.retain("top-level");
-            return handlers.get(method).invoke(ding, proxy, args);
+            return handlers.get(method).invoke(ding, proxy, args, mp);
         }
         finally {
             ding.release("top-level");
