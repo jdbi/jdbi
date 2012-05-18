@@ -21,17 +21,16 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
+import java.util.UUID;
+
 public class TestRegisteredMappers extends TestCase
 {
     private DBI dbi;
     private Handle handle;
 
-
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
-        dbi = new DBI(ds);
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
