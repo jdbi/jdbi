@@ -17,7 +17,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class TestTx
+public class TestClassBasedSqlObject
 {
     private DBI    dbi;
     private Handle handle;
@@ -63,6 +63,23 @@ public class TestTx
         assertThat(dao.findById(1), nullValue());
     }
 
+    @Test
+    public void testPassThroughMethod() throws Exception
+    {
+        Dao dao = handle.attach(Dao.class);
+        dao.insert(3, "Cora");
+
+        Something c = dao.findByIdHeeHee(3);
+        assertThat(c, equalTo(new Something(3, "Cora")));
+    }
+
+    @Test(expected = AbstractMethodError.class)
+    public void testUnimplementedMethod() throws Exception
+    {
+        Dao dao = handle.attach(Dao.class);
+        dao.totallyBroken();
+    }
+
     @RegisterMapper(SomethingMapper.class)
     public static abstract class Dao
     {
@@ -85,6 +102,12 @@ public class TestTx
             insert(id, name);
             throw new IOException("woof");
         }
+
+        public Something findByIdHeeHee(int id) {
+            return findById(id);
+        }
+
+        public abstract void totallyBroken();
 
     }
 }
