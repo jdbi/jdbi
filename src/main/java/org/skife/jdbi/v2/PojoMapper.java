@@ -42,7 +42,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  *   public String lastName;
  *   public String userName;
  *   public String email;
- *   public String password;
+ *   private String password;
  * }
  * </pre>
  *
