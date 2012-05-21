@@ -67,7 +67,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  * <pre>
  * public class UsersDAO {
  *     private DBI dbi = new DBI(...);
- *     private final ResultSetMapper<User> usersMapper = PojoMapper.map(User.class);
+ *     private final PojoMapper<User> usersMapper = PojoMapper.get(User.class);
  *
  *     public User login(String userName, String password) {
  *         Handle h = dbi.open();
@@ -82,13 +82,14 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  * }
  *
  */
-public class PojoMapper {
+public abstract class PojoMapper<T> implements ResultSetMapper<T> {
+    private PojoMapper() {}
 
-    public static <T> ResultSetMapper<T> map(final Class<T> c) {
+    public static <T> PojoMapper<T> get(final Class<T> c) {
         final Map<String, Field> fields = introspect(c);
         final Map<Integer, String> columns = newMap();
 
-        return new ResultSetMapper<T>() {
+        return new PojoMapper<T>() {
             @Override
             public T map(int index, ResultSet r, StatementContext ctx)
                     throws SQLException {
