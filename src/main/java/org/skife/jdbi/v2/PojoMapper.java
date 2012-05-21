@@ -67,7 +67,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  * <pre>
  * public class UsersDAO {
  *     private DBI dbi = new DBI(...);
- *     private final PojoMapper<User> usersMapper = PojoMapper.get(User.class);
+ *     private final PojoMapper<User> usersMapper = new PojoMapper<User>(User.class);
  *
  *     public User login(String userName, String password) {
  *         Handle h = dbi.open();
@@ -82,37 +82,38 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  * }
  *
  */
-public abstract class PojoMapper<T> implements ResultSetMapper<T> {
-    private PojoMapper() {}
+public class PojoMapper<T> implements ResultSetMapper<T> {
+    private final Map<String, Field> fields;
+    private final Map<Integer, String> columns;
+    private final Class<T> c;
 
-    public static <T> PojoMapper<T> get(final Class<T> c) {
-        final Map<String, Field> fields = introspect(c);
-        final Map<Integer, String> columns = newMap();
+    public PojoMapper(Class<T> c) {
+        this.c = c;
+        fields = introspect(c);
+        columns = newMap();
+    }
 
-        return new PojoMapper<T>() {
-            @Override
-            public T map(int index, ResultSet r, StatementContext ctx)
-                    throws SQLException {
-                try {
-                    Constructor<T> constructor = c.getDeclaredConstructor();
-                    constructor.setAccessible(true);
-                    T result = constructor.newInstance();
-                    if (columns.size() == 0)
-                        mapColumns(r.getMetaData(), columns);
+    @Override
+    public T map(int index, ResultSet r, StatementContext ctx)
+            throws SQLException {
+        try {
+            Constructor<T> constructor = c.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            T result = constructor.newInstance();
+            if (columns.size() == 0)
+                mapColumns(r.getMetaData(), columns);
 
-                    for (Map.Entry<Integer, String> col : columns.entrySet()) {
-                        Integer columnIndex = col.getKey();
-                        String matchCode = col.getValue();
-                        Field field = fields.get(matchCode);
-                        if (field != null)
-                            field.set(result, r.getObject(columnIndex));
-                    }
-                    return result;
-                } catch (Exception e) {
-                    throw new IllegalArgumentException(e);
-                }
+            for (Map.Entry<Integer, String> col : columns.entrySet()) {
+                Integer columnIndex = col.getKey();
+                String matchCode = col.getValue();
+                Field field = fields.get(matchCode);
+                if (field != null)
+                    field.set(result, r.getObject(columnIndex));
             }
-        };
+            return result;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private static Map<String, Field> introspect(Class<?> c) {
