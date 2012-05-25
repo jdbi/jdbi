@@ -9,7 +9,6 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import org.springframework.transaction.config.TxNamespaceHandler;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
