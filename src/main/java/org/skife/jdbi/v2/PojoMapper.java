@@ -1,3 +1,19 @@
+/*
+ * Copyright 2004 - 2011 Brian McCallister
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.skife.jdbi.v2;
 
 import java.lang.reflect.Constructor;
@@ -7,6 +23,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -27,8 +44,8 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  * The first time the ResultSet is read, the ResultSetMetadata is used to define
  * the mapping between the table columns and the POJO, and it gets cached into
  * the ResultSetMapper instance, once and forever.
- * So it's recommended not to use the same mapper for queries returning
- * different sets of columns.<br/>
+ * So you must not use the same mapper for queries returning different sets of
+ * columns.<br/>
  * Instead you can use different instances specific for different queries. <br/>
  * This is meant to improve performances, avoiding unneeded repetitive beans
  * introspections and resultset metadata access. </p>
@@ -43,6 +60,8 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  *   public String userName;
  *   public String email;
  *   private String password;
+ *
+ *   // eventually you may (or may not) have getter and setter
  * }
  * </pre>
  *
@@ -80,17 +99,16 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  *         }
  *     }
  * }
- *
  */
 public class PojoMapper<T> implements ResultSetMapper<T> {
     private final Map<String, Field> fields;
-    private final Map<Integer, String> columns;
+    private final AtomicReference<Map<Integer, String>> columnsRef;
     private final Class<T> c;
 
     public PojoMapper(Class<T> c) {
         this.c = c;
         fields = introspect(c);
-        columns = newMap();
+        columnsRef =  new AtomicReference<Map<Integer, String>>();
     }
 
     @Override
@@ -100,8 +118,8 @@ public class PojoMapper<T> implements ResultSetMapper<T> {
             Constructor<T> constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
             T result = constructor.newInstance();
-            if (columns.size() == 0)
-                mapColumns(r.getMetaData(), columns);
+
+            Map<Integer, String> columns = threadSafeGetColumns(r.getMetaData());
 
             for (Map.Entry<Integer, String> col : columns.entrySet()) {
                 Integer columnIndex = col.getKey();
@@ -113,6 +131,19 @@ public class PojoMapper<T> implements ResultSetMapper<T> {
             return result;
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
+        }
+    }
+
+    private Map<Integer, String> threadSafeGetColumns(ResultSetMetaData metadata)
+            throws SQLException {
+        while (true) {
+            if (columnsRef.get() != null) {
+                return columnsRef.get();
+            }
+            Map<Integer, String> columnsMap = mapColumns(metadata);
+            if (columnsRef.compareAndSet(null, columnsMap)) {
+                return columnsRef.get();
+            }
         }
     }
 
@@ -136,12 +167,14 @@ public class PojoMapper<T> implements ResultSetMapper<T> {
             introspect(sup, map);
     }
 
-    private static void mapColumns(ResultSetMetaData metaData,
-            Map<Integer, String> columnsMap) throws SQLException {
+    private static Map<Integer, String> mapColumns(ResultSetMetaData metaData)
+            throws SQLException {
+        Map<Integer, String> columnsMap = newMap();
         for (int index = 1; index <= metaData.getColumnCount(); index++) {
             String label = metaData.getColumnLabel(index);
             columnsMap.put(index, matchCode(label));
         }
+        return columnsMap;
     }
 
     /**
