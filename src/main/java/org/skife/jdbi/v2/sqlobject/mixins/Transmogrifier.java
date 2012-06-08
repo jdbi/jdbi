@@ -19,7 +19,10 @@ package org.skife.jdbi.v2.sqlobject.mixins;
 /**
  * Mixin interface which provides a means of creating a sql object from another sql object.
  * The created sql object will obtain handles from the same source as the original.
+ *
+ * @deprecated use @CreateSqlObject instead
  */
+@Deprecated
 public interface Transmogrifier
 {
     /**
