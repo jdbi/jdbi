@@ -101,6 +101,9 @@ class SqlObject
             else if (raw_method.isAnnotationPresent(SqlCall.class)) {
                 handlers.put(raw_method, new CallHandler(sqlObjectType, method));
             }
+            else if(raw_method.isAnnotationPresent(CreateSqlObject.class)) {
+                handlers.put(raw_method, new CreateSqlObjectHandler(raw_method.getReturnType()));
+            }
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
                 handlers.put(raw_method, new CloseHandler());
             }
