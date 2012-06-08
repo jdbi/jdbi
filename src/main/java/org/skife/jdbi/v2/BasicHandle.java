@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class BasicHandle implements Handle
 {
@@ -305,19 +306,19 @@ class BasicHandle implements Handle
 
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
     {
-        final boolean[] failed = {false};
+        final AtomicBoolean failed = new AtomicBoolean(false);
         TransactionStatus status = new TransactionStatus()
         {
             public void setRollbackOnly()
             {
-                failed[0] = true;
+                failed.set(true);
             }
         };
         final ReturnType returnValue;
         try {
             this.begin();
             returnValue = callback.inTransaction(this, status);
-            if (!failed[0]) {
+            if (!failed.get()) {
                 this.commit();
             }
         }
@@ -331,7 +332,7 @@ class BasicHandle implements Handle
                                                  "from within the callback. See cause " +
                                                  "for the original exception.", e);
         }
-        if (failed[0]) {
+        if (failed.get()) {
             this.rollback();
             throw new TransactionFailedException("Transaction failed due to transaction status being set " +
                                                  "to rollback only.");

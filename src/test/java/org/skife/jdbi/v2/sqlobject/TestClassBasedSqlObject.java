@@ -40,30 +40,6 @@ public class TestClassBasedSqlObject
     }
 
     @Test
-    public void testTx() throws Exception
-    {
-        Dao dao = handle.attach(Dao.class);
-
-        Something s = dao.insertAndFetch(1, "Ian");
-        assertThat(s, equalTo(new Something(1, "Ian")));
-    }
-
-    @Test
-    public void testTxFail() throws Exception
-    {
-        Dao dao = handle.attach(Dao.class);
-
-        try {
-            dao.failed(1, "Ian");
-            fail("should have raised exception");
-        }
-        catch (TransactionFailedException e) {
-            assertThat(e.getCause().getMessage(), equalTo("woof"));
-        }
-        assertThat(dao.findById(1), nullValue());
-    }
-
-    @Test
     public void testPassThroughMethod() throws Exception
     {
         Dao dao = handle.attach(Dao.class);
@@ -88,20 +64,6 @@ public class TestClassBasedSqlObject
 
         @SqlQuery("select id, name from something where id = :id")
         public abstract Something findById(@Bind("id") int id);
-
-        @Transaction(TransactionIsolationLevel.READ_COMMITTED)
-        public Something insertAndFetch(int id, String name)
-        {
-            insert(id, name);
-            return findById(id);
-        }
-
-        @Transaction
-        public Something failed(int id, String name) throws IOException
-        {
-            insert(id, name);
-            throw new IOException("woof");
-        }
 
         public Something findByIdHeeHee(int id) {
             return findById(id);

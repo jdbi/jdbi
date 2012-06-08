@@ -10,14 +10,11 @@ import java.lang.reflect.Method;
 
 class PassThroughTransactionHandler implements Handler
 {
-
-    private final Method                    m;
     private final TransactionIsolationLevel isolation;
 
     PassThroughTransactionHandler(Method m, Transaction tx)
     {
         this.isolation = tx.value();
-        this.m = m;
     }
 
     @Override
