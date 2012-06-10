@@ -1,3 +1,9 @@
+2.35
+  - Use CGLIB for sql objects instead of dyanmic proxies
+  - Support for classes as well as interfaces in the sql object api
+  - Add @Transaction for non @Sql* methods in sql objects
+  - @CreateSqlObject annotation sql objects to replace Transmogrifier
+
 2.31
   - Add access to ResultSet on FoldController
 
