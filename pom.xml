@@ -119,7 +119,7 @@
                                 <includes>
                                     <include>org.antlr:antlr-runtime</include>
                                     <include>com.fasterxml:classmate</include>
-                                    <include>cglib:cglib-nodep</include>
+                                     <!--<include>cglib:cglib-nodep</include>-->
                                 </includes>
                             </artifactSet>
                             <relocations>
@@ -127,10 +127,11 @@
                                     <pattern>org.antlr.runtime</pattern>
                                     <shadedPattern>org.skife.jdbi.org.antlr.runtime</shadedPattern>
                                 </relocation>
-                                <relocation>
-                                    <pattern>net.sf.cglib</pattern>
-                                    <shadedPattern>org.skife.jdbi.net.sf.cglib</shadedPattern>
-                                </relocation>
+
+                                <!--<relocation>-->
+                                    <!--<pattern>net.sf.cglib</pattern>-->
+                                    <!--<shadedPattern>org.skife.jdbi.cglib</shadedPattern>-->
+                                <!--</relocation>-->
 
                                 <relocation>
                                     <pattern>com.fasterxml.classmate</pattern>
