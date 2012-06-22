@@ -1007,7 +1007,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     public final SelfType bind(int position, Long value)
     {
         if (value != null) {
-            return bind(position, getForeman().waffle(int.class, value, getContext()));
+            return bind(position, getForeman().waffle(Long.class, value, getContext()));
         }
         else {
             return bind(position, new NullArgument(Types.BIGINT));
