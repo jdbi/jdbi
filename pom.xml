@@ -107,7 +107,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.2.1</version>
+                <version>1.7</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -119,7 +119,7 @@
                                 <includes>
                                     <include>org.antlr:antlr-runtime</include>
                                     <include>com.fasterxml:classmate</include>
-                                     <!--<include>cglib:cglib-nodep</include>-->
+                                     <include>cglib:cglib-nodep</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
@@ -128,10 +128,10 @@
                                     <shadedPattern>org.skife.jdbi.org.antlr.runtime</shadedPattern>
                                 </relocation>
 
-                                <!--<relocation>-->
-                                    <!--<pattern>net.sf.cglib</pattern>-->
-                                    <!--<shadedPattern>org.skife.jdbi.cglib</shadedPattern>-->
-                                <!--</relocation>-->
+                                <relocation>
+                                    <pattern>net.sf.cglib</pattern>
+                                    <shadedPattern>org.skife.jdbi.cglib</shadedPattern>
+                                </relocation>
 
                                 <relocation>
                                     <pattern>com.fasterxml.classmate</pattern>
