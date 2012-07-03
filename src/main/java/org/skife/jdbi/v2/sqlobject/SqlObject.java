@@ -141,11 +141,11 @@ class SqlObject
     public Object invoke(Object proxy, Method method, Object[] args, MethodProxy mp) throws Throwable
     {
         try {
-            ding.retain("top-level");
+            ding.retain(method.toString());
             return handlers.get(method).invoke(ding, proxy, args, mp);
         }
         finally {
-            ding.release("top-level");
+            ding.release(method.toString());
         }
     }
 
