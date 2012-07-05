@@ -16,6 +16,7 @@
 
 package org.skife.jdbi.v2.sqlobject;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.Transaction;
+import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
@@ -108,6 +110,22 @@ public class TestMixinInterfaces extends TestCase
         assertEquals("Keith", s.getName());
     }
 
+    public void testInTransactionWithLevel() throws Exception
+    {
+        TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
+        txl.insert(7, "Keith");
+
+        Something s = txl.inTransaction(TransactionIsolationLevel.SERIALIZABLE, new Transaction<Something, TransactionStuff>() {
+            public Something inTransaction(TransactionStuff conn, TransactionStatus status) throws Exception
+            {
+                Assert.assertEquals(TransactionIsolationLevel.SERIALIZABLE, conn.getHandle().getTransactionIsolationLevel());
+                return conn.byId(7);
+            }
+        });
+
+        assertEquals("Keith", s.getName());
+    }
+
     public void testTransactionIsolationActuallyHappens() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -167,7 +185,7 @@ public class TestMixinInterfaces extends TestCase
         public void insert(@Bind("id") int id, @Bind("name") String name);
     }
 
-    public static interface TransactionStuff extends CloseMe, Transactional<TransactionStuff>
+    public static interface TransactionStuff extends CloseMe, Transactional<TransactionStuff>, GetHandle
     {
 
         @SqlQuery("select id, name from something where id = :id")
