@@ -306,53 +306,13 @@ class BasicHandle implements Handle
 
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
     {
-        final AtomicBoolean failed = new AtomicBoolean(false);
-        TransactionStatus status = new TransactionStatus()
-        {
-            public void setRollbackOnly()
-            {
-                failed.set(true);
-            }
-        };
-        final ReturnType returnValue;
-        try {
-            this.begin();
-            returnValue = callback.inTransaction(this, status);
-            if (!failed.get()) {
-                this.commit();
-            }
-        }
-        catch (RuntimeException e) {
-            this.rollback();
-            throw e;
-        }
-        catch (Exception e) {
-            this.rollback();
-            throw new TransactionFailedException("Transaction failed do to exception being thrown " +
-                                                 "from within the callback. See cause " +
-                                                 "for the original exception.", e);
-        }
-        if (failed.get()) {
-            this.rollback();
-            throw new TransactionFailedException("Transaction failed due to transaction status being set " +
-                                                 "to rollback only.");
-        }
-        else {
-            return returnValue;
-        }
+        return transactions.inTransaction(this, callback);
     }
 
     public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
                                                  TransactionCallback<ReturnType> callback)
     {
-        final TransactionIsolationLevel initial = getTransactionIsolationLevel();
-        try {
-            setTransactionIsolation(level);
-            return inTransaction(callback);
-        }
-        finally {
-            setTransactionIsolation(initial);
-        }
+        return transactions.inTransaction(this, level, callback);
     }
 
     public List<Map<String, Object>> select(String sql, Object... args)

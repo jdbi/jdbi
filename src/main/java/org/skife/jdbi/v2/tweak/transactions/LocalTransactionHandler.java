@@ -17,7 +17,11 @@
 package org.skife.jdbi.v2.tweak.transactions;
 
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.TransactionCallback;
+import org.skife.jdbi.v2.TransactionIsolationLevel;
+import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.TransactionException;
+import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 import java.sql.Connection;
@@ -26,6 +30,7 @@ import java.sql.Savepoint;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions
@@ -167,6 +172,60 @@ public class LocalTransactionHandler implements TransactionHandler
         }
         catch (SQLException e) {
             throw new TransactionException("Failed to test for transaction status", e);
+        }
+    }
+
+    @Override
+    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionCallback<ReturnType> callback)
+    {
+        final AtomicBoolean failed = new AtomicBoolean(false);
+        TransactionStatus status = new TransactionStatus()
+        {
+            @Override
+            public void setRollbackOnly()
+            {
+                failed.set(true);
+            }
+        };
+        final ReturnType returnValue;
+        try {
+            handle.begin();
+            returnValue = callback.inTransaction(handle, status);
+            if (!failed.get()) {
+                handle.commit();
+            }
+        }
+        catch (RuntimeException e) {
+            handle.rollback();
+            throw e;
+        }
+        catch (Exception e) {
+            handle.rollback();
+            throw new TransactionFailedException("Transaction failed do to exception being thrown " +
+                                                 "from within the callback. See cause " +
+                                                 "for the original exception.", e);
+        }
+        if (failed.get()) {
+            handle.rollback();
+            throw new TransactionFailedException("Transaction failed due to transaction status being set " +
+                                                 "to rollback only.");
+        }
+        else {
+            return returnValue;
+        }
+    }
+
+    @Override
+    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
+            TransactionCallback<ReturnType> callback)
+    {
+        final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
+        try {
+            handle.setTransactionIsolation(level);
+            return inTransaction(handle, callback);
+        }
+        finally {
+            handle.setTransactionIsolation(initial);
         }
     }
 

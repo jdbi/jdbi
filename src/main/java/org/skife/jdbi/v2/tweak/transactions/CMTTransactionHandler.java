@@ -17,6 +17,9 @@
 package org.skife.jdbi.v2.tweak.transactions;
 
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.TransactionCallback;
+import org.skife.jdbi.v2.TransactionIsolationLevel;
+import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
@@ -100,5 +103,44 @@ public class CMTTransactionHandler implements TransactionHandler
     public void release(Handle handle, String checkpointName)
     {
         throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");
+    }
+
+    private class ExplodingTransactionStatus implements TransactionStatus
+    {
+        private final Handle handle;
+
+        ExplodingTransactionStatus(Handle handle)
+        {
+            this.handle = handle;
+        }
+
+        @Override
+        public void setRollbackOnly()
+        {
+            rollback(handle);
+        }
+    }
+
+    @Override
+    public <ReturnType> ReturnType inTransaction(final Handle handle, TransactionCallback<ReturnType> callback)
+    {
+        try
+        {
+            return callback.inTransaction(handle, new ExplodingTransactionStatus(handle));
+        } catch (Exception e)
+        {
+            if (e instanceof RuntimeException)
+            {
+                throw (RuntimeException) e;
+            }
+            throw new TransactionException(e);
+        }
+    }
+
+    @Override
+    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
+            TransactionCallback<ReturnType> callback)
+    {
+        return inTransaction(handle, callback);
     }
 }
