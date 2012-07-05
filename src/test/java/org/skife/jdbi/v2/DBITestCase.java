@@ -20,7 +20,9 @@ import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.TransactionRunner;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
+import org.skife.jdbi.v2.tweak.transactions.SimpleTransactionRunner;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -65,6 +67,7 @@ public abstract class DBITestCase extends TestCase
     {
         Connection conn = Tools.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
+                                        getTransactionRunner(),
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
                                         new ColonPrefixNamedParamStatementRewriter(),
@@ -82,6 +85,11 @@ public abstract class DBITestCase extends TestCase
     protected TransactionHandler getTransactionHandler()
     {
         return new LocalTransactionHandler();
+    }
+
+    protected TransactionRunner getTransactionRunner()
+    {
+        return new SimpleTransactionRunner();
     }
 
     protected <T> Future<T> run(Callable<T> it)

@@ -31,7 +31,9 @@ import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.TransactionRunner;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
+import org.skife.jdbi.v2.tweak.transactions.SimpleTransactionRunner;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -58,6 +60,7 @@ public class DBI implements IDBI
     private AtomicReference<StatementRewriter> statementRewriter = new AtomicReference<StatementRewriter>(new ColonPrefixNamedParamStatementRewriter());
     private AtomicReference<StatementLocator> statementLocator = new AtomicReference<StatementLocator>(new ClasspathStatementLocator());
     private AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<TransactionHandler>(new LocalTransactionHandler());
+    private AtomicReference<TransactionRunner> transactionrunner = new AtomicReference<TransactionRunner>(new SimpleTransactionRunner());
     private AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
     private AtomicReference<SQLLog> log = new AtomicReference<SQLLog>(new NoOpLog());
     private AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
@@ -180,6 +183,12 @@ public class DBI implements IDBI
         this.transactionhandler.set(handler);
     }
 
+    public void setTransactionRunner(TransactionRunner runner)
+    {
+        assert (runner != null);
+        this.transactionrunner.set(runner);
+    }
+
     /**
      * Obtain a Handle to the data source wrapped by this DBI instance
      *
@@ -193,6 +202,7 @@ public class DBI implements IDBI
             final long stop = System.nanoTime();
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
             Handle h = new BasicHandle(transactionhandler.get(),
+                                       transactionrunner.get(),
                                        statementLocator.get(),
                                        cache,
                                        statementRewriter.get(),
