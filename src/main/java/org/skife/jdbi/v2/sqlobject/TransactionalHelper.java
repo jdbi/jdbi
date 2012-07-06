@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.Transaction;
+import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 
 import java.lang.reflect.Method;
@@ -22,6 +23,7 @@ class TransactionalHelper
             h.put(Transactional.class.getMethod("rollback", String.class), new RollbackCheckpointHandler());
 
             h.put(Transactional.class.getMethod("inTransaction", Transaction.class), new InTransactionHandler());
+            h.put(Transactional.class.getMethod("inTransaction", TransactionIsolationLevel.class, Transaction.class), new InTransactionWithIsolationLevelHandler());
             return h;
         }
         catch (NoSuchMethodException e) {

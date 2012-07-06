@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
+import org.skife.jdbi.v2.tweak.transactions.SimpleTransactionRunner;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,6 +50,7 @@ public class TestPreparedStatementCache extends DBITestCase
         CachingStatementBuilder builder = new CachingStatementBuilder(new DefaultStatementBuilder());
 
         BasicHandle h = new BasicHandle(new LocalTransactionHandler(),
+                                        new SimpleTransactionRunner(),
                                         new ClasspathStatementLocator(),
                                         builder,
                                         new ColonPrefixNamedParamStatementRewriter(),

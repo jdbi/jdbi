@@ -40,6 +40,7 @@ public class TestTimingCollector extends DBITestCase
 
         Connection conn = Tools.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
+                                        getTransactionRunner(),
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
                                         new ColonPrefixNamedParamStatementRewriter(),
