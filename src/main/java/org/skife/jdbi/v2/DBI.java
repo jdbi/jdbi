@@ -189,6 +189,11 @@ public class DBI implements IDBI
         this.transactionrunner.set(runner);
     }
 
+    public TransactionRunner getTransactionRunner()
+    {
+        return this.transactionrunner.get();
+    }
+
     /**
      * Obtain a Handle to the data source wrapped by this DBI instance
      *
