@@ -289,6 +289,16 @@ public class DBI implements IDBI
         });
     }
 
+    public <ReturnType> ReturnType inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<ReturnType> callback) throws CallbackFailedException
+    {
+        return withHandle(new HandleCallback<ReturnType>() {
+            public ReturnType withHandle(Handle handle) throws Exception
+            {
+                return handle.inTransaction(isolation, callback);
+            }
+        });
+    }
+
     /**
      * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
      * sql object (via a close() method, or calling {@link IDBI#close(Object)}
