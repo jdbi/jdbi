@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.ContainerValueResult;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.util.StringMapper;
@@ -66,6 +67,7 @@ public class TestArrayContainerFactory
     public static interface Dao
     {
         @SqlQuery("select name from something order by id")
+        @ContainerValueResult(String.class)
         public String[] findAll();
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
