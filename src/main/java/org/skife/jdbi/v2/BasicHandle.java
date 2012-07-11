@@ -306,40 +306,7 @@ class BasicHandle implements Handle
 
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
     {
-        final AtomicBoolean failed = new AtomicBoolean(false);
-        TransactionStatus status = new TransactionStatus()
-        {
-            public void setRollbackOnly()
-            {
-                failed.set(true);
-            }
-        };
-        final ReturnType returnValue;
-        try {
-            this.begin();
-            returnValue = callback.inTransaction(this, status);
-            if (!failed.get()) {
-                this.commit();
-            }
-        }
-        catch (RuntimeException e) {
-            this.rollback();
-            throw e;
-        }
-        catch (Exception e) {
-            this.rollback();
-            throw new TransactionFailedException("Transaction failed do to exception being thrown " +
-                                                 "from within the callback. See cause " +
-                                                 "for the original exception.", e);
-        }
-        if (failed.get()) {
-            this.rollback();
-            throw new TransactionFailedException("Transaction failed due to transaction status being set " +
-                                                 "to rollback only.");
-        }
-        else {
-            return returnValue;
-        }
+        return transactions.inTransaction(this, callback);
     }
 
     public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
@@ -350,7 +317,7 @@ class BasicHandle implements Handle
         try {
             setTransactionIsolation(level);
 
-            ReturnType result = inTransaction(callback);
+            ReturnType result = transactions.inTransaction(this, level, callback);
             failed = false;
 
             return result;

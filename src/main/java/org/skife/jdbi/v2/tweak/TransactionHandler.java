@@ -17,6 +17,8 @@
 package org.skife.jdbi.v2.tweak;
 
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.TransactionCallback;
+import org.skife.jdbi.v2.TransactionIsolationLevel;
 
 /**
  * Interface which defines callbacks to be used when transaction methods are called on a handle.
@@ -70,4 +72,17 @@ public interface TransactionHandler
      * @param checkpointName the checkpoint to release
      */
     void release(Handle handle, String checkpointName);
+
+    /**
+     * Run a transaction.
+     * @see Handle#inTransaction(TransactionCallback)
+     */
+    <ReturnType> ReturnType inTransaction(Handle handle, TransactionCallback<ReturnType> callback);
+
+    /**
+     * Run a transaction.
+     * @see Handle#inTransaction(TransactionIsolationLevel, TransactionCallback)
+     */
+    <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level, TransactionCallback<ReturnType> callback);
+
 }

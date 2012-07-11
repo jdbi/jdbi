@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2.sqlobject.mixins;
 
 import org.skife.jdbi.v2.Transaction;
+import org.skife.jdbi.v2.TransactionIsolationLevel;
 
 /**
  * A mixin interface to expose transaction methods on the sql object.
@@ -38,4 +39,6 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
     public void rollback(String name);
 
     public <ReturnType> ReturnType inTransaction(Transaction<ReturnType, SelfType> func);
+
+    public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel isolation, Transaction<ReturnType, SelfType> func);
 }
