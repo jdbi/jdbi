@@ -72,6 +72,22 @@ public interface IDBI
     <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws CallbackFailedException;
 
     /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients. The handle will be in a transaction when the callback is invoked, and
+     * that transaction will be committed if the callback finishes normally, or rolled back if the
+     * callback raises an exception.
+     *
+     * @param isolation The transaction isolation level to set
+     * @param callback A callback which will receive an open Handle, in a transaction
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    <ReturnType> ReturnType inTransaction(TransactionIsolationLevel isolation, TransactionCallback<ReturnType> callback) throws CallbackFailedException;
+
+    /**
      * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
      * sql object (via a close() method, or calling {@link IDBI#close(Object)}
      * @param sqlObjectType an interface with annotations declaring desired behavior
