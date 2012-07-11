@@ -346,12 +346,26 @@ class BasicHandle implements Handle
                                                  TransactionCallback<ReturnType> callback)
     {
         final TransactionIsolationLevel initial = getTransactionIsolationLevel();
+        boolean failed = true;
         try {
             setTransactionIsolation(level);
-            return inTransaction(callback);
+
+            ReturnType result = inTransaction(callback);
+            failed = false;
+
+            return result;
         }
         finally {
-            setTransactionIsolation(initial);
+            try {
+                setTransactionIsolation(initial);
+            }
+            catch (RuntimeException e) {
+                if (! failed) {
+                    throw e;
+                }
+
+                // Ignore, there was already an exceptional condition and we don't want to clobber it.
+            }
         }
     }
 
