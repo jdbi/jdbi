@@ -151,6 +151,11 @@ public class DBI implements IDBI
         this.statementLocator.set(locator);
     }
 
+    public StatementLocator getStatementLocator()
+    {
+        return this.statementLocator.get();
+    }
+
     /**
      * Use a non-standard StatementRewriter to transform SQL for all Handle instances
      * created by this DBI.
@@ -161,6 +166,11 @@ public class DBI implements IDBI
     {
         assert (rewriter != null);
         this.statementRewriter.set(rewriter);
+    }
+
+    public StatementRewriter getStatementRewriter()
+    {
+        return this.statementRewriter.get();
     }
 
     /**
@@ -178,6 +188,11 @@ public class DBI implements IDBI
     {
         assert (handler != null);
         this.transactionhandler.set(handler);
+    }
+
+    public TransactionHandler getTransactionHandler()
+    {
+        return this.transactionhandler.get();
     }
 
     /**
@@ -415,6 +430,11 @@ public class DBI implements IDBI
         this.statementBuilderFactory.set(factory);
     }
 
+    public StatementBuilderFactory getStatementBuilderFactory()
+    {
+        return this.statementBuilderFactory.get();
+    }
+
     /**
      * Specify the class used to log sql statements. Will be passed to all handles created from
      * this instance
@@ -422,6 +442,11 @@ public class DBI implements IDBI
     public void setSQLLog(SQLLog log)
     {
         this.log.set(log);
+    }
+
+    public SQLLog getSQLLog()
+    {
+        return this.log.get();
     }
 
     /**
@@ -435,6 +460,11 @@ public class DBI implements IDBI
         else {
             this.timingCollector.set(timingCollector);
         }
+    }
+
+    public TimingCollector getTimingCollector()
+    {
+        return this.timingCollector.get();
     }
 
     public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
