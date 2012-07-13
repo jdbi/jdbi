@@ -6,7 +6,6 @@ import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.ResultBearing;
 import org.skife.jdbi.v2.ResultIterator;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.sqlobject.customizers.ContainerValueResult;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -44,9 +43,6 @@ abstract class ResultReturnThing
         }
         else if (return_type.isInstanceOf(Iterator.class)) {
             return new IteratorResultReturnThing(method);
-        }
-        else if (method.getRawMember().isAnnotationPresent(ContainerValueResult.class)) {
-            return new ContainerReturningThing(method);
         }
         else {
             return new SingleValueResultReturnThing(method);
@@ -199,29 +195,6 @@ abstract class ResultReturnThing
         protected Class<?> mapTo(ResolvedMethod method)
         {
             return resolvedType.getErasedType();
-        }
-    }
-
-    static class ContainerReturningThing extends ResultReturnThing
-    {
-        private final Class<?> resultType;
-        private final Class<?> containerType;
-
-        public ContainerReturningThing(ResolvedMethod method)
-        {
-            ContainerValueResult cvr = method.getRawMember().getAnnotation(ContainerValueResult.class);
-            resultType = cvr.value();
-            containerType = method.getReturnType().getErasedType();
-        }
-
-        @Override
-        protected Object result(ResultBearing q, HandleDing baton) {
-            return q.list(containerType);
-        }
-
-        @Override
-        protected Class<?> mapTo(ResolvedMethod method) {
-            return resultType;
         }
     }
 }
