@@ -6,7 +6,11 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-interface CloseInternal
+/**
+ * This is public as we need it to be for some stuff to work. It is an internal api and NOT to be used
+ * by users!
+ */
+public interface CloseInternalDoNotUseThisClass
 {
     public void ___jdbi_close___();
 
@@ -25,13 +29,12 @@ interface CloseInternal
         {
             try {
                 Map<Method, Handler> h = new HashMap<Method, Handler>();
-                h.put(CloseInternal.class.getMethod("___jdbi_close___"), new CloseHandler());
+                h.put(CloseInternalDoNotUseThisClass.class.getMethod("___jdbi_close___"), new CloseHandler());
                 return h;
             }
             catch (NoSuchMethodException e) {
                 throw new IllegalStateException("someone wonkered up the bytecode", e);
             }
-
         }
     }
 

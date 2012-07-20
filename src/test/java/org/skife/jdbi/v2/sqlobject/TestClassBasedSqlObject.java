@@ -9,6 +9,7 @@ import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.skife.jdbi.v2.sqlobject.subpackage.SomethingDao;
 
 import java.io.IOException;
 
@@ -53,6 +54,23 @@ public class TestClassBasedSqlObject
     public void testUnimplementedMethod() throws Exception
     {
         Dao dao = handle.attach(Dao.class);
+        dao.totallyBroken();
+    }
+
+    @Test
+    public void testPassThroughMethodWithDaoInAnotherPackage() throws Exception
+    {
+        SomethingDao dao = handle.attach(SomethingDao.class);
+        dao.insert(3, "Cora");
+
+        Something c = dao.findByIdHeeHee(3);
+        assertThat(c, equalTo(new Something(3, "Cora")));
+    }
+
+    @Test(expected = AbstractMethodError.class)
+    public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception
+    {
+        SomethingDao dao = handle.attach(SomethingDao.class);
         dao.totallyBroken();
     }
 

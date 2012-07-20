@@ -41,7 +41,7 @@ class SqlObject
         else {
             Enhancer e = new Enhancer();
             List<Class> interfaces = new ArrayList<Class>();
-            interfaces.add(CloseInternal.class);
+            interfaces.add(CloseInternalDoNotUseThisClass.class);
             if (sqlObjectType.isInterface()) {
                 interfaces.add(sqlObjectType);
             }
@@ -119,7 +119,7 @@ class SqlObject
         }
 
         // this is an implicit mixin, not an explicit one, so we need to *always* add it
-        handlers.putAll(CloseInternal.Helper.handlers());
+        handlers.putAll(CloseInternalDoNotUseThisClass.Helper.handlers());
 
         handlers.putAll(EqualsHandler.handler());
         handlers.putAll(ToStringHandler.handler(sqlObjectType.getName()));
@@ -151,10 +151,10 @@ class SqlObject
 
     public static void close(Object sqlObject)
     {
-        if (!(sqlObject instanceof CloseInternal)) {
+        if (!(sqlObject instanceof CloseInternalDoNotUseThisClass)) {
             throw new IllegalArgumentException(sqlObject + " is not a sql object");
         }
-        CloseInternal closer = (CloseInternal) sqlObject;
+        CloseInternalDoNotUseThisClass closer = (CloseInternalDoNotUseThisClass) sqlObject;
         closer.___jdbi_close___();
     }
 
