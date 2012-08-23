@@ -9,6 +9,7 @@ import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.customizers.Define;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -86,6 +87,26 @@ public class TestStringTemplate3Locator
         assertThat(roo.findById(2L), equalTo(new Something(2, "Brian")));
     }
 
+    @Test
+    public void testNoTemplateDefined() throws Exception
+    {
+        HoneyBadger badass = handle.attach(HoneyBadger.class);
+
+        badass.insert("something", new Something(1, "Ted"));
+        badass.insert("something", new Something(2, "Fred"));
+    }
+
+    @UseStringTemplate3StatementLocator
+    @RegisterMapper(SomethingMapper.class)
+    static interface HoneyBadger
+    {
+        @SqlUpdate("insert into <table> (id, name) values (:id, :name)")
+        public void insert(@Define("table") String table, @BindBean Something s);
+
+        @SqlQuery("select id, name from <table> where id = :id")
+        public Something findById(@Define("table") String table, @Bind("id") Long id);
+    }
+
     @ExternalizedSqlViaStringTemplate3
     @RegisterMapper(SomethingMapper.class)
     static interface Wombat
@@ -105,6 +126,7 @@ public class TestStringTemplate3Locator
                          @Define("value_column") String valueColumn,
                          @Bind("id") int id,
                          @Bind("value") String name);
+
         @SqlBatch
         void insertBunches(@BindBean Something... somethings);
     }

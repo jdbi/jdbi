@@ -10,7 +10,7 @@ import org.skife.jdbi.v2.Transaction;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.util.List;
@@ -137,7 +137,7 @@ public class TestExamples extends TestCase
 
 
 
-    @ExternalizedSqlViaStringTemplate3
+    @UseStringTemplate3StatementLocator
     static interface UsesLocator extends CloseMe
     {
         @SqlQuery

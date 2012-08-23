@@ -8,7 +8,7 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.Arrays;
@@ -137,7 +137,7 @@ public class TestBatching
     }
 
     @BatchChunkSize(4)
-    @ExternalizedSqlViaStringTemplate3
+    @UseStringTemplate3StatementLocator
     public static interface UsesBatching
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")

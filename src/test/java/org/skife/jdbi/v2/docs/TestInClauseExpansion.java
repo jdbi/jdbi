@@ -10,7 +10,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.unstable.BindIn;
 
@@ -51,7 +51,7 @@ public class TestInClauseExpansion
         assertThat(dao.findIdsForNames(asList(1, 2)), equalTo(ImmutableSet.of("Brian", "Jeff")));
     }
 
-    @ExternalizedSqlViaStringTemplate3
+    @UseStringTemplate3StatementLocator
     @RegisterContainerMapper(ImmutableSetContainerFactory.class)
     public static interface DAO
     {

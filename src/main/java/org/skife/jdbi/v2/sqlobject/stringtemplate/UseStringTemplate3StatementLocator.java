@@ -13,14 +13,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-/**
- * @deprecated use {@link UseStringTemplate3StatementLocator}
- */
-@Deprecated
-@SqlStatementCustomizingAnnotation(ExternalizedSqlViaStringTemplate3.LocatorFactory.class)
+@SqlStatementCustomizingAnnotation(UseStringTemplate3StatementLocator.LocatorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface ExternalizedSqlViaStringTemplate3
+public @interface UseStringTemplate3StatementLocator
 {
     static final String DEFAULT_VALUE = " ~ ";
 
@@ -30,13 +26,13 @@ public @interface ExternalizedSqlViaStringTemplate3
     {
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
-            final ExternalizedSqlViaStringTemplate3 a = (ExternalizedSqlViaStringTemplate3) annotation;
+            final UseStringTemplate3StatementLocator a = (UseStringTemplate3StatementLocator) annotation;
             final StatementLocator l;
             if (DEFAULT_VALUE.equals(a.value())) {
-                l = new StringTemplate3StatementLocator(sqlObjectType);
+                l = new StringTemplate3StatementLocator(sqlObjectType, true, true);
             }
             else {
-                l = new StringTemplate3StatementLocator(a.value());
+                l = new StringTemplate3StatementLocator(a.value(), true, true);
             }
 
             return new SqlStatementCustomizer()

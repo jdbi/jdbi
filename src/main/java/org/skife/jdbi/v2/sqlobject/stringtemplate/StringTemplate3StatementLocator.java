@@ -15,42 +15,78 @@ import java.util.regex.Matcher;
 public class StringTemplate3StatementLocator implements StatementLocator
 {
     private final StringTemplateGroup group;
+    private final StringTemplateGroup literals = new StringTemplateGroup("literals", AngleBracketTemplateLexer.class);
+
+    private boolean treatLiteralsAsTemplates;
 
     public StringTemplate3StatementLocator(Class baseClass)
     {
-        this(mungify("/" + baseClass.getName()) + ".sql.stg");
+        this(mungify("/" + baseClass.getName()) + ".sql.stg", false, false);
+    }
+
+    public StringTemplate3StatementLocator(Class baseClass,
+                                           boolean allowImplicitTemplateGroup,
+                                           boolean treatLiteralsAsTemplates)
+    {
+        this(mungify("/" + baseClass.getName()) + ".sql.stg", allowImplicitTemplateGroup, treatLiteralsAsTemplates);
     }
 
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath)
     {
+        this(templateGroupFilePathOnClasspath, false, false);
+    }
+
+    public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
+                                           boolean allowImplicitTemplateGroup,
+                                           boolean treatLiteralsAsTemplates)
+    {
+        this.treatLiteralsAsTemplates = treatLiteralsAsTemplates;
         InputStream ins = getClass().getResourceAsStream(templateGroupFilePathOnClasspath);
-        if (ins == null) {
+        if (allowImplicitTemplateGroup && ins == null) {
+            this.group = new StringTemplateGroup("empty template group", AngleBracketTemplateLexer.class);
+        }
+        else if (ins == null) {
             throw new IllegalStateException("unable to find group file "
                                             + templateGroupFilePathOnClasspath
                                             + " on classpath");
         }
-        InputStreamReader reader = new InputStreamReader(ins);
-        try {
-            this.group = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
-            reader.close();
-        }
-        catch (IOException e) {
-            throw new IllegalStateException("unable to load string template group " + templateGroupFilePathOnClasspath,
-                                            e);
+        else {
+            InputStreamReader reader = new InputStreamReader(ins);
+            try {
+                this.group = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
+                reader.close();
+            }
+            catch (IOException e) {
+                throw new IllegalStateException("unable to load string template group " + templateGroupFilePathOnClasspath,
+                                                e);
+            }
         }
     }
 
     public String locate(String name, StatementContext ctx) throws Exception
     {
         if (group.isDefined(name)) {
+            // yeah, found template for it!
             StringTemplate t = group.lookupTemplate(name);
             for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
                 t.setAttribute(entry.getKey(), entry.getValue());
             }
             return t.toString();
         }
+        else if (treatLiteralsAsTemplates) {
+            // no template in the template group, but we want literals to be templates
+            final String key = new String(new Base64().encode(name.getBytes()));
+            if (!literals.isDefined(key)) {
+                literals.defineTemplate(key, name);
+            }
+            StringTemplate t = literals.lookupTemplate(key);
+            for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
+                t.setAttribute(entry.getKey(), entry.getValue());
+            }
+            return t.toString();
+        }
         else {
-            // no template matches name, so just return it
+            // no template, no literals as template, just use the literal as sql
             return name;
         }
     }
