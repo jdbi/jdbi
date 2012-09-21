@@ -14,6 +14,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -66,13 +67,21 @@ public @interface TransactionIsolation
                 @Override
                 public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
                 {
-                    ctx.getConnection().setTransactionIsolation(level.intValue());
+                    setTxnIsolation(ctx, level.intValue());
                 }
 
                 @Override
                 public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
                 {
-                    ctx.getConnection().setTransactionIsolation(initial_level);
+                    setTxnIsolation(ctx, initial_level);
+                }
+                
+                private void setTxnIsolation(StatementContext ctx, int level) throws SQLException
+                {
+                    final Connection c = ctx.getConnection();
+                    if (c.getTransactionIsolation() != level) {
+                        c.setTransactionIsolation(level);
+                    }
                 }
             });
         }
