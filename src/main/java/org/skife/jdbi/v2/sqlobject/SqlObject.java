@@ -40,6 +40,8 @@ class SqlObject
         }
         else {
             Enhancer e = new Enhancer();
+            e.setClassLoader(sqlObjectType.getClassLoader());
+
             List<Class> interfaces = new ArrayList<Class>();
             interfaces.add(CloseInternalDoNotUseThisClass.class);
             if (sqlObjectType.isInterface()) {
