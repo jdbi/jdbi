@@ -17,6 +17,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.util.NamingStrategy;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -24,11 +25,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,24 +37,34 @@ import java.util.Map;
 public class BeanMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
-	private final Map<String, PropertyDescriptor> properties = new HashMap<String, PropertyDescriptor>();
+   private final NamingStrategy dbFormattingStrategy;
+   private final NamingStrategy propertyFormattingStrategy;
+   private final Map<String, PropertyDescriptor> properties = new HashMap<String, PropertyDescriptor>();
 
+   // For backward compatibility
 	public BeanMapper(Class<T> type)
-    {
-        this.type = type;
-        try
-        {
-            BeanInfo info = Introspector.getBeanInfo(type);
+   {
+      this(type, NamingStrategy.LOWER, NamingStrategy.LOWER);
+	}
 
-			for (PropertyDescriptor descriptor : info.getPropertyDescriptors())
-			{
-				properties.put(descriptor.getName().toLowerCase(), descriptor);
-			}
-		}
-        catch (IntrospectionException e)
-        {
-            throw new IllegalArgumentException(e);
-        }
+	public BeanMapper(Class<T> type, NamingStrategy dbFormattingStrategy, NamingStrategy propertyFormattingStrategy)
+   {
+       this.type = type;
+       this.dbFormattingStrategy = dbFormattingStrategy;
+       this.propertyFormattingStrategy = propertyFormattingStrategy;
+       try
+       {
+           BeanInfo info = Introspector.getBeanInfo(type);
+
+		     for (PropertyDescriptor descriptor : info.getPropertyDescriptors())
+		     {
+		         properties.put(propertyFormattingStrategy.translate(descriptor.getName()), descriptor);
+		     }
+		 }
+       catch (IntrospectionException e)
+       {
+           throw new IllegalArgumentException(e);
+       }
 	}
 
 	public T map(int row, ResultSet rs, StatementContext ctx)
@@ -78,7 +85,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 		ResultSetMetaData metadata = rs.getMetaData();
 
 		for (int i = 1; i <= metadata.getColumnCount(); ++i) {
-			String name = metadata.getColumnLabel(i).toLowerCase();
+			String name = dbFormattingStrategy.translate(metadata.getColumnLabel(i));
 
 			PropertyDescriptor descriptor = properties.get(name);
 
