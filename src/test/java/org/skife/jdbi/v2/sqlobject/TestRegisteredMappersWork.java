@@ -13,6 +13,7 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.helpers.MapResultAsBean;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.util.NamingStrategy;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -113,6 +114,62 @@ public class TestRegisteredMappersWork
         Bean another_lima = db.findByName("lima");
         assertThat(another_lima.getName(), equalTo(lima.getName()));
         assertThat(another_lima.getColor(), equalTo(lima.getColor()));
+    }
+
+    public static class User
+    {
+        private Integer userId;
+        private String username;
+
+        public Integer getUserId()
+        {
+           return userId;
+        }
+
+        public void setUserId(Integer userId)
+        {
+           this.userId = userId;
+        }
+
+        public String getUsername()
+        {
+           return username;
+        }
+
+        public void setUsername(String username)
+        {
+           this.username = username;
+        }
+    }
+
+    public static interface UserBeanMappingDao
+    {
+        @SqlUpdate("create table users ( user_id int primary key, username varchar )")
+        public void createUserTable();
+
+        @SqlUpdate("insert into users (user_id, username) values (:userId, :username)")
+        public void insertUser(@BindBean User user);
+
+        @SqlQuery("select user_id, username from users where username = :username")
+        @MapResultAsBean(propertyFormattingStrategy = NamingStrategy.UPPER_UNDERSCORE, dbFormattingStrategy = NamingStrategy.IDENTICAL)
+        public User findByName(@Bind("username") String username);
+    }
+
+    @Test
+    public void testSnakeCaseUserMapperFactory() throws Exception
+    {
+        UserBeanMappingDao db = handle.attach(UserBeanMappingDao.class);
+        db.createUserTable();
+
+        User user = new User();
+        user.setUserId(1);
+        user.setUsername("Galatasaray");
+
+        db.insertUser(user);
+
+        User another_user = db.findByName("Galatasaray");
+        assertThat(another_user.getUsername(), equalTo("Galatasaray"));
+        assertThat(another_user.getUserId(), equalTo(1));
     }
 
     @Test

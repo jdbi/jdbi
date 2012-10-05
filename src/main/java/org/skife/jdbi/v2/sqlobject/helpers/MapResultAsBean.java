@@ -6,6 +6,7 @@ import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
 import org.skife.jdbi.v2.tweak.BeanMapperFactory;
+import org.skife.jdbi.v2.util.NamingStrategy;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -20,20 +21,24 @@ import java.sql.SQLException;
 @Target(ElementType.METHOD)
 public @interface MapResultAsBean
 {
+    NamingStrategy dbFormattingStrategy() default NamingStrategy.LOWER;
+
+    NamingStrategy propertyFormattingStrategy() default NamingStrategy.LOWER;
 
     public static class MapAsBeanFactory implements SqlStatementCustomizerFactory
     {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(final Annotation annotation, Class sqlObjectType, Method method)
         {
             return new SqlStatementCustomizer()
             {
                 @Override
                 public void apply(SQLStatement s) throws SQLException
                 {
-                    Query q = (Query) s;
-                    q.registerMapper(new BeanMapperFactory());
+                   Query q = (Query) s;
+                   MapResultAsBean asBean = (MapResultAsBean) annotation;
+                   q.registerMapper(new BeanMapperFactory(asBean.dbFormattingStrategy(),asBean.propertyFormattingStrategy()));
                 }
             };
         }
