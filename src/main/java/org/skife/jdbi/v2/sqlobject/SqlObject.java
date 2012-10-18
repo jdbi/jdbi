@@ -142,6 +142,19 @@ class SqlObject
     {
         try {
             ding.retain(method.toString());
+
+            if (!handlers.containsKey(method)) {
+                // Find something that matches, probably should iterate over the map and find the first match,
+                // then make the entry in the map.
+                // NOTE: This is a heuristic, we take the first match.
+                for(Method handler: this.handlers.keySet()) {
+                    if(method.getDeclaringClass().isAssignableFrom(handler.getDeclaringClass())) {
+                        this.handlers.put(handler, this.handlers.get(handler));
+                        break;
+                    }
+                }
+            }
+
             return handlers.get(method).invoke(ding, proxy, args, mp);
         }
         finally {

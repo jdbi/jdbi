@@ -6,17 +6,12 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.TransactionIsolationLevel;
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.skife.jdbi.v2.sqlobject.subpackage.SomethingAgainDao;
 import org.skife.jdbi.v2.sqlobject.subpackage.SomethingDao;
 
-import java.io.IOException;
-
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 public class TestClassBasedSqlObject
 {
@@ -64,6 +59,16 @@ public class TestClassBasedSqlObject
         dao.insert(3, "Cora");
 
         Something c = dao.findByIdHeeHee(3);
+        assertThat(c, equalTo(new Something(3, "Cora")));
+    }
+
+    @Test
+    public void testPassThroughMethodWithDaoInAnotherPackage_Subclass() throws Exception
+    {
+        SomethingDao dao = handle.attach(SomethingAgainDao.class);
+        dao.insert(3, "Cora");
+
+        Something c = dao.findByName("Cora");
         assertThat(c, equalTo(new Something(3, "Cora")));
     }
 
