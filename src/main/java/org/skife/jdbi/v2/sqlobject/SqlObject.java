@@ -149,7 +149,7 @@ class SqlObject
                 // NOTE: This is a heuristic, we take the first match.
                 for(Method handler: this.handlers.keySet()) {
                     if(method.getDeclaringClass().isAssignableFrom(handler.getDeclaringClass())) {
-                        this.handlers.put(handler, this.handlers.get(handler));
+                        this.handlers.put(method, this.handlers.get(handler));
                         break;
                     }
                 }
