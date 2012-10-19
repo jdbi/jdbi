@@ -11,12 +11,9 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
  * Date: 10/18/12
  */
 @RegisterMapper(SomethingMapper.class)
-public abstract class SomethingAgainDao extends SomethingDao {
+public abstract class SomethingYetAgainDao extends SomethingAgainDao {
 
-    @SqlQuery("select id, name from something where name = :name")
-    public abstract Something findByName(@Bind("name") String name);
-
-    @SqlQuery("select id, name from something where name = :name") // This is a deliberate bad implementation
+    @Override
+    @SqlQuery("select id, name from something where name <> :name")
     public abstract Something findByNotName(@Bind("name") String name);
-    
 }

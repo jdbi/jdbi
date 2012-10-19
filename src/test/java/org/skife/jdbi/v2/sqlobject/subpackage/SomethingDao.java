@@ -22,6 +22,8 @@ public abstract class SomethingDao
     
     public abstract Something findByName(String name);
 
+    public abstract Something findByNotName(String name);
+
     public abstract void totallyBroken();
 
 }
