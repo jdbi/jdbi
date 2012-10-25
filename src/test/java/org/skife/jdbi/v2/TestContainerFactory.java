@@ -105,7 +105,7 @@ public class TestContainerFactory
         Maybe<String> rs = dao.findNameById(1);
         assertThat(rs, equalTo(Maybe.definitely("Coda")));
 
-        rs = dao.genericFindNameById(1);
+        rs = dao.smartFindNameById(1);
         assertThat(rs, equalTo(Maybe.definitely("Coda")));
 
         rs = dao.inheritedGenericFindNameById(1);
@@ -142,7 +142,7 @@ public class TestContainerFactory
 
         @SqlQuery("select name from something where id = :id")
         @SingleValueResult
-        public Maybe<String> genericFindNameById(@Bind("id") int id);
+        public Maybe<String> smartFindNameById(@Bind("id") int id);
     }
 
     public static interface Base<T>
