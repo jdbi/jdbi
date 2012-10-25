@@ -104,6 +104,12 @@ public class TestContainerFactory
 
         Maybe<String> rs = dao.findNameById(1);
         assertThat(rs, equalTo(Maybe.definitely("Coda")));
+
+        rs = dao.genericFindNameById(1);
+        assertThat(rs, equalTo(Maybe.definitely("Coda")));
+
+        rs = dao.inheritedGenericFindNameById(1);
+        assertThat(rs, equalTo(Maybe.definitely("Coda")));
     }
 
     @Test
@@ -119,7 +125,7 @@ public class TestContainerFactory
 
 
     @RegisterContainerMapper({ImmutableListContainerFactory.class, MaybeContainerFactory.class})
-    public static interface Dao
+    public static interface Dao extends Base<String>
     {
         @SqlQuery("select name from something order by id")
         public ImmutableList<String> findAll();
@@ -133,6 +139,17 @@ public class TestContainerFactory
         @SqlQuery("select name from something where id = :id")
         @SingleValueResult(String.class)
         public Maybe<String> findNameById(@Bind("id") int id);
+
+        @SqlQuery("select name from something where id = :id")
+        @SingleValueResult
+        public Maybe<String> genericFindNameById(@Bind("id") int id);
+    }
+
+    public static interface Base<T>
+    {
+        @SqlQuery("select name from something where id = :id")
+        @SingleValueResult
+        public Maybe<T> inheritedGenericFindNameById(@Bind("id") int id);
     }
 
 

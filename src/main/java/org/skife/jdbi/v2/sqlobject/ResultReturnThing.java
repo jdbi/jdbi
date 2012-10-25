@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeBindings;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.ResultBearing;
@@ -63,7 +64,18 @@ abstract class ResultReturnThing
         {
             if (method.getRawMember().isAnnotationPresent(SingleValueResult.class)) {
                 SingleValueResult svr = method.getRawMember().getAnnotation(SingleValueResult.class);
-                this.returnType = svr.value();
+                // try to guess generic type
+                if(SingleValueResult.Default.class == svr.value()){
+                    TypeBindings typeBindings = method.getReturnType().getTypeBindings();
+                    if(typeBindings.size() == 1){
+                        this.returnType = typeBindings.getBoundType(0).getErasedType();
+                    }else{
+                        throw new IllegalArgumentException("Ambiguous generic information. SingleValueResult type could not be fetched.");
+                    }
+
+                }else{
+                    this.returnType = svr.value();
+                }
                 this.containerType = method.getReturnType().getErasedType();
             }
             else {
