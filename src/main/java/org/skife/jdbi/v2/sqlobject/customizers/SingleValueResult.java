@@ -6,5 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SingleValueResult
 {
-    Class<?> value();
+    Class<?> value() default Default.class;
+
+    final class Default{}
 }
