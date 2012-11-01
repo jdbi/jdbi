@@ -63,6 +63,10 @@ public class TestSqlLogging extends DBITestCase
                 logged.add(sql);
             }
 
+            public void logBinding(int offset, String name, String value) {
+                logged.add(String.format("logBinding - %d, %s, %s", offset, name, value));
+            }
+
             public void logPreparedBatch(long time, String sql, int count)
             {
                 logged.add(String.format("%d:%s", count, sql));
@@ -112,8 +116,10 @@ public class TestSqlLogging extends DBITestCase
     public void testInsert() throws Exception
     {
         h.insert("insert into something (id, name) values (?, ?)", 1, "Hello");
-        assertEquals(1, logged.size());
-        assertEquals("insert into something (id, name) values (?, ?)", logged.get(0));
+        assertEquals(1 + 2 /*binding logging*/, logged.size());
+        assertEquals("logBinding - 1, null, 1", logged.get(0));
+        assertEquals("logBinding - 2, null, Hello", logged.get(1));
+        assertEquals("insert into something (id, name) values (?, ?)", logged.get(2));
     }
 
     public void testBatch() throws Exception
@@ -130,8 +136,12 @@ public class TestSqlLogging extends DBITestCase
     {
         String sql = "insert into something (id, name) values (?, ?)";
         h.prepareBatch(sql).add(1, "Eric").add(2, "Keith").execute();
-        assertEquals(1, logged.size());
-        assertEquals(String.format("%d:%s", 2, sql), logged.get(0));
+        assertEquals(1 + 4 /* binding logging */, logged.size());
+        assertEquals("logBinding - 1, null, 1", logged.get(0));
+        assertEquals("logBinding - 2, null, Eric", logged.get(1));
+        assertEquals("logBinding - 1, null, 2", logged.get(2));
+        assertEquals("logBinding - 2, null, Keith", logged.get(3));
+        assertEquals(String.format("%d:%s", 2, sql), logged.get(4));
     }
 
     public void testLog4J() throws Exception
@@ -177,7 +187,7 @@ public class TestSqlLogging extends DBITestCase
         h.insert(sql, 1, "Brian");
 
         assertTrue(new String(bout.toByteArray())
-                .matches("statement:\\[insert into something \\(id, name\\) values \\(\\?, \\?\\)\\] took \\d+ millis" + linesep));
+                .matches("binding argument offset 1 \\[null\\] to 1" + linesep + "binding argument offset 2 \\[null\\] to Brian" + linesep + "statement:\\[insert into something \\(id, name\\) values \\(\\?, \\?\\)\\] took \\d+ millis" + linesep));
     }
 
     public void testCloseLogged() throws Exception

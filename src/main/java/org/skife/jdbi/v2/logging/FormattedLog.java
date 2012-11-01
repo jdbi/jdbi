@@ -127,4 +127,10 @@ public abstract class FormattedLog implements SQLLog
             log(String.format("checkpoint [%s] on [%s] rolled back in %d millis", checkpointName, h, time));
         }
     }
+
+    public void logBinding(int offset, String name, String value) {
+        if (isEnabled()) {
+            log(String.format("binding argument offset %d [%s] to %s", offset, name, value));
+        }
+    }
 }

@@ -66,7 +66,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     private       RewrittenStatement rewritten;
     private       PreparedStatement  stmt;
-    private final SQLLog             log;
+    protected final SQLLog             log;
     private final TimingCollector    timingCollector;
     private final ContainerFactoryRegistry containerMapperRegistry;
 
@@ -1287,7 +1287,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         getConcreteContext().setStatement(stmt);
 
         try {
-            rewritten.bind(getParameters(), stmt);
+            rewritten.bind(getParameters(), stmt, log);
         }
         catch (SQLException e) {
             throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, getContext());

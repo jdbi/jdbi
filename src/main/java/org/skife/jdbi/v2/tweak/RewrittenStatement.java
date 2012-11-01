@@ -32,9 +32,10 @@ public interface RewrittenStatement
      * getSql() return result
      * @param params
      * @param statement
+     * @param log the logging instance
      * @throws SQLException
      */
-    public void bind(Binding params, PreparedStatement statement) throws SQLException;
+    public void bind(Binding params, PreparedStatement statement, SQLLog log) throws SQLException;
 
     /**
      * Obtain the SQL in valid (rewritten) form to be used to prepare a statement

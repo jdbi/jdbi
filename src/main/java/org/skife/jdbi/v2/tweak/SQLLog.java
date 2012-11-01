@@ -55,6 +55,14 @@ public interface SQLLog
     public void logSQL(long time, String sql);
 
     /**
+     * Called when an argument is bound to the query
+     * @param offset position of the argument in query
+     * @param name place holder name (can be null)
+     * @param value argument value
+     */
+    public void logBinding(int offset, String name, String value);
+
+    /**
      * Called to log a prepared batch execution
      * @param sql The sql for the prepared batch
      * @param count the number of elements in the prepared batch

@@ -60,6 +60,9 @@ public final class NoOpLog implements SQLLog
     {
     }
 
+    public void logBinding(int offset, String name, String value) {
+    }
+
     public void logPreparedBatch(long time, String sql, int count)
     {
     }

@@ -12,10 +12,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Oracle was getting angry about too many open cursors because of the large number
@@ -88,7 +90,12 @@ public class TestTooManyCursors extends DBITestCase
             return target.getLoginTimeout();
         }
 
-	    public <T> T unwrap(Class<T> iface) throws SQLException
+        //necessary for java 7
+        public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+            return null;
+        }
+
+        public <T> T unwrap(Class<T> iface) throws SQLException
 	    {
 		    return null;
 	    }

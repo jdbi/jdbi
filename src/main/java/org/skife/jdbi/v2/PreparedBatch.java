@@ -120,7 +120,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
 
             try {
                 for (PreparedBatchPart part : parts) {
-                    rewritten.bind(part.getParameters(), stmt);
+                    rewritten.bind(part.getParameters(), stmt, this.log);
                     stmt.addBatch();
                 }
             }
