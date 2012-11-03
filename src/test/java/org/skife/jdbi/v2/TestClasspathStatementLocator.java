@@ -16,8 +16,17 @@
 
 package org.skife.jdbi.v2;
 
+import net.sf.cglib.transform.AbstractClassLoader;
+import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+import org.skife.jdbi.v2.util.StringMapper;
+
+import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 /**
  *
@@ -78,5 +87,34 @@ public class TestClasspathStatementLocator extends DBITestCase
         catch (UnableToCreateStatementException e) {
             assertTrue(true);
         }
+    }
+
+    @Test
+    public void testCachesResultAfterFirstLookup() throws Exception
+    {
+
+        ClassLoader ctx_loader = Thread.currentThread().getContextClassLoader();
+        final AtomicInteger load_count = new AtomicInteger(0);
+        Thread.currentThread().setContextClassLoader(new AbstractClassLoader(ctx_loader, ctx_loader, null)
+        {
+            @Override
+            public InputStream getResourceAsStream(String s)
+            {
+                // will be called twice, once for raw name, once for name + .sql
+                InputStream in = super.getResourceAsStream(s);
+                load_count.incrementAndGet();
+                return in;
+            }
+        });
+
+        Handle h = openHandle();
+        h.execute("caches-result-after-first-lookup", 1, "Brian");
+        assertThat(load_count.get(), equalTo(2)); // two lookups, name and name.sql
+
+        h.execute("caches-result-after-first-lookup", 2, "Sean");
+        assertThat(load_count.get(), equalTo(2)); // has not increased since previous
+
+        Thread.currentThread().setContextClassLoader(ctx_loader);
+
     }
 }

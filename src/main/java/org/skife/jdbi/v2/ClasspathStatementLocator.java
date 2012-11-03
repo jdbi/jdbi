@@ -23,6 +23,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 
 /**
@@ -30,6 +32,8 @@ import java.util.regex.Matcher;
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
+    private final ConcurrentMap<String, String> found = new ConcurrentHashMap<String, String>();
+
     /**
      * Very basic sanity test to see if a string looks like it might be sql
      */
@@ -63,20 +67,24 @@ public class ClasspathStatementLocator implements StatementLocator
      *          if an IOException occurs reading a found resource
      */
     public String locate(String name, StatementContext ctx) {
+        if (found.containsKey(name)) {
+            return found.get(name);
+        }
+
         if (looksLikeSql(name)) {
             return name;
         }
         final ClassLoader loader = selectClassLoader();
-        InputStream in_stream = loader.getResourceAsStream(name);
         BufferedReader reader = null;
         try {
+            InputStream in_stream = loader.getResourceAsStream(name);
             if (in_stream == null) {
                 in_stream = loader.getResourceAsStream(name + ".sql");
             }
 
             if ((in_stream == null) && (ctx.getSqlObjectType() != null)) {
                 String filename = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
-                in_stream = getClass().getResourceAsStream(filename);
+                in_stream = loader.getResourceAsStream(filename);
             }
 
             if (in_stream == null) {
@@ -99,6 +107,8 @@ public class ClasspathStatementLocator implements StatementLocator
                 throw new UnableToCreateStatementException(e.getMessage(), e, ctx);
             }
 
+            String sql = buffer.toString();
+            found.putIfAbsent(name, sql);
             return buffer.toString();
         }
         finally {
