@@ -37,7 +37,8 @@ public class ClasspathStatementLocator implements StatementLocator
     /**
      * Very basic sanity test to see if a string looks like it might be sql
      */
-    public static boolean looksLikeSql(String sql) {
+    public static boolean looksLikeSql(String sql)
+    {
         final String local = left(stripStart(sql), 7).toLowerCase();
         return local.startsWith("insert ")
                || local.startsWith("update ")
@@ -66,12 +67,22 @@ public class ClasspathStatementLocator implements StatementLocator
      * @throws UnableToCreateStatementException
      *          if an IOException occurs reading a found resource
      */
-    public String locate(String name, StatementContext ctx) {
-        if (found.containsKey(name)) {
-            return found.get(name);
+    public String locate(String name, StatementContext ctx)
+    {
+        final String cache_key;
+        if (ctx.getSqlObjectType() != null) {
+            cache_key = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
+        }
+        else {
+            cache_key = name;
+        }
+
+        if (found.containsKey(cache_key)) {
+            return found.get(cache_key);
         }
 
         if (looksLikeSql(name)) {
+            found.putIfAbsent(cache_key, name);
             return name;
         }
         final ClassLoader loader = selectClassLoader();
@@ -85,6 +96,9 @@ public class ClasspathStatementLocator implements StatementLocator
             if ((in_stream == null) && (ctx.getSqlObjectType() != null)) {
                 String filename = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
                 in_stream = loader.getResourceAsStream(filename);
+                if (in_stream == null) {
+                    in_stream = ctx.getSqlObjectType().getResourceAsStream(filename);
+                }
             }
 
             if (in_stream == null) {
@@ -108,7 +122,7 @@ public class ClasspathStatementLocator implements StatementLocator
             }
 
             String sql = buffer.toString();
-            found.putIfAbsent(name, sql);
+            found.putIfAbsent(cache_key, sql);
             return buffer.toString();
         }
         finally {
@@ -126,7 +140,8 @@ public class ClasspathStatementLocator implements StatementLocator
     /**
      * There *must* be a better place to put this without creating a helpers class just for it
      */
-    private static ClassLoader selectClassLoader() {
+    private static ClassLoader selectClassLoader()
+    {
         ClassLoader loader;
         if (Thread.currentThread().getContextClassLoader() != null) {
             loader = Thread.currentThread().getContextClassLoader();
@@ -137,19 +152,22 @@ public class ClasspathStatementLocator implements StatementLocator
         return loader;
     }
 
-    private static boolean isComment(final String line) {
+    private static boolean isComment(final String line)
+    {
         return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
     }
 
     private final static String sep = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
 
-    private static String mungify(String path) {
+    private static String mungify(String path)
+    {
         return path.replaceAll("\\.", Matcher.quoteReplacement(sep));
     }
 
 
     // (scs) Logic copied from commons-lang3 3.1 with minor edits, per discussion on commit 023a14ade2d33bf8ccfa0f68294180455233ad52
-    private static String stripStart(String str) {
+    private static String stripStart(String str)
+    {
         int strLen;
         if (str == null || (strLen = str.length()) == 0) {
             return "";
@@ -161,7 +179,8 @@ public class ClasspathStatementLocator implements StatementLocator
         return str.substring(start);
     }
 
-    private static String left(String str, int len) {
+    private static String left(String str, int len)
+    {
         if (str == null || len < 0) {
             return "";
         }
