@@ -102,6 +102,7 @@ public class ClasspathStatementLocator implements StatementLocator
             }
 
             if (in_stream == null) {
+                found.putIfAbsent(cache_key, name);
                 return name;
             }
 
