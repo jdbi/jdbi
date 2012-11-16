@@ -69,6 +69,18 @@ public class TestVariousOddities extends TestCase
         assertFalse(0 == s2.hashCode());
         assertTrue(s1.hashCode() != s2.hashCode());
     }
+    
+    public void testNullQueryReturn()
+    {
+        try {
+            SqlObjectBuilder.attach(handle, SpiffyBoom.class);
+        } catch (IllegalStateException e) {
+            assertEquals("Method org.skife.jdbi.v2.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
+            		"is annotated as if it should return a value, but the method is void.", e.getMessage());
+            return;
+        }
+        fail();
+    }
 
     public static interface Spiffy extends CloseMe
     {
@@ -79,6 +91,13 @@ public class TestVariousOddities extends TestCase
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
         public void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
+        
+    }
+    
+    public static interface SpiffyBoom extends CloseMe
+    {
+        @SqlQuery("SELECT 1")
+        void returnNothing();
     }
 
 }
