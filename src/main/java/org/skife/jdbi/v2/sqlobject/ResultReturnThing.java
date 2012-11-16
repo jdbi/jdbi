@@ -36,7 +36,12 @@ abstract class ResultReturnThing
     static ResultReturnThing forType(ResolvedMethod method)
     {
         ResolvedType return_type = method.getReturnType();
-        if (return_type.isInstanceOf(ResultBearing.class)) {
+        if (return_type == null) {
+            throw new IllegalStateException(String.format(
+                    "Method %s#%s is annotated as if it should return a value, but the method is void.",
+                    method.getDeclaringType().getErasedType().getName(),
+                    method.getName()));
+        } else if (return_type.isInstanceOf(ResultBearing.class)) {
             return new ResultBearingResultReturnThing(method);
         }
         else if (return_type.isInstanceOf(Iterable.class)) {
