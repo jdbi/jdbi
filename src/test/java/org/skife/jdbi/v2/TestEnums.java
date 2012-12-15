@@ -49,11 +49,13 @@ public class TestEnums extends DBITestCase
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
         h.createStatement("insert into something (id, name) values (3, NULL)").execute();
         h.createStatement("insert into something (id, name) values (4, '')").execute();
+        h.createStatement("insert into something (id, name) values (5, 'a')").execute();
 
         List<Something> results = h.createQuery("select * from something order by id").map(Something.class).list();
         assertEquals(Something.Name.eric, results.get(0).name);
         assertEquals(Something.Name.brian, results.get(1).name);
         assertNull(results.get(2).name);
         assertNull(results.get(3).name);
+        assertNull(results.get(4).name);
     }
 }
