@@ -1,6 +1,5 @@
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.BaseStatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 
@@ -63,7 +62,7 @@ abstract class BaseStatement
                 customizer.beforeExecution(stmt, context);
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, context);
+                throw context.getExceptionPolicy().unableToExecuteStatement("Exception thrown in statement customization", e, context);
             }
         }
     }
@@ -75,7 +74,7 @@ abstract class BaseStatement
                 customizer.afterExecution(stmt, context);
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception thrown in statement customization", e, context);
+                throw context.getExceptionPolicy().unableToExecuteStatement("Exception thrown in statement customization", e, context);
             }
         }
     }
@@ -87,7 +86,7 @@ abstract class BaseStatement
                 customizer.cleanup(context);
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Could not clean up", e, context);
+                throw context.getExceptionPolicy().unableToExecuteStatement("Could not clean up", e, context);
             }
         }
     }

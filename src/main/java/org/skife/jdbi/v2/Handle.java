@@ -16,6 +16,7 @@
 
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
@@ -271,4 +272,6 @@ public interface Handle
     public void registerArgumentFactory(ArgumentFactory argumentFactory);
 
     public void registerContainerFactory(ContainerFactory<?> factory);
+    
+    public ExceptionPolicy getExceptionPolicy();
 }

@@ -17,7 +17,7 @@
 package org.skife.jdbi.v2.unstable.oracle;
 
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
 import org.skife.jdbi.v2.tweak.BaseStatementCustomizer;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
@@ -136,7 +136,7 @@ public class OracleReturning<ResultType> extends BaseStatementCustomizer impleme
 			rs = (ResultSet) this.getReturnResultSet.invoke(this.stmt);
 		}
 		catch (Exception e) {
-			throw new ResultSetException("Unable to retrieve return result set", e, ctx);
+			throw context.getExceptionPolicy().resultSetFailure("Unable to retrieve return result set", e, ctx);
 		}
         this.results = new ArrayList<ResultType>();
         try {
@@ -146,7 +146,7 @@ public class OracleReturning<ResultType> extends BaseStatementCustomizer impleme
             }
         }
         catch (SQLException e) {
-            throw new ResultSetException("Unable to retrieve results from returned result set", e, ctx);
+            throw context.getExceptionPolicy().resultSetFailure("Unable to retrieve results from returned result set", e, ctx);
         }
     }
 

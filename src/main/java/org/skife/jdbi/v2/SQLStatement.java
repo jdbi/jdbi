@@ -16,9 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
@@ -1258,7 +1255,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             return locator.locate(sql, this.getContext());
         }
         catch (Exception e) {
-            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e, getContext());
+            throw handle.getExceptionPolicy().unableToCreateStatement("Exception thrown while looking for statement", e, getContext());
         }
     }
 
@@ -1277,7 +1274,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             }
         }
         catch (SQLException e) {
-            throw new UnableToCreateStatementException(e, getContext());
+            throw handle.getExceptionPolicy().unableToCreateStatement(e, getContext());
         }
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
@@ -1290,7 +1287,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             rewritten.bind(getParameters(), stmt);
         }
         catch (SQLException e) {
-            throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, getContext());
+            throw handle.getExceptionPolicy().unableToExecuteStatement("Unable to bind parameters to query", e, getContext());
         }
 
         beforeExecution(stmt);
@@ -1303,7 +1300,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             timingCollector.collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
-            throw new UnableToExecuteStatementException(e, getContext());
+            throw handle.getExceptionPolicy().unableToExecuteStatement(e, getContext());
         }
 
         afterExecution(stmt);
@@ -1312,7 +1309,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             return munger.munge(stmt);
         }
         catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, getContext());
+            throw handle.getExceptionPolicy().resultSetFailure("Exception thrown while attempting to traverse the result set", e, getContext());
         }
     }
 

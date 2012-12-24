@@ -8,10 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
+
 public final class ConcreteStatementContext implements StatementContext
 {
     private final List<Cleanable> cleanables = new ArrayList<Cleanable>();
     private final Map<String, Object>        attributes = new HashMap<String, Object>();
+    private final Handle handle;
 
     private String            rawSql;
     private String            rewrittenSql;
@@ -23,8 +26,9 @@ public final class ConcreteStatementContext implements StatementContext
     private Method            sqlObjectMethod;
     private boolean           returningGeneratedKeys;
 
-    ConcreteStatementContext(Map<String, Object> globalAttributes)
+    ConcreteStatementContext(Handle handle, Map<String, Object> globalAttributes)
     {
+        this.handle = handle;
         attributes.putAll(globalAttributes);
     }
 
@@ -193,5 +197,16 @@ public final class ConcreteStatementContext implements StatementContext
     public List<Cleanable> getCleanables()
     {
         return cleanables;
+    }
+    
+    public Handle getHandle()
+    {
+        return handle;
+    }
+
+    public ExceptionPolicy getExceptionPolicy()
+    {
+        // Handle will be null in tests sometimes
+        return handle == null ? new ExceptionPolicy() : handle.getExceptionPolicy();
     }
 }

@@ -16,7 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import java.util.Map;
@@ -30,7 +29,7 @@ public class Script
 
     private static final Pattern WHITESPACE_ONLY = Pattern.compile("^\\s*$");
 
-    private Handle handle;
+    private final Handle handle;
     private final StatementLocator locator;
     private final String name;
     private final Map<String, Object> globalStatementAttributes;
@@ -51,14 +50,14 @@ public class Script
     public int[] execute()
     {
         final String script;
-        final StatementContext ctx = new ConcreteStatementContext(globalStatementAttributes);
+        final StatementContext ctx = new ConcreteStatementContext(handle, globalStatementAttributes);
         try
         {
             script = locator.locate(name, ctx);
         }
         catch (Exception e)
         {
-            throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, ctx);
+            throw handle.getExceptionPolicy().unableToExecuteStatement(String.format("Error while loading script [%s]", name), e, ctx);
         }
 
         final String[] statements = script.replaceAll("\n", " ").replaceAll("\r", "").split(";");

@@ -16,8 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -103,7 +101,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
             my_sql = getStatementLocator().locate(getSql(), getContext());
         }
         catch (Exception e) {
-            throw new UnableToCreateStatementException(String.format("Exception while locating statement for [%s]",
+            throw getHandle().getExceptionPolicy().unableToCreateStatement(String.format("Exception while locating statement for [%s]",
                                                                      getSql()), e, getContext());
         }
         final RewrittenStatement rewritten = getRewriter().rewrite(my_sql, current.getParameters(), getContext());
@@ -114,7 +112,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                 addCleanable(Cleanables.forStatement(stmt));
             }
             catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, getContext());
+                throw getHandle().getExceptionPolicy().unableToCreateStatement(e, getContext());
             }
 
 
@@ -125,7 +123,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                 }
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception while binding parameters", e, getContext());
+                throw getHandle().getExceptionPolicy().unableToExecuteStatement("Exception while binding parameters", e, getContext());
             }
 
             beforeExecution(stmt);
@@ -142,7 +140,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                 return rs;
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException(e, getContext());
+                throw getHandle().getExceptionPolicy().unableToExecuteStatement(e, getContext());
             }
         }
         finally {

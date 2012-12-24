@@ -20,8 +20,6 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
-import org.skife.jdbi.v2.exceptions.TransactionException;
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 import java.sql.Connection;
@@ -54,7 +52,7 @@ public class LocalTransactionHandler implements TransactionHandler
             }
         }
         catch (SQLException e) {
-            throw new TransactionException("Failed to start transaction", e);
+            throw handle.getExceptionPolicy().transactionException("Failed to start transaction", e);
         }
     }
 
@@ -72,7 +70,7 @@ public class LocalTransactionHandler implements TransactionHandler
             }
         }
         catch (SQLException e) {
-            throw new TransactionException("Failed to commit transaction", e);
+            throw handle.getExceptionPolicy().transactionException("Failed to commit transaction", e);
         }
         finally {
             // prevent memory leak if commit throws an exception
@@ -96,7 +94,7 @@ public class LocalTransactionHandler implements TransactionHandler
             }
         }
         catch (SQLException e) {
-            throw new TransactionException("Failed to rollback transaction", e);
+            throw handle.getExceptionPolicy().transactionException("Failed to rollback transaction", e);
         }
         finally {
             // prevent memory leak if rollback throws an exception
@@ -120,7 +118,7 @@ public class LocalTransactionHandler implements TransactionHandler
             localStuff.get(handle).getCheckpoints().put(name, savepoint);
         }
         catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
+            throw handle.getExceptionPolicy().transactionException(String.format("Unable to create checkpoint %s", name), e);
         }
     }
 
@@ -130,13 +128,13 @@ public class LocalTransactionHandler implements TransactionHandler
         try {
             final Savepoint savepoint = localStuff.get(handle).getCheckpoints().remove(name);
             if (savepoint == null) {
-                throw new TransactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
+                throw handle.getExceptionPolicy().transactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
                                                              name));
             }
             conn.releaseSavepoint(savepoint);
         }
         catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
+            throw handle.getExceptionPolicy().transactionException(String.format("Unable to create checkpoint %s", name), e);
         }
     }
 
@@ -152,13 +150,13 @@ public class LocalTransactionHandler implements TransactionHandler
         try {
             final Savepoint savepoint = localStuff.get(handle).getCheckpoints().remove(name);
             if (savepoint == null) {
-                throw new TransactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
+                throw handle.getExceptionPolicy().transactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
                                                              name));
             }
             conn.rollback(savepoint);
         }
         catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
+            throw handle.getExceptionPolicy().transactionException(String.format("Unable to create checkpoint %s", name), e);
         }
     }
 
@@ -171,7 +169,7 @@ public class LocalTransactionHandler implements TransactionHandler
             return !handle.getConnection().getAutoCommit();
         }
         catch (SQLException e) {
-            throw new TransactionException("Failed to test for transaction status", e);
+            throw handle.getExceptionPolicy().transactionException("Failed to test for transaction status", e);
         }
     }
 
@@ -201,13 +199,13 @@ public class LocalTransactionHandler implements TransactionHandler
         }
         catch (Exception e) {
             handle.rollback();
-            throw new TransactionFailedException("Transaction failed do to exception being thrown " +
+            throw handle.getExceptionPolicy().transactionFailed("Transaction failed do to exception being thrown " +
                                                  "from within the callback. See cause " +
                                                  "for the original exception.", e);
         }
         if (failed.get()) {
             handle.rollback();
-            throw new TransactionFailedException("Transaction failed due to transaction status being set " +
+            throw handle.getExceptionPolicy().transactionFailed("Transaction failed due to transaction status being set " +
                                                  "to rollback only.");
         }
         else {

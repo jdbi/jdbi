@@ -21,6 +21,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
 
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
+
 /**
  * The statement context provides a means for passing client specific information through the
  * evaluation of a statement. The context is not used by jDBI internally, but will be passed
@@ -111,4 +113,7 @@ public interface StatementContext
 
     public void addCleanable(Cleanable cleanable);
 
+    public Handle getHandle();
+
+    public ExceptionPolicy getExceptionPolicy();
 }

@@ -16,7 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
@@ -80,7 +79,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             }
         }
         catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
+            throw context.getExceptionPolicy().resultSetFailure("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
             jdbiStatement.cleanup();
@@ -114,7 +113,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             return resultList;
         }
         catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
+            throw context.getExceptionPolicy().resultSetFailure("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
             jdbiStatement.cleanup();
@@ -142,7 +141,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             return new ResultSetResultIterator<Type>(mapper, jdbiStatement, stmt, context);
         }
         catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
+            throw context.getExceptionPolicy().resultSetFailure("Exception thrown while attempting to traverse the result set", e, context);
         }
     }
 
@@ -172,7 +171,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             return value;
         }
         catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
+            throw context.getExceptionPolicy().resultSetFailure("Exception thrown while attempting to traverse the result set", e, context);
         }
         finally {
             jdbiStatement.cleanup();

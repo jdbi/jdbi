@@ -1,16 +1,14 @@
 package org.skife.jdbi.v2.exceptions;
 
-import java.sql.SQLException;
-
 public class UnableToManipulateTransactionIsolationLevelException extends DBIException
 {
-    public UnableToManipulateTransactionIsolationLevelException(int i, SQLException e)
+    public UnableToManipulateTransactionIsolationLevelException(int i, Throwable cause)
     {
-        super("Unable to set isolation level to " + i, e);
+        super("Unable to set isolation level to " + i, cause);
     }
 
-    public UnableToManipulateTransactionIsolationLevelException(String msg, SQLException e)
+    public UnableToManipulateTransactionIsolationLevelException(String msg, Throwable cause)
     {
-        super(msg, e);
+        super(msg, cause);
     }
 }

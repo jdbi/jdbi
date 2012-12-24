@@ -16,7 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
@@ -37,7 +36,7 @@ public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
         }
         catch (SQLException e)
         {
-            throw new ResultSetException("Unable to obtain metadata from result set", e, ctx);
+            throw ctx.getExceptionPolicy().resultSetFailure("Unable to obtain metadata from result set", e, ctx);
         }
 
         try
@@ -52,7 +51,7 @@ public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
         }
         catch (SQLException e)
         {
-            throw new ResultSetException("Unable to access specific metadata from " +
+            throw ctx.getExceptionPolicy().resultSetFailure("Unable to access specific metadata from " +
                                          "result set metadata", e, ctx);
         }
         return row;

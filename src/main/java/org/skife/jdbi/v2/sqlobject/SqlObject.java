@@ -5,6 +5,7 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
+
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -51,7 +52,7 @@ class SqlObject
                 e.setSuperclass(sqlObjectType);
             }
             e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
-            final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
+            final SqlObject so = new SqlObject(buildHandlersFor(handle, sqlObjectType), handle);
             e.setCallback(new MethodInterceptor()
             {
                 @Override
@@ -65,7 +66,7 @@ class SqlObject
             return t;
         }
 
-        final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
+        final SqlObject so = new SqlObject(buildHandlersFor(handle, sqlObjectType), handle);
         return (T) f.newInstance(new MethodInterceptor()
         {
             @Override
@@ -76,7 +77,7 @@ class SqlObject
         });
     }
 
-    private static Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType)
+    private static Map<Method, Handler> buildHandlersFor(HandleDing handle, Class<?> sqlObjectType)
     {
         if (handlersCache.containsKey(sqlObjectType)) {
             return handlersCache.get(sqlObjectType);
@@ -95,7 +96,7 @@ class SqlObject
                 handlers.put(raw_method, new QueryHandler(sqlObjectType, method, ResultReturnThing.forType(method)));
             }
             else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
-                handlers.put(raw_method, new UpdateHandler(sqlObjectType, method));
+                handlers.put(raw_method, new UpdateHandler(handle, sqlObjectType, method));
             }
             else if (raw_method.isAnnotationPresent(SqlBatch.class)) {
                 handlers.put(raw_method, new BatchHandler(sqlObjectType, method));

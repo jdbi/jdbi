@@ -6,7 +6,6 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.ResultBearing;
 import org.skife.jdbi.v2.ResultIterator;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -24,7 +23,7 @@ abstract class ResultReturnThing
                 mapper = method.getRawMember().getAnnotation(Mapper.class).value().newInstance();
             }
             catch (Exception e) {
-                throw new UnableToCreateStatementException("unable to access mapper", e);
+                throw q.getContext().getExceptionPolicy().unableToCreateStatement("unable to access mapper", e, null);
             }
             return result(q.map(mapper), h);
         }

@@ -17,7 +17,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
-import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
@@ -61,6 +61,7 @@ public class DBI implements IDBI
     private AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
     private AtomicReference<SQLLog> log = new AtomicReference<SQLLog>(new NoOpLog());
     private AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
+    private AtomicReference<ExceptionPolicy> exceptionPolicy = new AtomicReference<ExceptionPolicy>(new ExceptionPolicy());
 
     /**
      * Constructor for use with a DataSource which will provide
@@ -194,6 +195,17 @@ public class DBI implements IDBI
     {
         return this.transactionhandler.get();
     }
+    
+    public void setExceptionPolicy(ExceptionPolicy exceptionPolicy)
+    {
+        assert (exceptionPolicy != null);
+        this.exceptionPolicy.set(exceptionPolicy);
+    }
+    
+    public ExceptionPolicy getExceptionPolicy()
+    {
+        return this.exceptionPolicy.get();
+    }
 
     /**
      * Obtain a Handle to the data source wrapped by this DBI instance
@@ -211,6 +223,7 @@ public class DBI implements IDBI
                                        statementLocator.get(),
                                        cache,
                                        statementRewriter.get(),
+                                       exceptionPolicy.get(),
                                        conn,
                                        globalStatementAttributes,
                                        log.get(),
@@ -222,7 +235,7 @@ public class DBI implements IDBI
             return h;
         }
         catch (SQLException e) {
-            throw new UnableToObtainConnectionException(e);
+            throw exceptionPolicy.get().unableToOpenConnection(e);
         }
     }
 
@@ -274,7 +287,7 @@ public class DBI implements IDBI
             return callback.withHandle(h);
         }
         catch (Exception e) {
-            throw new CallbackFailedException(e);
+            throw exceptionPolicy.get().callbackFailed(e);
         }
         finally {
             h.close();

@@ -16,8 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
@@ -33,20 +31,23 @@ import java.util.Map;
  */
 public class Batch extends BaseStatement
 {
-    private List<String> parts = new ArrayList<String>();
+    private final List<String> parts = new ArrayList<String>();
+    private final Handle handle;
     private final StatementRewriter rewriter;
     private final Connection connection;
     private final SQLLog log;
     private final TimingCollector timingCollector;
 
-    Batch(StatementRewriter rewriter,
+    Batch(Handle handle,
+          StatementRewriter rewriter,
           Connection connection,
           Map<String, Object> globalStatementAttributes,
           SQLLog log,
           TimingCollector timingCollector,
           Foreman foreman)
     {
-        super(new ConcreteStatementContext(globalStatementAttributes), foreman);
+        super(new ConcreteStatementContext(handle, globalStatementAttributes), foreman);
+        this.handle = handle;
         this.rewriter = rewriter;
         this.connection = connection;
         this.log = log;
@@ -96,7 +97,7 @@ public class Batch extends BaseStatement
             }
             catch (SQLException e)
             {
-                throw new UnableToCreateStatementException(e, getContext());
+                throw handle.getExceptionPolicy().unableToCreateStatement(e, getContext());
             }
 
             final SQLLog.BatchLogger logger = log.logBatch();
@@ -111,7 +112,7 @@ public class Batch extends BaseStatement
             }
             catch (SQLException e)
             {
-                throw new UnableToExecuteStatementException("Unable to configure JDBC statement", e, getContext());
+                throw handle.getExceptionPolicy().unableToExecuteStatement("Unable to configure JDBC statement", e, getContext());
             }
 
             try
@@ -127,7 +128,7 @@ public class Batch extends BaseStatement
             }
             catch (SQLException e)
             {
-                throw new UnableToExecuteStatementException(e, getContext());
+                throw handle.getExceptionPolicy().unableToExecuteStatement(e, getContext());
             }
         }
         finally {

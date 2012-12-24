@@ -16,7 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.NamedArgumentFinder;
 
@@ -47,10 +46,9 @@ class BeanPropertyArguments implements NamedArgumentFinder
         }
         catch (IntrospectionException e)
         {
-            throw new UnableToCreateStatementException("Failed to introspect object which is supposed ot be used to" +
+            throw ctx.getExceptionPolicy().unableToCreateStatement("Failed to introspect object which is supposed ot be used to" +
                                                        " set named args for a statement via JavaBean properties", e, ctx);
         }
-
     }
 
     public Argument find(String name)
@@ -67,13 +65,13 @@ class BeanPropertyArguments implements NamedArgumentFinder
                 }
                 catch (IllegalAccessException e)
                 {
-                    throw new UnableToCreateStatementException(String.format("Access excpetion invoking getter for " +
+                    throw ctx.getExceptionPolicy().unableToCreateStatement(String.format("Access excpetion invoking getter for " +
                                                                              "bean property [%s] on [%s]",
                                                                              name, bean), e, ctx);
                 }
                 catch (InvocationTargetException e)
                 {
-                    throw new UnableToCreateStatementException(String.format("Invocation target exception invoking " +
+                    throw ctx.getExceptionPolicy().unableToCreateStatement(String.format("Invocation target exception invoking " +
                                                                              "getter for bean property [%s] on [%s]",
                                                                              name, bean), e, ctx);
                 }

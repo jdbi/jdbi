@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 /**
@@ -49,7 +48,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                     {
                         throw (RuntimeException) e;
                     }
-                    throw new TransactionFailedException(e);
+                    throw handle.getExceptionPolicy().transactionFailed(e);
                 }
             }
         }

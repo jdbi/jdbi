@@ -2,7 +2,6 @@ package org.skife.jdbi.v2.sqlobject;
 
 import net.sf.cglib.proxy.MethodProxy;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
 class WithHandleHandler implements Handler
@@ -15,7 +14,7 @@ class WithHandleHandler implements Handler
             return callback.withHandle(handle);
         }
         catch (Exception e) {
-            throw new CallbackFailedException(e);
+            throw handle.getExceptionPolicy().callbackFailed(e);
         }
     }
 }

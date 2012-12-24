@@ -16,7 +16,7 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
@@ -92,7 +92,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
             return mapper.map(count++, results, context);
         }
         catch (SQLException e) {
-            throw new ResultSetException("Error thrown mapping result set into return type", e, context);
+            throw context.getExceptionPolicy().resultSetFailure("Error thrown mapping result set into return type", e, context);
         }
         finally {
             alreadyAdvanced = safeNext();
@@ -113,7 +113,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
             return results.next();
         }
         catch (SQLException e) {
-            throw new ResultSetException("Unable to advance result set", e, context);
+            throw context.getExceptionPolicy().resultSetFailure("Unable to advance result set", e, context);
         }
     }
 }

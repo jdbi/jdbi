@@ -39,7 +39,7 @@ public class TestHashPrefixStatementRewriter extends TestCase
     public void testNewlinesOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from something\n where id = #id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(null, new HashMap<String, Object>()));
         assertEquals("select * from something\n where id = ?", rws.getSql());
     }
 
@@ -48,35 +48,35 @@ public class TestHashPrefixStatementRewriter extends TestCase
     public void testOddCharacters() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("~* #boo '#nope' _%&^& *@ #id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(null, new HashMap<String, Object>()));
         assertEquals("~* ? '#nope' _%&^& *@ ?", rws.getSql());
     }
 
     public void testNumbers() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("#bo0 '#nope' _%&^& *@ #id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(null, new HashMap<String, Object>()));
         assertEquals("? '#nope' _%&^& *@ ?", rws.getSql());
     }
 
     public void testDollarSignOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from v$session", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(null, new HashMap<String, Object>()));
         assertEquals("select * from v$session", rws.getSql());
     }
 
     public void testColonIsLiteral() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from foo where id = :id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(null, new HashMap<String, Object>()));
         assertEquals("select * from foo where id = :id", rws.getSql());
     }
 
     public void testBacktickOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from `v$session", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(null, new HashMap<String, Object>()));
         assertEquals("select * from `v$session", rws.getSql());
     }
 
@@ -85,7 +85,7 @@ public class TestHashPrefixStatementRewriter extends TestCase
     {
         try {
             rw.rewrite("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c", new Binding(),
-                       new ConcreteStatementContext(new HashMap<String, Object>()));
+                       new ConcreteStatementContext(null, new HashMap<String, Object>()));
 
             Assert.fail("Expected 'UnableToCreateStatementException' but got none");
         }

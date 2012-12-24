@@ -16,6 +16,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
 import org.skife.jdbi.v2.logging.NoOpLog;
 
 import java.sql.Connection;
@@ -43,6 +44,7 @@ public class TestTimingCollector extends DBITestCase
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
                                         new ColonPrefixNamedParamStatementRewriter(),
+                                        new ExceptionPolicy(),
                                         conn,
                                         new HashMap<String, Object>(),
                                         new NoOpLog(),

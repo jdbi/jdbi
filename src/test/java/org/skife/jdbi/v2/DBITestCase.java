@@ -17,6 +17,7 @@ package org.skife.jdbi.v2;
 
 import junit.framework.TestCase;
 import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
@@ -68,6 +69,7 @@ public abstract class DBITestCase extends TestCase
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
                                         new ColonPrefixNamedParamStatementRewriter(),
+                                        new ExceptionPolicy(),
                                         conn,
                                         new HashMap<String, Object>(),
                                         new NoOpLog(),

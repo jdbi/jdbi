@@ -3,7 +3,6 @@ package org.skife.jdbi.v2.sqlobject;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -116,7 +115,7 @@ abstract class CustomizingStatementHandler implements Handler
                 pair.factory.createForType(pair.annotation, sqlObjectType).apply(q);
             }
             catch (SQLException e) {
-                throw new UnableToCreateStatementException("unable to apply customizer", e, q.getContext());
+                throw q.getContext().getExceptionPolicy().unableToCreateStatement("unable to apply customizer", e, q.getContext());
             }
         }
 
@@ -125,7 +124,7 @@ abstract class CustomizingStatementHandler implements Handler
                 pair.factory.createForMethod(pair.annotation, sqlObjectType, method).apply(q);
             }
             catch (SQLException e) {
-                throw new UnableToCreateStatementException("unable to apply customizer", e, q.getContext());
+                throw q.getContext().getExceptionPolicy().unableToCreateStatement("unable to apply customizer", e, q.getContext());
             }
         }
 
@@ -137,7 +136,7 @@ abstract class CustomizingStatementHandler implements Handler
                         .apply(q);
                 }
                 catch (SQLException e) {
-                    throw new UnableToCreateStatementException("unable to apply customizer", e, q.getContext());
+                    throw q.getContext().getExceptionPolicy().unableToCreateStatement("unable to apply customizer", e, q.getContext());
                 }
             }
         }

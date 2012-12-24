@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
@@ -54,7 +55,7 @@ public class CMTTransactionHandler implements TransactionHandler
      */
     public void rollback(Handle handle)
     {
-        throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");
+        throw handle.getExceptionPolicy().transactionException("Rollback called, this runtime exception thrown to halt the transaction");
     }
 
     /**
@@ -79,7 +80,7 @@ public class CMTTransactionHandler implements TransactionHandler
         }
         catch (SQLException e)
         {
-            throw new TransactionException("Failed to check status of transaction", e);
+            throw handle.getExceptionPolicy().transactionException("Failed to check status of transaction", e);
         }
     }
 
@@ -102,7 +103,7 @@ public class CMTTransactionHandler implements TransactionHandler
      */
     public void release(Handle handle, String checkpointName)
     {
-        throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");
+        throw handle.getExceptionPolicy().transactionException("Rollback called, this runtime exception thrown to halt the transaction");
     }
 
     private class ExplodingTransactionStatus implements TransactionStatus
@@ -133,7 +134,7 @@ public class CMTTransactionHandler implements TransactionHandler
             {
                 throw (RuntimeException) e;
             }
-            throw new TransactionException(e);
+            throw handle.getExceptionPolicy().transactionException(e);
         }
     }
 

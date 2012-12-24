@@ -16,9 +16,7 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
-import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
-import org.skife.jdbi.v2.exceptions.UnableToManipulateTransactionIsolationLevelException;
+import org.skife.jdbi.v2.exceptions.ExceptionPolicy;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
@@ -36,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 class BasicHandle implements Handle
 {
@@ -54,6 +51,7 @@ class BasicHandle implements Handle
     private final ContainerFactoryRegistry containerFactoryRegistry;
     private final Foreman                  foreman;
     private final TransactionHandler       transactions;
+    private final ExceptionPolicy          exceptionPolicy;
     private final Connection               connection;
 
 
@@ -61,6 +59,7 @@ class BasicHandle implements Handle
                 StatementLocator statementLocator,
                 StatementBuilder preparedStatementCache,
                 StatementRewriter statementRewriter,
+                ExceptionPolicy exceptionPolicy,
                 Connection connection,
                 Map<String, Object> globalStatementAttributes,
                 SQLLog log,
@@ -71,6 +70,7 @@ class BasicHandle implements Handle
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
+        this.exceptionPolicy = exceptionPolicy;
         this.transactions = transactions;
         this.connection = connection;
         this.statementLocator = statementLocator;
@@ -92,7 +92,7 @@ class BasicHandle implements Handle
                                               this,
                                               statementBuilder,
                                               sql,
-                                              new ConcreteStatementContext(globalStatementAttributes),
+                                              new ConcreteStatementContext(this, globalStatementAttributes),
                                               log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
@@ -119,7 +119,7 @@ class BasicHandle implements Handle
                 connection.close();
             }
             catch (SQLException e) {
-                throw new UnableToCloseResourceException("Unable to close Connection", e);
+                throw exceptionPolicy.unableToCloseResource("Unable to close Connection", e);
             }
             finally {
                 log.logReleaseHandle(this);
@@ -242,7 +242,7 @@ class BasicHandle implements Handle
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes),
+                          new ConcreteStatementContext(this, globalStatementAttributes),
                           log,
                           timingCollector,
                           foreman,
@@ -256,7 +256,7 @@ class BasicHandle implements Handle
                         statementRewriter,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(globalStatementAttributes),
+                        new ConcreteStatementContext(this, globalStatementAttributes),
                         log,
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
@@ -286,7 +286,7 @@ class BasicHandle implements Handle
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(this.globalStatementAttributes),
+                                 new ConcreteStatementContext(this, this.globalStatementAttributes),
                                  log,
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
@@ -296,7 +296,8 @@ class BasicHandle implements Handle
 
     public Batch createBatch()
     {
-        return new Batch(this.statementRewriter,
+        return new Batch(this,
+                         this.statementRewriter,
                          this.connection,
                          globalStatementAttributes,
                          log,
@@ -392,7 +393,7 @@ class BasicHandle implements Handle
             connection.setTransactionIsolation(level);
         }
         catch (SQLException e) {
-            throw new UnableToManipulateTransactionIsolationLevelException(level, e);
+            throw exceptionPolicy.unableToSetTransactionIsolation(level, e);
         }
     }
 
@@ -402,7 +403,7 @@ class BasicHandle implements Handle
             return TransactionIsolationLevel.valueOf(connection.getTransactionIsolation());
         }
         catch (SQLException e) {
-            throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
+            throw exceptionPolicy.unableToSetTransactionIsolation("unable to access current setting", e);
         }
     }
 
@@ -414,5 +415,10 @@ class BasicHandle implements Handle
     public void registerContainerFactory(ContainerFactory<?> factory)
     {
         this.containerFactoryRegistry.register(factory);
+    }
+    
+    public ExceptionPolicy getExceptionPolicy()
+    {
+        return exceptionPolicy;
     }
 }

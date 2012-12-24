@@ -4,8 +4,8 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 import net.sf.cglib.proxy.MethodProxy;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.GeneratedKeys;
+import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Update;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 class UpdateHandler extends CustomizingStatementHandler
@@ -13,7 +13,7 @@ class UpdateHandler extends CustomizingStatementHandler
     private final String sql;
     private final Returner returner;
 
-    public UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    public UpdateHandler(HandleDing handle, Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
@@ -26,7 +26,7 @@ class UpdateHandler extends CustomizingStatementHandler
                 mapper = ggk.value().newInstance();
             }
             catch (Exception e) {
-                throw new UnableToCreateStatementException("Unable to instantiate result set mapper for statement", e);
+                throw handle.getHandle().getExceptionPolicy().unableToCreateStatement("Unable to instantiate result set mapper for statement", e, null);
             }
             this.returner = new Returner()
             {

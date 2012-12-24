@@ -19,8 +19,6 @@ package org.skife.jdbi.v2;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
@@ -57,7 +55,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
             return new MyRewrittenStatement(parsedSql, stmt, ctx);
         }
         catch (IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
+            throw ctx.getExceptionPolicy().unableToCreateStatement("Exception parsing for named parameter replacement", e, ctx);
         }
 
     }
@@ -120,7 +118,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                         a.apply(i + 1, statement, this.context);
                         }
                         catch (SQLException e) {
-                            throw new UnableToExecuteStatementException(
+                            throw context.getExceptionPolicy().unableToExecuteStatement(
                                     String.format("Exception while binding positional param at (0 based) position %d",
                                                   i), e, context);
                         }
@@ -145,14 +143,14 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                                                    "\"%s\" and no positional param for place %d (which is %d in " +
                                                    "the JDBC 'start at 1' scheme) has been set.",
                                                    named_param, i, i + 1);
-                        throw new UnableToExecuteStatementException(msg, context);
+                        throw context.getExceptionPolicy().unableToExecuteStatement(msg, context);
                     }
 
                     try {
                         a.apply(i + 1, statement, this.context);
                     }
                     catch (SQLException e) {
-                        throw new UnableToCreateStatementException(String.format("Exception while binding '%s'",
+                        throw context.getExceptionPolicy().unableToCreateStatement(String.format("Exception while binding '%s'",
                                                                                  named_param), e, context);
                     }
                     i++;
