@@ -141,7 +141,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @return The return value from the last invocation of {@link Folder#fold(Object, java.sql.ResultSet)}
      *
      * @see org.skife.jdbi.v2.Folder
-     * @deprecated Use {@link Query#fold(Object, Folder3)}
      */
     public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder2<AccumulatorType> folder)
     {
