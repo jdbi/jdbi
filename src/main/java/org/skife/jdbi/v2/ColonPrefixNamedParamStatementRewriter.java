@@ -23,6 +23,7 @@ import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.PreparedStatement;
@@ -108,7 +109,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
             this.stmt = stmt;
         }
 
-        public void bind(Binding params, PreparedStatement statement) throws SQLException
+        public void bind(Binding params, PreparedStatement statement, SQLLog log) throws SQLException
         {
             if (stmt.positionalOnly) {
                 // no named params, is easy
@@ -117,7 +118,8 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                     final Argument a = params.forPosition(i);
                     if (a != null) {
                         try {
-                        a.apply(i + 1, statement, this.context);
+                            a.apply(i + 1, statement, this.context);
+                            log.logBinding(i + 1, null, a.toString());
                         }
                         catch (SQLException e) {
                             throw new UnableToExecuteStatementException(
@@ -150,6 +152,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
 
                     try {
                         a.apply(i + 1, statement, this.context);
+                        log.logBinding(i + 1, named_param, a.toString());
                     }
                     catch (SQLException e) {
                         throw new UnableToCreateStatementException(String.format("Exception while binding '%s'",

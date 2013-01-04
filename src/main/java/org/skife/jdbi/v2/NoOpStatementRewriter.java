@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.sql.PreparedStatement;
@@ -46,12 +47,13 @@ public class NoOpStatementRewriter implements StatementRewriter
             this.sql = sql;
         }
 
-        public void bind(Binding params, PreparedStatement statement) throws SQLException
+        public void bind(Binding params, PreparedStatement statement, SQLLog log) throws SQLException
         {
             for (int i = 0; ; i++) {
-                final Argument s = params.forPosition(i);
-                if (s == null) { break; }
-                s.apply(i + 1, statement, this.context);
+                final Argument argument = params.forPosition(i);
+                if (argument == null) { break; }
+                argument.apply(i + 1, statement, this.context);
+                log.logBinding(i + 1, null, argument.toString());
             }
         }
 

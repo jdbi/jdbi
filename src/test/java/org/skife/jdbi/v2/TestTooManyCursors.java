@@ -90,7 +90,12 @@ public class TestTooManyCursors extends DBITestCase
             return target.getLoginTimeout();
         }
 
-	    public <T> T unwrap(Class<T> iface) throws SQLException
+        //necessary for java 7
+        public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+            return null;
+        }
+
+        public <T> T unwrap(Class<T> iface) throws SQLException
 	    {
 		    return null;
 	    }

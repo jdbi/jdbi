@@ -278,7 +278,29 @@ public class DelegatingConnection implements Connection
 		return null;
 	}
 
-	public <T> T unwrap(Class<T> iface) throws SQLException
+    //needed for java 7
+    public void setSchema(String schema) throws SQLException {
+    }
+
+    //needed for java 7
+    public String getSchema() throws SQLException {
+        return null;
+    }
+
+    //needed for java 7
+    public void abort(Executor executor) throws SQLException {
+    }
+
+    //needed for java 7
+    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+    }
+
+    //needed for java 7
+    public int getNetworkTimeout() throws SQLException {
+        return 0;
+    }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException
 	{
 		return null;
 	}
