@@ -133,11 +133,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 				}
 				
         if (type.isEnum() && value != null) {
-            try {
-              value = Enum.valueOf((Class) type, (String) value);
-            } catch (IllegalArgumentException ignore) {
-              value = null;
-            }
+          value = Enum.valueOf((Class) type, (String) value);
         }
 
 				try
