@@ -12,6 +12,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,10 +141,29 @@ class SqlObject
         this.ding = ding;
     }
 
+    private boolean isOverridden(Method method1, Method method2) {
+        return method1.getDeclaringClass().isAssignableFrom(method2.getDeclaringClass()) &&
+                method1.getName().equals(method2.getName()) &&
+                Arrays.deepEquals(method1.getParameterTypes(), method2.getParameterTypes());
+    }
+
     public Object invoke(Object proxy, Method method, Object[] args, MethodProxy mp) throws Throwable
     {
         try {
             ding.retain(method.toString());
+
+            if (!handlers.containsKey(method)) {
+                // Find something that matches, probably should iterate over the map and find the first match,
+                // then make the entry in the map.
+                // NOTE: This is a heuristic, we take the first match.
+                for(Method handler: this.handlers.keySet()) {
+                    if(this.isOverridden(method, handler)) {
+                        this.handlers.put(method, this.handlers.get(handler));
+                        break;
+                    }
+                }
+            }
+
             return handlers.get(method).invoke(ding, proxy, args, mp);
         }
         finally {

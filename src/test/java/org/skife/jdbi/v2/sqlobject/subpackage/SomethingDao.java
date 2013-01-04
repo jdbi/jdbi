@@ -19,6 +19,10 @@ public abstract class SomethingDao
     public Something findByIdHeeHee(int id) {
         return findById(id);
     }
+    
+    public abstract Something findByName(String name);
+
+    public abstract Something findByNotName(String name);
 
     public abstract void totallyBroken();
 

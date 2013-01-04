@@ -328,7 +328,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * This is useful for doing chunked streaming of results when exhausting memory
      * could be a problem.
      *
-     * @param i the number of rows to fetch in a bunch
+     * @param fetchSize the number of rows to fetch in a bunch
      *
      * @return the modified query
      */
@@ -342,7 +342,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * Specify the maimum number of rows the query is to return. This uses the underlying JDBC
      * {@link Statement#setMaxRows(int)}}.
      *
-     * @param i maximum number of rows to return
+     * @param maxRows maximum number of rows to return
      *
      * @return modified query
      */
@@ -356,7 +356,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * Specify the maimum field size in the result set. This uses the underlying JDBC
      * {@link Statement#setMaxFieldSize(int)}
      *
-     * @param i maximum field size
+     * @param maxFields maximum field size
      *
      * @return modified query
      */

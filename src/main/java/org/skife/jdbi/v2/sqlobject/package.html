@@ -8,10 +8,10 @@
     <code>
         public interface TheBasics
         {
-            @SqlUpdate("insert into something (id, name) values (:id, :name)")
+            {@literal @}SqlUpdate("insert into something (id, name) values (:id, :name)")
             int insert(@BindBean Something something);
 
-            @SqlQuery("select id, name from something where id = :id")
+            {@literal @}SqlQuery("select id, name from something where id = :id")
             Something findById(@Bind("id") long id);
         }
     </code>
