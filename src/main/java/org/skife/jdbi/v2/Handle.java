@@ -25,6 +25,7 @@ import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
+import java.io.Closeable;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ import java.util.Map;
  * This represents a connection to the database system. It ususally is a wrapper around
  * a JDBC Connection object.
  */
-public interface Handle
+public interface Handle extends Closeable
 {
 
     /**

@@ -16,6 +16,7 @@
 
 package org.skife.jdbi.v2;
 
+import java.io.Closeable;
 import java.util.Iterator;
 
 /**
@@ -31,7 +32,7 @@ import java.util.Iterator;
  * The <code>remove()</code> operation is not supported in the default
  * version, and will raise an <code>UnsupportedOperationException</code>
  */
-public interface ResultIterator<Type> extends Iterator<Type>
+public interface ResultIterator<Type> extends Iterator<Type>, Closeable
 {
     /**
      * Close the underlying resultset
