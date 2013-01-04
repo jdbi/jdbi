@@ -78,9 +78,8 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 		ResultSetMetaData metadata = rs.getMetaData();
 
 		for (int i = 1; i <= metadata.getColumnCount(); ++i) {
-			String name = metadata.getColumnLabel(i).toLowerCase();
-
-			PropertyDescriptor descriptor = properties.get(name);
+      String name = pascalCaseToCamelCase(metadata.getColumnLabel(i).toLowerCase());
+      PropertyDescriptor descriptor = properties.get(name);
 
 			if (descriptor != null) {
 				Class<?> type = descriptor.getPropertyType();
@@ -156,5 +155,21 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 
         return bean;
 	}
+	
+  static String pascalCaseToCamelCase(String str) 
+  {
+    StringBuilder sb = new StringBuilder();
+    String[] tokens = str.split("_");
+    for (int i = 0; i < tokens.length; i++) 
+    {
+      String s = tokens[i];
+      char c = s.charAt(0);
+      sb.append(i == 0 ? Character.toLowerCase(c) : Character.toUpperCase(c));
+      if (s.length() > 1)
+        sb.append(s.substring(1, s.length()).toLowerCase());
+    }
+
+    return sb.toString();
+  }
 }
 
