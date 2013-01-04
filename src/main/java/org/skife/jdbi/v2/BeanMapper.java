@@ -67,8 +67,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         }
         catch (Exception e) {
             throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
-                                                             "which was not instantiable", type.getName()),
-                                               e);
+                                                             "which was not instantiable", type.getName()), e);
         }
 
         ResultSetMetaData metadata = rs.getMetaData();
@@ -79,7 +78,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
             PropertyDescriptor descriptor = properties.get(name);
 
             if (descriptor != null) {
-                Class<?> type = descriptor.getPropertyType();
+                Class type = descriptor.getPropertyType();
 
                 Object value;
 
@@ -119,19 +118,19 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                 else if (type.isAssignableFrom(String.class)) {
                     value = rs.getString(i);
                 }
+                else if (type.isEnum()) {
+                    value = Enum.valueOf(type, rs.getString(i));
+                }
                 else {
                     value = rs.getObject(i);
                 }
 
-                if (rs.wasNull() && !type.isPrimitive()) {
-                    value = null;
-                }
+				if (rs.wasNull() && !type.isPrimitive()) {
+					value = null;
+				}
 
-                if (type.isEnum() && value != null) {
-                    value = Enum.valueOf((Class) type, (String) value);
-                }
-
-                try {
+				try
+				{
                     descriptor.getWriteMethod().invoke(bean, value);
                 }
                 catch (IllegalAccessException e) {
