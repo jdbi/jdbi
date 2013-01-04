@@ -60,7 +60,8 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         }
 	}
 
-	public T map(int row, ResultSet rs, StatementContext ctx)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+  public T map(int row, ResultSet rs, StatementContext ctx)
 			throws SQLException
 	{
 		T bean;
@@ -130,6 +131,10 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 				if (rs.wasNull() && !type.isPrimitive()) {
 					value = null;
 				}
+				
+        if (type.isEnum() && value != null) {
+          value = Enum.valueOf((Class) type, (String) value);
+        }
 
 				try
 				{
