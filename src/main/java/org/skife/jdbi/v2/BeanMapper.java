@@ -115,6 +115,11 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                 else if (type.isAssignableFrom(Date.class)) {
                     value = rs.getDate(i);
                 }
+                else if (type.isAssignableFrom(java.util.Calendar.class)) {
+                	  java.util.Calendar  calendar = java.util.Calendar.getInstance();
+                	  calendar.setTimeInMillis(rs.getTimestamp(i).getTime());
+                    value = calendar;
+                }
                 else if (type.isAssignableFrom(String.class)) {
                     value = rs.getString(i);
                 }
