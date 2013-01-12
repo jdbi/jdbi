@@ -10,6 +10,7 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,32 @@ class Foreman
 
     private static final class BuiltInArgumentFactory implements ArgumentFactory
     {
+        private static final Map<Class, P> inheritedMap = new HashMap<Class, P>(){
+            @Override
+            public P get(Object key) {
+                P p = super.get(key);
+                if(p == null && key instanceof Class){
+                    Class keyClass = (Class) key;
+                    Class superclass = keyClass.getSuperclass();
+                    while( superclass != null){
+                        p = super.get(superclass);
+                        if(p != null){
+                            // fast access for future calls
+                            put(keyClass, p);
+                            break;
+                        }
+                        superclass = superclass.getSuperclass();
+                    }
+                }
+                return p;
+            }
+
+            @Override
+            public boolean containsKey(Object key) {
+                return get(key) != null;
+            }
+        };
+
         private static final Map<Class, P> b = new IdentityHashMap<Class, P>();
 
         static {
@@ -85,16 +112,23 @@ class Foreman
             b.put(Time.class, new P(TimeArgument.class));
             b.put(Timestamp.class, new P(TimestampArgument.class));
             b.put(URL.class, new P(URLArgument.class));
+
+            inheritedMap.put(Object.class, new P(ObjectArgument.class));
+            inheritedMap.put(Enum.class, new P(EnumArgument.class));
         }
 
         public boolean accepts(Class expectedType, Object value, StatementContext ctx)
         {
-            return b.containsKey(expectedType);
+            return b.containsKey(expectedType) || (inheritedMap.containsKey(expectedType));
         }
 
         public Argument build(Class expectedType, Object value, StatementContext ctx)
         {
-            return b.get(expectedType).build(value);
+            P p = b.get(expectedType);
+            if(p == null){
+                p = inheritedMap.get(expectedType);
+            }
+            return p.build(value);
         }
 
         private static class P

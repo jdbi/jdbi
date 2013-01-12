@@ -403,6 +403,32 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
+    public final SelfType bind(int position, Enum value)
+    {
+        return bind(position, getForeman().waffle(Enum.class, value, getContext()));
+    }
+
+    /**
+     * Bind an argument by name
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType bind(String name, Enum value)
+    {
+        return bind(name, getForeman().waffle(Enum.class, value, getContext()));
+    }
+
+    /**
+     * Bind an argument positionally
+     *
+     * @param position position to bind the paramater at, starting at 0
+     * @param value    to bind
+     *
+     * @return the same Query instance
+     */
     public final SelfType bind(int position, int value)
     {
         return bind(position, getForeman().waffle(int.class, value, getContext()));
@@ -1115,7 +1141,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Object value)
     {
-        return bind(name, getForeman().waffle(Object.class, value, getContext()));
+        Class<?> valueClass = value == null ? Object.class : value.getClass();
+        return bind(name, getForeman().waffle(valueClass, value, getContext()));
     }
 
     /**
