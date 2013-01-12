@@ -3,18 +3,11 @@ package org.skife.jdbi.v2;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
-import org.skife.jdbi.v2.util.IntegerMapper;
 import org.skife.jdbi.v2.util.StringMapper;
 
-import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -107,7 +100,7 @@ public class TestArgumentFactory
     {
         public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
-            return expectedType == Object.class && value instanceof Name;
+            return expectedType instanceof Object && value instanceof Name;
         }
 
         public Argument build(Class<?> expectedType, Name value, StatementContext ctx)

@@ -40,7 +40,9 @@ public class TestEnums extends DBITestCase
     public void testMapEnumValues() throws Exception
     {
         Handle h = openHandle();
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        h.createStatement("insert into something (id, name) values (1, ?)")
+                .bind(0, SomethingElse.Name.eric)
+                .execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
 
         List<SomethingElse> results = h.createQuery("select * from something order by id")

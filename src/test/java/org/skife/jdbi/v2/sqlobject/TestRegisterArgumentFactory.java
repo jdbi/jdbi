@@ -68,7 +68,7 @@ public class TestRegisterArgumentFactory
     {
         public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
-            return expectedType == Object.class && value instanceof Name;
+            return expectedType instanceof Object && value instanceof Name;
         }
 
         public Argument build(Class<?> expectedType, final Name value, StatementContext ctx)
