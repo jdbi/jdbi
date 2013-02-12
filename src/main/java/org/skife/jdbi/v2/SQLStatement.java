@@ -1326,8 +1326,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return timingCollector;
     }
 
-    public void setFetchDirection(final int value)
+    public SelfType setFetchDirection(final int value)
     {
-        addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
+        return addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
     }
 }
