@@ -123,18 +123,32 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Override the statement locator used for this statement
      */
-    public SelfType setStatementLocator(StatementLocator locator)
+    public void setStatementLocator(StatementLocator locator)
     {
         this.locator = locator;
+    }
+
+    /**
+     * Exactly the same as setStatementLocator but returns self.
+     */
+    public SelfType setStatementLocator2(StatementLocator locator) {
+        setStatementLocator(locator);
         return (SelfType) this;
     }
 
     /**
      * Override the statement rewriter used for this statement
      */
-    public SelfType setStatementRewriter(StatementRewriter rewriter)
+    public void setStatementRewriter(StatementRewriter rewriter)
     {
         this.rewriter = rewriter;
+    }
+
+    /**
+     * Exactly the same as setStatementRewriter but returns self
+     */
+    public SelfType setStatementRewriter2(StatementRewriter rewriter) {
+        setStatementRewriter(rewriter);
         return (SelfType) this;
     }
 
@@ -1328,8 +1342,15 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return timingCollector;
     }
 
-    public SelfType setFetchDirection(final int value)
+    public void setFetchDirection(final int value)
     {
-        return addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
+        addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
     }
+
+    public SelfType setFetchDirection2(final int value)
+    {
+        setFetchDirection(value);
+        return (SelfType) this;
+    }
+
 }
