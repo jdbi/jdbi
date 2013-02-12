@@ -123,17 +123,19 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Override the statement locator used for this statement
      */
-    public void setStatementLocator(StatementLocator locator)
+    public SelfType setStatementLocator(StatementLocator locator)
     {
         this.locator = locator;
+        return (SelfType) this;
     }
 
     /**
      * Override the statement rewriter used for this statement
      */
-    public void setStatementRewriter(StatementRewriter rewriter)
+    public SelfType setStatementRewriter(StatementRewriter rewriter)
     {
         this.rewriter = rewriter;
+        return (SelfType) this;
     }
 
     /**
