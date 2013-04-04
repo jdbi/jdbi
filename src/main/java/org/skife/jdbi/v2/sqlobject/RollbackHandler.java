@@ -6,7 +6,7 @@ class RollbackHandler implements Handler
 {
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
-        h.release("transaction");
+        h.release("transaction#explicit");
         h.getHandle().rollback();
         return null;
     }

@@ -6,7 +6,7 @@ class BeginHandler implements Handler
 {
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
-        h.retain("transaction");
+        h.retain("transaction#explicit");
         h.getHandle().begin();
         return null;
     }

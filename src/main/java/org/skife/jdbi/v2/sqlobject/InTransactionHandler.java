@@ -10,7 +10,7 @@ class InTransactionHandler implements Handler
 {
     public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
     {
-        h.retain("transaction");
+        h.retain("transaction#implicit");
         try {
             final Transaction t = (Transaction) args[0];
             return h.getHandle().inTransaction(new TransactionCallback()
@@ -22,7 +22,7 @@ class InTransactionHandler implements Handler
             });
         }
         finally {
-            h.release("transaction");
+            h.release("transaction#implicit");
         }
     }
 }
