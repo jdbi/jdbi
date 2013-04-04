@@ -6,6 +6,7 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
+import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.tweak.HandleCallback;
@@ -77,9 +78,29 @@ public class TestPostgresBugs
         assertThat(s, equalTo(new Something(1, "Brian")));
     }
 
+    @Test
+    public void testExplicitBeginAndInTransaction() throws Exception
+    {
+        DBI dbi = createDbi();
+        Dao dao = dbi.onDemand(Dao.class);
+
+        dao.begin();
+        Something s = dao.inTransaction(new org.skife.jdbi.v2.Transaction<Something, Dao>() {
+
+            @Override
+            public Something inTransaction(Dao transactional, TransactionStatus status) throws Exception
+            {
+                return  transactional.insertAndFetch(1, "Brian");
+            }
+        });
+
+        dao.commit();
+        assertThat(s, equalTo(new Something(1, "Brian")));
+    }
+
 
     @RegisterMapper(SomethingMapper.class)
-    public static abstract class Dao implements Transactional
+    public static abstract class Dao implements Transactional<Dao>
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         public abstract void insert(@Bind("id") int id, @Bind("name") String name);
