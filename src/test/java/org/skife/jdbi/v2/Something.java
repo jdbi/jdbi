@@ -76,6 +76,12 @@ public class Something
         this.intValue = intValue;
     }
 
+    // Issue #61: @BindBean fails if there is a writable but not readable property, so let's have one...
+    public void setWithoutGetter(String bogus)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public boolean equals(Object o)
     {
