@@ -22,10 +22,10 @@ public class Something
 {
     private int id;
     private String name;
-	private Integer integerValue;
-	private int intValue;
+    private Integer integerValue;
+    private int intValue;
 
-	public Something()
+    public Something()
     {
     }
 
@@ -56,24 +56,30 @@ public class Something
     }
 
 
-	public Integer getIntegerValue()
-	{
-		return integerValue;
-	}
+    public Integer getIntegerValue()
+    {
+        return integerValue;
+    }
 
-	public void setIntegerValue(Integer integerValue)
-	{
-		this.integerValue = integerValue;
-	}
+    public void setIntegerValue(Integer integerValue)
+    {
+        this.integerValue = integerValue;
+    }
 
-	public int getIntValue()
-	{
-		return intValue;
-	}
+    public int getIntValue()
+    {
+        return intValue;
+    }
 
-	public void setIntValue(int intValue)
-	{
-		this.intValue = intValue;
+    public void setIntValue(int intValue)
+    {
+        this.intValue = intValue;
+    }
+
+    // Issue #61: @BindBean fails if there is a writable but not readable property, so let's have one...
+    public void setWithoutGetter(String bogus)
+    {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -107,10 +113,10 @@ public class Something
     public String toString()
     {
         return "Something{" +
-               "id=" + id +
-               ", name='" + name + '\'' +
-               ", integerValue=" + integerValue +
-               ", intValue=" + intValue +
-               '}';
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", integerValue=" + integerValue +
+                ", intValue=" + intValue +
+                '}';
     }
 }

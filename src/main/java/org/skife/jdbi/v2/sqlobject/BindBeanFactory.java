@@ -6,6 +6,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 class BindBeanFactory implements BinderFactory
 {
@@ -27,7 +28,10 @@ class BindBeanFactory implements BinderFactory
                     BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
                     PropertyDescriptor[] props = infos.getPropertyDescriptors();
                     for (PropertyDescriptor prop : props) {
-                        q.bind(prefix + prop.getName(), prop.getReadMethod().invoke(arg));
+                        Method readMethod = prop.getReadMethod();
+                        if (readMethod != null) {
+                            q.bind(prefix + prop.getName(), readMethod.invoke(arg));
+                        }
                     }
                 }
                 catch (Exception e) {
