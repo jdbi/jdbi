@@ -27,8 +27,10 @@ import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -41,7 +43,8 @@ public class TestTransactionAnnotation
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:");
+        UUID uuid = UUID.randomUUID();
+        dbi = new DBI("jdbc:h2:mem:" + uuid);
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
@@ -59,7 +62,6 @@ public class TestTransactionAnnotation
     public void testTx() throws Exception
     {
         Dao dao = handle.attach(Dao.class);
-
         Something s = dao.insertAndFetch(1, "Ian");
         assertThat(s, equalTo(new Something(1, "Ian")));
     }
@@ -87,6 +89,21 @@ public class TestTransactionAnnotation
         Something s = dao.insertAndFetchWithNestedTransaction(1, "Ian");
         assertThat(s, equalTo(new Something(1, "Ian")));
 
+    }
+
+    @Test
+    public void testTxActuallyCommits() throws Exception
+    {
+        Handle h2 = dbi.open();
+        Dao one = handle.attach(Dao.class);
+        Dao two = h2.attach(Dao.class);
+
+        // insert in @Transaction method
+        Something inserted = one.insertAndFetch(1, "Brian");
+
+        // fetch from another connection
+        Something fetched = two.findById(1);
+        assertThat(fetched, equalTo(inserted));
     }
 
     @RegisterMapper(SomethingMapper.class)
