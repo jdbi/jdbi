@@ -178,8 +178,6 @@ public class LocalTransactionHandler implements TransactionHandler
     @Override
     public <ReturnType> ReturnType inTransaction(Handle handle, TransactionCallback<ReturnType> callback)
     {
-        boolean already_in_transaction = handle.isInTransaction();
-
         final AtomicBoolean failed = new AtomicBoolean(false);
         TransactionStatus status = new TransactionStatus()
         {
@@ -191,9 +189,9 @@ public class LocalTransactionHandler implements TransactionHandler
         };
         final ReturnType returnValue;
         try {
-            if (!already_in_transaction) { handle.begin(); }
+            handle.begin();
             returnValue = callback.inTransaction(handle, status);
-            if (!failed.get() && !already_in_transaction) {
+            if (!failed.get()) {
                 handle.commit();
             }
         }
@@ -218,9 +216,8 @@ public class LocalTransactionHandler implements TransactionHandler
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(Handle handle,
-                                                 TransactionIsolationLevel level,
-                                                 TransactionCallback<ReturnType> callback)
+    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
+            TransactionCallback<ReturnType> callback)
     {
         final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
         try {
