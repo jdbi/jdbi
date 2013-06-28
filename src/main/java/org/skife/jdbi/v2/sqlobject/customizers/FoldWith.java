@@ -30,12 +30,20 @@ public @interface FoldWith
     {
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
-            return createASqlStatementCustomizer(annotation);
+            if (annotation instanceof FoldWith) {
+                return createASqlStatementCustomizer((FoldWith) annotation);
+            } else {
+                throw new IllegalStateException("Annotation wasn't an instance of FoldWith");
+            }
         }
 
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
-            return createASqlStatementCustomizer(annotation);
+            if (annotation instanceof FoldWith) {
+                return createASqlStatementCustomizer((FoldWith) annotation);
+            } else {
+                throw new IllegalStateException("Annotation wasn't an instance of FoldWith");
+            }
         }
 
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
@@ -43,25 +51,27 @@ public @interface FoldWith
             throw new UnsupportedOperationException("Not defined for parameter");
         }
 
-        private SqlStatementCustomizer createASqlStatementCustomizer(Annotation annotation) {
-            final FoldWith fa = (FoldWith) annotation;
-            final TypedFolder2[] f = new TypedFolder2[fa.value().length];
-            try {
-                Class<? extends TypedFolder2<?>>[] fcs = fa.value();
-                for (int i = 0; i < fcs.length; i++) {
-                    f[i] = fcs[i].newInstance();
+        private static SqlStatementCustomizer createASqlStatementCustomizer(FoldWith foldWithAnnotation) {
+            final TypedFolder2[] typedFolders = new TypedFolder2[foldWithAnnotation.value().length];
+            Class<? extends TypedFolder2<?>>[] folderClasses = foldWithAnnotation.value();
+            for (int i = 0; i < folderClasses.length; i++) {
+                Class<? extends TypedFolder2<?>> clazz =  folderClasses[i];
+                try
+                {
+                    typedFolders[i] = clazz.newInstance();
                 }
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified result set TypedFolder2", e);
+                catch (Exception e)
+                {
+                    throw new IllegalStateException("Unable to create an instance of " + clazz.getClass().getCanonicalName(), e);
+                }
             }
             return new SqlStatementCustomizer()
             {
                 public void apply(SQLStatement statement)
                 {
                     if (statement instanceof Query) {
-                        Query q = (Query) statement;
-                        for (TypedFolder2 folder : f) {
+                        final Query q = (Query) statement;
+                        for (TypedFolder2 folder : typedFolders) {
                             final Class accumulatorType = folder.getAccumulatorType();
                             Object defaultAccumulator = null;
                             try {
