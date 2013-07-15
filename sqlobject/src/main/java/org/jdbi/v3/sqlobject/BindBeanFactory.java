@@ -32,7 +32,7 @@ class BindBeanFactory implements BinderFactory
             public void bind(SQLStatement q, BindBean bind, Object arg)
             {
                 final String prefix;
-                if ("___jdbi_bare___".equals(bind.value())) {
+                if (BindBean.BARE_BINDING.equals(bind.value())) {
                     prefix = "";
                 }
                 else {
