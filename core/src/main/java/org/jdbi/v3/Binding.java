@@ -63,7 +63,7 @@ public class Binding
      *
      * @param position starts at 0, not 1
      *
-     * @return arfument bound to that position
+     * @return argument bound to that position
      */
     public Argument forPosition(int position) {
         return positionals.get(position);
