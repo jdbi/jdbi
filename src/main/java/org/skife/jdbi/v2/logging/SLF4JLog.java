@@ -16,12 +16,76 @@
 
 package org.skife.jdbi.v2.logging;
 
-import org.apache.log4j.Level;
 import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SLF4JLog extends FormattedLog {
+
+    public static enum Level
+    {
+        TRACE {
+            @Override
+            boolean isEnabled(Logger logger) {
+                return logger.isTraceEnabled();
+            }
+
+            @Override
+            void log(Logger logger, String msg) {
+                logger.trace(msg);
+            }
+        },
+        DEBUG {
+            @Override
+            boolean isEnabled(Logger logger) {
+                return logger.isDebugEnabled();
+            }
+
+            @Override
+            void log(Logger logger, String msg)
+            {
+                logger.debug(msg);
+            }
+        },
+        INFO {
+            @Override
+            boolean isEnabled(Logger logger) {
+                return logger.isInfoEnabled();
+            }
+
+            @Override
+            void log(Logger logger, String msg) {
+                logger.info(msg);
+            }
+        },
+        WARN {
+            @Override
+            boolean isEnabled(Logger logger) {
+                return logger.isWarnEnabled();
+            }
+
+            @Override
+            void log(Logger logger, String msg) {
+                logger.warn(msg);
+            }
+        },
+        ERROR {
+            @Override
+            boolean isEnabled(Logger logger) {
+                return logger.isErrorEnabled();
+            }
+
+            @Override
+            void log(Logger logger, String msg) {
+                logger.error(msg);
+            }
+        };
+
+
+        abstract boolean isEnabled(Logger logger);
+        abstract void log(Logger logger, String msg);
+    }
+
     private final Logger logger;
     private final Level level;
 
@@ -40,36 +104,11 @@ public class SLF4JLog extends FormattedLog {
 
     @Override
     protected boolean isEnabled() {
-        if (level == Level.ERROR) {
-            return logger.isErrorEnabled();
-        }
-        if (level == Level.WARN) {
-            return logger.isWarnEnabled();
-        }
-        if (level == Level.INFO) {
-            return logger.isInfoEnabled();
-        }
-        if (level == Level.DEBUG) {
-            return logger.isDebugEnabled();
-        }
-        if (level == Level.TRACE) {
-            return logger.isTraceEnabled();
-        }
-        return false;
+        return level.isEnabled(logger);
     }
 
     @Override
     protected void log(String msg) {
-        if (level == Level.ERROR) {
-            logger.error(msg);
-        } else if (level == Level.WARN) {
-            logger.warn(msg);
-        } else if (level == Level.INFO) {
-            logger.info(msg);
-        } else if (level == Level.DEBUG) {
-            logger.debug(msg);
-        } else if (level == Level.TRACE) {
-            logger.trace(msg);
-        }
+        level.log(logger, msg);
     }
 }
