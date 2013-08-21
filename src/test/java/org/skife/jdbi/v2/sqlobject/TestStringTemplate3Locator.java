@@ -69,6 +69,7 @@ public class TestStringTemplate3Locator
     public void testDefines() throws Exception
     {
         handle.attach(Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
+        handle.attach(Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
         String name = handle.createQuery("select name from something where id = 5")
                             .map(StringMapper.FIRST)
                             .first();

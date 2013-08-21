@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi</artifactId>
     <name>jDBI</name>
-    <version>2.46-SNAPSHOT</version>
+    <version>2.50-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>
         jDBI is designed to provide convenient tabular data access in
@@ -50,10 +51,12 @@
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
 
+        <!--
         <site>
             <id>codehaus</id>
             <url>dav:https://dav.codehaus.org/jdbi/maven_site/</url>
         </site>
+        -->
 
     </distributionManagement>
 
@@ -318,13 +321,20 @@
         <dependency>
             <groupId>com.fasterxml</groupId>
             <artifactId>classmate</artifactId>
-            <version>0.5.3</version>
+            <version>0.8.0</version>
         </dependency>
 
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.13</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.2</version>
             <scope>provided</scope>
         </dependency>
 
@@ -381,6 +391,13 @@
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
             <version>2.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901-1.jdbc4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

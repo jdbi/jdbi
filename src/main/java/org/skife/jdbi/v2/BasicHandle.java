@@ -389,6 +389,10 @@ class BasicHandle implements Handle
     public void setTransactionIsolation(int level)
     {
         try {
+            if (connection.getTransactionIsolation() == level) {
+                // already set, noop
+                return;
+            }
             connection.setTransactionIsolation(level);
         }
         catch (SQLException e) {

@@ -11,7 +11,7 @@ class InTransactionWithIsolationLevelHandler implements Handler
 {
     public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
     {
-        h.retain("transaction");
+        h.retain("transaction#withlevel");
         try {
             final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];
             final Transaction t = (Transaction) args[1];
@@ -24,7 +24,7 @@ class InTransactionWithIsolationLevelHandler implements Handler
             });
         }
         finally {
-            h.release("transaction");
+            h.release("transaction#withlevel");
         }
     }
 }

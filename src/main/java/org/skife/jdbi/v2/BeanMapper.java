@@ -152,7 +152,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                 }
                 catch (NullPointerException e) {
                     throw new IllegalArgumentException(String.format("No appropriate method to " +
-                                                                     "write value %s ", value.toString()), e);
+                                                                     "write property %s", name), e);
                 }
 
             }
