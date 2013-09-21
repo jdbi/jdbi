@@ -32,12 +32,23 @@ class Foreman
 
     Argument waffle(Class expectedType, Object it, StatementContext ctx)
     {
+        ArgumentFactory candidate = null;
+
         for (int i = factories.size() - 1; i >= 0; i--) {
             ArgumentFactory factory = factories.get(i);
             if (factory.accepts(expectedType, it, ctx)) {
                 return factory.build(expectedType, it, ctx);
             }
+            // Fall back to any factory accepting Object if necessary but
+            // prefer any more specific factory first.
+            if (candidate == null && factory.accepts(Object.class, it, ctx)) {
+                candidate = factory;
+            }
         }
+        if (candidate != null) {
+            return candidate.build(Object.class, it, ctx);
+        }
+
         throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(it));
     }
 
@@ -94,7 +105,15 @@ class Foreman
 
         public Argument build(Class expectedType, Object value, StatementContext ctx)
         {
-            return b.get(expectedType).build(value);
+            P p = b.get(expectedType);
+
+            if (value != null && expectedType == Object.class) {
+                P v = b.get(value.getClass());
+                if (v != null) {
+                    return v.build(value);
+                }
+            }
+            return p.build(value);
         }
 
         private static class P
