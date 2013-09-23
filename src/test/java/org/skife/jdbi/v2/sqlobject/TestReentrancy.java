@@ -1,6 +1,5 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
@@ -14,7 +13,9 @@ import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
+
+import junit.framework.TestCase;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -102,7 +103,7 @@ public class TestReentrancy extends TestCase
     {
         JdbcDataSource ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
-        ds.setURL("jdbc:h2:mem:test" + new Random().nextInt() + ";MVCC=TRUE");
+        ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
 
         dbi = new DBI(ds);
 

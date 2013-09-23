@@ -14,6 +14,7 @@ import org.skife.jdbi.v2.util.StringMapper;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -27,7 +28,7 @@ public class TestBatching
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
+        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         dbi = new DBI(ds);
         dbi.registerMapper(new SomethingMapper());
         handle = dbi.open();

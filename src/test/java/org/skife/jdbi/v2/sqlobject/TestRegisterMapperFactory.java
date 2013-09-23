@@ -32,6 +32,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 
 public class TestRegisterMapperFactory
@@ -44,7 +45,7 @@ public class TestRegisterMapperFactory
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
+        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         dbi = new DBI(ds);
         handle = dbi.open();
 

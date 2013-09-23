@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
+import java.util.UUID;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -22,7 +24,7 @@ public class TestObjectMethods
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
+        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         dbi = new DBI(ds);
         dbi.registerMapper(new SomethingMapper());
         handle = dbi.open();

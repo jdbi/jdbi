@@ -1,12 +1,14 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import junit.framework.TestCase;
-import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
+
+import java.util.UUID;
+
+import junit.framework.TestCase;
 
 public class TestVariousOddities extends TestCase
 {
@@ -16,7 +18,7 @@ public class TestVariousOddities extends TestCase
 
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:");
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
@@ -69,7 +71,7 @@ public class TestVariousOddities extends TestCase
         assertFalse(0 == s2.hashCode());
         assertTrue(s1.hashCode() != s2.hashCode());
     }
-    
+
     public void testNullQueryReturn()
     {
         try {
@@ -91,9 +93,9 @@ public class TestVariousOddities extends TestCase
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
         public void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
-        
+
     }
-    
+
     public static interface SpiffyBoom extends CloseMe
     {
         @SqlQuery("SELECT 1")

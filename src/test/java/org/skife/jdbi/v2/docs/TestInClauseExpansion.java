@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.docs;
 
 import com.google.common.collect.ImmutableSet;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,10 +16,12 @@ import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.unstable.BindIn;
 
 import java.util.List;
+import java.util.UUID;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+
+import static java.util.Arrays.asList;
 
 public class TestInClauseExpansion
 {
@@ -28,7 +31,7 @@ public class TestInClauseExpansion
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:test");
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
 
         dbi.setSQLLog(new PrintStreamLog(System.out));
         handle = dbi.open();

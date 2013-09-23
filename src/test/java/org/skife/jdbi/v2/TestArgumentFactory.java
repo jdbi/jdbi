@@ -30,7 +30,7 @@ public class TestArgumentFactory
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID().toString());
+        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         dbi = new DBI(ds);
         h = dbi.open();
 

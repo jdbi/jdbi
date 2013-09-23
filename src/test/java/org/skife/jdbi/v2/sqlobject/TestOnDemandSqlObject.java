@@ -1,6 +1,5 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import junit.framework.TestCase;
 import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -11,7 +10,9 @@ import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.Iterator;
-import java.util.Random;
+import java.util.UUID;
+
+import junit.framework.TestCase;
 
 public class TestOnDemandSqlObject extends TestCase
 {
@@ -23,7 +24,7 @@ public class TestOnDemandSqlObject extends TestCase
     {
         JdbcDataSource ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
-        ds.setURL("jdbc:h2:mem:test" + new Random().nextInt() + ";MVCC=TRUE");
+        ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = new DBI(ds);
         handle = dbi.open();
 

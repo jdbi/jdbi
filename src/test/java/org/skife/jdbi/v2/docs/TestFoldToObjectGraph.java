@@ -2,6 +2,7 @@ package org.skife.jdbi.v2.docs;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -31,7 +33,7 @@ public class TestFoldToObjectGraph
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:test");
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
         handle.execute("create table team ( name varchar(100), " +
                        "                    mascot varchar(100)," +
