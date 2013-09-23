@@ -27,11 +27,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.skife.jdbi.v2.ExtraMatchers.equalsOneOf;
+
+import static java.util.Arrays.asList;
 
 public class TestDocumentation
 {
@@ -46,7 +48,7 @@ public class TestDocumentation
     public void testFiveMinuteFluentApi() throws Exception
     {
         // using in-memory H2 database via a pooled DataSource
-        JdbcConnectionPool ds = JdbcConnectionPool.create("jdbc:h2:mem:test",
+        JdbcConnectionPool ds = JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(),
                                                           "username",
                                                           "password");
         DBI dbi = new DBI(ds);
@@ -85,7 +87,7 @@ public class TestDocumentation
     @Test
     public void testFiveMinuteSqlObjectExample() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
 
         MyDAO dao = dbi.open(MyDAO.class);
 
@@ -104,7 +106,7 @@ public class TestDocumentation
     @Test
     public void testObtainHandleViaOpen() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle handle = dbi.open();
 
         // make sure to close it!
@@ -114,7 +116,7 @@ public class TestDocumentation
     @Test
     public void testObtainHandleInCallback() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         dbi.withHandle(new HandleCallback<Void>()
         {
             public Void withHandle(Handle handle) throws Exception
@@ -128,7 +130,7 @@ public class TestDocumentation
     @Test
     public void testExecuteSomeStatements() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
 
         h.execute("create table something (id int primary key, name varchar(100))");
@@ -147,7 +149,7 @@ public class TestDocumentation
     @Test
     public void testFluentUpdate() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
         h.execute("create table something (id int primary key, name varchar(100))");
 
@@ -162,7 +164,7 @@ public class TestDocumentation
     @Test
     public void testFold() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
         h.execute("create table something (id int primary key, name varchar(100))");
         h.execute("insert into something (id, name) values (7, 'Mark')");
@@ -188,7 +190,7 @@ public class TestDocumentation
     @Test
     public void testMappingExampleChainedIterator2() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
         h.execute("create table something (id int primary key, name varchar(100))");
         h.execute("insert into something (id, name) values (1, 'Brian')");
@@ -209,7 +211,7 @@ public class TestDocumentation
     @Test
     public void testMappingExampleChainedIterator3() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
         h.execute("create table something (id int primary key, name varchar(100))");
         h.execute("insert into something (id, name) values (1, 'Brian')");
@@ -225,7 +227,7 @@ public class TestDocumentation
     @Test
     public void testAttachToObject() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
         MyDAO dao = h.attach(MyDAO.class);
 
@@ -237,7 +239,7 @@ public class TestDocumentation
     @Test
     public void testOnDemandDao() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         MyDAO dao = dbi.onDemand(MyDAO.class);
     }
 
@@ -256,7 +258,7 @@ public class TestDocumentation
     @Test
     public void testSomeQueriesWorkCorrectly() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
         h.execute("create table something (id int primary key, name varchar(32))");
         h.prepareBatch("insert into something (id, name) values (:id, :name)")
@@ -302,7 +304,7 @@ public class TestDocumentation
     @Test
     public void testAnotherCoupleInterfaces() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
 
         h.execute("create table something (id int primary key, name varchar(32))");
@@ -328,7 +330,7 @@ public class TestDocumentation
     @Test
     public void testFoo() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
 
         h.execute("create table something (id int primary key, name varchar(32))");
@@ -360,7 +362,7 @@ public class TestDocumentation
     @Test
     public void testUpdateAPI() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
 
         Update u = h.attach(Update.class);
@@ -394,7 +396,7 @@ public class TestDocumentation
     @Test
     public void testBatchExample() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:test");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
 
         BatchExample b = h.attach(BatchExample.class);

@@ -1,28 +1,18 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.h2.tools.SimpleResultSet;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.skife.jdbi.v2.CallableStatementMapper;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.OutParameters;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
-import org.springframework.beans.factory.config.TypedStringValue;
-import org.springframework.jdbc.core.SqlTypeValue;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -35,7 +25,7 @@ public class TestSqlCall
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:test");
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
 
         dbi.setSQLLog(new PrintStreamLog(System.out));
         handle = dbi.open();

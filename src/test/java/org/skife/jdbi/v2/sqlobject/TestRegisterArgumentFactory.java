@@ -14,6 +14,7 @@ import org.skife.jdbi.v2.tweak.ArgumentFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -26,7 +27,7 @@ public class TestRegisterArgumentFactory
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
+        ds.setURL(String.format("jdbc:h2:mem:%s", UUID.randomUUID()));
         DBI dbi = new DBI(ds);
 
         // this is the default, but be explicit for sake of clarity in test

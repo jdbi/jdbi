@@ -1213,6 +1213,19 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     /**
+     * Bind an argument dynamically by the class passed in.
+     *
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType dynamicBind(Class<?> argumentClass, String name, Object value)
+    {
+        return bind(name, getForeman().waffle(argumentClass, value, getContext()));
+    }
+
+    /**
      * Bind NULL to be set for a given argument.
      *
      * @param name    Named parameter to bind to

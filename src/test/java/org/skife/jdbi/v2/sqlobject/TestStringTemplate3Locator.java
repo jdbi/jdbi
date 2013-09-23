@@ -12,6 +12,8 @@ import org.skife.jdbi.v2.sqlobject.stringtemplate.ExternalizedSqlViaStringTempla
 import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import java.util.UUID;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -22,7 +24,7 @@ public class TestStringTemplate3Locator
     @Before
     public void setUp() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:");
+        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");

@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.docs;
 
 import com.google.common.collect.ImmutableList;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,9 +17,12 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
-import static java.util.Arrays.asList;
+import java.util.UUID;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+
+import static java.util.Arrays.asList;
 
 public class TestPaging
 {
@@ -28,7 +32,7 @@ public class TestPaging
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:test");
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
 
         dbi.setSQLLog(new PrintStreamLog(System.out));
         handle = dbi.open();

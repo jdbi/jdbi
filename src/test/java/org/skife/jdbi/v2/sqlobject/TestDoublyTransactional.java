@@ -1,6 +1,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import junit.framework.TestCase;
+import com.google.common.collect.ImmutableSet;
+
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
@@ -17,11 +18,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.common.collect.ImmutableSet;
+import junit.framework.TestCase;
 
 public class TestDoublyTransactional extends TestCase
 {
@@ -67,8 +68,7 @@ public class TestDoublyTransactional extends TestCase
             }
         };
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
-        ds.setURL("jdbc:h2:mem:test" + new Random().nextInt() + ";MVCC=TRUE");
-
+        ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = new DBI(ds);
 
         dbi.registerMapper(new SomethingMapper());

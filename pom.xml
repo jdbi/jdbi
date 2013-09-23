@@ -429,6 +429,26 @@
 
     <profiles>
         <profile>
+            <id>cross-compile</id>
+            <activation>
+                <jdk>(1.6,]</jdk>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <configuration>
+                                <compilerArguments children.combine="append">
+                                    <bootclasspath>${env.JAVA6_HOME}/jre/lib/rt.jar:${env.JAVA6_HOME}/jre/lib/jce.jar</bootclasspath>
+                                </compilerArguments>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
             <id>release-sign-artifacts</id>
             <activation>
                 <property>

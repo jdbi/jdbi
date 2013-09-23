@@ -47,8 +47,7 @@ public class TestTransactionAnnotation
     @Before
     public void setUp() throws Exception
     {
-        UUID uuid = UUID.randomUUID();
-        dbi = new DBI("jdbc:h2:mem:" + uuid);
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");

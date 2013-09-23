@@ -29,7 +29,7 @@ public class TestContainerFactory
     @Before
     public void setUp() throws Exception
     {
-        this.dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID().toString());
+        this.dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         this.h = dbi.open();
         h.execute("create table something (id int primary key, name varchar)");
     }
