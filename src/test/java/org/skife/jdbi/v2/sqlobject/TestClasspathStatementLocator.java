@@ -9,6 +9,8 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
+import java.util.UUID;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -18,7 +20,7 @@ public class TestClasspathStatementLocator {
     @Before
     public void setUp() throws Exception {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:test");
+        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         DBI dbi = new DBI(ds);
         handle = dbi.open();
 

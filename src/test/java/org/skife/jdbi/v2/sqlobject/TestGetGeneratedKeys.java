@@ -9,6 +9,8 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
+import java.util.UUID;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -20,7 +22,7 @@ public class TestGetGeneratedKeys
     @Before
     public void setUp() throws Exception
     {
-        ds = JdbcConnectionPool.create("jdbc:h2:mem:test",
+        ds = JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(),
                                        "username",
                                        "password");
         dbi = new DBI(ds);

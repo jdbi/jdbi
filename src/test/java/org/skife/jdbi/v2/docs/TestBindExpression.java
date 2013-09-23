@@ -29,6 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -42,7 +43,7 @@ public class TestBindExpression
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:test");
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
         handle.execute("create table something( id integer primary key, name varchar(100) )");
     }

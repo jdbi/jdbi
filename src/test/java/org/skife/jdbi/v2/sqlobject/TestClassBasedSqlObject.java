@@ -6,17 +6,13 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.TransactionIsolationLevel;
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.subpackage.SomethingDao;
 
-import java.io.IOException;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 public class TestClassBasedSqlObject
 {
@@ -26,7 +22,7 @@ public class TestClassBasedSqlObject
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:");
+        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
