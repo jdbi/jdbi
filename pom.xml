@@ -163,6 +163,8 @@
                 <configuration>
                     <!-- need this for gpg plugin to work correctly -->
                     <mavenExecutorId>forked-path</mavenExecutorId>
+                    <pushChanges>false</pushChanges>
+                    <localCheckout>true</localCheckout>
                 </configuration>
             </plugin>
 
