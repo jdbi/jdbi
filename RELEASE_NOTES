@@ -1,3 +1,12 @@
+2.50
+  - add travis setup for autobuilds
+  - Remove log4j dependency for slf4j logger
+  - Ensure that compilation using JDK7 or better uses a JDK6 rt.jar
+  - Fix the @BindBean / Foreman.waffle code to use correct ArgumentFactories
+    and not just the ObjectArgumentFactory
+  - fix spurious test failures when using newer versions of the surefire plugin
+
+
 2.45
   - Support for setting Enum values from strings in BeanMapper
 2.44
