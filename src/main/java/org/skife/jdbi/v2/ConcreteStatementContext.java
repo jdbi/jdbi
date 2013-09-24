@@ -155,7 +155,7 @@ public final class ConcreteStatementContext implements StatementContext
         return binding;
     }
 
-    public final void setSqlObjectType(Class<?> sqlObjectType)
+    public void setSqlObjectType(Class<?> sqlObjectType)
     {
         this.sqlObjectType = sqlObjectType;
     }
@@ -165,7 +165,7 @@ public final class ConcreteStatementContext implements StatementContext
         return sqlObjectType;
     }
 
-    public final void setSqlObjectMethod(Method sqlObjectMethod)
+    public void setSqlObjectMethod(Method sqlObjectMethod)
     {
         this.sqlObjectMethod = sqlObjectMethod;
     }

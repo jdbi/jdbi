@@ -118,7 +118,7 @@ public class Batch extends BaseStatement
             {
                 final long start = System.nanoTime();
                 final int[] rs = stmt.executeBatch();
-                final long elapsedTime = (System.nanoTime() - start);
+                final long elapsedTime = System.nanoTime() - start;
                 logger.log(elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
                 timingCollector.collect(elapsedTime, getContext());

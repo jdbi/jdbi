@@ -16,16 +16,17 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.tweak.StatementLocator;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
+
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 
 /**
  * looks for [name], then [name].sql on the classpath
@@ -67,6 +68,7 @@ public class ClasspathStatementLocator implements StatementLocator
      * @throws UnableToCreateStatementException
      *          if an IOException occurs reading a found resource
      */
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public String locate(String name, StatementContext ctx)
     {
         final String cache_key;
@@ -93,7 +95,7 @@ public class ClasspathStatementLocator implements StatementLocator
                 in_stream = loader.getResourceAsStream(name + ".sql");
             }
 
-            if ((in_stream == null) && (ctx.getSqlObjectType() != null)) {
+            if (in_stream == null && ctx.getSqlObjectType() != null) {
                 String filename = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
                 in_stream = loader.getResourceAsStream(filename);
                 if (in_stream == null) {
@@ -107,7 +109,7 @@ public class ClasspathStatementLocator implements StatementLocator
             }
 
             final StringBuffer buffer = new StringBuffer();
-            reader = new BufferedReader(new InputStreamReader(in_stream));
+            reader = new BufferedReader(new InputStreamReader(in_stream, Charset.forName("UTF-8")));
             String line;
             try {
                 while ((line = reader.readLine()) != null) {
@@ -158,11 +160,11 @@ public class ClasspathStatementLocator implements StatementLocator
         return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
     }
 
-    private final static String sep = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
+    private final static String SEP = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
 
     private static String mungify(String path)
     {
-        return path.replaceAll("\\.", Matcher.quoteReplacement(sep));
+        return path.replaceAll("\\.", Matcher.quoteReplacement(SEP));
     }
 
 

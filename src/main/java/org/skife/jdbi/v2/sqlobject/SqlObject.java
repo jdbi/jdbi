@@ -61,8 +61,8 @@ class SqlObject
                 }
             });
             T t = (T) e.create();
-            factories.putIfAbsent(sqlObjectType, (Factory) t);
-            return t;
+            T actual = (T) factories.putIfAbsent(sqlObjectType, (Factory) t);
+            return actual != null ? actual : t;
         }
 
         final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);

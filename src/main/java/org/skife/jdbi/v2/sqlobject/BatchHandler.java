@@ -1,7 +1,14 @@
 package org.skife.jdbi.v2.sqlobject;
 
-import com.fasterxml.classmate.members.ResolvedMethod;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 import net.sf.cglib.proxy.MethodProxy;
+
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.PreparedBatch;
@@ -10,12 +17,9 @@ import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import com.fasterxml.classmate.members.ResolvedMethod;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 class BatchHandler extends CustomizingStatementHandler
 {
@@ -96,6 +100,7 @@ class BatchHandler extends CustomizingStatementHandler
                         return true;
                     }
 
+                    @SuppressFBWarnings("IT_NO_SUCH_ELEMENT")
                     public Object next()
                     {
                         return arg;
@@ -153,7 +158,7 @@ class BatchHandler extends CustomizingStatementHandler
 
     private int[] executeBatch(final Handle handle, final PreparedBatch batch)
     {
-        if ((!handle.isInTransaction()) && transactional) {
+        if (!handle.isInTransaction() && transactional) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
             return handle.inTransaction(new TransactionCallback<int[]>()

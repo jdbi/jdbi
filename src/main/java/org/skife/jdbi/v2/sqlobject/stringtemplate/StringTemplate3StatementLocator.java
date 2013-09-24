@@ -1,19 +1,22 @@
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.regex.Matcher;
+
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.regex.Matcher;
-
 public class StringTemplate3StatementLocator implements StatementLocator
 {
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
+
     private final StringTemplateGroup group;
     private final StringTemplateGroup literals = new StringTemplateGroup("literals", AngleBracketTemplateLexer.class);
 
@@ -51,7 +54,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
                                             + " on classpath");
         }
         else {
-            InputStreamReader reader = new InputStreamReader(ins);
+            InputStreamReader reader = new InputStreamReader(ins, UTF_8);
             try {
                 this.group = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
                 reader.close();
@@ -75,7 +78,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
         else if (treatLiteralsAsTemplates) {
             // no template in the template group, but we want literals to be templates
-            final String key = new String(new Base64().encode(name.getBytes()));
+            final String key = new String(new Base64().encode(name.getBytes(UTF_8)), UTF_8);
             if (!literals.isDefined(key)) {
                 literals.defineTemplate(key, name);
             }

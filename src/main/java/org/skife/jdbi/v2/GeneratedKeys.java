@@ -71,7 +71,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
     public Type first()
     {
         try {
-            if ((results != null) && results.next()) {
+            if (results != null && results.next()) {
                 return mapper.map(0, results, context);
             }
             else {
@@ -105,7 +105,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             int idx = 0;
             List<Type> resultList = new ArrayList<Type>();
 
-            if ((results != null) && ++idx <= maxRows && !results.isClosed()) {
+            if (results != null && ++idx <= maxRows && !results.isClosed()) {
                 int index = 0;
                 while (results.next()) {
                     resultList.add(mapper.map(index++, results, context));
@@ -164,7 +164,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         try {
             AccumulatorType value = accumulator;
 
-            if ((results != null) && !results.isClosed()) {
+            if (results != null && !results.isClosed()) {
                 while (results.next()) {
                     value = folder.fold(value, results, context);
                 }

@@ -32,5 +32,5 @@ public class ByteMapper extends TypedMapper<Byte>
         return r.getByte(index);
     }
 
-    public static ByteMapper FIRST = new ByteMapper();
+    public static final ByteMapper FIRST = new ByteMapper();
 }

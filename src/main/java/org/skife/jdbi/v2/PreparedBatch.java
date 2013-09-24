@@ -133,7 +133,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
             try {
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
-                final long elapsedTime = (System.nanoTime() - start);
+                final long elapsedTime = System.nanoTime() - start;
                 getLog().logPreparedBatch(elapsedTime / 1000000L, rewritten.getSql(), parts.size());
                 getTimingCollector().collect(elapsedTime, getContext());
 

@@ -16,8 +16,6 @@
 
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.StatementBuilder;
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,6 +23,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 /**
  * A StatementBuilder which decorates another StatementBuilder and caches
@@ -73,6 +73,7 @@ public class CachingStatementBuilder implements StatementBuilder
      * Iterate over all cached statements and ask the wrapped StatementBuilder to close
      * each one.
      */
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public void close(Connection conn)
     {
         for (Map.Entry<String,PreparedStatement> statement : cache.entrySet()) {

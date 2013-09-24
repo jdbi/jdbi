@@ -27,12 +27,12 @@ final class Pair<FirstType, SecondType>
         this.second = second;
     }
 
-    final FirstType getFirst()
+    FirstType getFirst()
     {
         return first;
     }
 
-    final SecondType getSecond()
+    SecondType getSecond()
     {
         return second;
     }

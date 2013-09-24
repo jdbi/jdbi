@@ -1,10 +1,10 @@
 package org.skife.jdbi.v2.tweak.transactions;
 
 import java.sql.SQLException;
+
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 /**
@@ -40,16 +40,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
             try
             {
                 return getDelegate().inTransaction(handle, callback);
-            } catch (Exception e)
+            } catch (RuntimeException e)
             {
                 if (!isSqlState(configuration.serializationFailureSqlState, e) || --retriesRemaining <= 0)
                 {
-
-                    if (e instanceof RuntimeException)
-                    {
-                        throw (RuntimeException) e;
-                    }
-                    throw new TransactionFailedException(e);
+                    throw e;
                 }
             }
         }

@@ -49,7 +49,7 @@ public class LocalTransactionHandler implements TransactionHandler
         try {
             if (!localStuff.containsKey(handle)) {
                 boolean initial = handle.getConnection().getAutoCommit();
-                localStuff.put(handle, new LocalStuff(initial));
+                localStuff.putIfAbsent(handle, new LocalStuff(initial));
                 handle.getConnection().setAutoCommit(false);
             }
         }

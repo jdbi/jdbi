@@ -70,7 +70,7 @@ public class DBI implements IDBI
     public DBI(DataSource dataSource)
     {
         this(new DataSourceConnectionFactory(dataSource));
-        assert (dataSource != null);
+        assert dataSource != null;
     }
 
     /**
@@ -83,7 +83,7 @@ public class DBI implements IDBI
      */
     public DBI(ConnectionFactory connectionFactory)
     {
-        assert (connectionFactory != null);
+        assert connectionFactory != null;
         this.connectionFactory = connectionFactory;
     }
 
@@ -147,7 +147,7 @@ public class DBI implements IDBI
      */
     public void setStatementLocator(StatementLocator locator)
     {
-        assert (locator != null);
+        assert locator != null;
         this.statementLocator.set(locator);
     }
 
@@ -164,7 +164,7 @@ public class DBI implements IDBI
      */
     public void setStatementRewriter(StatementRewriter rewriter)
     {
-        assert (rewriter != null);
+        assert rewriter != null;
         this.statementRewriter.set(rewriter);
     }
 
@@ -186,7 +186,7 @@ public class DBI implements IDBI
      */
     public void setTransactionHandler(TransactionHandler handler)
     {
-        assert (handler != null);
+        assert handler != null;
         this.transactionhandler.set(handler);
     }
 
@@ -364,7 +364,7 @@ public class DBI implements IDBI
      */
     public static Handle open(DataSource dataSource)
     {
-        assert (dataSource != null);
+        assert dataSource != null;
         return new DBI(dataSource).open();
     }
 
@@ -377,7 +377,7 @@ public class DBI implements IDBI
      */
     public static Handle open(final Connection connection)
     {
-        assert (connection != null);
+        assert connection != null;
         return new DBI(new ConnectionFactory()
         {
             public Connection openConnection()
@@ -396,7 +396,7 @@ public class DBI implements IDBI
      */
     public static Handle open(final String url)
     {
-        assert (url != null);
+        assert url != null;
         return new DBI(url).open();
     }
 
@@ -411,7 +411,7 @@ public class DBI implements IDBI
      */
     public static Handle open(final String url, final String username, final String password)
     {
-        assert (url != null);
+        assert url != null;
         return new DBI(url, username, password).open();
     }
 
@@ -425,7 +425,7 @@ public class DBI implements IDBI
      */
     public static Handle open(final String url, final Properties props)
     {
-        assert (url != null);
+        assert url != null;
         return new DBI(url, props).open();
     }
 

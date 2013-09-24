@@ -131,7 +131,7 @@ class ParsedStatement
                     tokens.add(token_matcher.group().substring(1, token_matcher.group().length()));
                     int index = token_matcher.end();
                     last_token = token_matcher.find();
-                    replaced.append(sql.substring(index, (last_token ? token_matcher.start() : sql.length())));
+                    replaced.append(sql.substring(index, last_token ? token_matcher.start() : sql.length()));
                 }
                 else // if (last_quote)
                 {

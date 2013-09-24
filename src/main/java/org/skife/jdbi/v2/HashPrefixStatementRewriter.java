@@ -88,6 +88,8 @@ public class HashPrefixStatementRewriter implements StatementRewriter
                 case ESCAPED_TEXT:
                     b.append(t.getText().substring(1));
                     break;
+                default:
+                    break;
             }
             t = lexer.nextToken();
         }

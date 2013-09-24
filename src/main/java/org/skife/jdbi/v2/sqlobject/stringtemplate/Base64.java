@@ -57,7 +57,7 @@
 
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
-import java.lang.*;
+import java.nio.charset.Charset;
 
 
 /**
@@ -117,13 +117,13 @@ final class  Base64 {
     }
 
     public static boolean isBase64( String isValidString ){
-        return( isArrayByteBase64( isValidString.getBytes()));
+        return isArrayByteBase64( isValidString.getBytes(Charset.forName("UTF-8")));
     }
 
 
     public static boolean isBase64( byte octect ) {
         //shall we ignore white space? JEFF??
-        return(octect == PAD || base64Alphabet[octect] != -1 );
+        return octect == PAD || base64Alphabet[octect] != -1;
     }
 
 
