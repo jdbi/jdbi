@@ -80,6 +80,7 @@
     </developers>
 
     <properties>
+        <project.jdk6.home>${env.JAVA6_HOME}</project.jdk6.home>
         <project.build.targetJdk>1.6</project.build.targetJdk>
         <basepom.maven.version>2.0.9</basepom.maven.version>
         <dep.antlr.version>3.4</dep.antlr.version>
@@ -299,9 +300,20 @@
 
     <profiles>
         <profile>
+            <id>travis</id>
+            <activation>
+                <property>
+                    <name>env.TRAVIS</name>
+                </property>
+            </activation>
+            <properties>
+                <project.jdk6.home>${env.JAVA_HOME}</project.jdk6.home>
+            </properties>
+        </profile>
+        <profile>
             <id>cross-compile</id>
             <activation>
-                <jdk>(1.6,]</jdk>
+                 <jdk>(1.6,]</jdk>
             </activation>
             <build>
                 <pluginManagement>
@@ -310,14 +322,14 @@
                             <artifactId>maven-compiler-plugin</artifactId>
                             <configuration>
                                 <compilerArguments children.combine="append">
-                                    <bootclasspath>${env.JAVA6_HOME}/jre/lib/rt.jar:${env.JAVA6_HOME}/jre/lib/jce.jar:${env.JAVA6_HOME}/../classes/classes.jar</bootclasspath>
+                                    <bootclasspath>${project.jdk6.home}/jre/lib/rt.jar:${project.jdk6.home}/jre/lib/jce.jar:${project.jdk6.home}/../classes/classes.jar</bootclasspath>
                                 </compilerArguments>
                             </configuration>
                         </plugin>
                         <plugin>
                             <artifactId>maven-javadoc-plugin</artifactId>
                             <configuration>
-                                <bootclasspath>${env.JAVA6_HOME}/jre/lib/rt.jar:${env.JAVA6_HOME}/jre/lib/jce.jar:${env.JAVA6_HOME}/../classes/classes.jar</bootclasspath>
+                                <bootclasspath>${project.jdk6.home}/jre/lib/rt.jar:${project.jdk6.home}/jre/lib/jce.jar:${project.jdk6.home}/../classes/classes.jar</bootclasspath>
                             </configuration>
                         </plugin>
                     </plugins>
