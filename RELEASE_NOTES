@@ -1,3 +1,12 @@
+2.51
+  - fix PMD, Findbugs and javadoc complaints
+  - clean license headers in all source files
+  - use basepom.org standard-oss base pom to build,
+      build with all checkers enabled
+  - build with antlr 3.4
+  - use classmate 0.9.0 (from 0.8.0)
+  - make all dependencies that are not required optional (not provided)
+
 2.50
   - add travis setup for autobuilds
   - Remove log4j dependency for slf4j logger
