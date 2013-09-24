@@ -1,0 +1,11 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="org.skife.jdbi.rewriter.colon.ColonStatementLexer" />
+    </Match>
+    <Match>
+        <Class name="org.skife.jdbi.rewriter.hash.HashStatementLexer" />
+    </Match>
+    <Match>
+        <Class name="org.skife.jdbi.rewriter.printf.FormatterStatementLexer" />
+    </Match>
+</FindBugsFilter>
