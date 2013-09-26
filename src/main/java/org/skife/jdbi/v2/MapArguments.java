@@ -27,10 +27,14 @@ import java.util.Map;
  */
 class MapArguments implements NamedArgumentFinder
 {
+    private final Foreman foreman;
+    private final StatementContext ctx;
     private final Map<String, ? extends Object> args;
 
-    MapArguments(Map<String, ? extends Object> args)
+    MapArguments(Foreman foreman, StatementContext ctx, Map<String, ? extends Object> args)
     {
+		this.foreman = foreman;
+		this.ctx = ctx;
         this.args = args;
     }
 
@@ -38,7 +42,7 @@ class MapArguments implements NamedArgumentFinder
     {
         if (args.containsKey(name))
         {
-            return new ObjectArgument(args.get(name));
+            return foreman.waffle(args.get(name).getClass(), args.get(name), null);
         }
         else
         {
