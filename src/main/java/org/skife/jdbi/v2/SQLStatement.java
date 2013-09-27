@@ -336,7 +336,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     public SelfType bindFromMap(Map<String, ? extends Object> args)
     {
         if (args != null) {
-            return bindNamedArgumentFinder(new MapArguments(args));
+            return bindNamedArgumentFinder(new MapArguments(getForeman(), getContext(), args));
         }
         else {
             return (SelfType) this;
