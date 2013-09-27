@@ -33,8 +33,8 @@ class MapArguments implements NamedArgumentFinder
 
     MapArguments(Foreman foreman, StatementContext ctx, Map<String, ? extends Object> args)
     {
-		this.foreman = foreman;
-		this.ctx = ctx;
+        this.foreman = foreman;
+        this.ctx = ctx;
         this.args = args;
     }
 
@@ -42,7 +42,7 @@ class MapArguments implements NamedArgumentFinder
     {
         if (args.containsKey(name))
         {
-            return foreman.waffle(args.get(name).getClass(), args.get(name), null);
+            return foreman.waffle(args.get(name).getClass(), args.get(name), ctx);
         }
         else
         {
