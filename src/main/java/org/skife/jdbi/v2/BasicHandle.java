@@ -290,7 +290,24 @@ class BasicHandle implements Handle
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
                                  foreman,
-                                 containerFactoryRegistry);
+                                 containerFactoryRegistry,
+                                 false);
+    }
+
+    public PreparedBatch prepareCallBatch(String sql)
+    {
+        return new PreparedBatch(statementLocator,
+                                 statementRewriter,
+                                 this,
+                                 statementBuilder,
+                                 sql,
+                                 new ConcreteStatementContext(this.globalStatementAttributes),
+                                 log,
+                                 timingCollector,
+                                 Collections.<StatementCustomizer>emptyList(),
+                                 foreman,
+                                 containerFactoryRegistry,
+                                 true);
     }
 
     public Batch createBatch()

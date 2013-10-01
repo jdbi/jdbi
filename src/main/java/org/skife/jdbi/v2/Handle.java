@@ -128,6 +128,14 @@ public interface Handle extends Closeable
     PreparedBatch prepareBatch(String sql);
 
     /**
+     * Prepare a batch to execute a stored procedure. This is for efficiently executing
+     * a stored procedure of the same statements with different parameters bound
+     * @param sql the batch SQL
+     * @return a batch which can have "statements" added
+     */
+    PreparedBatch prepareCallBatch(String sql);
+
+    /**
      * Create a non-prepared (no bound parameters, but different SQL, batch statement
      * @return empty batch
      * @see Handle#prepareBatch(String)
