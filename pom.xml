@@ -85,7 +85,7 @@
         <basepom.maven.version>2.0.9</basepom.maven.version>
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>2.0.1</dep.spring.version>
-        <basepom.check.fail-all>false</basepom.check.fail-all>
+        <basepom.check.fail-all>true</basepom.check.fail-all>
     </properties>
 
     <dependencies>
