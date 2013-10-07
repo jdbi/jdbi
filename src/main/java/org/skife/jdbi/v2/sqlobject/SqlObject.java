@@ -157,9 +157,16 @@ class SqlObject
 
     public Object invoke(Object proxy, Method method, Object[] args, MethodProxy mp) throws Throwable
     {
+        final Handler handler = handlers.get(method);
+
+        // If there is no handler, pretend we are just an Object and don't open a connection (Issue #82)
+        if (handler == null) {
+            return mp.invokeSuper(proxy, args);
+        }
+
         try {
             ding.retain(method.toString());
-            return handlers.get(method).invoke(ding, proxy, args, mp);
+            return handler.invoke(ding, proxy, args, mp);
         }
         finally {
             ding.release(method.toString());
