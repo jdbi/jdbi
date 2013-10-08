@@ -16,9 +16,7 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.basepom</groupId>
@@ -30,7 +28,7 @@
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi</artifactId>
     <name>jDBI</name>
-    <version>2.51-SNAPSHOT</version>
+    <version>2.51</version>
     <packaging>jar</packaging>
     <description>
         jDBI is designed to provide convenient tabular data access in
@@ -53,7 +51,8 @@
         <connection>scm:git:git://github.com/brianm/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:brianm/jdbi.git</developerConnection>
         <url>https://github.com/brianm/jdbi/</url>
-    </scm>
+      <tag>jdbi-2.51</tag>
+  </scm>
 
     <developers>
         <developer>
