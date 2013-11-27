@@ -15,41 +15,42 @@
  */
 package org.skife.jdbi.v3.spring;
 
-import org.skife.jdbi.v3.IDBI;
+import org.skife.jdbi.v3.DBI;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- *
- */
 public class DummyService implements Service
 {
-    private final IDBI dbi;
+    private final DBI dbi;
 
-    public DummyService(IDBI dbi)
+    public DummyService(DBI dbi)
     {
         this.dbi = dbi;
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void inPropagationRequired(Callback c)
     {
         c.call(dbi);
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void inRequiresNew(Callback c)
     {
         c.call(dbi);
     }
 
+    @Override
     @Transactional(propagation = Propagation.NESTED)
     public void inNested(Callback c)
     {
         c.call(dbi);
     }
 
+    @Override
     @Transactional(propagation=Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
     public void inRequiresNewReadUncommitted(Callback c)
     {

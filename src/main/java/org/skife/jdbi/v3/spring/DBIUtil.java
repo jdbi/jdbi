@@ -15,13 +15,13 @@
  */
 package org.skife.jdbi.v3.spring;
 
-import org.skife.jdbi.v3.Handle;
-import org.skife.jdbi.v3.IDBI;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.skife.jdbi.v3.DBI;
+import org.skife.jdbi.v3.Handle;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Utility for working with jDBI and Spring transaction bound resources
@@ -35,7 +35,7 @@ public class DBIUtil
      * or a new one otherwise.
      * @param dbi the IDBI instance from which to obtain the handle
      */
-    public static Handle getHandle(IDBI dbi)
+    public static Handle getHandle(DBI dbi)
     {
         Handle bound = (Handle) TransactionSynchronizationManager.getResource(dbi);
         if (bound == null) {
@@ -62,10 +62,10 @@ public class DBIUtil
     }
 
     private static class Adapter extends TransactionSynchronizationAdapter {
-        private final IDBI dbi;
+        private final DBI dbi;
         private final Handle handle;
 
-        Adapter(IDBI dbi, Handle handle) {
+        Adapter(DBI dbi, Handle handle) {
             this.dbi = dbi;
             this.handle = handle;
         }

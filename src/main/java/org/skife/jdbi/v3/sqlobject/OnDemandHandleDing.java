@@ -15,22 +15,23 @@
  */
 package org.skife.jdbi.v3.sqlobject;
 
-import org.skife.jdbi.v3.Handle;
-import org.skife.jdbi.v3.IDBI;
-
 import java.util.HashSet;
 import java.util.Set;
 
+import org.skife.jdbi.v3.DBI;
+import org.skife.jdbi.v3.Handle;
+
 class OnDemandHandleDing implements HandleDing
 {
-    private final IDBI dbi;
+    private final DBI dbi;
     private final ThreadLocal<LocalDing> threadDing = new ThreadLocal<LocalDing>();
 
-    OnDemandHandleDing(IDBI dbi)
+    OnDemandHandleDing(DBI dbi)
     {
         this.dbi = dbi;
     }
 
+    @Override
     public Handle getHandle()
     {
         if (threadDing.get() == null) {
@@ -39,12 +40,14 @@ class OnDemandHandleDing implements HandleDing
         return threadDing.get().getHandle();
     }
 
+    @Override
     public void retain(String name)
     {
         getHandle(); // need to ensure the local ding has been created as this is called before getHandle sometimes.
         threadDing.get().retain(name);
     }
 
+    @Override
     public void release(String name)
     {
         LocalDing ding = threadDing.get();
@@ -65,11 +68,13 @@ class OnDemandHandleDing implements HandleDing
             this.handle = handle;
         }
 
+        @Override
         public Handle getHandle()
         {
             return handle;
         }
 
+        @Override
         public void release(String name)
         {
             retentions.remove(name);
@@ -79,10 +84,10 @@ class OnDemandHandleDing implements HandleDing
             }
         }
 
+        @Override
         public void retain(String name)
         {
             retentions.add(name);
         }
-
     }
 }

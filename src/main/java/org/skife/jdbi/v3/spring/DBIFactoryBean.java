@@ -15,16 +15,15 @@
  */
 package org.skife.jdbi.v3.spring;
 
-import org.skife.jdbi.v3.DBI;
-import org.skife.jdbi.v3.IDBI;
-import org.skife.jdbi.v3.tweak.StatementLocator;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.skife.jdbi.v3.DBI;
+import org.skife.jdbi.v3.tweak.StatementLocator;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Utility class which constructs an IDBI instance which can conveniently participate
@@ -34,11 +33,12 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
 {
     private DataSource dataSource;
     private StatementLocator statementLocator;
-    private Map<String, Object> globalDefines = new HashMap<String, Object>();
+    private final Map<String, Object> globalDefines = new HashMap<String, Object>();
 
     /**
      * See org.springframework.beans.factory.FactoryBean#getObject
      */
+    @Override
     public Object getObject() throws Exception
     {
         final DBI dbi = new DBI(new SpringDataSourceConnectionFactory(dataSource));
@@ -56,9 +56,10 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     /**
      * See org.springframework.beans.factory.FactoryBean#getObjectType
      */
+    @Override
     public Class<?> getObjectType()
     {
-        return IDBI.class;
+        return DBI.class;
     }
 
     /**
@@ -66,6 +67,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
      *
      * @return false
      */
+    @Override
     public boolean isSingleton()
     {
         return true;
@@ -92,6 +94,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     /**
      * Verifies that a dataSource has been set
      */
+    @Override
     public void afterPropertiesSet() throws Exception
     {
         if (dataSource == null) {

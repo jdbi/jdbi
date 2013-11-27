@@ -45,7 +45,7 @@ import org.skife.jdbi.v3.tweak.transactions.LocalTransactionHandler;
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
  * and provide "global" configuration for all handles obtained from it.
  */
-public class DBI implements IDBI
+public class DBI
 {
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private final MappingRegistry mappingRegistry = new MappingRegistry();
@@ -201,7 +201,6 @@ public class DBI implements IDBI
      *
      * @return an open Handle instance
      */
-    @Override
     public Handle open()
     {
         try {
@@ -252,7 +251,6 @@ public class DBI implements IDBI
      * @param key   The key for the attribute
      * @param value the value for the attribute
      */
-    @Override
     public void define(String key, Object value)
     {
         this.globalStatementAttributes.put(key, value);
@@ -269,7 +267,6 @@ public class DBI implements IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    @Override
     public <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException
     {
         final Handle h = this.open();
@@ -297,7 +294,6 @@ public class DBI implements IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    @Override
     public <ReturnType> ReturnType inTransaction(final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
         return withHandle(new HandleCallback<ReturnType>() {
@@ -309,7 +305,6 @@ public class DBI implements IDBI
         });
     }
 
-    @Override
     public <ReturnType> ReturnType inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
         return withHandle(new HandleCallback<ReturnType>() {
@@ -328,7 +323,6 @@ public class DBI implements IDBI
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    @Override
     public <SqlObjectType> SqlObjectType open(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.open(this, sqlObjectType);
@@ -342,7 +336,6 @@ public class DBI implements IDBI
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    @Override
     public <SqlObjectType> SqlObjectType onDemand(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.onDemand(this, sqlObjectType);
@@ -352,7 +345,6 @@ public class DBI implements IDBI
      * Used to close a sql object which lacks a close() method.
      * @param sqlObject the sql object to close
      */
-    @Override
     public void close(Object sqlObject)
     {
         if (sqlObject instanceof Handle) {

@@ -15,18 +15,16 @@
  */
 package org.skife.jdbi.v3.spring;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.spi.LoggingEvent;
 import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v3.DBI;
 import org.skife.jdbi.v3.Handle;
-import org.skife.jdbi.v3.IDBI;
-import org.skife.jdbi.v3.spring.DBIUtil;
 import org.skife.jdbi.v3.util.IntegerMapper;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
-
-import javax.sql.DataSource;
 
 /**
  *
@@ -97,7 +95,8 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
         try {
             service.inPropagationRequired(new Callback()
             {
-                public void call(IDBI dbi)
+                @Override
+                public void call(DBI dbi)
                 {
                     Handle h = DBIUtil.getHandle(dbi);
                     final int count = h.insert("insert into something (id, name) values (7, 'ignored')");
@@ -131,7 +130,8 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
         try {
             service.inPropagationRequired(new Callback()
             {
-                public void call(IDBI outer)
+                @Override
+                public void call(DBI outer)
                 {
                     final Handle h = DBIUtil.getHandle(outer);
                     h.insert("insert into something (id, name) values (7, 'ignored')");
@@ -139,7 +139,8 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                     try {
                         service.inNested(new Callback()
                         {
-                            public void call(IDBI inner)
+                            @Override
+                            public void call(DBI inner)
                             {
                                 final Handle h = DBIUtil.getHandle(inner);
                                 h.insert("insert into something (id, name) values (8, 'ignored again')");
@@ -167,7 +168,8 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
 
         service.inPropagationRequired(new Callback()
         {
-            public void call(IDBI dbi)
+            @Override
+            public void call(DBI dbi)
             {
                 final Handle h = DBIUtil.getHandle(dbi);
                 int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
@@ -180,7 +182,8 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
     {
         service.inPropagationRequired(new Callback()
         {
-            public void call(IDBI outer)
+            @Override
+            public void call(DBI outer)
             {
                 final Handle h = DBIUtil.getHandle(outer);
                 h.insert("insert into something (id, name) values (7, 'ignored')");
@@ -188,7 +191,8 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                 try {
                     service.inRequiresNewReadUncommitted(new Callback()
                     {
-                        public void call(IDBI inner)
+                        @Override
+                        public void call(DBI inner)
                         {
                             final Handle h = DBIUtil.getHandle(inner);
                             int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();

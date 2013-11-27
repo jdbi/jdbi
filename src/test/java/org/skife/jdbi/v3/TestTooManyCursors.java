@@ -15,16 +15,6 @@
  */
 package org.skife.jdbi.v3;
 
-import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v3.DBI;
-import org.skife.jdbi.v3.DefaultStatementBuilder;
-import org.skife.jdbi.v3.Handle;
-import org.skife.jdbi.v3.IDBI;
-import org.skife.jdbi.v3.exceptions.CallbackFailedException;
-import org.skife.jdbi.v3.tweak.HandleCallback;
-
-import javax.sql.DataSource;
-
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -39,6 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.sql.DataSource;
+
+import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v3.exceptions.CallbackFailedException;
+import org.skife.jdbi.v3.tweak.HandleCallback;
+
 /**
  * Oracle was getting angry about too many open cursors because of the large number
  * of prepared statements being created and cached indefinitely.
@@ -49,11 +45,12 @@ public class TestTooManyCursors extends DBITestCase
     {
         DataSource ds = Tools.getDataSource();
         DataSource dataSource = new ErrorProducingDataSource(ds, 99);
-        IDBI dbi = new DBI(dataSource);
+        DBI dbi = new DBI(dataSource);
 
         try {
             dbi.withHandle(new HandleCallback<Object>()
             {
+                @Override
                 public Void withHandle(Handle handle) throws Exception
                 {
                     handle.setStatementBuilder(new DefaultStatementBuilder());
@@ -80,47 +77,56 @@ public class TestTooManyCursors extends DBITestCase
             connCount = i;
         }
 
+        @Override
         public Connection getConnection() throws SQLException
         {
             return ConnectionInvocationHandler.newInstance(target.getConnection(), connCount);
         }
 
+        @Override
         public Connection getConnection(String string, String string1) throws SQLException
         {
             return ConnectionInvocationHandler.newInstance(target.getConnection(string, string1), connCount);
         }
 
+        @Override
         public PrintWriter getLogWriter() throws SQLException
         {
             return target.getLogWriter();
         }
 
+        @Override
         public void setLogWriter(PrintWriter printWriter) throws SQLException
         {
             target.setLogWriter(printWriter);
         }
 
+        @Override
         public void setLoginTimeout(int i) throws SQLException
         {
             target.setLoginTimeout(i);
         }
 
+        @Override
         public int getLoginTimeout() throws SQLException
         {
             return target.getLoginTimeout();
         }
 
-	    public <T> T unwrap(Class<T> iface) throws SQLException
+	    @Override
+        public <T> T unwrap(Class<T> iface) throws SQLException
 	    {
 		    return null;
 	    }
 
-	    public boolean isWrapperFor(Class<?> iface) throws SQLException
+	    @Override
+        public boolean isWrapperFor(Class<?> iface) throws SQLException
 	    {
 		    return false;
 	    }
-	    
-	    public Logger getParentLogger() throws SQLFeatureNotSupportedException
+
+	    @Override
+        public Logger getParentLogger() throws SQLFeatureNotSupportedException
 	    {
 	        throw new UnsupportedOperationException();
 	    }
@@ -129,8 +135,8 @@ public class TestTooManyCursors extends DBITestCase
 
     private static class ConnectionInvocationHandler implements InvocationHandler
     {
-        private Connection connection;
-        private int numSuccessfulStatements;
+        private final Connection connection;
+        private final int numSuccessfulStatements;
         private int numStatements = 0;
 
         public static Connection newInstance(Connection connection, int numSuccessfulStatements)
@@ -146,6 +152,7 @@ public class TestTooManyCursors extends DBITestCase
             this.numSuccessfulStatements = numSuccessfulStatements;
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
         {
             try {
@@ -174,8 +181,8 @@ public class TestTooManyCursors extends DBITestCase
 
     private static class StatementInvocationHandler implements InvocationHandler
     {
-        private Statement stmt;
-        private ConnectionInvocationHandler connectionHandler;
+        private final Statement stmt;
+        private final ConnectionInvocationHandler connectionHandler;
 
         public static Statement newInstance(Statement stmt, ConnectionInvocationHandler connectionHandler)
         {
@@ -183,7 +190,7 @@ public class TestTooManyCursors extends DBITestCase
             Class<?> o = stmt.getClass();
             List<Class<?>> interfaces = new ArrayList<Class<?>>();
             while (!o.equals(Object.class)) {
-                interfaces.addAll(Arrays.asList((Class<?> [])o.getInterfaces()));
+                interfaces.addAll(Arrays.asList(o.getInterfaces()));
                 o = o.getSuperclass();
             }
 
@@ -198,6 +205,7 @@ public class TestTooManyCursors extends DBITestCase
             this.connectionHandler = connectionHandler;
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
         {
             if ("close".equals(method.getName())) {

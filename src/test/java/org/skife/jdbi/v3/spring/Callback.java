@@ -15,12 +15,9 @@
  */
 package org.skife.jdbi.v3.spring;
 
-import org.skife.jdbi.v3.IDBI;
+import org.skife.jdbi.v3.DBI;
 
-/**
- *
- */
 public interface Callback
 {
-    void call(IDBI dbi);
+    void call(DBI dbi);
 }
