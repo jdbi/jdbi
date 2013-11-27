@@ -150,7 +150,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     @Override
     public ResultType first()
     {
-        return (ResultType) first(UnwrappedSingleValue.class);
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
