@@ -26,9 +26,9 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi</artifactId>
+    <artifactId>jdbi3-hack</artifactId>
     <name>jDBI</name>
-    <version>2.52-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>
         jDBI is designed to provide convenient tabular data access in
@@ -79,8 +79,7 @@
     </developers>
 
     <properties>
-        <project.jdk6.home>${env.JAVA6_HOME}</project.jdk6.home>
-        <project.build.targetJdk>1.6</project.build.targetJdk>
+        <project.build.targetJdk>1.8</project.build.targetJdk>
         <basepom.maven.version>2.0.9</basepom.maven.version>
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>2.0.1</dep.spring.version>
@@ -221,7 +220,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
                         <links>
-                            <link>http://docs.oracle.com/javase/6/docs/api/</link>
+                            <link>http://docs.oracle.com/javase/8/docs/api/</link>
                         </links>
                         <nodeprecated>true</nodeprecated>
                     </configuration>
@@ -296,44 +295,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>travis</id>
-            <activation>
-                <property>
-                    <name>env.TRAVIS</name>
-                </property>
-            </activation>
-            <properties>
-                <project.jdk6.home>${env.JAVA_HOME}</project.jdk6.home>
-            </properties>
-        </profile>
-        <profile>
-            <id>cross-compile</id>
-            <activation>
-                 <jdk>(1.6,]</jdk>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <configuration>
-                                <compilerArguments children.combine="append">
-                                    <bootclasspath>${project.jdk6.home}/jre/lib/rt.jar:${project.jdk6.home}/jre/lib/jce.jar:${project.jdk6.home}/../classes/classes.jar</bootclasspath>
-                                </compilerArguments>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <artifactId>maven-javadoc-plugin</artifactId>
-                            <configuration>
-                                <bootclasspath>${project.jdk6.home}/jre/lib/rt.jar:${project.jdk6.home}/jre/lib/jce.jar:${project.jdk6.home}/../classes/classes.jar</bootclasspath>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-    </profiles>
 </project>
