@@ -15,6 +15,15 @@
  */
 package org.skife.jdbi.v3.docs;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -22,22 +31,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v3.DBI;
-import org.skife.jdbi.v3.FoldController;
-import org.skife.jdbi.v3.Folder3;
 import org.skife.jdbi.v3.Handle;
-import org.skife.jdbi.v3.StatementContext;
 import org.skife.jdbi.v3.sqlobject.SqlQuery;
 import org.skife.jdbi.v3.sqlobject.helpers.MapResultAsBean;
-
-import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class TestFoldToObjectGraph
 {
@@ -90,38 +86,6 @@ public class TestFoldToObjectGraph
     public void tearDown() throws Exception
     {
         handle.close();
-    }
-
-    @Test
-    public void testFluentApi() throws Exception
-    {
-        Map<String, Team> teams = handle.createQuery("select t.name as teamName, " +
-                                                     "       t.mascot as mascot, " +
-                                                     "       p.name as personName, " +
-                                                     "       p.role as role " +
-                                                     "from team t inner join person p on (t.name = p.team)")
-                                        .map(TeamPersonJoinRow.class)
-                                        .fold(Maps.<String, Team>newHashMap(), new TeamFolder());
-
-        assertThat(teams, equalTo(expected));
-
-    }
-
-    public static class TeamFolder implements Folder3<Map<String, Team>, TeamPersonJoinRow>
-    {
-        @Override
-        public Map<String, Team> fold(Map<String, Team> acc,
-                                      TeamPersonJoinRow row,
-                                      FoldController control,
-                                      StatementContext ctx) throws SQLException
-        {
-            if (!acc.containsKey(row.getTeamName())) {
-                acc.put(row.getTeamName(), new Team(row.getTeamName(), row.getMascot()));
-            }
-
-            acc.get(row.getTeamName()).getPeople().add(new Person(row.getPersonName(), row.getRole()));
-            return acc;
-        }
     }
 
     @Test

@@ -147,37 +147,4 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
         }
     }
-
-    /**
-     * Used to execute the query and traverse the generated keys with a accumulator.
-     * <a href="http://en.wikipedia.org/wiki/Fold_(higher-order_function)">Folding</a> over the
-     * keys involves invoking a callback for each row, passing into the callback the return value
-     * from the previous function invocation.
-     *
-     * @param accumulator The initial accumulator value
-     * @param folder      Defines the function which will fold over the result set.
-     *
-     * @return The return value from the last invocation of {@link Folder#fold(Object, java.sql.ResultSet)}
-     *
-     * @see org.skife.jdbi.v3.Folder
-     */
-    public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder2<AccumulatorType> folder)
-    {
-        try {
-            AccumulatorType value = accumulator;
-
-            if (results != null && !results.isClosed()) {
-                while (results.next()) {
-                    value = folder.fold(value, results, context);
-                }
-            }
-            return value;
-        }
-        catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
-        }
-        finally {
-            jdbiStatement.cleanup();
-        }
-    }
 }

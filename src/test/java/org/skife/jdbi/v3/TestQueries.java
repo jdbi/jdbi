@@ -15,28 +15,17 @@
  */
 package org.skife.jdbi.v3;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
 import org.skife.jdbi.HandyMapThing;
 import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v3.BasicHandle;
-import org.skife.jdbi.v3.FoldController;
-import org.skife.jdbi.v3.Folder2;
-import org.skife.jdbi.v3.Folder3;
-import org.skife.jdbi.v3.Query;
-import org.skife.jdbi.v3.ResultIterator;
-import org.skife.jdbi.v3.StatementContext;
 import org.skife.jdbi.v3.exceptions.NoResultsException;
 import org.skife.jdbi.v3.exceptions.StatementException;
 import org.skife.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v3.tweak.ResultSetMapper;
-import org.skife.jdbi.v3.util.StringMapper;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class TestQueries extends DBITestCase
 {
@@ -113,6 +102,7 @@ public class TestQueries extends DBITestCase
 
         Query<String> query = h.createQuery("select name from something order by id").map(new ResultSetMapper<String>()
         {
+            @Override
             public String map(int index, ResultSet r, StatementContext ctx) throws SQLException
             {
                 return r.getString(1);
@@ -306,48 +296,6 @@ public class TestQueries extends DBITestCase
 
         assertEquals(1, h.createQuery("select id, name from something").map(Something.class).list(1).size());
         assertEquals(2, h.createQuery("select id, name from something").map(Something.class).list(2).size());
-    }
-
-    public void testFold() throws Exception
-    {
-        h.prepareBatch("insert into something (id, name) values (:id, :name)")
-         .add(1, "Brian")
-         .add(2, "Keith")
-         .execute();
-
-        Map<String, Integer> rs = h.createQuery("select id, name from something")
-                                   .fold(new HashMap<String, Integer>(), new Folder2<Map<String, Integer>>()
-                                   {
-                                       public Map<String, Integer> fold(Map<String, Integer> a, ResultSet rs, StatementContext context) throws SQLException
-                                       {
-                                           a.put(rs.getString("name"), rs.getInt("id"));
-                                           return a;
-                                       }
-                                   });
-        assertEquals(2, rs.size());
-        assertEquals(Integer.valueOf(1), rs.get("Brian"));
-        assertEquals(Integer.valueOf(2), rs.get("Keith"));
-    }
-
-    public void testFold3() throws Exception
-    {
-        h.prepareBatch("insert into something (id, name) values (:id, :name)")
-         .add(1, "Brian")
-         .add(2, "Keith")
-         .execute();
-
-        List<String> rs = h.createQuery("select name from something order by id")
-                           .map(StringMapper.FIRST)
-                           .fold(new ArrayList<String>(), new Folder3<List<String>, String>()
-                           {
-                               public List<String> fold(List<String> a, String rs, FoldController ctl, StatementContext ctx) throws SQLException
-                               {
-                                   a.add(rs);
-                                   return a;
-                               }
-                           });
-        assertEquals(2, rs.size());
-        assertEquals(Arrays.asList("Brian", "Keith"), rs);
     }
 
     public void testUsefulArgumentOutputForDebug() throws Exception

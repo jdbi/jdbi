@@ -15,15 +15,24 @@
  */
 package org.skife.jdbi.v3.docs;
 
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.skife.jdbi.v3.ExtraMatchers.equalsOneOf;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v3.DBI;
-import org.skife.jdbi.v3.Folder2;
 import org.skife.jdbi.v3.Handle;
 import org.skife.jdbi.v3.Query;
 import org.skife.jdbi.v3.Something;
-import org.skife.jdbi.v3.StatementContext;
 import org.skife.jdbi.v3.sqlobject.Bind;
 import org.skife.jdbi.v3.sqlobject.BindBean;
 import org.skife.jdbi.v3.sqlobject.SomethingMapper;
@@ -35,19 +44,6 @@ import org.skife.jdbi.v3.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v3.tweak.HandleCallback;
 import org.skife.jdbi.v3.util.StringMapper;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.skife.jdbi.v3.ExtraMatchers.equalsOneOf;
-import static java.util.Arrays.asList;
 
 public class TestDocumentation
 {
@@ -133,6 +129,7 @@ public class TestDocumentation
         DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         dbi.withHandle(new HandleCallback<Void>()
         {
+            @Override
             public Void withHandle(Handle handle) throws Exception
             {
                 handle.execute("create table silly (id int)");
@@ -174,32 +171,6 @@ public class TestDocumentation
 
         h.close();
     }
-
-    @Test
-    public void testFold() throws Exception
-    {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
-        h.execute("create table something (id int primary key, name varchar(100))");
-        h.execute("insert into something (id, name) values (7, 'Mark')");
-        h.execute("insert into something (id, name) values (8, 'Tatu')");
-
-
-        StringBuilder rs = h.createQuery("select name from something order by id")
-            .map(StringMapper.FIRST)
-            .fold(new StringBuilder(), new Folder2<StringBuilder>()
-            {
-                public StringBuilder fold(StringBuilder acc, ResultSet rs, StatementContext ctx) throws SQLException
-                {
-                    acc.append(rs.getString(1)).append(", ");
-                    return acc;
-                }
-            });
-        rs.delete(rs.length() - 2, rs.length()); // trim the extra ", "
-        assertThat(rs.toString(), equalTo("Mark, Tatu"));
-        h.close();
-    }
-
 
     @Test
     public void testMappingExampleChainedIterator2() throws Exception

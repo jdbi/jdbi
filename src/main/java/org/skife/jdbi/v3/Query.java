@@ -21,7 +21,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.skife.jdbi.v3.exceptions.ResultSetException;
 import org.skife.jdbi.v3.exceptions.UnableToCreateStatementException;
@@ -114,107 +113,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                     return result_list;
                 }
             });
-        }
-        finally {
-            cleanup();
-        }
-    }
-
-    /**
-     * Used to execute the query and traverse the result set with a accumulator.
-     * <a href="http://en.wikipedia.org/wiki/Fold_(higher-order_function)">Folding</a> over the
-     * result involves invoking a callback for each row, passing into the callback the return value
-     * from the previous function invocation.
-     *
-     * @param accumulator The initial accumulator value
-     * @param folder      Defines the function which will fold over the result set.
-     *
-     * @return The return value from the last invocation of {@link Folder#fold(Object, java.sql.ResultSet)}
-     *
-     * @see org.skife.jdbi.v3.Folder
-     */
-    public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder2<AccumulatorType> folder)
-    {
-        final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
-
-        try {
-            this.internalExecute(new QueryResultSetMunger<Void>(this)
-            {
-                @Override
-                public Void munge(ResultSet rs) throws SQLException
-                {
-                    while (rs.next()) {
-                        acc.set(folder.fold(acc.get(), rs, getContext()));
-                    }
-                    return null;
-                }
-            });
-            return acc.get();
-        }
-        finally {
-            cleanup();
-        }
-    }
-
-    public <AccumulatorType> AccumulatorType fold(final AccumulatorType accumulator,
-                                                  final Folder3<AccumulatorType, ResultType> folder)
-    {
-        try {
-            return this.internalExecute(new QueryResultSetMunger<AccumulatorType>(this)
-            {
-                private int idx = 0;
-                private AccumulatorType ac = accumulator;
-
-                @Override
-                protected AccumulatorType munge(ResultSet rs) throws SQLException
-                {
-                    final FoldController ctl = new FoldController(rs);
-                    while (!ctl.isAborted() && rs.next()) {
-                        ResultType row_value = mapper.map(idx++, rs, getContext());
-                        this.ac = folder.fold(ac, row_value, ctl, getContext());
-                    }
-                    return ac;
-                }
-            });
-        }
-        finally {
-            cleanup();
-        }
-    }
-
-
-    /**
-     * Used to execute the query and traverse the result set with a accumulator.
-     * <a href="http://en.wikipedia.org/wiki/Fold_(higher-order_function)">Folding</a> over the
-     * result involves invoking a callback for each row, passing into the callback the return value
-     * from the previous function invocation.
-     *
-     * @param accumulator The initial accumulator value
-     * @param folder      Defines the function which will fold over the result set.
-     *
-     * @return The return value from the last invocation of {@link Folder#fold(Object, java.sql.ResultSet)}
-     *
-     * @see org.skife.jdbi.v3.Folder
-     * @deprecated Use {@link Query#fold(Object, Folder2)}
-     */
-    @Deprecated
-    public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder<AccumulatorType> folder)
-    {
-        final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
-
-        try {
-            this.internalExecute(new QueryResultSetMunger<Void>(this)
-            {
-                @Override
-                public Void munge(ResultSet rs) throws SQLException
-                {
-                    while (rs.next()) {
-                        acc.set(folder.fold(acc.get(), rs));
-                    }
-                    return null;
-                }
-            });
-            return acc.get();
         }
         finally {
             cleanup();
