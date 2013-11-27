@@ -15,13 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
-import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v2.logging.NoOpLog;
-import org.skife.jdbi.v2.tweak.StatementLocator;
-import org.skife.jdbi.v2.tweak.TransactionHandler;
-import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,6 +24,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.logging.NoOpLog;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
+
+import junit.framework.TestCase;
 
 /**
  *
@@ -66,7 +67,7 @@ public abstract class DBITestCase extends TestCase
         Connection conn = Tools.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         getStatementLocator(),
-                                        new CachingStatementBuilder(new DefaultStatementBuilder()),
+                                        new DefaultStatementBuilder(),
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         conn,
                                         new HashMap<String, Object>(),

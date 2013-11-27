@@ -15,14 +15,14 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v2.logging.NoOpLog;
-import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+
+import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.logging.NoOpLog;
+import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 public class TestPreparedStatementCache extends DBITestCase
 {
@@ -46,11 +46,10 @@ public class TestPreparedStatementCache extends DBITestCase
                 return super.prepareStatement(s);
             }
         };
-        CachingStatementBuilder builder = new CachingStatementBuilder(new DefaultStatementBuilder());
 
         BasicHandle h = new BasicHandle(new LocalTransactionHandler(),
                                         new ClasspathStatementLocator(),
-                                        builder,
+                                        new DefaultStatementBuilder(),
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         c,
                                         new HashMap<String, Object>(),

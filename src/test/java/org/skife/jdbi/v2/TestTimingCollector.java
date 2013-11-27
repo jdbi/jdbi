@@ -15,14 +15,14 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v2.logging.NoOpLog;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.v2.logging.NoOpLog;
 
 /**
  *
@@ -41,7 +41,7 @@ public class TestTimingCollector extends DBITestCase
         Connection conn = Tools.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         getStatementLocator(),
-                                        new CachingStatementBuilder(new DefaultStatementBuilder()),
+                                        new DefaultStatementBuilder(),
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         conn,
                                         new HashMap<String, Object>(),
@@ -124,8 +124,9 @@ public class TestTimingCollector extends DBITestCase
 
     private static class TTC implements TimingCollector
     {
-        private List<String> statements = new ArrayList<String>();
+        private final List<String> statements = new ArrayList<String>();
 
+        @Override
         public synchronized void collect(final long elapsedTime, final StatementContext ctx)
         {
             statements.add(ctx.getRawSql());
