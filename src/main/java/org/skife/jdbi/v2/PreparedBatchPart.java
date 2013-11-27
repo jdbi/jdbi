@@ -15,13 +15,13 @@
  */
 package org.skife.jdbi.v2;
 
+import java.util.Collections;
+
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-
-import java.util.Collections;
 
 /**
  * Represents a single statement in a prepared batch
@@ -42,10 +42,9 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       ConcreteStatementContext context,
                       SQLLog log,
                       TimingCollector timingCollector,
-                      Foreman foreman,
-                      ContainerFactoryRegistry containerFactoryRegistry)
+                      Foreman foreman)
     {
-        super(binding, locator, rewriter, handle, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman, containerFactoryRegistry);
+        super(binding, locator, rewriter, handle, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
         this.batch = batch;
     }
 

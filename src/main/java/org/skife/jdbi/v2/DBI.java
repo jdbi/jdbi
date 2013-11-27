@@ -15,13 +15,22 @@
  */
 package org.skife.jdbi.v2;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.sql.DataSource;
+
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
-import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
@@ -32,15 +41,6 @@ import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
  * and provide "global" configuration for all handles obtained from it.
@@ -49,17 +49,16 @@ public class DBI implements IDBI
 {
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private final MappingRegistry mappingRegistry = new MappingRegistry();
-    private final ContainerFactoryRegistry containerFactoryRegistry = new ContainerFactoryRegistry();
     private final Foreman foreman = new Foreman();
 
     private final ConnectionFactory connectionFactory;
 
-    private AtomicReference<StatementRewriter> statementRewriter = new AtomicReference<StatementRewriter>(new ColonPrefixNamedParamStatementRewriter());
-    private AtomicReference<StatementLocator> statementLocator = new AtomicReference<StatementLocator>(new ClasspathStatementLocator());
-    private AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<TransactionHandler>(new LocalTransactionHandler());
-    private AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
-    private AtomicReference<SQLLog> log = new AtomicReference<SQLLog>(new NoOpLog());
-    private AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
+    private final AtomicReference<StatementRewriter> statementRewriter = new AtomicReference<StatementRewriter>(new ColonPrefixNamedParamStatementRewriter());
+    private final AtomicReference<StatementLocator> statementLocator = new AtomicReference<StatementLocator>(new ClasspathStatementLocator());
+    private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<TransactionHandler>(new LocalTransactionHandler());
+    private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
+    private final AtomicReference<SQLLog> log = new AtomicReference<SQLLog>(new NoOpLog());
+    private final AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
 
     /**
      * Constructor for use with a DataSource which will provide
@@ -95,6 +94,7 @@ public class DBI implements IDBI
     {
         this(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection() throws SQLException
             {
                 return DriverManager.getConnection(url);
@@ -112,6 +112,7 @@ public class DBI implements IDBI
     {
         this(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection() throws SQLException
             {
                 return DriverManager.getConnection(url, props);
@@ -130,6 +131,7 @@ public class DBI implements IDBI
     {
         this(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection() throws SQLException
             {
                 return DriverManager.getConnection(url, username, password);
@@ -199,6 +201,7 @@ public class DBI implements IDBI
      *
      * @return an open Handle instance
      */
+    @Override
     public Handle open()
     {
         try {
@@ -215,8 +218,7 @@ public class DBI implements IDBI
                                        log.get(),
                                        timingCollector.get(),
                                        new MappingRegistry(mappingRegistry),
-                                       foreman.createChild(),
-                                       containerFactoryRegistry.createChild());
+                                       foreman.createChild());
             log.get().logObtainHandle((stop - start) / 1000000L, h);
             return h;
         }
@@ -250,6 +252,7 @@ public class DBI implements IDBI
      * @param key   The key for the attribute
      * @param value the value for the attribute
      */
+    @Override
     public void define(String key, Object value)
     {
         this.globalStatementAttributes.put(key, value);
@@ -266,6 +269,7 @@ public class DBI implements IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
+    @Override
     public <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException
     {
         final Handle h = this.open();
@@ -293,9 +297,11 @@ public class DBI implements IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
+    @Override
     public <ReturnType> ReturnType inTransaction(final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
         return withHandle(new HandleCallback<ReturnType>() {
+            @Override
             public ReturnType withHandle(Handle handle) throws Exception
             {
                 return handle.inTransaction(callback);
@@ -303,9 +309,11 @@ public class DBI implements IDBI
         });
     }
 
+    @Override
     public <ReturnType> ReturnType inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
         return withHandle(new HandleCallback<ReturnType>() {
+            @Override
             public ReturnType withHandle(Handle handle) throws Exception
             {
                 return handle.inTransaction(isolation, callback);
@@ -320,6 +328,7 @@ public class DBI implements IDBI
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
+    @Override
     public <SqlObjectType> SqlObjectType open(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.open(this, sqlObjectType);
@@ -333,6 +342,7 @@ public class DBI implements IDBI
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
+    @Override
     public <SqlObjectType> SqlObjectType onDemand(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.onDemand(this, sqlObjectType);
@@ -342,6 +352,7 @@ public class DBI implements IDBI
      * Used to close a sql object which lacks a close() method.
      * @param sqlObject the sql object to close
      */
+    @Override
     public void close(Object sqlObject)
     {
         if (sqlObject instanceof Handle) {
@@ -379,6 +390,7 @@ public class DBI implements IDBI
         assert connection != null;
         return new DBI(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection()
             {
                 return connection;
@@ -479,10 +491,5 @@ public class DBI implements IDBI
     public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
     {
         foreman.register(argumentFactory);
-    }
-
-    public void registerContainerFactory(ContainerFactory<?> factory)
-    {
-        this.containerFactoryRegistry.register(factory);
     }
 }

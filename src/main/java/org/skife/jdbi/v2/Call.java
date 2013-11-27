@@ -15,13 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.SQLLog;
-import org.skife.jdbi.v2.tweak.StatementBuilder;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.tweak.StatementLocator;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,6 +23,13 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.SQLLog;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 /**
  * Used for invoking stored procedures.
@@ -47,10 +47,9 @@ public class Call extends SQLStatement<Call>
          SQLLog log,
          TimingCollector timingCollector,
          Collection<StatementCustomizer> customizers,
-         Foreman foreman,
-         ContainerFactoryRegistry containerFactoryRegistry )
+         Foreman foreman)
 	{
-		super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
+		super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman);
 	}
 
 	/**
@@ -88,7 +87,8 @@ public class Call extends SQLStatement<Call>
 	{
 	    try {
 	        return this.internalExecute(new QueryResultMunger<OutParameters>() {
-	            public OutParameters munge(Statement results) throws SQLException
+	            @Override
+                public OutParameters munge(Statement results) throws SQLException
 	            {
 	                OutParameters out = new OutParameters();
 	                for ( OutParamArgument param : params ) {
@@ -122,7 +122,8 @@ public class Call extends SQLStatement<Call>
 			params.add(this);
 		}
 
-		public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
+		@Override
+        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
 		{
 			((CallableStatement)statement).registerOutParameter(position, sqlType);
 			this.position = position ;

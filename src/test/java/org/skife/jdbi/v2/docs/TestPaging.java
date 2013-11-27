@@ -15,6 +15,12 @@
  */
 package org.skife.jdbi.v2.docs;
 
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
+import java.util.UUID;
+
 import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
@@ -23,21 +29,12 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.TestContainerFactory;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
-
-import java.util.UUID;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
-import static java.util.Arrays.asList;
 
 public class TestPaging
 {
@@ -88,7 +85,6 @@ public class TestPaging
 
     }
 
-    @RegisterContainerMapper(TestContainerFactory.ImmutableListContainerFactory.class)
     @RegisterMapper(SomethingMapper.class)
     public static interface Sql
     {
@@ -98,6 +94,4 @@ public class TestPaging
         @SqlQuery("select id, name from something where id > :end_of_last_page order by id limit :size")
         public ImmutableList<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
     }
-
-
 }

@@ -15,28 +15,24 @@
  */
 package org.skife.jdbi.v2.docs;
 
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+import java.util.UUID;
+
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.skife.jdbi.v2.ContainerBuilder;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.unstable.BindIn;
-
-import java.util.List;
-import java.util.UUID;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
-import static java.util.Arrays.asList;
 
 public class TestInClauseExpansion
 {
@@ -70,38 +66,9 @@ public class TestInClauseExpansion
     }
 
     @UseStringTemplate3StatementLocator
-    @RegisterContainerMapper(ImmutableSetContainerFactory.class)
     public static interface DAO
     {
         @SqlQuery
         public ImmutableSet<String> findIdsForNames(@BindIn("names") List<Integer> names);
-    }
-
-    public static class ImmutableSetContainerFactory implements ContainerFactory<ImmutableSet>
-    {
-
-        public boolean accepts(Class<?> type)
-        {
-            return ImmutableSet.class.isAssignableFrom(type);
-        }
-
-        public ContainerBuilder<ImmutableSet> newContainerBuilderFor(Class<?> type)
-        {
-            return new ContainerBuilder<ImmutableSet>()
-            {
-                final ImmutableSet.Builder<Object> builder = ImmutableSet.builder();
-
-                public ContainerBuilder<ImmutableSet> add(Object it)
-                {
-                    builder.add(it);
-                    return this;
-                }
-
-                public ImmutableSet build()
-                {
-                    return builder.build();
-                }
-            };
-        }
     }
 }

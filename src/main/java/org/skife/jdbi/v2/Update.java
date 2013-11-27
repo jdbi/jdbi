@@ -15,17 +15,17 @@
  */
 package org.skife.jdbi.v2;
 
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.Map;
+
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements
@@ -40,10 +40,9 @@ public class Update extends SQLStatement<Update>
            ConcreteStatementContext ctx,
            SQLLog log,
            TimingCollector timingCollector,
-           Foreman foreman,
-           ContainerFactoryRegistry containerFactoryRegistry)
+           Foreman foreman)
     {
-        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman, containerFactoryRegistry);
+        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
     }
 
     /**
@@ -54,6 +53,7 @@ public class Update extends SQLStatement<Update>
     {
         try {
             return this.internalExecute(new QueryResultMunger<Integer>() {
+                @Override
                 public Integer munge(Statement results) throws SQLException
                 {
                     return results.getUpdateCount();
@@ -75,13 +75,13 @@ public class Update extends SQLStatement<Update>
     {
         getConcreteContext().setReturningGeneratedKeys(true);
         return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>() {
+            @Override
             public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
             {
                 return new GeneratedKeys<GeneratedKeyType>(mapper,
                                                            Update.this,
                                                            results,
-                                                           getContext(),
-                                                           getContainerMapperRegistry());
+                                                           getContext());
             }
         });
     }

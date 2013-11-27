@@ -15,6 +15,14 @@
  */
 package org.skife.jdbi.v2;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.skife.jdbi.v2.exceptions.ResultSetException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
@@ -24,14 +32,6 @@ import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Statement providing convenience result handling for SQL queries.
@@ -53,10 +53,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           TimingCollector timingCollector,
           Collection<StatementCustomizer> customizers,
           MappingRegistry mappingRegistry,
-          Foreman foreman,
-          ContainerFactoryRegistry containerFactoryRegistry)
+          Foreman foreman)
     {
-        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
+        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman);
         this.mapper = mapper;
         this.mappingRegistry = new MappingRegistry(mappingRegistry);
     }
@@ -72,25 +71,16 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *                            if there is an error executing the statement
      * @throws ResultSetException if there is an error dealing with the result set
      */
+    @Override
     public List<ResultType> list()
     {
         return list(List.class);
     }
 
+    @Override
     public <ContainerType> ContainerType list(Class<ContainerType> containerType)
     {
-        ContainerBuilder<ContainerType> builder = getContainerMapperRegistry().createBuilderFor(containerType);
-        return fold(builder, new Folder3<ContainerBuilder<ContainerType>, ResultType>()
-        {
-            public ContainerBuilder<ContainerType> fold(ContainerBuilder<ContainerType> accumulator,
-                                                        ResultType rs,
-                                                        FoldController ctl,
-                                                        StatementContext ctx) throws SQLException
-            {
-                accumulator.add(rs);
-                return accumulator;
-            }
-        }).build();
+        throw new UnsupportedOperationException("TODO");
     }
 
     /**
@@ -107,11 +97,13 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *                            if there is an error executing the statement
      * @throws ResultSetException if there is an error dealing with the result set
      */
+    @Override
     public List<ResultType> list(final int maxRows)
     {
         try {
             return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this)
             {
+                @Override
                 public List<ResultType> munge(ResultSet rs) throws SQLException
                 {
                     List<ResultType> result_list = new ArrayList<ResultType>();
@@ -148,6 +140,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         try {
             this.internalExecute(new QueryResultSetMunger<Void>(this)
             {
+                @Override
                 public Void munge(ResultSet rs) throws SQLException
                 {
                     while (rs.next()) {
@@ -204,6 +197,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @see org.skife.jdbi.v2.Folder
      * @deprecated Use {@link Query#fold(Object, Folder2)}
      */
+    @Deprecated
     public <AccumulatorType> AccumulatorType fold(AccumulatorType accumulator, final Folder<AccumulatorType> folder)
     {
         final AtomicReference<AccumulatorType> acc = new AtomicReference<AccumulatorType>(accumulator);
@@ -211,6 +205,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         try {
             this.internalExecute(new QueryResultSetMunger<Void>(this)
             {
+                @Override
                 public Void munge(ResultSet rs) throws SQLException
                 {
                     while (rs.next()) {
@@ -230,10 +225,12 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * Obtain a forward-only result set iterator. Note that you must explicitely close
      * the iterator to close the underlying resources.
      */
+    @Override
     public ResultIterator<ResultType> iterator()
     {
         return this.internalExecute(new QueryResultMunger<ResultIterator<ResultType>>()
         {
+            @Override
             public ResultIterator<ResultType> munge(Statement stmt) throws SQLException
             {
                 return new ResultSetResultIterator<ResultType>(mapper,
@@ -252,25 +249,17 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return first result, mapped, or null if there is no first result
      */
+    @Override
     public ResultType first()
     {
         return (ResultType) first(UnwrappedSingleValue.class);
     }
 
+    @Override
     public <T> T first(Class<T> containerType)
     {
         addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
-        ContainerBuilder builder = getContainerMapperRegistry().createBuilderFor(containerType);
-
-        return (T) this.fold(builder, new Folder3<ContainerBuilder, ResultType>()
-        {
-            public ContainerBuilder fold(ContainerBuilder accumulator, ResultType rs, FoldController control, StatementContext ctx) throws SQLException
-            {
-                accumulator.add(rs);
-                control.abort();
-                return accumulator;
-            }
-        }).build();
+        throw new UnsupportedOperationException("TODO");
     }
 
     /**
@@ -317,8 +306,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getTimingCollector(),
                             getStatementCustomizers(),
                             new MappingRegistry(mappingRegistry),
-                            getForeman().createChild(),
-                            getContainerMapperRegistry().createChild());
+                            getForeman().createChild());
     }
 
     /**

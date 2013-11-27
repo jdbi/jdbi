@@ -15,20 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
-import org.skife.jdbi.v2.tweak.Argument;
-import org.skife.jdbi.v2.tweak.ArgumentFactory;
-import org.skife.jdbi.v2.tweak.ContainerFactory;
-import org.skife.jdbi.v2.tweak.NamedArgumentFinder;
-import org.skife.jdbi.v2.tweak.RewrittenStatement;
-import org.skife.jdbi.v2.tweak.SQLLog;
-import org.skife.jdbi.v2.tweak.StatementBuilder;
-import org.skife.jdbi.v2.tweak.StatementCustomizer;
-import org.skife.jdbi.v2.tweak.StatementLocator;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -43,6 +29,19 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
+import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
+import org.skife.jdbi.v2.tweak.NamedArgumentFinder;
+import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.SQLLog;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
+import org.skife.jdbi.v2.tweak.StatementCustomizer;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -67,7 +66,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     private       PreparedStatement  stmt;
     private final SQLLog             log;
     private final TimingCollector    timingCollector;
-    private final ContainerFactoryRegistry containerMapperRegistry;
 
     SQLStatement(Binding params,
                  StatementLocator locator,
@@ -79,8 +77,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
                  SQLLog log,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers,
-                 Foreman foreman,
-                 ContainerFactoryRegistry containerFactoryRegistry)
+                 Foreman foreman)
     {
         super(ctx, foreman);
         assert verifyOurNastyDowncastIsOkay();
@@ -95,21 +92,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
-        this.containerMapperRegistry = containerFactoryRegistry.createChild();
 
         ctx.setConnection(handle.getConnection());
         ctx.setRawSql(sql);
         ctx.setBinding(params);
-    }
-
-    protected ContainerFactoryRegistry getContainerMapperRegistry()
-    {
-        return containerMapperRegistry;
-    }
-
-    public SelfType registerContainerFactory(ContainerFactory<?> containerFactory) {
-        this.getContainerMapperRegistry().register(containerFactory);
-        return (SelfType) this;
     }
 
 

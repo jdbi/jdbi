@@ -15,6 +15,13 @@
  */
 package org.skife.jdbi.v2;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
@@ -23,13 +30,6 @@ import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Represents a prepared batch statement. That is, a sql statement compiled as a prepared
@@ -51,10 +51,9 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                   SQLLog log,
                   TimingCollector timingCollector,
                   Collection<StatementCustomizer> statementCustomizers,
-                  Foreman foreman,
-                  ContainerFactoryRegistry containerFactoryRegistry)
+                  Foreman foreman)
     {
-        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, log, timingCollector, statementCustomizers, foreman, containerFactoryRegistry);
+        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, log, timingCollector, statementCustomizers, foreman);
         this.currentBinding = new Binding();
     }
 
@@ -63,6 +62,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
      *
      * @return self
      */
+    @Override
     public PreparedBatch define(String key, Object value)
     {
         getContext().setAttribute(key, value);
@@ -75,6 +75,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
      * @param values containing key/value pairs.
      * @return this
      */
+    @Override
     public PreparedBatch define(final Map<String, ? extends Object> values)
     {
         if (values != null) {
@@ -172,8 +173,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                                                        getConcreteContext(),
                                                        getLog(),
                                                        getTimingCollector(),
-                                                       getForeman(),
-                                                       getContainerMapperRegistry());
+                                                       getForeman());
         parts.add(part);
         this.currentBinding = new Binding();
         return part;

@@ -15,19 +15,18 @@
  */
 package org.skife.jdbi.v2;
 
+import java.io.Closeable;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
-import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-
-import java.io.Closeable;
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This represents a connection to the database system. It ususally is a wrapper around
@@ -46,6 +45,7 @@ public interface Handle extends Closeable
      * @throws org.skife.jdbi.v2.exceptions.UnableToCloseResourceException if any
      * resources throw exception while closing
      */
+    @Override
     void close();
 
     /**
@@ -269,6 +269,4 @@ public interface Handle extends Closeable
     public TransactionIsolationLevel getTransactionIsolationLevel();
 
     public void registerArgumentFactory(ArgumentFactory argumentFactory);
-
-    public void registerContainerFactory(ContainerFactory<?> factory);
 }

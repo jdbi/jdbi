@@ -15,14 +15,14 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.skife.jdbi.v2.exceptions.ResultSetException;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 /**
  * Wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
@@ -36,7 +36,6 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
     private final Statement                stmt;
     private final ResultSet                results;
     private final StatementContext         context;
-    private final ContainerFactoryRegistry containerFactoryRegistry;
 
     /**
      * Creates a new wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
@@ -50,15 +49,13 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
     GeneratedKeys(ResultSetMapper<Type> mapper,
                   SQLStatement<?> jdbiStatement,
                   Statement stmt,
-                  StatementContext context,
-                  ContainerFactoryRegistry containerFactoryRegistry) throws SQLException
+                  StatementContext context) throws SQLException
     {
         this.mapper = mapper;
         this.jdbiStatement = jdbiStatement;
         this.stmt = stmt;
         this.results = stmt.getGeneratedKeys();
         this.context = context;
-        this.containerFactoryRegistry = containerFactoryRegistry.createChild();
         this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
     }
 
@@ -67,6 +64,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      *
      * @return The key or null if no keys were returned
      */
+    @Override
     public Type first()
     {
         try {
@@ -86,18 +84,21 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         }
     }
 
+    @Override
     public <T> T first(Class<T> containerType)
     {
 //        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(first()));
         throw new UnsupportedOperationException("Not Yet Implemented!");
     }
 
+    @Override
     public <ContainerType> ContainerType list(Class<ContainerType> containerType)
     {
 //        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(list()));
         throw new UnsupportedOperationException("Not Yet Implemented!");
     }
 
+    @Override
     public List<Type> list(int maxRows)
     {
         try {
@@ -125,6 +126,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      *
      * @return The list of keys or an empty list if no keys were returned
      */
+    @Override
     public List<Type> list()
     {
         return list(Integer.MAX_VALUE);
@@ -135,6 +137,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      *
      * @return The key iterator
      */
+    @Override
     public ResultIterator<Type> iterator()
     {
         try {
