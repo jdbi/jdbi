@@ -88,6 +88,10 @@
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>2.0.1</dep.spring.version>
         <basepom.check.fail-all>true</basepom.check.fail-all>
+
+        <!-- XXX: DO NOT RELEASE WITH THIS ENABLED -->
+        <!-- Currently the extended checkers do not support Java 8 -->
+        <basepom.check.skip-extended>true</basepom.check.skip-extended>
     </properties>
 
     <dependencyManagement>
