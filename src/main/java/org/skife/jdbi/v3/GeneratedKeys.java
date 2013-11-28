@@ -84,28 +84,18 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         }
     }
 
+    /**
+     * Returns a list of all generated keys.
+     *
+     * @return The list of keys or an empty list if no keys were returned
+     */
     @Override
-    public <T> T first(Class<T> containerType)
-    {
-//        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(first()));
-        throw new UnsupportedOperationException("Not Yet Implemented!");
-    }
-
-    @Override
-    public <ContainerType> ContainerType list(Class<ContainerType> containerType)
-    {
-//        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(list()));
-        throw new UnsupportedOperationException("Not Yet Implemented!");
-    }
-
-    @Override
-    public List<Type> list(int maxRows)
+    public List<Type> list()
     {
         try {
-            int idx = 0;
             List<Type> resultList = new ArrayList<Type>();
 
-            if (results != null && ++idx <= maxRows && !results.isClosed()) {
+            if (results != null && !results.isClosed()) {
                 int index = 0;
                 while (results.next()) {
                     resultList.add(mapper.map(index++, results, context));
@@ -119,17 +109,6 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         finally {
             jdbiStatement.cleanup();
         }
-    }
-
-    /**
-     * Returns a list of all generated keys.
-     *
-     * @return The list of keys or an empty list if no keys were returned
-     */
-    @Override
-    public List<Type> list()
-    {
-        return list(Integer.MAX_VALUE);
     }
 
     /**

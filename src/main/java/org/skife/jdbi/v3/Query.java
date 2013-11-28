@@ -73,32 +73,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     @Override
     public List<ResultType> list()
     {
-        return list(List.class);
-    }
-
-    @Override
-    public <ContainerType> ContainerType list(Class<ContainerType> containerType)
-    {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    /**
-     * Executes the select
-     * <p/>
-     * Will eagerly load all results up to a maximum of <code>maxRows</code>
-     *
-     * @param maxRows The maximum number of results to include in the result, any
-     *                rows in the result set beyond this number will be ignored.
-     *
-     * @throws UnableToCreateStatementException
-     *                            if there is an error creating the statement
-     * @throws UnableToExecuteStatementException
-     *                            if there is an error executing the statement
-     * @throws ResultSetException if there is an error dealing with the result set
-     */
-    @Override
-    public List<ResultType> list(final int maxRows)
-    {
         try {
             return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this)
             {
@@ -107,7 +81,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                 {
                     List<ResultType> result_list = new ArrayList<ResultType>();
                     int index = 0;
-                    while (rs.next() && index < maxRows) {
+                    while (rs.next()) {
                         result_list.add(mapper.map(index++, rs, getContext()));
                     }
                     return result_list;
@@ -150,13 +124,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     @Override
     public ResultType first()
     {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public <T> T first(Class<T> containerType)
-    {
-        addStatementCustomizer(StatementCustomizers.MAX_ROW_ONE);
         throw new UnsupportedOperationException("TODO");
     }
 
