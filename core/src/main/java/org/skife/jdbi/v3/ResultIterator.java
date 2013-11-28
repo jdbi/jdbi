@@ -36,5 +36,6 @@ public interface ResultIterator<Type> extends Iterator<Type>, Closeable
     /**
      * Close the underlying resultset
      */
+    @Override
     public void close();
 }

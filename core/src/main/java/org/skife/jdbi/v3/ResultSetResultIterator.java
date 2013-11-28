@@ -15,12 +15,14 @@
  */
 package org.skife.jdbi.v3;
 
-import org.skife.jdbi.v3.exceptions.ResultSetException;
-import org.skife.jdbi.v3.tweak.ResultSetMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.NoSuchElementException;
+
+import org.skife.jdbi.v3.exceptions.NoResultsException;
+import org.skife.jdbi.v3.exceptions.ResultSetException;
+import org.skife.jdbi.v3.tweak.ResultSetMapper;
 
 class ResultSetResultIterator<Type> implements ResultIterator<Type>
 {
@@ -37,23 +39,30 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     ResultSetResultIterator(ResultSetMapper<Type> mapper,
                             SQLStatement jdbiStatement,
                             Statement stmt,
+                            ResultSet results,
                             StatementContext context)
             throws SQLException
     {
         this.mapper = mapper;
         this.context = context;
         this.jdbiStatement = jdbiStatement;
-        this.results = stmt.getResultSet();
+        this.results = results;
+
+        if (results == null) {
+            throw new NoResultsException("No results to iterate over", context);
+        }
 
         this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
     }
 
+    @Override
     public void close()
     {
         closed = true;
         jdbiStatement.cleanup();
     }
 
+    @Override
     public boolean hasNext()
     {
         if (closed) {
@@ -76,6 +85,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         return hasNext;
     }
 
+    @Override
     public Type next()
     {
         if (closed) {
@@ -84,7 +94,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
 
         if (!hasNext()) {
             close();
-            throw new IllegalStateException("No element to advance to");
+            throw new NoSuchElementException("No element to advance to");
         }
 
         try {
@@ -101,6 +111,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         }
     }
 
+    @Override
     public void remove()
     {
         throw new UnsupportedOperationException("Deleting from a result set iterator is not yet supported");

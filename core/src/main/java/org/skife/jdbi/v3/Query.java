@@ -18,13 +18,8 @@ package org.skife.jdbi.v3;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import org.skife.jdbi.v3.exceptions.ResultSetException;
-import org.skife.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v3.tweak.ResultSetMapper;
 import org.skife.jdbi.v3.tweak.SQLLog;
 import org.skife.jdbi.v3.tweak.StatementBuilder;
@@ -60,40 +55,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     /**
-     * Executes the select
-     * <p/>
-     * Will eagerly load all results
-     *
-     * @throws UnableToCreateStatementException
-     *                            if there is an error creating the statement
-     * @throws UnableToExecuteStatementException
-     *                            if there is an error executing the statement
-     * @throws ResultSetException if there is an error dealing with the result set
-     */
-    @Override
-    public List<ResultType> list()
-    {
-        try {
-            return this.internalExecute(new QueryResultSetMunger<List<ResultType>>(this)
-            {
-                @Override
-                public List<ResultType> munge(ResultSet rs) throws SQLException
-                {
-                    List<ResultType> result_list = new ArrayList<ResultType>();
-                    int index = 0;
-                    while (rs.next()) {
-                        result_list.add(mapper.map(index++, rs, getContext()));
-                    }
-                    return result_list;
-                }
-            });
-        }
-        finally {
-            cleanup();
-        }
-    }
-
-    /**
      * Obtain a forward-only result set iterator. Note that you must explicitely close
      * the iterator to close the underlying resources.
      */
@@ -108,38 +69,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                 return new ResultSetResultIterator<ResultType>(mapper,
                                                                Query.this,
                                                                stmt,
+                                                               stmt.getResultSet(),
                                                                getContext());
             }
         });
-    }
-
-    /**
-     * Executes the select.
-     * <p/>
-     * Specifies a maximum of one result on the JDBC statement, and map that one result
-     * as the return value, or return null if there is nothing in the results
-     *
-     * @return first result, mapped, or null if there is no first result
-     */
-    @Override
-    public ResultType first()
-    {
-        try {
-            return this.internalExecute(new QueryResultSetMunger<ResultType>(this)
-            {
-                @Override
-                public ResultType munge(ResultSet rs) throws SQLException
-                {
-                    if (!rs.next()) {
-                        return null;
-                    }
-                    return mapper.map(0, rs, getContext());
-                }
-            });
-        }
-        finally {
-            cleanup();
-        }
     }
 
     /**

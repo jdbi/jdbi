@@ -15,11 +15,10 @@
  */
 package org.skife.jdbi.v3;
 
-import org.skife.jdbi.derby.Tools;
-import org.skife.jdbi.v3.BasicHandle;
-import org.skife.jdbi.v3.ResultIterator;
-
 import java.util.Map;
+import java.util.NoSuchElementException;
+
+import org.skife.jdbi.derby.Tools;
 
 public class TestIterator extends DBITestCase
 {
@@ -195,9 +194,9 @@ public class TestIterator extends DBITestCase
 
         try {
             it.next();
-            fail("Expected IllegalStateException did not show up!");
+            fail("Expected NoSuchElementException did not show up!");
         }
-        catch (IllegalStateException iae) {
+        catch (NoSuchElementException nsee) {
             // TestCase does not deal with the annotations...
         }
     }

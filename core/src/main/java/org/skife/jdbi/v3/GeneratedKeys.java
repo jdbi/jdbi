@@ -18,8 +18,6 @@ package org.skife.jdbi.v3;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.skife.jdbi.v3.exceptions.ResultSetException;
 import org.skife.jdbi.v3.tweak.ResultSetMapper;
@@ -60,58 +58,6 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
     }
 
     /**
-     * Returns the first generated key.
-     *
-     * @return The key or null if no keys were returned
-     */
-    @Override
-    public Type first()
-    {
-        try {
-            if (results != null && results.next()) {
-                return mapper.map(0, results, context);
-            }
-            else {
-                // no result matches
-                return null;
-            }
-        }
-        catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
-        }
-        finally {
-            jdbiStatement.cleanup();
-        }
-    }
-
-    /**
-     * Returns a list of all generated keys.
-     *
-     * @return The list of keys or an empty list if no keys were returned
-     */
-    @Override
-    public List<Type> list()
-    {
-        try {
-            List<Type> resultList = new ArrayList<Type>();
-
-            if (results != null && !results.isClosed()) {
-                int index = 0;
-                while (results.next()) {
-                    resultList.add(mapper.map(index++, results, context));
-                }
-            }
-            return resultList;
-        }
-        catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
-        }
-        finally {
-            jdbiStatement.cleanup();
-        }
-    }
-
-    /**
      * Returns a iterator over all generated keys.
      *
      * @return The key iterator
@@ -119,8 +65,12 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
     @Override
     public ResultIterator<Type> iterator()
     {
+        if (results == null) {
+            return new EmptyResultIterator<Type>();
+        }
+
         try {
-            return new ResultSetResultIterator<Type>(mapper, jdbiStatement, stmt, context);
+            return new ResultSetResultIterator<Type>(mapper, jdbiStatement, stmt, results, context);
         }
         catch (SQLException e) {
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);

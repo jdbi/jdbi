@@ -15,12 +15,31 @@
  */
 package org.skife.jdbi.v3;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public interface ResultBearing<ResultType> extends Iterable<ResultType>
 {
-    public List<ResultType> list();
     @Override
     public ResultIterator<ResultType> iterator();
-    public ResultType first();
+
+    default ResultType first() {
+        try (ResultIterator<ResultType> iter = iterator()) {
+            return iter.hasNext() ? iter.next() : null;
+        }
+    }
+
+    default Stream<ResultType> stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
+
+    default List<ResultType> list() {
+        List<ResultType> result = new ArrayList<>();
+        for (ResultType item : this) {
+            result.add(item);
+        }
+        return result;
+    }
 }
