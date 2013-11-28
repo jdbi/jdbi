@@ -45,32 +45,27 @@ class BindMapFactory implements BinderFactory
                 final Set<String> allowedKeys = new HashSet<String>(Arrays.asList(bind.value()));
                 final Map<String, Object> map = (Map<String, Object>) arg;
 
-                try {
-                    for (Entry e : map.entrySet()) {
-                        final Object keyObj = e.getKey();
-                        final String key;
-                        if (bind.implicitKeyStringConversion() || (keyObj instanceof String)) {
-                            key = keyObj.toString();
-                        } else {
-                            throw new IllegalArgumentException("Key " + keyObj + " (of " + keyObj.getClass() + ") must be a String");
-                        }
-
-                        if (allowedKeys.isEmpty() || allowedKeys.remove(key)) {
-                            q.bind(prefix + key, e.getValue());
-                        }
+                for (Entry e : map.entrySet()) {
+                    final Object keyObj = e.getKey();
+                    final String key;
+                    if (bind.implicitKeyStringConversion() || (keyObj instanceof String)) {
+                        key = keyObj.toString();
+                    } else {
+                        throw new IllegalArgumentException("Key " + keyObj + " (of " + keyObj.getClass() + ") must be a String");
                     }
 
-                    // Any leftover keys were specified but not found in the map, so bind as null
-                    for (String key : allowedKeys) {
-                        final Object val = map.get(key);
-                        if (val != null) {
-                            throw new IllegalStateException("Internal error: map iteration missed key " + key);
-                        }
-                        q.bind(prefix + key, val);
+                    if (allowedKeys.isEmpty() || allowedKeys.remove(key)) {
+                        q.bind(prefix + key, e.getValue());
                     }
                 }
-                catch (Exception e) {
-                    throw new IllegalStateException("Unable to bind map properties", e);
+
+                // Any leftover keys were specified but not found in the map, so bind as null
+                for (String key : allowedKeys) {
+                    final Object val = map.get(key);
+                    if (val != null) {
+                        throw new IllegalStateException("Internal error: map iteration missed key " + key);
+                    }
+                    q.bind(prefix + key, val);
                 }
             }
         };
