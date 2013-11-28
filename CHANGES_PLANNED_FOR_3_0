@@ -13,4 +13,3 @@ This file describes the changes expected in some eventual 3.0 release.
    bound quite a bit.
 * Clean up folding a LOT
 * Clean up naming on sql object api elements
-* Get rid of @Transmogrify

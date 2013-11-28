@@ -15,9 +15,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
@@ -27,17 +24,12 @@ import org.jdbi.v3.Something;
 import org.jdbi.v3.Transaction;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.util.StringMapper;
-import org.junit.Test;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -173,26 +165,9 @@ public class TestMixinInterfaces extends TestCase
         h2.close();
     }
 
-    @Test
-    public void testTransmogrifiable() throws Exception
-    {
-        Hobbsian h = SqlObjectBuilder.attach(handle, Hobbsian.class);
-        h.insert(2, "Cora");
-        Something s = h.become(TransactionStuff.class).byId(2);
-        assertThat(s, equalTo(new Something(2, "Cora")));
-    }
-
     public static interface WithGetHandle extends CloseMe, GetHandle
     {
 
-    }
-
-
-    public static interface Hobbsian extends org.jdbi.v3.sqlobject.mixins.Transmogrifier
-    {
-
-        @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insert(@Bind("id") int id, @Bind("name") String name);
     }
 
     public static interface TransactionStuff extends CloseMe, Transactional<TransactionStuff>, GetHandle
