@@ -15,8 +15,12 @@
  */
 package org.skife.jdbi.v3.sqlobject;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
@@ -228,7 +232,22 @@ abstract class ResultReturnThing
         @Override
         protected Object result(ResultBearing q, HandleDing baton)
         {
-            return q.list(/*erased_type*/);
+            final Object result;
+            final Consumer<?> consumer;
+            if (erased_type == List.class) {
+                List<Object> list = new ArrayList<>();
+                result = list;
+                consumer = list::add;
+            } else if (erased_type == Set.class) {
+                Set<Object> set = new HashSet<>();
+                result = set;
+                consumer = set::add;
+            } else {
+                throw new UnsupportedOperationException("TODO: this mapping code sucks");
+            }
+
+            q.stream().forEach(consumer);
+            return result;
         }
 
         @Override
