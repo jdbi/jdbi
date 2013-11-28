@@ -45,7 +45,7 @@
             <ref local="transactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.skife.jdbi.spring.ServiceImpl">
+            <bean class="org.jdbi.spring.ServiceImpl">
                 <constructor-arg><ref bean="dbi"/></constructor-arg>
             </bean>
         </property>
@@ -56,12 +56,12 @@
         </property>
     </bean>
 
-    <bean id="dbi" class="org.skife.jdbi.spring.DBIBean">
+    <bean id="dbi" class="org.jdbi.spring.DBIBean">
         <property name="dataSource">
             <ref bean="dataSource"/>
         </property>
         <property name="handleDecoratorBuilder">
-            <bean class="org.skife.jdbi.MyHandleDecorator"/>
+            <bean class="org.jdbi.MyHandleDecorator"/>
         </property>
     </bean>
 

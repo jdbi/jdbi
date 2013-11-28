@@ -25,7 +25,7 @@
 </p>
 <h2>Basics</h2>
 <p>
-    The entry point for the library is the <code>org.skife.jdbi.DBI</code>
+    The entry point for the library is the <code>org.jdbi.DBI</code>
     class. The <code>DBI</code> class is used to provide <code>Handle</code>
     instances, which are analogous to a JDBC <code>Connection</code>. Much
     like a <code>Connection</code>, a <code>Handle</code> will hold a
@@ -116,12 +116,12 @@ The <code>DBI</code> instance provides convenience methods for manipulating the 
 <!-- config -->
 <h2>Configuration</h2>
 <p>
-    jDBI supports many configuration options via the various <code>org.skife.jdbi.DBI</code> constructors.
+    jDBI supports many configuration options via the various <code>org.jdbi.DBI</code> constructors.
     The no-arg constuctor is worth mentioning, however, as it attempts to figure out how to best
     configure itself via looking for relevant properties.
 </p>
 <p>
-    It first looks for an <code>org.skife.jdbi.properties-file</code> system property which
+    It first looks for an <code>org.jdbi.properties-file</code> system property which
     represents a properties file to be loaded via the classpath. If that is not found, it looks
     for <code>jdbi.properties</code>, then <code>jdbc.properties</code>, then
     <code>dbi.properties</code>, then finally <code>database.properties</code> on the classpath.
@@ -203,7 +203,7 @@ The <code>DBI</code> instance provides convenience methods for manipulating the 
             to be used to decorate <code>Handle</code> instances obtained from the
             <code>DBI</code> instance instantiated. This feature is functionally stable,
             but the specific api may change somewhat while it remains offically unstable.
-            Please read the notes regarding the <code>org.skife.jdbi.unstable</code> package
+            Please read the notes regarding the <code>org.jdbi.unstable</code> package
             before using this. Optional.
         </td>
     </tr>
@@ -213,7 +213,7 @@ The <code>DBI</code> instance provides convenience methods for manipulating the 
 <h2>Unstable Features</h2>
 <p>
     Various features or interfaces may be exposed via packages in the the
-    <code>org.skife.jdbi.unstable</code> package. These features or interfaces
+    <code>org.jdbi.unstable</code> package. These features or interfaces
     will be functionally stable (ie, should be bug free, and behave as expected, etc),
     but their exact interfaces, or exact behavior, is subject to change between releases
     because they are still being hammered out. The features are exposed to be used, and

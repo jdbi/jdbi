@@ -37,9 +37,9 @@
     class receives the string used to create the statement and returns another String, possibly the same. The
     default implementation returns the same string if it lokos like SQL, otherwise looks for it on the classpath,
     you can see the javadocs for
-    <code><a href="../api-2.0/org/skife/jdbi/v2/ClasspathStatementLocator.html">ClasspathStatementLocator</a></code>
+    <code><a href="../api-2.0/org/jdbi/v2/ClasspathStatementLocator.html">ClasspathStatementLocator</a></code>
     for the exact details. You can plug your own in on the DBI if you want different lookup rules. The
-    <code><a href="../api-2.0/org/skife/jdbi/v2/unstable/stringtemplate/StringTemplateStatementLocator.html">
+    <code><a href="../api-2.0/org/jdbi/v2/unstable/stringtemplate/StringTemplateStatementLocator.html">
         StringTemplateStatementLocator
     </a></code> is another bundled statement locator which supports some dynamic sql generation, for example.
 </p>
@@ -47,7 +47,7 @@
     After the bas SQL string has been located it is passed to a <code>StatementRewriter</code>. The rewriter
     is used to do final manipulation. The default one, for instance, converts <code>:foo</code> tokens into
     <code>?</code> to support named parameters. See
-    <code><a href="../api-2.0/org/skife/jdbi/v2/ColonPrefixNamedParamStatementRewriter.html">ColonPrefixNamedParamStatementRewriter</a></code>
+    <code><a href="../api-2.0/org/jdbi/v2/ColonPrefixNamedParamStatementRewriter.html">ColonPrefixNamedParamStatementRewriter</a></code>
     for more information.
 </p>
 <p>

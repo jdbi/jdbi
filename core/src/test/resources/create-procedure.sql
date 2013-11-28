@@ -18,4 +18,4 @@ CREATE PROCEDURE INSERTSOMETHING()
 PARAMETER STYLE JAVA
 MODIFIES SQL DATA
 LANGUAGE JAVA
-EXTERNAL NAME 'org.skife.jdbi.derby.Tools.insertSomething'
+EXTERNAL NAME 'org.jdbi.derby.Tools.insertSomething'

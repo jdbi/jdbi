@@ -203,17 +203,17 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.antlr.runtime</pattern>
-                                    <shadedPattern>org.skife.jdbi.org.antlr.runtime</shadedPattern>
+                                    <shadedPattern>org.jdbi.org.antlr.runtime</shadedPattern>
                                 </relocation>
 
                                 <relocation>
                                     <pattern>net.sf.cglib</pattern>
-                                    <shadedPattern>org.skife.jdbi.cglib</shadedPattern>
+                                    <shadedPattern>org.jdbi.cglib</shadedPattern>
                                 </relocation>
 
                                 <relocation>
                                     <pattern>com.fasterxml.classmate</pattern>
-                                    <shadedPattern>org.skife.jdbi.com.fasterxml.classmate</shadedPattern>
+                                    <shadedPattern>org.jdbi.com.fasterxml.classmate</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
