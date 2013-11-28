@@ -19,10 +19,12 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,15 +72,17 @@ public class TestPaging
 
         assertThat(rs, equalTo(new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}));
 
-        ImmutableList<Something> page_one = sql.loadPage(-1, 5);
-        assertThat(page_one, equalTo(ImmutableList.of(new Something(1, "Ami"),
+        List<Something> page_one = sql.loadPage(-1, 5);
+        assertThat(page_one, CoreMatchers.<List<Something>>equalTo(
+                                     ImmutableList.of(new Something(1, "Ami"),
                                                       new Something(2, "Brian"),
                                                       new Something(3, "Cora"),
                                                       new Something(4, "David"),
                                                       new Something(5, "Eric"))));
 
-        ImmutableList<Something> page_two = sql.loadPage(page_one.get(page_one.size() - 1).getId(), 5);
-        assertThat(page_two, equalTo(ImmutableList.of(new Something(6, "Fernando"),
+        List<Something> page_two = sql.loadPage(page_one.get(page_one.size() - 1).getId(), 5);
+        assertThat(page_two, CoreMatchers.<List<Something>>equalTo(
+                                     ImmutableList.of(new Something(6, "Fernando"),
                                                       new Something(7, "Greta"),
                                                       new Something(8, "Holly"),
                                                       new Something(9, "Inigo"),
@@ -93,6 +97,6 @@ public class TestPaging
         public int[] insert(@Bind("id") Iterable<Integer> ids, @Bind("name") Iterable<String> names);
 
         @SqlQuery("select id, name from something where id > :end_of_last_page order by id limit :size")
-        public ImmutableList<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
+        public List<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
     }
 }

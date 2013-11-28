@@ -15,17 +15,13 @@
  */
 package org.skife.jdbi.v3.sqlobject;
 
+import java.util.UUID;
+
 import org.skife.jdbi.v3.DBI;
 import org.skife.jdbi.v3.Handle;
 import org.skife.jdbi.v3.Something;
-import org.skife.jdbi.v3.sqlobject.Bind;
-import org.skife.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.skife.jdbi.v3.sqlobject.SqlQuery;
-import org.skife.jdbi.v3.sqlobject.SqlUpdate;
 import org.skife.jdbi.v3.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v3.sqlobject.mixins.CloseMe;
-
-import java.util.UUID;
 
 import junit.framework.TestCase;
 
@@ -35,6 +31,7 @@ public class TestVariousOddities extends TestCase
     private Handle handle;
 
 
+    @Override
     public void setUp() throws Exception
     {
         dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
@@ -44,6 +41,7 @@ public class TestVariousOddities extends TestCase
 
     }
 
+    @Override
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
@@ -96,8 +94,8 @@ public class TestVariousOddities extends TestCase
         try {
             SqlObjectBuilder.attach(handle, SpiffyBoom.class);
         } catch (IllegalStateException e) {
-            assertEquals("Method org.skife.jdbi.v2.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
-            		"is annotated as if it should return a value, but the method is void.", e.getMessage());
+            assertEquals("Method org.skife.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
+                    "is annotated as if it should return a value, but the method is void.", e.getMessage());
             return;
         }
         fail();

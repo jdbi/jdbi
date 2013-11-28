@@ -16,10 +16,10 @@
 package org.skife.jdbi.v3.docs;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.collect.ImmutableSet;
@@ -63,13 +63,13 @@ public class TestInClauseExpansion
 
         DAO dao = SqlObjectBuilder.attach(handle, DAO.class);
 
-        assertThat(dao.findIdsForNames(asList(1, 2)), equalTo(ImmutableSet.of("Brian", "Jeff")));
+        assertEquals(ImmutableSet.of("Brian", "Jeff"), dao.findIdsForNames(asList(1, 2)));
     }
 
     @UseStringTemplate3StatementLocator
     public static interface DAO
     {
         @SqlQuery
-        public ImmutableSet<String> findIdsForNames(@BindIn("names") List<Integer> names);
+        public Set<String> findIdsForNames(@BindIn("names") List<Integer> names);
     }
 }

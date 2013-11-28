@@ -35,12 +35,12 @@
         <property name="databaseName" value="testing"/>
     </bean>
 
-    <bean id="dbi" class="org.skife.jdbi.v2.spring.DBIFactoryBean">
+    <bean id="dbi" class="org.skife.jdbi.v3.spring.DBIFactoryBean">
         <property name="dataSource" ref="derby"/>
     </bean>
 
     <!--suppress SpringBeanConstructorArgInspection -->
-    <bean id="service" class="org.skife.jdbi.v2.spring.DummyService">
+    <bean id="service" class="org.skife.jdbi.v3.spring.DummyService">
         <constructor-arg ref="dbi"/>
     </bean>
 </beans>

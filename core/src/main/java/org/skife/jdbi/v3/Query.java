@@ -124,7 +124,22 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     @Override
     public ResultType first()
     {
-        throw new UnsupportedOperationException("TODO");
+        try {
+            return this.internalExecute(new QueryResultSetMunger<ResultType>(this)
+            {
+                @Override
+                public ResultType munge(ResultSet rs) throws SQLException
+                {
+                    if (!rs.next()) {
+                        return null;
+                    }
+                    return mapper.map(0, rs, getContext());
+                }
+            });
+        }
+        finally {
+            cleanup();
+        }
     }
 
     /**

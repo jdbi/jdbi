@@ -45,7 +45,7 @@ public class TestSqlCall
         dbi.setSQLLog(new PrintStreamLog(System.out));
         handle = dbi.open();
         handle.execute("create table something( id integer primary key, name varchar(100) )");
-        handle.execute("CREATE ALIAS stored_insert FOR \"org.skife.jdbi.v2.sqlobject.TestSqlCall.insertSomething\";");
+        handle.execute("CREATE ALIAS stored_insert FOR \"org.skife.jdbi.v3.sqlobject.TestSqlCall.insertSomething\";");
     }
 
     @After
