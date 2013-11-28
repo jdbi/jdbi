@@ -15,15 +15,15 @@
  */
 package org.jdbi.v3;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public interface ResultBearing<ResultType> extends Iterable<ResultType>
 {
     @Override
-    public ResultIterator<ResultType> iterator();
+    ResultIterator<ResultType> iterator();
 
     default ResultType first() {
         try (ResultIterator<ResultType> iter = iterator()) {
@@ -36,10 +36,8 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
     }
 
     default List<ResultType> list() {
-        List<ResultType> result = new ArrayList<>();
-        for (ResultType item : this) {
-            result.add(item);
+        try (Stream<ResultType> stream = stream()) {
+            return stream.collect(Collectors.<ResultType>toList());
         }
-        return result;
     }
 }
