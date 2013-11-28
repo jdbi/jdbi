@@ -66,7 +66,7 @@ public class DBI
      */
     public DBI(DataSource dataSource)
     {
-        this(new DataSourceConnectionFactory(dataSource));
+        this(dataSource::getConnection);
         assert dataSource != null;
     }
 

@@ -15,22 +15,22 @@
  */
 package org.jdbi.v3;
 
-import junit.framework.TestCase;
+import java.sql.Connection;
 
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.DataSourceConnectionFactory;
+import org.jdbi.v3.tweak.ConnectionFactory;
 
-import java.sql.Connection;
+import junit.framework.TestCase;
 
 public class TestDataSourceConnectionFactory extends TestCase
 {
-    private DataSourceConnectionFactory f;
+    private ConnectionFactory f;
 
     @Override
     public void setUp() throws Exception
     {
         Tools.start();
-        this.f = new DataSourceConnectionFactory(Tools.getDataSource());
+        this.f = Tools.getDataSource()::getConnection;
     }
 
     @Override
