@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.Locale;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.SQLLog;
@@ -29,6 +30,12 @@ import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
  * Statement providing convenience result handling for SQL queries.
+ * The default mapping to {@code Map<String, Object>} unfortunately
+ * does not mesh well with SQL's case-insensitivity, so all
+ * identifiers are converted to lower-case using {@link Locale#ROOT}.
+ * If you require different behavior, implement a custom mapper.
+ * The default mapper also carries a performance penalty because it must
+ * inspect metadata for each row.
  */
 public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements ResultBearing<ResultType>
 {

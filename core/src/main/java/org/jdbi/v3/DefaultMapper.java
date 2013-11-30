@@ -15,20 +15,22 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.ResultSetException;
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+
+import org.jdbi.v3.exceptions.ResultSetException;
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
 {
+    @Override
     public Map<String, Object> map(int index, ResultSet r, StatementContext ctx)
     {
-        Map<String, Object> row = new DefaultResultMap();
+        Map<String, Object> row = new HashMap<>();
         ResultSetMetaData m;
         try
         {
@@ -46,7 +48,7 @@ public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
                 String key = m.getColumnName(i);
                 String alias = m.getColumnLabel(i);
                 Object value = r.getObject(i);
-                row.put(alias != null ? alias : key, value);
+                row.put((alias != null ? alias : key).toLowerCase(Locale.ROOT), value);
             }
         }
         catch (SQLException e)
@@ -55,28 +57,5 @@ public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
                                          "result set metadata", e, ctx);
         }
         return row;
-    }
-
-    private static class DefaultResultMap extends HashMap<String, Object>
-    {
-        public static final long serialVersionUID = 1L;
-
-        @Override
-        public Object get(Object o)
-        {
-            return super.get(((String)o).toLowerCase());
-        }
-
-        @Override
-        public Object put(String key, Object value)
-        {
-            return super.put(key.toLowerCase(), value);
-        }
-
-        @Override
-        public boolean containsKey(Object key)
-        {
-            return super.containsKey(((String)key).toLowerCase());
-        }
     }
 }
