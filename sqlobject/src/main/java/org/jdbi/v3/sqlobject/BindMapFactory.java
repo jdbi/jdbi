@@ -28,12 +28,12 @@ import org.jdbi.v3.SQLStatement;
 class BindMapFactory implements BinderFactory
 {
     @Override
-    public Binder build(Annotation annotation)
+    public Binder<BindMap, Map<String, Object>> build(Annotation annotation)
     {
-        return new Binder<BindMap, Object>()
+        return new Binder<BindMap, Map<String, Object>>()
         {
             @Override
-            public void bind(SQLStatement q, Parameter param, BindMap bind, Object arg)
+            public void bind(SQLStatement<?> q, Parameter param, BindMap bind, Map<String, Object> arg)
             {
                 final String prefix;
                 if (BindBean.BARE_BINDING.equals(bind.prefix())) {
@@ -44,9 +44,9 @@ class BindMapFactory implements BinderFactory
                 }
 
                 final Set<String> allowedKeys = new HashSet<String>(Arrays.asList(bind.value()));
-                final Map<String, Object> map = (Map<String, Object>) arg;
+                final Map<String, Object> map = arg;
 
-                for (Entry e : map.entrySet()) {
+                for (Entry<String, Object> e : map.entrySet()) {
                     final Object keyObj = e.getKey();
                     final String key;
                     if (bind.implicitKeyStringConversion() || (keyObj instanceof String)) {

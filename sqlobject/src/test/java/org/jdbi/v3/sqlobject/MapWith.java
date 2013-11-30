@@ -15,13 +15,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MapWith
 {
-    Class<? extends ResultSetMapper> value();
+    Class<? extends ResultSetMapper<?>> value();
 }

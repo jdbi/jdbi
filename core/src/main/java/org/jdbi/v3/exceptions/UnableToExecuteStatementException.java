@@ -19,6 +19,8 @@ import org.jdbi.v3.StatementContext;
 
 public class UnableToExecuteStatementException extends StatementException
 {
+    private static final long serialVersionUID = 1L;
+
     public UnableToExecuteStatementException(Exception e, StatementContext ctx) {
         super(e, ctx);
     }
@@ -36,6 +38,7 @@ public class UnableToExecuteStatementException extends StatementException
     /**
      * @deprecated
      */
+    @Deprecated
     public UnableToExecuteStatementException(Exception e) {
         super(e, null);
     }
@@ -43,6 +46,7 @@ public class UnableToExecuteStatementException extends StatementException
     /**
      * @deprecated
      */
+    @Deprecated
     public UnableToExecuteStatementException(String message)
     {
         super(message, (StatementContext) null);
@@ -51,6 +55,7 @@ public class UnableToExecuteStatementException extends StatementException
     /**
      * @deprecated
      */
+    @Deprecated
     public UnableToExecuteStatementException(String string, Throwable throwable)
     {
         super(string, throwable, null);

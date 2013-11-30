@@ -57,7 +57,7 @@ class SqlObject
             Enhancer e = new Enhancer();
             e.setClassLoader(sqlObjectType.getClassLoader());
 
-            List<Class> interfaces = new ArrayList<Class>();
+            List<Class<?>> interfaces = new ArrayList<>();
             interfaces.add(CloseInternalDoNotUseThisClass.class);
             if (sqlObjectType.isInterface()) {
                 interfaces.add(sqlObjectType);

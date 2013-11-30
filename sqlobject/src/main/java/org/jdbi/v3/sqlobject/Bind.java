@@ -32,5 +32,5 @@ public @interface Bind
 
     String value() default USE_PARAM_NAME;
 
-    Class<? extends Binder> binder() default DefaultObjectBinder.class;
+    Class<? extends Binder<Bind, ?>> binder() default DefaultObjectBinder.class;
 }

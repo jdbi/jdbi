@@ -15,15 +15,10 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.ColonPrefixNamedParamStatementRewriter;
+import org.junit.Assert;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
-
-/**
- *
- */
 public class TestEscapedCharacters extends TestCase
 {
     private final ColonPrefixNamedParamStatementRewriter rewriter = new ColonPrefixNamedParamStatementRewriter();

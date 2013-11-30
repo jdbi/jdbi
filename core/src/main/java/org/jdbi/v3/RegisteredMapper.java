@@ -15,10 +15,10 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 class RegisteredMapper<T> implements ResultSetMapper<T>
 {
@@ -31,6 +31,8 @@ class RegisteredMapper<T> implements ResultSetMapper<T>
         this.registry = registry;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
         return (T) registry.mapperFor(type, ctx).map(index, r, ctx);

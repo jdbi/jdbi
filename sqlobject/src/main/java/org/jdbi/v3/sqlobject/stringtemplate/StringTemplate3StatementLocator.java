@@ -35,14 +35,14 @@ public class StringTemplate3StatementLocator implements StatementLocator
     private final StringTemplateGroup group;
     private final StringTemplateGroup literals = new StringTemplateGroup("literals", AngleBracketTemplateLexer.class);
 
-    private boolean treatLiteralsAsTemplates;
+    private final boolean treatLiteralsAsTemplates;
 
-    public StringTemplate3StatementLocator(Class baseClass)
+    public StringTemplate3StatementLocator(Class<?> baseClass)
     {
         this(mungify("/" + baseClass.getName()) + ".sql.stg", false, false);
     }
 
-    public StringTemplate3StatementLocator(Class baseClass,
+    public StringTemplate3StatementLocator(Class<?> baseClass,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates)
     {
@@ -81,6 +81,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
     }
 
+    @Override
     public String locate(String name, StatementContext ctx) throws Exception
     {
         if (group.isDefined(name)) {

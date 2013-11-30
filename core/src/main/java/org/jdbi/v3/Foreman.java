@@ -33,24 +33,26 @@ import org.jdbi.v3.tweak.ArgumentFactory;
 class Foreman
 {
 
-    private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<ArgumentFactory>();
+    private final List<ArgumentFactory<?>> factories = new CopyOnWriteArrayList<>();
 
     public Foreman()
     {
         factories.add(BUILT_INS);
     }
 
-    public Foreman(List<ArgumentFactory> factories)
+    public Foreman(List<ArgumentFactory<?>> factories)
     {
         this.factories.addAll(factories);
     }
 
-    Argument waffle(Class expectedType, Object it, StatementContext ctx)
+    Argument waffle(Class<?> expectedType, Object it, StatementContext ctx)
     {
-        ArgumentFactory candidate = null;
+        ArgumentFactory<Object> candidate = null;
 
         for (int i = factories.size() - 1; i >= 0; i--) {
-            ArgumentFactory factory = factories.get(i);
+            @SuppressWarnings("unchecked")
+            ArgumentFactory<Object> factory = (ArgumentFactory<Object>) factories.get(i);
+
             if (factory.accepts(expectedType, it, ctx)) {
                 return factory.build(expectedType, it, ctx);
             }
@@ -67,7 +69,7 @@ class Foreman
         throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(it));
     }
 
-    private static final ArgumentFactory BUILT_INS = new BuiltInArgumentFactory();
+    private static final ArgumentFactory<?> BUILT_INS = new BuiltInArgumentFactory<Object>();
 
     public void register(ArgumentFactory<?> argumentFactory)
     {
@@ -79,9 +81,9 @@ class Foreman
         return new Foreman(factories);
     }
 
-    private static final class BuiltInArgumentFactory implements ArgumentFactory
+    private static final class BuiltInArgumentFactory<T> implements ArgumentFactory<T>
     {
-        private static final Map<Class, P> b = new IdentityHashMap<Class, P>();
+        private static final Map<Class<?>, P> b = new IdentityHashMap<>();
 
         static {
             b.put(BigDecimal.class, new P(BigDecimalArgument.class));
@@ -114,13 +116,13 @@ class Foreman
         }
 
         @Override
-        public boolean accepts(Class expectedType, Object value, StatementContext ctx)
+        public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
             return b.containsKey(expectedType) || value.getClass().isEnum();
         }
 
         @Override
-        public Argument build(Class expectedType, Object value, StatementContext ctx)
+        public Argument build(Class<?> expectedType, T value, StatementContext ctx)
         {
             P p = b.get(expectedType);
 
@@ -131,7 +133,7 @@ class Foreman
                 }
 
                 if (value.getClass().isEnum()) {
-                    return new StringArgument(((Enum)value).name());
+                    return new StringArgument(((Enum<?>)value).name());
                 }
             }
 

@@ -36,15 +36,15 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 
 abstract class ResultReturnThing
 {
-    public Object map(ResolvedMethod method, Query q, HandleDing h)
+    public Object map(ResolvedMethod method, Query<?> q, HandleDing h)
     {
         if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
-            final ResultSetMapper mapper;
+            final ResultSetMapper<?> mapper;
             try {
                 mapper = method.getRawMember().getAnnotation(Mapper.class).value().newInstance();
             }
             catch (Exception e) {
-                throw new UnableToCreateStatementException("unable to access mapper", e);
+                throw new UnableToCreateStatementException("unable to access mapper", e, null);
             }
             return result(q.map(mapper), h);
         }
@@ -75,7 +75,7 @@ abstract class ResultReturnThing
         }
     }
 
-    protected abstract Object result(ResultBearing q, HandleDing baton);
+    protected abstract Object result(ResultBearing<?> q, HandleDing baton);
 
     protected abstract Class<?> mapTo(ResolvedMethod method);
 
@@ -111,7 +111,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing q, HandleDing baton)
+        protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
                 throw new IllegalStateException("TODO: not supported");
@@ -141,7 +141,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing q, HandleDing baton)
+        protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             return q;
         }
@@ -166,12 +166,12 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing q, final HandleDing baton)
+        protected Object result(ResultBearing<?> q, final HandleDing baton)
         {
             baton.retain("iterator");
-            final ResultIterator itty = q.iterator();
+            final ResultIterator<?> itty = q.iterator();
 
-            return new ResultIterator()
+            return new ResultIterator<Object>()
             {
                 @Override
                 public void close()
@@ -229,11 +229,12 @@ abstract class ResultReturnThing
             erased_type = method.getReturnType().getErasedType();
         }
 
+        @SuppressWarnings("unchecked")
         @Override
-        protected Object result(ResultBearing q, HandleDing baton)
+        protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             final Object result;
-            final Consumer<?> consumer;
+            final Consumer<Object> consumer;
             if (erased_type == List.class) {
                 List<Object> list = new ArrayList<>();
                 result = list;
@@ -246,7 +247,7 @@ abstract class ResultReturnThing
                 throw new UnsupportedOperationException("TODO: this mapping code sucks");
             }
 
-            q.stream().forEach(consumer);
+            ((ResultBearing<Object>)q).stream().forEach(consumer);
             return result;
         }
 

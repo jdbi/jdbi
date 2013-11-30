@@ -24,11 +24,11 @@ import org.jdbi.v3.SQLStatement;
 class Bindifier
 {
     private final int    param_idx;
-    private final Binder binder;
+    private final Binder<Annotation, Object> binder;
     private final Annotation annotation;
     private final Parameter parameter;
 
-    Bindifier(Method method, Annotation bind, int param_idx, Binder binder)
+    Bindifier(Method method, Annotation bind, int param_idx, Binder<Annotation, Object> binder)
     {
         this.annotation = bind;
         this.param_idx = param_idx;
@@ -36,7 +36,7 @@ class Bindifier
         this.parameter = method.getParameters()[param_idx];
     }
 
-    void bind(SQLStatement q, Object[] args)
+    void bind(SQLStatement<?> q, Object[] args)
     {
         binder.bind(q, parameter, annotation, args[param_idx]);
     }

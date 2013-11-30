@@ -15,11 +15,11 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.BaseStatementCustomizer;
-import org.jdbi.v3.tweak.StatementCustomizer;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import org.jdbi.v3.tweak.BaseStatementCustomizer;
+import org.jdbi.v3.tweak.StatementCustomizer;
 
 public final class StatementCustomizers
 {
@@ -51,7 +51,7 @@ public final class StatementCustomizers
             stmt.setFetchDirection(direction);
         }
 
-        public void apply(SQLStatement q) throws SQLException
+        public void apply(SQLStatement<?> q) throws SQLException
         {
             q.setFetchDirection(direction);
         }

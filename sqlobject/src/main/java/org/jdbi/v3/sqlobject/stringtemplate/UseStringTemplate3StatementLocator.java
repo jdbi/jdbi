@@ -15,18 +15,18 @@
  */
 package org.jdbi.v3.sqlobject.stringtemplate;
 
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.tweak.StatementLocator;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.tweak.StatementLocator;
 
 @SqlStatementCustomizingAnnotation(UseStringTemplate3StatementLocator.LocatorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -39,7 +39,8 @@ public @interface UseStringTemplate3StatementLocator
 
     public static class LocatorFactory implements SqlStatementCustomizerFactory
     {
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final UseStringTemplate3StatementLocator a = (UseStringTemplate3StatementLocator) annotation;
             final StatementLocator l;
@@ -52,22 +53,25 @@ public @interface UseStringTemplate3StatementLocator
 
             return new SqlStatementCustomizer()
             {
-                public void apply(SQLStatement q)
+                @Override
+                public void apply(SQLStatement<?> q)
                 {
                     q.setStatementLocator(l);
                 }
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation,
-                                                      Class sqlObjectType,
+                                                      Class<?> sqlObjectType,
                                                       Method method)
         {
             throw new UnsupportedOperationException("Not Defined on Method");
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class sqlObjectType,
+                                                         Class<?> sqlObjectType,
                                                          Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not defined on parameter");

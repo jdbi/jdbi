@@ -15,23 +15,15 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import com.google.common.collect.Maps;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.NoOp;
 
-import org.jdbi.v3.sqlobject.CGLIBDispatchBuilder;
 import org.junit.Test;
-
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class TestCglibDispatchBuilder
 {

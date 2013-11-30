@@ -27,10 +27,10 @@ public interface ResultSetMapperFactory
      * @param type the target type to map to
      * @return true if it can, false if it cannot
      */
-    public boolean accepts(Class type, StatementContext ctx);
+    public boolean accepts(Class<?> type, StatementContext ctx);
 
     /**
      * Supplies a result set mapper which will map result sets to type
      */
-    public ResultSetMapper mapperFor(Class type, StatementContext ctx);
+    public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx);
 }

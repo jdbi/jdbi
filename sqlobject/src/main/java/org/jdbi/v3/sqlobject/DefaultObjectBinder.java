@@ -22,7 +22,7 @@ import org.jdbi.v3.SQLStatement;
 class DefaultObjectBinder implements Binder<Bind, Object>
 {
     @Override
-    public void bind(SQLStatement q, Parameter param, Bind b, Object arg)
+    public void bind(SQLStatement<?> q, Parameter param, Bind b, Object arg)
     {
         String value = b.value();
 

@@ -15,31 +15,19 @@
  */
 package org.jdbi.v3;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.PreparedBatch;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.StringArgument;
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ArgumentFactory;
-import org.jdbi.v3.util.IntegerMapper;
-import org.jdbi.v3.util.StringMapper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
-import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import org.h2.jdbcx.JdbcDataSource;
+import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.util.StringMapper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TestArgumentFactory
 {
@@ -125,11 +113,13 @@ public class TestArgumentFactory
 
     public static class NameAF implements ArgumentFactory<Name>
     {
+        @Override
         public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
             return expectedType == Object.class && value instanceof Name;
         }
 
+        @Override
         public Argument build(Class<?> expectedType, Name value, StatementContext ctx)
         {
             return new StringArgument(value.getFullName());
@@ -152,6 +142,7 @@ public class TestArgumentFactory
             return first + " " + last;
         }
 
+        @Override
         public String toString()
         {
             return "<Name first=" + first + " last=" + last + " >";

@@ -19,6 +19,8 @@ import org.jdbi.v3.StatementContext;
 
 public class ResultSetException extends StatementException
 {
+    private static final long serialVersionUID = 1L;
+
     public ResultSetException(String msg, Exception e, StatementContext ctx) {
         super(msg, e, ctx);
     }
@@ -26,6 +28,7 @@ public class ResultSetException extends StatementException
     /**
      * @deprecated
      */
+    @Deprecated
     public ResultSetException(String msg, Exception e) {
         super(msg, e, null);
     }

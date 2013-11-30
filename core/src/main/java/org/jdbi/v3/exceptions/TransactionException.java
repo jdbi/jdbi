@@ -15,11 +15,10 @@
  */
 package org.jdbi.v3.exceptions;
 
-/**
- *
- */
 public class TransactionException extends DBIException
 {
+    private static final long serialVersionUID = 1L;
+
     public TransactionException(String string, Throwable throwable)
     {
         super(string, throwable);

@@ -15,9 +15,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.SQLStatement;
-
 import java.sql.SQLException;
+
+import org.jdbi.v3.SQLStatement;
 
 /**
  * Used with {@link org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory} to
@@ -30,5 +30,5 @@ public interface SqlStatementCustomizer
      * @param q the statement being customized
      * @throws SQLException will abort statement creation
      */
-    void apply(SQLStatement q) throws SQLException;
+    void apply(SQLStatement<?> q) throws SQLException;
 }

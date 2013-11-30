@@ -40,7 +40,7 @@ import org.jdbi.v3.util.URLMapper;
  */
 public class PrimitivesMapperFactory implements ResultSetMapperFactory
 {
-    private static final Map<Class, ResultSetMapper> mappers = new HashMap<Class, ResultSetMapper>();
+    private static final Map<Class<?>, ResultSetMapper<?>> mappers = new HashMap<>();
 
     static {
 
@@ -77,13 +77,14 @@ public class PrimitivesMapperFactory implements ResultSetMapperFactory
     }
 
     @Override
-    public boolean accepts(Class type, StatementContext ctx)
+    public boolean accepts(Class<?> type, StatementContext ctx)
     {
         return mappers.containsKey(type) || type.isEnum();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public ResultSetMapper mapperFor(Class type, StatementContext ctx)
+    public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx)
     {
         if (type.isEnum()) {
             return new EnumMapper(1, type);

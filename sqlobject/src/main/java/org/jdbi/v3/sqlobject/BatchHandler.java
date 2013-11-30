@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import com.fasterxml.classmate.members.ResolvedMethod;
+
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.ConcreteStatementContext;
@@ -31,8 +33,6 @@ import org.jdbi.v3.PreparedBatchPart;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
-
-import com.fasterxml.classmate.members.ResolvedMethod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -92,38 +92,42 @@ class BatchHandler extends CustomizingStatementHandler
         return -1;
     }
 
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         Handle handle = h.getHandle();
 
-        List<Iterator> extras = new ArrayList<Iterator>();
+        List<Iterator<?>> extras = new ArrayList<>();
         for (final Object arg : args) {
             if (arg instanceof Iterable) {
-                extras.add(((Iterable) arg).iterator());
+                extras.add(((Iterable<?>) arg).iterator());
             }
             else if (arg instanceof Iterator) {
-                extras.add((Iterator) arg);
+                extras.add((Iterator<?>) arg);
             }
             else if (arg.getClass().isArray()) {
                 extras.add(Arrays.asList((Object[])arg).iterator());
             }
             else {
-                extras.add(new Iterator()
+                extras.add(new Iterator<Object>()
                 {
+                    @Override
                     public boolean hasNext()
                     {
                         return true;
                     }
 
+                    @Override
                     @SuppressFBWarnings("IT_NO_SUCH_ELEMENT")
                     public Object next()
                     {
                         return arg;
                     }
 
+                    @Override
                     public void remove()
                     {
-                        // NOOP
+                        throw new UnsupportedOperationException("May not remove");
                     }
                 }
                 );
@@ -178,6 +182,7 @@ class BatchHandler extends CustomizingStatementHandler
             // Handle instance.
             return handle.inTransaction(new TransactionCallback<int[]>()
             {
+                @Override
                 public int[] inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return batch.execute();
@@ -189,10 +194,10 @@ class BatchHandler extends CustomizingStatementHandler
         }
     }
 
-    private static Object[] next(List<Iterator> args)
+    private static Object[] next(List<Iterator<?>> args)
     {
         List<Object> rs = new ArrayList<Object>();
-        for (Iterator arg : args) {
+        for (Iterator<?> arg : args) {
             if (arg.hasNext()) {
                 rs.add(arg.next());
             }
@@ -217,6 +222,7 @@ class BatchHandler extends CustomizingStatementHandler
             this.value = value;
         }
 
+        @Override
         public int call(Object[] args)
         {
             return value;
@@ -232,6 +238,7 @@ class BatchHandler extends CustomizingStatementHandler
             this.index = index;
         }
 
+        @Override
         public int call(Object[] args)
         {
             return (Integer)args[index];

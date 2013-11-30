@@ -17,6 +17,8 @@ package org.jdbi.v3.exceptions;
 
 public class UnableToCloseResourceException extends DBIException
 {
+    private static final long serialVersionUID = 1L;
+
     public UnableToCloseResourceException(String string, Throwable throwable)
     {
         super(string, throwable);

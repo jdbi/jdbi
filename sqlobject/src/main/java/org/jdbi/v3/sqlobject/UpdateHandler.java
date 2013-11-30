@@ -38,19 +38,19 @@ class UpdateHandler extends CustomizingStatementHandler
 
             final ResultReturnThing magic = ResultReturnThing.forType(method);
             final GetGeneratedKeys ggk = method.getRawMember().getAnnotation(GetGeneratedKeys.class);
-            final ResultSetMapper mapper;
+            final ResultSetMapper<?> mapper;
             try {
                 mapper = ggk.value().newInstance();
             }
             catch (Exception e) {
-                throw new UnableToCreateStatementException("Unable to instantiate result set mapper for statement", e);
+                throw new UnableToCreateStatementException("Unable to instantiate result set mapper for statement", e, null);
             }
             this.returner = new Returner()
             {
                 @Override
                 public Object value(Update update, HandleDing baton)
                 {
-                    GeneratedKeys o = update.executeAndReturnGeneratedKeys(mapper);
+                    GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper);
                     return magic.result(o, baton);
                 }
             };

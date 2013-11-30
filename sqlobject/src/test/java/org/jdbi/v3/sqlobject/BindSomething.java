@@ -36,17 +36,16 @@ public @interface BindSomething
     static class Factory implements BinderFactory
     {
         @Override
-        public Binder build(Annotation annotation)
+        public Binder<BindSomething, Object> build(Annotation annotation)
         {
-            return new Binder()
+            return new Binder<BindSomething, Object>()
             {
                 @Override
-                public void bind(SQLStatement q, Parameter param, Annotation bind, Object arg)
+                public void bind(SQLStatement<?> q, Parameter param, BindSomething bind, Object arg)
                 {
-                    BindSomething bs = (BindSomething) bind;
                     Something it = (Something) arg;
-                    q.bind(bs.value() + ".id", it.getId());
-                    q.bind(bs.value() + ".name", it.getName());
+                    q.bind(bind.value() + ".id", it.getId());
+                    q.bind(bind.value() + ".name", it.getName());
                 }
             };
         }

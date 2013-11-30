@@ -15,20 +15,14 @@
  */
 package org.jdbi.v3;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.jdbi.v3.Binding;
-import org.jdbi.v3.ColonPrefixNamedParamStatementRewriter;
-import org.jdbi.v3.ConcreteStatementContext;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.tweak.RewrittenStatement;
-
 import java.util.HashMap;
 
-/**
- *
- */
+import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.tweak.RewrittenStatement;
+import org.junit.Assert;
+
+import junit.framework.TestCase;
+
 public class TestColonStatementRewriter extends TestCase
 {
     private ColonPrefixNamedParamStatementRewriter rw;

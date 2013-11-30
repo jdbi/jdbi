@@ -21,6 +21,8 @@ package org.jdbi.v3.exceptions;
  */
 public class CallbackFailedException extends DBIException
 {
+    private static final long serialVersionUID = 1L;
+
     public CallbackFailedException(String string, Throwable throwable)
     {
         super(string, throwable);

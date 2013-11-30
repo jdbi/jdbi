@@ -17,11 +17,10 @@ package org.jdbi.v3.exceptions;
 
 import org.jdbi.v3.StatementContext;
 
-/**
- *
- */
 public abstract class StatementException extends DBIException
 {
+    private static final long serialVersionUID = 1L;
+
     private final StatementContext statementContext;
 
     public StatementException(String string, Throwable throwable, StatementContext ctx) {
@@ -42,6 +41,7 @@ public abstract class StatementException extends DBIException
     /**
      * @deprecated
      */
+    @Deprecated
     public StatementException(String string, Throwable throwable) {
         super(string, throwable);
         this.statementContext = null;
@@ -50,6 +50,7 @@ public abstract class StatementException extends DBIException
     /**
      * @deprecated
      */
+    @Deprecated
     public StatementException(Throwable cause) {
         super(cause);
         this.statementContext = null;
@@ -58,6 +59,7 @@ public abstract class StatementException extends DBIException
     /**
      * @deprecated
      */
+    @Deprecated
     public StatementException(String message) {
         super(message);
         this.statementContext = null;

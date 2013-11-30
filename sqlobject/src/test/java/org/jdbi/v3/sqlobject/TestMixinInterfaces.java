@@ -30,8 +30,8 @@ import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.util.StringMapper;
+import org.junit.Assert;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class TestMixinInterfaces extends TestCase

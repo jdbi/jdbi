@@ -15,23 +15,18 @@
  */
 package org.jdbi.v3;
 
-import net.sf.cglib.transform.AbstractClassLoader;
-
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.exceptions.StatementException;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.util.StringMapper;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import net.sf.cglib.transform.AbstractClassLoader;
 
-/**
- *
- */
+import org.jdbi.v3.exceptions.StatementException;
+import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.junit.Test;
+
 public class TestClasspathStatementLocator extends DBITestCase
 {
     public void testLocateNamedWithoutSuffix() throws Exception {

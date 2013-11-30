@@ -19,6 +19,7 @@ import org.jdbi.v3.StatementContext;
 
 public class UnableToCreateStatementException extends StatementException
 {
+    private static final long serialVersionUID = 1L;
 
     public UnableToCreateStatementException(String string, Throwable throwable, StatementContext ctx)
     {
@@ -28,21 +29,5 @@ public class UnableToCreateStatementException extends StatementException
     public UnableToCreateStatementException(Exception e, StatementContext ctx)
     {
         super(e, ctx);
-    }
-
-    /**
-     * @deprecated
-     */
-    public UnableToCreateStatementException(String string, Throwable throwable)
-    {
-        super(string, throwable, null);
-    }
-
-    /**
-     * @deprecated
-     */
-    public UnableToCreateStatementException(Exception e)
-    {
-        super(e, null);
     }
 }

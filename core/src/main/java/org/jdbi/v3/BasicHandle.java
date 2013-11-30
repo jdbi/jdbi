@@ -382,7 +382,7 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerMapper(ResultSetMapper mapper)
+    public void registerMapper(ResultSetMapper<?> mapper)
     {
         mappingRegistry.add(mapper);
     }
@@ -426,7 +426,7 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerArgumentFactory(ArgumentFactory argumentFactory)
+    public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
     {
         this.foreman.register(argumentFactory);
     }

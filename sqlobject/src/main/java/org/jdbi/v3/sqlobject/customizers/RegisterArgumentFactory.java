@@ -15,12 +15,6 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.tweak.ArgumentFactory;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -30,6 +24,12 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.tweak.ArgumentFactory;
 
 /**
  * Used to set attributes on the StatementContext for the statement generated for this method.
@@ -43,21 +43,24 @@ public @interface RegisterArgumentFactory
     /**
      * The key for the attribute to set. The value will be the value passed to the annotated argument
      */
-    Class<? extends ArgumentFactory>[] value();
+    Class<? extends ArgumentFactory<?>>[] value();
 
     static class Factory implements SqlStatementCustomizerFactory
     {
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             return create(annotation);
         }
 
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        @Override
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             return create(annotation);
         }
 
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
+        @Override
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, final Object arg)
         {
             throw new IllegalStateException("not allowed on parameter");
         }
@@ -65,8 +68,8 @@ public @interface RegisterArgumentFactory
         private SqlStatementCustomizer create(Annotation annotation)
         {
             final RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;
-            final List<ArgumentFactory> ary = new ArrayList<ArgumentFactory>(raf.value().length);
-            for (Class<? extends ArgumentFactory> aClass : raf.value()) {
+            final List<ArgumentFactory<?>> ary = new ArrayList<>(raf.value().length);
+            for (Class<? extends ArgumentFactory<?>> aClass : raf.value()) {
                 try {
                     ary.add(aClass.newInstance());
                 }
@@ -76,9 +79,10 @@ public @interface RegisterArgumentFactory
             }
             return new SqlStatementCustomizer()
             {
-                public void apply(SQLStatement q) throws SQLException
+                @Override
+                public void apply(SQLStatement<?> q) throws SQLException
                 {
-                    for (ArgumentFactory argumentFactory : ary) {
+                    for (ArgumentFactory<?> argumentFactory : ary) {
                         q.registerArgumentFactory(argumentFactory);
                     }
                 }

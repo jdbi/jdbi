@@ -99,20 +99,20 @@ public class TestBindExpression
         public static class BindExpressionCustomizerFactory implements SqlStatementCustomizerFactory
         {
             @Override
-            public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+            public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
             {
                 throw new UnsupportedOperationException("Not Yet Implemented!");
             }
 
             @Override
-            public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+            public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
             {
                 throw new UnsupportedOperationException("Not Yet Implemented!");
             }
 
             @Override
             public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                             Class sqlObjectType,
+                                                             Class<?> sqlObjectType,
                                                              Method method,
                                                              final Object root)
             {
@@ -121,7 +121,7 @@ public class TestBindExpression
                 return new SqlStatementCustomizer()
                 {
                     @Override
-                    public void apply(SQLStatement q) throws SQLException
+                    public void apply(SQLStatement<?> q) throws SQLException
                     {
                         q.bindNamedArgumentFinder(new NamedArgumentFinder()
                         {

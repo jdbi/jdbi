@@ -20,6 +20,8 @@ package org.jdbi.v3.exceptions;
  */
 public abstract class DBIException extends RuntimeException
 {
+    private static final long serialVersionUID = 1L;
+
     public DBIException(String string, Throwable throwable)
     {
         super(string, throwable);

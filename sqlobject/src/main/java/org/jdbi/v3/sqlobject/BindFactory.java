@@ -19,11 +19,13 @@ import java.lang.annotation.Annotation;
 
 class BindFactory implements BinderFactory
 {
-    public Binder build(Annotation annotation)
+    @SuppressWarnings("unchecked")
+    @Override
+    public Binder<Bind, Object> build(Annotation annotation)
     {
         Bind bind = (Bind) annotation;
         try {
-            return bind.binder().newInstance();
+            return (Binder<Bind, Object>) bind.binder().newInstance();
         }
         catch (Exception e) {
             throw new IllegalStateException("unable to instantiate specified binder", e);

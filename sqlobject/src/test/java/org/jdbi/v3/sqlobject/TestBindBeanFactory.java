@@ -17,8 +17,6 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.annotation.Annotation;
-
 import org.jdbi.derby.Tools;
 import org.jdbi.v3.Binding;
 import org.jdbi.v3.DBI;
@@ -45,13 +43,17 @@ public class TestBindBeanFactory
         Tools.stop();
     }
 
+    void dummyBindBean(@BindBean int wat) { }
+
     @Test
     public void testBindBeanFactory()
         throws Exception
     {
+        BindBean bindBeanImpl = getClass().getDeclaredMethod("dummyBindBean", int.class)
+                .getParameters()[0].getAnnotation(BindBean.class);
+
         BindBeanFactory factory = new BindBeanFactory();
-        @SuppressWarnings("unchecked")
-        Binder<BindBean, Object> beanBinder = factory.build(new BindBeanImpl());
+        Binder<BindBean, Object> beanBinder = factory.build(bindBeanImpl);
 
         final DBI dbi = new DBI(Tools.getDataSource());
         final Handle handle = dbi.open();
@@ -59,7 +61,7 @@ public class TestBindBeanFactory
 
         TestBean testBean = new TestBean();
 
-        beanBinder.bind(testStatement, null, new BindBeanImpl(), testBean);
+        beanBinder.bind(testStatement, null, bindBeanImpl, testBean);
 
         StatementContext context = testStatement.getContext();
         Binding binding = context.getBinding();
@@ -109,21 +111,5 @@ public class TestBindBeanFactory
 
     public static class Foo
     {
-    }
-
-    static class BindBeanImpl implements BindBean
-    {
-
-        @Override
-        public Class<? extends Annotation> annotationType()
-        {
-            return BindBean.class;
-        }
-
-        @Override
-        public String value()
-        {
-            return "___jdbi_bare___";
-        }
     }
 }

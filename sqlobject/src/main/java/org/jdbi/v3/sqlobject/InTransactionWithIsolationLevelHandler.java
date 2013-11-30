@@ -25,14 +25,18 @@ import org.jdbi.v3.TransactionStatus;
 
 class InTransactionWithIsolationLevelHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
     {
         h.retain("transaction#withlevel");
         try {
+            @SuppressWarnings("unchecked")
+            final Transaction<Object, Object> t = (Transaction<Object, Object>) args[1];
             final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];
-            final Transaction t = (Transaction) args[1];
-            return h.getHandle().inTransaction(level, new TransactionCallback()
+
+            return h.getHandle().inTransaction(level, new TransactionCallback<Object>()
             {
+                @Override
                 public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return t.inTransaction(target, status);

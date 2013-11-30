@@ -15,12 +15,6 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.StatementCustomizers;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -28,6 +22,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.StatementCustomizers;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
 /**
  * Used to specify the fetch direction, per JDBC, of a result set.
@@ -49,20 +49,23 @@ public @interface FetchDirection
             return new FetchDirectionSqlStatementCustomizer((Integer) arg);
         }
 
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        @Override
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final FetchDirection fs = (FetchDirection) annotation;
             return new FetchDirectionSqlStatementCustomizer(fs.value());
         }
 
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final FetchDirection fs = (FetchDirection) annotation;
             return new FetchDirectionSqlStatementCustomizer(fs.value());
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class sqlObjectType,
+                                                         Class<?> sqlObjectType,
                                                          Method method,
                                                          Object arg)
         {
@@ -79,7 +82,8 @@ public @interface FetchDirection
             this.direction = direction;
         }
 
-        public void apply(SQLStatement q) throws SQLException
+        @Override
+        public void apply(SQLStatement<?> q) throws SQLException
         {
             q.addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(direction));
         }

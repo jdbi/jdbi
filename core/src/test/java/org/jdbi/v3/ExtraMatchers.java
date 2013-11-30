@@ -15,26 +15,29 @@
  */
 package org.jdbi.v3;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class ExtraMatchers
 {
 
+    @SuppressWarnings("unchecked")
     public static <T, S extends T> Matcher<T> isEqualTo(S it) {
         return (Matcher<T>) CoreMatchers.equalTo(it);
     }
 
+    @SafeVarargs
     public static <T> Matcher<T> equalsOneOf(T... options)
     {
-        final List opts = Arrays.asList(options);
+        final List<T> opts = Arrays.asList(options);
         return new BaseMatcher<T>()
         {
+            @Override
             public boolean matches(Object item)
             {
                 for (Object opt : opts) {
@@ -45,6 +48,7 @@ public class ExtraMatchers
                 return false;
             }
 
+            @Override
             public void describeTo(Description d)
             {
                 d.appendText("one of " + opts);

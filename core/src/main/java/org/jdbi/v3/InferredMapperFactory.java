@@ -15,20 +15,20 @@
  */
 package org.jdbi.v3;
 
+import java.util.List;
+
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
 
-import java.util.List;
-
 class InferredMapperFactory implements ResultSetMapperFactory
 {
     private final static TypeResolver tr = new TypeResolver();
-    private final Class maps;
-    private final ResultSetMapper mapper;
+    private final Class<?> maps;
+    private final ResultSetMapper<?> mapper;
 
-    public InferredMapperFactory(ResultSetMapper mapper)
+    public InferredMapperFactory(ResultSetMapper<?> mapper)
     {
         this.mapper = mapper;
         ResolvedType rt = tr.resolve(mapper.getClass());
@@ -40,12 +40,14 @@ class InferredMapperFactory implements ResultSetMapperFactory
         maps = rs.get(0).getErasedType();
     }
 
-    public boolean accepts(Class type, StatementContext ctx)
+    @Override
+    public boolean accepts(Class<?> type, StatementContext ctx)
     {
         return maps.equals(type);
     }
 
-    public ResultSetMapper mapperFor(Class type, StatementContext ctx)
+    @Override
+    public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx)
     {
         return mapper;
     }

@@ -215,7 +215,7 @@ public class TestDocumentation
     {
         DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         Handle h = dbi.open();
-        MyDAO dao = SqlObjectBuilder.attach(h, MyDAO.class);
+        SqlObjectBuilder.attach(h, MyDAO.class);
 
         // do stuff with the dao
 
@@ -226,7 +226,7 @@ public class TestDocumentation
     public void testOnDemandDao() throws Exception
     {
         DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        MyDAO dao = SqlObjectBuilder.onDemand(dbi, MyDAO.class);
+        SqlObjectBuilder.onDemand(dbi, MyDAO.class);
     }
 
     public static interface SomeQueries

@@ -25,10 +25,6 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.TestRegisterMapperFactory.Foo.FooMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapperFactory;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -94,16 +90,16 @@ public class TestRegisterMapperFactory
     {
 
         @Override
-        public boolean accepts(Class type, StatementContext ctx)
+        public boolean accepts(Class<?> type, StatementContext ctx)
         {
             return type.isAnnotationPresent(MapWith.class);
         }
 
         @Override
-        public ResultSetMapper mapperFor(Class type, StatementContext ctx)
+        public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx)
         {
 
-            MapWith rm = (MapWith) type.getAnnotation(MapWith.class);
+            MapWith rm = type.getAnnotation(MapWith.class);
             try {
                 return rm.value().newInstance();
             }

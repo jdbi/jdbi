@@ -15,19 +15,18 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.DBIException;
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 class MappingRegistry
 {
     private static final PrimitivesMapperFactory BUILT_IN_MAPPERS = new PrimitivesMapperFactory();
 
     private final List<ResultSetMapperFactory> factories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
-    private final ConcurrentHashMap<Class, ResultSetMapper> cache = new ConcurrentHashMap<Class, ResultSetMapper>();
+    private final ConcurrentHashMap<Class<?>, ResultSetMapper<?>> cache = new ConcurrentHashMap<Class<?>, ResultSetMapper<?>>();
 
     /**
      * Copy Constructor
@@ -42,7 +41,7 @@ class MappingRegistry
 
     }
 
-    public void add(ResultSetMapper mapper)
+    public void add(ResultSetMapper<?> mapper)
     {
         this.add(new InferredMapperFactory(mapper));
     }
@@ -53,9 +52,9 @@ class MappingRegistry
         cache.clear();
     }
 
-    public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
+    public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx) {
         if (cache.containsKey(type)) {
-            ResultSetMapper mapper = cache.get(type);
+            ResultSetMapper<?> mapper = cache.get(type);
             if (mapper != null) {
                 return mapper;
             }
@@ -63,18 +62,18 @@ class MappingRegistry
 
         for (ResultSetMapperFactory factory : factories) {
             if (factory.accepts(type, ctx)) {
-                ResultSetMapper mapper =  factory.mapperFor(type, ctx);
+                ResultSetMapper<?> mapper =  factory.mapperFor(type, ctx);
                 cache.put(type, mapper);
                 return mapper;
             }
         }
 
         if (BUILT_IN_MAPPERS.accepts(type, ctx)) {
-            ResultSetMapper mapper = BUILT_IN_MAPPERS.mapperFor(type, ctx);
+            ResultSetMapper<?> mapper = BUILT_IN_MAPPERS.mapperFor(type, ctx);
             cache.put(type, mapper);
             return mapper;
         }
 
-        throw new DBIException("No mapper registered for " + type.getName()) {};
+        throw new UnsupportedOperationException("No mapper registered for " + type.getName());
     }
 }

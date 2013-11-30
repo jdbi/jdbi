@@ -24,13 +24,16 @@ import org.jdbi.v3.TransactionStatus;
 
 class InTransactionHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
     {
         h.retain("transaction#implicit");
         try {
-            final Transaction t = (Transaction) args[0];
-            return h.getHandle().inTransaction(new TransactionCallback()
+            @SuppressWarnings("unchecked")
+            final Transaction<Object, Object> t = (Transaction<Object, Object>) args[0];
+            return h.getHandle().inTransaction(new TransactionCallback<Object>()
             {
+                @Override
                 public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return t.inTransaction(target, status);

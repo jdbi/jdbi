@@ -36,6 +36,7 @@ abstract class CustomizingStatementHandler implements Handler
     private final Class<?> sqlObjectType;
     private final Method method;
 
+    @SuppressWarnings("unchecked")
     CustomizingStatementHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         this.sqlObjectType = sqlObjectType;
@@ -87,7 +88,7 @@ abstract class CustomizingStatementHandler implements Handler
                     BindingAnnotation ba = annotation.annotationType().getAnnotation(BindingAnnotation.class);
                     try {
                         BinderFactory fact = ba.value().newInstance();
-                        binders.add(new Bindifier(this.method, annotation, param_idx, fact.build(annotation)));
+                        binders.add(new Bindifier(this.method, annotation, param_idx, (Binder<Annotation, Object>)fact.build(annotation)));
 
                     }
                     catch (Exception e) {

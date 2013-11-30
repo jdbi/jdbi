@@ -109,7 +109,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapTo(Class<T> resultType)
     {
-        return this.map(new RegisteredMapper(resultType, mappingRegistry));
+        return this.map(new RegisteredMapper<T>(resultType, mappingRegistry));
     }
 
     public <T> Query<T> map(ResultSetMapper<T> mapper)
@@ -197,7 +197,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this;
     }
 
-    public void registerMapper(ResultSetMapper m)
+    public void registerMapper(ResultSetMapper<?> m)
     {
         this.mappingRegistry.add(new InferredMapperFactory(m));
     }

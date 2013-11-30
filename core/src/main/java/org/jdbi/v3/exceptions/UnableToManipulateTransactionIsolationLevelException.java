@@ -19,6 +19,8 @@ import java.sql.SQLException;
 
 public class UnableToManipulateTransactionIsolationLevelException extends DBIException
 {
+    private static final long serialVersionUID = 1L;
+
     public UnableToManipulateTransactionIsolationLevelException(int i, SQLException e)
     {
         super("Unable to set isolation level to " + i, e);

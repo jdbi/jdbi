@@ -32,12 +32,6 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.exceptions.DBIException;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.BindBean;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.helpers.MapResultAsBean;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
@@ -174,13 +168,13 @@ public class TestRegisteredMappersWork
         assertThat(henning, equalTo(new Something(1, "Henning")));
     }
 
-    @Test(expected = DBIException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testNoRootRegistrations() throws Exception
     {
         Handle h = dbi.open();
         h.insert("insert into something (id, name) values (1, 'Henning')");
         try {
-            Something henning = h.createQuery("select id, name from something where id = 1")
+            h.createQuery("select id, name from something where id = 1")
                                  .mapTo(Something.class)
                                  .first();
             fail("should have raised an exception");

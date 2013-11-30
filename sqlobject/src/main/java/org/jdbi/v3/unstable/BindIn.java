@@ -45,20 +45,20 @@ public @interface BindIn
     {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             throw new UnsupportedOperationException("Not supported on method!");
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             throw new UnsupportedOperationException("Not supported on type");
         }
 
         @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class sqlObjectType,
+                                                         Class<?> sqlObjectType,
                                                          Method method,
                                                          Object arg)
         {
@@ -82,7 +82,7 @@ public @interface BindIn
             return new SqlStatementCustomizer()
             {
                 @Override
-                public void apply(SQLStatement q) throws SQLException
+                public void apply(SQLStatement<?> q) throws SQLException
                 {
                     q.define(key, ns);
                 }
@@ -93,16 +93,16 @@ public @interface BindIn
     public static class BindingFactory implements BinderFactory
     {
         @Override
-        public Binder build(Annotation annotation)
+        public Binder<?,?> build(Annotation annotation)
         {
             final BindIn in = (BindIn) annotation;
             final String key = in.value();
 
-            return new Binder()
+            return new Binder<Annotation, Object>()
             {
 
                 @Override
-                public void bind(SQLStatement q, Parameter param, Annotation bind, Object arg)
+                public void bind(SQLStatement<?> q, Parameter param, Annotation bind, Object arg)
                 {
                     Iterable<?> coll = (Iterable<?>) arg;
                     int idx = 0;

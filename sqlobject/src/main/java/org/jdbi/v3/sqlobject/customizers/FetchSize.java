@@ -15,12 +15,6 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
-import org.jdbi.v3.Query;
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -28,6 +22,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+
+import org.jdbi.v3.Query;
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
@@ -38,41 +38,47 @@ public @interface FetchSize
 
     static class Factory implements SqlStatementCustomizerFactory
     {
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        @Override
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final FetchSize fs = (FetchSize) annotation;
             return new SqlStatementCustomizer()
             {
-                public void apply(SQLStatement q) throws SQLException
+                @Override
+                public void apply(SQLStatement<?> q) throws SQLException
                 {
                     assert q instanceof Query;
-                    ((Query) q).setFetchSize(fs.value());
+                    ((Query<?>) q).setFetchSize(fs.value());
                 }
             };
         }
 
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final FetchSize fs = (FetchSize) annotation;
             return new SqlStatementCustomizer()
             {
-                public void apply(SQLStatement q) throws SQLException
+                @Override
+                public void apply(SQLStatement<?> q) throws SQLException
                 {
                     assert q instanceof Query;
-                    ((Query) q).setFetchSize(fs.value());
+                    ((Query<?>) q).setFetchSize(fs.value());
                 }
             };
         }
 
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        @Override
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
         {
             final Integer va = (Integer) arg;
             return new SqlStatementCustomizer()
             {
-                public void apply(SQLStatement q) throws SQLException
+                @Override
+                public void apply(SQLStatement<?> q) throws SQLException
                 {
                     assert q instanceof Query;
-                    ((Query) q).setFetchSize(va);
+                    ((Query<?>) q).setFetchSize(va);
                 }
             };
         }

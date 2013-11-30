@@ -27,12 +27,12 @@ import org.jdbi.v3.SQLStatement;
 class BindBeanFactory implements BinderFactory
 {
     @Override
-    public Binder build(Annotation annotation)
+    public Binder<BindBean, Object> build(Annotation annotation)
     {
         return new Binder<BindBean, Object>()
         {
             @Override
-            public void bind(SQLStatement q, Parameter param, BindBean bind, Object arg)
+            public void bind(SQLStatement<?> q, Parameter param, BindBean bind, Object arg)
             {
                 final String prefix;
                 if (BindBean.BARE_BINDING.equals(bind.value())) {
@@ -55,8 +55,6 @@ class BindBeanFactory implements BinderFactory
                 catch (Exception e) {
                     throw new IllegalStateException("unable to bind bean properties", e);
                 }
-
-
             }
         };
     }

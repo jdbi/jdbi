@@ -28,5 +28,5 @@ public interface BinderFactory
      * @param annotation the {@link BindingAnnotation} which lead to this call
      * @return a binder to use
      */
-    Binder build(Annotation annotation);
+    Binder<?,?> build(Annotation annotation);
 }

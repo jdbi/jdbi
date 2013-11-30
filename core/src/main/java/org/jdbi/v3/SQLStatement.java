@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -54,7 +53,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     private final Handle           handle;
     private final String           sql;
     private final StatementBuilder statementBuilder;
-    private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
 
     private StatementLocator  locator;
     private StatementRewriter rewriter;
@@ -99,6 +97,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
 
+    @SuppressWarnings("unchecked")
     public SelfType registerArgumentFactory(ArgumentFactory<?> argumentFactory)
     {
         getForeman().register(argumentFactory);
@@ -108,32 +107,25 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Override the statement locator used for this statement
      */
-    public void setStatementLocator(StatementLocator locator)
-    {
+    @SuppressWarnings("unchecked")
+    public SelfType setStatementLocator(StatementLocator locator) {
         this.locator = locator;
-    }
-
-    /**
-     * Exactly the same as setStatementLocator but returns self.
-     */
-    public SelfType setStatementLocator2(StatementLocator locator) {
-        setStatementLocator(locator);
         return (SelfType) this;
     }
 
     /**
      * Override the statement rewriter used for this statement
      */
-    public void setStatementRewriter(StatementRewriter rewriter)
-    {
+    @SuppressWarnings("unchecked")
+    public SelfType setStatementRewriter(StatementRewriter rewriter) {
         this.rewriter = rewriter;
+        return (SelfType) this;
     }
 
-    /**
-     * Exactly the same as setStatementRewriter but returns self
-     */
-    public SelfType setStatementRewriter2(StatementRewriter rewriter) {
-        setStatementRewriter(rewriter);
+    @SuppressWarnings("unchecked")
+    public SelfType setFetchDirection(final int value)
+    {
+        addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
         return (SelfType) this;
     }
 
@@ -261,6 +253,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Force transaction state when the statement is cleaned up.
      */
+    @SuppressWarnings("unchecked")
     public SelfType cleanupHandle(final TransactionState state)
     {
         super.addCleanable(Cleanables.forHandle(handle, state));
@@ -1339,16 +1332,4 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     {
         return timingCollector;
     }
-
-    public void setFetchDirection(final int value)
-    {
-        addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
-    }
-
-    public SelfType setFetchDirection2(final int value)
-    {
-        setFetchDirection(value);
-        return (SelfType) this;
-    }
-
 }

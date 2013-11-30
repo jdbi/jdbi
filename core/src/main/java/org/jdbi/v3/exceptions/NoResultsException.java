@@ -19,6 +19,8 @@ import org.jdbi.v3.StatementContext;
 
 public class NoResultsException extends StatementException
 {
+    private static final long serialVersionUID = 1L;
+
     public NoResultsException(String msg, Throwable e, StatementContext ctx) {
         super(msg, e, ctx);
     }

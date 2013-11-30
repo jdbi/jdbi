@@ -230,7 +230,7 @@ public class DBI
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
-    public void registerMapper(ResultSetMapper mapper) {
+    public void registerMapper(ResultSetMapper<?> mapper) {
         mappingRegistry.add(mapper);
     }
 

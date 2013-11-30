@@ -15,17 +15,17 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
 /**
  * Used to set attributes on the StatementContext for the statement generated for this method.
@@ -43,23 +43,27 @@ public @interface Define
 
     static class Factory implements SqlStatementCustomizerFactory
     {
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             throw new UnsupportedOperationException("Not allowed on Type");
         }
 
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        @Override
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             throw new UnsupportedOperationException("Not allowed on Method");
         }
 
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
+        @Override
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, final Object arg)
         {
             Define d = (Define) annotation;
             final String key = d.value();
             return new SqlStatementCustomizer()
             {
-                public void apply(SQLStatement q)
+                @Override
+                public void apply(SQLStatement<?> q)
                 {
                     q.define(key, arg);
                 }

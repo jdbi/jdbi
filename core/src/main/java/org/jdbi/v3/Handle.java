@@ -228,7 +228,7 @@ public interface Handle extends Closeable
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
-    public void registerMapper(ResultSetMapper mapper);
+    public void registerMapper(ResultSetMapper<?> mapper);
 
     /**
      * Register a result set mapper factory.
@@ -258,5 +258,5 @@ public interface Handle extends Closeable
      */
     public TransactionIsolationLevel getTransactionIsolationLevel();
 
-    public void registerArgumentFactory(ArgumentFactory argumentFactory);
+    public void registerArgumentFactory(ArgumentFactory<?> argumentFactory);
 }

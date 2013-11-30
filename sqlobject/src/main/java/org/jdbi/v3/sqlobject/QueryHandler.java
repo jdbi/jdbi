@@ -39,7 +39,7 @@ class QueryHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
-        Query q = h.getHandle().createQuery(sql);
+        Query<?> q = h.getHandle().createQuery(sql);
         populateSqlObjectData((ConcreteStatementContext) q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
