@@ -16,17 +16,15 @@
 package org.jdbi.v3.sqlobject;
 
 
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.Binder;
-import org.jdbi.v3.sqlobject.BinderFactory;
-import org.jdbi.v3.sqlobject.BindingAnnotation;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Parameter;
+
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.Something;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
@@ -37,11 +35,13 @@ public @interface BindSomething
 
     static class Factory implements BinderFactory
     {
+        @Override
         public Binder build(Annotation annotation)
         {
             return new Binder()
             {
-                public void bind(SQLStatement q, Annotation bind, Object arg)
+                @Override
+                public void bind(SQLStatement q, Parameter param, Annotation bind, Object arg)
                 {
                     BindSomething bs = (BindSomething) bind;
                     Something it = (Something) arg;
@@ -51,5 +51,4 @@ public @interface BindSomething
             };
         }
     }
-
 }

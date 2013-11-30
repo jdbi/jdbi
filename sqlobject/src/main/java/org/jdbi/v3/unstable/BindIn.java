@@ -15,6 +15,17 @@
  */
 package org.jdbi.v3.unstable;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
@@ -22,16 +33,6 @@ import org.jdbi.v3.sqlobject.BindingAnnotation;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Method;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 @Retention(RetentionPolicy.RUNTIME)
 @SqlStatementCustomizingAnnotation(BindIn.CustomizerFactory.class)
@@ -43,16 +44,19 @@ public @interface BindIn
     public static final class CustomizerFactory implements SqlStatementCustomizerFactory
     {
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             throw new UnsupportedOperationException("Not supported on method!");
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             throw new UnsupportedOperationException("Not supported on type");
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                          Class sqlObjectType,
                                                          Method method,
@@ -77,6 +81,7 @@ public @interface BindIn
 
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     q.define(key, ns);
@@ -87,6 +92,7 @@ public @interface BindIn
 
     public static class BindingFactory implements BinderFactory
     {
+        @Override
         public Binder build(Annotation annotation)
         {
             final BindIn in = (BindIn) annotation;
@@ -95,7 +101,8 @@ public @interface BindIn
             return new Binder()
             {
 
-                public void bind(SQLStatement q, Annotation bind, Object arg)
+                @Override
+                public void bind(SQLStatement q, Parameter param, Annotation bind, Object arg)
                 {
                     Iterable<?> coll = (Iterable<?>) arg;
                     int idx = 0;

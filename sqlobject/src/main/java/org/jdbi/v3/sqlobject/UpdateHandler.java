@@ -47,6 +47,7 @@ class UpdateHandler extends CustomizingStatementHandler
             }
             this.returner = new Returner()
             {
+                @Override
                 public Object value(Update update, HandleDing baton)
                 {
                     GeneratedKeys o = update.executeAndReturnGeneratedKeys(mapper);
@@ -57,6 +58,7 @@ class UpdateHandler extends CustomizingStatementHandler
         else {
             this.returner = new Returner()
             {
+                @Override
                 public Object value(Update update, HandleDing baton)
                 {
                     return update.execute();
@@ -65,6 +67,7 @@ class UpdateHandler extends CustomizingStatementHandler
         }
     }
 
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         Update q = h.getHandle().createStatement(sql);

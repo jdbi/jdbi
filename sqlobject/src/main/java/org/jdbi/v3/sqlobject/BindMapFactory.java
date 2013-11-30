@@ -16,6 +16,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,7 +33,7 @@ class BindMapFactory implements BinderFactory
         return new Binder<BindMap, Object>()
         {
             @Override
-            public void bind(SQLStatement q, BindMap bind, Object arg)
+            public void bind(SQLStatement q, Parameter param, BindMap bind, Object arg)
             {
                 final String prefix;
                 if (BindBean.BARE_BINDING.equals(bind.prefix())) {

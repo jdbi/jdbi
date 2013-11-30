@@ -15,21 +15,24 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.SQLStatement;
-
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
+import org.jdbi.v3.SQLStatement;
 
 class BindBeanFactory implements BinderFactory
 {
+    @Override
     public Binder build(Annotation annotation)
     {
         return new Binder<BindBean, Object>()
         {
-            public void bind(SQLStatement q, BindBean bind, Object arg)
+            @Override
+            public void bind(SQLStatement q, Parameter param, BindBean bind, Object arg)
             {
                 final String prefix;
                 if (BindBean.BARE_BINDING.equals(bind.value())) {

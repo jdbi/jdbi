@@ -15,13 +15,26 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Parameter;
+
 import org.jdbi.v3.SQLStatement;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
 {
-    public void bind(SQLStatement q, Bind b, Object arg)
+    @Override
+    public void bind(SQLStatement q, Parameter param, Bind b, Object arg)
     {
-        q.bind(b.value(), arg);
-    }
+        String value = b.value();
 
+        if (value.equals(Bind.USE_PARAM_NAME)) {
+            if (!param.isNamePresent()) {
+                throw new UnsupportedOperationException("A parameter was annotated with @Bind "
+                        + "but no name was specified, and parameter name data is not present "
+                        + "in the class file.  " + param.getDeclaringExecutable() + " :: " + param);
+            }
+            value = param.getName();
+        }
+
+        q.bind(value, arg);
+    }
 }

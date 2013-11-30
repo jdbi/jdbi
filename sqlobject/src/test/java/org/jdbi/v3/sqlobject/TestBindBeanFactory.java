@@ -15,22 +15,19 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+
+import java.lang.annotation.Annotation;
+
 import org.jdbi.derby.Tools;
 import org.jdbi.v3.Binding;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Update;
-import org.jdbi.v3.sqlobject.BindBean;
-import org.jdbi.v3.sqlobject.BindBeanFactory;
-import org.jdbi.v3.sqlobject.Binder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.annotation.Annotation;
-
-import static org.junit.Assert.assertEquals;
 
 public class TestBindBeanFactory
 {
@@ -62,7 +59,7 @@ public class TestBindBeanFactory
 
         TestBean testBean = new TestBean();
 
-        beanBinder.bind(testStatement, new BindBeanImpl(), testBean);
+        beanBinder.bind(testStatement, null, new BindBeanImpl(), testBean);
 
         StatementContext context = testStatement.getContext();
         Binding binding = context.getBinding();

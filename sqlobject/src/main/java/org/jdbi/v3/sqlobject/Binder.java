@@ -15,11 +15,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.SQLStatement;
-
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
+
+import org.jdbi.v3.SQLStatement;
 
 public interface Binder<AnnotationType extends Annotation, ArgType>
 {
-    public void bind(SQLStatement<?> q, AnnotationType bind, ArgType arg);
+    public void bind(SQLStatement<?> q, Parameter parameter, AnnotationType bind, ArgType arg);
 }

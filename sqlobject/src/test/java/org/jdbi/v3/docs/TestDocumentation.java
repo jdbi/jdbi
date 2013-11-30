@@ -375,8 +375,8 @@ public class TestDocumentation
         @SqlUpdate("create table something(id int primary key, name varchar(32))")
         void createSomethingTable();
 
-        @SqlQuery("select name from something where id = :it")
-        String findNameById(@Bind int id);
+        @SqlQuery("select name from something where id = :id")
+        String findNameById(@Bind("id") int id);
     }
 
     @Test
@@ -413,8 +413,8 @@ public class TestDocumentation
         @SqlUpdate("create table something(id int primary key, name varchar(32))")
         void createSomethingTable();
 
-        @SqlQuery("select name from something where id = :it")
-        String findNameById(@Bind int id);
+        @SqlQuery("select name from something where id = :id")
+        String findNameById(@Bind("id") int id);
     }
 
     public static interface BindExamples

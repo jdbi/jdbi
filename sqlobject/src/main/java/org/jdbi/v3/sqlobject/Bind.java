@@ -28,8 +28,9 @@ import java.lang.annotation.Target;
 @BindingAnnotation(BindFactory.class)
 public @interface Bind
 {
-    String value() default "it";
+    public static final String USE_PARAM_NAME = "___use_param_name___";
+
+    String value() default USE_PARAM_NAME;
 
     Class<? extends Binder> binder() default DefaultObjectBinder.class;
-
 }

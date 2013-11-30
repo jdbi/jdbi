@@ -23,11 +23,6 @@ import java.util.UUID;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.GetGeneratedKeys;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.After;
@@ -65,12 +60,12 @@ public class TestGetGeneratedKeys
 
     public static interface DAO extends CloseMe
     {
-        @SqlUpdate("insert into something (name) values (:it)")
+        @SqlUpdate("insert into something (name) values (:name)")
         @GetGeneratedKeys
-        public long insert(@Bind String name);
+        public long insert(@Bind("name") String name);
 
-        @SqlQuery("select name from something where id = :it")
-        public String findNameById(@Bind long id);
+        @SqlQuery("select name from something where id = :id")
+        public String findNameById(@Bind("id") long id);
     }
 
     @Test

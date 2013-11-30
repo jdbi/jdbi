@@ -24,11 +24,6 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.BindBean;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.Define;
 import org.jdbi.v3.sqlobject.customizers.OverrideStatementLocatorWith;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
@@ -112,8 +107,8 @@ public class TestOverrideStatementLocatorWith
         @SqlQuery
         public Something findById(@Bind("id") Long id);
 
-        @SqlQuery("select name from something where id = :it")
-        String findNameFor(@Bind int id);
+        @SqlQuery("select name from something where id = :id")
+        String findNameFor(@Bind("id") int id);
 
         @SqlUpdate
         void weirdInsert(@Define("table") String table,

@@ -15,17 +15,17 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import com.fasterxml.classmate.members.ResolvedMethod;
-
-import org.jdbi.v3.ConcreteStatementContext;
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.classmate.members.ResolvedMethod;
+
+import org.jdbi.v3.ConcreteStatementContext;
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 
 abstract class CustomizingStatementHandler implements Handler
 {
@@ -87,7 +87,7 @@ abstract class CustomizingStatementHandler implements Handler
                     BindingAnnotation ba = annotation.annotationType().getAnnotation(BindingAnnotation.class);
                     try {
                         BinderFactory fact = ba.value().newInstance();
-                        binders.add(new Bindifier(annotation, param_idx, fact.build(annotation)));
+                        binders.add(new Bindifier(this.method, annotation, param_idx, fact.build(annotation)));
 
                     }
                     catch (Exception e) {
@@ -185,4 +185,8 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
+    protected Method getMethod()
+    {
+        return method;
+    }
 }

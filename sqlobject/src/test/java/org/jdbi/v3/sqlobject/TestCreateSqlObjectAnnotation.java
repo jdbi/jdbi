@@ -25,12 +25,6 @@ import java.util.UUID;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.CreateSqlObject;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.jdbi.v3.sqlobject.Transaction;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -112,8 +106,8 @@ public class TestCreateSqlObjectAnnotation
 
     public static abstract class Bar
     {
-        @SqlQuery("select id, name from something where id = :it")
-        public abstract Something findById(@Bind int id);
+        @SqlQuery("select id, name from something where id = :id")
+        public abstract Something findById(@Bind("id") int id);
 
         public Something explode()
         {

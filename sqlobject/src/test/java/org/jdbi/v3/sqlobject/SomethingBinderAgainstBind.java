@@ -15,14 +15,15 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Parameter;
+
 import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.Binder;
 
 public class SomethingBinderAgainstBind implements Binder<Bind, Something>
 {
-    public void bind(SQLStatement q, Bind bind, Something it)
+    @Override
+    public void bind(SQLStatement q, Parameter param, Bind bind, Something it)
     {
         q.bind(bind.value() + ".id", it.getId());
         q.bind(bind.value() + ".name", it.getName());

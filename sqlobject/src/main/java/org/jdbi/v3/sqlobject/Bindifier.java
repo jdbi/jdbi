@@ -15,25 +15,29 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.SQLStatement;
-
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
+import org.jdbi.v3.SQLStatement;
 
 class Bindifier
 {
     private final int    param_idx;
     private final Binder binder;
     private final Annotation annotation;
+    private final Parameter parameter;
 
-    Bindifier(Annotation bind, int param_idx, Binder binder)
+    Bindifier(Method method, Annotation bind, int param_idx, Binder binder)
     {
         this.annotation = bind;
         this.param_idx = param_idx;
         this.binder = binder;
+        this.parameter = method.getParameters()[param_idx];
     }
 
     void bind(SQLStatement q, Object[] args)
     {
-        binder.bind(q, annotation, args[param_idx]);
+        binder.bind(q, parameter, annotation, args[param_idx]);
     }
 }
