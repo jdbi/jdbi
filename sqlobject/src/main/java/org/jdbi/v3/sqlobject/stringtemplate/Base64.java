@@ -30,6 +30,7 @@ import java.nio.charset.Charset;
  * @version     $Id$
  */
 
+@SuppressWarnings("unused")
 final class  Base64 {
     static private final int  BASELENGTH         = 255;
     static private final int  LOOKUPLENGTH       = 63;

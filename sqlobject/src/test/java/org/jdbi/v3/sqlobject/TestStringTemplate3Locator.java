@@ -25,7 +25,6 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Define;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.sqlobject.stringtemplate.ExternalizedSqlViaStringTemplate3;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
@@ -125,7 +124,7 @@ public class TestStringTemplate3Locator
         public Something findById(@Define("table") String table, @Bind("id") Long id);
     }
 
-    @ExternalizedSqlViaStringTemplate3
+    @UseStringTemplate3StatementLocator
     @RegisterMapper(SomethingMapper.class)
     static interface Wombat
     {
