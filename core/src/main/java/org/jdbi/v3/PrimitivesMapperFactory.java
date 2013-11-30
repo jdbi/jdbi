@@ -15,6 +15,12 @@
  */
 package org.jdbi.v3;
 
+import java.math.BigDecimal;
+import java.net.URL;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.BigDecimalMapper;
 import org.jdbi.v3.util.BooleanMapper;
@@ -28,12 +34,6 @@ import org.jdbi.v3.util.ShortMapper;
 import org.jdbi.v3.util.StringMapper;
 import org.jdbi.v3.util.TimestampMapper;
 import org.jdbi.v3.util.URLMapper;
-
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Result set mapper factory which knows how to construct java primitive types.
@@ -76,13 +76,18 @@ public class PrimitivesMapperFactory implements ResultSetMapperFactory
         mappers.put(String.class, StringMapper.FIRST);
     }
 
+    @Override
     public boolean accepts(Class type, StatementContext ctx)
     {
-        return mappers.containsKey(type);
+        return mappers.containsKey(type) || type.isEnum();
     }
 
+    @Override
     public ResultSetMapper mapperFor(Class type, StatementContext ctx)
     {
+        if (type.isEnum()) {
+            return new EnumMapper(1, type);
+        }
         return mappers.get(type);
     }
 }

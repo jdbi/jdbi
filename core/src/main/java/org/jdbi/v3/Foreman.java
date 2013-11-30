@@ -15,9 +15,6 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ArgumentFactory;
-
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -29,6 +26,9 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.tweak.ArgumentFactory;
 
 class Foreman
 {
@@ -113,11 +113,13 @@ class Foreman
             b.put(URL.class, new P(URLArgument.class));
         }
 
+        @Override
         public boolean accepts(Class expectedType, Object value, StatementContext ctx)
         {
-            return b.containsKey(expectedType);
+            return b.containsKey(expectedType) || value.getClass().isEnum();
         }
 
+        @Override
         public Argument build(Class expectedType, Object value, StatementContext ctx)
         {
             P p = b.get(expectedType);
@@ -127,7 +129,12 @@ class Foreman
                 if (v != null) {
                     return v.build(value);
                 }
+
+                if (value.getClass().isEnum()) {
+                    return new StringArgument(((Enum)value).name());
+                }
             }
+
             return p.build(value);
         }
 
