@@ -142,6 +142,8 @@ class SqlObject
         handlers.putAll(ToStringHandler.handler(sqlObjectType.getName()));
         handlers.putAll(HashCodeHandler.handler());
 
+        handlersCache.put(sqlObjectType, handlers);
+
         return handlers;
     }
 
