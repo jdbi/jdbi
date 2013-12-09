@@ -1,0 +1,22 @@
+group TestKombucha: TestSuperDrink;
+
+tableName() ::= "kombucha"
+
+historyTableName() ::= "kombucha_history"
+
+tableFields(prefix) ::= <<
+  <prefix>tea
+, <prefix>mushroom
+, <prefix>sugar
+>>
+
+tableValues() ::= <<
+  :tea
+, :mushroom
+, :sugar
+>>
+
+
+getIngredients() ::= <<
+select <tableFields("")> from <tableName()>;
+>>

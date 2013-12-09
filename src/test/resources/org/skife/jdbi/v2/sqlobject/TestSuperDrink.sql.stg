@@ -1,0 +1,20 @@
+group TestSuperDrink;
+
+
+
+tableName() ::= ""
+
+tableFields(prefix) ::= ""
+
+tableValues() ::= ""
+
+historyTableName() ::= ""
+
+awesomeness() ::= <<
+awesomeness;
+>>
+
+
+getFromHistoryTableName(historyTableName) ::= <<
+select <tableFields("")> from <historyTableName>;
+>>
