@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class ConcreteStatementContext implements StatementContext
+public class ConcreteStatementContext implements StatementContext
 {
     private final List<Cleanable> cleanables = new ArrayList<Cleanable>();
     private final Map<String, Object>        attributes = new HashMap<String, Object>();
