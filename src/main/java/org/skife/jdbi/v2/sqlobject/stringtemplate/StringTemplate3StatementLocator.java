@@ -64,11 +64,13 @@ public class StringTemplate3StatementLocator implements StatementLocator {
 
         if (allowImplicitTemplateGroup && ins == null) {
             this.group = new StringTemplateGroup("empty template group", AngleBracketTemplateLexer.class);
-        } else if (ins == null) {
+        }
+        else if (ins == null) {
             throw new IllegalStateException("unable to find group file "
                                             + templateGroupFilePathOnClasspath
                                             + " on classpath");
-        } else {
+        }
+        else {
             InputStreamReader reader = new InputStreamReader(ins, UTF_8);
             try {
                 this.group = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
@@ -116,11 +118,13 @@ public class StringTemplate3StatementLocator implements StatementLocator {
 
         if (allowImplicitTemplateGroup && ins == null) {
             result = new StringTemplateGroup("empty template group", AngleBracketTemplateLexer.class);
-        } else if (ins == null) {
+        }
+        else if (ins == null) {
             throw new IllegalStateException("unable to find group file "
                                             + templateGroupFilePathOnClasspath
                                             + " on classpath");
-        } else {
+        }
+        else {
             InputStreamReader reader = new InputStreamReader(ins, UTF_8);
             try {
                 result = superGroup != null ? new StringTemplateGroup(reader, AngleBracketTemplateLexer.class, null, superGroup)
@@ -140,11 +144,13 @@ public class StringTemplate3StatementLocator implements StatementLocator {
         // First check for local cache to see if StringTemplate was already evaluated
         if (shouldCacheEvaluatedTemplate && cachedEvaluatedTemplate.containsKey(locatorKey)) {
             return cachedEvaluatedTemplate.get(locatorKey);
-        } else if (group.isDefined(name)) {
+        }
+        else if (group.isDefined(name)) {
             // yeah, found template for it!
             StringTemplate t = group.lookupTemplate(name);
             return evaluateTemplate(locatorKey, t);
-        } else if (treatLiteralsAsTemplates) {
+        }
+        else if (treatLiteralsAsTemplates) {
             // no template in the template group, but we want literals to be templates
             final String key = new String(new Base64().encode(name.getBytes(UTF_8)), UTF_8);
             if (!literals.isDefined(key)) {
@@ -152,7 +158,8 @@ public class StringTemplate3StatementLocator implements StatementLocator {
             }
             StringTemplate t = literals.lookupTemplate(key);
             return evaluateTemplate(locatorKey, t);
-        } else {
+        }
+        else {
             // no template, no literals as template, just use the literal as sql
             return name;
         }
@@ -225,7 +232,8 @@ public class StringTemplate3StatementLocator implements StatementLocator {
 
     private final static String sep = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
 
-    private static String mungify(String path) {
+    private static String mungify(String path)
+    {
         return path.replaceAll("\\.", Matcher.quoteReplacement(sep));
     }
 
