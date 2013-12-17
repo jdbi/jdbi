@@ -15,26 +15,34 @@
  */
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.Map;
-import java.util.regex.Matcher;
-
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+
 public class StringTemplate3StatementLocator implements StatementLocator
 {
     private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final ConcurrentMap<String, StringTemplateGroup> annotationLocatorCache =
+        new ConcurrentHashMap<String, StringTemplateGroup>();
 
-    private final StringTemplateGroup group;
+    static {
+        annotationLocatorCache.put("empty template group", new StringTemplateGroup("empty template group",
+                                                                                   AngleBracketTemplateLexer.class));
+    }
+
     private final StringTemplateGroup literals = new StringTemplateGroup("literals", AngleBracketTemplateLexer.class);
-
+    private final StringTemplateGroup group;
     private boolean treatLiteralsAsTemplates;
 
     public StringTemplate3StatementLocator(Class baseClass)
@@ -56,12 +64,34 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
                                            boolean allowImplicitTemplateGroup,
-                                           boolean treatLiteralsAsTemplates)
+                                           boolean treatLiteralsAsTemplates) {
+        this(templateGroupFilePathOnClasspath, allowImplicitTemplateGroup, treatLiteralsAsTemplates, false);
+    }
+
+    public StringTemplate3StatementLocator(Class baseClass,
+                                           boolean allowImplicitTemplateGroup,
+                                           boolean treatLiteralsAsTemplates,
+                                           boolean fromAnnotation) {
+        this(mungify("/" + baseClass.getName()) + ".sql.stg",
+             allowImplicitTemplateGroup,
+             treatLiteralsAsTemplates,
+             fromAnnotation);
+    }
+
+    public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
+                                           boolean allowImplicitTemplateGroup,
+                                           boolean treatLiteralsAsTemplates,
+                                           boolean fromAnnotation)
     {
+        if (fromAnnotation && annotationLocatorCache.containsKey(templateGroupFilePathOnClasspath)) {
+            this.group = annotationLocatorCache.get(templateGroupFilePathOnClasspath);
+            return;
+        }
+
         this.treatLiteralsAsTemplates = treatLiteralsAsTemplates;
         InputStream ins = getClass().getResourceAsStream(templateGroupFilePathOnClasspath);
         if (allowImplicitTemplateGroup && ins == null) {
-            this.group = new StringTemplateGroup("empty template group", AngleBracketTemplateLexer.class);
+            this.group = annotationLocatorCache.get("empty template group");
         }
         else if (ins == null) {
             throw new IllegalStateException("unable to find group file "
@@ -73,6 +103,9 @@ public class StringTemplate3StatementLocator implements StatementLocator
             try {
                 this.group = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
                 reader.close();
+                if (fromAnnotation) {
+                    annotationLocatorCache.putIfAbsent(templateGroupFilePathOnClasspath, group);
+                }
             }
             catch (IOException e) {
                 throw new IllegalStateException("unable to load string template group " + templateGroupFilePathOnClasspath,
@@ -85,7 +118,8 @@ public class StringTemplate3StatementLocator implements StatementLocator
     {
         if (group.isDefined(name)) {
             // yeah, found template for it!
-            StringTemplate t = group.lookupTemplate(name);
+            StringTemplate t = group.getInstanceOf(name);
+            t.reset();
             for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
                 t.setAttribute(entry.getKey(), entry.getValue());
             }

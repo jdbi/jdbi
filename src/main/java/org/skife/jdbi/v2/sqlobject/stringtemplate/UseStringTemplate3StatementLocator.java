@@ -44,10 +44,10 @@ public @interface UseStringTemplate3StatementLocator
             final UseStringTemplate3StatementLocator a = (UseStringTemplate3StatementLocator) annotation;
             final StatementLocator l;
             if (DEFAULT_VALUE.equals(a.value())) {
-                l = new StringTemplate3StatementLocator(sqlObjectType, true, true);
+                l = new StringTemplate3StatementLocator(sqlObjectType, true, true, true);
             }
             else {
-                l = new StringTemplate3StatementLocator(a.value(), true, true);
+                l = new StringTemplate3StatementLocator(a.value(), true, true, true);
             }
 
             return new SqlStatementCustomizer()

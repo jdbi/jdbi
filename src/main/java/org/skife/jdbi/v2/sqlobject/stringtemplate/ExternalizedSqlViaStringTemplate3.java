@@ -48,10 +48,10 @@ public @interface ExternalizedSqlViaStringTemplate3
             final ExternalizedSqlViaStringTemplate3 a = (ExternalizedSqlViaStringTemplate3) annotation;
             final StatementLocator l;
             if (DEFAULT_VALUE.equals(a.value())) {
-                l = new StringTemplate3StatementLocator(sqlObjectType);
+                l = new StringTemplate3StatementLocator(sqlObjectType, false, false, true);
             }
             else {
-                l = new StringTemplate3StatementLocator(a.value());
+                l = new StringTemplate3StatementLocator(a.value(), false, false, true);
             }
 
             return new SqlStatementCustomizer()
