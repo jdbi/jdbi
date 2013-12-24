@@ -15,8 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
-
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +31,7 @@ public class TestClosingHandle extends DBITestCase
     @Override
     public void tearDown() throws Exception {
         if (h != null) h.close();
-        Tools.stop();
+        derbyHelper.stop();
     }
 
     public void testNotClosing() throws Exception {

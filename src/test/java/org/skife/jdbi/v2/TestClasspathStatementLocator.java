@@ -19,7 +19,6 @@ import net.sf.cglib.transform.AbstractClassLoader;
 import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;

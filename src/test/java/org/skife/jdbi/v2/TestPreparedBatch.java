@@ -15,7 +15,7 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.util.StringMapper;
 
@@ -87,10 +87,10 @@ public class TestPreparedBatch extends DBITestCase
         Handle h = openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        Map<String, Object> one = Tools.map("id", 0).add("name", "Keith");
+        Map<String, Object> one = DerbyHelper.map("id", 0).add("name", "Keith");
         b.add(one);
-        b.add(Tools.map("id", Integer.parseInt("1")).add("name", "Eric"));
-        b.add(Tools.map("id", Integer.parseInt("2")).add("name", "Brian"));
+        b.add(DerbyHelper.map("id", Integer.parseInt("1")).add("name", "Eric"));
+        b.add(DerbyHelper.map("id", Integer.parseInt("2")).add("name", "Brian"));
 
         b.execute();
 
@@ -104,7 +104,7 @@ public class TestPreparedBatch extends DBITestCase
         Handle h = openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        Map<String, Object> one = Tools.map("id", 0);
+        Map<String, Object> one = DerbyHelper.map("id", 0);
         b.add(one).bind("name", "Keith");
         b.execute();
 

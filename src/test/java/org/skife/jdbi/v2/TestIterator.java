@@ -15,8 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
-
 import java.util.Map;
 
 public class TestIterator extends DBITestCase
@@ -32,7 +30,7 @@ public class TestIterator extends DBITestCase
     @Override
     public void tearDown() throws Exception {
         assertTrue("Handle was not closed correctly!", h.isClosed());
-        Tools.stop();
+        derbyHelper.stop();
     }
 
     public void testSimple() throws Exception {

@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
@@ -30,7 +29,7 @@ public class TestPreparedStatementCache extends DBITestCase
     {
         final int[] prep_count = { 0 };
 
-        Connection c = new DelegatingConnection(Tools.getConnection())
+        Connection c = new DelegatingConnection(derbyHelper.getConnection())
         {
             @Override
             public PreparedStatement prepareStatement(String s, int flag) throws SQLException

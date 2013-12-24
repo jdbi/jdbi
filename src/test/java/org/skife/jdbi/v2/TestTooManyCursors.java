@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
@@ -42,7 +41,7 @@ public class TestTooManyCursors extends DBITestCase
 {
     public void testFoo() throws Exception
     {
-        DataSource ds = Tools.getDataSource();
+        DataSource ds = derbyHelper.getDataSource();
         DataSource dataSource = new ErrorProducingDataSource(ds, 99);
         IDBI dbi = new DBI(dataSource);
 
@@ -105,20 +104,20 @@ public class TestTooManyCursors extends DBITestCase
             return target.getLoginTimeout();
         }
 
-	    public <T> T unwrap(Class<T> iface) throws SQLException
-	    {
-		    return null;
-	    }
+        public <T> T unwrap(Class<T> iface) throws SQLException
+        {
+            return null;
+        }
 
-	    public boolean isWrapperFor(Class<?> iface) throws SQLException
-	    {
-		    return false;
-	    }
-	    
-	    public Logger getParentLogger() throws SQLFeatureNotSupportedException
-	    {
-	        throw new UnsupportedOperationException();
-	    }
+        public boolean isWrapperFor(Class<?> iface) throws SQLException
+        {
+            return false;
+        }
+
+        public Logger getParentLogger() throws SQLFeatureNotSupportedException
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
 

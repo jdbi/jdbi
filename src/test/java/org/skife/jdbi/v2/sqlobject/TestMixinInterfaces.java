@@ -32,8 +32,8 @@ import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.UUID;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.junit.Assert;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;

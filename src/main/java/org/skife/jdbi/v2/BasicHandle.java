@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
@@ -35,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 class BasicHandle implements Handle
 {

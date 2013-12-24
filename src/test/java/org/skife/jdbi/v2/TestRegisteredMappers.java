@@ -16,7 +16,6 @@
 package org.skife.jdbi.v2;
 
 import junit.framework.TestCase;
-import org.h2.jdbcx.JdbcDataSource;
 import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 

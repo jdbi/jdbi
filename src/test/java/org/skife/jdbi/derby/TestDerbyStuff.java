@@ -22,12 +22,14 @@ import java.sql.Statement;
 
 public class TestDerbyStuff extends TestCase
 {
+    private final DerbyHelper derbyHelper = new DerbyHelper();
+
     public void testNoExceptionOnCreationAndDeletion() throws Exception
     {
         try
         {
-            Tools.start();
-            Tools.stop();
+            derbyHelper.start();
+            derbyHelper.stop();
         }
         catch (Exception e)
         {
@@ -37,15 +39,15 @@ public class TestDerbyStuff extends TestCase
 
     public void testCreateSchema() throws Exception
     {
-        Tools.start();
-        Tools.dropAndCreateSomething();
-        final Connection conn = Tools.getConnection();
+        derbyHelper.start();
+        derbyHelper.dropAndCreateSomething();
+        final Connection conn = derbyHelper.getConnection();
 
         final Statement stmt = conn.createStatement();
         assertTrue(stmt.execute("select count(*) from something"));
 
         stmt.close();
         conn.close();
-        Tools.stop();
+        derbyHelper.stop();
     }
 }

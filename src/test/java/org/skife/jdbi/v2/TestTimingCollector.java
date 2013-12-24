@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.logging.NoOpLog;
 
 import java.sql.Connection;
@@ -38,7 +37,7 @@ public class TestTimingCollector extends DBITestCase
     {
         tc = new TTC();
 
-        Connection conn = Tools.getConnection();
+        Connection conn = derbyHelper.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
@@ -66,7 +65,7 @@ public class TestTimingCollector extends DBITestCase
     public void tearDown() throws Exception
     {
         if (h != null) h.close();
-        Tools.stop();
+        derbyHelper.stop();
     }
 
     public void testStatement() throws Exception

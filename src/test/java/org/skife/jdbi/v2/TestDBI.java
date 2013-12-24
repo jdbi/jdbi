@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
@@ -27,7 +26,7 @@ public class TestDBI extends DBITestCase
 {
     public void testDataSourceConstructor() throws Exception
     {
-        DBI dbi = new DBI(Tools.getDataSource());
+        DBI dbi = new DBI(derbyHelper.getDataSource());
         Handle h = dbi.open();
         assertNotNull(h);
         h.close();
@@ -41,7 +40,7 @@ public class TestDBI extends DBITestCase
             {
                 try
                 {
-                    return Tools.getConnection();
+                    return derbyHelper.getConnection();
                 }
                 catch (SQLException e)
                 {
@@ -77,14 +76,14 @@ public class TestDBI extends DBITestCase
 
     public void testStaticHandleOpener() throws Exception
     {
-        Handle h = DBI.open(Tools.dataSource);
+        Handle h = DBI.open(derbyHelper.getDataSource());
         assertNotNull(h);
         h.close();
     }
 
     public void testWithHandle() throws Exception
     {
-        DBI dbi = new DBI(Tools.getDataSource());
+        DBI dbi = new DBI(derbyHelper.getDataSource());
         String value = dbi.withHandle(new HandleCallback<String>() {
             public String withHandle(Handle handle) throws Exception
             {

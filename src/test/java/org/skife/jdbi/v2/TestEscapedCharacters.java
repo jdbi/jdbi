@@ -15,9 +15,8 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
-
+import org.junit.Assert;
 
 /**
  *

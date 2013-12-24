@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.util.LongMapper;
 
 import java.sql.Connection;
@@ -28,7 +27,7 @@ public class TestUpdateGeneratedKeys extends DBITestCase
     {
         super.setUp();
 
-        final Connection conn = Tools.getConnection();
+        final Connection conn = derbyHelper.getConnection();
 
         final Statement create = conn.createStatement();
         try

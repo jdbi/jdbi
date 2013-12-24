@@ -20,7 +20,6 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.logging.Log4JLog;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
@@ -121,7 +120,7 @@ public class TestSqlLogging extends DBITestCase
     public void tearDown() throws Exception
     {
         if (h != null) h.close();
-        Tools.stop();
+        derbyHelper.stop();
     }
 
     public void testInsert() throws Exception

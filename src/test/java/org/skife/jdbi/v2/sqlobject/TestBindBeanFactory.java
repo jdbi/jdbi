@@ -18,7 +18,7 @@ package org.skife.jdbi.v2.sqlobject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.Binding;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -31,18 +31,20 @@ import static org.junit.Assert.assertEquals;
 
 public class TestBindBeanFactory
 {
+    private final DerbyHelper derbyHelper = new DerbyHelper();
+
     @Before
     public void setUp()
         throws Exception
     {
-        Tools.start();
+        derbyHelper.start();
     }
 
     @After
     public void tearDown()
         throws Exception
     {
-        Tools.stop();
+        derbyHelper.stop();
     }
 
     @Test
@@ -53,7 +55,7 @@ public class TestBindBeanFactory
         @SuppressWarnings("unchecked")
         Binder<BindBean, Object> beanBinder = factory.build(new BindBeanImpl());
 
-        final DBI dbi = new DBI(Tools.getDataSource());
+        final DBI dbi = new DBI(derbyHelper.getDataSource());
         final Handle handle = dbi.open();
         final Update testStatement = handle.createStatement("does not matter");
 

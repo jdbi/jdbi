@@ -15,8 +15,8 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.junit.Assert;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 

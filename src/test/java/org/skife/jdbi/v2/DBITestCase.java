@@ -16,7 +16,7 @@
 package org.skife.jdbi.v2;
 
 import junit.framework.TestCase;
-import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
@@ -40,11 +40,13 @@ public abstract class DBITestCase extends TestCase
     protected final List<BasicHandle> handles = new ArrayList<BasicHandle>();
     private ExecutorService executor;
 
+    protected final DerbyHelper derbyHelper = new DerbyHelper();
+
     @Override
     public void setUp() throws Exception
     {
-        Tools.start();
-        Tools.dropAndCreateSomething();
+        derbyHelper.start();
+        derbyHelper.dropAndCreateSomething();
     }
 
     @Override
@@ -54,7 +56,7 @@ public abstract class DBITestCase extends TestCase
         {
             handle.close();
         }
-        Tools.stop();
+        derbyHelper.stop();
     }
 
     protected StatementLocator getStatementLocator() {
@@ -63,7 +65,7 @@ public abstract class DBITestCase extends TestCase
 
     protected BasicHandle openHandle() throws SQLException
     {
-        Connection conn = Tools.getConnection();
+        Connection conn = derbyHelper.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),

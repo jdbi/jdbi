@@ -15,8 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
-
 import java.sql.Types;
 
 public class TestCallable extends DBITestCase
@@ -49,7 +47,7 @@ public class TestCallable extends DBITestCase
         }
 
         if (h != null) h.close();
-        Tools.stop();
+        derbyHelper.stop();
     }
 
     public void testStatement() throws Exception {

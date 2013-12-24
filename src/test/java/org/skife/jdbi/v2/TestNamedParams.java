@@ -15,8 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +36,7 @@ public class TestNamedParams extends DBITestCase
 
     public void testDemo() throws Exception
     {
-        Handle h = DBI.open(Tools.getDataSource());
+        Handle h = DBI.open(derbyHelper.getDataSource());
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1)
                 .bind("name", "Brian")

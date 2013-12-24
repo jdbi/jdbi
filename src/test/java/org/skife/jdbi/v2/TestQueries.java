@@ -16,7 +16,6 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.HandyMapThing;
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.exceptions.NoResultsException;
 import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
@@ -46,7 +45,7 @@ public class TestQueries extends DBITestCase
     public void tearDown() throws Exception
     {
         if (h != null) h.close();
-        Tools.stop();
+        derbyHelper.stop();
     }
 
     public void testCreateQueryObject() throws Exception

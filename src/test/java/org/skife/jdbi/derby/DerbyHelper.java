@@ -15,10 +15,6 @@
  */
 package org.skife.jdbi.derby;
 
-import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.skife.jdbi.HandyMapThing;
-
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -26,32 +22,45 @@ import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Tools
-{
-    public static final String CONN_STRING = "jdbc:derby:testing";
-    public static Driver driver;
-    public static boolean running = false;
-    public static EmbeddedDataSource dataSource;
+import javax.sql.DataSource;
 
-    public static void start() throws SQLException, IOException
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.skife.jdbi.HandyMapThing;
+
+public class DerbyHelper
+{
+    public static final String DERBY_SYSTEM_HOME = "target/test-db";
+
+    private Driver driver;
+    private boolean running = false;
+    private EmbeddedDataSource dataSource;
+
+    private final String dbName;
+
+    public DerbyHelper()
+    {
+        this.dbName = "testing"; //  + UUID.randomUUID().toString();
+    }
+
+    public void start() throws SQLException, IOException
     {
         if (!running)
         {
             running = true;
-            System.setProperty("derby.system.home", "build/db");
-            File db = new File("build/db");
+            System.setProperty("derby.system.home", DERBY_SYSTEM_HOME);
+            File db = new File("target/test-db");
             db.mkdirs();
 
             dataSource = new EmbeddedDataSource();
             dataSource.setCreateDatabase("create");
-            dataSource.setDatabaseName("testing");
+            dataSource.setDatabaseName(dbName);
 
             final Connection conn = dataSource.getConnection();
             conn.close();
         }
     }
 
-    public static void stop() throws SQLException
+    public void stop() throws SQLException
     {
         final Connection conn = getConnection();
         final Statement delete = conn.createStatement();
@@ -82,12 +91,22 @@ public class Tools
         }
     }
 
-    public static Connection getConnection() throws SQLException
+    public Connection getConnection() throws SQLException
     {
         return dataSource.getConnection();
     }
 
-    public static void dropAndCreateSomething() throws SQLException
+    public String getDbName()
+    {
+        return dbName;
+    }
+
+    public String getJdbcConnectionString()
+    {
+        return "jdbc:derby:" + getDbName();
+    }
+
+    public void dropAndCreateSomething() throws SQLException
     {
         final Connection conn = getConnection();
 
@@ -105,14 +124,14 @@ public class Tools
         conn.close();
     }
 
+    public DataSource getDataSource()
+    {
+        return dataSource;
+    }
+
     public static String doIt()
     {
         return "it";
-    }
-
-    public static DataSource getDataSource()
-    {
-        return dataSource;
     }
 
     public static <K> HandyMapThing<K> map(K k, Object v)

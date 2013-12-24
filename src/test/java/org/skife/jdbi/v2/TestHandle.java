@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -49,7 +48,7 @@ public class TestHandle extends DBITestCase
         h.close();
 
 
-        String value = new DBI(Tools.CONN_STRING).withHandle(new HandleCallback<String>()
+        String value = new DBI(derbyHelper.getJdbcConnectionString()).withHandle(new HandleCallback<String>()
         {
             public String withHandle(Handle handle) throws Exception
             {

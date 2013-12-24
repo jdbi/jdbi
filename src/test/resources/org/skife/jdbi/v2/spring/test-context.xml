@@ -31,9 +31,10 @@
         <property name="dataSource" ref="derby"/>
     </bean>
 
-    <bean id="derby" class="org.apache.derby.jdbc.EmbeddedDataSource">
-        <property name="databaseName" value="testing"/>
-    </bean>
+    <bean id="derbyFactory" class="org.skife.jdbi.derby.DerbyHelper"
+        init-method="start" destroy-method="stop" />
+
+    <bean id="derby" factory-bean="derbyFactory" factory-method="getDataSource" />
 
     <bean id="dbi" class="org.skife.jdbi.v2.spring.DBIFactoryBean">
         <property name="dataSource" ref="derby"/>

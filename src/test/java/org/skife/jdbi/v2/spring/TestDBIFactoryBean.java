@@ -15,24 +15,27 @@
  */
 package org.skife.jdbi.v2.spring;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.spi.LoggingEvent;
-import org.skife.jdbi.derby.Tools;
+import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.IDBI;
 import org.skife.jdbi.v2.util.IntegerMapper;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-import javax.sql.DataSource;
-
 /**
  *
  */
 public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContextTests
 {
-    static { System.setProperty("derby.system.home", "build/db"); }
+    static {
+        System.setProperty("derby.system.home", DerbyHelper.DERBY_SYSTEM_HOME);
+    }
+
     static {
         BasicConfigurator.configure(new AppenderSkeleton() {
 
@@ -56,6 +59,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
 
     protected Service service;
     protected DataSource derby;
+    protected DerbyHelper derbyHelper;
 
     public void setService(Service service)
     {
@@ -67,17 +71,17 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
         this.derby = derby;
     }
 
-    @Override
-    protected void onSetUp() throws Exception
+    public void setDerbyHelper(DerbyHelper derbyHelper)
     {
-        Tools.start();
-        Tools.dropAndCreateSomething();
+        this.derbyHelper = derbyHelper;
     }
 
     @Override
-    protected void onTearDown() throws Exception
+    public void onSetUp()
+        throws Exception
     {
-        Tools.stop();
+        assertNotNull(derbyHelper);
+        derbyHelper.dropAndCreateSomething();
     }
 
     @Override

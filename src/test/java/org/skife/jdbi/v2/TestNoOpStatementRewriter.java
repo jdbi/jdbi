@@ -15,8 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.derby.Tools;
-
 /**
  *
  */
@@ -28,7 +26,7 @@ public class TestNoOpStatementRewriter extends DBITestCase
     public void setUp() throws Exception
     {
         super.setUp();
-        this.dbi = new DBI(Tools.getDataSource());
+        this.dbi = new DBI(derbyHelper.getDataSource());
         dbi.setStatementRewriter(new NoOpStatementRewriter());
     }
 
