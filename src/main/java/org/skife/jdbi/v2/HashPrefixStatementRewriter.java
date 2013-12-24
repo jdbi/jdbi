@@ -29,7 +29,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.skife.jdbi.rewriter.hash.HashStatementLexer.*;
+import static org.skife.jdbi.rewriter.hash.HashStatementLexer.DOUBLE_QUOTED_TEXT;
+import static org.skife.jdbi.rewriter.hash.HashStatementLexer.ESCAPED_TEXT;
+import static org.skife.jdbi.rewriter.hash.HashStatementLexer.LITERAL;
+import static org.skife.jdbi.rewriter.hash.HashStatementLexer.NAMED_PARAM;
+import static org.skife.jdbi.rewriter.hash.HashStatementLexer.POSITIONAL_PARAM;
+import static org.skife.jdbi.rewriter.hash.HashStatementLexer.QUOTED_TEXT;
 
 /**
  * Statement rewriter which replaces named parameter tokens of the form #tokenName
@@ -134,7 +139,9 @@ public class HashPrefixStatementRewriter implements StatementRewriter
                 //List<String> named_params = stmt.params;
                 int i = 0;
                 for (String named_param : stmt.params) {
-                    if ("*".equals(named_param)) continue;
+                    if ("*".equals(named_param)) {
+                        continue;
+                    }
                     Argument a = params.forName(named_param);
                     if (a == null) {
                         a = params.forPosition(i);

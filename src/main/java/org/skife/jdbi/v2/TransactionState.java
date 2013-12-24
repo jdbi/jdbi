@@ -15,7 +15,7 @@
  */
 package org.skife.jdbi.v2;
 
-public enum TransactionState 
+public enum TransactionState
 {
     ROLLBACK, COMMIT;
 }

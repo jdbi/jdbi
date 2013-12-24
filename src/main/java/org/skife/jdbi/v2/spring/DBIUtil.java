@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public class DBIUtil
 {
-    private final static Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<Handle>();
+    private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<Handle>();
 
     /**
      * Obtain a Handle instance, either the transactionally bound one if we are in a transaction,

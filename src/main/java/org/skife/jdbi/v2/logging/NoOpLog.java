@@ -24,7 +24,7 @@ import org.skife.jdbi.v2.tweak.SQLLog;
 public final class NoOpLog implements SQLLog
 {
 
-    final static BatchLogger batch = new BatchLogger() {
+    static final BatchLogger batch = new BatchLogger() {
 
         public final void add(String sql)
         {

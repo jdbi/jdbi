@@ -124,12 +124,12 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                     value = rs.getObject(i);
                 }
 
-				if (rs.wasNull() && !type.isPrimitive()) {
-					value = null;
-				}
+                if (rs.wasNull() && !type.isPrimitive()) {
+                    value = null;
+                }
 
-				try
-				{
+                try
+                {
                     descriptor.getWriteMethod().invoke(bean, value);
                 }
                 catch (IllegalAccessException e) {

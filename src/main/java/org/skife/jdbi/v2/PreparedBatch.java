@@ -94,7 +94,9 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     public int[] execute()
     {
         // short circuit empty batch
-        if (parts.size() == 0) return new int[]{};
+        if (parts.size() == 0) {
+            return new int[]{};
+        }
 
         PreparedBatchPart current = parts.get(0);
         final String my_sql ;
@@ -179,14 +181,14 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
         return part;
     }
 
-	public PreparedBatch add(Object... args)
-	{
+    public PreparedBatch add(Object... args)
+    {
         PreparedBatchPart part = add();
-		for (int i = 0; i < args.length; ++i) {
-			part.bind(i, args[i]);
-		}
-		return this;
-	}
+        for (int i = 0; i < args.length; ++i) {
+            part.bind(i, args[i]);
+        }
+        return this;
+    }
 
 
     /**

@@ -63,9 +63,9 @@ public abstract class TypedMapper<T> implements ResultSetMapper<T>
         return internal.map(index, r, ctx);
     }
 
-    abstract protected T extractByName(ResultSet r, String name) throws SQLException;
+    protected abstract T extractByName(ResultSet r, String name) throws SQLException;
 
-    abstract protected T extractByIndex(ResultSet r, int index) throws SQLException;
+    protected abstract T extractByIndex(ResultSet r, int index) throws SQLException;
 
 
     private class StringMapper implements ResultSetMapper<T>

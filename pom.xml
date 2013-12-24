@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-standard-oss</artifactId>
-        <version>2</version>
+        <version>3</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -85,6 +85,9 @@
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>2.0.1</dep.spring.version>
         <basepom.check.fail-all>true</basepom.check.fail-all>
+
+        <basepom.test.fork-count>1</basepom.test.fork-count>
+        <basepom.test.reuse-vm>false</basepom.test.reuse-vm>
     </properties>
 
     <dependencies>

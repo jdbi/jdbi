@@ -23,7 +23,7 @@ import java.util.List;
 
 class InferredMapperFactory implements ResultSetMapperFactory
 {
-    private final static TypeResolver tr = new TypeResolver();
+    private static final TypeResolver tr = new TypeResolver();
     private final Class maps;
     private final ResultSetMapper mapper;
 

@@ -29,7 +29,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.*;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.DOUBLE_QUOTED_TEXT;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.ESCAPED_TEXT;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
 
 /**
  * Statement rewriter which replaces named parameter tokens of the form :tokenName
@@ -135,7 +140,9 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                 //List<String> named_params = stmt.params;
                 int i = 0;
                 for (String named_param : stmt.params) {
-                    if ("*".equals(named_param)) continue;
+                    if ("*".equals(named_param)) {
+                        continue;
+                    }
                     Argument a = params.forName(named_param);
                     if (a == null) {
                         a = params.forPosition(i);

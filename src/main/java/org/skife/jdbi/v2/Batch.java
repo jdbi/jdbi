@@ -82,7 +82,9 @@ public class Batch extends BaseStatement
     public int[] execute()
     {
         // short circuit empty batch
-        if (parts.size() == 0) return new int[] {};
+        if (parts.size() == 0) {
+            return new int[] {};
+        }
 
         Binding empty = new Binding();
         Statement stmt = null;

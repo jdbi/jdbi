@@ -159,7 +159,7 @@ public class ClasspathStatementLocator implements StatementLocator
         return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
     }
 
-    private final static String SEP = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
+    private static final String SEP = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
 
     private static String mungify(String path)
     {

@@ -90,7 +90,7 @@ public @interface TransactionIsolation
                 {
                     setTxnIsolation(ctx, initial_level);
                 }
-                
+
                 private void setTxnIsolation(StatementContext ctx, int level) throws SQLException
                 {
                     final Connection c = ctx.getConnection();

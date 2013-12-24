@@ -59,7 +59,9 @@ public class DefaultStatementBuilder implements StatementBuilder
      */
     public void close(Connection conn, String sql, Statement stmt) throws SQLException
     {
-        if (stmt != null) stmt.close();
+        if (stmt != null) {
+            stmt.close();
+        }
     }
 
     /**
@@ -69,15 +71,15 @@ public class DefaultStatementBuilder implements StatementBuilder
     {
     }
 
-	/**
-	 * Called each time a Callable statement needs to be created
-	 *
-	 * @param conn the JDBC Connection the statement is being created for
-	 * @param sql the translated SQL which should be prepared
-	 * @param ctx Statement context associated with the SQLStatement this is building for
-	 */
-	public CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException
-	{
-		return conn.prepareCall(sql);
-	}
+    /**
+     * Called each time a Callable statement needs to be created
+     *
+     * @param conn the JDBC Connection the statement is being created for
+     * @param sql the translated SQL which should be prepared
+     * @param ctx Statement context associated with the SQLStatement this is building for
+     */
+    public CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException
+    {
+        return conn.prepareCall(sql);
+    }
 }

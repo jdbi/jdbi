@@ -34,8 +34,9 @@ abstract class QueryResultSetMunger<T> implements QueryResultMunger<T>
             throws SQLException
     {
         ResultSet rs = results.getResultSet();
-        if (rs == null)
+        if (rs == null) {
             throw new NoResultsException("Query did not have a result set, perhaps you meant update?", stmt.getContext());
+        }
 
         stmt.addCleanable(Cleanables.forResultSet(rs));
         return munge(rs);
