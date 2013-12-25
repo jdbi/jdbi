@@ -2,3 +2,5 @@ language: java
 jdk:
   - oraclejdk7
   - openjdk6
+install: mvn -DskipTests=true -Dbasepom.check.skip-all=true -B install
+script: mvn -B verify
