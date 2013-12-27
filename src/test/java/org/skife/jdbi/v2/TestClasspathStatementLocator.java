@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import net.sf.cglib.transform.AbstractClassLoader;
 import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
@@ -23,45 +22,56 @@ import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.sf.cglib.transform.AbstractClassLoader;
+
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *
  */
 public class TestClasspathStatementLocator extends DBITestCase
 {
+    @Test
     public void testLocateNamedWithoutSuffix() throws Exception {
         Handle h = openHandle();
         h.createStatement("insert-keith").execute();
         assertEquals(1, h.select("select name from something").size());
     }
 
+    @Test
     public void testLocateNamedWithSuffix() throws Exception {
         Handle h = openHandle();
         h.insert("insert-keith.sql");
         assertEquals(1, h.select("select name from something").size());
     }
 
+    @Test
     public void testCommentsInExternalSql() throws Exception {
         Handle h = openHandle();
         h.insert("insert-eric-with-comments");
         assertEquals(1, h.select("select name from something").size());
     }
 
+    @Test
     public void testNamedPositionalNamedParamsInPrepared() throws Exception {
         Handle h = openHandle();
         h.insert("insert-id-name", 3, "Tip");
         assertEquals(1, h.select("select name from something").size());
     }
 
+    @Test
     public void testNamedParamsInExternal() throws Exception {
         Handle h = openHandle();
         h.createStatement("insert-id-name").bind("id", 1).bind("name", "Tip").execute();
         assertEquals(1, h.select("select name from something").size());
     }
 
-    public void testusefulExceptionForBackTracing() throws Exception {
+    @Test
+    public void testUsefulExceptionForBackTracing() throws Exception {
         Handle h = openHandle();
 
         try {
@@ -76,6 +86,7 @@ public class TestClasspathStatementLocator extends DBITestCase
 
     }
 
+    @Test
     public void testTriesToParseNameIfNothingFound() throws Exception {
         Handle h = openHandle();
         try {
@@ -90,7 +101,6 @@ public class TestClasspathStatementLocator extends DBITestCase
     @Test
     public void testCachesResultAfterFirstLookup() throws Exception
     {
-
         ClassLoader ctx_loader = Thread.currentThread().getContextClassLoader();
         final AtomicInteger load_count = new AtomicInteger(0);
         Thread.currentThread().setContextClassLoader(new AbstractClassLoader(ctx_loader, ctx_loader, null)

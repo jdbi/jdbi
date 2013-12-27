@@ -17,16 +17,21 @@ package org.skife.jdbi.v2.unstable.grammar;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Lexer;
+import org.junit.Test;
 import org.skife.jdbi.rewriter.printf.FormatterStatementLexer;
 
-import static org.skife.jdbi.rewriter.printf.FormatterStatementLexer.*;
+import static org.skife.jdbi.rewriter.printf.FormatterStatementLexer.EOF;
+import static org.skife.jdbi.rewriter.printf.FormatterStatementLexer.INTEGER;
+import static org.skife.jdbi.rewriter.printf.FormatterStatementLexer.LITERAL;
+import static org.skife.jdbi.rewriter.printf.FormatterStatementLexer.QUOTED_TEXT;
+import static org.skife.jdbi.rewriter.printf.FormatterStatementLexer.STRING;
 
 /**
  *
  */
 public class TestPrintfGrammar extends GrammarTestCase
 {
-
+    @Test
     public void testFoo() throws Exception
     {
         expect("select id from something where name like '%d' and id = %d and name like %s",

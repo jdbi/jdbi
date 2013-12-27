@@ -15,6 +15,7 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.logging.NoOpLog;
 
 import java.sql.Connection;
@@ -22,6 +23,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -37,7 +40,7 @@ public class TestTimingCollector extends DBITestCase
     {
         tc = new TTC();
 
-        Connection conn = derbyHelper.getConnection();
+        Connection conn = DERBY_HELPER.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
@@ -49,31 +52,31 @@ public class TestTimingCollector extends DBITestCase
                                         new MappingRegistry(),
                                         new Foreman(),
                                         new ContainerFactoryRegistry());
-        handles.add(h);
+        HANDLES.add(h);
         return h;
     }
 
 
     @Override
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        super.setUp();
         h = openHandle();
     }
 
     @Override
-    public void tearDown() throws Exception
+    public void doTearDown() throws Exception
     {
         if (h != null) h.close();
-        derbyHelper.stop();
     }
 
+    @Test
     public void testStatement() throws Exception
     {
         int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         assertEquals(1, rows);
     }
 
+    @Test
     public void testSimpleInsert() throws Exception
     {
         String statement = "insert into something (id, name) values (1, 'eric')";
@@ -85,6 +88,7 @@ public class TestTimingCollector extends DBITestCase
         assertEquals(statement, statements.get(0));
     }
 
+    @Test
     public void testUpdate() throws Exception
     {
         String stmt1 = "insert into something (id, name) values (1, 'eric')";
@@ -103,6 +107,7 @@ public class TestTimingCollector extends DBITestCase
         assertEquals(stmt3, statements.get(2));
     }
 
+    @Test
     public void testSimpleUpdate() throws Exception
     {
         String stmt1 = "insert into something (id, name) values (1, 'eric')";

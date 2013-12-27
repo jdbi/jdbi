@@ -15,13 +15,13 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Test;
 
 /**
  *
  */
-public class TestEscapedCharacters extends TestCase
+public class TestEscapedCharacters
 {
     private final ColonPrefixNamedParamStatementRewriter rewriter = new ColonPrefixNamedParamStatementRewriter();
 
@@ -30,16 +30,19 @@ public class TestEscapedCharacters extends TestCase
         return rewriter.parseString(src, new ColonPrefixNamedParamStatementRewriter.ParsedStatement());
     }
 
+    @Test
     public void testSimpleString()
     {
         Assert.assertEquals("hello, world", parseString("hello, world"));
     }
 
+    @Test
     public void testSimpleSql()
     {
         Assert.assertEquals("insert into foo (xyz) values (?)", parseString("insert into foo (xyz) values (:bar)"));
     }
 
+    @Test
     public void testEscapedSql()
     {
         Assert.assertEquals("insert into foo (xyz) values (?::some_strange_type)", parseString("insert into foo (xyz) values (:bar\\:\\:some_strange_type)"));

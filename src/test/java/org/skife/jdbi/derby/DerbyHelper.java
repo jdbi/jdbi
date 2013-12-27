@@ -15,17 +15,18 @@
  */
 package org.skife.jdbi.derby;
 
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.skife.jdbi.HandyMapThing;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 
 import javax.sql.DataSource;
-
-import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.skife.jdbi.HandyMapThing;
 
 public class DerbyHelper
 {
@@ -33,30 +34,33 @@ public class DerbyHelper
 
     private Driver driver;
     private boolean running = false;
-    private EmbeddedDataSource dataSource;
+    private DataSource dataSource;
 
     private final String dbName;
 
     public DerbyHelper()
     {
-        this.dbName = "testing"; //  + UUID.randomUUID().toString();
+        this.dbName = "testing-" + UUID.randomUUID().toString();
     }
 
     public void start() throws SQLException, IOException
     {
         if (!running)
         {
-            running = true;
             System.setProperty("derby.system.home", DERBY_SYSTEM_HOME);
             File db = new File("target/test-db");
             db.mkdirs();
 
-            dataSource = new EmbeddedDataSource();
-            dataSource.setCreateDatabase("create");
-            dataSource.setDatabaseName(dbName);
+            EmbeddedDataSource newDataSource = new EmbeddedDataSource();
+            newDataSource.setCreateDatabase("create");
+            newDataSource.setDatabaseName(dbName);
+
+            dataSource = newDataSource;
 
             final Connection conn = dataSource.getConnection();
             conn.close();
+
+            running = true;
         }
     }
 

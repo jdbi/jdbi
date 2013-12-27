@@ -16,6 +16,8 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -31,18 +33,18 @@ import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-import junit.framework.TestCase;
-
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.skife.jdbi.v2.TransactionIsolationLevel.READ_UNCOMMITTED;
 
-public class TestModifiers extends TestCase
+public class TestModifiers
 {
     private DBI    dbi;
     private Handle handle;
 
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -54,12 +56,14 @@ public class TestModifiers extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testFetchSizeAsArgOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -71,6 +75,7 @@ public class TestModifiers extends TestCase
         assertEquals(3, things.size());
     }
 
+    @Test
     public void testFetchSizeOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -82,6 +87,7 @@ public class TestModifiers extends TestCase
         assertEquals(3, things.size());
     }
 
+    @Test
     public void testMaxSizeOnMethod() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -93,6 +99,7 @@ public class TestModifiers extends TestCase
         assertEquals(1, things.size());
     }
 
+    @Test
     public void testMaxSizeOnParam() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -104,6 +111,7 @@ public class TestModifiers extends TestCase
         assertEquals(2, things.size());
     }
 
+    @Test
     public void testQueryTimeOutOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -115,6 +123,7 @@ public class TestModifiers extends TestCase
         assertEquals(3, things.size());
     }
 
+    @Test
     public void testQueryTimeOutOnParamOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);

@@ -15,10 +15,10 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -33,15 +33,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.sql.DataSource;
+
+import static org.junit.Assert.fail;
+
 /**
  * Oracle was getting angry about too many open cursors because of the large number
  * of prepared statements being created and cached indefinitely.
  */
 public class TestTooManyCursors extends DBITestCase
 {
+    @Test
     public void testFoo() throws Exception
     {
-        DataSource ds = derbyHelper.getDataSource();
+        DataSource ds = DERBY_HELPER.getDataSource();
         DataSource dataSource = new ErrorProducingDataSource(ds, 99);
         IDBI dbi = new DBI(dataSource);
 

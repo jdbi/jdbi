@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
-import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 
 @UseStringTemplate3StatementLocator("/org/skife/jdbi/v2/sqlobject/stringtemplate/SuperDrink.sql.stg")
 public interface SuperDrink

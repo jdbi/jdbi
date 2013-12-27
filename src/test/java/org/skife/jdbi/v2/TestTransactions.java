@@ -15,6 +15,7 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
@@ -23,8 +24,14 @@ import org.skife.jdbi.v2.util.IntegerMapper;
 import java.io.IOException;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class TestTransactions extends DBITestCase
 {
+    @Test
     public void testCallback() throws Exception
     {
         Handle h = this.openHandle();
@@ -40,6 +47,7 @@ public class TestTransactions extends DBITestCase
         assertEquals("Woot!", woot);
     }
 
+    @Test
     public void testRollbackOutsideTx() throws Exception
     {
         Handle h = openHandle();
@@ -48,6 +56,7 @@ public class TestTransactions extends DBITestCase
         h.rollback();
     }
 
+    @Test
     public void testDoubleOpen() throws Exception
     {
         Handle h = openHandle();
@@ -60,6 +69,7 @@ public class TestTransactions extends DBITestCase
         assertTrue(h.getConnection().getAutoCommit());
     }
 
+    @Test
     public void testExceptionAbortsTransaction() throws Exception
     {
         Handle h = this.openHandle();
@@ -86,6 +96,7 @@ public class TestTransactions extends DBITestCase
         assertEquals(0, r.size());
     }
 
+    @Test
     public void testRollbackOnlyAbortsTransaction() throws Exception
     {
         Handle h = this.openHandle();
@@ -112,6 +123,7 @@ public class TestTransactions extends DBITestCase
         assertEquals(0, r.size());
     }
 
+    @Test
     public void testCheckpoint() throws Exception
     {
         Handle h = openHandle();
@@ -127,6 +139,7 @@ public class TestTransactions extends DBITestCase
         assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
     }
 
+    @Test
     public void testReleaseCheckpoint() throws Exception
     {
         Handle h = openHandle();
@@ -146,6 +159,7 @@ public class TestTransactions extends DBITestCase
         }
     }
 
+    @Test
     public void testThrowingRuntimeExceptionPercolatesOriginal() throws Exception
     {
         Handle h = openHandle();

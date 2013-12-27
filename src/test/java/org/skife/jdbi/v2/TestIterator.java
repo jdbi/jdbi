@@ -15,24 +15,30 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
+
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestIterator extends DBITestCase
 {
     private BasicHandle h;
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void doSetUp() throws Exception {
         h = openHandle();
     }
 
     @Override
-    public void tearDown() throws Exception {
+    public void doTearDown() throws Exception {
         assertTrue("Handle was not closed correctly!", h.isClosed());
-        derbyHelper.stop();
     }
 
+    @Test
     public void testSimple() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -51,6 +57,7 @@ public class TestIterator extends DBITestCase
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testEmptyWorksToo() throws Exception {
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -59,7 +66,7 @@ public class TestIterator extends DBITestCase
         assertFalse(it.hasNext());
     }
 
-
+    @Test
     public void testHasNext() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -86,6 +93,7 @@ public class TestIterator extends DBITestCase
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testNext() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -102,6 +110,7 @@ public class TestIterator extends DBITestCase
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testJustNext() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -116,6 +125,7 @@ public class TestIterator extends DBITestCase
         it.next();
     }
 
+    @Test
     public void testTwoTwo() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -134,6 +144,7 @@ public class TestIterator extends DBITestCase
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testTwoOne() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -151,7 +162,7 @@ public class TestIterator extends DBITestCase
         assertFalse(it.hasNext());
     }
 
-
+    @Test
     public void testExplodeIterator() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -183,6 +194,7 @@ public class TestIterator extends DBITestCase
         }
     }
 
+    @Test
     public void testEmptyExplosion() throws Exception {
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
@@ -198,7 +210,7 @@ public class TestIterator extends DBITestCase
         }
     }
 
-
+    @Test
     public void testNonPathologicalJustNext() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
 
@@ -213,6 +225,7 @@ public class TestIterator extends DBITestCase
         assertEquals("eric", result.get("name"));
     }
 
+    @Test
     public void testStillLeakingJustNext() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -238,6 +251,7 @@ public class TestIterator extends DBITestCase
         h.close();
     }
 
+    @Test
     public void testLessLeakingJustNext() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();

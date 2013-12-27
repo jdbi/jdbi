@@ -86,8 +86,9 @@
         <dep.spring.version>2.0.1</dep.spring.version>
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
-        <basepom.test.fork-count>1</basepom.test.fork-count>
+        <basepom.test.fork-count>8</basepom.test.fork-count>
         <basepom.test.reuse-vm>false</basepom.test.reuse-vm>
+        <basepom.test.timeout>120</basepom.test.timeout>
     </properties>
 
     <dependencies>

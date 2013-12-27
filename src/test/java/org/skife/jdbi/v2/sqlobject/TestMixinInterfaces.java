@@ -16,6 +16,9 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -32,17 +35,17 @@ import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.UUID;
 
-import junit.framework.TestCase;
-import org.junit.Assert;
-
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
-public class TestMixinInterfaces extends TestCase
+public class TestMixinInterfaces
 {
     private DBI dbi;
     private Handle handle;
 
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -53,12 +56,14 @@ public class TestMixinInterfaces extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testGetHandle() throws Exception
     {
         WithGetHandle g = SqlObjectBuilder.attach(handle, WithGetHandle.class);
@@ -67,6 +72,7 @@ public class TestMixinInterfaces extends TestCase
         assertSame(handle, h);
     }
 
+    @Test
     public void testWithHandle() throws Exception
     {
         WithGetHandle g = SqlObjectBuilder.attach(handle, WithGetHandle.class);
@@ -82,6 +88,7 @@ public class TestMixinInterfaces extends TestCase
         assertEquals("Mike", name);
     }
 
+    @Test
     public void testBeginAndCommitTransaction() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -97,6 +104,7 @@ public class TestMixinInterfaces extends TestCase
 
     }
 
+    @Test
     public void testInTransaction() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -112,6 +120,7 @@ public class TestMixinInterfaces extends TestCase
         assertEquals("Keith", s.getName());
     }
 
+    @Test
     public void testInTransactionWithLevel() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -128,6 +137,7 @@ public class TestMixinInterfaces extends TestCase
         assertEquals("Keith", s.getName());
     }
 
+    @Test
     public void testTransactionIsolationActuallyHappens() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -149,6 +159,7 @@ public class TestMixinInterfaces extends TestCase
         tx2.close();
     }
 
+    @Test
     public void testJustJdbiTransactions() throws Exception
     {
         Handle h1 = dbi.open();
@@ -178,7 +189,6 @@ public class TestMixinInterfaces extends TestCase
     {
 
     }
-
 
     public static interface Hobbsian extends org.skife.jdbi.v2.sqlobject.mixins.Transmogrifier
     {

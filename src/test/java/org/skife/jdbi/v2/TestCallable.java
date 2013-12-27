@@ -15,15 +15,20 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
+
 import java.sql.Types;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestCallable extends DBITestCase
 {
     private BasicHandle h;
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void doSetUp() throws Exception {
         h = openHandle();
         try {
             h.execute("drop function to_degrees");
@@ -38,7 +43,7 @@ public class TestCallable extends DBITestCase
     }
 
     @Override
-    public void tearDown() throws Exception {
+    public void doTearDown() throws Exception {
         try {
             h.execute("drop function to_degrees");
         }
@@ -47,9 +52,9 @@ public class TestCallable extends DBITestCase
         }
 
         if (h != null) h.close();
-        derbyHelper.stop();
     }
 
+    @Test
     public void testStatement() throws Exception {
         OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
                 .registerOutParameter(0, Types.DOUBLE)
@@ -62,7 +67,7 @@ public class TestCallable extends DBITestCase
         assertEquals(expected.longValue(), ret.getLong(1).longValue());
         assertEquals(expected.shortValue(), ret.getShort(1).shortValue());
         assertEquals(expected.intValue(), ret.getInt(1).intValue());
-        assertEquals(expected.floatValue(), ret.getFloat(1));
+        assertEquals(expected.floatValue(), ret.getFloat(1), 0.001);
 
         try {
             ret.getDate(1);
@@ -82,6 +87,7 @@ public class TestCallable extends DBITestCase
 
     }
 
+    @Test
     public void testStatementWithNamedParam() throws Exception {
         OutParameters ret = h.createCall(":x = CALL TO_DEGREES(:y)")
                 .registerOutParameter("x", Types.DOUBLE)
@@ -93,7 +99,7 @@ public class TestCallable extends DBITestCase
         assertEquals(expected.longValue(), ret.getLong("x").longValue());
         assertEquals(expected.shortValue(), ret.getShort("x").shortValue());
         assertEquals(expected.intValue(), ret.getInt("x").intValue());
-        assertEquals(expected.floatValue(), ret.getFloat("x"));
+        assertEquals(expected.floatValue(), ret.getFloat("x"), 0.001);
 
         try {
             ret.getDate("x");
@@ -111,5 +117,4 @@ public class TestCallable extends DBITestCase
             assertTrue(true);
         }
     }
-
 }

@@ -15,15 +15,20 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  */
 public class TestNamedParams extends DBITestCase
 {
+    @Test
     public void testInsert() throws Exception
     {
         Handle h = openHandle();
@@ -34,9 +39,10 @@ public class TestNamedParams extends DBITestCase
         assertEquals(1, count);
     }
 
+    @Test
     public void testDemo() throws Exception
     {
-        Handle h = DBI.open(derbyHelper.getDataSource());
+        Handle h = DBI.open(DERBY_HELPER.getDataSource());
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1)
                 .bind("name", "Brian")
@@ -58,6 +64,7 @@ public class TestNamedParams extends DBITestCase
         h.close();
     }
 
+    @Test
     public void testBeanPropertyBinding() throws Exception
     {
         Handle h = this.openHandle();
@@ -67,6 +74,7 @@ public class TestNamedParams extends DBITestCase
         assertEquals(1, insert_count);
     }
 
+    @Test
     public void testMapKeyBinding() throws Exception
     {
         Handle h = this.openHandle();
@@ -79,6 +87,7 @@ public class TestNamedParams extends DBITestCase
         assertEquals(1, insert_count);
     }
 
+    @Test
     public void testCascadedLazyArgs() throws Exception
     {
         Handle h = this.openHandle();

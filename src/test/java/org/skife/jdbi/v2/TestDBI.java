@@ -15,6 +15,7 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
@@ -22,16 +23,23 @@ import org.skife.jdbi.v2.tweak.HandleCallback;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class TestDBI extends DBITestCase
 {
+    @Test
     public void testDataSourceConstructor() throws Exception
     {
-        DBI dbi = new DBI(derbyHelper.getDataSource());
+        DBI dbi = new DBI(DERBY_HELPER.getDataSource());
         Handle h = dbi.open();
         assertNotNull(h);
         h.close();
     }
 
+    @Test
     public void testConnectionFactoryCtor() throws Exception
     {
         DBI dbi = new DBI(new ConnectionFactory()
@@ -40,7 +48,7 @@ public class TestDBI extends DBITestCase
             {
                 try
                 {
-                    return derbyHelper.getConnection();
+                    return DERBY_HELPER.getConnection();
                 }
                 catch (SQLException e)
                 {
@@ -53,6 +61,7 @@ public class TestDBI extends DBITestCase
         h.close();
     }
 
+    @Test
     public void testCorrectExceptionOnSQLException() throws Exception
     {
         DBI dbi = new DBI(new ConnectionFactory()
@@ -74,16 +83,18 @@ public class TestDBI extends DBITestCase
         }
     }
 
+    @Test
     public void testStaticHandleOpener() throws Exception
     {
-        Handle h = DBI.open(derbyHelper.getDataSource());
+        Handle h = DBI.open(DERBY_HELPER.getDataSource());
         assertNotNull(h);
         h.close();
     }
 
+    @Test
     public void testWithHandle() throws Exception
     {
-        DBI dbi = new DBI(derbyHelper.getDataSource());
+        DBI dbi = new DBI(DERBY_HELPER.getDataSource());
         String value = dbi.withHandle(new HandleCallback<String>() {
             public String withHandle(Handle handle) throws Exception
             {

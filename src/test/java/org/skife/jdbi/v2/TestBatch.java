@@ -15,13 +15,18 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
+
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  */
 public class TestBatch extends DBITestCase
 {
+    @Test
     public void testBasics() throws Exception
     {
         Handle h = this.openHandle();

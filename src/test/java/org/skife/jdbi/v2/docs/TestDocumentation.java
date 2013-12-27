@@ -15,6 +15,8 @@
  */
 package org.skife.jdbi.v2.docs;
 
+import static java.util.Arrays.asList;
+
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +49,6 @@ import java.util.UUID;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.skife.jdbi.v2.ExtraMatchers.equalsOneOf;
-
-import static java.util.Arrays.asList;
 
 public class TestDocumentation
 {

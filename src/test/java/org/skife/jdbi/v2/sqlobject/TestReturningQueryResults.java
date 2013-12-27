@@ -16,6 +16,9 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -28,14 +31,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class TestReturningQueryResults extends TestCase
+public class TestReturningQueryResults
 {
     private DBI    dbi;
     private Handle handle;
 
-
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -47,12 +51,14 @@ public class TestReturningQueryResults extends TestCase
 
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testSingleValue() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
@@ -64,6 +70,7 @@ public class TestReturningQueryResults extends TestCase
         assertEquals("Tim", s.getName());
     }
 
+    @Test
     public void testIterator() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
@@ -84,6 +91,7 @@ public class TestReturningQueryResults extends TestCase
     }
 
 
+    @Test
     public void testList() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");

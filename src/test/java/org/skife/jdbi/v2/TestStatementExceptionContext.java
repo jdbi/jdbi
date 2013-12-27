@@ -15,13 +15,17 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.StatementException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  */
 public class TestStatementExceptionContext extends DBITestCase
 {
+    @Test
     public void testFoo() throws Exception {
         Handle h = openHandle();
         try {

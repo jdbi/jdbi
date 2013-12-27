@@ -16,6 +16,9 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
@@ -23,14 +26,14 @@ import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.UUID;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
-public class TestStatements extends TestCase
+public class TestStatements
 {
     private DBI dbi;
     private Handle handle;
 
-
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -42,12 +45,14 @@ public class TestStatements extends TestCase
 
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testInsert() throws Exception
     {
         Inserter i = SqlObjectBuilder.open(dbi, Inserter.class);
@@ -63,6 +68,7 @@ public class TestStatements extends TestCase
         i.close();
     }
 
+    @Test
     public void testInsertWithVoidReturn() throws Exception
     {
         Inserter i = SqlObjectBuilder.open(dbi, Inserter.class);

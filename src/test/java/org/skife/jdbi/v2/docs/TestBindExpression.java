@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2.docs;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
@@ -45,6 +44,8 @@ import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
+
+import com.google.common.collect.ImmutableMap;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;

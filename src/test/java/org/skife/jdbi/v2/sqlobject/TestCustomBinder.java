@@ -16,6 +16,9 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -24,14 +27,14 @@ import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 
 import java.util.UUID;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
-public class TestCustomBinder extends TestCase
+public class TestCustomBinder
 {
     private DBI    dbi;
     private Handle handle;
 
-
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -43,12 +46,14 @@ public class TestCustomBinder extends TestCase
 
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testFoo() throws Exception
     {
         handle.execute("insert into something (id, name) values (2, 'Martin')");
@@ -61,6 +66,7 @@ public class TestCustomBinder extends TestCase
         spiffy.close();
     }
 
+    @Test
     public void testCustomBindingAnnotation() throws Exception
     {
         Spiffy s = handle.attach(Spiffy.class);
@@ -69,7 +75,6 @@ public class TestCustomBinder extends TestCase
 
         assertEquals("Keith", s.findNameById(2));
     }
-
 
     public static interface Spiffy extends CloseMe
     {

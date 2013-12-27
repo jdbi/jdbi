@@ -15,7 +15,10 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.StatementLocator;
@@ -35,37 +38,58 @@ import java.util.concurrent.Future;
 /**
  *
  */
-public abstract class DBITestCase extends TestCase
+public abstract class DBITestCase
 {
-    protected final List<BasicHandle> handles = new ArrayList<BasicHandle>();
+    protected static final List<BasicHandle> HANDLES = new ArrayList<BasicHandle>();
     private ExecutorService executor;
 
-    protected final DerbyHelper derbyHelper = new DerbyHelper();
+    protected static final DerbyHelper DERBY_HELPER = new DerbyHelper();
 
-    @Override
-    public void setUp() throws Exception
+    @BeforeClass
+    public static void setUpClass() throws Exception
     {
-        derbyHelper.start();
-        derbyHelper.dropAndCreateSomething();
+        DERBY_HELPER.start();
     }
 
-    @Override
-    public void tearDown() throws Exception
+    @Before
+    public final void setUp() throws Exception
     {
-        for (BasicHandle handle : handles)
+        DERBY_HELPER.dropAndCreateSomething();
+        doSetUp();
+    }
+
+    protected void doSetUp() throws Exception
+    {
+    }
+
+    @After
+    public final void tearDown() throws Exception
+    {
+        doTearDown();
+    }
+
+    protected void doTearDown() throws Exception
+    {
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception
+    {
+        for (BasicHandle handle : HANDLES)
         {
             handle.close();
         }
-        derbyHelper.stop();
+        DERBY_HELPER.stop();
     }
 
-    protected StatementLocator getStatementLocator() {
+    protected StatementLocator getStatementLocator()
+    {
         return new ClasspathStatementLocator();
     }
 
     protected BasicHandle openHandle() throws SQLException
     {
-        Connection conn = derbyHelper.getConnection();
+        Connection conn = DERBY_HELPER.getConnection();
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
@@ -77,7 +101,7 @@ public abstract class DBITestCase extends TestCase
                                         new MappingRegistry(),
                                         new Foreman(),
                                         new ContainerFactoryRegistry());
-        handles.add(h);
+        HANDLES.add(h);
         return h;
     }
 

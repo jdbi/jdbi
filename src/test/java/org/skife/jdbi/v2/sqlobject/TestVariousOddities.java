@@ -15,6 +15,9 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -23,14 +26,19 @@ import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 
 import java.util.UUID;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-public class TestVariousOddities extends TestCase
+public class TestVariousOddities
 {
     private DBI dbi;
     private Handle handle;
 
-
+    @Before
     public void setUp() throws Exception
     {
         dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
@@ -40,12 +48,14 @@ public class TestVariousOddities extends TestCase
 
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testAttach() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -55,11 +65,13 @@ public class TestVariousOddities extends TestCase
         assertEquals("Tom", tom.getName());
     }
 
+    @Test
     public void testRegisteredMappersWork() throws Exception
     {
 
     }
 
+    @Test
     public void testEquals()
     {
         Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -69,6 +81,7 @@ public class TestVariousOddities extends TestCase
         assertFalse(s1.equals(s2));
     }
 
+    @Test
     public void testToString()
     {
         Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -78,6 +91,7 @@ public class TestVariousOddities extends TestCase
         assertTrue(s1.toString() != s2.toString());
     }
 
+    @Test
     public void testHashCode()
     {
         Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -87,13 +101,14 @@ public class TestVariousOddities extends TestCase
         assertTrue(s1.hashCode() != s2.hashCode());
     }
 
+    @Test
     public void testNullQueryReturn()
     {
         try {
             SqlObjectBuilder.attach(handle, SpiffyBoom.class);
         } catch (IllegalStateException e) {
             assertEquals("Method org.skife.jdbi.v2.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
-            		"is annotated as if it should return a value, but the method is void.", e.getMessage());
+                    "is annotated as if it should return a value, but the method is void.", e.getMessage());
             return;
         }
         fail();
@@ -101,7 +116,6 @@ public class TestVariousOddities extends TestCase
 
     public static interface Spiffy extends CloseMe
     {
-
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
         public Something byId(@Bind("id") long id);
@@ -116,5 +130,4 @@ public class TestVariousOddities extends TestCase
         @SqlQuery("SELECT 1")
         void returnNothing();
     }
-
 }

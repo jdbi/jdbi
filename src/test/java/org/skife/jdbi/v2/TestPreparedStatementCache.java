@@ -15,6 +15,7 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.logging.NoOpLog;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
@@ -23,13 +24,17 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import static org.junit.Assert.assertEquals;
+
+
 public class TestPreparedStatementCache extends DBITestCase
 {
+    @Test
     public void testSomething() throws Exception
     {
         final int[] prep_count = { 0 };
 
-        Connection c = new DelegatingConnection(derbyHelper.getConnection())
+        Connection c = new DelegatingConnection(DERBY_HELPER.getConnection())
         {
             @Override
             public PreparedStatement prepareStatement(String s, int flag) throws SQLException

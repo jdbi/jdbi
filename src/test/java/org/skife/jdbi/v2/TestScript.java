@@ -15,11 +15,16 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  */
 public class TestScript extends DBITestCase
 {
+    @Test
     public void testScriptStuff() throws Exception
     {
         Handle h = openHandle();

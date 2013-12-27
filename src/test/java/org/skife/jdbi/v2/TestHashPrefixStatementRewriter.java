@@ -15,27 +15,31 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 
 import java.util.HashMap;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  */
-public class TestHashPrefixStatementRewriter extends TestCase
+public class TestHashPrefixStatementRewriter
 {
     private HashPrefixStatementRewriter rw;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         this.rw = new HashPrefixStatementRewriter();
     }
 
 
+    @Test
     public void testNewlinesOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from something\n where id = #id", new Binding(),
@@ -43,8 +47,7 @@ public class TestHashPrefixStatementRewriter extends TestCase
         assertEquals("select * from something\n where id = ?", rws.getSql());
     }
 
-
-
+    @Test
     public void testOddCharacters() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("~* #boo '#nope' _%&^& *@ #id", new Binding(),
@@ -52,6 +55,7 @@ public class TestHashPrefixStatementRewriter extends TestCase
         assertEquals("~* ? '#nope' _%&^& *@ ?", rws.getSql());
     }
 
+    @Test
     public void testNumbers() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("#bo0 '#nope' _%&^& *@ #id", new Binding(),
@@ -59,6 +63,7 @@ public class TestHashPrefixStatementRewriter extends TestCase
         assertEquals("? '#nope' _%&^& *@ ?", rws.getSql());
     }
 
+    @Test
     public void testDollarSignOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from v$session", new Binding(),
@@ -66,6 +71,7 @@ public class TestHashPrefixStatementRewriter extends TestCase
         assertEquals("select * from v$session", rws.getSql());
     }
 
+    @Test
     public void testColonIsLiteral() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from foo where id = :id", new Binding(),
@@ -73,6 +79,7 @@ public class TestHashPrefixStatementRewriter extends TestCase
         assertEquals("select * from foo where id = :id", rws.getSql());
     }
 
+    @Test
     public void testBacktickOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from `v$session", new Binding(),
@@ -80,7 +87,7 @@ public class TestHashPrefixStatementRewriter extends TestCase
         assertEquals("select * from `v$session", rws.getSql());
     }
 
-
+    @Test
     public void testBailsOutOnInvalidInput() throws Exception
     {
         try {

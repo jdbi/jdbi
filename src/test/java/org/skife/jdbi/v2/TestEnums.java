@@ -15,12 +15,16 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
+
 import java.sql.SQLException;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 public class TestEnums extends DBITestCase
 {
-
     public static class SomethingElse
     {
         public enum Name
@@ -52,6 +56,7 @@ public class TestEnums extends DBITestCase
         }
     }
 
+    @Test
     public void testMapEnumValues() throws Exception
     {
         Handle h = openHandle();
@@ -65,6 +70,7 @@ public class TestEnums extends DBITestCase
         assertEquals(SomethingElse.Name.brian, results.get(1).name);
     }
 
+    @Test
     public void testMapInvalidEnumValue() throws SQLException
     {
         Handle h = openHandle();

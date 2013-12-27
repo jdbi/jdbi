@@ -15,7 +15,12 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -25,12 +30,12 @@ public class TestPositionalParameterBinding extends DBITestCase
     private BasicHandle h;
 
     @Override
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        super.setUp();
         h = openHandle();
     }
 
+    @Test
     public void testSetPositionalString() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -44,6 +49,7 @@ public class TestPositionalParameterBinding extends DBITestCase
         assertEquals(1, eric.getId());
     }
 
+    @Test
     public void testSetPositionalInteger() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -56,6 +62,7 @@ public class TestPositionalParameterBinding extends DBITestCase
         assertEquals(1, eric.getId());
     }
 
+    @Test
     public void testBehaviorOnBadBinding1() throws Exception
     {
         Query<Something> q = h.createQuery("select * from something where id = ? and name = ?")
@@ -77,7 +84,8 @@ public class TestPositionalParameterBinding extends DBITestCase
         }
     }
 
-     public void testBehaviorOnBadBinding2() throws Exception
+    @Test
+    public void testBehaviorOnBadBinding2() throws Exception
     {
         Query<Something> q = h.createQuery("select * from something where id = ?")
                 .bind(1, 1)
@@ -99,6 +107,7 @@ public class TestPositionalParameterBinding extends DBITestCase
         }
     }
 
+    @Test
     public void testInsertParamBinding() throws Exception
     {
         int count = h.createStatement("insert into something (id, name) values (?, 'eric')")
@@ -108,6 +117,7 @@ public class TestPositionalParameterBinding extends DBITestCase
         assertEquals(1, count);
     }
 
+    @Test
     public void testPositionalConvenienceInsert() throws Exception
     {
         int count = h.insert("insert into something (id, name) values (?, ?)", 1, "eric");
@@ -115,6 +125,7 @@ public class TestPositionalParameterBinding extends DBITestCase
         assertEquals(1, count);
     }
 
+    @Test
     public void testWeirdPositionalSyntax() throws Exception
     {
 

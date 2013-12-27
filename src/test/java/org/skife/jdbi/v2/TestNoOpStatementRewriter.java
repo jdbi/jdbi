@@ -15,6 +15,10 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  */
@@ -23,14 +27,13 @@ public class TestNoOpStatementRewriter extends DBITestCase
     private DBI dbi;
 
     @Override
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        super.setUp();
-        this.dbi = new DBI(derbyHelper.getDataSource());
+        this.dbi = new DBI(DERBY_HELPER.getDataSource());
         dbi.setStatementRewriter(new NoOpStatementRewriter());
     }
 
-
+    @Test
     public void testFoo() throws Exception
     {
         Handle h = dbi.open();
@@ -44,7 +47,8 @@ public class TestNoOpStatementRewriter extends DBITestCase
         assertEquals("Keith", name);
     }
 
-    public void tesBar() throws Exception
+    @Test
+    public void testBar() throws Exception
     {
         Handle h = dbi.open();
         h.insert("insert into something (id, name) values (1, 'Keith')");
@@ -57,6 +61,7 @@ public class TestNoOpStatementRewriter extends DBITestCase
         assertEquals("Keith", name);
     }
 
+    @Test
     public void testBaz() throws Exception
     {
         Handle h = dbi.open();

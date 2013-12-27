@@ -15,8 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +30,9 @@ import org.skife.jdbi.v2.util.StringMapper;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;

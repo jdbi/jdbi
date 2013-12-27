@@ -15,15 +15,15 @@
  */
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
+import org.skife.jdbi.v2.Binding;
+import org.skife.jdbi.v2.Cleanable;
+import org.skife.jdbi.v2.StatementContext;
+
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.skife.jdbi.v2.Binding;
-import org.skife.jdbi.v2.Cleanable;
-import org.skife.jdbi.v2.StatementContext;
 
 public class TestingStatementContext implements StatementContext
 {

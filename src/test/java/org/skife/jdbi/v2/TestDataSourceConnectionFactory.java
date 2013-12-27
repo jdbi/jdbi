@@ -15,30 +15,41 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.skife.jdbi.derby.DerbyHelper;
 
 import java.sql.Connection;
 
-public class TestDataSourceConnectionFactory extends TestCase
+import static org.junit.Assert.assertFalse;
+
+public class TestDataSourceConnectionFactory
 {
-    private final DerbyHelper derbyHelper = new DerbyHelper();
+    private static final DerbyHelper DERBY_HELPER = new DerbyHelper();
+
+    @BeforeClass
+    public static void setUpClass() throws Exception
+    {
+        DERBY_HELPER.start();
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception
+    {
+        DERBY_HELPER.stop();
+    }
 
     private DataSourceConnectionFactory f;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
-        derbyHelper.start();
-        this.f = new DataSourceConnectionFactory(derbyHelper.getDataSource());
+        this.f = new DataSourceConnectionFactory(DERBY_HELPER.getDataSource());
     }
 
-    @Override
-    public void tearDown() throws Exception
-    {
-        derbyHelper.stop();
-    }
-
+    @Test
     public void testObtainConnection() throws Exception
     {
         Connection c = f.openConnection();

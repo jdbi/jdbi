@@ -15,7 +15,7 @@
  */
 package org.skife.jdbi.v2.docs;
 
-import com.google.common.collect.ImmutableList;
+import static java.util.Arrays.asList;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,10 +34,10 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
 import java.util.UUID;
 
+import com.google.common.collect.ImmutableList;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-
-import static java.util.Arrays.asList;
 
 public class TestPaging
 {

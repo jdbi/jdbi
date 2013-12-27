@@ -16,6 +16,9 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -27,14 +30,18 @@ import org.skife.jdbi.v2.util.StringMapper;
 import java.util.Iterator;
 import java.util.UUID;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
-public class TestOnDemandSqlObject extends TestCase
+
+public class TestOnDemandSqlObject
 {
     private DBI    dbi;
     private Handle handle;
 
-
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -47,13 +54,14 @@ public class TestOnDemandSqlObject extends TestCase
 
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
-
+    @Test
     public void testAPIWorks() throws Exception
     {
         Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
@@ -65,6 +73,7 @@ public class TestOnDemandSqlObject extends TestCase
         assertEquals("Bill", bill);
     }
 
+    @Test
     public void testTransactionBindsTheHandle() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.onDemand(dbi, TransactionStuff.class);
@@ -87,6 +96,7 @@ public class TestOnDemandSqlObject extends TestCase
         assertEquals("Miker", tx2.byId(8).getName());
     }
 
+    @Test
     public void testIteratorBindsTheHandle() throws Exception
     {
         Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
@@ -108,6 +118,7 @@ public class TestOnDemandSqlObject extends TestCase
 
     }
 
+    @Test
     public void testSqlFromExternalFileWorks() throws Exception
     {
         Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);

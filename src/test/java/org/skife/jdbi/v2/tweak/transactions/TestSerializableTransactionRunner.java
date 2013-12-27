@@ -15,9 +15,6 @@
  */
 package org.skife.jdbi.v2.tweak.transactions;
 
-import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBITestCase;
@@ -27,6 +24,9 @@ import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+
+import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestSerializableTransactionRunner extends DBITestCase
 {

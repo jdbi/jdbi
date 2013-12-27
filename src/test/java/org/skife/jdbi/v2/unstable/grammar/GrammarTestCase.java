@@ -15,16 +15,16 @@
  */
 package org.skife.jdbi.v2.unstable.grammar;
 
-import junit.framework.TestCase;
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Token;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  */
-public abstract class GrammarTestCase extends TestCase
+public abstract class GrammarTestCase
 {
-
     public void expect(String s, int... tokens) throws Exception
     {
         Lexer lexer = createLexer(s);

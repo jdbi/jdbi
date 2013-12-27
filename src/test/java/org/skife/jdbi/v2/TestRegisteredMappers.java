@@ -15,17 +15,23 @@
  */
 package org.skife.jdbi.v2;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
 import java.util.UUID;
 
-public class TestRegisteredMappers extends TestCase
+import static org.junit.Assert.assertEquals;
+
+
+public class TestRegisteredMappers
 {
     private DBI dbi;
     private Handle handle;
 
+    @Before
     public void setUp() throws Exception
     {
         dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
@@ -35,13 +41,14 @@ public class TestRegisteredMappers extends TestCase
 
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
-
+    @Test
     public void testRegisterInferredOnDBI() throws Exception
     {
         dbi.registerMapper(new SomethingMapper());

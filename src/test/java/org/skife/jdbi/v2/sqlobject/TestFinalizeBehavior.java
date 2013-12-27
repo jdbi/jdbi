@@ -15,14 +15,13 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 
-import junit.framework.TestCase;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Sometimes the GC will call {@link #finalize()} on a SqlObject from
@@ -30,7 +29,7 @@ import junit.framework.TestCase;
  * open a {@link Connection} just to satisfy a (no-op) finalizer.
  * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
  */
-public class TestFinalizeBehavior extends TestCase
+public class TestFinalizeBehavior
 {
     private DBI    dbi;
 
@@ -46,7 +45,7 @@ public class TestFinalizeBehavior extends TestCase
         dao.finalize(); // Normally GC would do this, but just fake it
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         final JdbcDataSource ds = new JdbcDataSource() {

@@ -15,6 +15,7 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.util.StringMapper;
@@ -25,8 +26,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+
+
 public class TestPreparedBatch extends DBITestCase
 {
+    @Test
     public void testDesignApi() throws Exception
     {
         Handle h = openHandle();
@@ -42,6 +47,7 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Keith", r.get(2).getName());
     }
 
+    @Test
     public void testBigishBatch() throws Exception
     {
         Handle h = openHandle();
@@ -66,6 +72,7 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals(count, row_count);
     }
 
+    @Test
     public void testBindProperties() throws Exception
     {
         Handle h = openHandle();
@@ -82,6 +89,7 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Brian", r.get(2).getName());
     }
 
+    @Test
     public void testBindMaps() throws Exception
     {
         Handle h = openHandle();
@@ -99,6 +107,7 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Brian", r.get(2).getName());
     }
 
+    @Test
     public void testMixedModeBatch() throws Exception
     {
         Handle h = openHandle();
@@ -113,6 +122,7 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Keith", r.get(0).getName());
     }
 
+    @Test
     public void testPositionalBinding() throws Exception
     {
         Handle h = openHandle();
@@ -125,6 +135,7 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Keith", r.get(0).getName());
     }
 
+    @Test
     public void testSetOnTheBatchItself() throws Exception
     {
         Handle h = openHandle();
@@ -145,6 +156,7 @@ public class TestPreparedBatch extends DBITestCase
 
     }
 
+    @Test
     public void testMixedBatchSetting() throws Exception
     {
         Handle h = openHandle();

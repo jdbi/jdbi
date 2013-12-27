@@ -15,6 +15,10 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  */
@@ -23,31 +27,32 @@ public class TestStatements extends DBITestCase
     private BasicHandle h;
 
     @Override
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        super.setUp();
         h = openHandle();
     }
 
     @Override
-    public void tearDown() throws Exception
+    public void doTearDown() throws Exception
     {
         if (h != null) h.close();
-        derbyHelper.stop();
     }
 
+    @Test
     public void testStatement() throws Exception
     {
         int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         assertEquals(1, rows);
     }
 
+    @Test
     public void testSimpleInsert() throws Exception
     {
         int c = h.insert("insert into something (id, name) values (1, 'eric')");
         assertEquals(1, c);
     }
 
+    @Test
     public void testUpdate() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -56,6 +61,7 @@ public class TestStatements extends DBITestCase
         assertEquals("ERIC", eric.getName());
     }
 
+    @Test
     public void testSimpleUpdate() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");

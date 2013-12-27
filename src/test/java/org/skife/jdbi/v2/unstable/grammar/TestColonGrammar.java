@@ -17,9 +17,15 @@ package org.skife.jdbi.v2.unstable.grammar;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Lexer;
+import org.junit.Test;
 import org.skife.jdbi.rewriter.colon.ColonStatementLexer;
 
-import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.*;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.EOF;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.ESCAPED_TEXT;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
+import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
 
 
 /**
@@ -27,44 +33,49 @@ import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.*;
  */
 public class TestColonGrammar extends GrammarTestCase
 {
-
+    @Test
     public void testNamedOnly() throws Exception
     {
         expect("select id from something where name like ':foo' and id = :id and name like :name",
                LITERAL, QUOTED_TEXT, LITERAL, NAMED_PARAM, LITERAL, NAMED_PARAM, EOF);
     }
 
+    @Test
     public void testEmptyQuote() throws Exception
     {
         expect("select ''",
                LITERAL, QUOTED_TEXT, EOF);
     }
 
+    @Test
     public void testEscapedEmptyQuote() throws Exception
     {
         expect("select '\\''",
                LITERAL, QUOTED_TEXT, EOF);
     }
 
+    @Test
     public void testEscapedColon() throws Exception
     {
         expect("insert into foo (val) VALUE (:bar\\:\\:type)",
                LITERAL, NAMED_PARAM, ESCAPED_TEXT, ESCAPED_TEXT, LITERAL, EOF);
     }
 
-
+    @Test
     public void testMixed() throws Exception
     {
         expect("select id from something where name like ':foo' and id = ? and name like :name",
                LITERAL, QUOTED_TEXT, LITERAL, POSITIONAL_PARAM, LITERAL, NAMED_PARAM, EOF);
     }
 
+    @Test
     public void testThisBrokeATest() throws Exception
     {
         expect("insert into something (id, name) values (:id, :name)",
                LITERAL, NAMED_PARAM, LITERAL, NAMED_PARAM, LITERAL, EOF);
     }
 
+    @Test
     public void testExclamationWorks() throws Exception
     {
         expect("select1 != 2 from dual", LITERAL, EOF);

@@ -16,6 +16,8 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -30,12 +32,11 @@ import org.skife.jdbi.v2.util.StringMapper;
 import java.util.List;
 import java.util.UUID;
 
-import junit.framework.TestCase;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
-public class TestReentrancy extends TestCase
+public class TestReentrancy
 {
     private DBI    dbi;
     private Handle handle;
@@ -113,7 +114,7 @@ public class TestReentrancy extends TestCase
     }
 
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -129,7 +130,7 @@ public class TestReentrancy extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");

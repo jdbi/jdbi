@@ -15,15 +15,15 @@
  */
 package org.skife.jdbi.v2;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import org.junit.Test;
+import org.skife.jdbi.v2.tweak.Argument;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-import org.skife.jdbi.v2.tweak.Argument;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertThat;
 
 public class TestMapArguments
 {

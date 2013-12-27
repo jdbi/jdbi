@@ -15,15 +15,19 @@
  */
 package org.skife.jdbi.derby;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.Statement;
 
-public class TestDerbyStuff extends TestCase
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+public class TestDerbyStuff
 {
     private final DerbyHelper derbyHelper = new DerbyHelper();
 
+    @Test
     public void testNoExceptionOnCreationAndDeletion() throws Exception
     {
         try
@@ -37,6 +41,7 @@ public class TestDerbyStuff extends TestCase
         }
     }
 
+    @Test
     public void testCreateSchema() throws Exception
     {
         derbyHelper.start();

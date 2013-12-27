@@ -15,9 +15,9 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
-import com.google.common.collect.ImmutableSet;
-
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -37,9 +37,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import com.google.common.collect.ImmutableSet;
 
-public class TestDoublyTransactional extends TestCase
+public class TestDoublyTransactional
 {
     private DBI    dbi;
     private Handle handle;
@@ -69,7 +69,7 @@ public class TestDoublyTransactional extends TestCase
         });
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         final JdbcDataSource ds = new JdbcDataSource() {
@@ -93,7 +93,7 @@ public class TestDoublyTransactional extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");

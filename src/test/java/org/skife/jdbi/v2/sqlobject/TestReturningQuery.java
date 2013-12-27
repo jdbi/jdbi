@@ -16,6 +16,9 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Query;
@@ -25,14 +28,15 @@ import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 
 import java.util.UUID;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
-public class TestReturningQuery extends TestCase
+
+public class TestReturningQuery
 {
     private DBI    dbi;
     private Handle handle;
 
-
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -44,12 +48,14 @@ public class TestReturningQuery extends TestCase
 
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testWithRegisteredMapper() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
@@ -64,6 +70,7 @@ public class TestReturningQuery extends TestCase
         assertEquals("Tim", s.getName());
     }
 
+    @Test
     public void testWithExplicitMapper() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");

@@ -15,11 +15,12 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
+import org.junit.Test;
+
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.NoOp;
-import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;

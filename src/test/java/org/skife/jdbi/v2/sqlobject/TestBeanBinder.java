@@ -15,9 +15,10 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
-import junit.framework.TestCase;
-
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -25,11 +26,14 @@ import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.UUID;
 
-public class TestBeanBinder extends TestCase
+import static org.junit.Assert.assertEquals;
+
+public class TestBeanBinder
 {
     private DBI    dbi;
     private Handle handle;
 
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -41,13 +45,14 @@ public class TestBeanBinder extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
-
+    @Test
     public void testInsert() throws Exception
     {
         Spiffy s = handle.attach(Spiffy.class);
@@ -57,6 +62,7 @@ public class TestBeanBinder extends TestCase
         assertEquals("Bean", name);
     }
 
+    @Test
     public void testRead() throws Exception
     {
         Spiffy s = handle.attach(Spiffy.class);

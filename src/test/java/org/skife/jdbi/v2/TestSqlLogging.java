@@ -20,6 +20,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
+import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.logging.Log4JLog;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
@@ -29,6 +30,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 
 /**
  *
@@ -40,9 +46,8 @@ public class TestSqlLogging extends DBITestCase
     private SQLLog log;
 
     @Override
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        super.setUp();
         h = openHandle();
         logged = new ArrayList<String>();
         log = new SQLLog()
@@ -117,12 +122,12 @@ public class TestSqlLogging extends DBITestCase
     }
 
     @Override
-    public void tearDown() throws Exception
+    public void doTearDown() throws Exception
     {
         if (h != null) h.close();
-        derbyHelper.stop();
     }
 
+    @Test
     public void testInsert() throws Exception
     {
         h.insert("insert into something (id, name) values (?, ?)", 1, "Hello");
@@ -130,6 +135,7 @@ public class TestSqlLogging extends DBITestCase
         assertEquals("insert into something (id, name) values (?, ?)", logged.get(0));
     }
 
+    @Test
     public void testBatch() throws Exception
     {
         String sql1 = "insert into something (id, name) values (1, 'Eric')";
@@ -140,6 +146,7 @@ public class TestSqlLogging extends DBITestCase
         assertEquals(sql2, logged.get(1));
     }
 
+    @Test
     public void testPreparedBatch() throws Exception
     {
         String sql = "insert into something (id, name) values (?, ?)";
@@ -148,6 +155,7 @@ public class TestSqlLogging extends DBITestCase
         assertEquals(String.format("%d:%s", 2, sql), logged.get(0));
     }
 
+    @Test
     public void testLog4J() throws Exception
     {
         BasicConfigurator.configure(new AppenderSkeleton()
@@ -183,6 +191,7 @@ public class TestSqlLogging extends DBITestCase
 
     private static final String linesep = System.getProperty("line.separator");
 
+    @Test
     public void testPrintStream() throws Exception
     {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -194,12 +203,14 @@ public class TestSqlLogging extends DBITestCase
                 .matches("statement:\\[insert into something \\(id, name\\) values \\(\\?, \\?\\)\\] took \\d+ millis" + linesep));
     }
 
+    @Test
     public void testCloseLogged() throws Exception
     {
         h.close();
         assertTrue(logged.contains("close"));
     }
 
+    @Test
     public void testLogBegin() throws Exception
     {
         h.begin();
@@ -207,6 +218,7 @@ public class TestSqlLogging extends DBITestCase
         h.commit();
     }
 
+    @Test
     public void testLogCommit() throws Exception
     {
         h.begin();
@@ -214,6 +226,7 @@ public class TestSqlLogging extends DBITestCase
         assertTrue(logged.contains("commit"));
     }
 
+    @Test
     public void testLogBeginCommit() throws Exception
     {
         h.inTransaction(new TransactionCallback<Object>()
@@ -227,6 +240,7 @@ public class TestSqlLogging extends DBITestCase
         assertTrue(logged.contains("commit"));
     }
 
+    @Test
     public void testLogBeginRollback() throws Exception
     {
         try {
@@ -245,6 +259,7 @@ public class TestSqlLogging extends DBITestCase
         }
     }
 
+    @Test
     public void testLogRollback() throws Exception
     {
         h.begin();
@@ -252,6 +267,7 @@ public class TestSqlLogging extends DBITestCase
         assertTrue(logged.contains("rollback"));
     }
 
+    @Test
     public void testCheckpoint() throws Exception
     {
         h.begin();

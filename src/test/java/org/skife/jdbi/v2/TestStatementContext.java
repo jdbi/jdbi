@@ -15,20 +15,17 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.tweak.StatementLocator;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  */
 public class TestStatementContext extends DBITestCase
 {
-
-    @Override
-    public void setUp() throws Exception
-    {
-        super.setUp();
-    }
-
+    @Test
     public void testFoo() throws Exception
     {
         Handle h = openHandle();

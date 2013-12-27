@@ -16,6 +16,8 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.Before;
+import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -23,13 +25,16 @@ import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 
 import java.util.UUID;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class TestNewApiOnDbiAndHandle extends TestCase
+
+public class TestNewApiOnDbiAndHandle
 {
     private DBI    dbi;
     private Handle handle;
 
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -41,12 +46,14 @@ public class TestNewApiOnDbiAndHandle extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
+    @Test
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testOpenNewSpiffy() throws Exception
     {
         Spiffy spiffy = dbi.open(Spiffy.class);
@@ -62,6 +69,7 @@ public class TestNewApiOnDbiAndHandle extends TestCase
         assertTrue(spiffy.getHandle().getConnection().isClosed());
     }
 
+    @Test
     public void testOnDemandSpiffy() throws Exception
     {
         Spiffy spiffy = dbi.onDemand(Spiffy.class);
@@ -72,6 +80,7 @@ public class TestNewApiOnDbiAndHandle extends TestCase
         assertEquals("Diego", spiffy.findNameById(2));
     }
 
+    @Test
     public void testAttach() throws Exception
     {
         Spiffy spiffy = handle.attach(Spiffy.class);

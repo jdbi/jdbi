@@ -15,6 +15,8 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.skife.jdbi.v2.util.LongMapper;
 
 import java.sql.Connection;
@@ -23,11 +25,9 @@ import java.sql.Statement;
 public class TestUpdateGeneratedKeys extends DBITestCase
 {
     @Override
-    public void setUp() throws Exception
+    protected void doSetUp() throws Exception
     {
-        super.setUp();
-
-        final Connection conn = derbyHelper.getConnection();
+        final Connection conn = DERBY_HELPER.getConnection();
 
         final Statement create = conn.createStatement();
         try
@@ -43,6 +43,7 @@ public class TestUpdateGeneratedKeys extends DBITestCase
         conn.close();
     }
 
+    @Test
     public void testInsert() throws Exception
     {
         Handle h = openHandle();
@@ -51,16 +52,17 @@ public class TestUpdateGeneratedKeys extends DBITestCase
         insert1.bind("name", "Brian");
         Long id1 = insert1.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNotNull(id1);
+        Assert.assertNotNull(id1);
 
         Update insert2 = h.createStatement("insert into something_else (name) values (:name)");
         insert2.bind("name", "Tom");
         Long id2 = insert2.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNotNull(id2);
-        assertTrue(id2 > id1);
+        Assert.assertNotNull(id2);
+        Assert.assertTrue(id2 > id1);
     }
 
+    @Test
     public void testUpdate() throws Exception
     {
         Handle h = openHandle();
@@ -69,16 +71,17 @@ public class TestUpdateGeneratedKeys extends DBITestCase
         insert.bind("name", "Brian");
         Long id1 = insert.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNotNull(id1);
+        Assert.assertNotNull(id1);
 
         Update update = h.createStatement("update something_else set name = :name where id = :id");
         update.bind("id", id1);
         update.bind("name", "Tom");
         Long id2 = update.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNull(id2);
+        Assert.assertNull(id2);
     }
 
+    @Test
     public void testDelete() throws Exception
     {
         Handle h = openHandle();
@@ -87,12 +90,12 @@ public class TestUpdateGeneratedKeys extends DBITestCase
         insert.bind("name", "Brian");
         Long id1 = insert.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNotNull(id1);
+        Assert.assertNotNull(id1);
 
         Update delete = h.createStatement("delete from something_else where id = :id");
         delete.bind("id", id1);
         Long id2 = delete.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNull(id2);
+        Assert.assertNull(id2);
     }
 }

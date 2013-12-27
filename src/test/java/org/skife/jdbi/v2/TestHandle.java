@@ -15,17 +15,21 @@
  */
 package org.skife.jdbi.v2;
 
+import org.junit.Test;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  */
 public class TestHandle extends DBITestCase
 {
+    @Test
     public void testInTransaction() throws Exception
     {
         Handle h = this.openHandle();
@@ -41,6 +45,7 @@ public class TestHandle extends DBITestCase
         assertEquals("Brian", value);
     }
 
+    @Test
     public void testSillyNumberOfCallbacks() throws Exception
     {
         Handle h = openHandle();
@@ -48,7 +53,7 @@ public class TestHandle extends DBITestCase
         h.close();
 
 
-        String value = new DBI(derbyHelper.getJdbcConnectionString()).withHandle(new HandleCallback<String>()
+        String value = new DBI(DERBY_HELPER.getJdbcConnectionString()).withHandle(new HandleCallback<String>()
         {
             public String withHandle(Handle handle) throws Exception
             {
