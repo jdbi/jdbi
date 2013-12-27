@@ -33,12 +33,15 @@ import java.util.regex.Matcher;
 public class StringTemplate3StatementLocator implements StatementLocator
 {
     private static final Charset UTF_8 = Charset.forName("UTF-8");
-    private static final ConcurrentMap<String, StringTemplateGroup> annotationLocatorCache =
-        new ConcurrentHashMap<String, StringTemplateGroup>();
+    private static final ConcurrentMap<String, StringTemplateGroup> ANNOTATION_LOCATOR_CACHE;
+    private static final String SUPER_SEPARATOR = " > ";
+
+    public static final String TEMPLATE_GROUP_EXTENSION = ".sql.stg";
 
     static {
-        annotationLocatorCache.put("empty template group", new StringTemplateGroup("empty template group",
-                                                                                   AngleBracketTemplateLexer.class));
+        final ConcurrentMap<String, StringTemplateGroup> cache = new ConcurrentHashMap<String, StringTemplateGroup>();
+        cache.put("empty template group", new StringTemplateGroup("empty template group", AngleBracketTemplateLexer.class));
+        ANNOTATION_LOCATOR_CACHE = cache;
     }
 
     private final StringTemplateGroup literals = new StringTemplateGroup("literals", AngleBracketTemplateLexer.class);
@@ -47,51 +50,121 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     public StringTemplate3StatementLocator(Class baseClass)
     {
-        this(mungify("/" + baseClass.getName()) + ".sql.stg", false, false);
+        this(mungify(baseClass), false, false);
     }
 
     public StringTemplate3StatementLocator(Class baseClass,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates)
     {
-        this(mungify("/" + baseClass.getName()) + ".sql.stg", allowImplicitTemplateGroup, treatLiteralsAsTemplates);
+        this(mungify(baseClass),
+             null,
+             allowImplicitTemplateGroup,
+             treatLiteralsAsTemplates,
+             false);
     }
 
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath)
     {
-        this(templateGroupFilePathOnClasspath, false, false);
+        this(templateGroupFilePathOnClasspath,
+            null,
+            false,
+            false,
+            false);
     }
 
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
                                            boolean allowImplicitTemplateGroup,
-                                           boolean treatLiteralsAsTemplates) {
-        this(templateGroupFilePathOnClasspath, allowImplicitTemplateGroup, treatLiteralsAsTemplates, false);
+                                           boolean treatLiteralsAsTemplates)
+    {
+        this(templateGroupFilePathOnClasspath,
+            null,
+            allowImplicitTemplateGroup,
+            treatLiteralsAsTemplates,
+            false);
     }
 
     public StringTemplate3StatementLocator(Class baseClass,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates,
-                                           boolean fromAnnotation) {
-        this(mungify("/" + baseClass.getName()) + ".sql.stg",
-             allowImplicitTemplateGroup,
-             treatLiteralsAsTemplates,
-             fromAnnotation);
+                                           boolean shouldCache)
+    {
+        this(mungify(baseClass),
+            null,
+            allowImplicitTemplateGroup,
+            treatLiteralsAsTemplates,
+            shouldCache);
     }
 
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates,
-                                           boolean fromAnnotation)
+                                           boolean shouldCache)
     {
-        if (fromAnnotation && annotationLocatorCache.containsKey(templateGroupFilePathOnClasspath)) {
-            this.group = annotationLocatorCache.get(templateGroupFilePathOnClasspath);
-            return;
+        this(templateGroupFilePathOnClasspath,
+            null,
+            allowImplicitTemplateGroup,
+            treatLiteralsAsTemplates,
+            shouldCache);
+    }
+
+
+    public StringTemplate3StatementLocator(Class<?> baseClass,
+                                           Class<?> superTemplateGroupClass,
+                                           boolean allowImplicitTemplateGroup,
+                                           boolean treatLiteralsAsTemplates,
+                                           boolean shouldCache)
+    {
+        this(mungify(baseClass),
+            mungify(superTemplateGroupClass),
+            allowImplicitTemplateGroup,
+            treatLiteralsAsTemplates,
+            shouldCache);
+    }
+
+    public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
+                                           String superTemplateGroupFilePathOnClasspath,
+                                           boolean allowImplicitTemplateGroup,
+                                           boolean treatLiteralsAsTemplates,
+                                           boolean shouldCache)
+    {
+        this.treatLiteralsAsTemplates = treatLiteralsAsTemplates;
+
+        final StringTemplateGroup superGroup;
+
+        final StringBuilder sb = new StringBuilder(templateGroupFilePathOnClasspath);
+
+        if (superTemplateGroupFilePathOnClasspath != null) {
+            sb.append(SUPER_SEPARATOR).append(superTemplateGroupFilePathOnClasspath);
+
+            superGroup = createGroup(superTemplateGroupFilePathOnClasspath,
+                                     shouldCache ? superTemplateGroupFilePathOnClasspath : null,
+                                     allowImplicitTemplateGroup,
+                                     getClass(),
+                                     null);
+        }
+        else {
+            superGroup = null;
         }
 
-        this.treatLiteralsAsTemplates = treatLiteralsAsTemplates;
-        InputStream ins = getClass().getResourceAsStream(templateGroupFilePathOnClasspath);
+        this.group = createGroup(templateGroupFilePathOnClasspath,
+            shouldCache ? sb.toString() : null,
+            allowImplicitTemplateGroup,
+            getClass(),
+            superGroup);
+    }
+
+
+    private static StringTemplateGroup createGroup(final String templateGroupFilePathOnClasspath, final String cacheKey, final boolean allowImplicitTemplateGroup, final Class<?> clazz, final StringTemplateGroup superGroup)
+    {
+        if (cacheKey != null && ANNOTATION_LOCATOR_CACHE.containsKey(cacheKey)) {
+            return ANNOTATION_LOCATOR_CACHE.get(cacheKey);
+        }
+
+        InputStream ins = clazz.getResourceAsStream(templateGroupFilePathOnClasspath);
+
         if (allowImplicitTemplateGroup && ins == null) {
-            this.group = annotationLocatorCache.get("empty template group");
+            return ANNOTATION_LOCATOR_CACHE.get("empty template group");
         }
         else if (ins == null) {
             throw new IllegalStateException("unable to find group file "
@@ -100,17 +173,30 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
         else {
             InputStreamReader reader = new InputStreamReader(ins, UTF_8);
-            try {
-                this.group = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
-                reader.close();
-                if (fromAnnotation) {
-                    annotationLocatorCache.putIfAbsent(templateGroupFilePathOnClasspath, group);
+            StringTemplateGroup result;
+
+            if (superGroup == null) {
+                result = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
+            }
+            else {
+                result = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class, null, superGroup);
+            }
+
+            if (cacheKey != null) {
+                StringTemplateGroup oldGroup = ANNOTATION_LOCATOR_CACHE.putIfAbsent(cacheKey, result);
+                if (oldGroup != null) {
+                    result = oldGroup;
                 }
             }
-            catch (IOException e) {
-                throw new IllegalStateException("unable to load string template group " + templateGroupFilePathOnClasspath,
-                                                e);
+
+            try {
+                reader.close();
             }
+            catch (IOException e) {
+                throw new IllegalStateException("unable to load string template group " + templateGroupFilePathOnClasspath, e);
+            }
+
+            return result;
         }
     }
 
@@ -145,9 +231,19 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     private static final String sep = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
 
-    private static String mungify(String path)
+    private static String mungify(Class<?> clazz)
     {
-        return path.replaceAll("\\.", Matcher.quoteReplacement(sep));
+        return "/" + clazz.getName().replaceAll("\\.", Matcher.quoteReplacement(sep)) + TEMPLATE_GROUP_EXTENSION;
     }
 
+    // @VisibleForTesting
+    static boolean templateCached(final Class<?> clazzKey, Class<?> superKey)
+    {
+        final StringBuilder sb = new StringBuilder(mungify(clazzKey));
+        if (superKey != null) {
+            sb.append(SUPER_SEPARATOR);
+            sb.append(mungify(superKey));
+        }
+        return ANNOTATION_LOCATOR_CACHE.containsKey(sb.toString());
+    }
 }
