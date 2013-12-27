@@ -17,6 +17,7 @@ package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
 import java.util.HashMap;
 
+import org.antlr.stringtemplate.StringTemplateGroup;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skife.jdbi.v2.StatementContext;
@@ -26,7 +27,13 @@ public class TestStringTemplate3StatementLocatorWithSuperGroupAndCache
     @Test
     public void testSuperTemplate() throws Exception
     {
-        final StringTemplate3StatementLocator locator = new StringTemplate3StatementLocator(Kombucha.class, SuperDrink.class, true, true, true);
+        final StringTemplate3StatementLocator locator = StringTemplate3StatementLocator.builder(Kombucha.class)
+                        .withSuperGroup(SuperDrink.class)
+                        .withErrorListener(StringTemplateGroup.DEFAULT_ERROR_LISTENER)
+                        .allowImplicitTemplateGroup()
+                        .treatLiteralsAsTemplates()
+                        .shouldCache()
+                        .build();
 
         // Test statement locator from child template group and verify templates table_name got correctly evaluated
         final StatementContext ctx = new TestingStatementContext(new HashMap<String, Object>());
@@ -43,7 +50,14 @@ public class TestStringTemplate3StatementLocatorWithSuperGroupAndCache
     @Test
     public void testLocatorWithAttributes() throws Exception
     {
-        final StringTemplate3StatementLocator locator = new StringTemplate3StatementLocator(Kombucha.class, SuperDrink.class, true, true, true);
+        final StringTemplate3StatementLocator locator = StringTemplate3StatementLocator.builder(Kombucha.class)
+                        .withSuperGroup(SuperDrink.class)
+                        .withErrorListener(StringTemplateGroup.DEFAULT_ERROR_LISTENER)
+                        .allowImplicitTemplateGroup()
+                        .treatLiteralsAsTemplates()
+                        .shouldCache()
+                        .build();
+
         final StatementContext ctx = new TestingStatementContext(new HashMap<String, Object>());
         ctx.setAttribute("historyTableName", "superDrink");
 

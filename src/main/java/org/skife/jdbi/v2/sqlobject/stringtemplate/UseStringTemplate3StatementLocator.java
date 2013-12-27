@@ -33,7 +33,7 @@ import java.lang.reflect.Method;
 @Target({ElementType.TYPE})
 public @interface UseStringTemplate3StatementLocator
 {
-    static final String DEFAULT_VALUE = " ~ ";
+    String DEFAULT_VALUE = " ~ ";
 
     String value() default DEFAULT_VALUE;
 
@@ -42,13 +42,16 @@ public @interface UseStringTemplate3StatementLocator
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final UseStringTemplate3StatementLocator a = (UseStringTemplate3StatementLocator) annotation;
-            final StatementLocator l;
+            final StringTemplate3StatementLocator.Builder builder;
+
             if (DEFAULT_VALUE.equals(a.value())) {
-                l = new StringTemplate3StatementLocator(sqlObjectType, true, true, true);
+                builder = StringTemplate3StatementLocator.builder(sqlObjectType);
             }
             else {
-                l = new StringTemplate3StatementLocator(a.value(), true, true, true);
+                builder = StringTemplate3StatementLocator.builder(a.value());
             }
+
+            final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().build();
 
             return new SqlStatementCustomizer()
             {

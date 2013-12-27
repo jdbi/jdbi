@@ -16,6 +16,7 @@
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.skife.jdbi.v2.StatementContext;
@@ -46,87 +47,118 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     private final StringTemplateGroup literals = new StringTemplateGroup("literals", AngleBracketTemplateLexer.class);
     private final StringTemplateGroup group;
-    private boolean treatLiteralsAsTemplates;
+    private final boolean treatLiteralsAsTemplates;
 
-    public StringTemplate3StatementLocator(Class baseClass)
+    public static final StringTemplate3StatementLocator.Builder builder(Class<?> baseClass)
     {
-        this(mungify(baseClass), false, false);
+        return new Builder(baseClass);
     }
 
+    public static final StringTemplate3StatementLocator.Builder builder(String templateGroupFilePathOnClasspath)
+    {
+        return new Builder(templateGroupFilePathOnClasspath);
+    }
+
+    /**
+     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     */
+    @Deprecated
+    public StringTemplate3StatementLocator(Class baseClass)
+    {
+        this(mungify(baseClass),
+             null,
+             null,
+             false,
+             false,
+             false);
+    }
+
+    /**
+     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     */
+    @Deprecated
     public StringTemplate3StatementLocator(Class baseClass,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates)
     {
         this(mungify(baseClass),
              null,
+             null,
              allowImplicitTemplateGroup,
              treatLiteralsAsTemplates,
              false);
     }
 
+    /**
+     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     */
+    @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath)
     {
         this(templateGroupFilePathOnClasspath,
-            null,
-            false,
-            false,
-            false);
+             null,
+             null,
+             false,
+             false,
+             false);
     }
 
+    /**
+     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     */
+    @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates)
     {
         this(templateGroupFilePathOnClasspath,
-            null,
-            allowImplicitTemplateGroup,
-            treatLiteralsAsTemplates,
-            false);
+             null,
+             null,
+             allowImplicitTemplateGroup,
+             treatLiteralsAsTemplates,
+             false);
     }
 
+    /**
+     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     */
+    @Deprecated
     public StringTemplate3StatementLocator(Class baseClass,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates,
                                            boolean shouldCache)
     {
         this(mungify(baseClass),
-            null,
-            allowImplicitTemplateGroup,
-            treatLiteralsAsTemplates,
-            shouldCache);
+             null,
+             null,
+             allowImplicitTemplateGroup,
+             treatLiteralsAsTemplates,
+             shouldCache);
     }
 
+    /**
+     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     */
+    @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates,
                                            boolean shouldCache)
     {
         this(templateGroupFilePathOnClasspath,
-            null,
-            allowImplicitTemplateGroup,
-            treatLiteralsAsTemplates,
-            shouldCache);
+             null,
+             null,
+             allowImplicitTemplateGroup,
+             treatLiteralsAsTemplates,
+             shouldCache);
     }
 
-
-    public StringTemplate3StatementLocator(Class<?> baseClass,
-                                           Class<?> superTemplateGroupClass,
-                                           boolean allowImplicitTemplateGroup,
-                                           boolean treatLiteralsAsTemplates,
-                                           boolean shouldCache)
-    {
-        this(mungify(baseClass),
-            mungify(superTemplateGroupClass),
-            allowImplicitTemplateGroup,
-            treatLiteralsAsTemplates,
-            shouldCache);
-    }
-
-    public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
-                                           String superTemplateGroupFilePathOnClasspath,
-                                           boolean allowImplicitTemplateGroup,
-                                           boolean treatLiteralsAsTemplates,
-                                           boolean shouldCache)
+    private StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
+                                            String superTemplateGroupFilePathOnClasspath,
+                                            StringTemplateErrorListener errorListener,
+                                            boolean allowImplicitTemplateGroup,
+                                            boolean treatLiteralsAsTemplates,
+                                            boolean shouldCache)
     {
         this.treatLiteralsAsTemplates = treatLiteralsAsTemplates;
 
@@ -138,24 +170,30 @@ public class StringTemplate3StatementLocator implements StatementLocator
             sb.append(SUPER_SEPARATOR).append(superTemplateGroupFilePathOnClasspath);
 
             superGroup = createGroup(superTemplateGroupFilePathOnClasspath,
-                                     shouldCache ? superTemplateGroupFilePathOnClasspath : null,
-                                     allowImplicitTemplateGroup,
-                                     getClass(),
-                                     null);
+                errorListener,
+                shouldCache ? superTemplateGroupFilePathOnClasspath : null,
+                allowImplicitTemplateGroup,
+                getClass(),
+                null);
         }
         else {
             superGroup = null;
         }
 
         this.group = createGroup(templateGroupFilePathOnClasspath,
+            errorListener,
             shouldCache ? sb.toString() : null,
             allowImplicitTemplateGroup,
             getClass(),
             superGroup);
     }
 
-
-    private static StringTemplateGroup createGroup(final String templateGroupFilePathOnClasspath, final String cacheKey, final boolean allowImplicitTemplateGroup, final Class<?> clazz, final StringTemplateGroup superGroup)
+    private static StringTemplateGroup createGroup(final String templateGroupFilePathOnClasspath,
+                                                   final StringTemplateErrorListener errorListener,
+                                                   final String cacheKey,
+                                                   final boolean allowImplicitTemplateGroup,
+                                                   final Class<?> clazz,
+                                                   final StringTemplateGroup superGroup)
     {
         if (cacheKey != null && ANNOTATION_LOCATOR_CACHE.containsKey(cacheKey)) {
             return ANNOTATION_LOCATOR_CACHE.get(cacheKey);
@@ -168,18 +206,18 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
         else if (ins == null) {
             throw new IllegalStateException("unable to find group file "
-                                            + templateGroupFilePathOnClasspath
-                                            + " on classpath");
+                + templateGroupFilePathOnClasspath
+                + " on classpath");
         }
         else {
             InputStreamReader reader = new InputStreamReader(ins, UTF_8);
             StringTemplateGroup result;
 
             if (superGroup == null) {
-                result = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class);
+                result = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class, errorListener);
             }
             else {
-                result = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class, null, superGroup);
+                result = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class, errorListener, superGroup);
             }
 
             if (cacheKey != null) {
@@ -245,5 +283,71 @@ public class StringTemplate3StatementLocator implements StatementLocator
             sb.append(mungify(superKey));
         }
         return ANNOTATION_LOCATOR_CACHE.containsKey(sb.toString());
+    }
+
+    public static class Builder
+    {
+        private final String basePath;
+        private String superGroupPath;
+        private StringTemplateErrorListener errorListener = null;
+        private boolean allowImplicitTemplateGroupEnabled = false;
+        private boolean treatLiteralsAsTemplatesEnabled = false;
+        private boolean shouldCacheEnabled = false;
+
+        Builder(final Class<?> baseClass)
+        {
+            this.basePath = mungify(baseClass);
+        }
+
+        Builder(final String basePath)
+        {
+            this.basePath = basePath;
+        }
+
+        public Builder withSuperGroup(final Class<?> superGroupClass)
+        {
+            this.superGroupPath = mungify(superGroupClass);
+            return this;
+        }
+
+        public Builder withSuperGroup(final String superGroupPath)
+        {
+            this.superGroupPath = superGroupPath;
+            return this;
+        }
+
+        public Builder withErrorListener(final StringTemplateErrorListener errorListener)
+        {
+            this.errorListener = errorListener;
+            return this;
+        }
+
+        public Builder allowImplicitTemplateGroup()
+        {
+            this.allowImplicitTemplateGroupEnabled = true;
+            return this;
+        }
+
+        public Builder treatLiteralsAsTemplates()
+        {
+            this.treatLiteralsAsTemplatesEnabled = true;
+            return this;
+        }
+
+        public Builder shouldCache()
+        {
+            this.shouldCacheEnabled = true;
+            return this;
+        }
+
+        public StringTemplate3StatementLocator build()
+        {
+            return new StringTemplate3StatementLocator(basePath,
+                                                       superGroupPath,
+                                                       errorListener,
+                                                       allowImplicitTemplateGroupEnabled,
+                                                       treatLiteralsAsTemplatesEnabled,
+                                                       shouldCacheEnabled);
+        }
     }
 }
