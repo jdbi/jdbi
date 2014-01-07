@@ -1117,7 +1117,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Object value)
     {
-        return bind(position, getForeman().waffle(Object.class, value, getContext()));
+        return bind(position, getForeman().waffle(value != null ? value.getClass() : Object.class, value, getContext()));
     }
 
     /**
@@ -1130,7 +1130,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Object value)
     {
-        return bind(name, getForeman().waffle(Object.class, value, getContext()));
+        return bind(name, getForeman().waffle(value != null ? value.getClass() : Object.class, value, getContext()));
     }
 
     /**
