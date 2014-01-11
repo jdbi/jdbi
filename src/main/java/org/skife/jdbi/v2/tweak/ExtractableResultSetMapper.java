@@ -5,8 +5,8 @@ import java.sql.SQLException;
 
 public interface ExtractableResultSetMapper<T> {
 
-	T extractByName(String name, ResultSet r) throws SQLException;
+	T extractByName(ResultSet r, String name) throws SQLException;
 	
-	T extractByIndex(int index, ResultSet r) throws SQLException;
+	T extractByIndex(ResultSet r, int index) throws SQLException;
 	
 }

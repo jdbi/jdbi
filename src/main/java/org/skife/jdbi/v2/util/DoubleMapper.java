@@ -36,13 +36,13 @@ public class DoubleMapper extends TypedMapper<Double>
     }
 
     @Override
-    protected Double extractByName(ResultSet r, String name) throws SQLException
+	public Double extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getDouble(name);
     }
 
     @Override
-    protected Double extractByIndex(ResultSet r, int index) throws SQLException
+	public Double extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getDouble(index);
     }

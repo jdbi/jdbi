@@ -64,19 +64,10 @@ public abstract class TypedMapper<T> implements ResultSetMapper<T>,ExtractableRe
         return internal.map(index, r, ctx);
     }
 
-    protected abstract T extractByName(ResultSet r, String name) throws SQLException;
+    public abstract T extractByName(ResultSet r, String name) throws SQLException;
 
-    protected abstract T extractByIndex(ResultSet r, int index) throws SQLException;
+    public abstract T extractByIndex(ResultSet r, int index) throws SQLException;
     
-    @Override
-    public T extractByIndex(int index, ResultSet r) throws SQLException {
-    	return extractByIndex(r, index);
-    }
-    
-    @Override
-    public T extractByName(String name, ResultSet r) throws SQLException {
-    	return extractByName(r, name);
-    }
 
     private class StringMapper implements ResultSetMapper<T>
     {

@@ -59,13 +59,13 @@ public class IntegerMapper extends TypedMapper<Integer>
     }
 
     @Override
-protected Integer extractByName(ResultSet r, String name) throws SQLException
+	public Integer extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getInt(name);
     }
 
     @Override
-    protected Integer extractByIndex(ResultSet r, int index) throws SQLException
+	public Integer extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getInt(index);
     }

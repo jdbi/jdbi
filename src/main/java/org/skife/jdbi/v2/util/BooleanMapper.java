@@ -60,13 +60,13 @@ public class BooleanMapper extends TypedMapper<Boolean>
     }
 
     @Override
-    protected Boolean extractByName(ResultSet r, String name) throws SQLException
+	public Boolean extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getBoolean(name);
     }
 
     @Override
-    protected Boolean extractByIndex(ResultSet r, int index) throws SQLException
+	public Boolean extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getBoolean(index);
     }

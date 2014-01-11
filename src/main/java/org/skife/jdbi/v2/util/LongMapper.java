@@ -60,13 +60,13 @@ public class LongMapper extends TypedMapper<Long>
     }
 
     @Override
-    protected Long extractByName(ResultSet r, String name) throws SQLException
+	public Long extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getLong(name);
     }
 
     @Override
-    protected Long extractByIndex(ResultSet r, int index) throws SQLException
+	public Long extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getLong(index);
     }

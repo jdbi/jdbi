@@ -36,13 +36,13 @@ public class ByteMapper extends TypedMapper<Byte>
     }
 
     @Override
-    protected Byte extractByName(ResultSet r, String name) throws SQLException
+	public Byte extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getByte(name);
     }
 
     @Override
-    protected Byte extractByIndex(ResultSet r, int index) throws SQLException
+	public Byte extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getByte(index);
     }

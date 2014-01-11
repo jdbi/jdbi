@@ -185,7 +185,7 @@ public class TestMappingRegistryAware {
 								fieldType, ctx, false);
 						if (ExtractableResultSetMapper.class.isInstance(mapper)) {
 							Object value = ((ExtractableResultSetMapper<?>) mapper)
-									.extractByIndex(i, r);
+									.extractByIndex(r, i);
 							try {
 								descriptor.getWriteMethod().invoke(bean, value);
 							} catch (IllegalArgumentException e) {

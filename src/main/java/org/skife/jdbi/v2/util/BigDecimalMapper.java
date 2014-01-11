@@ -37,13 +37,13 @@ public class BigDecimalMapper extends TypedMapper<BigDecimal>
     }
 
     @Override
-    protected BigDecimal extractByName(ResultSet r, String name) throws SQLException
+	public BigDecimal extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getBigDecimal(name);
     }
 
     @Override
-    protected BigDecimal extractByIndex(ResultSet r, int index) throws SQLException
+	public BigDecimal extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getBigDecimal(index);
     }
