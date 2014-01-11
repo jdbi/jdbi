@@ -16,3 +16,6 @@ out
 .settings
 *~
 test-output
+/.checkstyle
+/.pmd
+/.pmdruleset.xml
