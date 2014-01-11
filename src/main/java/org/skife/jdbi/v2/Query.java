@@ -392,10 +392,16 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     public void registerMapper(ResultSetMapper m)
     {
         this.mappingRegistry.add(new InferredMapperFactory(m));
+        if (MappingRegistryAware.class.isInstance(m)) {
+        	((MappingRegistryAware)m).setMappingRegistry(this.mappingRegistry);
+        }
     }
 
     public void registerMapper(ResultSetMapperFactory m)
     {
         this.mappingRegistry.add(m);
+        if (MappingRegistryAware.class.isInstance(m)) {
+        	((MappingRegistryAware)m).setMappingRegistry(this.mappingRegistry);
+        }
     }
 }
