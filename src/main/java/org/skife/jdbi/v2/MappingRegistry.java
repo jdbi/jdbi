@@ -79,7 +79,10 @@ public class MappingRegistry
             return mapper;
         }
 
-        if (shouldThrow) throw new DBIException("No mapper registered for " + type.getName()) {};
-        else return null;
+        if (shouldThrow) {
+        	throw new DBIException("No mapper registered for " + type.getName()) {};
+        } else {
+        	return null;
+        }
     }
 }
