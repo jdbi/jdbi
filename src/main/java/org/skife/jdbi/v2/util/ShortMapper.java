@@ -36,13 +36,13 @@ public class ShortMapper extends TypedMapper<Short>
     }
 
     @Override
-    protected Short extractByName(ResultSet r, String name) throws SQLException
+	public Short extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getShort(name);
     }
 
     @Override
-    protected Short extractByIndex(ResultSet r, int index) throws SQLException
+	public Short extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getShort(index);
     }

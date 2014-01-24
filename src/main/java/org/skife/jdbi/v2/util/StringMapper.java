@@ -61,13 +61,13 @@ public class StringMapper extends TypedMapper<String>
     }
 
     @Override
-    protected String extractByName(ResultSet r, String name) throws SQLException
+	public String extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getString(name);
     }
 
     @Override
-    protected String extractByIndex(ResultSet r, int index) throws SQLException
+	public String extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getString(index);
     }

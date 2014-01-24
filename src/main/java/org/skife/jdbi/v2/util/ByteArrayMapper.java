@@ -37,13 +37,13 @@ public class ByteArrayMapper extends TypedMapper<byte[]>
     }
 
     @Override
-    protected byte[] extractByName(ResultSet r, String name) throws SQLException
+	public byte[] extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getBytes(name);
     }
 
     @Override
-    protected byte[] extractByIndex(ResultSet r, int index) throws SQLException
+	public byte[] extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getBytes(index);
     }

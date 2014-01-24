@@ -37,13 +37,13 @@ public class FloatMapper extends TypedMapper<Float>
     }
 
     @Override
-    protected Float extractByName(ResultSet r, String name) throws SQLException
+	public Float extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getFloat(name);
     }
 
     @Override
-    protected Float extractByIndex(ResultSet r, int index) throws SQLException
+	public Float extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getFloat(index);
     }

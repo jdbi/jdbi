@@ -38,13 +38,13 @@ public class URLMapper extends TypedMapper<URL>
     }
 
     @Override
-    protected URL extractByName(ResultSet r, String name) throws SQLException
+	public URL extractByName(ResultSet r, String name) throws SQLException
     {
         return r.getURL(name);
     }
 
     @Override
-    protected URL extractByIndex(ResultSet r, int index) throws SQLException
+	public URL extractByIndex(ResultSet r, int index) throws SQLException
     {
         return r.getURL(index);
     }

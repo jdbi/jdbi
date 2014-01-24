@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-class MappingRegistry
+public class MappingRegistry
 {
     private static final PrimitivesMapperFactory BUILT_IN_MAPPERS = new PrimitivesMapperFactory();
 
@@ -54,6 +54,10 @@ class MappingRegistry
     }
 
     public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
+		return mapperFor(type, ctx, true);
+	}
+
+	public ResultSetMapper mapperFor(Class type, StatementContext ctx, boolean shouldThrow) {
         if (cache.containsKey(type)) {
             ResultSetMapper mapper = cache.get(type);
             if (mapper != null) {
@@ -75,6 +79,10 @@ class MappingRegistry
             return mapper;
         }
 
-        throw new DBIException("No mapper registered for " + type.getName()) {};
+        if (shouldThrow) {
+        	throw new DBIException("No mapper registered for " + type.getName()) {};
+        } else {
+        	return null;
+        }
     }
 }
