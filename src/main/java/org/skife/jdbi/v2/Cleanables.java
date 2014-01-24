@@ -18,7 +18,6 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -192,7 +191,7 @@ class Cleanables
 
     /**
      * In the {@link SQLStatement} derived classes, the {@link Statement} is not managed directly but through the
-     * {@link StatementBuilder}, which allows the {@link CachingStatementBuilder} to hook in and provide {@link PreparedStatement} caching.
+     * {@link StatementBuilder}, which allows the {@link CachingStatementBuilder} to hook in and provide {@link java.sql.PreparedStatement} caching.
      */
     static class StatementBuilderCleanable implements Cleanable
     {

@@ -15,9 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.exceptions.ResultSetException;
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -66,11 +63,11 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * <p/>
      * Will eagerly load all results
      *
-     * @throws UnableToCreateStatementException
+     * @throws org.skife.jdbi.v2.exceptions.UnableToCreateStatementException
      *                            if there is an error creating the statement
-     * @throws UnableToExecuteStatementException
+     * @throws org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException
      *                            if there is an error executing the statement
-     * @throws ResultSetException if there is an error dealing with the result set
+     * @throws org.skife.jdbi.v2.exceptions.ResultSetException if there is an error dealing with the result set
      */
     public List<ResultType> list()
     {
@@ -101,11 +98,11 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @param maxRows The maximum number of results to include in the result, any
      *                rows in the result set beyond this number will be ignored.
      *
-     * @throws UnableToCreateStatementException
+     * @throws org.skife.jdbi.v2.exceptions.UnableToCreateStatementException
      *                            if there is an error creating the statement
-     * @throws UnableToExecuteStatementException
+     * @throws org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException
      *                            if there is an error executing the statement
-     * @throws ResultSetException if there is an error dealing with the result set
+     * @throws org.skife.jdbi.v2.exceptions.ResultSetException if there is an error dealing with the result set
      */
     public List<ResultType> list(final int maxRows)
     {

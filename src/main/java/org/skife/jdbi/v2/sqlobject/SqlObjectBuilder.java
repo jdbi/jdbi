@@ -15,12 +15,11 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
-import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.IDBI;
 
 /**
- * This duplicates the API on {@link DBI} and {@link Handle} for creating sql objects. While it is fine to use these
+ * This duplicates the API on {@link org.skife.jdbi.v2.DBI} and {@link Handle} for creating sql objects. While it is fine to use these
  * methods to create sql objects, there is no real difference between them and the oones on DBI and Handle.
  */
 public class SqlObjectBuilder
