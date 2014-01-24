@@ -36,5 +36,5 @@ public interface ResultSetMapper<T>
      * @return the value to return for this row
      * @throws SQLException if anythign goes wrong go ahead and let this percolate, jDBI will handle it
      */
-    public T map(int index, ResultSet r, StatementContext ctx) throws SQLException;
+    T map(int index, ResultSet r, StatementContext ctx) throws SQLException;
 }

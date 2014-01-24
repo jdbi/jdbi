@@ -203,14 +203,13 @@ class BatchHandler extends CustomizingStatementHandler
         return rs.toArray();
     }
 
-    private static interface ChunkSizeFunction
+    private interface ChunkSizeFunction
     {
         int call(Object[] args);
     }
 
     private static class ConstantChunkSizeFunction implements ChunkSizeFunction
     {
-
         private final int value;
 
         ConstantChunkSizeFunction(int value) {
@@ -225,7 +224,6 @@ class BatchHandler extends CustomizingStatementHandler
 
     private static class ParamBasedChunkSizeFunction implements ChunkSizeFunction
     {
-
         private final int index;
 
         ParamBasedChunkSizeFunction(int index) {

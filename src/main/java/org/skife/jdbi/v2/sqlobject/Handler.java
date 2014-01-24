@@ -19,7 +19,5 @@ import net.sf.cglib.proxy.MethodProxy;
 
 interface Handler
 {
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp);
-
-
+    Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp);
 }

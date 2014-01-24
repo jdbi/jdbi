@@ -33,10 +33,10 @@ public interface RewrittenStatement
      * @param statement
      * @throws SQLException
      */
-    public void bind(Binding params, PreparedStatement statement) throws SQLException;
+    void bind(Binding params, PreparedStatement statement) throws SQLException;
 
     /**
      * Obtain the SQL in valid (rewritten) form to be used to prepare a statement
      */
-    public String getSql();
+    String getSql();
 }

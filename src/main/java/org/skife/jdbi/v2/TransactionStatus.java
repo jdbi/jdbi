@@ -23,5 +23,5 @@ public interface TransactionStatus
     /**
      * Force the transaction to be rolled back
      */
-    public void setRollbackOnly();
+    void setRollbackOnly();
 }

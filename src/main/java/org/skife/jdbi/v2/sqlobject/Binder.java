@@ -21,5 +21,5 @@ import java.lang.annotation.Annotation;
 
 public interface Binder<AnnotationType extends Annotation, ArgType>
 {
-    public void bind(SQLStatement<?> q, AnnotationType bind, ArgType arg);
+    void bind(SQLStatement<?> q, AnnotationType bind, ArgType arg);
 }

@@ -32,5 +32,5 @@ public interface HandleCallback<T>
      * @throws Exception will result in a {@link org.skife.jdbi.v2.exceptions.CallbackFailedException} wrapping
      *                   the exception being thrown
      */
-    public T withHandle(Handle handle) throws Exception;
+    T withHandle(Handle handle) throws Exception;
 }

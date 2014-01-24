@@ -26,11 +26,11 @@ public final class NoOpLog implements SQLLog
 
     static final BatchLogger batch = new BatchLogger() {
 
-        public final void add(String sql)
+        public void add(String sql)
         {
         }
 
-        public final void log(long time)
+        public void log(long time)
         {
         }
     };

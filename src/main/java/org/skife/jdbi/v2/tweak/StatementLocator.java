@@ -30,5 +30,5 @@ public interface StatementLocator
      * @return the SQL to execute, after it goes through a StatementRewriter
      * @throws Exception if anything goes wrong, jDBI will percolate expected exceptions
      */
-    public String locate(String name, StatementContext ctx) throws Exception;
+    String locate(String name, StatementContext ctx) throws Exception;
 }

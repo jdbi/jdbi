@@ -26,5 +26,5 @@ public interface ConnectionFactory
     /**
      * Provides a Connection
      */
-    public Connection openConnection() throws SQLException;
+    Connection openConnection() throws SQLException;
 }

@@ -20,5 +20,5 @@ import java.sql.SQLException;
 
 public interface CallableStatementMapper
 {
-    public Object map(int position, CallableStatement stmt) throws SQLException;
+    Object map(int position, CallableStatement stmt) throws SQLException;
 }

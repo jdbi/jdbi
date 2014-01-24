@@ -28,5 +28,5 @@ public interface Transmogrifier
      * Create a new sql object of the specified type, which shares the same means of obtaining
      * handles (or same handle, as the case may be!)
      */
-    public <T> T become(Class<T> typeToBecome);
+    <T> T become(Class<T> typeToBecome);
 }

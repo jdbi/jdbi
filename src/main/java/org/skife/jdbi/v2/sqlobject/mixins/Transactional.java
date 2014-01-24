@@ -25,19 +25,19 @@ import org.skife.jdbi.v2.TransactionIsolationLevel;
  */
 public interface Transactional<SelfType extends Transactional<SelfType>>
 {
-    public void begin();
+    void begin();
 
-    public void commit();
+    void commit();
 
-    public void rollback();
+    void rollback();
 
-    public void checkpoint(String name);
+    void checkpoint(String name);
 
-    public void release(String name);
+    void release(String name);
 
-    public void rollback(String name);
+    void rollback(String name);
 
-    public <ReturnType> ReturnType inTransaction(Transaction<ReturnType, SelfType> func);
+    <ReturnType> ReturnType inTransaction(Transaction<ReturnType, SelfType> func);
 
-    public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel isolation, Transaction<ReturnType, SelfType> func);
+    <ReturnType> ReturnType inTransaction(TransactionIsolationLevel isolation, Transaction<ReturnType, SelfType> func);
 }

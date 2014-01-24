@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface SqlQuery
 {
-    static final String DEFAULT_VALUE = "  $#@!!@#%  ";
+    String DEFAULT_VALUE = "  $#@!!@#%  ";
 
     /**
      * The query (or query name if using a statement locator) to be executed. The default value will use

@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public interface CloseInternalDoNotUseThisClass
 {
-    public void ___jdbi_close___();
+    void ___jdbi_close___();
 
     static class CloseHandler implements Handler
     {
@@ -52,5 +52,4 @@ public interface CloseInternalDoNotUseThisClass
             }
         }
     }
-
 }

@@ -19,9 +19,9 @@ import org.skife.jdbi.v2.Handle;
 
 interface HandleDing
 {
-    public Handle getHandle();
+    Handle getHandle();
 
-    public void release(String name);
+    void release(String name);
 
     void retain(String name);
 }

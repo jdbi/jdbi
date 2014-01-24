@@ -29,7 +29,7 @@ public interface GetHandle
      *
      * @return the handle
      */
-    public Handle getHandle();
+    Handle getHandle();
 
     /**
      * A convenience function which manages the lifecycle of the handle associated to this sql object,
@@ -42,5 +42,5 @@ public interface GetHandle
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    public <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException;
+    <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException;
 }

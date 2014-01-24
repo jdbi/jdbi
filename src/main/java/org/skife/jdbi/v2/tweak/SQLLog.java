@@ -25,40 +25,40 @@ public interface SQLLog
     /**
      * Called when a transaction is started
      */
-    public void logBeginTransaction(Handle h);
+    void logBeginTransaction(Handle h);
 
     /**
      * Called when a transaction is committed
      */
-    public void logCommitTransaction(long time, Handle h);
+    void logCommitTransaction(long time, Handle h);
 
     /**
      * Called when a transaction is committed
      */
-    public void logRollbackTransaction(long time, Handle h);
+    void logRollbackTransaction(long time, Handle h);
 
     /**
      * Called when a handle is opened from a DBI instance
      */
-    public void logObtainHandle(long time, Handle h);
+    void logObtainHandle(long time, Handle h);
 
     /**
      * Called when a handle is closed
      */
-    public void logReleaseHandle(Handle h);
+    void logReleaseHandle(Handle h);
 
     /**
      * Called to log typical sql statements
      * @param sql the actual sql being exected
      */
-    public void logSQL(long time, String sql);
+    void logSQL(long time, String sql);
 
     /**
      * Called to log a prepared batch execution
      * @param sql The sql for the prepared batch
      * @param count the number of elements in the prepared batch
      */
-    public void logPreparedBatch(long time, String sql, int count);
+    void logPreparedBatch(long time, String sql, int count);
 
     /**
      * Factory method used to obtain a SQLLog.BatchLogger which will be used to log
@@ -66,7 +66,7 @@ public interface SQLLog
      *
      * @return an instance of BatchLogger which will be used to log this batch
      */
-    public BatchLogger logBatch();
+    BatchLogger logBatch();
 
     /**
      * Called when a transaction is checkpointed
@@ -95,11 +95,11 @@ public interface SQLLog
          * Called once for each statement in the batch
          * @param sql sql for the statement
          */
-        public void add(String sql);
+        void add(String sql);
 
         /**
          * Called when all statements have been passed to add()
          */
-        public void log(long time);
+        void log(long time);
     }
 }

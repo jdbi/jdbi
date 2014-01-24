@@ -23,5 +23,5 @@ public interface CloseMe
     /**
      * Close the underlying handle on the sql object
      */
-    public void close();
+    void close();
 }

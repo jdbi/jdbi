@@ -34,7 +34,7 @@ import java.util.Iterator;
 public interface ResultIterator<Type> extends Iterator<Type>, Closeable
 {
     /**
-     * Close the underlying resultset
+     * Close the underlying result set.
      */
-    public void close();
+    void close();
 }
