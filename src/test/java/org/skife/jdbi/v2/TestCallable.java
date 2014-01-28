@@ -123,6 +123,8 @@ public class TestCallable extends DBITestCase
             assertTrue(true);
         }
     }
+
+    @Test
     public void testWithNullReturn() throws Exception {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(?, ?)")
                 .bind(0, (String)null)
@@ -134,6 +136,7 @@ public class TestCallable extends DBITestCase
         assertEquals(out, null);
     }
 
+    @Test
     public void testWithNullReturnWithNamedParam() throws Exception {
         OutParameters ret = h.createCall("CALL TEST_PROCEDURE(:x, :y)")
                 .bind("x", (String)null)
