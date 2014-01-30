@@ -1,3 +1,9 @@
+2.54
+  - fix cleanup bug when e.g. cleanupHandle was called multiple times
+    on the same query.
+  - Generic object binding uses specific type if value is non-null.
+
+
 2.53
   - Tests now run in parallel 
   - Added Template supergroup loading to StringTemplate3StatementLocator
