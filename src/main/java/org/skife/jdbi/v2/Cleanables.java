@@ -31,43 +31,163 @@ import java.sql.Statement;
  */
 class Cleanables
 {
-    static Cleanable forResultSet(final ResultSet rs) {
-        return new Cleanable() {
-            public void cleanup() throws SQLException {
-                if (rs != null) {
-                    rs.close();
-                }
-            }
-        };
+    private Cleanables()
+    {
+        throw new AssertionError("do not instantiate");
     }
 
-    static Cleanable forStatement(final Statement stmt) {
-        return new Cleanable() {
-            public void cleanup() throws SQLException {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            }
-        };
+    static Cleanable forResultSet(final ResultSet rs)
+    {
+        return new ResultSetCleanable(rs);
     }
 
-    static Cleanable forHandle(final Handle handle, final TransactionState state) {
-        return new Cleanable() {
-            public void cleanup() throws SQLException {
-                if (handle != null) {
-                    if (handle.isInTransaction()) {
-                        if (state == TransactionState.COMMIT) {
-                            handle.commit();
-                        }
-                        else {
-                            handle.rollback();
-                        }
+    static Cleanable forStatement(final Statement stmt)
+    {
+        return new StatementCleanable(stmt);
+    }
+
+    static Cleanable forHandle(final Handle handle, final TransactionState state)
+    {
+        return new HandleCleanable(handle, state);
+    }
+
+    private static final class ResultSetCleanable implements Cleanable
+    {
+        private final ResultSet rs;
+
+        private ResultSetCleanable(ResultSet rs)
+        {
+            this.rs = rs;
+        }
+
+        @Override
+        public void cleanup()
+            throws SQLException
+        {
+            if (rs != null) {
+                rs.close();
+            }
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return rs == null ? 0 : rs.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (o == this) {
+                return true;
+            }
+            if (o == null || o.getClass() != this.getClass()) {
+                return false;
+            }
+
+            ResultSetCleanable that = (ResultSetCleanable) o;
+
+            if (this.rs == null) {
+                return that.rs == null;
+            }
+            return this.rs.equals(that.rs);
+        }
+    }
+
+    private static final class StatementCleanable implements Cleanable
+    {
+        private final Statement stmt;
+
+        private StatementCleanable(Statement stmt)
+        {
+            this.stmt = stmt;
+        }
+
+        @Override
+        public void cleanup()
+            throws SQLException
+        {
+            if (stmt != null) {
+                stmt.close();
+            }
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return stmt == null ? 0 : stmt.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (o == this) {
+                return true;
+            }
+            if (o == null || o.getClass() != this.getClass()) {
+                return false;
+            }
+
+            StatementCleanable that = (StatementCleanable) o;
+
+            if (this.stmt == null) {
+                return that.stmt == null;
+            }
+            return this.stmt.equals(that.stmt);
+        }
+    }
+
+    private static final class HandleCleanable implements Cleanable
+    {
+        private final Handle handle;
+        private final TransactionState state;
+
+        private HandleCleanable(Handle handle, TransactionState state)
+        {
+            this.handle = handle;
+            this.state = state;
+        }
+
+        @Override
+        public void cleanup()
+            throws SQLException
+        {
+            if (handle != null) {
+                if (handle.isInTransaction()) {
+                    if (state == TransactionState.COMMIT) {
+                        handle.commit();
                     }
-
-                    handle.close();
+                    else {
+                        handle.rollback();
+                    }
                 }
+                handle.close();
             }
-        };
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return handle == null ? 0 : handle.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (o == this) {
+                return true;
+            }
+            if (o == null || o.getClass() != this.getClass()) {
+                return false;
+            }
+
+            HandleCleanable that = (HandleCleanable) o;
+
+            if (this.handle == null) {
+                return that.handle == null;
+            }
+            return this.handle.equals(that.handle);
+        }
     }
 
     /**
@@ -92,8 +212,8 @@ class Cleanables
             this.stmt = stmt;
         }
 
-
-        public void cleanup() throws SQLException
+        public void cleanup()
+            throws SQLException
         {
             if (statementBuilder != null) {
                 statementBuilder.close(conn, sql, stmt);

@@ -120,8 +120,9 @@ abstract class BaseStatement
         {
             final List<SQLException> exceptions = new ArrayList<SQLException>();
             try {
-                Collections.reverse(context.getCleanables());
-                for (Cleanable cleanable : context.getCleanables()) {
+                List<Cleanable> cleanables = new ArrayList<Cleanable>(context.getCleanables());
+                Collections.reverse(cleanables);
+                for (Cleanable cleanable : cleanables) {
                     try {
                         cleanable.cleanup();
                     }
