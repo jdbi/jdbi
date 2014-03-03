@@ -40,4 +40,15 @@ public class TestMapArguments
         assertThat(argument, instanceOf(BigDecimalArgument.class));
     }
 
+    @Test
+    public void testNullBinding() throws Exception
+    {
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("foo", null);
+        Foreman foreman = new Foreman();
+        StatementContext ctx = new ConcreteStatementContext(new HashMap<String, Object>());
+        MapArguments mapArguments = new MapArguments(foreman, ctx, args);
+        Argument argument = mapArguments.find("foo");
+        assertThat(argument, instanceOf(ObjectArgument.class));
+    }
 }
