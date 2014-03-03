@@ -38,6 +38,6 @@ public class TestMapArguments
         MapArguments mapArguments = new MapArguments(foreman, ctx, args);
         Argument argument = mapArguments.find("foo");
         assertThat(argument, instanceOf(BigDecimalArgument.class));
-	}
+    }
 
 }
