@@ -15,18 +15,20 @@
  */
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
-import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
-import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
-import org.skife.jdbi.v2.tweak.StatementLocator;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+
+import org.antlr.stringtemplate.StringTemplateErrorListener;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.skife.jdbi.v2.SQLStatement;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
+import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 
 @SqlStatementCustomizingAnnotation(UseStringTemplate3StatementLocator.LocatorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -36,6 +38,7 @@ public @interface UseStringTemplate3StatementLocator
     String DEFAULT_VALUE = " ~ ";
 
     String value() default DEFAULT_VALUE;
+    Class errorListener() default StringTemplateErrorListener.class;
 
     public static class LocatorFactory implements SqlStatementCustomizerFactory
     {
@@ -51,7 +54,17 @@ public @interface UseStringTemplate3StatementLocator
                 builder = StringTemplate3StatementLocator.builder(a.value());
             }
 
-            final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().build();
+            StringTemplateErrorListener errorListener = StringTemplateGroup.DEFAULT_ERROR_LISTENER;
+            if (!StringTemplateErrorListener.class.equals(a.errorListener())) {
+              try {
+                errorListener = (StringTemplateErrorListener) a.errorListener().newInstance();
+              }
+              catch(Exception e) {
+                throw new IllegalStateException("Error initializing StringTemplateErrorListener", e);
+              }
+            }
+            
+            final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().withErrorListener(errorListener).build();
 
             return new SqlStatementCustomizer()
             {
