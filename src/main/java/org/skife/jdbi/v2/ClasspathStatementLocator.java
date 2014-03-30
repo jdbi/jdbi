@@ -15,6 +15,9 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
+import org.skife.jdbi.v2.tweak.StatementLocator;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,9 +26,6 @@ import java.nio.charset.Charset;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
-
-import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
-import org.skife.jdbi.v2.tweak.StatementLocator;
 
 /**
  * looks for [name], then [name].sql on the classpath
@@ -83,7 +83,7 @@ public class ClasspathStatementLocator implements StatementLocator
         }
 
         if (looksLikeSql(name)) {
-            found.putIfAbsent(cache_key, name);
+            // No need to cache individual SQL statements that don't cause us to search the classpath
             return name;
         }
         final ClassLoader loader = selectClassLoader();
