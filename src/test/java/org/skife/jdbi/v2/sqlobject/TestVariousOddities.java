@@ -25,6 +25,7 @@ import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 
 import java.util.UUID;
+import java.util.concurrent.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -102,6 +103,27 @@ public class TestVariousOddities
     }
 
     @Test
+    public void testConcurrentHashCode() throws ExecutionException, InterruptedException
+    {
+        Callable<SpiffyConcurrent> callable = new Callable<SpiffyConcurrent>() {
+
+            @Override
+            public SpiffyConcurrent call() throws Exception {
+                return SqlObjectBuilder.attach(handle, SpiffyConcurrent.class);
+            }
+        };
+
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        Future<SpiffyConcurrent> f1 = pool.submit(callable);
+        Future<SpiffyConcurrent> f2 = pool.submit(callable);
+        SpiffyConcurrent s1 = f1.get();
+        SpiffyConcurrent s2 = f2.get();
+        assertFalse(0 == s1.hashCode());
+        assertFalse(0 == s2.hashCode());
+        assertTrue(s1.hashCode() != s2.hashCode());
+    }
+
+    @Test
     public void testNullQueryReturn()
     {
         try {
@@ -129,5 +151,13 @@ public class TestVariousOddities
     {
         @SqlQuery("SELECT 1")
         void returnNothing();
+    }
+
+    /**
+     * This interface should not be loaded by any test other than {@link TestVariousOddities#testConcurrentHashCode()}.
+     */
+    public static interface SpiffyConcurrent
+    {
+
     }
 }
