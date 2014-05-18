@@ -94,6 +94,22 @@
         <basepom.check.skip-extended>true</basepom.check.skip-extended>
     </properties>
 
+    <build>
+      <pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <compilerArguments>
+                <parameters />
+              </compilerArguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </pluginManagement>
+    </build>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
