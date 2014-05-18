@@ -15,11 +15,11 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.Argument;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+
+import org.jdbi.v3.tweak.Argument;
 
 /**
  *

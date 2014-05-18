@@ -15,13 +15,13 @@
  */
 package org.jdbi.v3.tweak;
 
-import org.jdbi.v3.StatementContext;
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.jdbi.v3.StatementContext;
 
 /**
  * Used to convert translated SQL into a prepared statement. The default implementation

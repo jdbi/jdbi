@@ -15,8 +15,6 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.BasicHandle;
-import org.jdbi.v3.Query;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 
 /**

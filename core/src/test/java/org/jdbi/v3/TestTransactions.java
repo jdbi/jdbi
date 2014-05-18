@@ -15,16 +15,13 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionStatus;
+import java.io.IOException;
+import java.util.List;
+
 import org.jdbi.v3.exceptions.DBIException;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.util.IntegerMapper;
-
-import java.io.IOException;
-import java.util.List;
 
 public class TestTransactions extends DBITestCase
 {

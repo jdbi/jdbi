@@ -15,10 +15,10 @@
  */
 package org.jdbi.v3.tweak;
 
-import org.jdbi.v3.StatementContext;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.jdbi.v3.StatementContext;
 
 /**
  * Used with a {@link org.jdbi.v3.Query#map(ResultSetMapper)} call to specify

@@ -15,13 +15,13 @@
  */
 package org.jdbi.v3.spring;
 
-import org.jdbi.v3.tweak.ConnectionFactory;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import org.jdbi.v3.tweak.ConnectionFactory;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 /**
  *

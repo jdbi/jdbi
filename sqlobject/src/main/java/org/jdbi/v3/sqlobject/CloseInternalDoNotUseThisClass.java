@@ -15,11 +15,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import net.sf.cglib.proxy.MethodProxy;
-
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.sf.cglib.proxy.MethodProxy;
 
 /**
  * This is public as we need it to be for some stuff to work. It is an internal api and NOT to be used

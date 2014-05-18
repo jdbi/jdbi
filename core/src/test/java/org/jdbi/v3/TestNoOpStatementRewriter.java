@@ -16,9 +16,6 @@
 package org.jdbi.v3;
 
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.NoOpStatementRewriter;
 
 /**
  *

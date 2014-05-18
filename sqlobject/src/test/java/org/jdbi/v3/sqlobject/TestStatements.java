@@ -15,16 +15,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.UUID;
+
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.util.StringMapper;
-
-import java.util.UUID;
 
 import junit.framework.TestCase;
 

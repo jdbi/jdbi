@@ -15,10 +15,10 @@
  */
 package org.jdbi.v3.tweak;
 
-import org.jdbi.v3.StatementContext;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import org.jdbi.v3.StatementContext;
 
 /**
  * Allows tweaking of statement behaviour.

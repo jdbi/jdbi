@@ -15,19 +15,15 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.derby.Tools;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.PreparedBatch;
-import org.jdbi.v3.PreparedBatchPart;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.util.StringMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.jdbi.derby.Tools;
+import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.util.StringMapper;
 
 public class TestPreparedBatch extends DBITestCase
 {

@@ -15,11 +15,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import net.sf.cglib.proxy.MethodProxy;
-
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.sf.cglib.proxy.MethodProxy;
 
 class ToStringHandler implements Handler
 {

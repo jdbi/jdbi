@@ -15,14 +15,10 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.Foreman;
-import org.jdbi.v3.LongArgument;
-import org.jdbi.v3.ShortArgument;
-import org.jdbi.v3.StringArgument;
+import static org.junit.Assert.assertSame;
+
 import org.jdbi.v3.tweak.Argument;
 import org.junit.Test;
-
-import static org.junit.Assert.assertSame;
 
 public class TestForeman
 {

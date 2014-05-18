@@ -15,13 +15,13 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.NamedArgumentFinder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.tweak.NamedArgumentFinder;
 
 /**
  * Represents the arguments bound to a particular statement

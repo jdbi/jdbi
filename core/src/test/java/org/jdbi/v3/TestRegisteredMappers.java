@@ -19,9 +19,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.tweak.ResultSetMapper;
 

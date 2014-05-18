@@ -15,16 +15,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.CallbackFilter;
-import net.sf.cglib.proxy.NoOp;
-
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.NoOp;
 
 class CGLIBDispatchBuilder
 {

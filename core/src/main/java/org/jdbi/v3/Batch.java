@@ -15,17 +15,17 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.SQLLog;
-import org.jdbi.v3.tweak.StatementRewriter;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.tweak.SQLLog;
+import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"

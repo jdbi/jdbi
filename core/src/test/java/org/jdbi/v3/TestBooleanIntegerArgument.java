@@ -18,7 +18,6 @@ package org.jdbi.v3;
 import java.sql.PreparedStatement;
 
 import org.easymock.EasyMock;
-import org.jdbi.v3.BooleanIntegerArgument;
 import org.jdbi.v3.tweak.Argument;
 import org.junit.Test;
 

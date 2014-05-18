@@ -15,12 +15,10 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.derby.Tools;
-import org.jdbi.v3.BasicHandle;
-import org.jdbi.v3.ResultIterator;
-
 import java.util.List;
 import java.util.Map;
+
+import org.jdbi.derby.Tools;
 
 public class TestClosingHandle extends DBITestCase
 {

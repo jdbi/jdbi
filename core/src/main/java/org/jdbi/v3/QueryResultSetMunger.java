@@ -15,11 +15,11 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.NoResultsException;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.jdbi.v3.exceptions.NoResultsException;
 
 abstract class QueryResultSetMunger<T> implements QueryResultMunger<T>
 {

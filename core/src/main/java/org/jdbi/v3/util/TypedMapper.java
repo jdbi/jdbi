@@ -15,11 +15,11 @@
  */
 package org.jdbi.v3.util;
 
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 /**
  * Convenience base class for implementing typed result set mappers. Provides

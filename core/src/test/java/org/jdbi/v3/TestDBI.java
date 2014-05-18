@@ -15,15 +15,13 @@
  */
 package org.jdbi.v3;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class TestDBI extends DBITestCase
 {

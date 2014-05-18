@@ -18,8 +18,6 @@ package org.jdbi.v3;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.jdbi.v3.Handle;
-
 public class TestEnums extends DBITestCase
 {
 

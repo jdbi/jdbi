@@ -15,14 +15,11 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.derby.Tools;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Update;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jdbi.derby.Tools;
 
 /**
  *

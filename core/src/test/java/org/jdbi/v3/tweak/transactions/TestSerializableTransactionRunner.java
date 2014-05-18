@@ -25,7 +25,6 @@ import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.tweak.TransactionHandler;
-import org.jdbi.v3.tweak.transactions.SerializableTransactionRunner;
 import org.junit.Assert;
 import org.junit.Test;
 

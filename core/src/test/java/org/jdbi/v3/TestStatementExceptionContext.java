@@ -15,7 +15,6 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.StatementException;
 
 /**

@@ -15,11 +15,11 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.NamedArgumentFinder;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.tweak.NamedArgumentFinder;
 
 /**
  * Binds all fields of a map as arguments.

@@ -15,13 +15,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.Something;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.jdbi.v3.Something;
+import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 public class SomethingMapper implements ResultSetMapper<Something>
 {

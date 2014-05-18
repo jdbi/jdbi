@@ -15,10 +15,10 @@
  */
 package org.jdbi.v3;
 
+import java.sql.Connection;
+
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementBuilderFactory;
-
-import java.sql.Connection;
 
 /**
  *

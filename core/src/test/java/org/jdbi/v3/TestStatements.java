@@ -16,7 +16,6 @@
 package org.jdbi.v3;
 
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.BasicHandle;
 
 /**
  *

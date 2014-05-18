@@ -15,18 +15,13 @@
  */
 package org.jdbi.v3;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jdbi.v3.BigDecimalArgument;
-import org.jdbi.v3.ConcreteStatementContext;
-import org.jdbi.v3.Foreman;
-import org.jdbi.v3.MapArguments;
-import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.Argument;
 import org.junit.Test;
 

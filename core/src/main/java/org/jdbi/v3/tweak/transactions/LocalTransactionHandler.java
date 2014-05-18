@@ -15,14 +15,6 @@
  */
 package org.jdbi.v3.tweak.transactions;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
-import org.jdbi.v3.exceptions.TransactionException;
-import org.jdbi.v3.exceptions.TransactionFailedException;
-import org.jdbi.v3.tweak.TransactionHandler;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
@@ -30,6 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.jdbi.v3.Handle;
+import org.jdbi.v3.TransactionCallback;
+import org.jdbi.v3.TransactionIsolationLevel;
+import org.jdbi.v3.TransactionStatus;
+import org.jdbi.v3.exceptions.TransactionException;
+import org.jdbi.v3.exceptions.TransactionFailedException;
+import org.jdbi.v3.tweak.TransactionHandler;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions

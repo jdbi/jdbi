@@ -15,13 +15,13 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.StatementBuilder;
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.jdbi.v3.tweak.StatementBuilder;
 
 /**
  * A StatementBuilder which will always create a new PreparedStatement

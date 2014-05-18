@@ -15,17 +15,12 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.derby.Tools;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionStatus;
-import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.jdbi.derby.Tools;
+import org.jdbi.v3.tweak.HandleCallback;
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 /**
  *

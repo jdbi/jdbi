@@ -15,17 +15,17 @@
  */
 package org.jdbi.derby;
 
-import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.jdbi.HandyMapThing;
-
-import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import javax.sql.DataSource;
+
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.jdbi.HandyMapThing;
 
 public class Tools
 {

@@ -15,12 +15,12 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 /**
  * Used to specify specific result set mapper on a query method.

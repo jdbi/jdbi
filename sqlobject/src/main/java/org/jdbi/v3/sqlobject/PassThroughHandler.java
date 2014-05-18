@@ -15,9 +15,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import net.sf.cglib.proxy.MethodProxy;
-
 import java.lang.reflect.Method;
+
+import net.sf.cglib.proxy.MethodProxy;
 
 class PassThroughHandler implements Handler
 {

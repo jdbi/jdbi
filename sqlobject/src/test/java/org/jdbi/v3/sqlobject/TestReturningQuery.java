@@ -15,18 +15,15 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.UUID;
+
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-
-import java.util.UUID;
 
 import junit.framework.TestCase;
 
@@ -36,6 +33,7 @@ public class TestReturningQuery extends TestCase
     private Handle handle;
 
 
+    @Override
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -47,6 +45,7 @@ public class TestReturningQuery extends TestCase
 
     }
 
+    @Override
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");

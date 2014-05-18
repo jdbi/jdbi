@@ -20,7 +20,6 @@ import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.junit.Test;
 
 import junit.framework.TestCase;

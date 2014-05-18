@@ -15,10 +15,10 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.sql.ResultSet;
 import java.util.Map;
+
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 /**
  * Convenience class which allows definition of result set mappers which getAttribute the

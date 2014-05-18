@@ -32,9 +32,6 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.DefaultStatementBuilder;
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.tweak.HandleCallback;
 

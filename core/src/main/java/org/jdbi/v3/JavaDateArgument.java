@@ -15,13 +15,13 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.Argument;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
+
+import org.jdbi.v3.tweak.Argument;
 
 /**
  * Binds a @{link Date) argument to a prepared statement. A Java Date is really a timestamp because

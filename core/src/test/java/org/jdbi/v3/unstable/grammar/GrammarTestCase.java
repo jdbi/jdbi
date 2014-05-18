@@ -15,9 +15,10 @@
  */
 package org.jdbi.v3.unstable.grammar;
 
-import junit.framework.TestCase;
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Token;
+
+import junit.framework.TestCase;
 
 /**
  *

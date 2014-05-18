@@ -17,9 +17,6 @@ package org.jdbi.v3;
 
 import java.util.List;
 
-import org.jdbi.v3.Batch;
-import org.jdbi.v3.Handle;
-
 /**
  *
  */

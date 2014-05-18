@@ -15,13 +15,13 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.StatementBuilder;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.jdbi.v3.tweak.StatementBuilder;
 
 /**
  * Resource management for JDBI. Cleanables can be registered on a SQL statement and they get cleaned up when the

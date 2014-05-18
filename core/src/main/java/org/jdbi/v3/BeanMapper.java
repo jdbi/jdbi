@@ -15,8 +15,6 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -31,6 +29,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 /**
  * A result set mapper which maps the fields in a statement into a JavaBean. This uses

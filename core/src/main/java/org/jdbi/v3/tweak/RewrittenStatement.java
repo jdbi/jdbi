@@ -15,10 +15,10 @@
  */
 package org.jdbi.v3.tweak;
 
-import org.jdbi.v3.Binding;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import org.jdbi.v3.Binding;
 
 /**
  * Return value from {@link StatementRewriter#rewrite(String, org.jdbi.v3.Binding, org.jdbi.v3.StatementContext)} calls

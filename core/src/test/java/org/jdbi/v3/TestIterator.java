@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.BasicHandle;
-import org.jdbi.v3.ResultIterator;
 
 public class TestIterator extends DBITestCase
 {

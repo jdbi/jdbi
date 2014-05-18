@@ -15,11 +15,9 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.derby.Tools;
-import org.jdbi.v3.BasicHandle;
-import org.jdbi.v3.OutParameters;
-
 import java.sql.Types;
+
+import org.jdbi.derby.Tools;
 
 public class TestCallable extends DBITestCase
 {

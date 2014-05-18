@@ -22,10 +22,6 @@ import java.util.Map;
 
 import org.jdbi.HandyMapThing;
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.BasicHandle;
-import org.jdbi.v3.Query;
-import org.jdbi.v3.ResultIterator;
-import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.NoResultsException;
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;

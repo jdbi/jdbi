@@ -26,13 +26,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.BasicHandle;
-import org.jdbi.v3.ClasspathStatementLocator;
-import org.jdbi.v3.ColonPrefixNamedParamStatementRewriter;
-import org.jdbi.v3.DefaultStatementBuilder;
-import org.jdbi.v3.Foreman;
-import org.jdbi.v3.MappingRegistry;
-import org.jdbi.v3.TimingCollector;
 import org.jdbi.v3.logging.NoOpLog;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.TransactionHandler;

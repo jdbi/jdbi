@@ -15,10 +15,10 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.Argument;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import org.jdbi.v3.tweak.Argument;
 
 /**
  * Takes a boolean and converts it into integer 0/1 column values. This is useful if your database does

@@ -15,13 +15,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.Transaction;
-import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.sqlobject.mixins.Transactional;
-
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jdbi.v3.Transaction;
+import org.jdbi.v3.TransactionIsolationLevel;
+import org.jdbi.v3.sqlobject.mixins.Transactional;
 
 class TransactionalHelper
 {

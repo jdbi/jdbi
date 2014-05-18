@@ -15,12 +15,12 @@
  */
 package org.jdbi.v3;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementRewriter;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 /**
  * A statement rewriter which does not, in fact, rewrite anything. This is useful

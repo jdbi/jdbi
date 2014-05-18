@@ -15,13 +15,11 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.derby.Tools;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Update;
-import org.jdbi.v3.util.LongMapper;
-
 import java.sql.Connection;
 import java.sql.Statement;
+
+import org.jdbi.derby.Tools;
+import org.jdbi.v3.util.LongMapper;
 
 public class TestUpdateGeneratedKeys extends DBITestCase
 {

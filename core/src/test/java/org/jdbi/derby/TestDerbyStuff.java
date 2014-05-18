@@ -15,10 +15,10 @@
  */
 package org.jdbi.derby;
 
-import junit.framework.TestCase;
-
 import java.sql.Connection;
 import java.sql.Statement;
+
+import junit.framework.TestCase;
 
 public class TestDerbyStuff extends TestCase
 {

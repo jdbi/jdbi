@@ -15,11 +15,11 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.StatementLocator;
-
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.tweak.StatementLocator;
 
 /**
  * Represents a number of SQL statements which will be executed in a batch statement.

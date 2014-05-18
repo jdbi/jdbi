@@ -15,14 +15,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
+
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
-
-import java.lang.reflect.Method;
 
 class PassThroughTransactionHandler implements Handler
 {

@@ -22,13 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.BasicHandle;
-import org.jdbi.v3.ColonPrefixNamedParamStatementRewriter;
-import org.jdbi.v3.DefaultStatementBuilder;
-import org.jdbi.v3.Foreman;
-import org.jdbi.v3.MappingRegistry;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.TimingCollector;
 import org.jdbi.v3.logging.NoOpLog;
 
 /**

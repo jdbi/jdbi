@@ -15,24 +15,21 @@
  */
 package org.jdbi.v3;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.jdbi.derby.Tools;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.logging.Log4JLog;
 import org.jdbi.v3.logging.PrintStreamLog;
 import org.jdbi.v3.tweak.SQLLog;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *

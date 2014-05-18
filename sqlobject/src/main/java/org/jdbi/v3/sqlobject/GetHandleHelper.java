@@ -15,12 +15,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
-import org.jdbi.v3.tweak.HandleCallback;
-
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jdbi.v3.sqlobject.mixins.GetHandle;
+import org.jdbi.v3.tweak.HandleCallback;
 
 class GetHandleHelper
 {

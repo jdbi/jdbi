@@ -15,16 +15,16 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.BaseStatementCustomizer;
-import org.jdbi.v3.tweak.StatementCustomizer;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.tweak.BaseStatementCustomizer;
+import org.jdbi.v3.tweak.StatementCustomizer;
 
 abstract class BaseStatement
 {

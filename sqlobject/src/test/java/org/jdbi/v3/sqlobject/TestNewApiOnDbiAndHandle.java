@@ -22,10 +22,6 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 
 import junit.framework.TestCase;
