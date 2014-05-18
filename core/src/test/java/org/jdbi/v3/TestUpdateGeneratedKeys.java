@@ -15,20 +15,27 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.sql.Connection;
 import java.sql.Statement;
 
-import org.jdbi.derby.Tools;
 import org.jdbi.v3.util.LongMapper;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class TestUpdateGeneratedKeys extends DBITestCase
+public class TestUpdateGeneratedKeys
 {
-    @Override
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-
-        final Connection conn = Tools.getConnection();
+        final Connection conn = db.getDataSource().getConnection();
 
         final Statement create = conn.createStatement();
         try
@@ -44,9 +51,10 @@ public class TestUpdateGeneratedKeys extends DBITestCase
         conn.close();
     }
 
+    @Test
     public void testInsert() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
 
         Update insert1 = h.createStatement("insert into something_else (name) values (:name)");
         insert1.bind("name", "Brian");
@@ -62,9 +70,10 @@ public class TestUpdateGeneratedKeys extends DBITestCase
         assertTrue(id2 > id1);
     }
 
+    @Test
     public void testUpdate() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
 
         Update insert = h.createStatement("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
@@ -80,9 +89,10 @@ public class TestUpdateGeneratedKeys extends DBITestCase
         assertNull(id2);
     }
 
+    @Test
     public void testDelete() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
 
         Update insert = h.createStatement("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");

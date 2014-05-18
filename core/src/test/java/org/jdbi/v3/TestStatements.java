@@ -15,41 +15,40 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.derby.Tools;
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
-public class TestStatements extends DBITestCase
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+public class TestStatements
 {
-    private BasicHandle h;
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
-    @Override
+    private Handle h;
+
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-        h = openHandle();
+        h = db.openHandle();
     }
 
-    @Override
-    public void tearDown() throws Exception
-    {
-        if (h != null) h.close();
-        Tools.stop();
-    }
-
+    @Test
     public void testStatement() throws Exception
     {
         int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         assertEquals(1, rows);
     }
 
+    @Test
     public void testSimpleInsert() throws Exception
     {
         int c = h.insert("insert into something (id, name) values (1, 'eric')");
         assertEquals(1, c);
     }
 
+    @Test
     public void testUpdate() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -58,6 +57,7 @@ public class TestStatements extends DBITestCase
         assertEquals("ERIC", eric.getName());
     }
 
+    @Test
     public void testSimpleUpdate() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -65,5 +65,4 @@ public class TestStatements extends DBITestCase
         Something eric = h.createQuery("select * from something where id = 1").map(Something.class).list().get(0);
         assertEquals("cire", eric.getName());
     }
-
 }

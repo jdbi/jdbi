@@ -15,36 +15,36 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.*;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 import org.jdbi.HandyMapThing;
-import org.jdbi.derby.Tools;
 import org.jdbi.v3.exceptions.NoResultsException;
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.ResultSetMapper;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class TestQueries extends DBITestCase
+public class TestQueries
 {
-    private BasicHandle h;
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
-    @Override
+    private Handle h;
+
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-        h = openHandle();
+        h = db.openHandle();
     }
 
-    @Override
-    public void tearDown() throws Exception
-    {
-        if (h != null) h.close();
-        Tools.stop();
-    }
-
+    @Test
     public void testCreateQueryObject() throws Exception
     {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
@@ -56,6 +56,7 @@ public class TestQueries extends DBITestCase
         assertEquals("eric", first_row.get("name"));
     }
 
+    @Test
     public void testMappedQueryObject() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -69,6 +70,7 @@ public class TestQueries extends DBITestCase
         assertEquals(1, eric.getId());
     }
 
+    @Test
     public void testMappedQueryObjectWithNulls() throws Exception
     {
         h.insert("insert into something (id, name, integerValue) values (1, 'eric', null)");
@@ -82,6 +84,7 @@ public class TestQueries extends DBITestCase
         assertNull(eric.getIntegerValue());
     }
 
+    @Test
     public void testMappedQueryObjectWithNullForPrimitiveIntField() throws Exception
     {
         h.insert("insert into something (id, name, intValue) values (1, 'eric', null)");
@@ -95,6 +98,7 @@ public class TestQueries extends DBITestCase
         assertEquals(0, eric.getIntValue());
     }
 
+    @Test
     public void testMapper() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -113,6 +117,7 @@ public class TestQueries extends DBITestCase
         assertEquals("eric", name);
     }
 
+    @Test
     public void testConvenienceMethod() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -123,6 +128,7 @@ public class TestQueries extends DBITestCase
         assertEquals("eric", r.get(0).get("name"));
     }
 
+    @Test
     public void testConvenienceMethodWithParam() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -133,6 +139,7 @@ public class TestQueries extends DBITestCase
         assertEquals("eric", r.get(0).get("name"));
     }
 
+    @Test
     public void testPositionalArgWithNamedParam() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -147,6 +154,7 @@ public class TestQueries extends DBITestCase
         assertEquals("eric", r.get(0).getName());
     }
 
+    @Test
     public void testMixedSetting() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -162,6 +170,7 @@ public class TestQueries extends DBITestCase
         assertEquals("eric", r.get(0).getName());
     }
 
+    @Test
     public void testHelpfulErrorOnNothingSet() throws Exception
     {
         try {
@@ -176,6 +185,7 @@ public class TestQueries extends DBITestCase
         }
     }
 
+    @Test
     public void testFirstResult() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -189,6 +199,7 @@ public class TestQueries extends DBITestCase
         assertEquals("eric", r.getName());
     }
 
+    @Test
     public void testIteratedResult() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -209,6 +220,7 @@ public class TestQueries extends DBITestCase
         i.close();
     }
 
+    @Test
     public void testIteratorBehavior() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -230,6 +242,7 @@ public class TestQueries extends DBITestCase
         i.close();
     }
 
+    @Test
     public void testIteratorBehavior2() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -248,6 +261,7 @@ public class TestQueries extends DBITestCase
         i.close();
     }
 
+    @Test
     public void testIteratorBehavior3() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -263,6 +277,7 @@ public class TestQueries extends DBITestCase
 
     }
 
+    @Test
     public void testFetchSize() throws Exception
     {
         h.createScript("default-data").execute();
@@ -280,12 +295,14 @@ public class TestQueries extends DBITestCase
         assertFalse(r.hasNext());
     }
 
+    @Test
     public void testFirstWithNoResult() throws Exception
     {
         Something s = h.createQuery("select id, name from something").map(Something.class).first();
         assertNull(s);
     }
 
+    @Test
     public void testUsefulArgumentOutputForDebug() throws Exception
     {
         try {
@@ -302,6 +319,7 @@ public class TestQueries extends DBITestCase
         }
     }
 
+    @Test
     public void testStatementCustomizersPersistAfterMap() throws Exception
     {
         h.insert("insert into something (id, name) values (?, ?)", 1, "hello");
@@ -315,6 +333,7 @@ public class TestQueries extends DBITestCase
         assertEquals(1, rs.size());
     }
 
+    @Test
     public void testQueriesWithNullResultSets() throws Exception
     {
         try {

@@ -15,6 +15,10 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -25,90 +29,104 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
-import org.jdbi.derby.Tools;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.logging.Log4JLog;
 import org.jdbi.v3.logging.PrintStreamLog;
 import org.jdbi.v3.tweak.SQLLog;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-/**
- *
- */
-public class TestSqlLogging extends DBITestCase
+public class TestSqlLogging
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
     private Handle h;
     private List<String> logged;
     private SQLLog log;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-        h = openHandle();
+        h = db.openHandle();
         logged = new ArrayList<String>();
         log = new SQLLog()
         {
+            @Override
             public void logBeginTransaction(Handle h)
             {
                 logged.add("begin");
             }
 
+            @Override
             public void logCommitTransaction(long time, Handle h)
             {
                 logged.add("commit");
             }
 
+            @Override
             public void logRollbackTransaction(long time, Handle h)
             {
                 logged.add("rollback");
             }
 
+            @Override
             public void logObtainHandle(long time, Handle h)
             {
                 logged.add("open");
             }
 
+            @Override
             public void logReleaseHandle(Handle h)
             {
                 logged.add("close");
             }
 
+            @Override
             public void logSQL(long time, String sql)
             {
                 logged.add(sql);
             }
 
+            @Override
             public void logPreparedBatch(long time, String sql, int count)
             {
                 logged.add(String.format("%d:%s", count, sql));
             }
 
+            @Override
             public BatchLogger logBatch()
             {
                 return new SQLLog.BatchLogger()
                 {
 
+                    @Override
                     public void add(String sql)
                     {
                         logged.add(sql);
                     }
 
+                    @Override
                     public void log(long time)
                     {
                     }
                 };
             }
 
+            @Override
             public void logCheckpointTransaction(Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s created", name));
             }
 
+            @Override
             public void logReleaseCheckpointTransaction(Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s released", name));
             }
 
+            @Override
             public void logRollbackToCheckpoint(long time, Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s rolled back to", name));
@@ -117,13 +135,7 @@ public class TestSqlLogging extends DBITestCase
         h.setSQLLog(log);
     }
 
-    @Override
-    public void tearDown() throws Exception
-    {
-        if (h != null) h.close();
-        Tools.stop();
-    }
-
+    @Test
     public void testInsert() throws Exception
     {
         h.insert("insert into something (id, name) values (?, ?)", 1, "Hello");
@@ -131,6 +143,7 @@ public class TestSqlLogging extends DBITestCase
         assertEquals("insert into something (id, name) values (?, ?)", logged.get(0));
     }
 
+    @Test
     public void testBatch() throws Exception
     {
         String sql1 = "insert into something (id, name) values (1, 'Eric')";
@@ -141,6 +154,7 @@ public class TestSqlLogging extends DBITestCase
         assertEquals(sql2, logged.get(1));
     }
 
+    @Test
     public void testPreparedBatch() throws Exception
     {
         String sql = "insert into something (id, name) values (?, ?)";
@@ -149,6 +163,7 @@ public class TestSqlLogging extends DBITestCase
         assertEquals(String.format("%d:%s", 2, sql), logged.get(0));
     }
 
+    @Test
     public void testLog4J() throws Exception
     {
         BasicConfigurator.configure(new AppenderSkeleton()
@@ -184,6 +199,7 @@ public class TestSqlLogging extends DBITestCase
 
     private static final String linesep = System.getProperty("line.separator");
 
+    @Test
     public void testPrintStream() throws Exception
     {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -195,12 +211,14 @@ public class TestSqlLogging extends DBITestCase
                 .matches("statement:\\[insert into something \\(id, name\\) values \\(\\?, \\?\\)\\] took \\d+ millis" + linesep));
     }
 
+    @Test
     public void testCloseLogged() throws Exception
     {
         h.close();
         assertTrue(logged.contains("close"));
     }
 
+    @Test
     public void testLogBegin() throws Exception
     {
         h.begin();
@@ -208,6 +226,7 @@ public class TestSqlLogging extends DBITestCase
         h.commit();
     }
 
+    @Test
     public void testLogCommit() throws Exception
     {
         h.begin();
@@ -215,10 +234,12 @@ public class TestSqlLogging extends DBITestCase
         assertTrue(logged.contains("commit"));
     }
 
+    @Test
     public void testLogBeginCommit() throws Exception
     {
         h.inTransaction(new TransactionCallback<Object>()
         {
+            @Override
             public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
             {
                 assertTrue(logged.contains("begin"));
@@ -228,11 +249,13 @@ public class TestSqlLogging extends DBITestCase
         assertTrue(logged.contains("commit"));
     }
 
+    @Test
     public void testLogBeginRollback() throws Exception
     {
         try {
             h.inTransaction(new TransactionCallback<Object>()
             {
+                @Override
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     assertTrue(logged.contains("begin"));
@@ -246,6 +269,7 @@ public class TestSqlLogging extends DBITestCase
         }
     }
 
+    @Test
     public void testLogRollback() throws Exception
     {
         h.begin();
@@ -253,6 +277,7 @@ public class TestSqlLogging extends DBITestCase
         assertTrue(logged.contains("rollback"));
     }
 
+    @Test
     public void testCheckpoint() throws Exception
     {
         h.begin();

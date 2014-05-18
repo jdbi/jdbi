@@ -15,6 +15,11 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -22,15 +27,22 @@ import org.jdbi.v3.exceptions.DBIException;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.util.IntegerMapper;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class TestTransactions extends DBITestCase
+public class TestTransactions
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testCallback() throws Exception
     {
-        Handle h = this.openHandle();
+        Handle h = db.openHandle();
 
         String woot = h.inTransaction(new TransactionCallback<String>()
         {
+            @Override
             public String inTransaction(Handle handle, TransactionStatus status) throws Exception
             {
                 return "Woot!";
@@ -40,17 +52,19 @@ public class TestTransactions extends DBITestCase
         assertEquals("Woot!", woot);
     }
 
+    @Test
     public void testRollbackOutsideTx() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
 
         h.insert("insert into something (id, name) values (?, ?)", 7, "Tom");
         h.rollback();
     }
 
+    @Test
     public void testDoubleOpen() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         assertTrue(h.getConnection().getAutoCommit());
 
         h.begin();
@@ -60,14 +74,16 @@ public class TestTransactions extends DBITestCase
         assertTrue(h.getConnection().getAutoCommit());
     }
 
+    @Test
     public void testExceptionAbortsTransaction() throws Exception
     {
-        Handle h = this.openHandle();
+        Handle h = db.openHandle();
 
         try
         {
             h.inTransaction(new TransactionCallback<Object>()
             {
+                @Override
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
@@ -86,14 +102,16 @@ public class TestTransactions extends DBITestCase
         assertEquals(0, r.size());
     }
 
+    @Test
     public void testRollbackOnlyAbortsTransaction() throws Exception
     {
-        Handle h = this.openHandle();
+        Handle h = db.openHandle();
 
         try
         {
             h.inTransaction(new TransactionCallback<Object>()
             {
+                @Override
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
@@ -112,9 +130,10 @@ public class TestTransactions extends DBITestCase
         assertEquals(0, r.size());
     }
 
+    @Test
     public void testCheckpoint() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.begin();
 
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
@@ -127,9 +146,10 @@ public class TestTransactions extends DBITestCase
         assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
     }
 
+    @Test
     public void testReleaseCheckpoint() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.begin();
         h.checkpoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Martin");
@@ -146,11 +166,13 @@ public class TestTransactions extends DBITestCase
         }
     }
 
+    @Test
     public void testThrowingRuntimeExceptionPercolatesOriginal() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         try {
             h.inTransaction(new TransactionCallback<Object>() {
+                @Override
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     throw new IllegalArgumentException();

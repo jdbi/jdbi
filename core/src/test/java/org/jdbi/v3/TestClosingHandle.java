@@ -15,27 +15,30 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.derby.Tools;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class TestClosingHandle extends DBITestCase
+public class TestClosingHandle
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
     private BasicHandle h;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-        h = openHandle();
+        h = (BasicHandle) db.openHandle();
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        if (h != null) h.close();
-        Tools.stop();
-    }
-
+    @Test
     public void testNotClosing() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -47,6 +50,7 @@ public class TestClosingHandle extends DBITestCase
         assertFalse(h.isClosed());
     }
 
+    @Test
     public void testClosing() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -61,6 +65,7 @@ public class TestClosingHandle extends DBITestCase
         assertTrue(h.isClosed());
     }
 
+    @Test
     public void testIterateKeepHandle() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -78,6 +83,7 @@ public class TestClosingHandle extends DBITestCase
         assertFalse(h.isClosed());
     }
 
+    @Test
     public void testIterateAllTheWay() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -96,6 +102,7 @@ public class TestClosingHandle extends DBITestCase
         assertTrue(h.isClosed());
     }
 
+    @Test
     public void testIteratorBehaviour() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
@@ -118,6 +125,7 @@ public class TestClosingHandle extends DBITestCase
         assertTrue(h.isClosed());
     }
 
+    @Test
     public void testIteratorClose() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();

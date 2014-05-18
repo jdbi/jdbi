@@ -15,20 +15,24 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.derby.Tools;
+import org.junit.Rule;
+import org.junit.Test;
 
-/**
- *
- */
-public class TestNamedParams extends DBITestCase
+public class TestNamedParams
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testInsert() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         Update insert = h.createStatement("insert into something (id, name) values (:id, :name)");
         insert.bind("id", 1);
         insert.bind("name", "Brian");
@@ -36,9 +40,10 @@ public class TestNamedParams extends DBITestCase
         assertEquals(1, count);
     }
 
+    @Test
     public void testDemo() throws Exception
     {
-        Handle h = DBI.open(Tools.getDataSource());
+        Handle h = db.openHandle();
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1)
                 .bind("name", "Brian")
@@ -60,18 +65,20 @@ public class TestNamedParams extends DBITestCase
         h.close();
     }
 
+    @Test
     public void testBeanPropertyBinding() throws Exception
     {
-        Handle h = this.openHandle();
+        Handle h = db.openHandle();
         Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
         s.bindFromProperties(new Something(0, "Keith"));
         int insert_count = s.execute();
         assertEquals(1, insert_count);
     }
 
+    @Test
     public void testMapKeyBinding() throws Exception
     {
-        Handle h = this.openHandle();
+        Handle h = db.openHandle();
         Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("id", 0);
@@ -81,9 +88,10 @@ public class TestNamedParams extends DBITestCase
         assertEquals(1, insert_count);
     }
 
+    @Test
     public void testCascadedLazyArgs() throws Exception
     {
-        Handle h = this.openHandle();
+        Handle h = db.openHandle();
         Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("id", 0);

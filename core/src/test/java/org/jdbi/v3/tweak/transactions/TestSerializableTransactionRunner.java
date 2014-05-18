@@ -18,29 +18,37 @@ package org.jdbi.v3.tweak.transactions;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jdbi.v3.DBITestCase;
+import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.TransactionFailedException;
-import org.jdbi.v3.tweak.TransactionHandler;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-public class TestSerializableTransactionRunner extends DBITestCase
+public class TestSerializableTransactionRunner
 {
-    @Override
-    protected TransactionHandler getTransactionHandler()
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    private DBI dbi;
+
+    @Before
+    public void setUp() throws Exception
     {
-        return new SerializableTransactionRunner();
+        dbi = new DBI(db.getDataSource());
+        dbi.setTransactionHandler(new SerializableTransactionRunner());
     }
 
     @Test
     public void testEventuallyFails() throws Exception
     {
         final AtomicInteger tries = new AtomicInteger(5);
-        Handle handle = openHandle();
+        Handle handle = dbi.open();
 
         try {
             handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, new TransactionCallback<Void>() {
@@ -62,7 +70,7 @@ public class TestSerializableTransactionRunner extends DBITestCase
     public void testEventuallySucceeds() throws Exception
     {
         final AtomicInteger tries = new AtomicInteger(3);
-        Handle handle = openHandle();
+        Handle handle = dbi.open();
 
         handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, new TransactionCallback<Void>() {
             @Override

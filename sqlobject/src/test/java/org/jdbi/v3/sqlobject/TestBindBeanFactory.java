@@ -17,31 +17,19 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jdbi.derby.Tools;
 import org.jdbi.v3.Binding;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Update;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestBindBeanFactory
 {
-    @Before
-    public void setUp()
-        throws Exception
-    {
-        Tools.start();
-    }
-
-    @After
-    public void tearDown()
-        throws Exception
-    {
-        Tools.stop();
-    }
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
     void dummyBindBean(@BindBean int wat) { }
 
@@ -55,7 +43,7 @@ public class TestBindBeanFactory
         BindBeanFactory factory = new BindBeanFactory();
         Binder<BindBean, Object> beanBinder = factory.build(bindBeanImpl);
 
-        final DBI dbi = new DBI(Tools.getDataSource());
+        final DBI dbi = db.getDbi();
         final Handle handle = dbi.open();
         final Update testStatement = handle.createStatement("does not matter");
 

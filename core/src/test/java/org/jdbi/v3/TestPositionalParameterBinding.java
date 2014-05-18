@@ -15,22 +15,29 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-/**
- *
- */
-public class TestPositionalParameterBinding extends DBITestCase
+public class TestPositionalParameterBinding
 {
-    private BasicHandle h;
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
-    @Override
+    private Handle h;
+
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-        h = openHandle();
+        h = db.openHandle();
     }
 
+    @Test
     public void testSetPositionalString() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -44,6 +51,7 @@ public class TestPositionalParameterBinding extends DBITestCase
         assertEquals(1, eric.getId());
     }
 
+    @Test
     public void testSetPositionalInteger() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
@@ -56,6 +64,7 @@ public class TestPositionalParameterBinding extends DBITestCase
         assertEquals(1, eric.getId());
     }
 
+    @Test
     public void testBehaviorOnBadBinding1() throws Exception
     {
         Query<Something> q = h.createQuery("select * from something where id = ? and name = ?")
@@ -73,11 +82,12 @@ public class TestPositionalParameterBinding extends DBITestCase
         }
         catch (Exception e)
         {
-            fail("Threw an incorrect exception type");
+            fail("Threw an incorrect exception type " + e.getMessage());
         }
     }
 
-     public void testBehaviorOnBadBinding2() throws Exception
+    @Test
+    public void testBehaviorOnBadBinding2() throws Exception
     {
         Query<Something> q = h.createQuery("select * from something where id = ?")
                 .bind(1, 1)
@@ -99,6 +109,7 @@ public class TestPositionalParameterBinding extends DBITestCase
         }
     }
 
+    @Test
     public void testInsertParamBinding() throws Exception
     {
         int count = h.createStatement("insert into something (id, name) values (?, 'eric')")
@@ -108,15 +119,11 @@ public class TestPositionalParameterBinding extends DBITestCase
         assertEquals(1, count);
     }
 
+    @Test
     public void testPositionalConvenienceInsert() throws Exception
     {
         int count = h.insert("insert into something (id, name) values (?, ?)", 1, "eric");
 
         assertEquals(1, count);
-    }
-
-    public void testWeirdPositionalSyntax() throws Exception
-    {
-
     }
 }

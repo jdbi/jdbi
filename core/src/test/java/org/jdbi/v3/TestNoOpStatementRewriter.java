@@ -15,24 +15,27 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.derby.Tools;
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
-public class TestNoOpStatementRewriter extends DBITestCase
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+public class TestNoOpStatementRewriter
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
     private DBI dbi;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-        this.dbi = new DBI(Tools.getDataSource());
+        this.dbi = db.getDbi();
         dbi.setStatementRewriter(new NoOpStatementRewriter());
     }
 
-
+    @Test
     public void testFoo() throws Exception
     {
         Handle h = dbi.open();
@@ -46,7 +49,8 @@ public class TestNoOpStatementRewriter extends DBITestCase
         assertEquals("Keith", name);
     }
 
-    public void tesBar() throws Exception
+    @Test
+    public void testBar() throws Exception
     {
         Handle h = dbi.open();
         h.insert("insert into something (id, name) values (1, 'Keith')");
@@ -59,6 +63,7 @@ public class TestNoOpStatementRewriter extends DBITestCase
         assertEquals("Keith", name);
     }
 
+    @Test
     public void testBaz() throws Exception
     {
         Handle h = dbi.open();

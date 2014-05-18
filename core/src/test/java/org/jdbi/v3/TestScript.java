@@ -15,15 +15,20 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
-public class TestScript extends DBITestCase
+import org.junit.Rule;
+import org.junit.Test;
+
+public class TestScript
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testScriptStuff() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         Script s = h.createScript("default-data");
         s.execute();
 

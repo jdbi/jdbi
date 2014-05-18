@@ -15,16 +15,22 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
-/**
- *
- */
-public class TestBatch extends DBITestCase
+import org.junit.Rule;
+import org.junit.Test;
+
+public class TestBatch
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testBasics() throws Exception
     {
-        Handle h = this.openHandle();
+        Handle h = db.openHandle();
 
         Batch b = h.createBatch();
         b.add("insert into something (id, name) values (0, 'Keith')");

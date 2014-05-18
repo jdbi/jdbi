@@ -15,43 +15,31 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.sql.Types;
 
-import org.jdbi.derby.Tools;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class TestCallable extends DBITestCase
+public class TestCallable
 {
-    private BasicHandle h;
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
-    @Override
+    private Handle h;
+
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-        h = openHandle();
-        try {
-            h.execute("drop function to_degrees");
-        }
-        catch (Exception e) {
-            // okay if not present
-        }
+        h = db.getDbi().open();
 
-        h.execute("CREATE FUNCTION TO_DEGREES(RADIANS DOUBLE) RETURNS DOUBLE\n" +
-                  "PARAMETER STYLE JAVA NO SQL LANGUAGE JAVA\n" +
-                  "EXTERNAL NAME 'java.lang.Math.toDegrees'");
+        h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        try {
-            h.execute("drop function to_degrees");
-        }
-        catch (Exception e) {
-            // okay if not present
-        }
-
-        if (h != null) h.close();
-        Tools.stop();
-    }
-
+    @Test
     public void testStatement() throws Exception {
         OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
                 .registerOutParameter(0, Types.DOUBLE)
@@ -64,7 +52,7 @@ public class TestCallable extends DBITestCase
         assertEquals(expected.longValue(), ret.getLong(1).longValue());
         assertEquals(expected.shortValue(), ret.getShort(1).shortValue());
         assertEquals(expected.intValue(), ret.getInt(1).intValue());
-        assertEquals(expected.floatValue(), ret.getFloat(1));
+        assertEquals(expected.floatValue(), ret.getFloat(1), 0.001);
 
         try {
             ret.getDate(1);
@@ -95,7 +83,7 @@ public class TestCallable extends DBITestCase
         assertEquals(expected.longValue(), ret.getLong("x").longValue());
         assertEquals(expected.shortValue(), ret.getShort("x").shortValue());
         assertEquals(expected.intValue(), ret.getInt("x").intValue());
-        assertEquals(expected.floatValue(), ret.getFloat("x"));
+        assertEquals(expected.floatValue(), ret.getFloat("x"), 0.001);
 
         try {
             ret.getDate("x");
@@ -113,5 +101,4 @@ public class TestCallable extends DBITestCase
             assertTrue(true);
         }
     }
-
 }

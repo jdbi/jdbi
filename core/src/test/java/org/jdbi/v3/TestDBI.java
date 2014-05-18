@@ -15,33 +15,46 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.jdbi.derby.Tools;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class TestDBI extends DBITestCase
+public class TestDBI
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testDataSourceConstructor() throws Exception
     {
-        DBI dbi = new DBI(Tools.getDataSource());
+        DBI dbi = new DBI(db.getConnectionString());
         Handle h = dbi.open();
         assertNotNull(h);
         h.close();
     }
 
+    @Test
     public void testConnectionFactoryCtor() throws Exception
     {
         DBI dbi = new DBI(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection()
             {
                 try
                 {
-                    return Tools.getConnection();
+                    return DriverManager.getConnection(db.getConnectionString());
                 }
                 catch (SQLException e)
                 {
@@ -54,10 +67,12 @@ public class TestDBI extends DBITestCase
         h.close();
     }
 
+    @Test
     public void testCorrectExceptionOnSQLException() throws Exception
     {
         DBI dbi = new DBI(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection() throws SQLException
             {
                 throw new SQLException();
@@ -75,17 +90,12 @@ public class TestDBI extends DBITestCase
         }
     }
 
-    public void testStaticHandleOpener() throws Exception
-    {
-        Handle h = DBI.open(Tools.dataSource);
-        assertNotNull(h);
-        h.close();
-    }
-
+    @Test
     public void testWithHandle() throws Exception
     {
-        DBI dbi = new DBI(Tools.getDataSource());
+        DBI dbi = new DBI(db.getConnectionString());
         String value = dbi.withHandle(new HandleCallback<String>() {
+            @Override
             public String withHandle(Handle handle) throws Exception
             {
                 handle.insert("insert into something (id, name) values (1, 'Brian')");

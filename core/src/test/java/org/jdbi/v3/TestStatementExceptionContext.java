@@ -15,15 +15,20 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.StatementException;
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
-public class TestStatementExceptionContext extends DBITestCase
+import org.jdbi.v3.exceptions.StatementException;
+import org.junit.Rule;
+import org.junit.Test;
+
+public class TestStatementExceptionContext
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testFoo() throws Exception {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         try {
             h.insert("WOOF", 7, "Tom");
         }

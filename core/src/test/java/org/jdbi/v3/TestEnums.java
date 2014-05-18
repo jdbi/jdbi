@@ -15,11 +15,19 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.sql.SQLException;
 import java.util.List;
 
-public class TestEnums extends DBITestCase
+import org.junit.Rule;
+import org.junit.Test;
+
+public class TestEnums
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
     public static class SomethingElse
     {
@@ -52,9 +60,10 @@ public class TestEnums extends DBITestCase
         }
     }
 
+    @Test
     public void testMapEnumValues() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -65,9 +74,10 @@ public class TestEnums extends DBITestCase
         assertEquals(SomethingElse.Name.brian, results.get(1).name);
     }
 
+    @Test
     public void testMapInvalidEnumValue() throws SQLException
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.createStatement("insert into something (id, name) values (1, 'joe')").execute();
 
         try {
@@ -79,7 +89,5 @@ public class TestEnums extends DBITestCase
         catch (IllegalArgumentException e) {
             assertEquals("flow control goes here", 2 + 2, 4);
         }
-
-
     }
 }

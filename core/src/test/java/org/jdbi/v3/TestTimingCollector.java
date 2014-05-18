@@ -15,32 +15,36 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.jdbi.derby.Tools;
 import org.jdbi.v3.logging.NoOpLog;
+import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-/**
- *
- */
-public class TestTimingCollector extends DBITestCase
+public class TestTimingCollector
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
     private BasicHandle h;
 
     private TTC tc;
 
-    @Override
     protected BasicHandle openHandle() throws SQLException
     {
         tc = new TTC();
 
-        Connection conn = Tools.getConnection();
-        BasicHandle h = new BasicHandle(getTransactionHandler(),
-                                        getStatementLocator(),
+        Connection conn = db.openHandle().getConnection();
+        BasicHandle h = new BasicHandle(new LocalTransactionHandler(),
+                                        new ClasspathStatementLocator(),
                                         new DefaultStatementBuilder(),
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         conn,
@@ -49,31 +53,24 @@ public class TestTimingCollector extends DBITestCase
                                         tc,
                                         new MappingRegistry(),
                                         new Foreman());
-        handles.add(h);
         return h;
     }
 
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
         h = openHandle();
     }
 
-    @Override
-    public void tearDown() throws Exception
-    {
-        if (h != null) h.close();
-        Tools.stop();
-    }
-
+    @Test
     public void testStatement() throws Exception
     {
         int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         assertEquals(1, rows);
     }
 
+    @Test
     public void testSimpleInsert() throws Exception
     {
         String statement = "insert into something (id, name) values (1, 'eric')";
@@ -85,6 +82,7 @@ public class TestTimingCollector extends DBITestCase
         assertEquals(statement, statements.get(0));
     }
 
+    @Test
     public void testUpdate() throws Exception
     {
         String stmt1 = "insert into something (id, name) values (1, 'eric')";
@@ -103,6 +101,7 @@ public class TestTimingCollector extends DBITestCase
         assertEquals(stmt3, statements.get(2));
     }
 
+    @Test
     public void testSimpleUpdate() throws Exception
     {
         String stmt1 = "insert into something (id, name) values (1, 'eric')";

@@ -15,25 +15,24 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+
 import org.jdbi.v3.tweak.StatementLocator;
+import org.junit.Rule;
+import org.junit.Test;
 
-/**
- *
- */
-public class TestStatementContext extends DBITestCase
+public class TestStatementContext
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
-    @Override
-    public void setUp() throws Exception
-    {
-        super.setUp();
-    }
-
+    @Test
     public void testFoo() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.setStatementLocator(new StatementLocator() {
 
+            @Override
             public String locate(String name, StatementContext ctx) throws Exception
             {
                 return name.replaceAll("<table>", String.valueOf(ctx.getAttribute("table")));
@@ -45,6 +44,5 @@ public class TestStatementContext extends DBITestCase
                 .define("table", "something")
                 .execute();
         assertEquals(1, inserted);
-
     }
 }

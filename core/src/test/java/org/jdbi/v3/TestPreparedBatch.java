@@ -15,21 +15,30 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.derby.Tools;
+import com.google.common.collect.ImmutableMap;
+
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.StringMapper;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class TestPreparedBatch extends DBITestCase
+public class TestPreparedBatch
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testDesignApi() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         PreparedBatchPart p = b.add();
@@ -42,9 +51,10 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Keith", r.get(2).getName());
     }
 
+    @Test
     public void testBigishBatch() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         int count = 100;
@@ -57,6 +67,7 @@ public class TestPreparedBatch extends DBITestCase
 
         int row_count = h.createQuery("select count(id) from something").map(new ResultSetMapper<Integer>()
         {
+            @Override
             public Integer map(int index, ResultSet r, StatementContext ctx) throws SQLException
             {
                 return r.getInt(1);
@@ -66,9 +77,10 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals(count, row_count);
     }
 
+    @Test
     public void testBindProperties() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.add(0, "Keith");
@@ -82,15 +94,16 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Brian", r.get(2).getName());
     }
 
+    @Test
     public void testBindMaps() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        Map<String, Object> one = Tools.map("id", 0).add("name", "Keith");
+        Map<String, Object> one = ImmutableMap.of("id", 0, "name", "Keith");
         b.add(one);
-        b.add(Tools.map("id", Integer.parseInt("1")).add("name", "Eric"));
-        b.add(Tools.map("id", Integer.parseInt("2")).add("name", "Brian"));
+        b.add(ImmutableMap.of("id", 1, "name", "Eric"));
+        b.add(ImmutableMap.of("id", 2, "name", "Brian"));
 
         b.execute();
 
@@ -99,12 +112,13 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Brian", r.get(2).getName());
     }
 
+    @Test
     public void testMixedModeBatch() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        Map<String, Object> one = Tools.map("id", 0);
+        Map<String, Object> one = ImmutableMap.of("id", 0);
         b.add(one).bind("name", "Keith");
         b.execute();
 
@@ -113,9 +127,10 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Keith", r.get(0).getName());
     }
 
+    @Test
     public void testPositionalBinding() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.add().bind(0, 0).bind(1, "Keith").submit().execute();
@@ -125,9 +140,10 @@ public class TestPreparedBatch extends DBITestCase
         assertEquals("Keith", r.get(0).getName());
     }
 
+    @Test
     public void testSetOnTheBatchItself() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1);
@@ -145,9 +161,10 @@ public class TestPreparedBatch extends DBITestCase
 
     }
 
+    @Test
     public void testMixedBatchSetting() throws Exception
     {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1);

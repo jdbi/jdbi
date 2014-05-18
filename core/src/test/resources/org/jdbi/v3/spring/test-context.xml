@@ -28,15 +28,15 @@
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="derby"/>
+        <property name="dataSource" ref="db"/>
     </bean>
 
-    <bean id="derby" class="org.apache.derby.jdbc.EmbeddedDataSource">
-        <property name="databaseName" value="testing"/>
+    <bean id="db" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="url" value="jdbc:h2:mem:testing;INIT=create table if not exists something ( id integer, name varchar(50), integerValue integer, intValue integer )" />
     </bean>
 
     <bean id="dbi" class="org.jdbi.v3.spring.DBIFactoryBean">
-        <property name="dataSource" ref="derby"/>
+        <property name="dataSource" ref="db"/>
     </bean>
 
     <!--suppress SpringBeanConstructorArgInspection -->

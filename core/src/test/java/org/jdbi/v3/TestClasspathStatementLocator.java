@@ -16,7 +16,10 @@
 package org.jdbi.v3;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,42 +28,52 @@ import net.sf.cglib.transform.AbstractClassLoader;
 
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.junit.Rule;
 import org.junit.Test;
 
-public class TestClasspathStatementLocator extends DBITestCase
+public class TestClasspathStatementLocator
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testLocateNamedWithoutSuffix() throws Exception {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.createStatement("insert-keith").execute();
         assertEquals(1, h.select("select name from something").size());
     }
 
+    @Test
     public void testLocateNamedWithSuffix() throws Exception {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.insert("insert-keith.sql");
         assertEquals(1, h.select("select name from something").size());
     }
 
+    @Test
     public void testCommentsInExternalSql() throws Exception {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.insert("insert-eric-with-comments");
         assertEquals(1, h.select("select name from something").size());
     }
 
+    @Test
     public void testNamedPositionalNamedParamsInPrepared() throws Exception {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.insert("insert-id-name", 3, "Tip");
         assertEquals(1, h.select("select name from something").size());
     }
 
+    @Test
     public void testNamedParamsInExternal() throws Exception {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.createStatement("insert-id-name").bind("id", 1).bind("name", "Tip").execute();
         assertEquals(1, h.select("select name from something").size());
     }
 
-    public void testusefulExceptionForBackTracing() throws Exception {
-        Handle h = openHandle();
+    @Test
+    public void testUsefulExceptionForBackTracing() throws Exception {
+        Handle h = db.openHandle();
 
         try {
             h.createStatement("insert-id-name").bind("id", 1).execute();
@@ -74,8 +87,9 @@ public class TestClasspathStatementLocator extends DBITestCase
 
     }
 
+    @Test
     public void testTriesToParseNameIfNothingFound() throws Exception {
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         try {
             h.insert("this-does-not-exist.sql");
             fail("Should have raised an exception");
@@ -103,7 +117,7 @@ public class TestClasspathStatementLocator extends DBITestCase
             }
         });
 
-        Handle h = openHandle();
+        Handle h = db.openHandle();
         h.execute("caches-result-after-first-lookup", 1, "Brian");
         assertThat(load_count.get(), equalTo(2)); // two lookups, name and name.sql
 
@@ -111,6 +125,5 @@ public class TestClasspathStatementLocator extends DBITestCase
         assertThat(load_count.get(), equalTo(2)); // has not increased since previous
 
         Thread.currentThread().setContextClassLoader(ctx_loader);
-
     }
 }

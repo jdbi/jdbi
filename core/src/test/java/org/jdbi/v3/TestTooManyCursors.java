@@ -15,6 +15,8 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.fail;
+
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -31,19 +33,24 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import org.jdbi.derby.Tools;
 import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.tweak.HandleCallback;
+import org.junit.Rule;
+import org.junit.Test;
 
 /**
  * Oracle was getting angry about too many open cursors because of the large number
  * of prepared statements being created and cached indefinitely.
  */
-public class TestTooManyCursors extends DBITestCase
+public class TestTooManyCursors
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
+    @Test
     public void testFoo() throws Exception
     {
-        DataSource ds = Tools.getDataSource();
+        DataSource ds = db.getDataSource();
         DataSource dataSource = new ErrorProducingDataSource(ds, 99);
         DBI dbi = new DBI(dataSource);
 

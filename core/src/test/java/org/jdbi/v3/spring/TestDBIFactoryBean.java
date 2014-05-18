@@ -15,23 +15,20 @@
  */
 package org.jdbi.v3.spring;
 
+import java.sql.SQLException;
+
 import javax.sql.DataSource;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.spi.LoggingEvent;
-import org.jdbi.derby.Tools;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.util.IntegerMapper;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-/**
- *
- */
 public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContextTests
 {
-    static { System.setProperty("derby.system.home", "build/db"); }
     static {
         BasicConfigurator.configure(new AppenderSkeleton() {
 
@@ -54,29 +51,16 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
     }
 
     protected Service service;
-    protected DataSource derby;
+    protected DataSource ds;
 
     public void setService(Service service)
     {
         this.service = service;
     }
 
-    public void setDerby(DataSource derby)
+    public void setDataSource(DataSource ds) throws SQLException
     {
-        this.derby = derby;
-    }
-
-    @Override
-    protected void onSetUp() throws Exception
-    {
-        Tools.start();
-        Tools.dropAndCreateSomething();
-    }
-
-    @Override
-    protected void onTearDown() throws Exception
-    {
-        Tools.stop();
+        this.ds = ds;
     }
 
     @Override
@@ -117,7 +101,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
             fail("unexpected exception");
         }
 
-        final Handle h = DBI.open(derby);
+        final Handle h = DBI.open(ds);
 
         int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
 
