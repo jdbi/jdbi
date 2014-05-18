@@ -31,6 +31,7 @@ public class TestDerbyStuff extends TestCase
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             fail("Unable to create and delete test directory: " + e.getMessage());
         }
     }
