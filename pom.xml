@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-standard-oss</artifactId>
-        <version>2</version>
+        <version>5</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
