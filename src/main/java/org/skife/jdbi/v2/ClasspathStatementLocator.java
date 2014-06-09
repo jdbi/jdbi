@@ -47,6 +47,7 @@ public class ClasspathStatementLocator implements StatementLocator
                || local.startsWith("delete ")
                || local.startsWith("create ")
                || local.startsWith("alter ")
+               || local.startsWith("merge ")
                || local.startsWith("drop ");
     }
 
