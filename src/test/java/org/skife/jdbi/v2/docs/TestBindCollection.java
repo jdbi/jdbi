@@ -8,7 +8,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.logging.PrintStreamLog;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.skife.jdbi.v2.unstable.BindCollection;
+import org.skife.jdbi.v2.sqlobject.BindCollection;
 
 import java.util.*;
 

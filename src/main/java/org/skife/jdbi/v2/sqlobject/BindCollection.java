@@ -1,11 +1,7 @@
-package org.skife.jdbi.v2.unstable;
+package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.SQLStatement;
-import org.skife.jdbi.v2.sqlobject.*;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -68,33 +64,6 @@ public @interface BindCollection
     public static class BindingFactory implements BinderFactory
     {
 
-        /*
-         * Copied from org.skife.jdbi.v2.sqlobject.BindBeanFactory:bind
-         * This logic should be unified
-         */
-        private void bindBeanProperties(SQLStatement q, String placeholder, Object arg)
-        {
-            final String prefix;
-
-            if ("___jdbi_bare___".equals(placeholder)) {
-                prefix = "";
-            }
-            else {
-                prefix = placeholder + ".";
-            }
-
-            try {
-                BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
-                PropertyDescriptor[] props = infos.getPropertyDescriptors();
-                for (PropertyDescriptor prop : props) {
-                    q.bind(prefix + prop.getName(), prop.getReadMethod().invoke(arg));
-                }
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to bind bean properties", e);
-            }
-        }
-
         public Binder build(Annotation annotation)
         {
             final BindCollection in = (BindCollection) annotation;
@@ -116,7 +85,7 @@ public @interface BindCollection
                 private void bindBothRawValueAndBeanProperties(SQLStatement q, String placeholder, Object value)
                 {
                     q.bind(placeholder, value);
-                    bindBeanProperties(q, placeholder, value);
+                    BindBeanFactory.bindBeanProperties(q, placeholder, value);
                 }
             };
         }
