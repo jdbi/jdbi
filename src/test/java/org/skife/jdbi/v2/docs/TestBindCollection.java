@@ -51,19 +51,6 @@ public class TestBindCollection
         assertThat(results, equalTo(asList(1, 3)));
     }
 
-    @Test
-    public void testCollectionBindingWithEmptyCollection() throws Exception
-    {
-        handle.execute("insert into keyvalues (id, key, value) values (1, 'k1', 'v1'), (2, 'k1', 'blah'), (3, 'k2', 'v2')");
-
-        DAO dao = handle.attach(DAO.class);
-
-        List<Integer> results = dao.findAnyWithAKeyAndValue(new ArrayList<KeyValue>());
-
-        assertThat(results, equalTo(asList(1, 2, 3)));
-    }
-
-
     @UseStringTemplate3StatementLocator
     public static interface DAO
     {
