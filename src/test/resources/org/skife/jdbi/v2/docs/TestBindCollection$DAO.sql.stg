@@ -1,0 +1,11 @@
+group DAO;
+
+findAnyWithAKeyAndValue(keyValues) ::= <<
+    select id
+    from keyvalues
+    <if(first(keyValues))>
+    where
+      (key = <first(keyValues)>.key AND value = <first(keyValues)>.value)
+      <rest(keyValues):{ kv | OR (key = <kv>.key AND value = <kv>.value) }>
+    <endif>
+>>
