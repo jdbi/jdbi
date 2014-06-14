@@ -38,7 +38,21 @@ public class TestBindCollection
     }
 
     @Test
-    public void testCollectionBinding() throws Exception
+    public void testCollectionValueBinding() throws Exception
+    {
+        handle.execute("insert into keyvalues (id, key, value) values (1, 'k1', 'v1'), (2, 'k1', 'blah'), (3, 'k2', 'v2')");
+
+        DAO dao = handle.attach(DAO.class);
+
+        Collection<String> values = asList("%1%", "%2");
+
+        List<Integer> results = dao.findValuesLikeAnyOf(values);
+
+        assertThat(results, equalTo(asList(1, 3)));
+    }
+
+    @Test
+    public void testCollectionBeanBinding() throws Exception
     {
         handle.execute("insert into keyvalues (id, key, value) values (1, 'k1', 'v1'), (2, 'k1', 'blah'), (3, 'k2', 'v2')");
 
@@ -56,6 +70,10 @@ public class TestBindCollection
     {
         @SqlQuery
         public List<Integer> findAnyWithAKeyAndValue(@BindCollection("keyValues") Collection<KeyValue> keyValues);
+
+
+        @SqlQuery
+        public List<Integer> findValuesLikeAnyOf(@BindCollection("values") Collection<String> values);
     }
 
     public static class KeyValue {

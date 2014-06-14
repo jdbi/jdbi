@@ -7,3 +7,11 @@ findAnyWithAKeyAndValue(keyValues) ::= <<
       (key = <first(keyValues)>.key AND value = <first(keyValues)>.value)
       <rest(keyValues):{ kv | OR (key = <kv>.key AND value = <kv>.value) }>
 >>
+
+findValuesLikeAnyOf(values) ::= <<
+  select id
+  from keyvalues
+  where
+    value like <first(values)>
+    <rest(values):{ v | OR value like <v> }>
+>>
