@@ -99,6 +99,30 @@ class BasicHandle implements Handle
     }
 
     /**
+     * Creates a builder for queries whose results are transformed to {@link java.util.Map} in some way
+     * @param sql sql query
+     * @return a map query builder
+     */
+    @Override
+    public MapQuery<Map<String, Object>, Map<String, Object>> createMapQuery(String sql) {
+        return new MapQuery<Map<String, Object>, Map<String, Object>>(new Binding(),
+                new DefaultMapper(),
+                new DefaultMapper(),
+                statementLocator,
+                statementRewriter,
+                this,
+                statementBuilder,
+                sql,
+                new ConcreteStatementContext(globalStatementAttributes),
+                log,
+                timingCollector,
+                Collections.<StatementCustomizer>emptyList(),
+                new MappingRegistry(mappingRegistry),
+                foreman.createChild(),
+                containerFactoryRegistry.createChild());
+    }
+
+    /**
      * Get the JDBC Connection this Handle uses
      *
      * @return the JDBC Connection this Handle uses

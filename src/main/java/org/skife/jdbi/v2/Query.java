@@ -33,10 +33,9 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Statement providing convenience result handling for SQL queries.
  */
-public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements ResultBearing<ResultType>
+public class Query<ResultType> extends BaseQuery<Query<ResultType>> implements ResultBearing<ResultType>
 {
     private final ResultSetMapper<ResultType> mapper;
-    private final MappingRegistry             mappingRegistry;
 
     Query(Binding params,
           ResultSetMapper<ResultType> mapper,
@@ -53,9 +52,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           Foreman foreman,
           ContainerFactoryRegistry containerFactoryRegistry)
     {
-        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
+        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers,
+                mappingRegistry, foreman, containerFactoryRegistry);
         this.mapper = mapper;
-        this.mappingRegistry = new MappingRegistry(mappingRegistry);
     }
 
     /**
@@ -316,83 +315,5 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             new MappingRegistry(mappingRegistry),
                             getForeman().createChild(),
                             getContainerMapperRegistry().createChild());
-    }
-
-    /**
-     * Specify the fetch size for the query. This should cause the results to be
-     * fetched from the underlying RDBMS in groups of rows equal to the number passed.
-     * This is useful for doing chunked streaming of results when exhausting memory
-     * could be a problem.
-     *
-     * @param fetchSize the number of rows to fetch in a bunch
-     *
-     * @return the modified query
-     */
-    public Query<ResultType> setFetchSize(final int fetchSize)
-    {
-        this.addStatementCustomizer(new StatementCustomizers.FetchSizeCustomizer(fetchSize));
-        return this;
-    }
-
-    /**
-     * Specify the maimum number of rows the query is to return. This uses the underlying JDBC
-     * {@link Statement#setMaxRows(int)}}.
-     *
-     * @param maxRows maximum number of rows to return
-     *
-     * @return modified query
-     */
-    public Query<ResultType> setMaxRows(final int maxRows)
-    {
-        this.addStatementCustomizer(new StatementCustomizers.MaxRowsCustomizer(maxRows));
-        return this;
-    }
-
-    /**
-     * Specify the maimum field size in the result set. This uses the underlying JDBC
-     * {@link Statement#setMaxFieldSize(int)}
-     *
-     * @param maxFields maximum field size
-     *
-     * @return modified query
-     */
-    public Query<ResultType> setMaxFieldSize(final int maxFields)
-    {
-        this.addStatementCustomizer(new StatementCustomizers.MaxFieldSizeCustomizer(maxFields));
-        return this;
-    }
-
-    /**
-     * Specify that the fetch order should be reversed, uses the underlying
-     * {@link Statement#setFetchDirection(int)}
-     *
-     * @return the modified query
-     */
-    public Query<ResultType> fetchReverse()
-    {
-        setFetchDirection(ResultSet.FETCH_REVERSE);
-        return this;
-    }
-
-    /**
-     * Specify that the fetch order should be forward, uses the underlying
-     * {@link Statement#setFetchDirection(int)}
-     *
-     * @return the modified query
-     */
-    public Query<ResultType> fetchForward()
-    {
-        setFetchDirection(ResultSet.FETCH_FORWARD);
-        return this;
-    }
-
-    public void registerMapper(ResultSetMapper m)
-    {
-        this.mappingRegistry.add(new InferredMapperFactory(m));
-    }
-
-    public void registerMapper(ResultSetMapperFactory m)
-    {
-        this.mappingRegistry.add(m);
     }
 }
