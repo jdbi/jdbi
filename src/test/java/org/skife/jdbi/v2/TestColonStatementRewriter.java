@@ -70,6 +70,14 @@ public class TestColonStatementRewriter
         assertEquals("select * from v$session", rws.getSql());
     }
 
+   @Test
+   public void testHashInColumnNameOkay() throws Exception
+   {
+      RewrittenStatement rws = rw.rewrite(FIND_AGREEMENT_SQL, new Binding(),
+                                          new ConcreteStatementContext(new HashMap<String, Object>()));
+      assertEquals(FIND_AGREEMENT_SQL.replace( ":agreementId", "?" ), rws.getSql());
+   }
+
     @Test
     public void testBacktickOkay() throws Exception
     {
