@@ -18,14 +18,25 @@ package org.skife.jdbi.v2.sqlobject;
 import org.skife.jdbi.v2.PrimitivesMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.v2.util.*;
+import org.skife.jdbi.v2.util.BigDecimalMapper;
+import org.skife.jdbi.v2.util.BooleanMapper;
+import org.skife.jdbi.v2.util.ByteArrayMapper;
+import org.skife.jdbi.v2.util.ShortMapper;
+import org.skife.jdbi.v2.util.FloatMapper;
+import org.skife.jdbi.v2.util.DoubleMapper;
+import org.skife.jdbi.v2.util.ByteMapper;
+import org.skife.jdbi.v2.util.URLMapper;
+import org.skife.jdbi.v2.util.IntegerMapper;
+import org.skife.jdbi.v2.util.LongMapper;
+import org.skife.jdbi.v2.util.TimestampMapper;
+import org.skife.jdbi.v2.util.StringMapper;
+
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
 
 class FigureItOutResultSetMapper implements ResultSetMapper<Object>
