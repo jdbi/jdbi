@@ -81,6 +81,12 @@ public class TestColonGrammar extends GrammarTestCase
         expect("select1 != 2 from dual", LITERAL, EOF);
     }
 
+    @Test
+    public void testHashInColumnNameWorks() throws Exception
+    {
+        expect("select col# from something where id = :id", LITERAL, NAMED_PARAM, EOF);
+    }
+
     @Override
     protected String nameOf(int type)
     {
