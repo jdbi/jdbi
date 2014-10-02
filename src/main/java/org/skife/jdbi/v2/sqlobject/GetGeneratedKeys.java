@@ -27,4 +27,6 @@ import java.lang.annotation.Target;
 public @interface GetGeneratedKeys
 {
     Class<? extends ResultSetMapper> value() default FigureItOutResultSetMapper.class;
+
+    String[] columns() default {};
 }
