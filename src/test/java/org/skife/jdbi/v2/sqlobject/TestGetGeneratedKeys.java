@@ -63,6 +63,10 @@ public class TestGetGeneratedKeys
         @GetGeneratedKeys
         public long insert(@Bind String name);
 
+        @SqlUpdate("insert into something (name) values (:it)")
+        @GetGeneratedKeys(columns = "id")
+        public long insertWithKeyColumnOverride(@Bind String name);
+
         @SqlQuery("select name from something where id = :it")
         public String findNameById(@Bind long id);
     }
@@ -74,9 +78,11 @@ public class TestGetGeneratedKeys
 
         long brian_id = dao.insert("Brian");
         long keith_id = dao.insert("Keith");
+        long larry_id = dao.insertWithKeyColumnOverride("Larry"); // Larry - the reason custom column override is needed
 
         assertThat(dao.findNameById(brian_id), equalTo("Brian"));
         assertThat(dao.findNameById(keith_id), equalTo("Keith"));
+        assertThat(dao.findNameById(larry_id), equalTo("Larry"));
 
         dao.close();
     }
