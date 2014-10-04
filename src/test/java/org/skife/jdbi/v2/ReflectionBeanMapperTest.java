@@ -27,9 +27,7 @@ import java.sql.ResultSetMetaData;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 
 @RunWith(EasyMockRunner.class)
@@ -140,6 +138,31 @@ public class ReflectionBeanMapperTest {
         assertSame(aIntVal, sampleBean.getIntField());
         assertSame(aStringVal, sampleBean.getStringField());
     }
+
+    @Test
+    public void shouldSetValuesInSuperClassFields() throws Exception {
+
+        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("blongField");
+        replay(resultSetMetaData);
+
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
+        Long aLongVal = 100l;
+        Long bLongVal = 200l;
+
+        expect(resultSet.getLong(1)).andReturn(aLongVal);
+        expect(resultSet.getLong(2)).andReturn(bLongVal);
+        expect(resultSet.wasNull()).andReturn(false).anyTimes();
+        replay(resultSet);
+
+        ReflectionBeanMapper<DerivedBean> mapper = new ReflectionBeanMapper<DerivedBean>(DerivedBean.class);
+
+        DerivedBean derivedBean = mapper.map(0, resultSet, ctx);
+
+        assertEquals(aLongVal, derivedBean.getLongField());
+        assertEquals(bLongVal, derivedBean.getBlongField());
+    }
 }
 
 
@@ -163,5 +186,13 @@ class SampleBean {
 
     public BigDecimal getBigDecimalField() {
         return bigDecimalField;
+    }
+}
+
+class DerivedBean extends SampleBean {
+    private Long blongField;
+
+    public Long getBlongField() {
+        return blongField;
     }
 }

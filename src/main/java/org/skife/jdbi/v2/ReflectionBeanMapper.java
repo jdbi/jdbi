@@ -32,7 +32,7 @@ import java.util.Date;
 
 /**
  * A result set mapper which maps the fields in a statement into a JavaBean. This uses
- * the reflection to set the fields, it does not support nested properties.
+ * the reflection to set the fields on the bean including its super class fields, it does not support nested properties.
  */
 public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
 {
@@ -42,10 +42,17 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
     public ReflectionBeanMapper(Class<T> type)
     {
         this.type = type;
-        for (Field field : type.getDeclaredFields()) {
-            properties.put(field.getName().toLowerCase(), field);
-        }
+        cacheAllFieldsIncludingSuperClass(type);
+    }
 
+    private void cacheAllFieldsIncludingSuperClass(Class<T> type) {
+        Class aClass = type;
+        while(aClass != null) {
+            for (Field field : aClass.getDeclaredFields()) {
+                properties.put(field.getName().toLowerCase(), field);
+            }
+            aClass = aClass.getSuperclass();
+        }
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
