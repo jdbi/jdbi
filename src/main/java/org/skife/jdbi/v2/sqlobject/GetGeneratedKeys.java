@@ -28,5 +28,9 @@ public @interface GetGeneratedKeys
 {
     Class<? extends ResultSetMapper> value() default FigureItOutResultSetMapper.class;
 
+    /**
+     * Optional (required for Oracle) column names that constitute the
+     * primary key.
+     */
     String[] columns() default {};
 }
