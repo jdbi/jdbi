@@ -15,13 +15,15 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.StatementBuilder;
-
+import java.lang.reflect.Method;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.skife.jdbi.v2.sqlobject.GetGeneratedKeys;
+import org.skife.jdbi.v2.tweak.StatementBuilder;
 
 /**
  * A StatementBuilder which will always create a new PreparedStatement
@@ -41,6 +43,17 @@ public class DefaultStatementBuilder implements StatementBuilder
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
         if (ctx.isReturningGeneratedKeys()) {
+            final Method daoMethod = ctx.getSqlObjectMethod();
+            if (daoMethod != null) {
+                final GetGeneratedKeys ggk = daoMethod.getAnnotation(GetGeneratedKeys.class);
+                if (ggk != null) {
+                    final String[] columns = ggk.columns();
+                    if (columns != null && columns.length > 0) {
+                        return conn.prepareStatement(sql, columns);
+                    }
+                }
+            }
+
             return conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         }
         else {
