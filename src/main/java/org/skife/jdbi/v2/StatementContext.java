@@ -108,6 +108,8 @@ public interface StatementContext
      */
     boolean isReturningGeneratedKeys();
 
+    String[] getGeneratedKeysColumnNames();
+
     void addCleanable(Cleanable cleanable);
 
 }

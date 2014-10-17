@@ -107,6 +107,11 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
+    public String[] getGeneratedKeysColumnNames() {
+        return new String[0];
+    }
+
+    @Override
     public void addCleanable(final Cleanable cleanable)
     {
         throw new UnsupportedOperationException();

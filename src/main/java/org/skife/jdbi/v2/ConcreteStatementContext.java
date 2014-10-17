@@ -18,11 +18,13 @@ package org.skife.jdbi.v2;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
 
 public final class ConcreteStatementContext implements StatementContext
 {
@@ -38,6 +40,7 @@ public final class ConcreteStatementContext implements StatementContext
     private Class<?>          sqlObjectType;
     private Method            sqlObjectMethod;
     private boolean           returningGeneratedKeys;
+    private String[]          generatedKeysColumnNames;
 
     ConcreteStatementContext(Map<String, Object> globalAttributes)
     {
@@ -198,7 +201,20 @@ public final class ConcreteStatementContext implements StatementContext
 
     public boolean isReturningGeneratedKeys()
     {
-        return returningGeneratedKeys;
+        return returningGeneratedKeys || generatedKeysColumnNames != null && generatedKeysColumnNames.length > 0;
+    }
+
+    public String[] getGeneratedKeysColumnNames()
+    {
+        if (generatedKeysColumnNames == null) {
+            return new String[0];
+        }
+        return Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
+    }
+
+    public void setGeneratedKeysColumnNames(String[] generatedKeysColumnNames)
+    {
+        this.generatedKeysColumnNames = Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
     }
 
     public void addCleanable(Cleanable cleanable)
