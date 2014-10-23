@@ -15,7 +15,9 @@
  */
 package org.skife.jdbi.v2.tweak;
 
+
 import org.skife.jdbi.v2.BeanMapper;
+import org.skife.jdbi.v2.BuiltInArgumentFactory;
 import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
 
@@ -24,6 +26,10 @@ public class BeanMapperFactory implements ResultSetMapperFactory
     @Override
     public boolean accepts(Class type, StatementContext ctx)
     {
+        if (BuiltInArgumentFactory.canAccept(type)) {
+            // don't interfere with built-ins
+            return false;
+        }
         return true;
     }
 
