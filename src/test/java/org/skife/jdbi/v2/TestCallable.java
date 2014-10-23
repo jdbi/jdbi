@@ -32,6 +32,7 @@ public class TestCallable extends DBITestCase
         h = openHandle();
         try {
             h.execute("drop function to_degrees");
+            h.execute("drop procedure test_procedure");
         }
         catch (Exception e) {
             // okay if not present
@@ -40,12 +41,17 @@ public class TestCallable extends DBITestCase
         h.execute("CREATE FUNCTION TO_DEGREES(RADIANS DOUBLE) RETURNS DOUBLE\n" +
                   "PARAMETER STYLE JAVA NO SQL LANGUAGE JAVA\n" +
                   "EXTERNAL NAME 'java.lang.Math.toDegrees'");
+        h.execute("CREATE PROCEDURE TEST_PROCEDURE(in in_param varchar(20), out out_param varchar(20))\n" +
+                "PARAMETER STYLE JAVA NO SQL LANGUAGE JAVA\n" +
+                "EXTERNAL NAME 'org.skife.jdbi.v2.TestCallable.testProcedure'");
+
     }
 
     @Override
     public void doTearDown() throws Exception {
         try {
             h.execute("drop function to_degrees");
+            h.execute("drop procedure test_procedure");
         }
         catch (Exception e) {
             // okay if not present
@@ -116,5 +122,33 @@ public class TestCallable extends DBITestCase
         catch (Exception e) {
             assertTrue(true);
         }
+    }
+
+    @Test
+    public void testWithNullReturn() throws Exception {
+        OutParameters ret = h.createCall("CALL TEST_PROCEDURE(?, ?)")
+                .bind(0, (String)null)
+                .registerOutParameter(1, Types.VARCHAR)
+                .invoke();
+
+        // JDBI oddity : register or bind is 0-indexed, which JDBC is 1-indexed.
+        String out = ret.getString(2);
+        assertEquals(out, null);
+    }
+
+    @Test
+    public void testWithNullReturnWithNamedParam() throws Exception {
+        OutParameters ret = h.createCall("CALL TEST_PROCEDURE(:x, :y)")
+                .bind("x", (String)null)
+                .registerOutParameter("y", Types.VARCHAR)
+                .invoke();
+
+        String out = ret.getString("y");
+        assertEquals(out, null);
+    }
+
+    public static void testProcedure(String in, String[] out) {
+        out = new String[1];
+        out[0] = in;
     }
 }
