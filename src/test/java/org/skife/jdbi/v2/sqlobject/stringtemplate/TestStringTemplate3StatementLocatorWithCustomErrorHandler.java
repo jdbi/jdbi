@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.antlr.stringtemplate.StringTemplateErrorListener;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -32,20 +32,22 @@ import com.google.common.collect.Lists;
 
 public class TestStringTemplate3StatementLocatorWithCustomErrorHandler {
 
-  private static DBI dbi;
-  
-  MyDAO dao;
+  private DBI dbi;
+  private Handle handle;
+  private MyDAO dao;
 
-  @BeforeClass
-  public static void setupClass() {
+  @Before
+  public void setUp() {
     dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-    Handle dbih = dbi.open();
-    dbih.createStatement("create table foo (id int, bar varchar(100) default null);").execute();
+    handle = dbi.open();
+    handle.createStatement("create table foo (id int, bar varchar(100) default null);").execute();
+    dao = dbi.onDemand(MyDAO.class);
   }
   
-  @Before
-  public void setup() {
-    dao = dbi.onDemand(MyDAO.class);
+  @After
+  public void tearDown() throws Exception {
+    handle.execute("drop table foo");
+    handle.close();
   }
   
   @Test(expected=UnableToCreateStatementException.class)
