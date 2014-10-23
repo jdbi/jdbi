@@ -186,6 +186,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
             allowImplicitTemplateGroup,
             getClass(),
             superGroup);
+
+        if(this.literals != null) {
+          this.literals.setErrorListener(errorListener);
+        }
+        this.group.setErrorListener(errorListener);
     }
 
     private static StringTemplateGroup createGroup(final String templateGroupFilePathOnClasspath,
