@@ -50,8 +50,6 @@ public class PrintStreamLog extends FormattedLog
     @Override
     protected void log(String msg)
     {
-        synchronized(out) {
-            out.println(msg);
-        }
+        out.println(msg);
     }
 }
