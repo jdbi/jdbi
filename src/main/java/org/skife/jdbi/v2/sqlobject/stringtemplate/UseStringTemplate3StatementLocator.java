@@ -63,7 +63,7 @@ public @interface UseStringTemplate3StatementLocator
                 throw new IllegalStateException("Error initializing StringTemplateErrorListener", e);
               }
             }
-            
+
             final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().withErrorListener(errorListener).build();
 
             return new SqlStatementCustomizer()
