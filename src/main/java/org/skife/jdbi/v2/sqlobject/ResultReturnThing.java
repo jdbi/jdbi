@@ -160,8 +160,8 @@ abstract class ResultReturnThing
         @Override
         protected Object result(ResultBearing q, final HandleDing baton)
         {
-            baton.retain("iterator");
             final ResultIterator itty = q.iterator();
+            baton.retain("iterator");
 
             return new ResultIterator()
             {

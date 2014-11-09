@@ -25,18 +25,23 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
+import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 
 public class TestOnDemandSqlObject
@@ -144,6 +149,29 @@ public class TestOnDemandSqlObject
     }
 
     @Test
+    public void testIteratorCloseHandleOnError() throws Exception {
+        final List<Handle> openedHandle = new ArrayList<Handle>();
+        DBI dbi = new DBI(ds){
+                @Override
+                public Handle open() {
+                        Handle h  = super.open();
+                        openedHandle.add(h);
+                        return h;
+                }
+        };
+
+        Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        try {
+            s.crashNow();
+            fail();
+        } catch (DBIException e) {
+        }
+
+        assertEquals(1, openedHandle.size());
+        assertTrue( openedHandle.get(0).getConnection().isClosed() );
+    }
+
+    @Test
     public void testSqlFromExternalFileWorks() throws Exception
     {
         Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
@@ -167,6 +195,10 @@ public class TestOnDemandSqlObject
         @SqlQuery("select name, id from something")
         @Mapper(SomethingMapper.class)
         Iterator<Something> findAll();
+
+        @SqlQuery("select * from crash now")
+        @Mapper(SomethingMapper.class)
+        Iterator<Something> crashNow();
     }
 
     public static interface TransactionStuff extends GetHandle, Transactional<TransactionStuff>
