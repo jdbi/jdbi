@@ -16,12 +16,15 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.easymock.EasyMock;
+import javax.sql.DataSource;
+
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.ResultIterator;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
@@ -31,6 +34,7 @@ import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,11 +42,9 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-
 
 public class TestOnDemandSqlObject
 {
@@ -150,15 +152,7 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorCloseHandleOnError() throws Exception {
-        final List<Handle> openedHandle = new ArrayList<Handle>();
-        DBI dbi = new DBI(ds){
-                @Override
-                public Handle open() {
-                        Handle h  = super.open();
-                        openedHandle.add(h);
-                        return h;
-                }
-        };
+        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
 
         Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
         try {
@@ -167,8 +161,20 @@ public class TestOnDemandSqlObject
         } catch (DBIException e) {
         }
 
-        assertEquals(1, openedHandle.size());
-        assertTrue( openedHandle.get(0).getConnection().isClosed() );
+        assertFalse( dbi.hasOpenedHandle() );
+    }
+
+    @Test
+    public void testIteratorPrepatureClose() throws Exception {
+        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
+
+        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        spiffy.insert(1, "Tom");
+
+        ResultIterator<Something> all = spiffy.findAll();
+        all.close();
+
+        assertFalse( dbi.hasOpenedHandle() );
     }
 
     @Test
@@ -194,7 +200,7 @@ public class TestOnDemandSqlObject
 
         @SqlQuery("select name, id from something")
         @Mapper(SomethingMapper.class)
-        Iterator<Something> findAll();
+        ResultIterator<Something> findAll();
 
         @SqlQuery("select * from crash now")
         @Mapper(SomethingMapper.class)
@@ -220,4 +226,28 @@ public class TestOnDemandSqlObject
         @Mapper(SomethingMapper.class)
         Iterator<Something> findAll();
     }
+
+    public static class HandleTrackerDBI extends DBI 
+    {
+        final List<Handle> openedHandle = new ArrayList<Handle>();
+
+        HandleTrackerDBI(DataSource dataSource) {
+            super(dataSource);
+        }
+
+        @Override
+        public Handle open() {
+                Handle h  = super.open();
+                openedHandle.add(h);
+                return h;
+        }
+
+        boolean hasOpenedHandle() throws SQLException {
+            for (Handle h : openedHandle) {
+                if (!h.getConnection().isClosed()) return true;
+            }
+            return false;
+        }
+    }
+    
 }

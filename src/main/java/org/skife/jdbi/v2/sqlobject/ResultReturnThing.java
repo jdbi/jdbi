@@ -165,16 +165,25 @@ abstract class ResultReturnThing
 
             return new ResultIterator()
             {
+                private boolean closed = false;
+
                 public void close()
                 {
-                    itty.close();
+                    if (!closed) {
+                        closed = true;
+                        try {
+                            itty.close();
+                        } finally {
+                            baton.release("iterator");
+                        }
+                    }
                 }
 
                 public boolean hasNext()
                 {
                     boolean has_next = itty.hasNext();
                     if (!has_next) {
-                        baton.release("iterator");
+                        close();
                     }
                     return itty.hasNext();
                 }
@@ -184,7 +193,7 @@ abstract class ResultReturnThing
                     Object rs = itty.next();
                     boolean has_next = itty.hasNext();
                     if (!has_next) {
-                        baton.release("iterator");
+                        close();
                     }
                     return rs;
                 }
