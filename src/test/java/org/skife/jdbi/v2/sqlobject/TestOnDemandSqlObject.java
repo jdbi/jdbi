@@ -28,12 +28,15 @@ import org.skife.jdbi.v2.ResultIterator;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
+import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.util.StringMapper;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -165,6 +168,23 @@ public class TestOnDemandSqlObject
     }
 
     @Test
+    public void testIteratorClosedOnReadError() throws Exception {
+        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
+
+        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        spiffy.insert(1, "Tom");
+
+        Iterator<Something> i = spiffy.crashOnFirstRead();
+        try {
+            i.next();
+            fail();
+        } catch (DBIException ex) {
+        }
+
+        assertFalse(dbi.hasOpenedHandle());
+    }
+
+    @Test
     public void testIteratorPrepatureClose() throws Exception {
         HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
 
@@ -205,6 +225,11 @@ public class TestOnDemandSqlObject
         @SqlQuery("select * from crash now")
         @Mapper(SomethingMapper.class)
         Iterator<Something> crashNow();
+
+        @SqlQuery("select name, id from something")
+        @Mapper(CrashingMapper.class)
+        Iterator<Something> crashOnFirstRead();
+
     }
 
     public static interface TransactionStuff extends GetHandle, Transactional<TransactionStuff>
@@ -225,6 +250,14 @@ public class TestOnDemandSqlObject
         @SqlQuery("all-something")
         @Mapper(SomethingMapper.class)
         Iterator<Something> findAll();
+    }
+
+    static class CrashingMapper implements ResultSetMapper<Something>
+    {
+        public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        {
+            throw new SQLException("protocol error");
+        }
     }
 
     public static class HandleTrackerDBI extends DBI 

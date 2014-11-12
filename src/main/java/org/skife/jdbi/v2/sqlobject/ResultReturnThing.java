@@ -18,6 +18,7 @@ package org.skife.jdbi.v2.sqlobject;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
 import com.fasterxml.classmate.members.ResolvedMethod;
+
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.ResultBearing;
 import org.skife.jdbi.v2.ResultIterator;
@@ -166,6 +167,7 @@ abstract class ResultReturnThing
             return new ResultIterator()
             {
                 private boolean closed = false;
+                private boolean hasNext = itty.hasNext();
 
                 public void close()
                 {
@@ -173,7 +175,8 @@ abstract class ResultReturnThing
                         closed = true;
                         try {
                             itty.close();
-                        } finally {
+                        }
+                        finally {
                             baton.release("iterator");
                         }
                     }
@@ -181,21 +184,31 @@ abstract class ResultReturnThing
 
                 public boolean hasNext()
                 {
-                    boolean has_next = itty.hasNext();
-                    if (!has_next) {
-                        close();
-                    }
-                    return itty.hasNext();
+                    return hasNext;
                 }
 
                 public Object next()
                 {
-                    Object rs = itty.next();
-                    boolean has_next = itty.hasNext();
-                    if (!has_next) {
+                    Object rs;
+                    try {
+                        rs = itty.next();
+                        hasNext = itty.hasNext();
+                    }
+                    catch (RuntimeException e) {
+                        closeIgnoreException();
+                        throw e;
+                    }
+                    if (!hasNext) {
                         close();
                     }
                     return rs;
+                }
+
+                @SuppressWarnings("PMD.EmptyCatchBlock")
+                public void closeIgnoreException() {
+                    try {
+                        close();
+                    } catch (RuntimeException ex) {}
                 }
 
                 public void remove()
