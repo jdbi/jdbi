@@ -15,6 +15,7 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
+import org.easymock.EasyMock;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -22,6 +23,8 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.exceptions.TransactionException;
+import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
@@ -40,11 +43,12 @@ public class TestOnDemandSqlObject
 {
     private DBI    dbi;
     private Handle handle;
+    private JdbcDataSource ds;
 
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
+        ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = new DBI(ds);
@@ -116,6 +120,27 @@ public class TestOnDemandSqlObject
 
         assertNotSame(s.getHandle(), s.getHandle());
 
+    }
+
+    @Test(expected=TransactionException.class)
+    public void testExceptionOnClose() throws Exception {
+        DBI dbi = new DBI(ds) {
+            @Override
+            public Handle open() {
+                Handle h = EasyMock.createMock(Handle.class);
+                h.createStatement(EasyMock.anyString());
+                EasyMock.expectLastCall()
+                    .andThrow(new TransactionException("connection reset"));
+                h.close();
+                EasyMock.expectLastCall()
+                    .andThrow(new UnableToCloseResourceException("already closed", null));
+                EasyMock.replay(h);
+                return h;
+            }
+        };
+
+        Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        s.insert(1, "Tom");
     }
 
     @Test
