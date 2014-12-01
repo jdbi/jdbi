@@ -169,12 +169,24 @@ class SqlObject
             return mp.invokeSuper(proxy, args);
         }
 
+        Throwable doNotMask = null;
         try {
             ding.retain(method.toString());
             return handler.invoke(ding, proxy, args, mp);
         }
+        catch (Throwable e) {
+            doNotMask = e;
+            throw e;
+        }
         finally {
-            ding.release(method.toString());
+            try {
+                ding.release(method.toString());
+            }
+            catch (Throwable e) {
+                if (doNotMask==null) {
+                    throw e;
+                }
+            }
         }
     }
 
