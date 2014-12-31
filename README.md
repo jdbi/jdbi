@@ -6,4 +6,4 @@ Documentation is at http://jdbi.org/
 
 There is a mailing list at http://groups.google.com/group/jdbi
 
-![Build Status](https://travis-ci.org/brianm/jdbi.png)
+![Build Status](https://travis-ci.org/jdbi/jdbi.png)
