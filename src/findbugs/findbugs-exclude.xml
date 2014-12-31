@@ -23,4 +23,9 @@
     <Match>
         <Class name="org.skife.jdbi.rewriter.printf.FormatterStatementLexer" />
     </Match>
+    <Match>
+        <Class name="org.skife.jdbi.v2.sqlobject.BatchHandler$InfiniteIterator"/>
+        <Method name="next"/>
+        <Bug pattern="IT_NO_SUCH_ELEMENT"/>
+    </Match>
 </FindBugsFilter>
