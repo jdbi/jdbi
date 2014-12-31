@@ -184,6 +184,12 @@
                 <artifactId>commons-logging</artifactId>
                 <version>1.1.1</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>3.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
