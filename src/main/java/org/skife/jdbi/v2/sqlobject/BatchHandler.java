@@ -34,6 +34,8 @@ import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 class BatchHandler extends CustomizingStatementHandler
 {
     private final String  sql;
@@ -95,7 +97,7 @@ class BatchHandler extends CustomizingStatementHandler
         Handle handle = h.getHandle();
 
         List<Iterator> extras = new ArrayList<Iterator>();
-        for (Object arg : args) {
+        for (final Object arg : args) {
             if (arg instanceof Iterable) {
                 extras.add(((Iterable) arg).iterator());
             }
@@ -106,7 +108,25 @@ class BatchHandler extends CustomizingStatementHandler
                 extras.add(Arrays.asList((Object[])arg).iterator());
             }
             else {
-                extras.add(new InfiniteIterator(arg));
+                extras.add(new Iterator()
+                {
+                    public boolean hasNext()
+                    {
+                        return true;
+                    }
+
+                    @SuppressFBWarnings("IT_NO_SUCH_ELEMENT")
+                    public Object next()
+                    {
+                        return arg;
+                    }
+
+                    public void remove()
+                    {
+                        // NOOP
+                    }
+                }
+                );
             }
         }
 
@@ -213,26 +233,6 @@ class BatchHandler extends CustomizingStatementHandler
         public int call(Object[] args)
         {
             return (Integer)args[index];
-        }
-    }
-
-    private static class InfiniteIterator implements Iterator<Object> {
-        private Object arg;
-
-        private InfiniteIterator(Object arg) {
-            this.arg = arg;
-        }
-
-        public boolean hasNext() {
-            return true;
-        }
-
-        public Object next() {
-            return arg;
-        }
-
-        public void remove() {
-            // NOOP
         }
     }
 }
