@@ -74,6 +74,10 @@
             <id>tomdz</id>
             <name>Thomas Dudziak</name>
         </developer>
+        <developer>
+            <id>stevenschlansker</id>
+            <name>Steven Schlansker</name>
+        </developer>
     </developers>
 
     <properties>
