@@ -18,6 +18,8 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +72,7 @@ public class ClasspathStatementLocator implements StatementLocator
      *          if an IOException occurs reading a found resource
      */
     @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressFBWarnings("DM_STRING_CTOR")
     public String locate(String name, StatementContext ctx)
     {
         final String cache_key;
