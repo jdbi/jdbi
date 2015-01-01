@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,17 +13,13 @@
  */
 package org.jdbi.v3.unstable.grammar;
 
+import static org.junit.Assert.assertEquals;
+
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Token;
 
-import junit.framework.TestCase;
-
-/**
- *
- */
-public abstract class GrammarTestCase extends TestCase
+public abstract class GrammarTestCase
 {
-
     public void expect(String s, int... tokens) throws Exception
     {
         Lexer lexer = createLexer(s);

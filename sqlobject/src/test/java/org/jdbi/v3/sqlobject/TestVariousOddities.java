@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,39 +13,46 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.*;
+
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestVariousOddities extends TestCase
+public class TestVariousOddities
 {
     private DBI dbi;
     private Handle handle;
 
-
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
-
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testAttach() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -57,11 +62,13 @@ public class TestVariousOddities extends TestCase
         assertEquals("Tom", tom.getName());
     }
 
+    @Test
     public void testRegisteredMappersWork() throws Exception
     {
 
     }
 
+    @Test
     public void testEquals()
     {
         Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -71,6 +78,7 @@ public class TestVariousOddities extends TestCase
         assertFalse(s1.equals(s2));
     }
 
+    @Test
     public void testToString()
     {
         Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -80,6 +88,7 @@ public class TestVariousOddities extends TestCase
         assertTrue(s1.toString() != s2.toString());
     }
 
+    @Test
     public void testHashCode()
     {
         Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -89,6 +98,28 @@ public class TestVariousOddities extends TestCase
         assertTrue(s1.hashCode() != s2.hashCode());
     }
 
+    @Test
+    public void testConcurrentHashCode() throws ExecutionException, InterruptedException
+    {
+        Callable<SpiffyConcurrent> callable = new Callable<SpiffyConcurrent>() {
+
+            @Override
+            public SpiffyConcurrent call() throws Exception {
+                return SqlObjectBuilder.attach(handle, SpiffyConcurrent.class);
+            }
+        };
+
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        Future<SpiffyConcurrent> f1 = pool.submit(callable);
+        Future<SpiffyConcurrent> f2 = pool.submit(callable);
+        SpiffyConcurrent s1 = f1.get();
+        SpiffyConcurrent s2 = f2.get();
+        assertFalse(0 == s1.hashCode());
+        assertFalse(0 == s2.hashCode());
+        assertTrue(s1.hashCode() != s2.hashCode());
+    }
+
+    @Test
     public void testNullQueryReturn()
     {
         try {
@@ -103,7 +134,6 @@ public class TestVariousOddities extends TestCase
 
     public static interface Spiffy extends CloseMe
     {
-
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
         public Something byId(@Bind("id") long id);
@@ -117,5 +147,13 @@ public class TestVariousOddities extends TestCase
     {
         @SqlQuery("SELECT 1")
         void returnNothing();
+    }
+
+    /**
+     * This interface should not be loaded by any test other than {@link TestVariousOddities#testConcurrentHashCode()}.
+     */
+    public static interface SpiffyConcurrent
+    {
+
     }
 }

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,7 +34,7 @@ public interface StatementContext
      *
      * @return previous value of this attribute
      */
-    public Object setAttribute(String key, Object value);
+    Object setAttribute(String key, Object value);
 
     /**
      * Obtain the value of an attribute
@@ -45,7 +43,7 @@ public interface StatementContext
      *
      * @return the value of the attribute
      */
-    public Object getAttribute(String key);
+    Object getAttribute(String key);
 
     /**
      * Obtain all the attributes associated with this context as a map. Changes to the map
@@ -53,7 +51,7 @@ public interface StatementContext
      *
      * @return a map f attributes
      */
-    public Map<String, Object> getAttributes();
+    Map<String, Object> getAttributes();
 
 
     /**
@@ -61,7 +59,7 @@ public interface StatementContext
      *
      * @return the initial sql
      */
-    public String getRawSql();
+    String getRawSql();
 
     /**
      * Obtain the located and rewritten sql
@@ -70,7 +68,7 @@ public interface StatementContext
      *
      * @return the sql as it will be executed against the database
      */
-    public String getRewrittenSql();
+    String getRewrittenSql();
 
     /**
      * Obtain the located sql
@@ -79,7 +77,7 @@ public interface StatementContext
      *
      * @return the sql which will be passed to the statement rewriter
      */
-    public String getLocatedSql();
+    String getLocatedSql();
 
     /**
      * Obtain the actual prepared statement being used.
@@ -88,26 +86,26 @@ public interface StatementContext
      *
      * @return Obtain the actual prepared statement being used.
      */
-    public PreparedStatement getStatement();
+    PreparedStatement getStatement();
 
     /**
      * Obtain the JDBC connection being used for this statement
      *
      * @return the JDBC connection
      */
-    public Connection getConnection();
+    Connection getConnection();
 
-    public Binding getBinding();
+    Binding getBinding();
 
-    public Class<?> getSqlObjectType();
+    Class<?> getSqlObjectType();
 
-    public Method getSqlObjectMethod();
+    Method getSqlObjectMethod();
 
     /**
      * Is the statement being generated expected to return the generated keys?
      */
-    public boolean isReturningGeneratedKeys();
+    boolean isReturningGeneratedKeys();
 
-    public void addCleanable(Cleanable cleanable);
+    void addCleanable(Cleanable cleanable);
 
 }

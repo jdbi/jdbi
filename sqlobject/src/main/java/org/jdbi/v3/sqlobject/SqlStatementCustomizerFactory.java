@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,7 +30,7 @@ public interface SqlStatementCustomizerFactory
      * @param method the method which was annotated
      * @return the customizer which will be applied to the generated statement
      */
-    public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method);
+    SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method);
 
     /**
      * Used to create customizers for annotations on sql object interfaces
@@ -41,7 +39,7 @@ public interface SqlStatementCustomizerFactory
      * @param sqlObjectType sql object class (interface)
      * @return the customizer which will be applied to the generated statement
      */
-    public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType);
+    SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType);
 
     /**
      * Used to create customizers for annotations on parameters
@@ -52,5 +50,5 @@ public interface SqlStatementCustomizerFactory
      * @param arg the argument value for the annotated parameter
      * @return the customizer which will be applied to the generated statement
      */
-    public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg);
+    SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg);
 }

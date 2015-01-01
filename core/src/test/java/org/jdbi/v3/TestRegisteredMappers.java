@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,21 +13,25 @@
  */
 package org.jdbi.v3;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.tweak.ResultSetMapper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class TestRegisteredMappers extends TestCase
+public class TestRegisteredMappers
 {
     private DBI dbi;
     private Handle handle;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
@@ -39,14 +41,14 @@ public class TestRegisteredMappers extends TestCase
 
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
-
+    @Test
     public void testRegisterInferredOnDBI() throws Exception
     {
         dbi.registerMapper(new SomethingMapper());

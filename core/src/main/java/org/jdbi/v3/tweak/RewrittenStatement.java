@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,10 +31,10 @@ public interface RewrittenStatement
      * @param statement
      * @throws SQLException
      */
-    public void bind(Binding params, PreparedStatement statement) throws SQLException;
+    void bind(Binding params, PreparedStatement statement) throws SQLException;
 
     /**
      * Obtain the SQL in valid (rewritten) form to be used to prepare a statement
      */
-    public String getSql();
+    String getSql();
 }

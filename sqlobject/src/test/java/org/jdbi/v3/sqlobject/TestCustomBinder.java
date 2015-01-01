@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
@@ -23,16 +23,16 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestCustomBinder extends TestCase
+public class TestCustomBinder
 {
     private DBI    dbi;
     private Handle handle;
 
-
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -44,13 +44,14 @@ public class TestCustomBinder extends TestCase
 
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testFoo() throws Exception
     {
         handle.execute("insert into something (id, name) values (2, 'Martin')");
@@ -63,6 +64,7 @@ public class TestCustomBinder extends TestCase
         spiffy.close();
     }
 
+    @Test
     public void testCustomBindingAnnotation() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -71,7 +73,6 @@ public class TestCustomBinder extends TestCase
 
         assertEquals("Keith", s.findNameById(2));
     }
-
 
     public static interface Spiffy extends CloseMe
     {

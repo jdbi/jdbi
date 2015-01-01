@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -136,7 +134,9 @@ public class HashPrefixStatementRewriter implements StatementRewriter
                 //List<String> named_params = stmt.params;
                 int i = 0;
                 for (String named_param : stmt.params) {
-                    if ("*".equals(named_param)) continue;
+                    if ("*".equals(named_param)) {
+                        continue;
+                    }
                     Argument a = params.forName(named_param);
                     if (a == null) {
                         a = params.forPosition(i);

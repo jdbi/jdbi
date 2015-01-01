@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -26,16 +29,17 @@ import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.util.StringMapper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class TestOnDemandSqlObject extends TestCase
+public class TestOnDemandSqlObject
 {
     private DBI    dbi;
     private Handle handle;
 
-
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -48,14 +52,14 @@ public class TestOnDemandSqlObject extends TestCase
 
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
-
+    @Test
     public void testAPIWorks() throws Exception
     {
         Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
@@ -67,6 +71,7 @@ public class TestOnDemandSqlObject extends TestCase
         assertEquals("Bill", bill);
     }
 
+    @Test
     public void testTransactionBindsTheHandle() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.onDemand(dbi, TransactionStuff.class);
@@ -89,6 +94,7 @@ public class TestOnDemandSqlObject extends TestCase
         assertEquals("Miker", tx2.byId(8).getName());
     }
 
+    @Test
     public void testIteratorBindsTheHandle() throws Exception
     {
         Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
@@ -110,6 +116,7 @@ public class TestOnDemandSqlObject extends TestCase
 
     }
 
+    @Test
     public void testSqlFromExternalFileWorks() throws Exception
     {
         Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);

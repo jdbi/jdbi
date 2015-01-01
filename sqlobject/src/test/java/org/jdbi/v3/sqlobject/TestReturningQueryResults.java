@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,16 +28,16 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestReturningQueryResults extends TestCase
+public class TestReturningQueryResults
 {
     private DBI    dbi;
     private Handle handle;
 
-
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -48,13 +49,14 @@ public class TestReturningQueryResults extends TestCase
 
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testSingleValue() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
@@ -66,6 +68,7 @@ public class TestReturningQueryResults extends TestCase
         assertEquals("Tim", s.getName());
     }
 
+    @Test
     public void testIterator() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
@@ -86,6 +89,7 @@ public class TestReturningQueryResults extends TestCase
     }
 
 
+    @Test
     public void testList() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");

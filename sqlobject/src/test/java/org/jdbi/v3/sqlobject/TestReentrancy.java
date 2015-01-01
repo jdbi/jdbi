@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,11 +30,11 @@ import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.util.StringMapper;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestReentrancy extends TestCase
+public class TestReentrancy
 {
     private DBI    dbi;
     private Handle handle;
@@ -113,7 +112,7 @@ public class TestReentrancy extends TestCase
     }
 
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -129,7 +128,7 @@ public class TestReentrancy extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,10 +18,11 @@ import static org.jdbi.rewriter.printf.FormatterStatementLexer.*;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Lexer;
 import org.jdbi.rewriter.printf.FormatterStatementLexer;
+import org.junit.Test;
 
 public class TestPrintfGrammar extends GrammarTestCase
 {
-
+    @Test
     public void testFoo() throws Exception
     {
         expect("select id from something where name like '%d' and id = %d and name like %s",

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +23,9 @@ public abstract class FormattedLog implements SQLLog
 {
     public final void logSQL(long time, String sql)
     {
-        if (isEnabled()) log(String.format("statement:[%s] took %d millis", sql, time));
+        if (isEnabled()) {
+            log(String.format("statement:[%s] took %d millis", sql, time));
+        }
     }
 
     /**
@@ -44,7 +44,9 @@ public abstract class FormattedLog implements SQLLog
 
     public final void logPreparedBatch(long time, String sql, int count)
     {
-        if (isEnabled()) log(String.format("prepared batch with %d parts:[%s] took %d millis", count, sql, time));
+        if (isEnabled()) {
+            log(String.format("prepared batch with %d parts:[%s] took %d millis", count, sql, time));
+        }
     }
 
     public final BatchLogger logBatch()
@@ -79,17 +81,23 @@ public abstract class FormattedLog implements SQLLog
 
     public void logBeginTransaction(Handle h)
     {
-        if (isEnabled()) log(String.format("begin transaction on [%s]", h));
+        if (isEnabled()) {
+            log(String.format("begin transaction on [%s]", h));
+        }
     }
 
     public void logCommitTransaction(long time, Handle h)
     {
-        if (isEnabled()) log(String.format("commit transaction on [%s] took %d millis", h, time));
+        if (isEnabled()) {
+            log(String.format("commit transaction on [%s] took %d millis", h, time));
+        }
     }
 
     public void logRollbackTransaction(long time, Handle h)
     {
-        if (isEnabled()) log(String.format("rollback transaction on [%s] took %d millis", h, time));
+        if (isEnabled()) {
+            log(String.format("rollback transaction on [%s] took %d millis", h, time));
+        }
     }
 
     public void logObtainHandle(long time, Handle h)

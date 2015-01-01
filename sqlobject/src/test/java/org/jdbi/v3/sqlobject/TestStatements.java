@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
@@ -22,15 +22,16 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.util.StringMapper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestStatements extends TestCase
+public class TestStatements
 {
     private DBI dbi;
     private Handle handle;
 
-
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -42,12 +43,14 @@ public class TestStatements extends TestCase
 
     }
 
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testInsert() throws Exception
     {
         Inserter i = SqlObjectBuilder.open(dbi, Inserter.class);
@@ -63,6 +66,7 @@ public class TestStatements extends TestCase
         i.close();
     }
 
+    @Test
     public void testInsertWithVoidReturn() throws Exception
     {
         Inserter i = SqlObjectBuilder.open(dbi, Inserter.class);

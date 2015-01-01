@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,14 +17,21 @@ import static org.junit.Assert.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Maps;
 
 import org.jdbi.HandyMapThing;
 import org.jdbi.v3.exceptions.NoResultsException;
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.util.StringMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,13 +40,18 @@ public class TestQueries
 {
     @Rule
     public MemoryDatabase db = new MemoryDatabase();
-
     private Handle h;
 
     @Before
     public void setUp() throws Exception
     {
         h = db.openHandle();
+    }
+
+    @After
+    public void doTearDown() throws Exception
+    {
+        if (h != null) h.close();
     }
 
     @Test
@@ -300,6 +310,53 @@ public class TestQueries
     {
         Something s = h.createQuery("select id, name from something").map(Something.class).first();
         assertNull(s);
+    }
+
+    @Test
+    public void testListWithMaxRows() throws Exception
+    {
+        h.prepareBatch("insert into something (id, name) values (:id, :name)")
+         .add(1, "Brian")
+         .add(2, "Keith")
+         .add(3, "Eric")
+         .execute();
+
+        assertEquals(1, h.createQuery("select id, name from something").map(Something.class).stream().limit(1).collect(Collectors.toList()).size());
+        assertEquals(2, h.createQuery("select id, name from something").map(Something.class).stream().limit(2).collect(Collectors.toList()).size());
+    }
+
+    @Test
+    public void testFold() throws Exception
+    {
+        h.prepareBatch("insert into something (id, name) values (:id, :name)")
+         .add(1, "Brian")
+         .add(2, "Keith")
+         .execute();
+
+        Map<String, Integer> rs = h.createQuery("select id, name from something")
+                                   .<Entry<String, Integer>>map((i, r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
+                                   .stream()
+                                   .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        assertEquals(2, rs.size());
+        assertEquals(Integer.valueOf(1), rs.get("Brian"));
+        assertEquals(Integer.valueOf(2), rs.get("Keith"));
+    }
+
+    @Test
+    public void testCollectList() throws Exception
+    {
+        h.prepareBatch("insert into something (id, name) values (:id, :name)")
+         .add(1, "Brian")
+         .add(2, "Keith")
+         .execute();
+
+        List<String> rs = h.createQuery("select name from something order by id")
+                           .map(StringMapper.FIRST)
+                           .stream()
+                           .collect(Collectors.toList());
+
+        assertEquals(2, rs.size());
+        assertEquals(Arrays.asList("Brian", "Keith"), rs);
     }
 
     @Test

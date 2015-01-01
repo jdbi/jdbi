@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +25,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface SqlQuery
 {
-    static final String DEFAULT_VALUE = "  $#@!!@#%  ";
+    String DEFAULT_VALUE = "  $#@!!@#%  ";
 
     /**
      * The query (or query name if using a statement locator) to be executed. The default value will use

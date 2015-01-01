@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +23,7 @@ import java.util.List;
 
 import org.jdbi.v3.logging.NoOpLog;
 import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,6 +60,12 @@ public class TestTimingCollector
     public void setUp() throws Exception
     {
         h = openHandle();
+    }
+
+    @After
+    public void doTearDown() throws Exception
+    {
+        if (h != null) h.close();
     }
 
     @Test

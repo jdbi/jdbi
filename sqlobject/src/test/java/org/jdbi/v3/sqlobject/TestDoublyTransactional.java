@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,11 +33,11 @@ import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestDoublyTransactional extends TestCase
+public class TestDoublyTransactional
 {
     private DBI    dbi;
     private Handle handle;
@@ -69,7 +67,7 @@ public class TestDoublyTransactional extends TestCase
         });
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         final JdbcDataSource ds = new JdbcDataSource() {
@@ -93,7 +91,7 @@ public class TestDoublyTransactional extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");

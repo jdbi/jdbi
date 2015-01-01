@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +12,7 @@
  * limitations under the License.
  */
 package org.jdbi.v3;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,6 +66,7 @@ public class ClasspathStatementLocator implements StatementLocator
      * @throws UnableToCreateStatementException
      *          if an IOException occurs reading a found resource
      */
+    @Override
     @SuppressWarnings("PMD.EmptyCatchBlock")
     public String locate(String name, StatementContext ctx)
     {
@@ -83,7 +83,7 @@ public class ClasspathStatementLocator implements StatementLocator
         }
 
         if (looksLikeSql(name)) {
-            found.putIfAbsent(cache_key, name);
+            // No need to cache individual SQL statements that don't cause us to search the classpath
             return name;
         }
         final ClassLoader loader = selectClassLoader();
@@ -159,7 +159,7 @@ public class ClasspathStatementLocator implements StatementLocator
         return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
     }
 
-    private final static String SEP = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
+    private static final String SEP = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars
 
     private static String mungify(String path)
     {

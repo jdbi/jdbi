@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -208,14 +206,13 @@ class BatchHandler extends CustomizingStatementHandler
         return rs.toArray();
     }
 
-    private static interface ChunkSizeFunction
+    private interface ChunkSizeFunction
     {
         int call(Object[] args);
     }
 
     private static class ConstantChunkSizeFunction implements ChunkSizeFunction
     {
-
         private final int value;
 
         ConstantChunkSizeFunction(int value) {
@@ -231,7 +228,6 @@ class BatchHandler extends CustomizingStatementHandler
 
     private static class ParamBasedChunkSizeFunction implements ChunkSizeFunction
     {
-
         private final int index;
 
         ParamBasedChunkSizeFunction(int index) {

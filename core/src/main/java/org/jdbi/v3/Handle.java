@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -95,13 +93,13 @@ public interface Handle extends Closeable
      */
     Update createStatement(String sql);
 
-	/**
-	 * Create a call to a stored procedure
-	 *
-	 * @param callableSql
-	 * @return the Call
-	 */
-	public Call createCall(String callableSql);
+    /**
+     * Create a call to a stored procedure
+     *
+     * @param callableSql
+     * @return the Call
+     */
+    Call createCall(String callableSql);
 
 
     /**
@@ -170,19 +168,19 @@ public interface Handle extends Closeable
      * Allows for overiding the default statement locator. The default searches the
      * classpath for named statements
      */
-    public void setStatementLocator(StatementLocator locator);
+    void setStatementLocator(StatementLocator locator);
 
     /**
      * Allows for overiding the default statement rewriter. The default handles
      * named parameter interpolation.
      */
-    public void setStatementRewriter(StatementRewriter rewriter);
+    void setStatementRewriter(StatementRewriter rewriter);
 
     /**
      * Creates an SQL script, looking for the source of the script using the
      * current statement locator (which defaults to searching the classpath)
      */
-    public Script createScript(String name);
+    Script createScript(String name);
 
     /**
      * Execute some SQL with no return value
@@ -228,35 +226,35 @@ public interface Handle extends Closeable
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
-    public void registerMapper(ResultSetMapper<?> mapper);
+    void registerMapper(ResultSetMapper<?> mapper);
 
     /**
      * Register a result set mapper factory.
      *
      * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
      */
-    public void registerMapper(ResultSetMapperFactory factory);
+    void registerMapper(ResultSetMapperFactory factory);
 
     /**
      * Set the transaction isolation level on the underlying connection
      *
      * @param level the isolation level to use
      */
-    public void setTransactionIsolation(TransactionIsolationLevel level);
+    void setTransactionIsolation(TransactionIsolationLevel level);
 
     /**
      * Set the transaction isolation level on the underlying connection
      *
      * @param level the isolation level to use
      */
-    public void setTransactionIsolation(int level);
+    void setTransactionIsolation(int level);
 
     /**
      * Obtain the current transaction isolation level
      *
      * @return the current isolation level on the underlying connection
      */
-    public TransactionIsolationLevel getTransactionIsolationLevel();
+    TransactionIsolationLevel getTransactionIsolationLevel();
 
     public void registerArgumentFactory(ArgumentFactory<?> argumentFactory);
 }

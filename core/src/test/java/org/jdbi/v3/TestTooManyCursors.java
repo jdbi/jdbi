@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -120,23 +118,23 @@ public class TestTooManyCursors
             return target.getLoginTimeout();
         }
 
-	    @Override
+        @Override
         public <T> T unwrap(Class<T> iface) throws SQLException
-	    {
-		    return null;
-	    }
+        {
+            return null;
+        }
 
-	    @Override
+        @Override
         public boolean isWrapperFor(Class<?> iface) throws SQLException
-	    {
-		    return false;
-	    }
+        {
+            return false;
+        }
 
-	    @Override
+        @Override
         public Logger getParentLogger() throws SQLFeatureNotSupportedException
-	    {
-	        throw new UnsupportedOperationException();
-	    }
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
 

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,7 +31,7 @@ import org.jdbi.v3.tweak.StatementLocator;
 @Target({ElementType.TYPE})
 public @interface UseStringTemplate3StatementLocator
 {
-    static final String DEFAULT_VALUE = " ~ ";
+    String DEFAULT_VALUE = " ~ ";
 
     String value() default DEFAULT_VALUE;
 
@@ -43,13 +41,16 @@ public @interface UseStringTemplate3StatementLocator
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final UseStringTemplate3StatementLocator a = (UseStringTemplate3StatementLocator) annotation;
-            final StatementLocator l;
+            final StringTemplate3StatementLocator.Builder builder;
+
             if (DEFAULT_VALUE.equals(a.value())) {
-                l = new StringTemplate3StatementLocator(sqlObjectType, true, true);
+                builder = StringTemplate3StatementLocator.builder(sqlObjectType);
             }
             else {
-                l = new StringTemplate3StatementLocator(a.value(), true, true);
+                builder = StringTemplate3StatementLocator.builder(a.value());
             }
+
+            final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().build();
 
             return new SqlStatementCustomizer()
             {

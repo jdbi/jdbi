@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,29 +30,29 @@ public interface TransactionHandler
     /**
      * Called when a transaction is started
      */
-    public void begin(Handle handle); // TODO consider having this return a TransactionStatus
+    void begin(Handle handle); // TODO consider having this return a TransactionStatus
 
     /**
      * Called when a transaction is committed
      */
-    public void commit(Handle handle);
+    void commit(Handle handle);
 
     /**
      * Called when a transaction is rolled back
      */
-    public void rollback(Handle handle);
+    void rollback(Handle handle);
 
     /**
      * Roll back to a named checkpoint
      * @param handle the handle the rollback is being performed on
      * @param name the name of the checkpoint to rollback to
      */
-    public void rollback(Handle handle, String name);
+    void rollback(Handle handle, String name);
 
     /**
      * Called to test if a handle is in a transaction
      */
-    public boolean isInTransaction(Handle handle);
+    boolean isInTransaction(Handle handle);
 
     /**
      * Create a new checkpoint (savepoint in JDBC terminology)

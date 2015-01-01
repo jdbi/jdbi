@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +12,9 @@
  * limitations under the License.
  */
 package org.jdbi.v3.sqlobject;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import java.util.UUID;
 
@@ -30,16 +31,17 @@ import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.util.StringMapper;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestMixinInterfaces extends TestCase
+public class TestMixinInterfaces
 {
     private DBI dbi;
     private Handle handle;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -50,13 +52,14 @@ public class TestMixinInterfaces extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testGetHandle() throws Exception
     {
         WithGetHandle g = SqlObjectBuilder.attach(handle, WithGetHandle.class);
@@ -65,6 +68,7 @@ public class TestMixinInterfaces extends TestCase
         assertSame(handle, h);
     }
 
+    @Test
     public void testWithHandle() throws Exception
     {
         WithGetHandle g = SqlObjectBuilder.attach(handle, WithGetHandle.class);
@@ -80,6 +84,7 @@ public class TestMixinInterfaces extends TestCase
         assertEquals("Mike", name);
     }
 
+    @Test
     public void testBeginAndCommitTransaction() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -95,6 +100,7 @@ public class TestMixinInterfaces extends TestCase
 
     }
 
+    @Test
     public void testInTransaction() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -111,6 +117,7 @@ public class TestMixinInterfaces extends TestCase
         assertEquals("Keith", s.getName());
     }
 
+    @Test
     public void testInTransactionWithLevel() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -128,6 +135,7 @@ public class TestMixinInterfaces extends TestCase
         assertEquals("Keith", s.getName());
     }
 
+    @Test
     public void testTransactionIsolationActuallyHappens() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
@@ -149,6 +157,7 @@ public class TestMixinInterfaces extends TestCase
         tx2.close();
     }
 
+    @Test
     public void testJustJdbiTransactions() throws Exception
     {
         Handle h1 = dbi.open();

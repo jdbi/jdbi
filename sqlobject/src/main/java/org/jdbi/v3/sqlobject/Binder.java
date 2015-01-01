@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,5 +20,5 @@ import org.jdbi.v3.SQLStatement;
 
 public interface Binder<AnnotationType extends Annotation, ArgType>
 {
-    public void bind(SQLStatement<?> q, Parameter parameter, AnnotationType bind, ArgType arg);
+    void bind(SQLStatement<?> q, Parameter parameter, AnnotationType bind, ArgType arg);
 }

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -63,9 +61,9 @@ public abstract class TypedMapper<T> implements ResultSetMapper<T>
         return internal.map(index, r, ctx);
     }
 
-    abstract protected T extractByName(ResultSet r, String name) throws SQLException;
+    protected abstract T extractByName(ResultSet r, String name) throws SQLException;
 
-    abstract protected T extractByIndex(ResultSet r, int index) throws SQLException;
+    protected abstract T extractByIndex(ResultSet r, int index) throws SQLException;
 
 
     private class StringMapper implements ResultSetMapper<T>

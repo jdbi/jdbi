@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -95,7 +93,9 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     public int[] execute()
     {
         // short circuit empty batch
-        if (parts.size() == 0) return new int[]{};
+        if (parts.size() == 0) {
+            return new int[]{};
+        }
 
         PreparedBatchPart current = parts.get(0);
         final String my_sql ;
@@ -179,14 +179,14 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
         return part;
     }
 
-	public PreparedBatch add(Object... args)
-	{
+    public PreparedBatch add(Object... args)
+    {
         PreparedBatchPart part = add();
-		for (int i = 0; i < args.length; ++i) {
-			part.bind(i, args[i]);
-		}
-		return this;
-	}
+        for (int i = 0; i < args.length; ++i) {
+            part.bind(i, args[i]);
+        }
+        return this;
+    }
 
 
     /**

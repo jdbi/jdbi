@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,10 +14,9 @@
 package org.jdbi.v3;
 
 import org.junit.Assert;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestEscapedCharacters extends TestCase
+public class TestEscapedCharacters
 {
     private final ColonPrefixNamedParamStatementRewriter rewriter = new ColonPrefixNamedParamStatementRewriter();
 
@@ -28,16 +25,19 @@ public class TestEscapedCharacters extends TestCase
         return rewriter.parseString(src, new ColonPrefixNamedParamStatementRewriter.ParsedStatement());
     }
 
+    @Test
     public void testSimpleString()
     {
         Assert.assertEquals("hello, world", parseString("hello, world"));
     }
 
+    @Test
     public void testSimpleSql()
     {
         Assert.assertEquals("insert into foo (xyz) values (?)", parseString("insert into foo (xyz) values (:bar)"));
     }
 
+    @Test
     public void testEscapedSql()
     {
         Assert.assertEquals("insert into foo (xyz) values (?::some_strange_type)", parseString("insert into foo (xyz) values (:bar\\:\\:some_strange_type)"));

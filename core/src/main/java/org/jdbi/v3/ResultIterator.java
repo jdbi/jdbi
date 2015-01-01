@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,8 +32,8 @@ import java.util.Iterator;
 public interface ResultIterator<Type> extends Iterator<Type>, Closeable
 {
     /**
-     * Close the underlying resultset
+     * Close the underlying result set.
      */
     @Override
-    public void close();
+    void close();
 }

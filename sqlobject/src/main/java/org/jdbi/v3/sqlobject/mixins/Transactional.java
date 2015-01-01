@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,19 +23,19 @@ import org.jdbi.v3.TransactionIsolationLevel;
  */
 public interface Transactional<SelfType extends Transactional<SelfType>>
 {
-    public void begin();
+    void begin();
 
-    public void commit();
+    void commit();
 
-    public void rollback();
+    void rollback();
 
-    public void checkpoint(String name);
+    void checkpoint(String name);
 
-    public void release(String name);
+    void release(String name);
 
-    public void rollback(String name);
+    void rollback(String name);
 
-    public <ReturnType> ReturnType inTransaction(Transaction<ReturnType, SelfType> func);
+    <ReturnType> ReturnType inTransaction(Transaction<ReturnType, SelfType> func);
 
-    public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel isolation, Transaction<ReturnType, SelfType> func);
+    <ReturnType> ReturnType inTransaction(TransactionIsolationLevel isolation, Transaction<ReturnType, SelfType> func);
 }

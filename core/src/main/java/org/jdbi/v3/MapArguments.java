@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,11 +35,15 @@ class MapArguments implements NamedArgumentFinder
         this.args = args;
     }
 
+    @Override
     public Argument find(String name)
     {
         if (args.containsKey(name))
         {
-            return foreman.waffle(args.get(name).getClass(), args.get(name), ctx);
+            final Object argument = args.get(name);
+            final Class<? extends Object> argumentClass =
+                    argument == null ? Object.class : argument.getClass();
+            return foreman.waffle(argumentClass, argument, ctx);
         }
         else
         {

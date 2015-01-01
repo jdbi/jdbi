@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,14 +16,15 @@ package org.jdbi.v3;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 public final class ConcreteStatementContext implements StatementContext
 {
-    private final List<Cleanable> cleanables = new ArrayList<Cleanable>();
+    private final Set<Cleanable> cleanables = new LinkedHashSet<Cleanable>();
     private final Map<String, Object>        attributes = new HashMap<String, Object>();
 
     private String            rawSql;
@@ -205,7 +204,7 @@ public final class ConcreteStatementContext implements StatementContext
         this.cleanables.add(cleanable);
     }
 
-    public List<Cleanable> getCleanables()
+    public Collection<Cleanable> getCleanables()
     {
         return cleanables;
     }

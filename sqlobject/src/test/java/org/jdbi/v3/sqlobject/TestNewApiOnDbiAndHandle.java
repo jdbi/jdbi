@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.Closeable;
 import java.util.UUID;
 
@@ -23,15 +24,17 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class TestNewApiOnDbiAndHandle extends TestCase
+public class TestNewApiOnDbiAndHandle
 {
     private DBI    dbi;
     private Handle handle;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -43,13 +46,14 @@ public class TestNewApiOnDbiAndHandle extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception
     {
         handle.execute("drop table something");
         handle.close();
     }
 
+    @Test
     public void testOpenNewSpiffy() throws Exception
     {
         Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
@@ -65,6 +69,7 @@ public class TestNewApiOnDbiAndHandle extends TestCase
         assertTrue(spiffy.getHandle().getConnection().isClosed());
     }
 
+    @Test
     public void testOnDemandSpiffy() throws Exception
     {
         Spiffy spiffy = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -75,6 +80,7 @@ public class TestNewApiOnDbiAndHandle extends TestCase
         assertEquals("Diego", spiffy.findNameById(2));
     }
 
+    @Test
     public void testAttach() throws Exception
     {
         Spiffy spiffy = SqlObjectBuilder.attach(handle, Spiffy.class);

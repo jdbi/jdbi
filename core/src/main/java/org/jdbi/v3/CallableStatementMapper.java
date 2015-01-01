@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,5 +18,5 @@ import java.sql.SQLException;
 
 public interface CallableStatementMapper
 {
-	public Object map(int position, CallableStatement stmt) throws SQLException;
+    Object map(int position, CallableStatement stmt) throws SQLException;
 }

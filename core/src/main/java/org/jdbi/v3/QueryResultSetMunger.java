@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,8 +32,9 @@ abstract class QueryResultSetMunger<T> implements QueryResultMunger<T>
             throws SQLException
     {
         ResultSet rs = results.getResultSet();
-        if (rs == null)
+        if (rs == null) {
             throw new NoResultsException("Query did not have a result set, perhaps you meant update?", stmt.getContext());
+        }
 
         stmt.addCleanable(Cleanables.forResultSet(rs));
         return munge(rs);

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +15,7 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +31,12 @@ public class TestStatements
     public void setUp() throws Exception
     {
         h = db.openHandle();
+    }
+
+    @After
+    public void doTearDown() throws Exception
+    {
+        if (h != null) h.close();
     }
 
     @Test

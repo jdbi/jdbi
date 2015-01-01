@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1096,7 +1094,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Object value)
     {
-        return bind(position, getForeman().waffle(Object.class, value, getContext()));
+        return bind(position, getForeman().waffle(value != null ? value.getClass() : Object.class, value, getContext()));
     }
 
     /**
@@ -1109,7 +1107,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Object value)
     {
-        return bind(name, getForeman().waffle(Object.class, value, getContext()));
+        return bind(name, getForeman().waffle(value != null ? value.getClass() : Object.class, value, getContext()));
     }
 
     /**

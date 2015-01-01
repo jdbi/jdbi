@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +31,7 @@ import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.logging.Log4JLog;
 import org.jdbi.v3.logging.PrintStreamLog;
 import org.jdbi.v3.tweak.SQLLog;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -133,6 +132,12 @@ public class TestSqlLogging
             }
         };
         h.setSQLLog(log);
+    }
+
+    @After
+    public void doTearDown() throws Exception
+    {
+        if (h != null) h.close();
     }
 
     @Test

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,9 +13,15 @@
  */
 package org.jdbi.v3;
 
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.tweak.ArgumentFactory;
 import org.junit.Test;
 
 public class TestForeman
@@ -52,4 +56,91 @@ public class TestForeman
         assertSame(StringArgument.class, stringArgument.getClass());
     }
 
+    @Test
+    public void testPull88WeirdClassArgumentFactory()
+    {
+        final Foreman foreman = new Foreman();
+        foreman.register(new WeirdClassArgumentFactory());
+
+        // Pull Request #88 changes the outcome of this waffle call from ObjectArgument to WeirdArgument
+        // when using SqlStatement#bind(..., Object) and the Object is != null
+        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, new Weird(), null).getClass());
+
+        assertEquals(ObjectArgument.class, foreman.waffle(Object.class, new Weird(), null).getClass());
+    }
+
+    @Test
+    public void testPull88NullClassArgumentFactory()
+    {
+        final Foreman foreman = new Foreman();
+        foreman.register(new WeirdClassArgumentFactory());
+
+        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, null, null).getClass());
+        assertEquals(ObjectArgument.class, foreman.waffle(Object.class, null, null).getClass());
+    }
+
+    @Test
+    public void testPull88WeirdValueArgumentFactory()
+    {
+        final Foreman foreman = new Foreman();
+        foreman.register(new WeirdValueArgumentFactory());
+
+        // Pull Request #88 changes the outcome of this waffle call from ObjectArgument to WeirdArgument
+        // when using SqlStatement#bind(..., Object) and the Object is != null
+        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, new Weird(), null).getClass());
+        assertEquals(WeirdArgument.class, foreman.waffle(Object.class, new Weird(), null).getClass());
+    }
+
+    @Test
+    public void testPull88NullValueArgumentFactory()
+    {
+        final Foreman foreman = new Foreman();
+        foreman.register(new WeirdValueArgumentFactory());
+
+        assertEquals(ObjectArgument.class, foreman.waffle(Weird.class, null, null).getClass());
+        assertEquals(ObjectArgument.class, foreman.waffle(Object.class, null, null).getClass());
+    }
+
+    private static class Weird
+    {
+    }
+
+    private static class WeirdClassArgumentFactory implements ArgumentFactory<Weird>
+    {
+        @Override
+        public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
+        {
+            return expectedType == Weird.class;
+        }
+
+        @Override
+        public Argument build(Class<?> expectedType, Weird value, StatementContext ctx)
+        {
+            return new WeirdArgument();
+        }
+    }
+
+    private static class WeirdValueArgumentFactory implements ArgumentFactory<Weird>
+    {
+        @Override
+        public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
+        {
+            return value instanceof Weird;
+        }
+
+        @Override
+        public Argument build(Class<?> expectedType, Weird value, StatementContext ctx)
+        {
+            return new WeirdArgument();
+        }
+    }
+
+    private static class WeirdArgument implements Argument
+    {
+
+        @Override
+        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
+        {
+        }
+    }
 }

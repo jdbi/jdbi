@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +17,7 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 
 /**
- * This duplicates the API on {@link DBI} and {@link Handle} for creating sql objects. While it is fine to use these
+ * This duplicates the API on {@link org.skife.jdbi.v2.DBI} and {@link Handle} for creating sql objects. While it is fine to use these
  * methods to create sql objects, there is no real difference between them and the oones on DBI and Handle.
  */
 public class SqlObjectBuilder

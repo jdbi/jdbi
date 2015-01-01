@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,47 +18,54 @@ import static org.jdbi.rewriter.colon.ColonStatementLexer.*;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Lexer;
 import org.jdbi.rewriter.colon.ColonStatementLexer;
+import org.junit.Test;
+
 
 public class TestColonGrammar extends GrammarTestCase
 {
-
+    @Test
     public void testNamedOnly() throws Exception
     {
         expect("select id from something where name like ':foo' and id = :id and name like :name",
                LITERAL, QUOTED_TEXT, LITERAL, NAMED_PARAM, LITERAL, NAMED_PARAM, EOF);
     }
 
+    @Test
     public void testEmptyQuote() throws Exception
     {
         expect("select ''",
                LITERAL, QUOTED_TEXT, EOF);
     }
 
+    @Test
     public void testEscapedEmptyQuote() throws Exception
     {
         expect("select '\\''",
                LITERAL, QUOTED_TEXT, EOF);
     }
 
+    @Test
     public void testEscapedColon() throws Exception
     {
         expect("insert into foo (val) VALUE (:bar\\:\\:type)",
                LITERAL, NAMED_PARAM, ESCAPED_TEXT, ESCAPED_TEXT, LITERAL, EOF);
     }
 
-
+    @Test
     public void testMixed() throws Exception
     {
         expect("select id from something where name like ':foo' and id = ? and name like :name",
                LITERAL, QUOTED_TEXT, LITERAL, POSITIONAL_PARAM, LITERAL, NAMED_PARAM, EOF);
     }
 
+    @Test
     public void testThisBrokeATest() throws Exception
     {
         expect("insert into something (id, name) values (:id, :name)",
                LITERAL, NAMED_PARAM, LITERAL, NAMED_PARAM, LITERAL, EOF);
     }
 
+    @Test
     public void testExclamationWorks() throws Exception
     {
         expect("select1 != 2 from dual", LITERAL, EOF);

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,9 +18,8 @@ import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
+import org.junit.Before;
 import org.junit.Test;
-
-import junit.framework.TestCase;
 
 /**
  * Sometimes the GC will call {@link #finalize()} on a SqlObject from
@@ -30,7 +27,7 @@ import junit.framework.TestCase;
  * open a {@link Connection} just to satisfy a (no-op) finalizer.
  * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
  */
-public class TestFinalizeBehavior extends TestCase
+public class TestFinalizeBehavior
 {
     private DBI    dbi;
 
@@ -46,7 +43,7 @@ public class TestFinalizeBehavior extends TestCase
         dao.finalize(); // Normally GC would do this, but just fake it
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         final JdbcDataSource ds = new JdbcDataSource() {

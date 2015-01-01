@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +22,7 @@ import org.jdbi.v3.StatementContext;
  * Used with a {@link org.jdbi.v3.Query#map(ResultSetMapper)} call to specify
  * what to do with each row of a result set
  */
+@FunctionalInterface
 public interface ResultSetMapper<T>
 {
     /**
@@ -36,5 +35,5 @@ public interface ResultSetMapper<T>
      * @return the value to return for this row
      * @throws SQLException if anythign goes wrong go ahead and let this percolate, jDBI will handle it
      */
-    public T map(int index, ResultSet r, StatementContext ctx) throws SQLException;
+    T map(int index, ResultSet r, StatementContext ctx) throws SQLException;
 }

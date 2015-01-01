@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,10 +25,10 @@ public interface ResultSetMapperFactory
      * @param type the target type to map to
      * @return true if it can, false if it cannot
      */
-    public boolean accepts(Class<?> type, StatementContext ctx);
+    boolean accepts(Class<?> type, StatementContext ctx);
 
     /**
      * Supplies a result set mapper which will map result sets to type
      */
-    public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx);
+    ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx);
 }

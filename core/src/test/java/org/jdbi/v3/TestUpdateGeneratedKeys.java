@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2013 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,14 +13,11 @@
  */
 package org.jdbi.v3;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.sql.Connection;
 import java.sql.Statement;
 
 import org.jdbi.v3.util.LongMapper;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,14 +55,14 @@ public class TestUpdateGeneratedKeys
         insert1.bind("name", "Brian");
         Long id1 = insert1.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNotNull(id1);
+        Assert.assertNotNull(id1);
 
         Update insert2 = h.createStatement("insert into something_else (name) values (:name)");
         insert2.bind("name", "Tom");
         Long id2 = insert2.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNotNull(id2);
-        assertTrue(id2 > id1);
+        Assert.assertNotNull(id2);
+        Assert.assertTrue(id2 > id1);
     }
 
     @Test
@@ -79,14 +74,14 @@ public class TestUpdateGeneratedKeys
         insert.bind("name", "Brian");
         Long id1 = insert.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNotNull(id1);
+        Assert.assertNotNull(id1);
 
         Update update = h.createStatement("update something_else set name = :name where id = :id");
         update.bind("id", id1);
         update.bind("name", "Tom");
         Long id2 = update.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNull(id2);
+        Assert.assertNull(id2);
     }
 
     @Test
@@ -98,12 +93,12 @@ public class TestUpdateGeneratedKeys
         insert.bind("name", "Brian");
         Long id1 = insert.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNotNull(id1);
+        Assert.assertNotNull(id1);
 
         Update delete = h.createStatement("delete from something_else where id = :id");
         delete.bind("id", id1);
         Long id2 = delete.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        assertNull(id2);
+        Assert.assertNull(id2);
     }
 }
