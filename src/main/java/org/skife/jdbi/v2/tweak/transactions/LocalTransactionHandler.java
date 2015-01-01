@@ -224,9 +224,7 @@ public class LocalTransactionHandler implements TransactionHandler
             throw new UnableToRestoreAutoCommitStateException(e);
         } finally {
             // prevent memory leak if rollback throws an exception
-            if (localStuff.containsKey(handle)) {
-                localStuff.remove(handle);
-            }
+            localStuff.remove(handle);
         }
     }
 
