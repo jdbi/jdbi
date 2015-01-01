@@ -15,7 +15,9 @@
  */
 package org.skife.jdbi.v2.exceptions;
 
-public class UnableToRestoreAutoCommitStateException  extends DBIException {
+public class UnableToRestoreAutoCommitStateException extends DBIException {
+
+    private static final long serialVersionUID = 2433069110223543423L;
 
     public UnableToRestoreAutoCommitStateException(Throwable throwable) {
         super(throwable);
