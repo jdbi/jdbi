@@ -95,20 +95,19 @@ public abstract class DBITestCase
     protected BasicHandle openHandle(Connection connection) throws SQLException
     {
         BasicHandle h = new BasicHandle(getTransactionHandler(),
-                getStatementLocator(),
-                new CachingStatementBuilder(new DefaultStatementBuilder()),
-                new ColonPrefixNamedParamStatementRewriter(),
-                connection,
-                new HashMap<String, Object>(),
-                new NoOpLog(),
-                TimingCollector.NOP_TIMING_COLLECTOR,
-                new MappingRegistry(),
-                new Foreman(),
-                new ContainerFactoryRegistry());
+                                        getStatementLocator(),
+                                        new CachingStatementBuilder(new DefaultStatementBuilder()),
+                                        new ColonPrefixNamedParamStatementRewriter(),
+                                        connection,
+                                        new HashMap<String, Object>(),
+                                        new NoOpLog(),
+                                        TimingCollector.NOP_TIMING_COLLECTOR,
+                                        new MappingRegistry(),
+                                        new Foreman(),
+                                        new ContainerFactoryRegistry());
         HANDLES.add(h);
         return h;
     }
-
 
     protected TransactionHandler getTransactionHandler()
     {
