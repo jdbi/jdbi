@@ -23,8 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 
 /**
@@ -32,7 +33,7 @@ import java.util.regex.Matcher;
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private final ConcurrentMap<String, String> found = new ConcurrentHashMap<String, String>();
+    private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<String, String>());
 
     /**
      * Very basic sanity test to see if a string looks like it might be sql
@@ -104,7 +105,8 @@ public class ClasspathStatementLocator implements StatementLocator
             }
 
             if (in_stream == null) {
-                found.putIfAbsent(cache_key, name);
+                // Ensure we don't store a value pointing at a key by potentially making a copy
+                found.put(cache_key, name == cache_key ? new String(name) : cache_key);
                 return name;
             }
 
@@ -125,7 +127,7 @@ public class ClasspathStatementLocator implements StatementLocator
             }
 
             String sql = buffer.toString();
-            found.putIfAbsent(cache_key, sql);
+            found.put(cache_key, sql);
             return buffer.toString();
         }
         finally {
