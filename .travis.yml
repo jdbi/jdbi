@@ -1,6 +1,7 @@
 language: java
 jdk:
-  - oraclejdk7
   - openjdk6
+  - oraclejdk7
+  - oraclejdk8
 install: mvn -DskipTests=true -Dbasepom.check.skip-all=true -B install
 script: mvn -B verify
