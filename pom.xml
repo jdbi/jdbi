@@ -352,5 +352,19 @@
                 </pluginManagement>
             </build>
         </profile>
+        <profile>
+            <id>compat-jdk6</id>
+            <activation>
+                <jdk>[,1.7)</jdk>
+            </activation>
+            <properties>
+                <!-- findbugs 3.x.x is java 7+ -->
+                <dep.findbugs.version>2.0.3</dep.findbugs.version>
+                <dep.plugin.findbugs.version>2.5.5</dep.plugin.findbugs.version>
+
+                <!-- checkstyle post 6.1 is java 7+ -->
+                <dep.checkstyle.version>6.1</dep.checkstyle.version>
+            </properties>
+        </profile>
     </profiles>
 </project>
