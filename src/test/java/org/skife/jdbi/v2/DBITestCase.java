@@ -89,12 +89,16 @@ public abstract class DBITestCase
 
     protected BasicHandle openHandle() throws SQLException
     {
-        Connection conn = DERBY_HELPER.getConnection();
+        return openHandle(DERBY_HELPER.getConnection());
+    }
+
+    protected BasicHandle openHandle(Connection connection) throws SQLException
+    {
         BasicHandle h = new BasicHandle(getTransactionHandler(),
                                         getStatementLocator(),
                                         new CachingStatementBuilder(new DefaultStatementBuilder()),
                                         new ColonPrefixNamedParamStatementRewriter(),
-                                        conn,
+                                        connection,
                                         new HashMap<String, Object>(),
                                         new NoOpLog(),
                                         TimingCollector.NOP_TIMING_COLLECTOR,

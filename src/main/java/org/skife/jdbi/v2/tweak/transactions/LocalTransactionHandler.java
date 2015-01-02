@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
+import org.skife.jdbi.v2.exceptions.UnableToRestoreAutoCommitStateException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 import java.sql.Connection;
@@ -64,20 +65,12 @@ public class LocalTransactionHandler implements TransactionHandler
     {
         try {
             handle.getConnection().commit();
-            final LocalStuff stuff = localStuff.remove(handle);
-            if (stuff != null) {
-                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
-                stuff.getCheckpoints().clear();
-            }
         }
         catch (SQLException e) {
             throw new TransactionException("Failed to commit transaction", e);
         }
         finally {
-            // prevent memory leak if commit throws an exception
-            if (localStuff.containsKey(handle)) {
-                localStuff.remove(handle);
-            }
+            restoreAutoCommitState(handle);
         }
     }
 
@@ -88,20 +81,12 @@ public class LocalTransactionHandler implements TransactionHandler
     {
         try {
             handle.getConnection().rollback();
-            final LocalStuff stuff = localStuff.remove(handle);
-            if (stuff != null) {
-                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
-                stuff.getCheckpoints().clear();
-            }
         }
         catch (SQLException e) {
             throw new TransactionException("Failed to rollback transaction", e);
         }
         finally {
-            // prevent memory leak if rollback throws an exception
-            if (localStuff.containsKey(handle)) {
-                localStuff.remove(handle);
-            }
+            restoreAutoCommitState(handle);
         }
     }
 
@@ -227,6 +212,22 @@ public class LocalTransactionHandler implements TransactionHandler
             handle.setTransactionIsolation(initial);
         }
     }
+
+    private void restoreAutoCommitState(final Handle handle) {
+        try {
+            final LocalStuff stuff = localStuff.remove(handle);
+            if (stuff != null) {
+                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
+                stuff.getCheckpoints().clear();
+            }
+        } catch (SQLException e) {
+            throw new UnableToRestoreAutoCommitStateException(e);
+        } finally {
+            // prevent memory leak if rollback throws an exception
+            localStuff.remove(handle);
+        }
+    }
+
 
     private static class LocalStuff
     {
