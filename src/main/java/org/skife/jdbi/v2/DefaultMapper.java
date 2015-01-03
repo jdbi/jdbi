@@ -26,6 +26,7 @@ import java.util.Map;
 
 public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
 {
+    @Override
     public Map<String, Object> map(int index, ResultSet r, StatementContext ctx)
     {
         Map<String, Object> row = new DefaultResultMap();

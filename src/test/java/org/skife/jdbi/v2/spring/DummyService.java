@@ -32,24 +32,28 @@ public class DummyService implements Service
         this.dbi = dbi;
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void inPropagationRequired(Callback c)
     {
         c.call(dbi);
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void inRequiresNew(Callback c)
     {
         c.call(dbi);
     }
 
+    @Override
     @Transactional(propagation = Propagation.NESTED)
     public void inNested(Callback c)
     {
         c.call(dbi);
     }
 
+    @Override
     @Transactional(propagation=Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
     public void inRequiresNewReadUncommitted(Callback c)
     {

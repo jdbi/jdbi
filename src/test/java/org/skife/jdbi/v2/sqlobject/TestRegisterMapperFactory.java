@@ -89,11 +89,13 @@ public class TestRegisterMapperFactory
     public static class MyFactory implements ResultSetMapperFactory
     {
 
+        @Override
         public boolean accepts(Class type, StatementContext ctx)
         {
             return type.isAnnotationPresent(MapWith.class);
         }
 
+        @Override
         public ResultSetMapper mapperFor(Class type, StatementContext ctx)
         {
 
@@ -131,6 +133,7 @@ public class TestRegisterMapperFactory
 
         public static class FooMapper implements ResultSetMapper<Foo>
         {
+            @Override
             public Foo map(final int index, final ResultSet r, final StatementContext ctx) throws SQLException
             {
                 return new Foo(r.getInt("id"), r.getString("name"));

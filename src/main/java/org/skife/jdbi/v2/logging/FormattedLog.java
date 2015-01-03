@@ -23,6 +23,7 @@ import org.skife.jdbi.v2.tweak.SQLLog;
  */
 public abstract class FormattedLog implements SQLLog
 {
+    @Override
     public final void logSQL(long time, String sql)
     {
         if (isEnabled()) {
@@ -44,6 +45,7 @@ public abstract class FormattedLog implements SQLLog
     protected abstract void log(String msg);
 
 
+    @Override
     public final void logPreparedBatch(long time, String sql, int count)
     {
         if (isEnabled()) {
@@ -51,6 +53,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public final BatchLogger logBatch()
     {
         if (isEnabled()) {
@@ -60,12 +63,14 @@ public abstract class FormattedLog implements SQLLog
             {
                 private boolean added = false;
 
+                @Override
                 public final void add(String sql)
                 {
                     added = true;
                     builder.append("[").append(sql).append("], ");
                 }
 
+                @Override
                 public final void log(long time)
                 {
                     if (added) {
@@ -81,6 +86,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public void logBeginTransaction(Handle h)
     {
         if (isEnabled()) {
@@ -88,6 +94,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public void logCommitTransaction(long time, Handle h)
     {
         if (isEnabled()) {
@@ -95,6 +102,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public void logRollbackTransaction(long time, Handle h)
     {
         if (isEnabled()) {
@@ -102,6 +110,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public void logObtainHandle(long time, Handle h)
     {
         if (this.isEnabled()) {
@@ -109,6 +118,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public void logReleaseHandle(Handle h)
     {
         if (this.isEnabled()) {
@@ -116,6 +126,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public void logCheckpointTransaction(Handle h, String name)
     {
         if (this.isEnabled()) {
@@ -123,6 +134,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public void logReleaseCheckpointTransaction(Handle h, String name)
     {
         if (this.isEnabled()) {
@@ -130,6 +142,7 @@ public abstract class FormattedLog implements SQLLog
         }
     }
 
+    @Override
     public void logRollbackToCheckpoint(long time, Handle h, String checkpointName)
     {
         if (this.isEnabled()) {

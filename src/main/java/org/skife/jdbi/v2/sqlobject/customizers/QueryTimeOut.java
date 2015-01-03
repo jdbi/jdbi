@@ -40,11 +40,13 @@ public @interface QueryTimeOut
 
     static class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             final QueryTimeOut fs = (QueryTimeOut) annotation;
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     q.setQueryTimeout(fs.value());
@@ -52,11 +54,13 @@ public @interface QueryTimeOut
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final QueryTimeOut fs = (QueryTimeOut) annotation;
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     q.setQueryTimeout(fs.value());
@@ -64,6 +68,7 @@ public @interface QueryTimeOut
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                          Class sqlObjectType,
                                                          Method method,
@@ -72,6 +77,7 @@ public @interface QueryTimeOut
             final Integer va = (Integer) arg;
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     q.setQueryTimeout(va);

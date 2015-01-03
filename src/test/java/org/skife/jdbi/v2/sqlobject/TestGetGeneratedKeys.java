@@ -43,6 +43,7 @@ public class TestGetGeneratedKeys
         dbi = new DBI(ds);
         dbi.withHandle(new HandleCallback<Object>()
         {
+            @Override
             public Object withHandle(Handle handle) throws Exception
             {
                 handle.execute("create table something (id identity primary key, name varchar(32))");

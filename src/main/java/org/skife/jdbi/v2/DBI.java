@@ -95,6 +95,7 @@ public class DBI implements IDBI
     {
         this(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection() throws SQLException
             {
                 return DriverManager.getConnection(url);
@@ -112,6 +113,7 @@ public class DBI implements IDBI
     {
         this(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection() throws SQLException
             {
                 return DriverManager.getConnection(url, props);
@@ -130,6 +132,7 @@ public class DBI implements IDBI
     {
         this(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection() throws SQLException
             {
                 return DriverManager.getConnection(url, username, password);
@@ -199,6 +202,7 @@ public class DBI implements IDBI
      *
      * @return an open Handle instance
      */
+    @Override
     public Handle open()
     {
         try {
@@ -250,6 +254,7 @@ public class DBI implements IDBI
      * @param key   The key for the attribute
      * @param value the value for the attribute
      */
+    @Override
     public void define(String key, Object value)
     {
         this.globalStatementAttributes.put(key, value);
@@ -266,6 +271,7 @@ public class DBI implements IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
+    @Override
     public <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException
     {
         final Handle h = this.open();
@@ -293,9 +299,11 @@ public class DBI implements IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
+    @Override
     public <ReturnType> ReturnType inTransaction(final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
         return withHandle(new HandleCallback<ReturnType>() {
+            @Override
             public ReturnType withHandle(Handle handle) throws Exception
             {
                 return handle.inTransaction(callback);
@@ -303,9 +311,11 @@ public class DBI implements IDBI
         });
     }
 
+    @Override
     public <ReturnType> ReturnType inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
         return withHandle(new HandleCallback<ReturnType>() {
+            @Override
             public ReturnType withHandle(Handle handle) throws Exception
             {
                 return handle.inTransaction(isolation, callback);
@@ -320,6 +330,7 @@ public class DBI implements IDBI
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
+    @Override
     public <SqlObjectType> SqlObjectType open(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.open(this, sqlObjectType);
@@ -333,6 +344,7 @@ public class DBI implements IDBI
      * @param <SqlObjectType>
      * @return a new sql object of the specified type, with a dedicated handle
      */
+    @Override
     public <SqlObjectType> SqlObjectType onDemand(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.onDemand(this, sqlObjectType);
@@ -342,6 +354,7 @@ public class DBI implements IDBI
      * Used to close a sql object which lacks a close() method.
      * @param sqlObject the sql object to close
      */
+    @Override
     public void close(Object sqlObject)
     {
         if (sqlObject instanceof Handle) {
@@ -379,6 +392,7 @@ public class DBI implements IDBI
         assert connection != null;
         return new DBI(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection()
             {
                 return connection;

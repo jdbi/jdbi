@@ -54,6 +54,7 @@ public class Update extends SQLStatement<Update>
     {
         try {
             return this.internalExecute(new QueryResultMunger<Integer>() {
+                @Override
                 public Integer munge(Statement results) throws SQLException
                 {
                     return results.getUpdateCount();
@@ -75,6 +76,7 @@ public class Update extends SQLStatement<Update>
     {
         getConcreteContext().setReturningGeneratedKeys(true);
         return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>() {
+            @Override
             public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
             {
                 return new GeneratedKeys<GeneratedKeyType>(mapper,

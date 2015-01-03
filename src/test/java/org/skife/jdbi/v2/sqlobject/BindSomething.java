@@ -34,10 +34,12 @@ public @interface BindSomething
 
     static class Factory implements BinderFactory
     {
+        @Override
         public Binder build(Annotation annotation)
         {
             return new Binder()
             {
+                @Override
                 public void bind(SQLStatement q, Annotation bind, Object arg)
                 {
                     BindSomething bs = (BindSomething) bind;

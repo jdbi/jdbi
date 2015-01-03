@@ -52,6 +52,7 @@ class BeanPropertyArguments implements NamedArgumentFinder
 
     }
 
+    @Override
     public Argument find(String name)
     {
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors())

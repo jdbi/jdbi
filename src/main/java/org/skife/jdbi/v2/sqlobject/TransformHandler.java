@@ -19,6 +19,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 class TransformHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
     {
         Class t = (Class) args[0];

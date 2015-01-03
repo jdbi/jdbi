@@ -43,22 +43,26 @@ public @interface Define
 
     static class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             throw new UnsupportedOperationException("Not allowed on Type");
         }
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             throw new UnsupportedOperationException("Not allowed on Method");
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
         {
             Define d = (Define) annotation;
             final String key = d.value();
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q)
                 {
                     q.define(key, arg);

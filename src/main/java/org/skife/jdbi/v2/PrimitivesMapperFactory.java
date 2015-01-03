@@ -76,11 +76,13 @@ public class PrimitivesMapperFactory implements ResultSetMapperFactory
         mappers.put(String.class, StringMapper.FIRST);
     }
 
+    @Override
     public boolean accepts(Class type, StatementContext ctx)
     {
         return mappers.containsKey(type);
     }
 
+    @Override
     public ResultSetMapper mapperFor(Class type, StatementContext ctx)
     {
         return mappers.get(type);

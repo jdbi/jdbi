@@ -31,6 +31,7 @@ public abstract class BaseResultSetMapper<ResultType> implements ResultSetMapper
     /**
      * Defers to mapInternal
      */
+    @Override
     public final ResultType map(int index, ResultSet r, StatementContext ctx)
     {
         return this.mapInternal(index, mapper.map(index, r, ctx));

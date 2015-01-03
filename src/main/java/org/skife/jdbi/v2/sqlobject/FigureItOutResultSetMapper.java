@@ -43,6 +43,7 @@ class FigureItOutResultSetMapper implements ResultSetMapper<Object>
 {
     private static final PrimitivesMapperFactory factory = new PrimitivesMapperFactory();
 
+    @Override
     public Object map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
         Method m = ctx.getSqlObjectMethod();

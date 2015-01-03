@@ -37,6 +37,7 @@ public class TestGetGeneratedKeysPostgres
     public void setUp() throws Exception {
         dbi = new DBI("jdbc:postgresql:test", "postgres", "postgres");
         dbi.withHandle(new HandleCallback<Object>() {
+            @Override
             public Object withHandle(Handle handle) throws Exception
             {
                 handle.execute("create sequence id_sequence INCREMENT 1 START WITH 100");
@@ -49,6 +50,7 @@ public class TestGetGeneratedKeysPostgres
     @After
     public void tearDown() throws Exception {
         dbi.withHandle(new HandleCallback<Object>() {
+            @Override
             public Object withHandle(Handle handle) throws Exception
             {
                 handle.execute("drop table something");

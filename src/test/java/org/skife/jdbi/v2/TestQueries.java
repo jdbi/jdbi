@@ -116,6 +116,7 @@ public class TestQueries extends DBITestCase
 
         Query<String> query = h.createQuery("select name from something order by id").map(new ResultSetMapper<String>()
         {
+            @Override
             public String map(int index, ResultSet r, StatementContext ctx) throws SQLException
             {
                 return r.getString(1);
@@ -335,7 +336,8 @@ public class TestQueries extends DBITestCase
         Map<String, Integer> rs = h.createQuery("select id, name from something")
                                    .fold(new HashMap<String, Integer>(), new Folder2<Map<String, Integer>>()
                                    {
-                                       public Map<String, Integer> fold(Map<String, Integer> a, ResultSet rs, StatementContext context) throws SQLException
+                                       @Override
+                                    public Map<String, Integer> fold(Map<String, Integer> a, ResultSet rs, StatementContext context) throws SQLException
                                        {
                                            a.put(rs.getString("name"), rs.getInt("id"));
                                            return a;
@@ -358,7 +360,8 @@ public class TestQueries extends DBITestCase
                            .map(StringMapper.FIRST)
                            .fold(new ArrayList<String>(), new Folder3<List<String>, String>()
                            {
-                               public List<String> fold(List<String> a, String rs, FoldController ctl, StatementContext ctx) throws SQLException
+                               @Override
+                            public List<String> fold(List<String> a, String rs, FoldController ctl, StatementContext ctx) throws SQLException
                                {
                                    a.add(rs);
                                    return a;

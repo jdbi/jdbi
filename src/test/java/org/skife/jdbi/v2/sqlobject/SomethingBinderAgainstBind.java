@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.Something;
 
 public class SomethingBinderAgainstBind implements Binder<Bind, Something>
 {
+    @Override
     public void bind(SQLStatement q, Bind bind, Something it)
     {
         q.bind(bind.value() + ".id", it.getId());

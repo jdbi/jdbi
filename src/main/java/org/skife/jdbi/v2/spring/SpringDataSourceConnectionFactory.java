@@ -34,6 +34,7 @@ class SpringDataSourceConnectionFactory implements ConnectionFactory
         this.dataSource = dataSource;
     }
 
+    @Override
     public Connection openConnection() throws SQLException
     {
         return DataSourceUtils.getConnection(dataSource);

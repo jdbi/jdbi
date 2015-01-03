@@ -25,6 +25,7 @@ import java.sql.SQLException;
 
 public class SomethingMapper implements ResultSetMapper<Something>
 {
+    @Override
     public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
         return new Something(r.getInt("id"), r.getString("name"));

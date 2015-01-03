@@ -44,6 +44,7 @@ public class TestDBI extends DBITestCase
     {
         DBI dbi = new DBI(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection()
             {
                 try
@@ -66,6 +67,7 @@ public class TestDBI extends DBITestCase
     {
         DBI dbi = new DBI(new ConnectionFactory()
         {
+            @Override
             public Connection openConnection() throws SQLException
             {
                 throw new SQLException();
@@ -96,6 +98,7 @@ public class TestDBI extends DBITestCase
     {
         DBI dbi = new DBI(DERBY_HELPER.getDataSource());
         String value = dbi.withHandle(new HandleCallback<String>() {
+            @Override
             public String withHandle(Handle handle) throws Exception
             {
                 handle.insert("insert into something (id, name) values (1, 'Brian')");

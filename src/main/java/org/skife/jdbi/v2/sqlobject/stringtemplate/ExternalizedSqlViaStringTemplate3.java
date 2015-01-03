@@ -43,6 +43,7 @@ public @interface ExternalizedSqlViaStringTemplate3
 
     public static class LocatorFactory implements SqlStatementCustomizerFactory
     {
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final ExternalizedSqlViaStringTemplate3 a = (ExternalizedSqlViaStringTemplate3) annotation;
@@ -58,6 +59,7 @@ public @interface ExternalizedSqlViaStringTemplate3
 
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q)
                 {
                     q.setStatementLocator(l);
@@ -65,6 +67,7 @@ public @interface ExternalizedSqlViaStringTemplate3
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation,
                                                       Class sqlObjectType,
                                                       Method method)
@@ -72,6 +75,7 @@ public @interface ExternalizedSqlViaStringTemplate3
             throw new UnsupportedOperationException("Not Defined on Method");
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                          Class sqlObjectType,
                                                          Method method, Object arg)

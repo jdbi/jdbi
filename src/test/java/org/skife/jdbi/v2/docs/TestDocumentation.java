@@ -134,6 +134,7 @@ public class TestDocumentation
         DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
         dbi.withHandle(new HandleCallback<Void>()
         {
+            @Override
             public Void withHandle(Handle handle) throws Exception
             {
                 handle.execute("create table silly (id int)");
@@ -190,6 +191,7 @@ public class TestDocumentation
             .map(StringMapper.FIRST)
             .fold(new StringBuilder(), new Folder2<StringBuilder>()
             {
+                @Override
                 public StringBuilder fold(StringBuilder acc, ResultSet rs, StatementContext ctx) throws SQLException
                 {
                     acc.append(rs.getString(1)).append(", ");

@@ -63,6 +63,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
      *
      * @return self
      */
+    @Override
     public PreparedBatch define(String key, Object value)
     {
         getContext().setAttribute(key, value);
@@ -75,6 +76,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
      * @param values containing key/value pairs.
      * @return this
      */
+    @Override
     public PreparedBatch define(final Map<String, ? extends Object> values)
     {
         if (values != null) {

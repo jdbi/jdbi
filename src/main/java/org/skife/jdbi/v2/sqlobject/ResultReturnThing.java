@@ -169,6 +169,7 @@ abstract class ResultReturnThing
                 private boolean closed = false;
                 private boolean hasNext = itty.hasNext();
 
+                @Override
                 public void close()
                 {
                     if (!closed) {
@@ -182,11 +183,13 @@ abstract class ResultReturnThing
                     }
                 }
 
+                @Override
                 public boolean hasNext()
                 {
                     return hasNext;
                 }
 
+                @Override
                 public Object next()
                 {
                     Object rs;
@@ -211,6 +214,7 @@ abstract class ResultReturnThing
                     } catch (RuntimeException ex) {}
                 }
 
+                @Override
                 public void remove()
                 {
                     itty.remove();

@@ -23,6 +23,7 @@ import org.skife.jdbi.v2.TransactionStatus;
 
 class InTransactionHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
     {
         h.retain("transaction#implicit");
@@ -30,6 +31,7 @@ class InTransactionHandler implements Handler
             final Transaction t = (Transaction) args[0];
             return h.getHandle().inTransaction(new TransactionCallback()
             {
+                @Override
                 public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return t.inTransaction(target, status);

@@ -88,6 +88,7 @@ public class Call extends SQLStatement<Call>
     {
         try {
             return this.internalExecute(new QueryResultMunger<OutParameters>() {
+                @Override
                 public OutParameters munge(Statement results) throws SQLException
                 {
                     OutParameters out = new OutParameters();
@@ -122,6 +123,7 @@ public class Call extends SQLStatement<Call>
             params.add(this);
         }
 
+        @Override
         public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
         {
             ((CallableStatement)statement).registerOutParameter(position, sqlType);

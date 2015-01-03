@@ -31,6 +31,7 @@ public class TestStatementContext extends DBITestCase
         Handle h = openHandle();
         h.setStatementLocator(new StatementLocator() {
 
+            @Override
             public String locate(String name, StatementContext ctx) throws Exception
             {
                 return name.replaceAll("<table>", String.valueOf(ctx.getAttribute("table")));

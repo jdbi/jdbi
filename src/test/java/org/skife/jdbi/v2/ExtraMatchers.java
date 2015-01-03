@@ -35,6 +35,7 @@ public class ExtraMatchers
         final List opts = Arrays.asList(options);
         return new BaseMatcher<T>()
         {
+            @Override
             public boolean matches(Object item)
             {
                 for (Object opt : opts) {
@@ -45,6 +46,7 @@ public class ExtraMatchers
                 return false;
             }
 
+            @Override
             public void describeTo(Description d)
             {
                 d.appendText("one of " + opts);

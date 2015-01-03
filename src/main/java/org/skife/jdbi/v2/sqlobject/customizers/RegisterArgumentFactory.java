@@ -47,16 +47,19 @@ public @interface RegisterArgumentFactory
 
     static class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             return create(annotation);
         }
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             return create(annotation);
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
         {
             throw new IllegalStateException("not allowed on parameter");
@@ -76,6 +79,7 @@ public @interface RegisterArgumentFactory
             }
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     for (ArgumentFactory argumentFactory : ary) {

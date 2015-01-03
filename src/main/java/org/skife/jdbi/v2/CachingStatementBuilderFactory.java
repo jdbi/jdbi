@@ -30,6 +30,7 @@ public class CachingStatementBuilderFactory implements StatementBuilderFactory
     /**
      * Return a new, or cached, prepared statement
      */
+    @Override
     public StatementBuilder createStatementBuilder(Connection conn) {
         return new CachingStatementBuilder(new DefaultStatementBuilder());
     }

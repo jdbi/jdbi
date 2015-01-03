@@ -53,6 +53,7 @@ public class TestTooManyCursors extends DBITestCase
         try {
             dbi.withHandle(new HandleCallback<Object>()
             {
+                @Override
                 public Void withHandle(Handle handle) throws Exception
                 {
                     handle.setStatementBuilder(new DefaultStatementBuilder());
@@ -79,41 +80,49 @@ public class TestTooManyCursors extends DBITestCase
             connCount = i;
         }
 
+        @Override
         public Connection getConnection() throws SQLException
         {
             return ConnectionInvocationHandler.newInstance(target.getConnection(), connCount);
         }
 
+        @Override
         public Connection getConnection(String string, String string1) throws SQLException
         {
             return ConnectionInvocationHandler.newInstance(target.getConnection(string, string1), connCount);
         }
 
+        @Override
         public PrintWriter getLogWriter() throws SQLException
         {
             return target.getLogWriter();
         }
 
+        @Override
         public void setLogWriter(PrintWriter printWriter) throws SQLException
         {
             target.setLogWriter(printWriter);
         }
 
+        @Override
         public void setLoginTimeout(int i) throws SQLException
         {
             target.setLoginTimeout(i);
         }
 
+        @Override
         public int getLoginTimeout() throws SQLException
         {
             return target.getLoginTimeout();
         }
 
+        @Override
         public <T> T unwrap(Class<T> iface) throws SQLException
         {
             return null;
         }
 
+        @Override
         public boolean isWrapperFor(Class<?> iface) throws SQLException
         {
             return false;
@@ -145,6 +154,7 @@ public class TestTooManyCursors extends DBITestCase
             this.numSuccessfulStatements = numSuccessfulStatements;
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
         {
             try {
@@ -197,6 +207,7 @@ public class TestTooManyCursors extends DBITestCase
             this.connectionHandler = connectionHandler;
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
         {
             if ("close".equals(method.getName())) {

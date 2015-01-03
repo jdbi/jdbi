@@ -48,6 +48,7 @@ public class CachingStatementBuilder implements StatementBuilder
      * Return either a cached PreparedStatement or a new one which has just been added to the cache
      * @return A new, or cached, PreparedStatement
      */
+    @Override
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
         if (cache.containsKey(sql)) {
@@ -64,6 +65,7 @@ public class CachingStatementBuilder implements StatementBuilder
     /**
      * NOOP, statements will be closed when the handle is closed
      */
+    @Override
     public void close(Connection conn, String sql, Statement stmt) throws SQLException
     {
     }
@@ -72,6 +74,7 @@ public class CachingStatementBuilder implements StatementBuilder
      * Iterate over all cached statements and ask the wrapped StatementBuilder to close
      * each one.
      */
+    @Override
     @SuppressWarnings("PMD.EmptyCatchBlock")
     public void close(Connection conn)
     {
@@ -85,6 +88,7 @@ public class CachingStatementBuilder implements StatementBuilder
         }
     }
 
+    @Override
     public CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
         if (cache.containsKey(sql)) {

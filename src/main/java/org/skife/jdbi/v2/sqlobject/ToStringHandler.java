@@ -30,6 +30,7 @@ class ToStringHandler implements Handler
         this.className = className;
     }
 
+    @Override
     public Object invoke(final HandleDing h, final Object target, final Object[] args, MethodProxy mp)
     {
         return className + '@' + Integer.toHexString(target.hashCode());

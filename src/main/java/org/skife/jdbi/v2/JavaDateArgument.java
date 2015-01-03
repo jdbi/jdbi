@@ -37,6 +37,7 @@ class JavaDateArgument implements Argument
         this.value = value;
     }
 
+    @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
         if (value != null) {

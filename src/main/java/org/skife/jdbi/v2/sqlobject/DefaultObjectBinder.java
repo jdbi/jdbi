@@ -19,6 +19,7 @@ import org.skife.jdbi.v2.SQLStatement;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
 {
+    @Override
     public void bind(SQLStatement q, Bind b, Object arg)
     {
         q.bind(b.value(), arg);

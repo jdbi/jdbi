@@ -44,6 +44,7 @@ public @interface RegisterMapper
 
     static class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
@@ -60,6 +61,7 @@ public @interface RegisterMapper
             }
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement statement)
                 {
                     if (statement instanceof Query) {
@@ -73,6 +75,7 @@ public @interface RegisterMapper
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final RegisterMapper ma = (RegisterMapper) annotation;
@@ -88,6 +91,7 @@ public @interface RegisterMapper
             }
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement statement)
                 {
                     if (statement instanceof Query) {
@@ -100,6 +104,7 @@ public @interface RegisterMapper
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not defined for parameter");

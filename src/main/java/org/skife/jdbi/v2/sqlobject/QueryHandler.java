@@ -34,6 +34,7 @@ class QueryHandler extends CustomizingStatementHandler
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlQuery.class), method.getRawMember());
     }
 
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         Query q = h.getHandle().createQuery(sql);

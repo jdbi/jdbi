@@ -35,6 +35,7 @@ class CharacterStreamArgument implements Argument
         this.length = length;
     }
 
+    @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
         statement.setCharacterStream(position, value, length);

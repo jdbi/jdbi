@@ -42,6 +42,7 @@ public interface Handle extends Closeable
      */
     Connection getConnection();
 
+    @Override
     /**
      * @throws org.skife.jdbi.v2.exceptions.UnableToCloseResourceException if any
      * resources throw exception while closing

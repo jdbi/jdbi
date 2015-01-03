@@ -67,6 +67,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      *
      * @return The key or null if no keys were returned
      */
+    @Override
     public Type first()
     {
         try {
@@ -86,18 +87,21 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         }
     }
 
+    @Override
     public <T> T first(Class<T> containerType)
     {
 //        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(first()));
         throw new UnsupportedOperationException("Not Yet Implemented!");
     }
 
+    @Override
     public <ContainerType> ContainerType list(Class<ContainerType> containerType)
     {
 //        return containerFactoryRegistry.lookup(containerType).create(Arrays.asList(list()));
         throw new UnsupportedOperationException("Not Yet Implemented!");
     }
 
+    @Override
     public List<Type> list(int maxRows)
     {
         try {
@@ -125,6 +129,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      *
      * @return The list of keys or an empty list if no keys were returned
      */
+    @Override
     public List<Type> list()
     {
         return list(Integer.MAX_VALUE);
@@ -135,6 +140,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      *
      * @return The key iterator
      */
+    @Override
     public ResultIterator<Type> iterator()
     {
         try {

@@ -113,11 +113,13 @@ public class TestArgumentFactory
 
     public static class NameAF implements ArgumentFactory<Name>
     {
+        @Override
         public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
             return expectedType == Object.class && value instanceof Name;
         }
 
+        @Override
         public Argument build(Class<?> expectedType, Name value, StatementContext ctx)
         {
             return new StringArgument(value.getFullName());
@@ -140,6 +142,7 @@ public class TestArgumentFactory
             return first + " " + last;
         }
 
+        @Override
         public String toString()
         {
             return "<Name first=" + first + " last=" + last + " >";

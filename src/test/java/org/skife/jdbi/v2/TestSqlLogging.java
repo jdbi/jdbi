@@ -52,67 +52,80 @@ public class TestSqlLogging extends DBITestCase
         logged = new ArrayList<String>();
         log = new SQLLog()
         {
+            @Override
             public void logBeginTransaction(Handle h)
             {
                 logged.add("begin");
             }
 
+            @Override
             public void logCommitTransaction(long time, Handle h)
             {
                 logged.add("commit");
             }
 
+            @Override
             public void logRollbackTransaction(long time, Handle h)
             {
                 logged.add("rollback");
             }
 
+            @Override
             public void logObtainHandle(long time, Handle h)
             {
                 logged.add("open");
             }
 
+            @Override
             public void logReleaseHandle(Handle h)
             {
                 logged.add("close");
             }
 
+            @Override
             public void logSQL(long time, String sql)
             {
                 logged.add(sql);
             }
 
+            @Override
             public void logPreparedBatch(long time, String sql, int count)
             {
                 logged.add(String.format("%d:%s", count, sql));
             }
 
+            @Override
             public BatchLogger logBatch()
             {
                 return new SQLLog.BatchLogger()
                 {
 
+                    @Override
                     public void add(String sql)
                     {
                         logged.add(sql);
                     }
 
+                    @Override
                     public void log(long time)
                     {
                     }
                 };
             }
 
+            @Override
             public void logCheckpointTransaction(Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s created", name));
             }
 
+            @Override
             public void logReleaseCheckpointTransaction(Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s released", name));
             }
 
+            @Override
             public void logRollbackToCheckpoint(long time, Handle h, String name)
             {
                 logged.add(String.format("checkpoint %s rolled back to", name));
@@ -231,6 +244,7 @@ public class TestSqlLogging extends DBITestCase
     {
         h.inTransaction(new TransactionCallback<Object>()
         {
+            @Override
             public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
             {
                 assertTrue(logged.contains("begin"));
@@ -246,6 +260,7 @@ public class TestSqlLogging extends DBITestCase
         try {
             h.inTransaction(new TransactionCallback<Object>()
             {
+                @Override
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     assertTrue(logged.contains("begin"));
