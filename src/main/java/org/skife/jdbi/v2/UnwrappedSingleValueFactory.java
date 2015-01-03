@@ -19,23 +19,27 @@ import org.skife.jdbi.v2.tweak.ContainerFactory;
 
 class UnwrappedSingleValueFactory implements ContainerFactory<Object>
 {
+    @Override
     public boolean accepts(Class<?> type)
     {
         return UnwrappedSingleValue.class.equals(type);
     }
 
+    @Override
     public ContainerBuilder newContainerBuilderFor(Class<?> type)
     {
         return new ContainerBuilder<Object>()
         {
             private Object it;
 
+            @Override
             public ContainerBuilder add(Object it)
             {
                 this.it = it;
                 return this;
             }
 
+            @Override
             public Object build()
             {
                 return it;

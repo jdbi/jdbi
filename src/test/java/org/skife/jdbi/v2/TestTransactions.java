@@ -38,6 +38,7 @@ public class TestTransactions extends DBITestCase
 
         String woot = h.inTransaction(new TransactionCallback<String>()
         {
+            @Override
             public String inTransaction(Handle handle, TransactionStatus status) throws Exception
             {
                 return "Woot!";
@@ -78,6 +79,7 @@ public class TestTransactions extends DBITestCase
         {
             h.inTransaction(new TransactionCallback<Object>()
             {
+                @Override
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
@@ -105,6 +107,7 @@ public class TestTransactions extends DBITestCase
         {
             h.inTransaction(new TransactionCallback<Object>()
             {
+                @Override
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
@@ -165,6 +168,7 @@ public class TestTransactions extends DBITestCase
         Handle h = openHandle();
         try {
             h.inTransaction(new TransactionCallback<Object>() {
+                @Override
                 public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
                 {
                     throw new IllegalArgumentException();

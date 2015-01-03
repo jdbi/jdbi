@@ -55,6 +55,7 @@ public class TestRegisteredMappers
         Something sam = dbi.withHandle(new HandleCallback<Something>()
         {
 
+            @Override
             public Something withHandle(Handle handle) throws Exception
             {
                 handle.insert("insert into something (id, name) values (18, 'Sam')");

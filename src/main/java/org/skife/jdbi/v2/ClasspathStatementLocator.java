@@ -71,6 +71,7 @@ public class ClasspathStatementLocator implements StatementLocator
      * @throws UnableToCreateStatementException
      *          if an IOException occurs reading a found resource
      */
+    @Override
     @SuppressWarnings("PMD.EmptyCatchBlock")
     @SuppressFBWarnings("DM_STRING_CTOR")
     public String locate(String name, StatementContext ctx)

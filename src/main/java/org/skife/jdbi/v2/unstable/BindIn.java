@@ -43,16 +43,19 @@ public @interface BindIn
     public static final class CustomizerFactory implements SqlStatementCustomizerFactory
     {
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             throw new UnsupportedOperationException("Not supported on method!");
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             throw new UnsupportedOperationException("Not supported on type");
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                          Class sqlObjectType,
                                                          Method method,
@@ -77,6 +80,7 @@ public @interface BindIn
 
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     q.define(key, ns);
@@ -87,6 +91,7 @@ public @interface BindIn
 
     public static class BindingFactory implements BinderFactory
     {
+        @Override
         public Binder build(Annotation annotation)
         {
             final BindIn in = (BindIn) annotation;
@@ -95,6 +100,7 @@ public @interface BindIn
             return new Binder()
             {
 
+                @Override
                 public void bind(SQLStatement q, Annotation bind, Object arg)
                 {
                     Iterable<?> coll = (Iterable<?>) arg;

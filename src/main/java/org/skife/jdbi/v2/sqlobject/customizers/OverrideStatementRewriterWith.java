@@ -45,6 +45,7 @@ public @interface OverrideStatementRewriterWith
 
     public static class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
@@ -52,6 +53,7 @@ public @interface OverrideStatementRewriterWith
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, method);
                 return new SqlStatementCustomizer()
                 {
+                    @Override
                     public void apply(SQLStatement q)
                     {
                         q.setStatementRewriter(rw);
@@ -63,6 +65,7 @@ public @interface OverrideStatementRewriterWith
             }
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
@@ -70,6 +73,7 @@ public @interface OverrideStatementRewriterWith
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, null);
                 return new SqlStatementCustomizer()
                 {
+                    @Override
                     public void apply(SQLStatement q)
                     {
                         q.setStatementRewriter(rw);
@@ -81,6 +85,7 @@ public @interface OverrideStatementRewriterWith
             }
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             throw new IllegalStateException("Not defined on parameters!");

@@ -22,6 +22,7 @@ import org.skife.jdbi.v2.tweak.HandleCallback;
 
 class WithHandleHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         final Handle handle = h.getHandle();

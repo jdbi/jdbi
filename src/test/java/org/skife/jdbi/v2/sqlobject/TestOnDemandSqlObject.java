@@ -254,6 +254,7 @@ public class TestOnDemandSqlObject
 
     static class CrashingMapper implements ResultSetMapper<Something>
     {
+        @Override
         public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
         {
             throw new SQLException("protocol error");

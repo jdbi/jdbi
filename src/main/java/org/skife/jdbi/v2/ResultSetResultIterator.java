@@ -48,6 +48,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
     }
 
+    @Override
     public void close()
     {
         if (closed) {
@@ -57,6 +58,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         jdbiStatement.cleanup();
     }
 
+    @Override
     public boolean hasNext()
     {
         if (closed) {
@@ -79,6 +81,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         return hasNext;
     }
 
+    @Override
     public Type next()
     {
         if (closed) {
@@ -104,6 +107,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         }
     }
 
+    @Override
     public void remove()
     {
         throw new UnsupportedOperationException("Deleting from a result set iterator is not yet supported");

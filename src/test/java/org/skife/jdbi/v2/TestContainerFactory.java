@@ -172,23 +172,27 @@ public class TestContainerFactory
     public static class SetContainerFactory implements ContainerFactory<Set<?>>
     {
 
+        @Override
         public boolean accepts(Class<?> type)
         {
             return Set.class.equals(type);
         }
 
+        @Override
         public ContainerBuilder<Set<?>> newContainerBuilderFor(Class<?> type)
         {
             return new ContainerBuilder<Set<?>>()
             {
                 private Set<Object> rs = new LinkedHashSet<Object>();
 
+                @Override
                 public ContainerBuilder<Set<?>> add(Object it)
                 {
                     rs.add(it);
                     return this;
                 }
 
+                @Override
                 public Set<?> build()
                 {
                     return rs;
@@ -200,23 +204,27 @@ public class TestContainerFactory
     public static class ImmutableListContainerFactory implements ContainerFactory<ImmutableList<?>>
     {
 
+        @Override
         public boolean accepts(Class<?> type)
         {
             return ImmutableList.class.equals(type);
         }
 
+        @Override
         public ContainerBuilder<ImmutableList<?>> newContainerBuilderFor(Class<?> type)
         {
             return new ContainerBuilder<ImmutableList<?>>()
             {
                 private final ImmutableList.Builder<Object> b = ImmutableList.builder();
 
+                @Override
                 public ContainerBuilder<ImmutableList<?>> add(Object it)
                 {
                     b.add(it);
                     return this;
                 }
 
+                @Override
                 public ImmutableList<?> build()
                 {
                     return b.build();
@@ -228,23 +236,27 @@ public class TestContainerFactory
     public static class MaybeContainerFactory implements ContainerFactory<Maybe<?>>
     {
 
+        @Override
         public boolean accepts(Class<?> type)
         {
             return type.equals(Maybe.class);
         }
 
+        @Override
         public ContainerBuilder<Maybe<?>> newContainerBuilderFor(Class<?> type)
         {
             return new ContainerBuilder<Maybe<?>>()
             {
                 private Maybe<Object> value = Maybe.unknown();
 
+                @Override
                 public ContainerBuilder<Maybe<?>> add(Object it)
                 {
                     value = value.otherwise(Maybe.definitely(it));
                     return this;
                 }
 
+                @Override
                 public Maybe<?> build()
                 {
                     return value;

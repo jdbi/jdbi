@@ -92,6 +92,7 @@ class BatchHandler extends CustomizingStatementHandler
         return -1;
     }
 
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         Handle handle = h.getHandle();
@@ -110,17 +111,20 @@ class BatchHandler extends CustomizingStatementHandler
             else {
                 extras.add(new Iterator()
                 {
+                    @Override
                     public boolean hasNext()
                     {
                         return true;
                     }
 
+                    @Override
                     @SuppressFBWarnings("IT_NO_SUCH_ELEMENT")
                     public Object next()
                     {
                         return arg;
                     }
 
+                    @Override
                     public void remove()
                     {
                         // NOOP
@@ -178,6 +182,7 @@ class BatchHandler extends CustomizingStatementHandler
             // Handle instance.
             return handle.inTransaction(new TransactionCallback<int[]>()
             {
+                @Override
                 public int[] inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return batch.execute();
@@ -216,6 +221,7 @@ class BatchHandler extends CustomizingStatementHandler
             this.value = value;
         }
 
+        @Override
         public int call(Object[] args)
         {
             return value;
@@ -230,6 +236,7 @@ class BatchHandler extends CustomizingStatementHandler
             this.index = index;
         }
 
+        @Override
         public int call(Object[] args)
         {
             return (Integer)args[index];

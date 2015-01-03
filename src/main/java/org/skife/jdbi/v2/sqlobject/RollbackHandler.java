@@ -19,6 +19,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 class RollbackHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         h.release("transaction#explicit");

@@ -49,16 +49,19 @@ public @interface TransactionIsolation
     static class Factory implements SqlStatementCustomizerFactory
     {
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             return new MyCustomizer(((TransactionIsolation) annotation).value());
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             return new MyCustomizer(((TransactionIsolation) annotation).value());
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             assert arg instanceof TransactionIsolationLevel;
@@ -73,6 +76,7 @@ public @interface TransactionIsolation
 
         public MyCustomizer(TransactionIsolationLevel level) {this.level = level;}
 
+        @Override
         public void apply(SQLStatement q) throws SQLException
         {
             final int initial_level = q.getContext().getConnection().getTransactionIsolation();

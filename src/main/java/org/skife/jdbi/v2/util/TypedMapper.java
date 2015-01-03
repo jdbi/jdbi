@@ -58,6 +58,7 @@ public abstract class TypedMapper<T> implements ResultSetMapper<T>
         internal = new StringMapper(name);
     }
 
+    @Override
     public final T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
         return internal.map(index, r, ctx);
@@ -77,6 +78,7 @@ public abstract class TypedMapper<T> implements ResultSetMapper<T>
             this.name = name;
         }
 
+        @Override
         public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
         {
             return extractByName(r, name);
@@ -92,6 +94,7 @@ public abstract class TypedMapper<T> implements ResultSetMapper<T>
             this.index = index;
         }
 
+        @Override
         public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
         {
             return extractByIndex(r, this.index);

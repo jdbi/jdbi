@@ -70,11 +70,13 @@ public final class BuiltInArgumentFactory implements ArgumentFactory
 
     BuiltInArgumentFactory(){}
 
+    @Override
     public boolean accepts(Class expectedType, Object value, StatementContext ctx)
     {
         return canAccept(expectedType);
     }
 
+    @Override
     public Argument build(Class expectedType, Object value, StatementContext ctx)
     {
         P p;

@@ -49,18 +49,21 @@ public @interface FetchDirection
             return new FetchDirectionSqlStatementCustomizer((Integer) arg);
         }
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             final FetchDirection fs = (FetchDirection) annotation;
             return new FetchDirectionSqlStatementCustomizer(fs.value());
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final FetchDirection fs = (FetchDirection) annotation;
             return new FetchDirectionSqlStatementCustomizer(fs.value());
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                          Class sqlObjectType,
                                                          Method method,
@@ -79,6 +82,7 @@ public @interface FetchDirection
             this.direction = direction;
         }
 
+        @Override
         public void apply(SQLStatement q) throws SQLException
         {
             q.addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(direction));

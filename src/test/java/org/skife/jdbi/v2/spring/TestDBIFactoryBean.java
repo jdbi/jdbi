@@ -96,6 +96,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
         try {
             service.inPropagationRequired(new Callback()
             {
+                @Override
                 public void call(IDBI dbi)
                 {
                     Handle h = DBIUtil.getHandle(dbi);
@@ -130,6 +131,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
         try {
             service.inPropagationRequired(new Callback()
             {
+                @Override
                 public void call(IDBI outer)
                 {
                     final Handle h = DBIUtil.getHandle(outer);
@@ -138,6 +140,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                     try {
                         service.inNested(new Callback()
                         {
+                            @Override
                             public void call(IDBI inner)
                             {
                                 final Handle h = DBIUtil.getHandle(inner);
@@ -166,6 +169,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
 
         service.inPropagationRequired(new Callback()
         {
+            @Override
             public void call(IDBI dbi)
             {
                 final Handle h = DBIUtil.getHandle(dbi);
@@ -179,6 +183,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
     {
         service.inPropagationRequired(new Callback()
         {
+            @Override
             public void call(IDBI outer)
             {
                 final Handle h = DBIUtil.getHandle(outer);
@@ -187,6 +192,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                 try {
                     service.inRequiresNewReadUncommitted(new Callback()
                     {
+                        @Override
                         public void call(IDBI inner)
                         {
                             final Handle h = DBIUtil.getHandle(inner);

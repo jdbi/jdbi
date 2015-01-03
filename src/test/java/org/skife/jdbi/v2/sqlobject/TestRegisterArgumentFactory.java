@@ -82,15 +82,18 @@ public class TestRegisterArgumentFactory
 
     public static class NameAF implements ArgumentFactory<Name>
     {
+        @Override
         public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
             return expectedType == Object.class && value instanceof Name;
         }
 
+        @Override
         public Argument build(Class<?> expectedType, final Name value, StatementContext ctx)
         {
             return new Argument()
             {
+                @Override
                 public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
                 {
                     statement.setString(position, value.getFullName());
@@ -116,6 +119,7 @@ public class TestRegisterArgumentFactory
             return first + " " + last;
         }
 
+        @Override
         public String toString()
         {
             return "<Name first=" + first + " last=" + last + " >";

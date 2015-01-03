@@ -30,6 +30,7 @@ class DataSourceConnectionFactory implements ConnectionFactory
         this.dataSource = dataSource;
     }
 
+    @Override
     public Connection openConnection() throws SQLException
     {
         return dataSource.getConnection();

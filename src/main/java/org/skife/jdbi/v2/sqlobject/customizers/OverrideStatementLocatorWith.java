@@ -46,6 +46,7 @@ public @interface OverrideStatementLocatorWith
     static class Factory implements SqlStatementCustomizerFactory
     {
 
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             OverrideStatementLocatorWith sl = (OverrideStatementLocatorWith) annotation;
@@ -58,6 +59,7 @@ public @interface OverrideStatementLocatorWith
             }
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q)
                 {
                     q.setStatementLocator(f);
@@ -65,6 +67,7 @@ public @interface OverrideStatementLocatorWith
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             OverrideStatementLocatorWith sl = (OverrideStatementLocatorWith) annotation;
@@ -77,6 +80,7 @@ public @interface OverrideStatementLocatorWith
             }
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q)
                 {
                     q.setStatementLocator(f);
@@ -110,6 +114,7 @@ public @interface OverrideStatementLocatorWith
 
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not applicable to parameter");

@@ -80,6 +80,7 @@ class BasicHandle implements Handle
         this.containerFactoryRegistry = containerFactoryRegistry.createChild();
     }
 
+    @Override
     public Query<Map<String, Object>> createQuery(String sql)
     {
         return new Query<Map<String, Object>>(new Binding(),
@@ -103,11 +104,13 @@ class BasicHandle implements Handle
      *
      * @return the JDBC Connection this Handle uses
      */
+    @Override
     public Connection getConnection()
     {
         return this.connection;
     }
 
+    @Override
     public void close()
     {
         if (!closed) {
@@ -130,6 +133,7 @@ class BasicHandle implements Handle
         return closed;
     }
 
+    @Override
     public void define(String key, Object value)
     {
         this.globalStatementAttributes.put(key, value);
@@ -138,6 +142,7 @@ class BasicHandle implements Handle
     /**
      * Start a transaction
      */
+    @Override
     public Handle begin()
     {
         transactions.begin(this);
@@ -148,6 +153,7 @@ class BasicHandle implements Handle
     /**
      * Commit a transaction
      */
+    @Override
     public Handle commit()
     {
         final long start = System.nanoTime();
@@ -159,6 +165,7 @@ class BasicHandle implements Handle
     /**
      * Rollback a transaction
      */
+    @Override
     public Handle rollback()
     {
         final long start = System.nanoTime();
@@ -174,6 +181,7 @@ class BasicHandle implements Handle
      *
      * @return The same handle
      */
+    @Override
     public Handle checkpoint(String name)
     {
         transactions.checkpoint(this, name);
@@ -186,6 +194,7 @@ class BasicHandle implements Handle
      *
      * @return The same handle
      */
+    @Override
     public Handle release(String checkpointName)
     {
         transactions.release(this, checkpointName);
@@ -193,16 +202,19 @@ class BasicHandle implements Handle
         return this;
     }
 
+    @Override
     public void setStatementBuilder(StatementBuilder builder)
     {
         this.statementBuilder = builder;
     }
 
+    @Override
     public void setSQLLog(SQLLog log)
     {
         this.log = log;
     }
 
+    @Override
     public void setTimingCollector(final TimingCollector timingCollector)
     {
         if (timingCollector == null) {
@@ -219,6 +231,7 @@ class BasicHandle implements Handle
      *
      * @param checkpointName the name of the checkpoint, previously declared with {@see Handle#checkpoint}
      */
+    @Override
     public Handle rollback(String checkpointName)
     {
         final long start = System.nanoTime();
@@ -227,11 +240,13 @@ class BasicHandle implements Handle
         return this;
     }
 
+    @Override
     public boolean isInTransaction()
     {
         return transactions.isInTransaction(this);
     }
 
+    @Override
     public Update createStatement(String sql)
     {
         return new Update(this,
@@ -246,6 +261,7 @@ class BasicHandle implements Handle
                           containerFactoryRegistry);
     }
 
+    @Override
     public Call createCall(String sql)
     {
         return new Call(this,
@@ -261,11 +277,13 @@ class BasicHandle implements Handle
                         containerFactoryRegistry);
     }
 
+    @Override
     public int insert(String sql, Object... args)
     {
         return update(sql, args);
     }
 
+    @Override
     public int update(String sql, Object... args)
     {
         Update stmt = createStatement(sql);
@@ -276,6 +294,7 @@ class BasicHandle implements Handle
         return stmt.execute();
     }
 
+    @Override
     public PreparedBatch prepareBatch(String sql)
     {
         return new PreparedBatch(statementLocator,
@@ -291,6 +310,7 @@ class BasicHandle implements Handle
                                  containerFactoryRegistry);
     }
 
+    @Override
     public Batch createBatch()
     {
         return new Batch(this.statementRewriter,
@@ -301,11 +321,13 @@ class BasicHandle implements Handle
                          foreman.createChild());
     }
 
+    @Override
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
     {
         return transactions.inTransaction(this, callback);
     }
 
+    @Override
     public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
                                                  TransactionCallback<ReturnType> callback)
     {
@@ -333,6 +355,7 @@ class BasicHandle implements Handle
         }
     }
 
+    @Override
     public List<Map<String, Object>> select(String sql, Object... args)
     {
         Query<Map<String, Object>> query = this.createQuery(sql);
@@ -343,46 +366,55 @@ class BasicHandle implements Handle
         return query.list();
     }
 
+    @Override
     public void setStatementLocator(StatementLocator locator)
     {
         this.statementLocator = locator;
     }
 
+    @Override
     public void setStatementRewriter(StatementRewriter rewriter)
     {
         this.statementRewriter = rewriter;
     }
 
+    @Override
     public Script createScript(String name)
     {
         return new Script(this, statementLocator, name, globalStatementAttributes);
     }
 
+    @Override
     public void execute(String sql, Object... args)
     {
         this.update(sql, args);
     }
 
+    @Override
     public void registerMapper(ResultSetMapper mapper)
     {
         mappingRegistry.add(mapper);
     }
 
+    @Override
     public void registerMapper(ResultSetMapperFactory factory)
     {
         mappingRegistry.add(factory);
     }
 
+    @Override
     public <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType)
     {
         return SqlObjectBuilder.attach(this, sqlObjectType);
     }
 
+    @Override
     public void setTransactionIsolation(TransactionIsolationLevel level)
     {
         setTransactionIsolation(level.intValue());
     }
 
+    @Override
     public void setTransactionIsolation(int level)
     {
         try {
@@ -397,6 +429,7 @@ class BasicHandle implements Handle
         }
     }
 
+    @Override
     public TransactionIsolationLevel getTransactionIsolationLevel()
     {
         try {
@@ -407,11 +440,13 @@ class BasicHandle implements Handle
         }
     }
 
+    @Override
     public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         this.foreman.register(argumentFactory);
     }
 
+    @Override
     public void registerContainerFactory(ContainerFactory<?> factory)
     {
         this.containerFactoryRegistry.register(factory);

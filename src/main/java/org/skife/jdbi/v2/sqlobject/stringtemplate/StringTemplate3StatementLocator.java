@@ -243,6 +243,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
     }
 
+    @Override
     public String locate(String name, StatementContext ctx) throws Exception
     {
         if (group.isDefined(name)) {

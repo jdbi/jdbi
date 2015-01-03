@@ -19,6 +19,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 class BeginHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         h.retain("transaction#explicit");

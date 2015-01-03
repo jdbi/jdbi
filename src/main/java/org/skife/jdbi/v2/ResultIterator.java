@@ -33,6 +33,7 @@ import java.util.Iterator;
  */
 public interface ResultIterator<Type> extends Iterator<Type>, Closeable
 {
+    @Override
     /**
      * Close the underlying result set.
      */

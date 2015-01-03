@@ -55,6 +55,7 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
         }
     }
 
+    @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public T map(int row, ResultSet rs, StatementContext ctx)
             throws SQLException

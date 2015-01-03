@@ -52,6 +52,7 @@ public class HashPrefixStatementRewriter implements StatementRewriter
      * @return somethign which can provde the actual SQL to prepare a statement from
      *         and which can bind the correct arguments to that prepared statement
      */
+    @Override
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
         final ParsedStatement stmt = new ParsedStatement();
@@ -113,6 +114,7 @@ public class HashPrefixStatementRewriter implements StatementRewriter
             this.stmt = stmt;
         }
 
+        @Override
         public void bind(Binding params, PreparedStatement statement) throws SQLException
         {
             if (stmt.positionalOnly) {
@@ -167,6 +169,7 @@ public class HashPrefixStatementRewriter implements StatementRewriter
             }
         }
 
+        @Override
         public String getSql()
         {
             return sql;

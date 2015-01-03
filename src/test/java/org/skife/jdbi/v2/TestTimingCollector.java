@@ -130,6 +130,7 @@ public class TestTimingCollector extends DBITestCase
     {
         private List<String> statements = new ArrayList<String>();
 
+        @Override
         public synchronized void collect(final long elapsedTime, final StatementContext ctx)
         {
             statements.add(ctx.getRawSql());

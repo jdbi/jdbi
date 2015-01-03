@@ -26,15 +26,18 @@ class ConstantHandleDing implements HandleDing
         this.handle = handle;
     }
 
+    @Override
     public Handle getHandle()
     {
         return handle;
     }
 
+    @Override
     public void release(String name)
     {
     }
 
+    @Override
     public void retain(String name)
     {
     }

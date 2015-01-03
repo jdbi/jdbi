@@ -38,6 +38,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     /**
      * See org.springframework.beans.factory.FactoryBean#getObject
      */
+    @Override
     public Object getObject() throws Exception
     {
         final DBI dbi = new DBI(new SpringDataSourceConnectionFactory(dataSource));
@@ -55,6 +56,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     /**
      * See org.springframework.beans.factory.FactoryBean#getObjectType
      */
+    @Override
     public Class<?> getObjectType()
     {
         return IDBI.class;
@@ -65,6 +67,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
      *
      * @return false
      */
+    @Override
     public boolean isSingleton()
     {
         return true;
@@ -91,6 +94,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     /**
      * Verifies that a dataSource has been set
      */
+    @Override
     public void afterPropertiesSet() throws Exception
     {
         if (dataSource == null) {

@@ -34,6 +34,7 @@ public class BaseStatementCustomizer implements StatementCustomizer
      *
      * @throws java.sql.SQLException go ahead and percolate it for jDBI to handle
      */
+    @Override
     public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
     }
@@ -47,6 +48,7 @@ public class BaseStatementCustomizer implements StatementCustomizer
      *
      * @throws java.sql.SQLException go ahead and percolate it for jDBI to handle
      */
+    @Override
     public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
     {
     }
@@ -58,6 +60,7 @@ public class BaseStatementCustomizer implements StatementCustomizer
      * @param ctx Statement context associated with the statement being customized
      * @throws SQLException go ahead and percolate it for jDBI to handle
      */
+    @Override
     public void cleanup(final StatementContext ctx) throws SQLException
     {
     }

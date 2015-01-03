@@ -24,6 +24,7 @@ import org.skife.jdbi.v2.TransactionStatus;
 
 class InTransactionWithIsolationLevelHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
     {
         h.retain("transaction#withlevel");
@@ -32,6 +33,7 @@ class InTransactionWithIsolationLevelHandler implements Handler
             final Transaction t = (Transaction) args[1];
             return h.getHandle().inTransaction(level, new TransactionCallback()
             {
+                @Override
                 public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
                     return t.inTransaction(target, status);

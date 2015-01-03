@@ -25,10 +25,12 @@ import java.lang.reflect.Method;
 
 class BindBeanFactory implements BinderFactory
 {
+    @Override
     public Binder build(Annotation annotation)
     {
         return new Binder<BindBean, Object>()
         {
+            @Override
             public void bind(SQLStatement q, BindBean bind, Object arg)
             {
                 final String prefix;

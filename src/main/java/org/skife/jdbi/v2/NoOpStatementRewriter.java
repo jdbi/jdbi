@@ -29,6 +29,7 @@ import java.sql.SQLException;
  */
 public class NoOpStatementRewriter implements StatementRewriter
 {
+    @Override
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
         return new NoOpRewrittenStatement(sql, ctx);
@@ -45,6 +46,7 @@ public class NoOpStatementRewriter implements StatementRewriter
             this.sql = sql;
         }
 
+        @Override
         public void bind(Binding params, PreparedStatement statement) throws SQLException
         {
             for (int i = 0; ; i++) {
@@ -54,6 +56,7 @@ public class NoOpStatementRewriter implements StatementRewriter
             }
         }
 
+        @Override
         public String getSql()
         {
             return sql;

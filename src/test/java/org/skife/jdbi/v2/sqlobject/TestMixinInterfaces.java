@@ -111,6 +111,7 @@ public class TestMixinInterfaces
         txl.insert(7, "Keith");
 
         Something s = txl.inTransaction(new Transaction<Something, TransactionStuff>() {
+            @Override
             public Something inTransaction(TransactionStuff conn, TransactionStatus status) throws Exception
             {
                 return conn.byId(7);
@@ -127,6 +128,7 @@ public class TestMixinInterfaces
         txl.insert(7, "Keith");
 
         Something s = txl.inTransaction(TransactionIsolationLevel.SERIALIZABLE, new Transaction<Something, TransactionStuff>() {
+            @Override
             public Something inTransaction(TransactionStuff conn, TransactionStatus status) throws Exception
             {
                 Assert.assertEquals(TransactionIsolationLevel.SERIALIZABLE, conn.getHandle().getTransactionIsolationLevel());

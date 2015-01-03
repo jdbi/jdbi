@@ -22,6 +22,7 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
     <ContainerType> ContainerType list(Class<ContainerType> containerType);
     List<ResultType> list(final int maxRows);
     List<ResultType> list();
+    @Override
     ResultIterator<ResultType> iterator();
     ResultType first();
     <T> T first(Class<T> containerType);

@@ -38,6 +38,7 @@ public interface TimingCollector
 
     public static final class NopTimingCollector implements TimingCollector
     {
+        @Override
         public void collect(final long elapsedTime, final StatementContext ctx)
         {
             // GNDN

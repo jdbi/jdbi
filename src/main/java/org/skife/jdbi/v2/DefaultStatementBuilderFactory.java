@@ -28,6 +28,7 @@ public class DefaultStatementBuilderFactory implements StatementBuilderFactory
     /**
      * Obtain a StatementBuilder, called when a new handle is opened
      */
+    @Override
     public StatementBuilder createStatementBuilder(Connection conn)
     {
         return new DefaultStatementBuilder();

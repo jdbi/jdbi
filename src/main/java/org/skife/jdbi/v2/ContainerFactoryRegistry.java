@@ -77,23 +77,27 @@ class ContainerFactoryRegistry
 
     static class SortedSetContainerFactory implements ContainerFactory<SortedSet<?>> {
 
+        @Override
         public boolean accepts(Class<?> type)
         {
             return type.equals(SortedSet.class);
         }
 
+        @Override
         public ContainerBuilder<SortedSet<?>> newContainerBuilderFor(Class<?> type)
         {
             return new ContainerBuilder<SortedSet<?>>()
             {
                 private SortedSet<Object> s = new TreeSet<Object>();
 
+                @Override
                 public ContainerBuilder<SortedSet<?>> add(Object it)
                 {
                     s.add(it);
                     return this;
                 }
 
+                @Override
                 public SortedSet<?> build()
                 {
                     return s;
@@ -105,23 +109,27 @@ class ContainerFactoryRegistry
     static class SetContainerFactory implements ContainerFactory<Set<?>>
     {
 
+        @Override
         public boolean accepts(Class<?> type)
         {
             return Set.class.equals(type) || LinkedHashSet.class.equals(type);
         }
 
+        @Override
         public ContainerBuilder<Set<?>> newContainerBuilderFor(Class<?> type)
         {
             return new ContainerBuilder<Set<?>>()
             {
                 private Set<Object> s = new LinkedHashSet<Object>();
 
+                @Override
                 public ContainerBuilder<Set<?>> add(Object it)
                 {
                     s.add(it);
                     return this;
                 }
 
+                @Override
                 public Set<?> build()
                 {
                     return s;
@@ -133,11 +141,13 @@ class ContainerFactoryRegistry
     static class ListContainerFactory implements ContainerFactory<List<?>>
     {
 
+        @Override
         public boolean accepts(Class<?> type)
         {
             return type.equals(List.class) || type.equals(Collection.class) || type.equals(Iterable.class);
         }
 
+        @Override
         public ContainerBuilder<List<?>> newContainerBuilderFor(Class<?> type)
         {
             return new ListContainerBuilder();

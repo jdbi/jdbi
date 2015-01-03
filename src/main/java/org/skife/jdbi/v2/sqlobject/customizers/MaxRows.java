@@ -45,11 +45,13 @@ public @interface MaxRows
 
     static class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
         {
             final int va = ((MaxRows)annotation).value();
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     assert q instanceof Query;
@@ -58,11 +60,13 @@ public @interface MaxRows
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final int va = ((MaxRows)annotation).value();
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     assert q instanceof Query;
@@ -71,11 +75,13 @@ public @interface MaxRows
             };
         }
 
+        @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
         {
             final Integer va = (Integer) arg;
             return new SqlStatementCustomizer()
             {
+                @Override
                 public void apply(SQLStatement q) throws SQLException
                 {
                     assert q instanceof Query;

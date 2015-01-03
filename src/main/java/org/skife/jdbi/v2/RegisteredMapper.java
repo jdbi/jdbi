@@ -31,6 +31,7 @@ class RegisteredMapper<T> implements ResultSetMapper<T>
         this.registry = registry;
     }
 
+    @Override
     public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
         return (T) registry.mapperFor(type, ctx).map(index, r, ctx);

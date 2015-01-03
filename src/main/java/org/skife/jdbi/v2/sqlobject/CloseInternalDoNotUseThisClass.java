@@ -31,6 +31,7 @@ public interface CloseInternalDoNotUseThisClass
 
     static class CloseHandler implements Handler
     {
+        @Override
         public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
         {
             h.getHandle().close();
