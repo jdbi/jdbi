@@ -40,7 +40,7 @@ class ObjectArgument implements Argument
             statement.setObject(position, value);
         }
         else {
-            statement.setNull(position, Types.OTHER);
+            statement.setNull(position, Types.NULL);
         }
     }
 
