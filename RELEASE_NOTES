@@ -1,3 +1,10 @@
+2.57
+  - use Types.NULL for null objects (thanks @christophercurrie)
+  - improve behavior on transactional autocommit (thanks @hawkan)
+  - fix connection leak in on-demand sqlobject (thanks @pmaury)
+  - code cleanups
+
+
 2.54
   - fix cleanup bug when e.g. cleanupHandle was called multiple times
     on the same query.
