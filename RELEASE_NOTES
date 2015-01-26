@@ -1,5 +1,8 @@
+2.60
+  - Fix Javadoc generation for JDK6 and JDK8
+
 2.59
-  - Fixes #137, broken ClasspathStatementLocator cache.
+  - Fixes #137, broken ClasspathStatementLocator cache (thanks @HiJon89).
   - Recognize MySQL REPLACE statements
 
 2.58
