@@ -111,7 +111,7 @@ public class ClasspathStatementLocator implements StatementLocator
             if (in_stream == null) {
                 // Ensure we don't store an identity map entry which has a hard reference
                 // to the key (through the value) by copying the value, avoids potential memory leak.
-                found.put(cache_key, name == cache_key ? new String(name) : cache_key);
+                found.put(cache_key, name == cache_key ? new String(name) : name);
                 return name;
             }
 
