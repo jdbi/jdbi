@@ -42,7 +42,7 @@ public class ClasspathStatementLocator implements StatementLocator
      */
     public static boolean looksLikeSql(String sql)
     {
-        final String local = left(stripStart(sql), 7).toLowerCase();
+        final String local = left(stripStart(sql), 8).toLowerCase();
         return local.startsWith("insert ")
                || local.startsWith("update ")
                || local.startsWith("select ")
@@ -51,6 +51,7 @@ public class ClasspathStatementLocator implements StatementLocator
                || local.startsWith("create ")
                || local.startsWith("alter ")
                || local.startsWith("merge ")
+               || local.startsWith("replace ")
                || local.startsWith("drop ");
     }
 
@@ -111,7 +112,7 @@ public class ClasspathStatementLocator implements StatementLocator
             if (in_stream == null) {
                 // Ensure we don't store an identity map entry which has a hard reference
                 // to the key (through the value) by copying the value, avoids potential memory leak.
-                found.put(cache_key, name == cache_key ? new String(name) : cache_key);
+                found.put(cache_key, name == cache_key ? new String(name) : name);
                 return name;
             }
 

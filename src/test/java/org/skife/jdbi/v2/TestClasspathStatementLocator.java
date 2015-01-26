@@ -20,9 +20,12 @@ import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.cglib.transform.AbstractClassLoader;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.TestingStatementContext;
+import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -124,5 +127,27 @@ public class TestClasspathStatementLocator extends DBITestCase
 
         Thread.currentThread().setContextClassLoader(ctx_loader);
 
+    }
+
+    @Test
+    public void testCachesOriginalQueryWhenNotFound() throws Exception
+    {
+        StatementLocator statementLocator = new ClasspathStatementLocator();
+        StatementContext statementContext = new TestingStatementContext(new HashMap<String, Object>()) {
+
+            @Override
+            public Class<?> getSqlObjectType() {
+                return TestClasspathStatementLocator.class;
+            }
+        };
+
+        String input = "missing query";
+        String located = statementLocator.locate(input, statementContext);
+
+        assertEquals(input, located); // first time just caches it
+
+        located = statementLocator.locate(input, statementContext);
+
+        assertEquals(input, located); // second time reads from cache
     }
 }
