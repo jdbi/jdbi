@@ -1,3 +1,7 @@
+2.59
+  - Fix Javadoc generation for JDK6 and JDK8
+  - Bug fix with template caching (#137, thanks @HiJon89)
+
 2.58
   - Identical to 2.57 except that the jar is correctly shaded.
 
