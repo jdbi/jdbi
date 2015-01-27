@@ -33,30 +33,33 @@ class BindBeanFactory implements BinderFactory
             @Override
             public void bind(SQLStatement q, BindBean bind, Object arg)
             {
-                final String prefix;
-                if ("___jdbi_bare___".equals(bind.value())) {
-                    prefix = "";
-                }
-                else {
-                    prefix = bind.value() + ".";
-                }
-
-                try {
-                    BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
-                    PropertyDescriptor[] props = infos.getPropertyDescriptors();
-                    for (PropertyDescriptor prop : props) {
-                        Method readMethod = prop.getReadMethod();
-                        if (readMethod != null) {
-                            q.dynamicBind(readMethod.getReturnType(), prefix + prop.getName(), readMethod.invoke(arg));
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    throw new IllegalStateException("unable to bind bean properties", e);
-                }
-
-
+                bindBeanProperties(q, bind.value(), arg);
             }
         };
+    }
+
+    static void bindBeanProperties(SQLStatement q, String placeholder, Object arg)
+    {
+        final String prefix;
+        if ("___jdbi_bare___".equals(placeholder)) {
+            prefix = "";
+        }
+        else {
+            prefix = placeholder + ".";
+        }
+
+        try {
+            BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
+            PropertyDescriptor[] props = infos.getPropertyDescriptors();
+            for (PropertyDescriptor prop : props) {
+                Method readMethod = prop.getReadMethod();
+                if (readMethod != null) {
+                    q.dynamicBind(readMethod.getReturnType(), prefix + prop.getName(), readMethod.invoke(arg));
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new IllegalStateException("unable to bind bean properties", e);
+        }
     }
 }
