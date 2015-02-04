@@ -29,12 +29,15 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * looks for [name], then [name].sql on the classpath
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
+    private static final Pattern MULTILINE_COMMENTS = Pattern.compile("/\\*.*?\\*/");
+
     private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<String, String>());
 
     /**
@@ -132,9 +135,9 @@ public class ClasspathStatementLocator implements StatementLocator
                 throw new UnableToCreateStatementException(e.getMessage(), e, ctx);
             }
 
-            String sql = buffer.toString();
+            String sql = MULTILINE_COMMENTS.matcher(buffer).replaceAll("");
             found.put(cache_key, sql);
-            return buffer.toString();
+            return sql;
         }
         finally {
             try {
