@@ -16,9 +16,10 @@
 package org.skife.jdbi.v2;
 
 import org.junit.Test;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplate3StatementLocator;
+import org.skife.jdbi.v2.exceptions.StatementException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -42,5 +43,18 @@ public class TestScript extends DBITestCase
         script.execute();
 
         assertEquals(3, h.select("select * from something").size());
+    }
+
+    @Test
+    public void testScriptAsSetOfSeparateStatements() throws Exception {
+        try {
+            BasicHandle h = openHandle();
+            Script script = h.createScript("malformed-sql-script");
+            script.executeAsSeparateStatements();
+            fail("Should fail because the script is malformed");
+        } catch (StatementException e) {
+            StatementContext context = e.getStatementContext();
+            assertEquals(context.getRawSql().trim(), "insert into something(id, name) values (2, eric)");
+        }
     }
 }
