@@ -13,7 +13,12 @@
  */
 package org.jdbi.v3;
 
-import static org.jdbi.rewriter.hash.HashStatementLexer.*;
+import static org.jdbi.rewriter.hash.HashStatementLexer.DOUBLE_QUOTED_TEXT;
+import static org.jdbi.rewriter.hash.HashStatementLexer.ESCAPED_TEXT;
+import static org.jdbi.rewriter.hash.HashStatementLexer.LITERAL;
+import static org.jdbi.rewriter.hash.HashStatementLexer.NAMED_PARAM;
+import static org.jdbi.rewriter.hash.HashStatementLexer.POSITIONAL_PARAM;
+import static org.jdbi.rewriter.hash.HashStatementLexer.QUOTED_TEXT;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

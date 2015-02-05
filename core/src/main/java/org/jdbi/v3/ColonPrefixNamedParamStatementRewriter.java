@@ -13,7 +13,12 @@
  */
 package org.jdbi.v3;
 
-import static org.jdbi.rewriter.colon.ColonStatementLexer.*;
+import static org.jdbi.rewriter.colon.ColonStatementLexer.DOUBLE_QUOTED_TEXT;
+import static org.jdbi.rewriter.colon.ColonStatementLexer.ESCAPED_TEXT;
+import static org.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
+import static org.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
+import static org.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
+import static org.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

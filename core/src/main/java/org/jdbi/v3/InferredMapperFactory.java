@@ -22,14 +22,14 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 
 class InferredMapperFactory implements ResultSetMapperFactory
 {
-    private final static TypeResolver tr = new TypeResolver();
+    private static final TypeResolver TR = new TypeResolver();
     private final Class<?> maps;
     private final ResultSetMapper<?> mapper;
 
     public InferredMapperFactory(ResultSetMapper<?> mapper)
     {
         this.mapper = mapper;
-        ResolvedType rt = tr.resolve(mapper.getClass());
+        ResolvedType rt = TR.resolve(mapper.getClass());
         List<ResolvedType> rs = rt.typeParametersFor(ResultSetMapper.class);
         if (rs.isEmpty() || rs.get(0).getErasedType().equals(Object.class)) {
             throw new UnsupportedOperationException("Must use a concretely typed ResultSetMapper here");
