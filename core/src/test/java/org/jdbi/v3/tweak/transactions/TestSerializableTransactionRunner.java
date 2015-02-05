@@ -38,7 +38,7 @@ public class TestSerializableTransactionRunner
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI(db.getDataSource());
+        dbi = new DBI(db.getConnectionFactory());
         dbi.setTransactionHandler(new SerializableTransactionRunner());
     }
 

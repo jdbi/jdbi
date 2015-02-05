@@ -15,23 +15,19 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.fail;
 
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
-
-import javax.sql.DataSource;
 
 import org.jdbi.v3.exceptions.CallbackFailedException;
+import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,9 +44,9 @@ public class TestTooManyCursors
     @Test
     public void testFoo() throws Exception
     {
-        DataSource ds = db.getDataSource();
-        DataSource dataSource = new ErrorProducingDataSource(ds, 99);
-        DBI dbi = new DBI(dataSource);
+        ConnectionFactory cf = db.getConnectionFactory();
+        ConnectionFactory errorCf = new ErrorProducingConnectionFactory(cf, 99);
+        DBI dbi = new DBI(errorCf);
 
         try {
             dbi.withHandle(new HandleCallback<Object>()
@@ -71,69 +67,21 @@ public class TestTooManyCursors
         }
     }
 
-    private static class ErrorProducingDataSource implements DataSource
+    private static class ErrorProducingConnectionFactory implements ConnectionFactory
     {
-        private final DataSource target;
+        private final ConnectionFactory target;
         private final int connCount;
 
-        ErrorProducingDataSource(DataSource target, int i)
+        ErrorProducingConnectionFactory(ConnectionFactory target, int i)
         {
             this.target = target;
             connCount = i;
         }
 
         @Override
-        public Connection getConnection() throws SQLException
+        public Connection openConnection() throws SQLException
         {
-            return ConnectionInvocationHandler.newInstance(target.getConnection(), connCount);
-        }
-
-        @Override
-        public Connection getConnection(String string, String string1) throws SQLException
-        {
-            return ConnectionInvocationHandler.newInstance(target.getConnection(string, string1), connCount);
-        }
-
-        @Override
-        public PrintWriter getLogWriter() throws SQLException
-        {
-            return target.getLogWriter();
-        }
-
-        @Override
-        public void setLogWriter(PrintWriter printWriter) throws SQLException
-        {
-            target.setLogWriter(printWriter);
-        }
-
-        @Override
-        public void setLoginTimeout(int i) throws SQLException
-        {
-            target.setLoginTimeout(i);
-        }
-
-        @Override
-        public int getLoginTimeout() throws SQLException
-        {
-            return target.getLoginTimeout();
-        }
-
-        @Override
-        public <T> T unwrap(Class<T> iface) throws SQLException
-        {
-            return null;
-        }
-
-        @Override
-        public boolean isWrapperFor(Class<?> iface) throws SQLException
-        {
-            return false;
-        }
-
-        @Override
-        public Logger getParentLogger() throws SQLFeatureNotSupportedException
-        {
-            throw new UnsupportedOperationException();
+            return ConnectionInvocationHandler.newInstance(target.openConnection(), connCount);
         }
     }
 

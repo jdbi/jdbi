@@ -30,7 +30,7 @@ public class TestUpdateGeneratedKeys
     @Before
     public void setUp() throws Exception
     {
-        final Connection conn = db.getDataSource().getConnection();
+        final Connection conn = db.getConnectionFactory().openConnection();
 
         final Statement create = conn.createStatement();
         try

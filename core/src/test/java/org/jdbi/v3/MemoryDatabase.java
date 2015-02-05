@@ -14,14 +14,13 @@
 package org.jdbi.v3;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
+import org.jdbi.v3.tweak.ConnectionFactory;
 import org.junit.rules.ExternalResource;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 public class MemoryDatabase extends ExternalResource
 {
@@ -62,8 +61,8 @@ public class MemoryDatabase extends ExternalResource
         return getDbi().open();
     }
 
-    public DataSource getDataSource()
+    public ConnectionFactory getConnectionFactory()
     {
-        return new DriverManagerDataSource(getConnectionString());
+        return () -> DriverManager.getConnection(getConnectionString());
     }
 }
