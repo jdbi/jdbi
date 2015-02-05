@@ -64,7 +64,7 @@ class BindMapFactory implements BinderFactory
                     if (val != null) {
                         throw new IllegalStateException("Internal error: map iteration missed key " + key);
                     }
-                    q.bind(prefix + key, val);
+                    q.bind(prefix + key, (Object) null);
                 }
             }
         };
