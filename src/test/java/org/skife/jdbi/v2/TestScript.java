@@ -16,6 +16,7 @@
 package org.skife.jdbi.v2;
 
 import org.junit.Test;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplate3StatementLocator;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,5 +33,14 @@ public class TestScript extends DBITestCase
         s.execute();
 
         assertEquals(2, h.select("select * from something").size());
+    }
+
+    @Test
+    public void testScriptWithComments() throws Exception{
+        BasicHandle h = openHandle();
+        Script script = h.createScript("insert-script-with-comments");
+        script.execute();
+
+        assertEquals(3, h.select("select * from something").size());
     }
 }
