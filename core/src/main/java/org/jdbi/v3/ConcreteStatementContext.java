@@ -50,6 +50,7 @@ public final class ConcreteStatementContext implements StatementContext
      *
      * @return previous value of this attribute
      */
+    @Override
     public Object setAttribute(String key, Object value)
     {
         return attributes.put(key, value);
@@ -62,6 +63,7 @@ public final class ConcreteStatementContext implements StatementContext
      *
      * @return the value of the attribute
      */
+    @Override
     public Object getAttribute(String key)
     {
         return this.attributes.get(key);
@@ -73,6 +75,7 @@ public final class ConcreteStatementContext implements StatementContext
      *
      * @return a map f attributes
      */
+    @Override
     public Map<String, Object> getAttributes()
     {
         return attributes;
@@ -88,6 +91,7 @@ public final class ConcreteStatementContext implements StatementContext
      *
      * @return the initial sql
      */
+    @Override
     public String getRawSql()
     {
         return rawSql;
@@ -110,6 +114,7 @@ public final class ConcreteStatementContext implements StatementContext
      *
      * @return the sql as it will be executed against the database
      */
+    @Override
     public String getRewrittenSql()
     {
         return rewrittenSql;
@@ -122,6 +127,7 @@ public final class ConcreteStatementContext implements StatementContext
      *
      * @return the sql which will be passed to the statement rewriter
      */
+    @Override
     public String getLocatedSql()
     {
         return locatedSql;
@@ -139,6 +145,7 @@ public final class ConcreteStatementContext implements StatementContext
      *
      * @return Obtain the actual prepared statement being used.
      */
+    @Override
     public PreparedStatement getStatement()
     {
         return statement;
@@ -154,6 +161,7 @@ public final class ConcreteStatementContext implements StatementContext
      *
      * @return the JDBC connection
      */
+    @Override
     public Connection getConnection()
     {
         return connection;
@@ -164,6 +172,7 @@ public final class ConcreteStatementContext implements StatementContext
         this.binding = b;
     }
 
+    @Override
     public Binding getBinding()
     {
         return binding;
@@ -174,6 +183,7 @@ public final class ConcreteStatementContext implements StatementContext
         this.sqlObjectType = sqlObjectType;
     }
 
+    @Override
     public Class<?> getSqlObjectType()
     {
         return sqlObjectType;
@@ -184,6 +194,7 @@ public final class ConcreteStatementContext implements StatementContext
         this.sqlObjectMethod = sqlObjectMethod;
     }
 
+    @Override
     public Method getSqlObjectMethod()
     {
         return sqlObjectMethod;
@@ -194,11 +205,13 @@ public final class ConcreteStatementContext implements StatementContext
         this.returningGeneratedKeys = b;
     }
 
+    @Override
     public boolean isReturningGeneratedKeys()
     {
         return returningGeneratedKeys;
     }
 
+    @Override
     public void addCleanable(Cleanable cleanable)
     {
         this.cleanables.add(cleanable);

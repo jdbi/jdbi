@@ -56,6 +56,9 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     @Override
     public void close()
     {
+        if (closed) {
+            return;
+        }
         closed = true;
         jdbiStatement.cleanup();
     }

@@ -1,3 +1,4 @@
+dependency-reduced-pom.xml
 GPATH
 GRTAGS
 GTAGS
@@ -9,7 +10,7 @@ report
 *.iml
 .clover
 .idea
-build
+^build
 out
 .classpath
 .project

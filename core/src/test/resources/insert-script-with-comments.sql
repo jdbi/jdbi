@@ -13,8 +13,13 @@
 --
 
 -- insert 3 lines
+/**/
 insert into something(id, name) values (1, 'one');
 # line 2
+/*update*/insert into something (id, name) values (2, 'two');
+/*insert into something (id, name) values (2, 'two');*/
+/* test
 insert into something (id, name) values (2, 'two');
+
+*/insert into /*something*/ something (id, name) values (3, 'three');
 // line 3
-insert into something (id, name) values (3, 'three');

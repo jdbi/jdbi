@@ -36,6 +36,7 @@ public class DefaultStatementBuilder implements StatementBuilder
      *
      * @return a new PreparedStatement
      */
+    @Override
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
         if (ctx.isReturningGeneratedKeys()) {
@@ -55,6 +56,7 @@ public class DefaultStatementBuilder implements StatementBuilder
      *
      * @throws java.sql.SQLException if anything goes wrong closing the statement
      */
+    @Override
     public void close(Connection conn, String sql, Statement stmt) throws SQLException
     {
         if (stmt != null) {
@@ -65,6 +67,7 @@ public class DefaultStatementBuilder implements StatementBuilder
     /**
      * In this case, a NOOP
      */
+    @Override
     public void close(Connection conn)
     {
     }
@@ -76,6 +79,7 @@ public class DefaultStatementBuilder implements StatementBuilder
      * @param sql the translated SQL which should be prepared
      * @param ctx Statement context associated with the SQLStatement this is building for
      */
+    @Override
     public CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
         return conn.prepareCall(sql);

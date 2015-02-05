@@ -24,56 +24,69 @@ public final class NoOpLog implements SQLLog
 
     static final BatchLogger batch = new BatchLogger() {
 
+        @Override
         public void add(String sql)
         {
         }
 
+        @Override
         public void log(long time)
         {
         }
     };
 
+    @Override
     public void logBeginTransaction(Handle h)
     {
     }
 
+    @Override
     public void logCommitTransaction(long time, Handle h)
     {
     }
 
+    @Override
     public void logRollbackTransaction(long time, Handle h)
     {
     }
 
+    @Override
     public void logObtainHandle(long time, Handle h)
     {
     }
 
+    @Override
     public void logReleaseHandle(Handle h)
     {
     }
 
+    @Override
     public void logSQL(long time, String sql)
     {
     }
 
+    @Override
     public void logPreparedBatch(long time, String sql, int count)
     {
     }
 
+    @Override
     public BatchLogger logBatch()
     {
         return batch;
     }
 
+    @Override
     public void logCheckpointTransaction(Handle h, String name)
     {
     }
 
+    @Override
     public void logReleaseCheckpointTransaction(Handle h, String name)
     {
     }
 
+    @Override
     public void logRollbackToCheckpoint(long time, Handle h, String checkpointName)
     {
     }

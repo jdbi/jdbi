@@ -32,6 +32,7 @@ public class CMTTransactionHandler implements TransactionHandler
     /**
      * Called when a transaction is started
      */
+    @Override
     public void begin(Handle handle)
     {
         // noop
@@ -40,6 +41,7 @@ public class CMTTransactionHandler implements TransactionHandler
     /**
      * Called when a transaction is committed
      */
+    @Override
     public void commit(Handle handle)
     {
         // noop
@@ -49,6 +51,7 @@ public class CMTTransactionHandler implements TransactionHandler
      * Called when a transaction is rolled back
      * Will throw a RuntimeException to force transactional rollback
      */
+    @Override
     public void rollback(Handle handle)
     {
         throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");
@@ -60,6 +63,7 @@ public class CMTTransactionHandler implements TransactionHandler
      * @param handle the handle the rollback is being performed on
      * @param name   the name of the checkpoint to rollback to
      */
+    @Override
     public void rollback(Handle handle, String name)
     {
         throw new UnsupportedOperationException("Checkpoints not implemented");
@@ -68,6 +72,7 @@ public class CMTTransactionHandler implements TransactionHandler
     /**
      * Called to test if a handle is in a transaction
      */
+    @Override
     public boolean isInTransaction(Handle handle)
     {
         try
@@ -86,6 +91,7 @@ public class CMTTransactionHandler implements TransactionHandler
      * @param handle the handle on which the transaction is being checkpointed
      * @param name   The name of the chckpoint, used to rollback to or release late
      */
+    @Override
     public void checkpoint(Handle handle, String name)
     {
         throw new UnsupportedOperationException("Checkpoints not implemented");
@@ -97,6 +103,7 @@ public class CMTTransactionHandler implements TransactionHandler
      * @param handle         the handle on which the checkpoint is being released
      * @param checkpointName the checkpoint to release
      */
+    @Override
     public void release(Handle handle, String checkpointName)
     {
         throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");

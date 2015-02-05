@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.sqlobject.stringtemplate;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -21,6 +21,13 @@ import java.util.UUID;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.sqlobject.Bind;
+import org.jdbi.v3.sqlobject.BindBean;
+import org.jdbi.v3.sqlobject.SomethingMapper;
+import org.jdbi.v3.sqlobject.SqlBatch;
+import org.jdbi.v3.sqlobject.SqlObjectBuilder;
+import org.jdbi.v3.sqlobject.SqlQuery;
+import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.Define;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;

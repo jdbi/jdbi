@@ -15,10 +15,10 @@ package org.jdbi.v3;
 
 import java.util.List;
 
+import org.jdbi.v3.tweak.ResultSetMapper;
+
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
-
-import org.jdbi.v3.tweak.ResultSetMapper;
 
 class InferredMapperFactory implements ResultSetMapperFactory
 {

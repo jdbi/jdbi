@@ -11,29 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.exceptions;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+public class UnableToRestoreAutoCommitStateException extends DBIException {
 
-import org.jdbi.v3.tweak.Argument;
+    private static final long serialVersionUID = 2433069110223543423L;
 
-class NullArgument implements Argument
-{
-    private final int sqlType;
-
-    NullArgument(int sqlType) {
-        this.sqlType = sqlType;
-    }
-
-    @Override
-    public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-    {
-        statement.setNull(position, sqlType);
-    }
-
-    @Override
-    public String toString() {
-        return "NULL";
+    public UnableToRestoreAutoCommitStateException(Throwable throwable) {
+        super(throwable);
     }
 }

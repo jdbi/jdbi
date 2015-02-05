@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -80,7 +80,7 @@ public class PrimitivesMapperFactory implements ResultSetMapperFactory
         return mappers.containsKey(type) || type.isEnum();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx)
     {

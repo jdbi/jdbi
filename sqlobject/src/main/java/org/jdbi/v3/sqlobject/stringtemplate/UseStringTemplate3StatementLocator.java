@@ -20,6 +20,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
+import org.antlr.stringtemplate.StringTemplateErrorListener;
+import org.antlr.stringtemplate.StringTemplateGroup;
 import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -34,6 +36,8 @@ public @interface UseStringTemplate3StatementLocator
     String DEFAULT_VALUE = " ~ ";
 
     String value() default DEFAULT_VALUE;
+
+    Class<?> errorListener() default StringTemplateErrorListener.class;
 
     public static class LocatorFactory implements SqlStatementCustomizerFactory
     {
@@ -50,7 +54,17 @@ public @interface UseStringTemplate3StatementLocator
                 builder = StringTemplate3StatementLocator.builder(a.value());
             }
 
-            final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().build();
+            StringTemplateErrorListener errorListener = StringTemplateGroup.DEFAULT_ERROR_LISTENER;
+            if (!StringTemplateErrorListener.class.equals(a.errorListener())) {
+              try {
+                errorListener = (StringTemplateErrorListener) a.errorListener().newInstance();
+              }
+              catch(Exception e) {
+                throw new IllegalStateException("Error initializing StringTemplateErrorListener", e);
+              }
+            }
+
+            final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().withErrorListener(errorListener).build();
 
             return new SqlStatementCustomizer()
             {

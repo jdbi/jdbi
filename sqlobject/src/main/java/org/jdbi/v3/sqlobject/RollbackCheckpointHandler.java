@@ -17,6 +17,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 class RollbackCheckpointHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         h.getHandle().rollback(String.valueOf(args[0]));

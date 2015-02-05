@@ -66,6 +66,14 @@ public class TestColonStatementRewriter
     }
 
     @Test
+    public void testHashInColumnNameOkay() throws Exception
+    {
+       RewrittenStatement rws = rw.rewrite("select column# from thetable where id = :id", new Binding(),
+                                           new ConcreteStatementContext(new HashMap<String, Object>()));
+       assertEquals("select column# from thetable where id = ?", rws.getSql());
+    }
+
+    @Test
     public void testBacktickOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from `v$session", new Binding(),

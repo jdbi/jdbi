@@ -13,32 +13,37 @@
  */
 package org.jdbi.v3;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.StatementLocator;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * looks for [name], then [name].sql on the classpath
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private final ConcurrentMap<String, String> found = new ConcurrentHashMap<String, String>();
+    private static final Pattern MULTILINE_COMMENTS = Pattern.compile("/\\*.*?\\*/");
+
+    private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<String, String>());
 
     /**
      * Very basic sanity test to see if a string looks like it might be sql
      */
     public static boolean looksLikeSql(String sql)
     {
-        final String local = left(stripStart(sql), 7).toLowerCase();
+        final String local = left(stripStart(sql), 8).toLowerCase();
         return local.startsWith("insert ")
                || local.startsWith("update ")
                || local.startsWith("select ")
@@ -46,6 +51,8 @@ public class ClasspathStatementLocator implements StatementLocator
                || local.startsWith("delete ")
                || local.startsWith("create ")
                || local.startsWith("alter ")
+               || local.startsWith("merge ")
+               || local.startsWith("replace ")
                || local.startsWith("drop ");
     }
 
@@ -68,6 +75,7 @@ public class ClasspathStatementLocator implements StatementLocator
      */
     @Override
     @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressFBWarnings("DM_STRING_CTOR")
     public String locate(String name, StatementContext ctx)
     {
         final String cache_key;
@@ -103,7 +111,9 @@ public class ClasspathStatementLocator implements StatementLocator
             }
 
             if (in_stream == null) {
-                found.putIfAbsent(cache_key, name);
+                // Ensure we don't store an identity map entry which has a hard reference
+                // to the key (through the value) by copying the value, avoids potential memory leak.
+                found.put(cache_key, name == cache_key ? new String(name) : name);
                 return name;
             }
 
@@ -123,9 +133,9 @@ public class ClasspathStatementLocator implements StatementLocator
                 throw new UnableToCreateStatementException(e.getMessage(), e, ctx);
             }
 
-            String sql = buffer.toString();
-            found.putIfAbsent(cache_key, sql);
-            return buffer.toString();
+            String sql = MULTILINE_COMMENTS.matcher(buffer).replaceAll("");
+            found.put(cache_key, sql);
+            return sql;
         }
         finally {
             try {

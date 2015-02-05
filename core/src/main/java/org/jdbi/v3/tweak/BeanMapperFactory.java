@@ -14,6 +14,7 @@
 package org.jdbi.v3.tweak;
 
 import org.jdbi.v3.BeanMapper;
+import org.jdbi.v3.BuiltInArgumentFactory;
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
 
@@ -22,6 +23,10 @@ public class BeanMapperFactory<T> implements ResultSetMapperFactory
     @Override
     public boolean accepts(Class<?> type, StatementContext ctx)
     {
+        if (BuiltInArgumentFactory.INSTANCE.accepts(type, type, ctx)) {
+            // don't interfere with built-ins
+            return false;
+        }
         return true;
     }
 

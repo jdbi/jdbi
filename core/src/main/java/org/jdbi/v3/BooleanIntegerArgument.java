@@ -31,6 +31,7 @@ class BooleanIntegerArgument implements Argument
         this.value = value;
     }
 
+    @Override
     public void apply(final int position, final PreparedStatement statement, final StatementContext ctx) throws SQLException
     {
         statement.setInt(position, value ? 1 : 0);

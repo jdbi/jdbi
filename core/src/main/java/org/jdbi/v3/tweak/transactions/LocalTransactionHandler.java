@@ -27,6 +27,7 @@ import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.TransactionFailedException;
+import org.jdbi.v3.exceptions.UnableToRestoreAutoCommitStateException;
 import org.jdbi.v3.tweak.TransactionHandler;
 
 /**
@@ -41,6 +42,7 @@ public class LocalTransactionHandler implements TransactionHandler
     /**
      * Called when a transaction is started
      */
+    @Override
     public void begin(Handle handle)
     {
         try {
@@ -58,48 +60,34 @@ public class LocalTransactionHandler implements TransactionHandler
     /**
      * Called when a transaction is committed
      */
+    @Override
     public void commit(Handle handle)
     {
         try {
             handle.getConnection().commit();
-            final LocalStuff stuff = localStuff.remove(handle);
-            if (stuff != null) {
-                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
-                stuff.getCheckpoints().clear();
-            }
         }
         catch (SQLException e) {
             throw new TransactionException("Failed to commit transaction", e);
         }
         finally {
-            // prevent memory leak if commit throws an exception
-            if (localStuff.containsKey(handle)) {
-                localStuff.remove(handle);
-            }
+            restoreAutoCommitState(handle);
         }
     }
 
     /**
      * Called when a transaction is rolled back
      */
+    @Override
     public void rollback(Handle handle)
     {
         try {
             handle.getConnection().rollback();
-            final LocalStuff stuff = localStuff.remove(handle);
-            if (stuff != null) {
-                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
-                stuff.getCheckpoints().clear();
-            }
         }
         catch (SQLException e) {
             throw new TransactionException("Failed to rollback transaction", e);
         }
         finally {
-            // prevent memory leak if rollback throws an exception
-            if (localStuff.containsKey(handle)) {
-                localStuff.remove(handle);
-            }
+            restoreAutoCommitState(handle);
         }
     }
 
@@ -109,6 +97,7 @@ public class LocalTransactionHandler implements TransactionHandler
      * @param handle the handle on which the transaction is being checkpointed
      * @param name   The name of the chckpoint, used to rollback to or release late
      */
+    @Override
     public void checkpoint(Handle handle, String name)
     {
         final Connection conn = handle.getConnection();
@@ -121,6 +110,7 @@ public class LocalTransactionHandler implements TransactionHandler
         }
     }
 
+    @Override
     public void release(Handle handle, String name)
     {
         final Connection conn = handle.getConnection();
@@ -143,6 +133,7 @@ public class LocalTransactionHandler implements TransactionHandler
      * @param handle the handle the rollback is being performed on
      * @param name   the name of the checkpoint to rollback to
      */
+    @Override
     public void rollback(Handle handle, String name)
     {
         final Connection conn = handle.getConnection();
@@ -162,6 +153,7 @@ public class LocalTransactionHandler implements TransactionHandler
     /**
      * Called to test if a handle is in a transaction
      */
+    @Override
     public boolean isInTransaction(Handle handle)
     {
         try {
@@ -225,6 +217,22 @@ public class LocalTransactionHandler implements TransactionHandler
             handle.setTransactionIsolation(initial);
         }
     }
+
+    private void restoreAutoCommitState(final Handle handle) {
+        try {
+            final LocalStuff stuff = localStuff.remove(handle);
+            if (stuff != null) {
+                handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
+                stuff.getCheckpoints().clear();
+            }
+        } catch (SQLException e) {
+            throw new UnableToRestoreAutoCommitStateException(e);
+        } finally {
+            // prevent memory leak if rollback throws an exception
+            localStuff.remove(handle);
+        }
+    }
+
 
     private static class LocalStuff
     {

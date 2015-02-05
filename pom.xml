@@ -44,9 +44,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/brianm/jdbi.git</connection>
-        <developerConnection>scm:git:git@github.com:brianm/jdbi.git</developerConnection>
-        <url>https://github.com/brianm/jdbi/</url>
+        <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
+        <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
+        <url>https://github.com/jdbi/jdbi/</url>
         <tag>HEAD</tag>
     </scm>
 

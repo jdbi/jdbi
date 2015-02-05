@@ -111,8 +111,6 @@ public @interface OverrideStatementRewriterWith
                     throw new IllegalStateException("Unable to instantiate, no viable constructor " + value.getName());
                 }
             }
-
         }
-
     }
 }

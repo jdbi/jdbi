@@ -54,6 +54,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         }
     }
 
+    @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public T map(int row, ResultSet rs, StatementContext ctx)
         throws SQLException
@@ -116,7 +117,8 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                     value = rs.getString(i);
                 }
                 else if (type.isEnum()) {
-                    value = Enum.valueOf(type, rs.getString(i));
+                    String str = rs.getString(i);
+                    value = str != null ? Enum.valueOf(type, str) : null;
                 }
                 else {
                     value = rs.getObject(i);

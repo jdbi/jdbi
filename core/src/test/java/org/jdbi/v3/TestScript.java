@@ -32,4 +32,13 @@ public class TestScript
 
         assertEquals(2, h.select("select * from something").size());
     }
+
+    @Test
+    public void testScriptWithComments() throws Exception {
+        Handle h = db.openHandle();
+        Script script = h.createScript("insert-script-with-comments");
+        script.execute();
+
+        assertEquals(3, h.select("select * from something").size());
+    }
 }

@@ -209,6 +209,7 @@ class Cleanables
             this.stmt = stmt;
         }
 
+        @Override
         public void cleanup()
             throws SQLException
         {

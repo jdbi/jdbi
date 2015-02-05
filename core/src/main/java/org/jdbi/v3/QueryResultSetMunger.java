@@ -28,6 +28,7 @@ abstract class QueryResultSetMunger<T> implements QueryResultMunger<T>
         this.stmt = stmt;
     }
 
+    @Override
     public final T munge(Statement results)
             throws SQLException
     {

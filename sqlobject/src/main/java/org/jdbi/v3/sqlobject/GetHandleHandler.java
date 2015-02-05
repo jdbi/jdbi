@@ -17,6 +17,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 class GetHandleHandler implements Handler
 {
+    @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         return h.getHandle();

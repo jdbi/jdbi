@@ -85,7 +85,6 @@ public @interface RegisterArgumentFactory
                     }
                 }
             };
-
         }
     }
 }

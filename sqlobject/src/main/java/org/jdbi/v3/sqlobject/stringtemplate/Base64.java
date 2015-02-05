@@ -31,7 +31,7 @@ import java.nio.charset.Charset;
 @SuppressWarnings("unused")
 final class  Base64 {
     private static final int  BASELENGTH         = 255;
-    private static final int  LOOKUPLENGTH       = 63;
+    private static final int  LOOKUPLENGTH       = 64;
     private static final int  TWENTYFOURBITGROUP = 24;
     private static final int  EIGHTBIT           = 8;
     private static final int  SIXTEENBIT         = 16;
@@ -73,6 +73,9 @@ final class  Base64 {
         for (int i = 52,  j = 0; i<=61; i++, j++ ) {
             lookUpBase64Alphabet[i] = (byte) ('0' + j );
         }
+
+        lookUpBase64Alphabet[62] = (byte) '+';
+        lookUpBase64Alphabet[63] = (byte) '/';
 
     }
 

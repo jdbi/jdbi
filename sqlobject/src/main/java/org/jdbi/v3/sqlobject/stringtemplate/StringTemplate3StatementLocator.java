@@ -120,7 +120,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
      * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
      */
     @Deprecated
-    public StringTemplate3StatementLocator(Class baseClass,
+    public StringTemplate3StatementLocator(Class<?> baseClass,
                                            boolean allowImplicitTemplateGroup,
                                            boolean treatLiteralsAsTemplates,
                                            boolean shouldCache)
@@ -183,6 +183,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
             allowImplicitTemplateGroup,
             getClass(),
             superGroup);
+
+        if(this.literals != null) {
+          this.literals.setErrorListener(errorListener);
+        }
+        this.group.setErrorListener(errorListener);
     }
 
     private static StringTemplateGroup createGroup(final String templateGroupFilePathOnClasspath,

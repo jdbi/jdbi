@@ -1,3 +1,22 @@
+2.60
+  - Fix Javadoc generation for JDK6 and JDK8
+
+2.59
+  - Fixes #137, broken ClasspathStatementLocator cache (thanks @HiJon89).
+  - Recognize MySQL REPLACE statements
+
+2.58
+  - Identical to 2.57 except that the jar is correctly shaded.
+
+
+2.57  *** DO NOT USE *** - Packaging for 2.57 was accidentially broken, use 2.58 instead.
+                           Thanks to @HiJon89 for spotting the problem!
+  - use Types.NULL for null objects (thanks @christophercurrie)
+  - improve behavior on transactional autocommit (thanks @hawkan)
+  - fix connection leak in on-demand sqlobject (thanks @pmaury)
+  - code cleanups
+
+
 2.54
   - fix cleanup bug when e.g. cleanupHandle was called multiple times
     on the same query.

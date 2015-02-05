@@ -32,6 +32,7 @@ class SqlTypeArgument implements Argument
         this.sqlType = sqlType;
     }
 
+    @Override
     public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
         statement.setObject(position, value, sqlType);

@@ -36,6 +36,7 @@ class InputStreamArgument implements Argument
         this.ascii = ascii;
     }
 
+    @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
     {
         if (ascii)

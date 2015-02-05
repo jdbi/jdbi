@@ -25,4 +25,5 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 public @interface GetGeneratedKeys
 {
     Class<? extends ResultSetMapper<?>> value() default FigureItOutResultSetMapper.class;
+    String columnName() default "";
 }

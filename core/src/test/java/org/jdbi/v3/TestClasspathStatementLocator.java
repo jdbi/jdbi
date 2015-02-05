@@ -20,12 +20,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.cglib.transform.AbstractClassLoader;
 
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.tweak.StatementLocator;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -122,5 +124,27 @@ public class TestClasspathStatementLocator
         assertThat(load_count.get(), equalTo(2)); // has not increased since previous
 
         Thread.currentThread().setContextClassLoader(ctx_loader);
+    }
+
+    @Test
+    public void testCachesOriginalQueryWhenNotFound() throws Exception
+    {
+        StatementLocator statementLocator = new ClasspathStatementLocator();
+        StatementContext statementContext = new TestingStatementContext(new HashMap<String, Object>()) {
+
+            @Override
+            public Class<?> getSqlObjectType() {
+                return TestClasspathStatementLocator.class;
+            }
+        };
+
+        String input = "missing query";
+        String located = statementLocator.locate(input, statementContext);
+
+        assertEquals(input, located); // first time just caches it
+
+        located = statementLocator.locate(input, statementContext);
+
+        assertEquals(input, located); // second time reads from cache
     }
 }

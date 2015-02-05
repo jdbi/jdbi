@@ -88,6 +88,4 @@ public @interface MaxRows
             };
         }
     }
-
-
 }

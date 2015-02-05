@@ -17,32 +17,46 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
+import org.easymock.EasyMock;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.ResultIterator;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.exceptions.DBIException;
+import org.jdbi.v3.exceptions.TransactionException;
+import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
+import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class TestOnDemandSqlObject
 {
     private DBI    dbi;
     private Handle handle;
+    private JdbcDataSource ds;
 
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
+        ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = new DBI(ds);
@@ -116,6 +130,71 @@ public class TestOnDemandSqlObject
 
     }
 
+    @Test(expected=TransactionException.class)
+    public void testExceptionOnClose() throws Exception {
+        DBI dbi = new DBI(ds) {
+            @Override
+            public Handle open() {
+                Handle h = EasyMock.createMock(Handle.class);
+                h.createStatement(EasyMock.anyObject(String.class));
+                EasyMock.expectLastCall()
+                    .andThrow(new TransactionException("connection reset"));
+                h.close();
+                EasyMock.expectLastCall()
+                    .andThrow(new UnableToCloseResourceException("already closed", null));
+                EasyMock.replay(h);
+                return h;
+            }
+        };
+
+        Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        s.insert(1, "Tom");
+    }
+
+    @Test
+    public void testIteratorCloseHandleOnError() throws Exception {
+        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
+
+        Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        try {
+            s.crashNow();
+            fail();
+        } catch (DBIException e) {
+        }
+
+        assertFalse( dbi.hasOpenedHandle() );
+    }
+
+    @Test
+    public void testIteratorClosedOnReadError() throws Exception {
+        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
+
+        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        spiffy.insert(1, "Tom");
+
+        Iterator<Something> i = spiffy.crashOnFirstRead();
+        try {
+            i.next();
+            fail();
+        } catch (DBIException ex) {
+        }
+
+        assertFalse(dbi.hasOpenedHandle());
+    }
+
+    @Test
+    public void testIteratorPrepatureClose() throws Exception {
+        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
+
+        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        spiffy.insert(1, "Tom");
+
+        ResultIterator<Something> all = spiffy.findAll();
+        all.close();
+
+        assertFalse( dbi.hasOpenedHandle() );
+    }
+
     @Test
     public void testSqlFromExternalFileWorks() throws Exception
     {
@@ -139,7 +218,16 @@ public class TestOnDemandSqlObject
 
         @SqlQuery("select name, id from something")
         @Mapper(SomethingMapper.class)
-        Iterator<Something> findAll();
+        ResultIterator<Something> findAll();
+
+        @SqlQuery("select * from crash now")
+        @Mapper(SomethingMapper.class)
+        Iterator<Something> crashNow();
+
+        @SqlQuery("select name, id from something")
+        @Mapper(CrashingMapper.class)
+        Iterator<Something> crashOnFirstRead();
+
     }
 
     public static interface TransactionStuff extends GetHandle, Transactional<TransactionStuff>
@@ -160,5 +248,37 @@ public class TestOnDemandSqlObject
         @SqlQuery("all-something")
         @Mapper(SomethingMapper.class)
         Iterator<Something> findAll();
+    }
+
+    static class CrashingMapper implements ResultSetMapper<Something>
+    {
+        @Override
+        public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        {
+            throw new SQLException("protocol error");
+        }
+    }
+
+    public static class HandleTrackerDBI extends DBI 
+    {
+        final List<Handle> openedHandle = new ArrayList<Handle>();
+
+        HandleTrackerDBI(DataSource dataSource) {
+            super(dataSource);
+        }
+
+        @Override
+        public Handle open() {
+                Handle h  = super.open();
+                openedHandle.add(h);
+                return h;
+        }
+
+        boolean hasOpenedHandle() throws SQLException {
+            for (Handle h : openedHandle) {
+                if (!h.getConnection().isClosed()) return true;
+            }
+            return false;
+        }
     }
 }

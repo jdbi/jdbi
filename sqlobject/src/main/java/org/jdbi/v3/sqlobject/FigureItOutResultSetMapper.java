@@ -14,12 +14,27 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import org.jdbi.v3.PrimitivesMapperFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.util.BigDecimalMapper;
+import org.jdbi.v3.util.BooleanMapper;
+import org.jdbi.v3.util.ByteArrayMapper;
+import org.jdbi.v3.util.ByteMapper;
+import org.jdbi.v3.util.DoubleMapper;
+import org.jdbi.v3.util.FloatMapper;
+import org.jdbi.v3.util.IntegerMapper;
+import org.jdbi.v3.util.LongMapper;
+import org.jdbi.v3.util.ShortMapper;
+import org.jdbi.v3.util.StringMapper;
+import org.jdbi.v3.util.TimestampMapper;
+import org.jdbi.v3.util.URLMapper;
 
 class FigureItOutResultSetMapper implements ResultSetMapper<Object>
 {
@@ -29,9 +44,48 @@ class FigureItOutResultSetMapper implements ResultSetMapper<Object>
     public Object map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
         Method m = ctx.getSqlObjectMethod();
-        m.getAnnotation(GetGeneratedKeys.class);
         Class<?> rt = m.getReturnType();
-        ResultSetMapper<?> f = factory.mapperFor(rt, ctx);
+        GetGeneratedKeys ggk = m.getAnnotation(GetGeneratedKeys.class);
+        String keyColumn = ggk.columnName();
+
+        ResultSetMapper<?> f;
+        if (!"".equals(keyColumn)) {
+            f = figureOutMapper(rt, keyColumn);
+        } else {
+            f = factory.mapperFor(rt, ctx);
+        }
         return f.map(index, r, ctx);
+    }
+
+    ResultSetMapper<?> figureOutMapper(Class<?> keyType, String keyColumn) {
+        ResultSetMapper<?> f;
+        if (keyType.isAssignableFrom(BigDecimal.class)) {
+            f = new BigDecimalMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(Boolean.class) || keyType.isAssignableFrom(boolean.class)) {
+            f = new BooleanMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(byte[].class)) {
+            f = new ByteArrayMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(Short.class) || keyType.isAssignableFrom(short.class)) {
+            f = new ShortMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(float.class) || keyType.isAssignableFrom(Float.class)) {
+            f = new FloatMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(Double.class) || keyType.isAssignableFrom(double.class)) {
+            f = new DoubleMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(Byte.class) || keyType.isAssignableFrom(byte.class)) {
+            f = new ByteMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(URL.class)) {
+            f = new URLMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(Integer.class) || keyType.isAssignableFrom(int.class)) {
+            f = new IntegerMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(Long.class) || keyType.isAssignableFrom(long.class)) {
+            f = new LongMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(Timestamp.class)) {
+            f = new TimestampMapper(keyColumn);
+        } else if (keyType.isAssignableFrom(String.class)) {
+            f = new StringMapper(keyColumn);
+        } else {
+            f = new LongMapper(keyColumn);
+        }
+        return f;
     }
 }

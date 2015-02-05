@@ -21,6 +21,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 class EqualsHandler implements Handler
 {
+    @Override
     public Object invoke(final HandleDing h, final Object target, final Object[] args, MethodProxy mp)
     {
         // basic reference equals for now.
