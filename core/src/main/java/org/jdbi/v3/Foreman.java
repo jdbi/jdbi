@@ -139,6 +139,11 @@ class Foreman
                 return p.build(value);
             }
 
+            // Enums must be bound as VARCHAR.
+            if (expectedType.isEnum()) {
+                return new StringArgument(value.toString());
+            }
+
             // Fallback to generic ObjectArgument
             return new ObjectArgument(value);
         }
