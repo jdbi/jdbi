@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -36,11 +35,10 @@ public class Update extends SQLStatement<Update>
            StatementBuilder statementBuilder,
            String sql,
            ConcreteStatementContext ctx,
-           SQLLog log,
            TimingCollector timingCollector,
            Foreman foreman)
     {
-        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
+        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
     }
 
     /**

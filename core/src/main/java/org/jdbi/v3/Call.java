@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -42,12 +41,11 @@ public class Call extends SQLStatement<Call>
          StatementBuilder cache,
          String sql,
          ConcreteStatementContext ctx,
-         SQLLog log,
          TimingCollector timingCollector,
          Collection<StatementCustomizer> customizers,
          Foreman foreman)
     {
-        super(new Binding(), locator, rewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman);
+        super(new Binding(), locator, rewriter, handle, cache, sql, ctx, timingCollector, customizers, foreman);
     }
 
     /**

@@ -20,11 +20,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.collect.ImmutableSet;
-
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.logging.PrintStreamLog;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
@@ -32,6 +29,8 @@ import org.jdbi.v3.unstable.BindIn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableSet;
 
 public class TestInClauseExpansion
 {
@@ -43,7 +42,6 @@ public class TestInClauseExpansion
     {
         dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
 
-        dbi.setSQLLog(new PrintStreamLog(System.out));
         handle = dbi.open();
         handle.execute("create table something( id integer primary key, name varchar(100) )");
     }

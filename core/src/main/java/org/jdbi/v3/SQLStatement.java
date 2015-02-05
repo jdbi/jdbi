@@ -34,11 +34,12 @@ import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 import org.jdbi.v3.tweak.RewrittenStatement;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides the common functions between <code>Query</code> and
@@ -47,6 +48,8 @@ import org.jdbi.v3.tweak.StatementRewriter;
  */
 public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> extends BaseStatement
 {
+    private static final Logger LOG = LoggerFactory.getLogger(SQLStatement.class);
+
     private final Binding          params;
     private final Handle           handle;
     private final String           sql;
@@ -60,7 +63,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     private       RewrittenStatement rewritten;
     private       PreparedStatement  stmt;
-    private final SQLLog             log;
     private final TimingCollector    timingCollector;
 
     SQLStatement(Binding params,
@@ -70,7 +72,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
                  StatementBuilder statementBuilder,
                  String sql,
                  ConcreteStatementContext ctx,
-                 SQLLog log,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers,
                  Foreman foreman)
@@ -80,7 +81,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
         addCustomizers(statementCustomizers);
 
-        this.log = log;
         this.statementBuilder = statementBuilder;
         this.rewriter = rewriter;
         this.handle = handle;
@@ -1304,7 +1304,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             final long start = System.nanoTime();
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
-            log.logSQL(elapsedTime / 1000000L, rewritten.getSql());
+            LOG.trace("Execute SQL \"{}\" in {}ms", rewritten.getSql(), elapsedTime / 1000000L);
             timingCollector.collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
@@ -1319,11 +1319,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         catch (SQLException e) {
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, getContext());
         }
-    }
-
-    protected SQLLog getLog()
-    {
-        return log;
     }
 
     protected TimingCollector getTimingCollector()

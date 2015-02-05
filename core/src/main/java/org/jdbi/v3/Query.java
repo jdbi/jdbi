@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Locale;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -48,13 +47,12 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           StatementBuilder cache,
           String sql,
           ConcreteStatementContext ctx,
-          SQLLog log,
           TimingCollector timingCollector,
           Collection<StatementCustomizer> customizers,
           MappingRegistry mappingRegistry,
           Foreman foreman)
     {
-        super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman);
+        super(params, locator, statementRewriter, handle, cache, sql, ctx, timingCollector, customizers, foreman);
         this.mapper = mapper;
         this.mappingRegistry = new MappingRegistry(mappingRegistry);
     }
@@ -120,7 +118,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getStatementBuilder(),
                             getSql(),
                             getConcreteContext(),
-                            getLog(),
                             getTimingCollector(),
                             getStatementCustomizers(),
                             new MappingRegistry(mappingRegistry),

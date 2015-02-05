@@ -17,9 +17,6 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.spi.LoggingEvent;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.util.IntegerMapper;
@@ -27,26 +24,6 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContextTests
 {
-    static {
-        BasicConfigurator.configure(new AppenderSkeleton() {
-
-            @Override
-            protected void append(LoggingEvent event)
-            {
-            }
-
-            @Override
-            public boolean requiresLayout()
-            {
-                return false;
-            }
-
-            @Override
-            public void close()
-            {
-            }
-        });
-    }
 
     protected Service service;
     protected DataSource ds;

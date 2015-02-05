@@ -15,7 +15,6 @@ package org.jdbi.v3;
 
 import java.util.Collections;
 
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -38,11 +37,10 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       StatementBuilder cache,
                       String sql,
                       ConcreteStatementContext context,
-                      SQLLog log,
                       TimingCollector timingCollector,
                       Foreman foreman)
     {
-        super(binding, locator, rewriter, handle, cache, sql, context, log, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
+        super(binding, locator, rewriter, handle, cache, sql, context, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
         this.batch = batch;
     }
 

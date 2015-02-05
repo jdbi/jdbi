@@ -24,7 +24,6 @@ import java.util.UUID;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.logging.PrintStreamLog;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +39,6 @@ public class TestSqlCall
     {
         dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
 
-        dbi.setSQLLog(new PrintStreamLog(System.out));
         handle = dbi.open();
         handle.execute("create table something( id integer primary key, name varchar(100) )");
         handle.execute("CREATE ALIAS stored_insert FOR \"org.jdbi.v3.sqlobject.TestSqlCall.insertSomething\";");

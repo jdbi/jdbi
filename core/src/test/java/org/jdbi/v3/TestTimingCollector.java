@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.jdbi.v3.logging.NoOpLog;
 import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +47,6 @@ public class TestTimingCollector
                                         new ColonPrefixNamedParamStatementRewriter(),
                                         conn,
                                         new HashMap<String, Object>(),
-                                        new NoOpLog(),
                                         tc,
                                         new MappingRegistry(),
                                         new Foreman());

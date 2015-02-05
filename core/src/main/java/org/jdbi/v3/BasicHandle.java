@@ -24,19 +24,20 @@ import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.tweak.TransactionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class BasicHandle implements Handle
 {
+    private static final Logger LOG = LoggerFactory.getLogger(BasicHandle.class);
 
     private StatementRewriter statementRewriter;
     private StatementLocator  statementLocator;
-    private SQLLog            log;
     private TimingCollector   timingCollector;
     private StatementBuilder  statementBuilder;
 
@@ -55,7 +56,6 @@ class BasicHandle implements Handle
                 StatementRewriter statementRewriter,
                 Connection connection,
                 Map<String, Object> globalStatementAttributes,
-                SQLLog log,
                 TimingCollector timingCollector,
                 MappingRegistry mappingRegistry,
                 Foreman foreman)
@@ -65,7 +65,6 @@ class BasicHandle implements Handle
         this.transactions = transactions;
         this.connection = connection;
         this.statementLocator = statementLocator;
-        this.log = log;
         this.timingCollector = timingCollector;
         this.mappingRegistry = mappingRegistry;
         this.foreman = foreman;
@@ -84,7 +83,6 @@ class BasicHandle implements Handle
                                               statementBuilder,
                                               sql,
                                               new ConcreteStatementContext(globalStatementAttributes),
-                                              log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
                                               new MappingRegistry(mappingRegistry),
@@ -114,7 +112,7 @@ class BasicHandle implements Handle
                 throw new UnableToCloseResourceException("Unable to close Connection", e);
             }
             finally {
-                log.logReleaseHandle(this);
+                LOG.trace("Handle [{}] released", this);
                 closed = true;
             }
         }
@@ -138,7 +136,7 @@ class BasicHandle implements Handle
     public Handle begin()
     {
         transactions.begin(this);
-        log.logBeginTransaction(this);
+        LOG.trace("Handle [{}] begin transaction", this);
         return this;
     }
 
@@ -150,7 +148,7 @@ class BasicHandle implements Handle
     {
         final long start = System.nanoTime();
         transactions.commit(this);
-        log.logCommitTransaction((System.nanoTime() - start) / 1000000L, this);
+        LOG.trace("Handle [{}] commit transaction in {}ms", this, (System.nanoTime() - start) / 1000000L);
         return this;
     }
 
@@ -162,7 +160,7 @@ class BasicHandle implements Handle
     {
         final long start = System.nanoTime();
         transactions.rollback(this);
-        log.logRollbackTransaction((System.nanoTime() - start) / 1000000L, this);
+        LOG.trace("Handle [{}] rollback transaction in {}ms", this, ((System.nanoTime() - start) / 1000000L));
         return this;
     }
 
@@ -177,7 +175,7 @@ class BasicHandle implements Handle
     public Handle checkpoint(String name)
     {
         transactions.checkpoint(this, name);
-        log.logCheckpointTransaction(this, name);
+        LOG.trace("Handle [{}] checkpoint \"{}\"", this, name);
         return this;
     }
 
@@ -190,7 +188,7 @@ class BasicHandle implements Handle
     public Handle release(String checkpointName)
     {
         transactions.release(this, checkpointName);
-        log.logReleaseCheckpointTransaction(this, checkpointName);
+        LOG.trace("Handle [{}] release checkpoint \"{}\"", this, checkpointName);
         return this;
     }
 
@@ -198,12 +196,6 @@ class BasicHandle implements Handle
     public void setStatementBuilder(StatementBuilder builder)
     {
         this.statementBuilder = builder;
-    }
-
-    @Override
-    public void setSQLLog(SQLLog log)
-    {
-        this.log = log;
     }
 
     @Override
@@ -228,7 +220,7 @@ class BasicHandle implements Handle
     {
         final long start = System.nanoTime();
         transactions.rollback(this, checkpointName);
-        log.logRollbackToCheckpoint((System.nanoTime() - start) / 1000000L, this, checkpointName);
+        LOG.trace("Handle [{}] rollback to checkpoint \"{}\" in {}ms", this, checkpointName, ((System.nanoTime() - start) / 1000000L));
         return this;
     }
 
@@ -247,7 +239,6 @@ class BasicHandle implements Handle
                           statementBuilder,
                           sql,
                           new ConcreteStatementContext(globalStatementAttributes),
-                          log,
                           timingCollector,
                           foreman);
     }
@@ -261,7 +252,6 @@ class BasicHandle implements Handle
                         statementBuilder,
                         sql,
                         new ConcreteStatementContext(globalStatementAttributes),
-                        log,
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
                         foreman);
@@ -293,7 +283,6 @@ class BasicHandle implements Handle
                                  statementBuilder,
                                  sql,
                                  new ConcreteStatementContext(this.globalStatementAttributes),
-                                 log,
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
                                  foreman);
@@ -305,7 +294,6 @@ class BasicHandle implements Handle
         return new Batch(this.statementRewriter,
                          this.connection,
                          globalStatementAttributes,
-                         log,
                          timingCollector,
                          foreman.createChild());
     }

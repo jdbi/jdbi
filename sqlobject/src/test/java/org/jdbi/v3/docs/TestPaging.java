@@ -20,13 +20,10 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.common.collect.ImmutableList;
-
 import org.hamcrest.CoreMatchers;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.logging.PrintStreamLog;
 import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
@@ -36,6 +33,8 @@ import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 public class TestPaging
 {
@@ -47,7 +46,6 @@ public class TestPaging
     {
         dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
 
-        dbi.setSQLLog(new PrintStreamLog(System.out));
         handle = dbi.open();
         handle.execute("create table something( id integer primary key, name varchar(100) )");
     }

@@ -23,11 +23,12 @@ import java.util.Map;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.RewrittenStatement;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a prepared batch statement. That is, a sql statement compiled as a prepared
@@ -37,6 +38,8 @@ import org.jdbi.v3.tweak.StatementRewriter;
  */
 public class PreparedBatch extends SQLStatement<PreparedBatch>
 {
+    private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
+
     private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private Binding currentBinding;
 
@@ -46,12 +49,11 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                   StatementBuilder statementBuilder,
                   String sql,
                   ConcreteStatementContext ctx,
-                  SQLLog log,
                   TimingCollector timingCollector,
                   Collection<StatementCustomizer> statementCustomizers,
                   Foreman foreman)
     {
-        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, log, timingCollector, statementCustomizers, foreman);
+        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, timingCollector, statementCustomizers, foreman);
         this.currentBinding = new Binding();
     }
 
@@ -134,7 +136,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
-                getLog().logPreparedBatch(elapsedTime / 1000000L, rewritten.getSql(), parts.size());
+                LOG.trace("Prepared batch of {} parts executed in {}ms", parts.size(), elapsedTime / 1000000L, rewritten.getSql());
                 getTimingCollector().collect(elapsedTime, getContext());
 
                 afterExecution(stmt);
@@ -171,7 +173,6 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                                                        getStatementBuilder(),
                                                        getSql(),
                                                        getConcreteContext(),
-                                                       getLog(),
                                                        getTimingCollector(),
                                                        getForeman());
         parts.add(part);

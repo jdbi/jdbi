@@ -21,7 +21,6 @@ import java.util.Map;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
@@ -208,12 +207,6 @@ public interface Handle extends Closeable
      * @param builder StatementBuilder to be used
      */
     void setStatementBuilder(StatementBuilder builder);
-
-    /**
-     * Specify the class used to log sql statements. The default is inherited from the DBI used
-     * to create this Handle.
-     */
-    void setSQLLog(SQLLog log);
 
     /**
      * Specify the class used to collect timing information. The default is inherited from the DBI used

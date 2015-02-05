@@ -22,31 +22,31 @@ import java.util.Map;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementRewriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
  */
 public class Batch extends BaseStatement
 {
+    private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
+
     private List<String> parts = new ArrayList<String>();
     private final StatementRewriter rewriter;
     private final Connection connection;
-    private final SQLLog log;
     private final TimingCollector timingCollector;
 
     Batch(StatementRewriter rewriter,
           Connection connection,
           Map<String, Object> globalStatementAttributes,
-          SQLLog log,
           TimingCollector timingCollector,
           Foreman foreman)
     {
         super(new ConcreteStatementContext(globalStatementAttributes), foreman);
         this.rewriter = rewriter;
         this.connection = connection;
-        this.log = log;
         this.timingCollector = timingCollector;
     }
 
@@ -98,13 +98,14 @@ public class Batch extends BaseStatement
                 throw new UnableToCreateStatementException(e, getContext());
             }
 
-            final SQLLog.BatchLogger logger = log.logBatch();
+            LOG.trace("Execute batch [");
+
             try
             {
                 for (String part : parts)
                 {
                     final String sql = rewriter.rewrite(part, empty, getContext()).getSql();
-                    logger.add(sql);
+                    LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }
             }
@@ -118,7 +119,7 @@ public class Batch extends BaseStatement
                 final long start = System.nanoTime();
                 final int[] rs = stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
-                logger.log(elapsedTime / 1000000L);
+                LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
                 timingCollector.collect(elapsedTime, getContext());
                 return rs;

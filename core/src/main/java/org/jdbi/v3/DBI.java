@@ -25,18 +25,18 @@ import javax.sql.DataSource;
 
 import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
-import org.jdbi.v3.logging.NoOpLog;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.tweak.SQLLog;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementBuilderFactory;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.tweak.TransactionHandler;
 import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
@@ -44,6 +44,8 @@ import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
  */
 public class DBI
 {
+    private static final Logger LOG = LoggerFactory.getLogger(DBI.class);
+
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private final MappingRegistry mappingRegistry = new MappingRegistry();
     private final Foreman foreman = new Foreman();
@@ -54,7 +56,6 @@ public class DBI
     private final AtomicReference<StatementLocator> statementLocator = new AtomicReference<StatementLocator>(new ClasspathStatementLocator());
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<TransactionHandler>(new LocalTransactionHandler());
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
-    private final AtomicReference<SQLLog> log = new AtomicReference<SQLLog>(new NoOpLog());
     private final AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
 
     /**
@@ -210,11 +211,10 @@ public class DBI
                                        statementRewriter.get(),
                                        conn,
                                        globalStatementAttributes,
-                                       log.get(),
                                        timingCollector.get(),
                                        new MappingRegistry(mappingRegistry),
                                        foreman.createChild());
-            log.get().logObtainHandle((stop - start) / 1000000L, h);
+            LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
             return h;
         }
         catch (SQLException e) {
@@ -401,20 +401,6 @@ public class DBI
     public StatementBuilderFactory getStatementBuilderFactory()
     {
         return this.statementBuilderFactory.get();
-    }
-
-    /**
-     * Specify the class used to log sql statements. Will be passed to all handles created from
-     * this instance
-     */
-    public void setSQLLog(SQLLog log)
-    {
-        this.log.set(log);
-    }
-
-    public SQLLog getSQLLog()
-    {
-        return this.log.get();
     }
 
     /**
