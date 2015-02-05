@@ -116,7 +116,7 @@ class Foreman
         @Override
         public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
         {
-            return b.containsKey(expectedType) || value.getClass().isEnum();
+            return b.containsKey(expectedType) || value == null || value.getClass().isEnum();
         }
 
         @Override
@@ -135,7 +135,12 @@ class Foreman
                 }
             }
 
-            return p.build(value);
+            if (p != null) {
+                return p.build(value);
+            }
+
+            // Fallback to generic ObjectArgument
+            return new ObjectArgument(value);
         }
 
         private static class P
