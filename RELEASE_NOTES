@@ -2,6 +2,7 @@
   - Fix Javadoc generation for JDK6 and JDK8
   - Add support for /* */ style comments in statements
   - Add @BindMap annotation which allows parameters passed in a Map<String, Object>
+  - Add support for running Script objects as individual statements rather than batch
 
 2.59
   - Fixes #137, broken ClasspathStatementLocator cache (thanks @HiJon89).
