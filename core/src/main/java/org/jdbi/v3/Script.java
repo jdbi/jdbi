@@ -47,6 +47,29 @@ public class Script
      */
     public int[] execute()
     {
+        final String[] statements = getStatements();
+        Batch b = handle.createBatch();
+        for (String s : statements)
+        {
+            if ( ! WHITESPACE_ONLY.matcher(s).matches() ) {
+                b.add(s);
+            }
+        }
+        return b.execute();
+    }
+
+    /**
+     * Execute this script as a set of separate statements
+     */
+    public void executeAsSeparateStatements() {
+        for (String s : getStatements()) {
+            if (!WHITESPACE_ONLY.matcher(s).matches()) {
+                handle.execute(s);
+            }
+        }
+    }
+
+    private String[] getStatements() {
         final String script;
         final StatementContext ctx = new ConcreteStatementContext(globalStatementAttributes);
         try
@@ -58,14 +81,6 @@ public class Script
             throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, ctx);
         }
 
-        final String[] statements = script.replaceAll("\n", " ").replaceAll("\r", "").split(";");
-        Batch b = handle.createBatch();
-        for (String s : statements)
-        {
-            if ( ! WHITESPACE_ONLY.matcher(s).matches() ) {
-                b.add(s);
-            }
-        }
-        return b.execute();
+        return script.replaceAll("\n", " ").replaceAll("\r", "").split(";");
     }
 }

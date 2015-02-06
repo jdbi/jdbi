@@ -14,7 +14,9 @@
 package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import org.jdbi.v3.exceptions.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -40,5 +42,18 @@ public class TestScript
         script.execute();
 
         assertEquals(3, h.select("select * from something").size());
+    }
+
+    @Test
+    public void testScriptAsSetOfSeparateStatements() throws Exception {
+        try {
+            Handle h = db.openHandle();
+            Script script = h.createScript("malformed-sql-script");
+            script.executeAsSeparateStatements();
+            fail("Should fail because the script is malformed");
+        } catch (StatementException e) {
+            StatementContext context = e.getStatementContext();
+            assertEquals("insert into something(id, name) values (2, eric)", context.getRawSql().trim());
+        }
     }
 }
