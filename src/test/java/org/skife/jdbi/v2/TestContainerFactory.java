@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableSet;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class TestContainerFactory
 {
@@ -139,6 +140,18 @@ public class TestContainerFactory
         assertThat(rs, equalTo((Set<String>)ImmutableSet.of("Coda", "Brian")));
     }
 
+    @Test
+    public void testWarningAboutMissedSingleValueResultAnnotation() {
+        Dao dao = dbi.onDemand(Dao.class);
+        dao.insert(new Something(1, "Coda"));
+
+        try {
+            dao.wrongFindNameById(1);
+            fail("Should fail because there is no @SingleValueResult annotation");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @RegisterContainerMapper({ImmutableListContainerFactory.class, MaybeContainerFactory.class})
     public static interface Dao extends Base<String>
@@ -159,6 +172,9 @@ public class TestContainerFactory
         @SqlQuery("select name from something where id = :id")
         @SingleValueResult
         public Maybe<String> smartFindNameById(@Bind("id") int id);
+
+        @SqlQuery("select name from something where id = :id")
+        public Maybe<String> wrongFindNameById(@Bind("id") int id);
     }
 
     public static interface Base<T>

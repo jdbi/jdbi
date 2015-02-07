@@ -29,9 +29,13 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 abstract class ResultReturnThing
 {
+    private static final Logger LOGGER = Logger.getLogger(ResultReturnThing.class.getName());
+
     public Object map(ResolvedMethod method, Query q, HandleDing h)
     {
         if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
@@ -100,6 +104,11 @@ abstract class ResultReturnThing
                 this.containerType = method.getReturnType().getErasedType();
             }
             else {
+                if (!method.getReturnType().getTypeBindings().isEmpty()) {
+                    LOGGER.log(Level.WARNING, "Generic information about return type '" + method.getReturnType() +
+                            "' in method '" + method.getName() + "' of class '" + method.getDeclaringType() +
+                            "' is ignored. Consider to add @SingleValueResult annotation.");
+                }
                 this.returnType = method.getReturnType().getErasedType();
                 this.containerType = null;
             }
