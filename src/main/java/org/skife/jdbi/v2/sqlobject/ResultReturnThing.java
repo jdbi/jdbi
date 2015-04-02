@@ -162,12 +162,18 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing q, final HandleDing baton)
         {
             final ResultIterator itty = q.iterator();
-            baton.retain("iterator");
+
+            final boolean isEmpty = !itty.hasNext();
+            if (isEmpty) {
+                itty.close();
+            } else {
+                baton.retain("iterator");
+            }
 
             return new ResultIterator()
             {
-                private boolean closed = false;
-                private boolean hasNext = itty.hasNext();
+                private boolean closed = isEmpty;
+                private boolean hasNext = !isEmpty;
 
                 @Override
                 public void close()

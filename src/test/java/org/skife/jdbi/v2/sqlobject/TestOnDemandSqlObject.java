@@ -185,6 +185,17 @@ public class TestOnDemandSqlObject
     }
 
     @Test
+    public void testIteratorClosedIfEmpty() throws Exception {
+        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
+
+        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+
+        ResultIterator<Something> nothing = spiffy.findAll();
+
+        assertFalse(dbi.hasOpenedHandle());
+    }
+
+    @Test
     public void testIteratorPrepatureClose() throws Exception {
         HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
 
