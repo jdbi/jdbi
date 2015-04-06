@@ -3,6 +3,8 @@
   - Add support for /* */ style comments in statements
   - Add @BindMap annotation which allows parameters passed in a Map<String, Object>
   - Add support for running Script objects as individual statements rather than batch
+  - Add support for default bind name based on argument position number (thanks @arteam)
+  - Fix SqlObject connection leak through result iterator (thanks @pierre)
 
 2.59
   - Fixes #137, broken ClasspathStatementLocator cache (thanks @HiJon89).
