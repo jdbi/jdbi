@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-standard-oss</artifactId>
-        <version>9</version>
+        <version>11</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -97,14 +97,14 @@
 
         <dependency>
             <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
+            <artifactId>cglib</artifactId>
             <version>3.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml</groupId>
             <artifactId>classmate</artifactId>
-            <version>0.9.0</version>
+            <version>1.1.0</version>
         </dependency>
 
         <dependency>
@@ -163,6 +163,12 @@
             <artifactId>easymock</artifactId>
             <version>3.3</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>cglib</groupId>
+                    <artifactId>cglib-nodep</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -209,6 +215,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>5.0.2</version>
+            </dependency>
+
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>

@@ -21,9 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
-/**
- *
- */
 class ObjectArgument implements Argument
 {
     private final Object value;
@@ -47,5 +44,9 @@ class ObjectArgument implements Argument
     @Override
     public String toString() {
         return String.valueOf(value);
+    }
+
+    public Object getValue() {
+        return value;
     }
 }
