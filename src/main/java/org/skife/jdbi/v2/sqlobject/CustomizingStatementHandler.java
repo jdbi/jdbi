@@ -76,8 +76,8 @@ abstract class CustomizingStatementHandler implements Handler
 
         final Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
         for (int param_idx = 0; param_idx < param_annotations.length; param_idx++) {
-            final Annotation[] annotations = param_annotations[param_idx];
-            for (final Annotation annotation : annotations) {
+            boolean thereBindingAnnotation = false;
+            for (final Annotation annotation : param_annotations[param_idx]) {
                 final Class<? extends Annotation> anno_class = annotation.annotationType();
 
 
@@ -92,6 +92,7 @@ abstract class CustomizingStatementHandler implements Handler
                     catch (Exception e) {
                         throw new IllegalStateException("unable to instantiate cusotmizer", e);
                     }
+                    thereBindingAnnotation = true;
                 }
 
                 if (anno_class.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
@@ -105,8 +106,13 @@ abstract class CustomizingStatementHandler implements Handler
                         throw new IllegalStateException("unable to instantiate sql statement customizer factory", e);
                     }
                     paramBasedCustomizerFactories.add(new FactoryAnnotationIndexTriple(f, annotation, param_idx));
-
+                    thereBindingAnnotation = true;
                 }
+            }
+            if (!thereBindingAnnotation) {
+                // If there is no binding annotation on a parameter,
+                // then add a positional parameter binder
+                binders.add(new Bindifier(null, param_idx, new PositionalBinder(param_idx)));
             }
         }
     }
