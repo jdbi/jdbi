@@ -304,6 +304,7 @@
                                     <include>org.antlr:antlr-runtime</include>
                                     <include>com.fasterxml:classmate</include>
                                     <include>cglib:cglib</include>
+                                    <include>org.ow2.asm:asm</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
@@ -315,6 +316,11 @@
                                 <relocation>
                                     <pattern>net.sf.cglib</pattern>
                                     <shadedPattern>org.skife.jdbi.cglib</shadedPattern>
+                                </relocation>
+
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>org.skife.jdbi.asm</shadedPattern>
                                 </relocation>
 
                                 <relocation>
