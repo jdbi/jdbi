@@ -90,6 +90,8 @@ public interface Handle extends Closeable
      */
     Query<Map<String, Object>> createQuery(String sql);
 
+    MapQuery<Map<String, Object>, Map<String, Object>> createMapQuery(String sql);
+
     /**
      * Create an Insert or Update statement which returns the number of rows modified.
      * @param sql The statement sql
