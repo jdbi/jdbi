@@ -111,4 +111,10 @@ public class TestingStatementContext implements StatementContext
     {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public boolean isConcurrentUpdatable() {
+        throw new UnsupportedOperationException();
+    }
+
 }
