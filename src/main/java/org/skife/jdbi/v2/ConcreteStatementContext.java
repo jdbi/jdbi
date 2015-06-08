@@ -38,6 +38,7 @@ public final class ConcreteStatementContext implements StatementContext
     private Class<?>          sqlObjectType;
     private Method            sqlObjectMethod;
     private boolean           returningGeneratedKeys;
+    private boolean           concurrentUpdatable;
 
     ConcreteStatementContext(Map<String, Object> globalAttributes)
     {
@@ -204,6 +205,10 @@ public final class ConcreteStatementContext implements StatementContext
 
     public void setReturningGeneratedKeys(boolean b)
     {
+        if (isConcurrentUpdatable() && b) {
+            throw new IllegalArgumentException("Cannot create a result set that is concurrent "
+                    + "updatable and is returning generated keys.");
+        }
         this.returningGeneratedKeys = b;
     }
 
@@ -217,6 +222,28 @@ public final class ConcreteStatementContext implements StatementContext
     public void addCleanable(Cleanable cleanable)
     {
         this.cleanables.add(cleanable);
+    }
+
+    @Override
+    public boolean isConcurrentUpdatable() {
+        return concurrentUpdatable;
+    }
+
+    /**
+     * Set the context to create a concurrent updatable result set.
+     *
+     * This cannot be combined with {@link #isReturningGeneratedKeys()}, only
+     * one option may be selected. It does not make sense to combine these either, as one
+     * applies to queries, and the other applies to updates.
+     *
+     * @param concurrentUpdatable if the result set should be concurrent updatable.
+     */
+    public void setConcurrentUpdatable(final boolean concurrentUpdatable) {
+        if (concurrentUpdatable && isReturningGeneratedKeys()) {
+            throw new IllegalArgumentException("Cannot create a result set that is concurrent "
+                    + "updatable and is returning generated keys.");
+        }
+        this.concurrentUpdatable = concurrentUpdatable;
     }
 
     public Collection<Cleanable> getCleanables()
