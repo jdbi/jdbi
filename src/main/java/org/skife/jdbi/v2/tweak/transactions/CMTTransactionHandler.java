@@ -17,8 +17,10 @@ package org.skife.jdbi.v2.tweak.transactions;
 
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
+import org.skife.jdbi.v2.TransactionConsumer;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
+import org.skife.jdbi.v2.VoidTransactionCallback;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
@@ -26,7 +28,7 @@ import java.sql.SQLException;
 
 /**
  * Handler designed to behave properly in a J2EE CMT environment. It will never
- * explicitely begin or commit a transaction, and will throw a runtime exception
+ * explicitly begin or commit a transaction, and will throw a runtime exception
  * when rollback is called to force rollback.
  */
 public class CMTTransactionHandler implements TransactionHandler
@@ -144,9 +146,26 @@ public class CMTTransactionHandler implements TransactionHandler
     }
 
     @Override
+    public void inTransaction(final Handle handle, final TransactionConsumer callback)
+    {
+        inTransaction(handle, new VoidTransactionCallback() {
+            @Override
+            public void execute(Handle conn, TransactionStatus status) throws Exception {
+                callback.inTransaction(conn, status);
+            }
+        });
+    }
+
+    @Override
     public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
             TransactionCallback<ReturnType> callback)
     {
         return inTransaction(handle, callback);
+    }
+
+    @Override
+    public void inTransaction(Handle handle, TransactionIsolationLevel level, TransactionConsumer callback)
+    {
+        inTransaction(handle, callback);
     }
 }

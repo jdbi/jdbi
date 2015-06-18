@@ -328,6 +328,12 @@ class BasicHandle implements Handle
     }
 
     @Override
+    public void inTransaction(TransactionConsumer callback)
+    {
+        transactions.inTransaction(this, callback);
+    }
+
+    @Override
     public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
                                                  TransactionCallback<ReturnType> callback)
     {
@@ -353,6 +359,17 @@ class BasicHandle implements Handle
                 // Ignore, there was already an exceptional condition and we don't want to clobber it.
             }
         }
+    }
+
+    @Override
+    public void inTransaction(TransactionIsolationLevel level, final TransactionConsumer callback)
+    {
+        inTransaction(level, new VoidTransactionCallback() {
+            @Override
+            protected void execute(Handle handle, TransactionStatus status) throws Exception {
+                callback.inTransaction(handle, status);
+            }
+        });
     }
 
     @Override

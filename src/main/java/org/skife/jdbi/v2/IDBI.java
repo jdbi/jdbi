@@ -17,6 +17,9 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.tweak.HandleCallback;
+import org.skife.jdbi.v2.tweak.HandleConsumer;
+
+import java.util.concurrent.Callable;
 
 /**
  * An interface for {@link DBI} instances for systems which like
@@ -57,6 +60,19 @@ public interface IDBI
 
     /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients.
+     *
+     * @param callback A callback which will receive an open Handle
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    void withHandle(HandleConsumer callback) throws CallbackFailedException;
+
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients. The handle will be in a transaction when the callback is invoked, and
      * that transaction will be committed if the callback finishes normally, or rolled back if the
      * callback raises an exception.
@@ -76,6 +92,21 @@ public interface IDBI
      * that transaction will be committed if the callback finishes normally, or rolled back if the
      * callback raises an exception.
      *
+     * @param callback A callback which will receive an open Handle, in a transaction
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    void inTransaction(TransactionConsumer callback) throws CallbackFailedException;
+
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients. The handle will be in a transaction when the callback is invoked, and
+     * that transaction will be committed if the callback finishes normally, or rolled back if the
+     * callback raises an exception.
+     *
      * @param isolation The transaction isolation level to set
      * @param callback A callback which will receive an open Handle, in a transaction
      *
@@ -85,6 +116,22 @@ public interface IDBI
      *                                 wrap the exception thrown by the callback.
      */
     <ReturnType> ReturnType inTransaction(TransactionIsolationLevel isolation, TransactionCallback<ReturnType> callback) throws CallbackFailedException;
+
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients. The handle will be in a transaction when the callback is invoked, and
+     * that transaction will be committed if the callback finishes normally, or rolled back if the
+     * callback raises an exception.
+     *
+     * @param isolation The transaction isolation level to set
+     * @param callback A callback which will receive an open Handle, in a transaction
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    void inTransaction(TransactionIsolationLevel isolation, TransactionConsumer callback) throws CallbackFailedException;
 
     /**
      * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the

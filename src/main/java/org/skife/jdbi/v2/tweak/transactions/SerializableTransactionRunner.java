@@ -19,7 +19,10 @@ import java.sql.SQLException;
 
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
+import org.skife.jdbi.v2.TransactionConsumer;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
+import org.skife.jdbi.v2.TransactionStatus;
+import org.skife.jdbi.v2.VoidTransactionCallback;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
 /**
@@ -66,6 +69,17 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     @Override
+    public void inTransaction(Handle handle, final TransactionConsumer callback)
+    {
+        inTransaction(handle, new VoidTransactionCallback() {
+            @Override
+            protected void execute(Handle conn, TransactionStatus status) throws Exception {
+                callback.inTransaction(conn, status);
+            }
+        });
+    }
+
+    @Override
     public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
             TransactionCallback<ReturnType> callback)
     {
@@ -79,6 +93,17 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         {
             handle.setTransactionIsolation(initial);
         }
+    }
+
+    @Override
+    public void inTransaction(Handle handle, TransactionIsolationLevel level, final TransactionConsumer callback)
+    {
+        inTransaction(handle, level, new VoidTransactionCallback() {
+            @Override
+            protected void execute(Handle conn, TransactionStatus status) throws Exception {
+                callback.inTransaction(conn, status);
+            }
+        });
     }
 
     /**

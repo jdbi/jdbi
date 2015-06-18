@@ -17,6 +17,7 @@ package org.skife.jdbi.v2.tweak.transactions;
 
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
+import org.skife.jdbi.v2.TransactionConsumer;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
@@ -83,8 +84,20 @@ public class DelegatingTransactionHandler implements TransactionHandler
     }
 
     @Override
+    public void inTransaction(Handle handle, TransactionConsumer callback)
+    {
+        delegate.inTransaction(handle, callback);
+    }
+
+    @Override
     public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level, TransactionCallback<ReturnType> callback)
     {
         return delegate.inTransaction(handle, level, callback);
+    }
+
+    @Override
+    public void inTransaction(Handle handle, TransactionIsolationLevel level, TransactionConsumer callback)
+    {
+        delegate.inTransaction(handle, level, callback);
     }
 }
