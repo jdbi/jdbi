@@ -17,7 +17,6 @@ package org.skife.jdbi.v2.tweak;
 
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
-import org.skife.jdbi.v2.TransactionConsumer;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 
 /**
@@ -81,20 +80,8 @@ public interface TransactionHandler
 
     /**
      * Run a transaction.
-     * @see Handle#inTransaction(TransactionConsumer)
-     */
-    void inTransaction(Handle handle, TransactionConsumer callback);
-
-    /**
-     * Run a transaction.
      * @see Handle#inTransaction(TransactionIsolationLevel, TransactionCallback)
      */
     <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level, TransactionCallback<ReturnType> callback);
-
-    /**
-     * Run a transaction.
-     * @see Handle#inTransaction(TransactionIsolationLevel, TransactionConsumer)
-     */
-    void inTransaction(Handle handle, TransactionIsolationLevel level, TransactionConsumer callback);
 
 }

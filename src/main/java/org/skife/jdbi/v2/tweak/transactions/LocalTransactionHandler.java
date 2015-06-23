@@ -17,10 +17,8 @@ package org.skife.jdbi.v2.tweak.transactions;
 
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
-import org.skife.jdbi.v2.TransactionConsumer;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
-import org.skife.jdbi.v2.VoidTransactionCallback;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToRestoreAutoCommitStateException;
@@ -209,16 +207,6 @@ public class LocalTransactionHandler implements TransactionHandler
     }
 
     @Override
-    public void inTransaction(final Handle handle, final TransactionConsumer callback) {
-        inTransaction(handle, new VoidTransactionCallback() {
-            @Override
-            protected void execute(Handle conn, TransactionStatus status) throws Exception {
-                callback.inTransaction(conn, status);
-            }
-        });
-    }
-
-    @Override
     public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
             TransactionCallback<ReturnType> callback)
     {
@@ -230,17 +218,6 @@ public class LocalTransactionHandler implements TransactionHandler
         finally {
             handle.setTransactionIsolation(initial);
         }
-    }
-
-    @Override
-    public void inTransaction(Handle handle, TransactionIsolationLevel level, final TransactionConsumer callback)
-    {
-        inTransaction(handle, new VoidTransactionCallback() {
-            @Override
-            protected void execute(Handle conn, TransactionStatus status) throws Exception {
-                callback.inTransaction(conn, status);
-            }
-        });
     }
 
     private void restoreAutoCommitState(final Handle handle) {
