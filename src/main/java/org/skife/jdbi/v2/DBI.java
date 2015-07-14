@@ -23,6 +23,7 @@ import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
+import org.skife.jdbi.v2.tweak.HandleConsumer;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -30,6 +31,7 @@ import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.VoidHandleCallback;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import javax.sql.DataSource;
@@ -288,6 +290,28 @@ public class DBI implements IDBI
 
     /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients.
+     *
+     * @param callback A callback which will receive an open Handle
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    @Override
+    public void withHandle(final HandleConsumer callback) throws CallbackFailedException
+    {
+        withHandle(new VoidHandleCallback() {
+            @Override
+            protected void execute(Handle handle) throws Exception {
+                callback.withHandle(handle);
+            }
+        });
+    }
+
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients. The handle will be in a transaction when the callback is invoked, and
      * that transaction will be committed if the callback finishes normally, or rolled back if the
      * callback raises an exception.
@@ -312,6 +336,18 @@ public class DBI implements IDBI
     }
 
     @Override
+    public void inTransaction(final TransactionConsumer callback) throws CallbackFailedException
+    {
+        withHandle(new HandleConsumer() {
+            @Override
+            public void withHandle(Handle handle) throws Exception
+            {
+                handle.inTransaction(callback);
+            }
+        });
+    }
+
+    @Override
     public <ReturnType> ReturnType inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
         return withHandle(new HandleCallback<ReturnType>() {
@@ -319,6 +355,18 @@ public class DBI implements IDBI
             public ReturnType withHandle(Handle handle) throws Exception
             {
                 return handle.inTransaction(isolation, callback);
+            }
+        });
+    }
+
+    @Override
+    public void inTransaction(final TransactionIsolationLevel isolation, final TransactionConsumer callback) throws CallbackFailedException
+    {
+        withHandle(new HandleConsumer() {
+            @Override
+            public void withHandle(Handle handle) throws Exception
+            {
+                handle.inTransaction(isolation, callback);
             }
         });
     }
