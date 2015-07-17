@@ -24,6 +24,7 @@ import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.Map;
 public class PreparedBatch extends SQLStatement<PreparedBatch>
 {
     private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
+    private final boolean call;
     private Binding currentBinding;
 
     PreparedBatch(StatementLocator locator,
@@ -52,9 +54,11 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                   TimingCollector timingCollector,
                   Collection<StatementCustomizer> statementCustomizers,
                   Foreman foreman,
-                  ContainerFactoryRegistry containerFactoryRegistry)
+                  ContainerFactoryRegistry containerFactoryRegistry,
+                  boolean call)
     {
         super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, log, timingCollector, statementCustomizers, foreman, containerFactoryRegistry);
+        this.call = call;
         this.currentBinding = new Binding();
     }
 
@@ -113,7 +117,12 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
         PreparedStatement stmt = null;
         try {
             try {
-                stmt = getHandle().getConnection().prepareStatement(rewritten.getSql());
+                Connection connection = getHandle().getConnection();
+                if (call) {
+                    stmt = connection.prepareCall(rewritten.getSql());
+                } else {
+                    stmt = connection.prepareStatement(rewritten.getSql());
+                }
                 addCleanable(Cleanables.forStatement(stmt));
             }
             catch (SQLException e) {
