@@ -21,5 +21,5 @@ package org.skife.jdbi.v2;
  */
 public interface TransactionConsumer
 {
-    void inTransaction(Handle conn, TransactionStatus status) throws Exception;
+    void useTransaction(Handle conn, TransactionStatus status) throws Exception;
 }

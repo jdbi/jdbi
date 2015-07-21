@@ -18,7 +18,7 @@ package org.skife.jdbi.v2.tweak;
 import org.skife.jdbi.v2.Handle;
 
 /**
- * Callback for use with {@link org.skife.jdbi.v2.DBI#withHandle(HandleConsumer)}
+ * Callback for use with {@link org.skife.jdbi.v2.DBI#useHandle(HandleConsumer)}
  */
 public interface HandleConsumer
 {
@@ -31,5 +31,5 @@ public interface HandleConsumer
      * @throws Exception will result in a {@link org.skife.jdbi.v2.exceptions.CallbackFailedException} wrapping
      *                   the exception being thrown
      */
-    void withHandle(Handle handle) throws Exception;
+    void useHandle(Handle handle) throws Exception;
 }

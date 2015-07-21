@@ -69,7 +69,7 @@ public interface IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    void withHandle(HandleConsumer callback) throws CallbackFailedException;
+    void useHandle(HandleConsumer callback) throws CallbackFailedException;
 
     /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
@@ -99,7 +99,7 @@ public interface IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    void inTransaction(TransactionConsumer callback) throws CallbackFailedException;
+    void useTransaction(TransactionConsumer callback) throws CallbackFailedException;
 
     /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
@@ -131,7 +131,7 @@ public interface IDBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    void inTransaction(TransactionIsolationLevel isolation, TransactionConsumer callback) throws CallbackFailedException;
+    void useTransaction(TransactionIsolationLevel isolation, TransactionConsumer callback) throws CallbackFailedException;
 
     /**
      * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the

@@ -152,7 +152,7 @@ public interface Handle extends Closeable
      *
      * @throws TransactionFailedException if the transaction failed in the callback
      */
-    void inTransaction(TransactionConsumer callback) throws TransactionFailedException;
+    void useTransaction(TransactionConsumer callback) throws TransactionFailedException;
 
     /**
      * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
@@ -179,7 +179,7 @@ public interface Handle extends Closeable
      * @return value returned from the callback
      * @throws TransactionFailedException if the transaction failed in the callback
      */
-    void inTransaction(TransactionIsolationLevel level, TransactionConsumer callback) throws TransactionFailedException;
+    void useTransaction(TransactionIsolationLevel level, TransactionConsumer callback) throws TransactionFailedException;
 
     /**
      * Convenience method which executes a select with purely positional arguments
