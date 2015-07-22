@@ -1,4 +1,7 @@
-2.63
+2.63.1
+  - Fix Java 8 overload issues introduced in 2.63
+
+2.63 *** DO NOT USE ***
   - Include lambda-friendly callback methods on Handle and DBI, #156
 
 2.62
