@@ -25,7 +25,7 @@ public class ConcreteStatementContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
         final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap());
+                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), new MappingRegistry());
 
         context.setReturningGeneratedKeys(true);
         context.setConcurrentUpdatable(true);
@@ -34,7 +34,7 @@ public class ConcreteStatementContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
         final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap());
+                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), new MappingRegistry());
 
         context.setConcurrentUpdatable(true);
         context.setReturningGeneratedKeys(true);

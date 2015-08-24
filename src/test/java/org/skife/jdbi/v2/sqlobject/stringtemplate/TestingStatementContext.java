@@ -18,6 +18,7 @@ package org.skife.jdbi.v2.sqlobject.stringtemplate;
 import org.skife.jdbi.v2.Binding;
 import org.skife.jdbi.v2.Cleanable;
 import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -50,6 +51,11 @@ public class TestingStatementContext implements StatementContext
     public Map<String, Object> getAttributes()
     {
         return attributes;
+    }
+
+    @Override
+    public ResultSetMapper mapperFor(Class type) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

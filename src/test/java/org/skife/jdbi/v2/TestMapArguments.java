@@ -34,7 +34,7 @@ public class TestMapArguments
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("foo", BigDecimal.ONE);
         Foreman foreman = new Foreman();
-        StatementContext ctx = new ConcreteStatementContext(new HashMap<String, Object>());
+        StatementContext ctx = new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry());
         MapArguments mapArguments = new MapArguments(foreman, ctx, args);
         Argument argument = mapArguments.find("foo");
         assertThat(argument, instanceOf(BigDecimalArgument.class));
@@ -46,7 +46,7 @@ public class TestMapArguments
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("foo", null);
         Foreman foreman = new Foreman();
-        StatementContext ctx = new ConcreteStatementContext(new HashMap<String, Object>());
+        StatementContext ctx = new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry());
         MapArguments mapArguments = new MapArguments(foreman, ctx, args);
         Argument argument = mapArguments.find("foo");
         assertThat(argument, instanceOf(ObjectArgument.class));

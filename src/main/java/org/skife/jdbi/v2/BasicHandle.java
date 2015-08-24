@@ -90,7 +90,7 @@ class BasicHandle implements Handle
                                               this,
                                               statementBuilder,
                                               sql,
-                                              new ConcreteStatementContext(globalStatementAttributes),
+                                              new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
                                               log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
@@ -254,7 +254,7 @@ class BasicHandle implements Handle
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes),
+                          new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
                           log,
                           timingCollector,
                           foreman,
@@ -269,7 +269,7 @@ class BasicHandle implements Handle
                         statementRewriter,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(globalStatementAttributes),
+                        new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
                         log,
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
@@ -302,7 +302,7 @@ class BasicHandle implements Handle
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(this.globalStatementAttributes),
+                                 new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
                                  log,
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
@@ -315,7 +315,7 @@ class BasicHandle implements Handle
     {
         return new Batch(this.statementRewriter,
                          this.connection,
-                         globalStatementAttributes,
+                         new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
                          log,
                          timingCollector,
                          foreman.createChild());
@@ -403,7 +403,7 @@ class BasicHandle implements Handle
     @Override
     public Script createScript(String name)
     {
-        return new Script(this, statementLocator, name, globalStatementAttributes);
+        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, mappingRegistry));
     }
 
     @Override

@@ -20,6 +20,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
 
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
+
 /**
  * The statement context provides a means for passing client specific information through the
  * evaluation of a statement. The context is not used by jDBI internally, but will be passed
@@ -55,6 +57,13 @@ public interface StatementContext
      */
     Map<String, Object> getAttributes();
 
+    /**
+     * Obtain a ResultSetMapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a ResultSetMapper for the given type, or null if no mappers are registered for the given type.
+     */
+    ResultSetMapper mapperFor(Class type);
 
     /**
      * Obtain the initial sql for the statement used to create the statement
