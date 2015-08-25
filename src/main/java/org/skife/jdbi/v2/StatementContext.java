@@ -61,7 +61,8 @@ public interface StatementContext
      * Obtain a ResultSetMapper for the given type in this context.
      *
      * @param type the target type to map to
-     * @return a ResultSetMapper for the given type, or null if no mappers are registered for the given type.
+     * @return a ResultSetMapper for the given type
+     * @throws org.skife.jdbi.v2.exceptions.DBIException if no mappers are registered for the given type.
      */
     ResultSetMapper mapperFor(Class type);
 
