@@ -16,8 +16,14 @@
 package org.skife.jdbi.v2;
 
 import org.junit.Test;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConcreteStatementContextTest {
 
@@ -38,5 +44,28 @@ public class ConcreteStatementContextTest {
 
         context.setConcurrentUpdatable(true);
         context.setReturningGeneratedKeys(true);
+    }
+
+    private static class Foo {
+    }
+
+    private static class FooMapper implements ResultSetMapper<Foo> {
+        @Override
+        public Foo map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+            return null;
+        }
+    }
+
+    @Test
+    public void testMapperForDelegatesToRegistry() {
+        ResultSetMapper mapper = new FooMapper();
+
+        MappingRegistry registry = new MappingRegistry();
+        registry.add(mapper);
+
+        final ConcreteStatementContext context =
+                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry);
+
+        assertThat(context.mapperFor(Foo.class), equalTo(mapper));
     }
 }
