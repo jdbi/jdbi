@@ -34,7 +34,7 @@ public interface ResultSetMapper<T>
      * @param r the result set being iterated
      * @param ctx
      * @return the value to return for this row
-     * @throws SQLException if anythign goes wrong go ahead and let this percolate, jDBI will handle it
+     * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */
     T map(int index, ResultSet r, StatementContext ctx) throws SQLException;
 }

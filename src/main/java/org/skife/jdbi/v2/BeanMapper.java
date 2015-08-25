@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
+ * Copyright (C) 2004 - 2015 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.beans.BeanInfo;
@@ -123,9 +124,16 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                     value = str != null ? Enum.valueOf(type, str) : null;
                 }
                 else {
-                    value = rs.getObject(i);
+                    try {
+                        ResultSetMapper mapper = ctx.mapperFor(type);
+                        value = mapper.map(row, singleColumnView(rs, i), ctx);
+                    }
+                    catch (DBIException noMapperFound) {
+                        value = rs.getObject(i);
+                    }
                 }
 
+                // TODO this assumption may not be correct if a mapper was used
                 if (rs.wasNull() && !type.isPrimitive()) {
                     value = null;
                 }
@@ -152,5 +160,10 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 
         return bean;
     }
+
+    private ResultSet singleColumnView(ResultSet resultSet, int column) throws SQLException {
+        return new SingleColumnResultSetView(resultSet, column);
+    }
+
 }
 

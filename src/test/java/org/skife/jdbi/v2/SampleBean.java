@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
+ * Copyright (C) 2004 - 2015 Brian McCallister
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ class SampleBean {
     protected String stringField;
     public int intField;
     BigDecimal bigDecimalField;
+    SampleValueType valueTypeField;
 
     public Long getLongField() {
         return longField;
@@ -54,5 +55,13 @@ class SampleBean {
 
     private void setBigDecimalField(BigDecimal bigDecimalField) {
         this.bigDecimalField = bigDecimalField;
+    }
+
+    public SampleValueType getValueTypeField() {
+        return valueTypeField;
+    }
+
+    public void setValueTypeField(SampleValueType valueTypeField) {
+        this.valueTypeField = valueTypeField;
     }
 }

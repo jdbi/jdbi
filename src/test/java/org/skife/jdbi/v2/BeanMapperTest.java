@@ -20,15 +20,20 @@ import org.easymock.EasyMockRunner;
 import org.easymock.Mock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.skife.jdbi.v2.exceptions.DBIException;
+import org.skife.jdbi.v2.util.TypedMapper;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 @RunWith(EasyMockRunner.class)
 public class BeanMapperTest {
@@ -192,5 +197,60 @@ public class BeanMapperTest {
 
         assertEquals(aLongVal, derivedBean.getLongField());
         assertEquals(bLongVal, derivedBean.getBlongField());
+    }
+
+    private static class SampleValueTypeMapper extends TypedMapper<SampleValueType> {
+        public SampleValueTypeMapper() {}
+
+        @Override
+        protected SampleValueType extractByName(ResultSet r, String name) throws SQLException {
+            return SampleValueType.valueOf(r.getString(name));
+        }
+
+        @Override
+        protected SampleValueType extractByIndex(ResultSet r, int index) throws SQLException {
+            return SampleValueType.valueOf(r.getString(index));
+        }
+    }
+
+    @Test
+    public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
+        replay(resultSetMetaData);
+
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
+        expect(resultSet.getLong(1)).andReturn(123L);
+        expect(resultSet.getString(2)).andReturn("foo");
+        expect(resultSet.wasNull()).andReturn(false).anyTimes();
+        replay(resultSet);
+
+        expect(ctx.mapperFor(SampleValueType.class)).andReturn(new SampleValueTypeMapper());
+        replay(ctx);
+
+        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+
+        assertSame(123L, sampleBean.getLongField());
+        assertEquals(SampleValueType.valueOf("foo"), sampleBean.getValueTypeField());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldPropertyTypeWithoutRegisteredMapper() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
+        replay(resultSetMetaData);
+
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
+        expect(resultSet.getLong(1)).andReturn(123L);
+        expect(resultSet.getObject(2)).andReturn(new Object());
+        expect(resultSet.wasNull()).andReturn(false).anyTimes();
+        replay(resultSet);
+
+        expect(ctx.mapperFor(SampleValueType.class)).andThrow(new DBIException("oh no!") {});
+        replay(ctx);
+
+        mapper.map(0, resultSet, ctx);
     }
 }
