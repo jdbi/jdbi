@@ -21,12 +21,10 @@ import org.easymock.Mock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skife.jdbi.v2.exceptions.DBIException;
-import org.skife.jdbi.v2.util.TypedMapper;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -199,20 +197,6 @@ public class BeanMapperTest {
         assertEquals(bLongVal, derivedBean.getBlongField());
     }
 
-    private static class SampleValueTypeMapper extends TypedMapper<SampleValueType> {
-        public SampleValueTypeMapper() {}
-
-        @Override
-        protected SampleValueType extractByName(ResultSet r, String name) throws SQLException {
-            return SampleValueType.valueOf(r.getString(name));
-        }
-
-        @Override
-        protected SampleValueType extractByIndex(ResultSet r, int index) throws SQLException {
-            return SampleValueType.valueOf(r.getString(index));
-        }
-    }
-
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
@@ -236,7 +220,7 @@ public class BeanMapperTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldPropertyTypeWithoutRegisteredMapper() throws Exception {
+    public void shouldThrowOnPropertyTypeWithoutRegisteredMapper() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
         expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();

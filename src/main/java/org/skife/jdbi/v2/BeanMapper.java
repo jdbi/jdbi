@@ -126,7 +126,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                 else {
                     try {
                         ResultSetMapper mapper = ctx.mapperFor(type);
-                        value = mapper.map(row, singleColumnView(rs, i), ctx);
+                        value = mapper.map(row, new SingleColumnResultSetView(rs, i), ctx);
                     }
                     catch (DBIException noMapperFound) {
                         value = rs.getObject(i);
@@ -159,10 +159,6 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         }
 
         return bean;
-    }
-
-    private ResultSet singleColumnView(ResultSet resultSet, int column) throws SQLException {
-        return new SingleColumnResultSetView(resultSet, column);
     }
 
 }

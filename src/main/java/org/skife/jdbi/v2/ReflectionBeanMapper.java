@@ -16,6 +16,7 @@ package org.skife.jdbi.v2;
  * limitations under the License.
  */
 
+import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.reflect.Field;
@@ -121,7 +122,13 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
                     value = Enum.valueOf(type, rs.getString(i));
                 }
                 else {
-                    value = rs.getObject(i);
+                    try {
+                        ResultSetMapper mapper = ctx.mapperFor(type);
+                        value = mapper.map(row, new SingleColumnResultSetView(rs, i), ctx);
+                    }
+                    catch (DBIException noMapperFound) {
+                        value = rs.getObject(i);
+                    }
                 }
 
                 if (rs.wasNull() && !type.isPrimitive()) {

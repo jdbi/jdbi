@@ -20,6 +20,7 @@ import org.easymock.EasyMockRunner;
 import org.easymock.Mock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.skife.jdbi.v2.exceptions.DBIException;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -162,5 +163,46 @@ public class ReflectionBeanMapperTest {
 
         assertEquals(aLongVal, derivedBean.getLongField());
         assertEquals(bLongVal, derivedBean.getBlongField());
+    }
+
+    @Test
+    public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
+        replay(resultSetMetaData);
+
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
+        expect(resultSet.getLong(1)).andReturn(123L);
+        expect(resultSet.getString(2)).andReturn("foo");
+        expect(resultSet.wasNull()).andReturn(false).anyTimes();
+        replay(resultSet);
+
+        expect(ctx.mapperFor(SampleValueType.class)).andReturn(new SampleValueTypeMapper());
+        replay(ctx);
+
+        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+
+        assertSame(123L, sampleBean.getLongField());
+        assertEquals(SampleValueType.valueOf("foo"), sampleBean.getValueTypeField());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnPropertyTypeWithoutRegisteredMapper() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
+        replay(resultSetMetaData);
+
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
+        expect(resultSet.getLong(1)).andReturn(123L);
+        expect(resultSet.getObject(2)).andReturn(new Object());
+        expect(resultSet.wasNull()).andReturn(false).anyTimes();
+        replay(resultSet);
+
+        expect(ctx.mapperFor(SampleValueType.class)).andThrow(new DBIException("oh no!") {});
+        replay(ctx);
+
+        mapper.map(0, resultSet, ctx);
     }
 }
