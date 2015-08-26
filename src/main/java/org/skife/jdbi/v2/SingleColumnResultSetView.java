@@ -501,11 +501,11 @@ class SingleColumnResultSetView implements ResultSet {
                     .getMethod("getObject", int.class, Class.class)
                     .invoke(delegate, targetIndex, type);
         } catch (IllegalAccessException e) {
-            throw new SQLException("Tried to call JDBC 4.1 method in a pre-4.1 environment");
+            throw new SQLException(e.getCause()); // this one wouldn't make sense
         } catch (InvocationTargetException e) {
-            throw new SQLException("Tried to call JDBC 4.1 method in a pre-4.1 environment");
+            throw new SQLException(e.getCause());
         } catch (NoSuchMethodException e) {
-            throw new SQLException("Tried to call JDBC 4.1 method in a pre-4.1 environment");
+            throw new SQLException("Tried to call JDBC 4.1 method in a pre-4.1 environment", e);
         }
     }
 
