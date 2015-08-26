@@ -124,7 +124,7 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
                 else {
                     try {
                         ResultSetMapper mapper = ctx.mapperFor(type);
-                        value = mapper.map(row, new SingleColumnResultSetView(rs, i), ctx);
+                        value = mapper.map(row, SingleColumnResultSetView.newInstance(rs, i), ctx);
                     }
                     catch (DBIException noMapperFound) {
                         value = rs.getObject(i);
