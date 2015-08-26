@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Array;
@@ -467,13 +468,6 @@ class SingleColumnResultSetView implements ResultSet {
         return delegate.getObject(targetIndex, map);
     }
 
-    // @Override
-    /* This method is new in Java 1.7, therefore must omit @Override until we upgrade to 1.7 or later. */
-    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        checkIndex(columnIndex);
-        return delegate.getObject(targetIndex, type);
-    }
-
     @Override
     public Object getObject(String columnLabel) throws SQLException {
         checkLabel(columnLabel);
@@ -488,9 +482,31 @@ class SingleColumnResultSetView implements ResultSet {
 
     // @Override
     /* This method is new in Java 1.7, therefore must omit @Override until we upgrade to 1.7 or later. */
+    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+        checkIndex(columnIndex);
+        return invokeGetObject(type);
+    }
+
+    // @Override
+    /* This method is new in Java 1.7, therefore must omit @Override until we upgrade to 1.7 or later. */
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
         checkLabel(columnLabel);
-        return delegate.getObject(targetIndex, type);
+        return invokeGetObject(type);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T invokeGetObject(Class<T> type) throws SQLException {
+        try {
+            return (T) ResultSet.class
+                    .getMethod("getObject", int.class, Class.class)
+                    .invoke(delegate, targetIndex, type);
+        } catch (IllegalAccessException e) {
+            throw new SQLException("Tried to call JDBC 4.1 method in a pre-4.1 environment");
+        } catch (InvocationTargetException e) {
+            throw new SQLException("Tried to call JDBC 4.1 method in a pre-4.1 environment");
+        } catch (NoSuchMethodException e) {
+            throw new SQLException("Tried to call JDBC 4.1 method in a pre-4.1 environment");
+        }
     }
 
     //// data mutators
