@@ -467,7 +467,8 @@ class SingleColumnResultSetView implements ResultSet {
         return delegate.getObject(targetIndex, map);
     }
 
-    @Override
+    // @Override
+    /* This method is new in Java 1.7, therefore must omit @Override until we upgrade to 1.7 or later. */
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
         checkIndex(columnIndex);
         return delegate.getObject(targetIndex, type);
@@ -485,7 +486,8 @@ class SingleColumnResultSetView implements ResultSet {
         return delegate.getObject(targetIndex, map);
     }
 
-    @Override
+    // @Override
+    /* This method is new in Java 1.7, therefore must omit @Override until we upgrade to 1.7 or later. */
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
         checkLabel(columnLabel);
         return delegate.getObject(targetIndex, type);
