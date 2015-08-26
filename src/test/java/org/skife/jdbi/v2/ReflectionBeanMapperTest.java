@@ -21,6 +21,7 @@ import org.easymock.Mock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skife.jdbi.v2.exceptions.DBIException;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -201,6 +202,22 @@ public class ReflectionBeanMapperTest {
         replay(resultSet);
 
         expect(ctx.mapperFor(SampleValueType.class)).andThrow(new DBIException("oh no!") {});
+        replay(ctx);
+
+        mapper.map(0, resultSet, ctx);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowOnRecursiveBeanToPreventStackOverflow() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("recursiveField").anyTimes();
+        replay(resultSetMetaData);
+
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
+        replay(resultSet);
+
+        ResultSetMapper mapper = new ReflectionBeanMapper(RecursiveBean.class);
+        expect(ctx.mapperFor(RecursiveBean.class)).andReturn(mapper).anyTimes();
         replay(ctx);
 
         mapper.map(0, resultSet, ctx);

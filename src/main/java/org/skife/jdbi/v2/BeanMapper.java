@@ -41,6 +41,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
     private final Map<String, PropertyDescriptor> properties = new HashMap<String, PropertyDescriptor>();
+    private final ThreadLocal<Boolean> mapping = new ThreadLocal<Boolean>();
 
     public BeanMapper(Class<T> type)
     {
@@ -55,6 +56,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         catch (IntrospectionException e) {
             throw new IllegalArgumentException(e);
         }
+        mapping.set(false);
     }
 
     @Override
@@ -62,6 +64,10 @@ public class BeanMapper<T> implements ResultSetMapper<T>
     public T map(int row, ResultSet rs, StatementContext ctx)
         throws SQLException
     {
+        if (mapping.get()) {
+            throw new IllegalStateException("BeanMapper cannot be used recursively");
+        }
+
         T bean;
         try {
             bean = type.newInstance();
@@ -126,7 +132,13 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                 else {
                     try {
                         ResultSetMapper mapper = ctx.mapperFor(type);
-                        value = mapper.map(row, SingleColumnResultSetView.newInstance(rs, i), ctx);
+                        mapping.set(true);
+                        try {
+                            value = mapper.map(row, SingleColumnResultSetView.newInstance(rs, i), ctx);
+                        }
+                        finally {
+                            mapping.set(false);
+                        }
                     }
                     catch (DBIException noMapperFound) {
                         value = rs.getObject(i);
