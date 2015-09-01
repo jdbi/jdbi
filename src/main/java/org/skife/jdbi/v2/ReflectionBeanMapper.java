@@ -17,6 +17,7 @@ package org.skife.jdbi.v2;
  */
 
 import org.skife.jdbi.v2.exceptions.DBIException;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.reflect.Field;
@@ -129,10 +130,10 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
                 }
                 else {
                     try {
-                        ResultSetMapper mapper = ctx.mapperFor(type);
+                        ResultColumnMapper mapper = ctx.columnMapperFor(type);
                         mapping.set(true);
                         try {
-                            value = mapper.map(row, SingleColumnResultSetView.newInstance(rs, i), ctx);
+                            value = mapper.mapColumn(rs, i, ctx);
                         }
                         finally {
                             mapping.set(false);

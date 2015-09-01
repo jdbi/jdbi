@@ -16,6 +16,7 @@
 package org.skife.jdbi.v2.util;
 
 import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
@@ -25,7 +26,7 @@ import java.sql.SQLException;
  * Convenience base class for implementing typed result set mappers. Provides
  * frequently used functionality.
  */
-public abstract class TypedMapper<T> implements ResultSetMapper<T>
+public abstract class TypedMapper<T> implements ResultSetMapper<T>, ResultColumnMapper<T>
 {
     private final ResultSetMapper<T> internal;
 
@@ -62,6 +63,16 @@ public abstract class TypedMapper<T> implements ResultSetMapper<T>
     public final T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
         return internal.map(index, r, ctx);
+    }
+
+    @Override
+    public final T mapColumn(ResultSet r, String name, StatementContext ctx) throws SQLException {
+        return extractByName(r, name);
+    }
+
+    @Override
+    public final T mapColumn(ResultSet r, int index, StatementContext ctx) throws SQLException {
+        return extractByIndex(r, index);
     }
 
     protected abstract T extractByName(ResultSet r, String name) throws SQLException;

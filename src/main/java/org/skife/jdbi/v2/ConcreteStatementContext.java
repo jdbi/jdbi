@@ -24,7 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
 public final class ConcreteStatementContext implements StatementContext
 {
@@ -89,9 +89,9 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public ResultSetMapper mapperFor(Class type)
+    public ResultColumnMapper columnMapperFor(Class type)
     {
-        return mappingRegistry.mapperFor(type, this);
+        return mappingRegistry.columnMapperFor(type, this);
     }
 
     void setRawSql(String rawSql)

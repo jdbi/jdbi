@@ -16,7 +16,7 @@
 package org.skife.jdbi.v2;
 
 import org.junit.Test;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,23 +49,28 @@ public class ConcreteStatementContextTest {
     private static class Foo {
     }
 
-    private static class FooMapper implements ResultSetMapper<Foo> {
+    private static class FooMapper implements ResultColumnMapper<Foo> {
         @Override
-        public Foo map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        public Foo mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+            return null;
+        }
+
+        @Override
+        public Foo mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
             return null;
         }
     }
 
     @Test
     public void testMapperForDelegatesToRegistry() {
-        ResultSetMapper mapper = new FooMapper();
+        ResultColumnMapper mapper = new FooMapper();
 
         MappingRegistry registry = new MappingRegistry();
-        registry.add(mapper);
+        registry.addColumn(mapper);
 
         final ConcreteStatementContext context =
                 new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry);
 
-        assertThat(context.mapperFor(Foo.class), equalTo(mapper));
+        assertThat(context.columnMapperFor(Foo.class), equalTo(mapper));
     }
 }

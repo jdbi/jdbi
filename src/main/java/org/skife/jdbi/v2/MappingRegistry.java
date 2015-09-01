@@ -16,6 +16,7 @@
 package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.DBIException;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.util.List;
@@ -24,18 +25,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 class MappingRegistry
 {
-    private static final PrimitivesMapperFactory BUILT_IN_MAPPERS = new PrimitivesMapperFactory();
+    private static final PrimitivesMapperFactory BUILT_IN_ROW_MAPPERS = new PrimitivesMapperFactory();
+    private static final PrimitivesColumnMapperFactory BUILT_IN_COLUMN_MAPPERS = new PrimitivesColumnMapperFactory();
 
-    private final List<ResultSetMapperFactory> factories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
-    private final ConcurrentHashMap<Class, ResultSetMapper> cache = new ConcurrentHashMap<Class, ResultSetMapper>();
+    private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
+    private final ConcurrentHashMap<Class, ResultSetMapper> rowCache = new ConcurrentHashMap<Class, ResultSetMapper>();
+
+    private final List<ResultColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<ResultColumnMapperFactory>();
+    private final ConcurrentHashMap<Class, ResultColumnMapper> columnCache = new ConcurrentHashMap<Class, ResultColumnMapper>();
 
     /**
      * Copy Constructor
      */
     public MappingRegistry(MappingRegistry parent)
     {
-        factories.addAll(parent.factories);
-        cache.putAll(parent.cache);
+        rowFactories.addAll(parent.rowFactories);
+        rowCache.putAll(parent.rowCache);
+
+        columnFactories.addAll(parent.columnFactories);
+        columnCache.putAll(parent.columnCache);
     }
 
     public MappingRegistry() {
@@ -45,36 +53,78 @@ class MappingRegistry
     public void add(ResultSetMapper mapper)
     {
         this.add(new InferredMapperFactory(mapper));
+        if (mapper instanceof ResultColumnMapper) {
+            this.addColumn((ResultColumnMapper) mapper);
+        }
     }
 
     public void add(ResultSetMapperFactory factory)
     {
-        factories.add(factory);
-        cache.clear();
+        rowFactories.add(factory);
+        rowCache.clear();
+
+        if (factory instanceof ResultColumnMapperFactory) {
+            this.addColumn((ResultColumnMapperFactory) factory);
+        }
     }
 
     public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
-        if (cache.containsKey(type)) {
-            ResultSetMapper mapper = cache.get(type);
+        if (rowCache.containsKey(type)) {
+            ResultSetMapper mapper = rowCache.get(type);
             if (mapper != null) {
                 return mapper;
             }
         }
 
-        for (ResultSetMapperFactory factory : factories) {
+        for (ResultSetMapperFactory factory : rowFactories) {
             if (factory.accepts(type, ctx)) {
                 ResultSetMapper mapper =  factory.mapperFor(type, ctx);
-                cache.put(type, mapper);
+                rowCache.put(type, mapper);
                 return mapper;
             }
         }
 
-        if (BUILT_IN_MAPPERS.accepts(type, ctx)) {
-            ResultSetMapper mapper = BUILT_IN_MAPPERS.mapperFor(type, ctx);
-            cache.put(type, mapper);
+        if (BUILT_IN_ROW_MAPPERS.accepts(type, ctx)) {
+            ResultSetMapper mapper = BUILT_IN_ROW_MAPPERS.mapperFor(type, ctx);
+            rowCache.put(type, mapper);
             return mapper;
         }
 
         throw new DBIException("No mapper registered for " + type.getName()) {};
+    }
+
+    public void addColumn(ResultColumnMapper mapper)
+    {
+        this.addColumn(new InferredColumnMapperFactory(mapper));
+    }
+
+    public void addColumn(ResultColumnMapperFactory factory) {
+        columnFactories.add(factory);
+        columnCache.clear();
+    }
+
+    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
+        if (columnCache.containsKey(type)) {
+            ResultColumnMapper mapper = columnCache.get(type);
+            if (mapper != null) {
+                return mapper;
+            }
+        }
+
+        for (ResultColumnMapperFactory factory : columnFactories) {
+            if (factory.accepts(type, ctx)) {
+                ResultColumnMapper mapper =  factory.columnMapperFor(type, ctx);
+                columnCache.put(type, mapper);
+                return mapper;
+            }
+        }
+
+        if (BUILT_IN_COLUMN_MAPPERS.accepts(type, ctx)) {
+            ResultColumnMapper mapper = BUILT_IN_COLUMN_MAPPERS.columnMapperFor(type, ctx);
+            columnCache.put(type, mapper);
+            return mapper;
+        }
+
+        throw new DBIException("No column mapper registered for " + type.getName()) {};
     }
 }
