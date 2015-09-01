@@ -40,13 +40,11 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
     private final Map<String, Field> properties = new HashMap<String, Field>();
-    private final ThreadLocal<Boolean> mapping = new ThreadLocal<Boolean>();
 
     public ReflectionBeanMapper(Class<T> type)
     {
         this.type = type;
         cacheAllFieldsIncludingSuperClass(type);
-        mapping.set(false);
     }
 
     private void cacheAllFieldsIncludingSuperClass(Class<T> type) {
@@ -64,10 +62,6 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
     public T map(int row, ResultSet rs, StatementContext ctx)
             throws SQLException
     {
-        if (mapping.get()) {
-            throw new IllegalStateException("ReflectionBeanMapper cannot be used recursively");
-        }
-
         T bean;
         try {
             bean = type.newInstance();
@@ -131,13 +125,7 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
                 else {
                     try {
                         ResultColumnMapper mapper = ctx.columnMapperFor(type);
-                        mapping.set(true);
-                        try {
-                            value = mapper.mapColumn(rs, i, ctx);
-                        }
-                        finally {
-                            mapping.set(false);
-                        }
+                        value = mapper.mapColumn(rs, i, ctx);
                     }
                     catch (DBIException noMapperFound) {
                         value = rs.getObject(i);
