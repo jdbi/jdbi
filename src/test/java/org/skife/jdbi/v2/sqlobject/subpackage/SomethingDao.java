@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.Transaction;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
 @RegisterMapper(SomethingMapper.class)
@@ -36,5 +37,19 @@ public abstract class SomethingDao
     }
 
     public abstract void totallyBroken();
+
+
+    @Transaction
+    public void insertInSingleTransaction(final int id, final String name)
+    {
+        insert(id, name);
+    }
+
+    @Transaction
+    public void insertInNestedTransaction(final int id, final String name)
+    {
+        insertInSingleTransaction(id, name);
+    }
+
 
 }
