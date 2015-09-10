@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 - 2015 Brian McCallister
+ * Copyright (C) 2004 - 2015 Brian McCallister and others
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
