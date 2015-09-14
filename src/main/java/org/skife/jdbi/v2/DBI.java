@@ -24,6 +24,7 @@ import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.HandleConsumer;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -243,10 +244,28 @@ public class DBI implements IDBI
     /**
      * Register a result set mapper factory.
      *
-     * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerMapper(ResultSetMapperFactory factory) {
         mappingRegistry.add(factory);
+    }
+
+    /**
+     * Register a result column mapper which will have its parameterized type inspected to determine what it maps to
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    public void registerColumnMapper(ResultColumnMapper mapper) {
+        mappingRegistry.addColumn(mapper);
+    }
+
+    /**
+     * Register a result column mapper factory.
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    public void registerColumnMapper(ResultColumnMapperFactory factory) {
+        mappingRegistry.addColumn(factory);
     }
 
     /**

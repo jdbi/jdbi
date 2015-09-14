@@ -16,20 +16,15 @@ package org.skife.jdbi.v2;
  * limitations under the License.
  */
 
-import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Date;
 
 
 /**
@@ -82,58 +77,17 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
                 Class type = field.getType();
 
                 Object value;
-
-                if (type.isAssignableFrom(Boolean.class) || type.isAssignableFrom(boolean.class)) {
-                    value = rs.getBoolean(i);
-                }
-                else if (type.isAssignableFrom(Byte.class) || type.isAssignableFrom(byte.class)) {
-                    value = rs.getByte(i);
-                }
-                else if (type.isAssignableFrom(Short.class) || type.isAssignableFrom(short.class)) {
-                    value = rs.getShort(i);
-                }
-                else if (type.isAssignableFrom(Integer.class) || type.isAssignableFrom(int.class)) {
-                    value = rs.getInt(i);
-                }
-                else if (type.isAssignableFrom(Long.class) || type.isAssignableFrom(long.class)) {
-                    value = rs.getLong(i);
-                }
-                else if (type.isAssignableFrom(Float.class) || type.isAssignableFrom(float.class)) {
-                    value = rs.getFloat(i);
-                }
-                else if (type.isAssignableFrom(Double.class) || type.isAssignableFrom(double.class)) {
-                    value = rs.getDouble(i);
-                }
-                else if (type.isAssignableFrom(BigDecimal.class)) {
-                    value = rs.getBigDecimal(i);
-                }
-                else if (type.isAssignableFrom(Timestamp.class)) {
-                    value = rs.getTimestamp(i);
-                }
-                else if (type.isAssignableFrom(Time.class)) {
-                    value = rs.getTime(i);
-                }
-                else if (type.isAssignableFrom(Date.class)) {
-                    value = rs.getDate(i);
-                }
-                else if (type.isAssignableFrom(String.class)) {
-                    value = rs.getString(i);
+                ResultColumnMapper mapper = ctx.columnMapperFor(type);
+                if (mapper != null) {
+                    value = mapper.mapColumn(rs, i, ctx);
                 }
                 else if (type.isEnum()) {
-                    value = Enum.valueOf(type, rs.getString(i));
+
+                    String str = rs.getString(i);
+                    value = str == null ? null : Enum.valueOf(type, str);
                 }
                 else {
-                    try {
-                        ResultColumnMapper mapper = ctx.columnMapperFor(type);
-                        value = mapper.mapColumn(rs, i, ctx);
-                    }
-                    catch (DBIException noMapperFound) {
-                        value = rs.getObject(i);
-                    }
-                }
-
-                if (rs.wasNull() && !type.isPrimitive()) {
-                    value = null;
+                    value = rs.getObject(i);
                 }
 
                 try

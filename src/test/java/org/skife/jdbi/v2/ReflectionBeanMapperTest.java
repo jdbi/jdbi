@@ -20,7 +20,10 @@ import org.easymock.EasyMockRunner;
 import org.easymock.Mock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.skife.jdbi.v2.exceptions.DBIException;
+import org.skife.jdbi.v2.util.BigDecimalColumnMapper;
+import org.skife.jdbi.v2.util.IntegerColumnMapper;
+import org.skife.jdbi.v2.util.LongColumnMapper;
+import org.skife.jdbi.v2.util.StringColumnMapper;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -47,10 +50,12 @@ public class ReflectionBeanMapperTest {
 
     @Test
     public void shouldSetValueOnPrivateField() throws Exception {
-
         expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
         replay(resultSetMetaData);
+
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
@@ -67,6 +72,7 @@ public class ReflectionBeanMapperTest {
     public void shouldHandleEmptyResult() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(0);
         replay(resultSetMetaData);
+
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         replay(resultSet);
 
@@ -81,11 +87,15 @@ public class ReflectionBeanMapperTest {
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("LoNgfielD");
         replay(resultSetMetaData);
 
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        replay(ctx);
+
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
         expect(resultSet.getLong(1)).andReturn(aLongVal);
         expect(resultSet.wasNull()).andReturn(false);
         replay(resultSet);
+
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
         assertSame(aLongVal, sampleBean.getLongField());
@@ -97,6 +107,9 @@ public class ReflectionBeanMapperTest {
         expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("LoNgfielD");
         replay(resultSetMetaData);
+
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         expect(resultSet.getLong(1)).andReturn(0l);
@@ -111,7 +124,6 @@ public class ReflectionBeanMapperTest {
 
     @Test
     public void shouldSetValuesOnAllFieldAccessTypes() throws Exception {
-
         expect(resultSetMetaData.getColumnCount()).andReturn(4).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
         expect(resultSetMetaData.getColumnLabel(2)).andReturn("stringField");
@@ -119,12 +131,17 @@ public class ReflectionBeanMapperTest {
         expect(resultSetMetaData.getColumnLabel(4)).andReturn("bigDecimalField");
         replay(resultSetMetaData);
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        expect(ctx.columnMapperFor(String.class)).andReturn(StringColumnMapper.INSTANCE);
+        expect(ctx.columnMapperFor(int.class)).andReturn(IntegerColumnMapper.PRIMITIVE);
+        expect(ctx.columnMapperFor(BigDecimal.class)).andReturn(BigDecimalColumnMapper.INSTANCE);
+        replay(ctx);
+
         Long aLongVal = 100l;
         String aStringVal = "something";
         int aIntVal = 1;
         BigDecimal aBigDecimal = BigDecimal.TEN;
-
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         expect(resultSet.getLong(1)).andReturn(aLongVal);
         expect(resultSet.getString(2)).andReturn(aStringVal);
         expect(resultSet.getInt(3)).andReturn(aIntVal);
@@ -142,11 +159,13 @@ public class ReflectionBeanMapperTest {
 
     @Test
     public void shouldSetValuesInSuperClassFields() throws Exception {
-
         expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
         expect(resultSetMetaData.getColumnLabel(2)).andReturn("blongField");
         replay(resultSetMetaData);
+
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER).anyTimes();
+        replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
@@ -172,14 +191,15 @@ public class ReflectionBeanMapperTest {
         expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
         replay(resultSetMetaData);
 
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        expect(ctx.columnMapperFor(SampleValueType.class)).andReturn(new SampleValueTypeMapper());
+        replay(ctx);
+
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
         expect(resultSet.getLong(1)).andReturn(123L);
         expect(resultSet.getString(2)).andReturn("foo");
         expect(resultSet.wasNull()).andReturn(false).anyTimes();
         replay(resultSet);
-
-        expect(ctx.columnMapperFor(SampleValueType.class)).andReturn(new SampleValueTypeMapper());
-        replay(ctx);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
@@ -194,14 +214,15 @@ public class ReflectionBeanMapperTest {
         expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
         replay(resultSetMetaData);
 
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        expect(ctx.columnMapperFor(SampleValueType.class)).andReturn(null);
+        replay(ctx);
+
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
         expect(resultSet.getLong(1)).andReturn(123L);
         expect(resultSet.getObject(2)).andReturn(new Object());
         expect(resultSet.wasNull()).andReturn(false).anyTimes();
         replay(resultSet);
-
-        expect(ctx.columnMapperFor(SampleValueType.class)).andThrow(new DBIException("oh no!") {});
-        replay(ctx);
 
         mapper.map(0, resultSet, ctx);
     }

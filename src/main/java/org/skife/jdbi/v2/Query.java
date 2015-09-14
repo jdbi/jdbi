@@ -15,12 +15,14 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.util.SingleColumnMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -312,6 +314,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this.map(new RegisteredMapper(resultType, mappingRegistry));
     }
 
+    public <T> Query<T> map(ResultColumnMapper<T> mapper) {
+        return this.map(new SingleColumnMapper(mapper));
+    }
+
     public <T> Query<T> map(ResultSetMapper<T> mapper)
     {
         return new Query<T>(getParameters(),
@@ -419,5 +425,14 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     public void registerMapper(ResultSetMapperFactory m)
     {
         this.mappingRegistry.add(m);
+    }
+
+    public void registerColumnMapper(ResultColumnMapper m)
+    {
+        this.mappingRegistry.addColumn(m);
+    }
+
+    public void registerColumnMapper(ResultColumnMapperFactory m) {
+        this.mappingRegistry.addColumn(m);
     }
 }

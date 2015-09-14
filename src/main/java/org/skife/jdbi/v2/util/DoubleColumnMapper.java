@@ -13,24 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.skife.jdbi.v2.util;
 
-package org.skife.jdbi.v2;
-
+import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-class SampleValueTypeMapper implements ResultColumnMapper<SampleValueType> {
-    public SampleValueTypeMapper() {}
+public enum DoubleColumnMapper implements ResultColumnMapper<Double> {
+    PRIMITIVE(false),
+    WRAPPER(true);
 
-    @Override
-    public SampleValueType mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return SampleValueType.valueOf(r.getString(columnNumber));
+    private final boolean nullable;
+
+    DoubleColumnMapper(boolean nullable) {
+        this.nullable = nullable;
     }
 
     @Override
-    public SampleValueType mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return SampleValueType.valueOf(r.getString(columnLabel));
+    public Double mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        double value = r.getDouble(columnNumber);
+        return nullable && r.wasNull() ? null : value;
+    }
+
+    @Override
+    public Double mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
+        double value = r.getDouble(columnLabel);
+        return nullable && r.wasNull() ? null : value;
     }
 }

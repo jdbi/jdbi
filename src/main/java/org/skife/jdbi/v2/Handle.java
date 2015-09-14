@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This represents a connection to the database system. It ususally is a wrapper around
+ * This represents a connection to the database system. It usually is a wrapper around
  * a JDBC Connection object.
  */
 public interface Handle extends Closeable
@@ -259,6 +260,20 @@ public interface Handle extends Closeable
      * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
      */
     void registerMapper(ResultSetMapperFactory factory);
+
+    /**
+     * Register a result column mapper which will have its parameterized type inspected to determine what it maps to
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    void registerColumnMapper(ResultColumnMapper mapper);
+
+    /**
+     * Register a result column mapper factory.
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    void registerColumnMapper(ResultColumnMapperFactory factory);
 
     /**
      * Create a a sql object of the specified type bound to this handle. Any state changes to the handle, or the

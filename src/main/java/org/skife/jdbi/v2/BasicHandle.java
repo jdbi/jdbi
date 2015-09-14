@@ -20,6 +20,7 @@ import org.skife.jdbi.v2.exceptions.UnableToManipulateTransactionIsolationLevelE
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -422,6 +423,16 @@ class BasicHandle implements Handle
     public void registerMapper(ResultSetMapperFactory factory)
     {
         mappingRegistry.add(factory);
+    }
+
+    @Override
+    public void registerColumnMapper(ResultColumnMapper mapper) {
+        mappingRegistry.addColumn(mapper);
+    }
+
+    @Override
+    public void registerColumnMapper(ResultColumnMapperFactory factory) {
+        mappingRegistry.addColumn(factory);
     }
 
     @Override

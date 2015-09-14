@@ -18,6 +18,7 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.util.SingleColumnMapper;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 class MappingRegistry
 {
     private static final PrimitivesMapperFactory BUILT_IN_MAPPERS = new PrimitivesMapperFactory();
+    private static final PrimitivesColumnMapperFactory BUILD_IN_COLUMN_MAPPERS = new PrimitivesColumnMapperFactory();
 
     private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
     private final ConcurrentHashMap<Class, ResultSetMapper> rowCache = new ConcurrentHashMap<Class, ResultSetMapper>();
@@ -52,19 +54,12 @@ class MappingRegistry
     public void add(ResultSetMapper mapper)
     {
         this.add(new InferredMapperFactory(mapper));
-        if (mapper instanceof ResultColumnMapper) {
-            this.addColumn((ResultColumnMapper) mapper);
-        }
     }
 
     public void add(ResultSetMapperFactory factory)
     {
         rowFactories.add(factory);
         rowCache.clear();
-
-        if (factory instanceof ResultColumnMapperFactory) {
-            this.addColumn((ResultColumnMapperFactory) factory);
-        }
     }
 
     public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
@@ -83,8 +78,16 @@ class MappingRegistry
             }
         }
 
+        // TODO remove this and let the column mapper block below take over
         if (BUILT_IN_MAPPERS.accepts(type, ctx)) {
             ResultSetMapper mapper = BUILT_IN_MAPPERS.mapperFor(type, ctx);
+            rowCache.put(type, mapper);
+            return mapper;
+        }
+
+        ResultColumnMapper columnMapper = columnMapperFor(type, ctx);
+        if (columnMapper != null) {
+            ResultSetMapper mapper = new SingleColumnMapper(columnMapper);
             rowCache.put(type, mapper);
             return mapper;
         }
@@ -118,12 +121,12 @@ class MappingRegistry
             }
         }
 
-        if (BUILT_IN_MAPPERS.accepts(type, ctx)) {
-            ResultColumnMapper mapper = BUILT_IN_MAPPERS.columnMapperFor(type, ctx);
+        if (BUILD_IN_COLUMN_MAPPERS.accepts(type, ctx)) {
+            ResultColumnMapper mapper = BUILD_IN_COLUMN_MAPPERS.columnMapperFor(type, ctx);
             columnCache.put(type, mapper);
             return mapper;
         }
 
-        throw new DBIException("No column mapper registered for " + type.getName()) {};
+        return null;
     }
 }

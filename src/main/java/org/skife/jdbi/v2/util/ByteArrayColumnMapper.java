@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.skife.jdbi.v2.util;
 
-package org.skife.jdbi.v2;
-
+import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-class SampleValueTypeMapper implements ResultColumnMapper<SampleValueType> {
-    public SampleValueTypeMapper() {}
+public enum ByteArrayColumnMapper implements ResultColumnMapper<byte[]> {
+    INSTANCE;
 
     @Override
-    public SampleValueType mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return SampleValueType.valueOf(r.getString(columnNumber));
+    public byte[] mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        return r.getBytes(columnNumber);
     }
 
     @Override
-    public SampleValueType mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return SampleValueType.valueOf(r.getString(columnLabel));
+    public byte[] mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
+        return r.getBytes(columnLabel);
     }
 }

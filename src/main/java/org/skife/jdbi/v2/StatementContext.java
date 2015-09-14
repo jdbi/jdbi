@@ -15,12 +15,12 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
+
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
-
-import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -61,8 +61,7 @@ public interface StatementContext
      * Obtain a column mapper for the given type in this context.
      *
      * @param type the target type to map to
-     * @return a ResultColumnMapper for the given type
-     * @throws org.skife.jdbi.v2.exceptions.DBIException if no mappers are registered for the given type.
+     * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
     ResultColumnMapper columnMapperFor(Class type);
 

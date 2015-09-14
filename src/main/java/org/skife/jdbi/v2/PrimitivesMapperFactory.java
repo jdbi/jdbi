@@ -15,7 +15,6 @@
  */
 package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.util.BigDecimalMapper;
 import org.skife.jdbi.v2.util.BooleanMapper;
@@ -28,7 +27,6 @@ import org.skife.jdbi.v2.util.LongMapper;
 import org.skife.jdbi.v2.util.ShortMapper;
 import org.skife.jdbi.v2.util.StringMapper;
 import org.skife.jdbi.v2.util.TimestampMapper;
-import org.skife.jdbi.v2.util.TypedMapper;
 import org.skife.jdbi.v2.util.URLMapper;
 
 import java.math.BigDecimal;
@@ -40,9 +38,9 @@ import java.util.Map;
 /**
  * Result set mapper factory which knows how to construct java primitive types.
  */
-public class PrimitivesMapperFactory implements ResultSetMapperFactory, ResultColumnMapperFactory
+public class PrimitivesMapperFactory implements ResultSetMapperFactory
 {
-    private static final Map<Class, TypedMapper> mappers = new HashMap<Class, TypedMapper>();
+    private static final Map<Class, ResultSetMapper> mappers = new HashMap<Class, ResultSetMapper>();
 
     static {
 
@@ -87,11 +85,6 @@ public class PrimitivesMapperFactory implements ResultSetMapperFactory, ResultCo
     @Override
     public ResultSetMapper mapperFor(Class type, StatementContext ctx)
     {
-        return mappers.get(type);
-    }
-
-    @Override
-    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
         return mappers.get(type);
     }
 }
