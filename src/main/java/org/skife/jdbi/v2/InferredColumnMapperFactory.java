@@ -33,7 +33,7 @@ class InferredColumnMapperFactory implements ResultColumnMapperFactory
         ResolvedType rt = tr.resolve(mapper.getClass());
         List<ResolvedType> rs = rt.typeParametersFor(ResultColumnMapper.class);
         if (rs.isEmpty() || rs.get(0).getErasedType().equals(Object.class)) {
-            throw new UnsupportedOperationException("Must use a concretely typed ResultSetColumnMapper here");
+            throw new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here");
         }
 
         maps = rs.get(0).getErasedType();
