@@ -1,3 +1,8 @@
+2.64
+  - switch to standard Maven toolchains.xml for cross-compilation, #169.
+    See https://maven.apache.org/guides/mini/guide-using-toolchains.html
+    for instructions on how to use it.
+
 2.63
   - Include lambda-friendly callback methods on Handle and DBI, #156
 
@@ -40,7 +45,7 @@
 
 
 2.53
-  - Tests now run in parallel 
+  - Tests now run in parallel
   - Added Template supergroup loading to StringTemplate3StatementLocator
   - add a global cache for templates loaded from an annotation.
   - fix a handler cache bug.
