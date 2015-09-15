@@ -15,29 +15,25 @@
  */
 package org.skife.jdbi.v2;
 
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.Token;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * looks for [name], then [name].sql on the classpath
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private static final Pattern MULTILINE_COMMENTS = Pattern.compile("/\\*.*?\\*/");
-
     private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<String, String>());
 
     /**
@@ -97,9 +93,9 @@ public class ClasspathStatementLocator implements StatementLocator
             return name;
         }
         final ClassLoader loader = selectClassLoader();
-        BufferedReader reader = null;
+        InputStream in_stream = null;
         try {
-            InputStream in_stream = loader.getResourceAsStream(name);
+            in_stream = loader.getResourceAsStream(name);
             if (in_stream == null) {
                 in_stream = loader.getResourceAsStream(name + ".sql");
             }
@@ -118,31 +114,20 @@ public class ClasspathStatementLocator implements StatementLocator
                 found.put(cache_key, name == cache_key ? new String(name) : name);
                 return name;
             }
-
-            final StringBuffer buffer = new StringBuffer();
-            reader = new BufferedReader(new InputStreamReader(in_stream, Charset.forName("UTF-8")));
-            String line;
+            String sql;
             try {
-                while ((line = reader.readLine()) != null) {
-                    if (isComment(line)) {
-                        // comment
-                        continue;
-                    }
-                    buffer.append(line).append(" ");
-                }
-            }
-            catch (IOException e) {
+                sql = SQL_SCRIPT_PARSER.parse(new ANTLRInputStream(in_stream));
+            } catch (IOException e) {
                 throw new UnableToCreateStatementException(e.getMessage(), e, ctx);
             }
 
-            String sql = MULTILINE_COMMENTS.matcher(buffer).replaceAll("");
             found.put(cache_key, sql);
             return sql;
         }
         finally {
             try {
-                if (reader != null) {
-                    reader.close();
+                if (in_stream != null) {
+                    in_stream.close();
                 }
             }
             catch (IOException e) {
@@ -203,4 +188,11 @@ public class ClasspathStatementLocator implements StatementLocator
         }
         return str.substring(0, len);
     }
+
+    private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser(new SqlScriptParser.TokenHandler() {
+        @Override
+        public void handle(Token t, StringBuilder sb) {
+            sb.append(t.getText());
+        }
+    });
 }

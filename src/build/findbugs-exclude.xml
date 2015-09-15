@@ -23,4 +23,7 @@
     <Match>
         <Class name="org.skife.jdbi.rewriter.printf.FormatterStatementLexer" />
     </Match>
+    <Match>
+        <Class name="org.skife.jdbi.v2.SqlScriptLexer" />
+    </Match>
 </FindBugsFilter>

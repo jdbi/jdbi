@@ -18,6 +18,9 @@ package org.skife.jdbi.v2;
 import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.StatementException;
 
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -43,6 +46,33 @@ public class TestScript extends DBITestCase
         script.execute();
 
         assertEquals(3, h.select("select * from something").size());
+    }
+
+    @Test
+    public void testScriptWithStringSemicolon() throws Exception {
+        BasicHandle h = openHandle();
+        Script script = h.createScript("insert-with-string-semicolons");
+        script.execute();
+
+        assertEquals(3, h.select("select * from something").size());
+    }
+
+    @Test
+    public void testFuzzyScript() throws Exception {
+        BasicHandle h = openHandle();
+        Script script = h.createScript("fuzzy-script");
+        script.executeAsSeparateStatements();
+
+        List<Map<String, Object>> rows = h.select("select * from something order by id");
+        assertEquals(4, rows.size());
+        assertEquals(rows.get(0).get("id"), (Integer) 1);
+        assertEquals(rows.get(0).get("name"), "eric");
+        assertEquals(rows.get(1).get("id"), (Integer) 2);
+        assertEquals(rows.get(1).get("name"), "sally;ann");
+        assertEquals(rows.get(2).get("id"), (Integer) 3);
+        assertEquals(rows.get(2).get("name"), "bob");
+        assertEquals(rows.get(3).get("id"), (Integer) 12);
+        assertEquals(rows.get(3).get("name"), "sally;ann;junior");
     }
 
     @Test
