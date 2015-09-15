@@ -1,7 +1,10 @@
 language: java
+
 jdk:
   - oraclejdk7
   - oraclejdk8
+
+sudo: false
 
 before_install:
     - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
