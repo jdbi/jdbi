@@ -1,7 +1,10 @@
 language: java
 jdk:
-  - openjdk6
   - oraclejdk7
   - oraclejdk8
+
+before_install:
+    - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
+
 install: mvn -DskipTests=true -Dbasepom.check.skip-all=true -B install
 script: mvn -B verify
