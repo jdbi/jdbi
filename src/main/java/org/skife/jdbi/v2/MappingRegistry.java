@@ -27,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 class MappingRegistry
 {
     private static final PrimitivesMapperFactory BUILT_IN_MAPPERS = new PrimitivesMapperFactory();
-    private static final PrimitivesColumnMapperFactory BUILD_IN_COLUMN_MAPPERS = new PrimitivesColumnMapperFactory();
+    private static final PrimitivesColumnMapperFactory BUILT_IN_COLUMN_MAPPERS = new PrimitivesColumnMapperFactory();
 
     private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
     private final ConcurrentHashMap<Class, ResultSetMapper> rowCache = new ConcurrentHashMap<Class, ResultSetMapper>();
@@ -63,16 +63,14 @@ class MappingRegistry
     }
 
     public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
-        if (rowCache.containsKey(type)) {
-            ResultSetMapper mapper = rowCache.get(type);
-            if (mapper != null) {
-                return mapper;
-            }
+        ResultSetMapper mapper = rowCache.get(type);
+        if (mapper != null) {
+            return mapper;
         }
 
         for (ResultSetMapperFactory factory : rowFactories) {
             if (factory.accepts(type, ctx)) {
-                ResultSetMapper mapper =  factory.mapperFor(type, ctx);
+                mapper = factory.mapperFor(type, ctx);
                 rowCache.put(type, mapper);
                 return mapper;
             }
@@ -80,14 +78,14 @@ class MappingRegistry
 
         // TODO remove this and let the column mapper block below take over
         if (BUILT_IN_MAPPERS.accepts(type, ctx)) {
-            ResultSetMapper mapper = BUILT_IN_MAPPERS.mapperFor(type, ctx);
+            mapper = BUILT_IN_MAPPERS.mapperFor(type, ctx);
             rowCache.put(type, mapper);
             return mapper;
         }
 
         ResultColumnMapper columnMapper = columnMapperFor(type, ctx);
         if (columnMapper != null) {
-            ResultSetMapper mapper = new SingleColumnMapper(columnMapper);
+            mapper = new SingleColumnMapper(columnMapper);
             rowCache.put(type, mapper);
             return mapper;
         }
@@ -106,23 +104,21 @@ class MappingRegistry
     }
 
     public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
-        if (columnCache.containsKey(type)) {
-            ResultColumnMapper mapper = columnCache.get(type);
-            if (mapper != null) {
-                return mapper;
-            }
+        ResultColumnMapper mapper = columnCache.get(type);
+        if (mapper != null) {
+            return mapper;
         }
 
         for (ResultColumnMapperFactory factory : columnFactories) {
             if (factory.accepts(type, ctx)) {
-                ResultColumnMapper mapper =  factory.columnMapperFor(type, ctx);
+                mapper = factory.columnMapperFor(type, ctx);
                 columnCache.put(type, mapper);
                 return mapper;
             }
         }
 
-        if (BUILD_IN_COLUMN_MAPPERS.accepts(type, ctx)) {
-            ResultColumnMapper mapper = BUILD_IN_COLUMN_MAPPERS.columnMapperFor(type, ctx);
+        if (BUILT_IN_COLUMN_MAPPERS.accepts(type, ctx)) {
+            mapper = BUILT_IN_COLUMN_MAPPERS.columnMapperFor(type, ctx);
             columnCache.put(type, mapper);
             return mapper;
         }
