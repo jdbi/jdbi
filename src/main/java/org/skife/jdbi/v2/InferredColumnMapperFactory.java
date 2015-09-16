@@ -24,7 +24,7 @@ import java.util.List;
 class InferredColumnMapperFactory implements ResultColumnMapperFactory
 {
     private static final TypeResolver tr = new TypeResolver();
-    private final Class maps;
+    private final Class<?> maps;
     private final ResultColumnMapper mapper;
 
     public InferredColumnMapperFactory(ResultColumnMapper mapper)
