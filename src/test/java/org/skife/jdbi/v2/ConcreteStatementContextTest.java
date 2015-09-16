@@ -66,7 +66,7 @@ public class ConcreteStatementContextTest {
         ResultColumnMapper mapper = new FooMapper();
 
         MappingRegistry registry = new MappingRegistry();
-        registry.addColumn(mapper);
+        registry.addColumnMapper(mapper);
 
         final ConcreteStatementContext context =
                 new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry);

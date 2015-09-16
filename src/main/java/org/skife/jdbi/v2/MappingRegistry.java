@@ -95,12 +95,12 @@ class MappingRegistry
         throw new DBIException("No mapper registered for " + type.getName()) {};
     }
 
-    public void addColumn(ResultColumnMapper mapper)
+    public void addColumnMapper(ResultColumnMapper mapper)
     {
-        this.addColumn(new InferredColumnMapperFactory(mapper));
+        this.addColumnMapper(new InferredColumnMapperFactory(mapper));
     }
 
-    public void addColumn(ResultColumnMapperFactory factory) {
+    public void addColumnMapper(ResultColumnMapperFactory factory) {
         columnFactories.add(factory);
         columnCache.clear();
     }

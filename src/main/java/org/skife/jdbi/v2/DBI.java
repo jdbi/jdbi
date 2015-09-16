@@ -256,7 +256,7 @@ public class DBI implements IDBI
      * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
      */
     public void registerColumnMapper(ResultColumnMapper mapper) {
-        mappingRegistry.addColumn(mapper);
+        mappingRegistry.addColumnMapper(mapper);
     }
 
     /**
@@ -265,7 +265,7 @@ public class DBI implements IDBI
      * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
      */
     public void registerColumnMapper(ResultColumnMapperFactory factory) {
-        mappingRegistry.addColumn(factory);
+        mappingRegistry.addColumnMapper(factory);
     }
 
     /**

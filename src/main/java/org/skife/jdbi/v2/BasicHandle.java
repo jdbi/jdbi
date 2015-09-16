@@ -427,12 +427,12 @@ class BasicHandle implements Handle
 
     @Override
     public void registerColumnMapper(ResultColumnMapper mapper) {
-        mappingRegistry.addColumn(mapper);
+        mappingRegistry.addColumnMapper(mapper);
     }
 
     @Override
     public void registerColumnMapper(ResultColumnMapperFactory factory) {
-        mappingRegistry.addColumn(factory);
+        mappingRegistry.addColumnMapper(factory);
     }
 
     @Override

@@ -429,10 +429,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     public void registerColumnMapper(ResultColumnMapper m)
     {
-        this.mappingRegistry.addColumn(m);
+        this.mappingRegistry.addColumnMapper(m);
     }
 
     public void registerColumnMapper(ResultColumnMapperFactory m) {
-        this.mappingRegistry.addColumn(m);
+        this.mappingRegistry.addColumnMapper(m);
     }
 }
