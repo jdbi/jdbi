@@ -17,19 +17,14 @@ import org.skife.jdbi.v2.ResultColumnMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
-public enum EnumColumnMapperFactory implements ResultColumnMapperFactory {
-    BY_NAME {
-        @Override
-        public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
-            return EnumColumnMapper.byName(type);
-        }
-    },
-    BY_ORDINAL {
-        @Override
-        public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
-            return EnumColumnMapper.byOrdinal(type);
-        }
-    };
+/**
+ * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
+ */
+public class EnumByOrdinalColumnMapperFactory implements ResultColumnMapperFactory {
+    @Override
+    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
+        return EnumColumnMapper.byOrdinal(type);
+    }
 
     @Override
     public boolean accepts(Class type, StatementContext ctx) {
