@@ -79,11 +79,6 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
                 if (mapper != null) {
                     value = mapper.mapColumn(rs, i, ctx);
                 }
-                else if (type.isEnum()) {
-
-                    String str = rs.getString(i);
-                    value = str == null ? null : Enum.valueOf(type, str);
-                }
                 else {
                     value = rs.getObject(i);
                 }

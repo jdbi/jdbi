@@ -19,6 +19,7 @@ import org.skife.jdbi.v2.util.BooleanColumnMapper;
 import org.skife.jdbi.v2.util.ByteArrayColumnMapper;
 import org.skife.jdbi.v2.util.ByteColumnMapper;
 import org.skife.jdbi.v2.util.DoubleColumnMapper;
+import org.skife.jdbi.v2.util.EnumColumnMapper;
 import org.skife.jdbi.v2.util.FloatColumnMapper;
 import org.skife.jdbi.v2.util.IntegerColumnMapper;
 import org.skife.jdbi.v2.util.LongColumnMapper;
@@ -69,11 +70,14 @@ public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory 
 
     @Override
     public boolean accepts(Class type, StatementContext ctx) {
-        return mappers.containsKey(type);
+        return type.isEnum() || mappers.containsKey(type);
     }
 
     @Override
     public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
+        if (type.isEnum()) {
+            return EnumColumnMapper.byName(type);
+        }
         return mappers.get(type);
     }
 }
