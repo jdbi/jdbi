@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF8"?>
 <!--
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
@@ -11,14 +12,17 @@
 ~   See the License for the specific language governing permissions and
 ~   limitations under the License.
 -->
-<FindBugsFilter>
-    <Match>
-        <Class name="org.skife.jdbi.rewriter.colon.ColonStatementLexer" />
-    </Match>
-    <Match>
-        <Class name="org.skife.jdbi.rewriter.hash.HashStatementLexer" />
-    </Match>
-    <Match>
-        <Class name="org.skife.jdbi.rewriter.printf.FormatterStatementLexer" />
-    </Match>
-</FindBugsFilter>
+<toolchains>
+    <!-- JDK toolchains -->
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>1.6</version>
+            <vendor>sun</vendor>
+        </provides>
+        <configuration>
+            <!-- Location of a JDK6 in the Travis build environment -->
+            <jdkHome>/usr/lib/jvm/java-6-openjdk-amd64</jdkHome>
+        </configuration>
+    </toolchain>
+</toolchains>
