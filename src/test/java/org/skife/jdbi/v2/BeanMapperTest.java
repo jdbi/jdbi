@@ -145,7 +145,7 @@ public class BeanMapperTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnProtectedSetter() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("stringField");
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("protectedStringField");
         replay(resultSetMetaData);
 
         expect(ctx.columnMapperFor(String.class)).andReturn(StringColumnMapper.INSTANCE);
@@ -163,7 +163,7 @@ public class BeanMapperTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnPackagePrivateSetter() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("intField");
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("packagePrivateIntField");
         replay(resultSetMetaData);
 
         expect(ctx.columnMapperFor(int.class)).andReturn(IntegerColumnMapper.PRIMITIVE);
@@ -181,7 +181,7 @@ public class BeanMapperTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnPrivateSetter() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("bigDecimalField");
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("privateBigDecimalField");
         replay(resultSetMetaData);
 
         expect(ctx.columnMapperFor(BigDecimal.class)).andReturn(BigDecimalColumnMapper.INSTANCE);

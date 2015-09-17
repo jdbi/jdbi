@@ -20,9 +20,9 @@ import java.math.BigDecimal;
 
 class SampleBean {
     private Long longField;
-    protected String stringField;
-    public int intField;
-    BigDecimal bigDecimalField;
+    protected String protectedStringField;
+    public int packagePrivateIntField;
+    BigDecimal privateBigDecimalField;
     SampleValueType valueTypeField;
 
     public Long getLongField() {
@@ -33,28 +33,28 @@ class SampleBean {
         this.longField = longField;
     }
 
-    public String getStringField() {
-        return stringField;
+    public String getProtectedStringField() {
+        return protectedStringField;
     }
 
-    protected void setStringField(String stringField) {
-        this.stringField = stringField;
+    protected void setProtectedStringField(String protectedStringField) {
+        this.protectedStringField = protectedStringField;
     }
 
-    public int getIntField() {
-        return intField;
+    public int getPackagePrivateIntField() {
+        return packagePrivateIntField;
     }
 
-    /* default */ void setIntField(int intField) {
-        this.intField = intField;
+    /* default */ void setPackagePrivateIntField(int packagePrivateIntField) {
+        this.packagePrivateIntField = packagePrivateIntField;
     }
 
-    public BigDecimal getBigDecimalField() {
-        return bigDecimalField;
+    public BigDecimal getPrivateBigDecimalField() {
+        return privateBigDecimalField;
     }
 
-    private void setBigDecimalField(BigDecimal bigDecimalField) {
-        this.bigDecimalField = bigDecimalField;
+    private void setPrivateBigDecimalField(BigDecimal privateBigDecimalField) {
+        this.privateBigDecimalField = privateBigDecimalField;
     }
 
     public SampleValueType getValueTypeField() {

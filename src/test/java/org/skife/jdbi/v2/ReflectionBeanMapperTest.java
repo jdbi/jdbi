@@ -126,9 +126,9 @@ public class ReflectionBeanMapperTest {
     public void shouldSetValuesOnAllFieldAccessTypes() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(4).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
-        expect(resultSetMetaData.getColumnLabel(2)).andReturn("stringField");
-        expect(resultSetMetaData.getColumnLabel(3)).andReturn("intField");
-        expect(resultSetMetaData.getColumnLabel(4)).andReturn("bigDecimalField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("protectedStringField");
+        expect(resultSetMetaData.getColumnLabel(3)).andReturn("packagePrivateIntField");
+        expect(resultSetMetaData.getColumnLabel(4)).andReturn("privateBigDecimalField");
         replay(resultSetMetaData);
 
         expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
@@ -152,9 +152,9 @@ public class ReflectionBeanMapperTest {
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
         assertEquals(aLongVal, sampleBean.getLongField());
-        assertEquals(aBigDecimal, sampleBean.getBigDecimalField());
-        assertEquals(aIntVal, sampleBean.getIntField());
-        assertEquals(aStringVal, sampleBean.getStringField());
+        assertEquals(aBigDecimal, sampleBean.getPrivateBigDecimalField());
+        assertEquals(aIntVal, sampleBean.getPackagePrivateIntField());
+        assertEquals(aStringVal, sampleBean.getProtectedStringField());
     }
 
     @Test
