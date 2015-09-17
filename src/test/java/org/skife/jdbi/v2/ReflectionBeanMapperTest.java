@@ -65,7 +65,7 @@ public class ReflectionBeanMapperTest {
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(aLongVal, sampleBean.getLongField());
+        assertEquals(aLongVal, sampleBean.getLongField());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ReflectionBeanMapperTest {
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(aLongVal, sampleBean.getLongField());
+        assertEquals(aLongVal, sampleBean.getLongField());
 
     }
 
@@ -151,10 +151,10 @@ public class ReflectionBeanMapperTest {
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(aLongVal, sampleBean.getLongField());
-        assertSame(aBigDecimal, sampleBean.getBigDecimalField());
-        assertSame(aIntVal, sampleBean.getIntField());
-        assertSame(aStringVal, sampleBean.getStringField());
+        assertEquals(aLongVal, sampleBean.getLongField());
+        assertEquals(aBigDecimal, sampleBean.getBigDecimalField());
+        assertEquals(aIntVal, sampleBean.getIntField());
+        assertEquals(aStringVal, sampleBean.getStringField());
     }
 
     @Test
@@ -203,7 +203,8 @@ public class ReflectionBeanMapperTest {
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(123L, sampleBean.getLongField());
+        Long expected = 123L;
+        assertEquals(expected, sampleBean.getLongField());
         assertEquals(SampleValueType.valueOf("foo"), sampleBean.getValueTypeField());
     }
 

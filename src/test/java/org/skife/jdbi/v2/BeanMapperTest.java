@@ -34,7 +34,6 @@ import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 
 @RunWith(EasyMockRunner.class)
 public class BeanMapperTest {
@@ -67,7 +66,7 @@ public class BeanMapperTest {
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(aLongVal, sampleBean.getLongField());
+        assertEquals(aLongVal, sampleBean.getLongField());
     }
 
     @Test
@@ -99,7 +98,7 @@ public class BeanMapperTest {
         replay(resultSet);
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(aLongVal, sampleBean.getLongField());
+        assertEquals(aLongVal, sampleBean.getLongField());
 
     }
 
@@ -133,14 +132,14 @@ public class BeanMapperTest {
         replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
-        long expected = 1L;
+        Long expected = 1L;
         expect(resultSet.getLong(1)).andReturn(expected);
         expect(resultSet.wasNull()).andReturn(false).anyTimes();
         replay(resultSet);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(expected, sampleBean.getLongField());
+        assertEquals(expected, sampleBean.getLongField());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -244,7 +243,8 @@ public class BeanMapperTest {
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(123L, sampleBean.getLongField());
+        Long expected = 123L;
+        assertEquals(expected, sampleBean.getLongField());
         assertEquals(SampleValueType.valueOf("foo"), sampleBean.getValueTypeField());
     }
 
