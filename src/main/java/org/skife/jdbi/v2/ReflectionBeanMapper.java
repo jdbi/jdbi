@@ -1,8 +1,4 @@
-package org.skife.jdbi.v2;
-
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +11,7 @@ package org.skife.jdbi.v2;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
