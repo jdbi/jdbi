@@ -36,12 +36,12 @@ public class SampleValueType {
 
         SampleValueType that = (SampleValueType) o;
 
-        return !(value != null ? !value.equals(that.value) : that.value != null);
+        return this.value.equals(that.value);
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        return value.hashCode();
     }
 
     @Override
