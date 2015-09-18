@@ -16,7 +16,7 @@ package org.skife.jdbi.v2;
 
 public class SampleValueType {
     public static SampleValueType valueOf(String value) {
-        return new SampleValueType(value);
+        return value == null ? null : new SampleValueType(value);
     }
 
     private final String value;
