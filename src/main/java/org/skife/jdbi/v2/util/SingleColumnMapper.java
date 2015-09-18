@@ -31,7 +31,7 @@ public class SingleColumnMapper<T> implements ResultSetMapper<T> {
      * @param columnMapper the column mapper to delegate to for mapping.
      */
     public SingleColumnMapper(ResultColumnMapper<T> columnMapper) {
-        this(columnMapper, 0);
+        this(columnMapper, 1);
     }
 
     /**
