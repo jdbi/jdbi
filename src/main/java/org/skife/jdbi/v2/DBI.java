@@ -236,7 +236,7 @@ public class DBI implements IDBI
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerMapper(ResultSetMapper mapper) {
-        mappingRegistry.add(mapper);
+        mappingRegistry.addMapper(mapper);
     }
 
     /**
@@ -245,7 +245,7 @@ public class DBI implements IDBI
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerMapper(ResultSetMapperFactory factory) {
-        mappingRegistry.add(factory);
+        mappingRegistry.addMapper(factory);
     }
 
     /**

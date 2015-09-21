@@ -415,13 +415,13 @@ class BasicHandle implements Handle
     @Override
     public void registerMapper(ResultSetMapper mapper)
     {
-        mappingRegistry.add(mapper);
+        mappingRegistry.addMapper(mapper);
     }
 
     @Override
     public void registerMapper(ResultSetMapperFactory factory)
     {
-        mappingRegistry.add(factory);
+        mappingRegistry.addMapper(factory);
     }
 
     @Override

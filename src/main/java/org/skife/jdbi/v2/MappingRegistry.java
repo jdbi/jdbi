@@ -49,12 +49,12 @@ class MappingRegistry
 
     }
 
-    public void add(ResultSetMapper mapper)
+    public void addMapper(ResultSetMapper mapper)
     {
-        this.add(new InferredMapperFactory(mapper));
+        this.addMapper(new InferredMapperFactory(mapper));
     }
 
-    public void add(ResultSetMapperFactory factory)
+    public void addMapper(ResultSetMapperFactory factory)
     {
         rowFactories.add(factory);
         rowCache.clear();
