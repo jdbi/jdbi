@@ -44,7 +44,7 @@ public final class ConcreteStatementContext implements StatementContext
     ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry)
     {
         attributes.putAll(globalAttributes);
-        this.mappingRegistry = new MappingRegistry(mappingRegistry);
+        this.mappingRegistry = mappingRegistry;
     }
 
     /**

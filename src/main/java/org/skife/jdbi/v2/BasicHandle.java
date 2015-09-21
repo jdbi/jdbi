@@ -82,6 +82,7 @@ class BasicHandle implements Handle
     @Override
     public Query<Map<String, Object>> createQuery(String sql)
     {
+        MappingRegistry queryRegistry = new MappingRegistry(this.mappingRegistry);
         return new Query<Map<String, Object>>(new Binding(),
                                               new DefaultMapper(),
                                               statementLocator,
@@ -89,11 +90,11 @@ class BasicHandle implements Handle
                                               this,
                                               statementBuilder,
                                               sql,
-                                              new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
+                                              new ConcreteStatementContext(globalStatementAttributes, queryRegistry),
                                               log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
-                                              new MappingRegistry(mappingRegistry),
+                                              queryRegistry,
                                               foreman.createChild(),
                                               containerFactoryRegistry.createChild());
     }
@@ -253,7 +254,7 @@ class BasicHandle implements Handle
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
+                          new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                           log,
                           timingCollector,
                           foreman,
@@ -268,7 +269,7 @@ class BasicHandle implements Handle
                         statementRewriter,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
+                        new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                         log,
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
@@ -301,7 +302,7 @@ class BasicHandle implements Handle
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
+                                 new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                                  log,
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
@@ -314,7 +315,7 @@ class BasicHandle implements Handle
     {
         return new Batch(this.statementRewriter,
                          this.connection,
-                         new ConcreteStatementContext(globalStatementAttributes, mappingRegistry),
+                         new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                          log,
                          timingCollector,
                          foreman.createChild());
@@ -402,7 +403,7 @@ class BasicHandle implements Handle
     @Override
     public Script createScript(String name)
     {
-        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, mappingRegistry));
+        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)));
     }
 
     @Override

@@ -55,7 +55,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
         this.mapper = mapper;
-        this.mappingRegistry = new MappingRegistry(mappingRegistry);
+        this.mappingRegistry = mappingRegistry;
     }
 
     /**
@@ -329,7 +329,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getLog(),
                             getTimingCollector(),
                             getStatementCustomizers(),
-                            new MappingRegistry(mappingRegistry),
+                            mappingRegistry,
                             getForeman().createChild(),
                             getContainerMapperRegistry().createChild());
     }
