@@ -40,7 +40,7 @@ public class SingleColumnMapper<T> implements ResultSetMapper<T> {
      * @param columnNumber the column number (1-based) to map
      */
     public SingleColumnMapper(ResultColumnMapper<T> columnMapper, int columnNumber) {
-        this.delegate = new ByNumber<T>(columnMapper, columnNumber);
+        this.delegate = new ByNumber<>(columnMapper, columnNumber);
     }
 
     /**
@@ -49,7 +49,7 @@ public class SingleColumnMapper<T> implements ResultSetMapper<T> {
      * @param columnLabel the column label to map
      */
     public SingleColumnMapper(ResultColumnMapper<T> columnMapper, String columnLabel) {
-        this.delegate = new ByLabel<T>(columnMapper, columnLabel);
+        this.delegate = new ByLabel<>(columnMapper, columnLabel);
     }
 
     @Override
