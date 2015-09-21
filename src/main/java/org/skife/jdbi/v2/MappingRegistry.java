@@ -60,8 +60,8 @@ class MappingRegistry
         rowCache.clear();
     }
 
-    public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
-        ResultSetMapper mapper = rowCache.get(type);
+    public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx) {
+        ResultSetMapper<?> mapper = rowCache.get(type);
         if (mapper != null) {
             return mapper;
         }
@@ -101,8 +101,8 @@ class MappingRegistry
         columnCache.clear();
     }
 
-    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
-        ResultColumnMapper mapper = columnCache.get(type);
+    public ResultColumnMapper<?> columnMapperFor(Class<?> type, StatementContext ctx) {
+        ResultColumnMapper<?> mapper = columnCache.get(type);
         if (mapper != null) {
             return mapper;
         }
