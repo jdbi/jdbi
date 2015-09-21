@@ -21,7 +21,7 @@ class SampleBean {
     protected String protectedStringField;
     public int packagePrivateIntField;
     BigDecimal privateBigDecimalField;
-    SampleValueType valueTypeField;
+    ValueType valueTypeField;
 
     public Long getLongField() {
         return longField;
@@ -55,11 +55,11 @@ class SampleBean {
         this.privateBigDecimalField = privateBigDecimalField;
     }
 
-    public SampleValueType getValueTypeField() {
+    public ValueType getValueTypeField() {
         return valueTypeField;
     }
 
-    public void setValueTypeField(SampleValueType valueTypeField) {
+    public void setValueTypeField(ValueType valueTypeField) {
         this.valueTypeField = valueTypeField;
     }
 }

@@ -14,14 +14,14 @@
 
 package org.skife.jdbi.v2;
 
-public class SampleValueType {
-    public static SampleValueType valueOf(String value) {
-        return value == null ? null : new SampleValueType(value);
+public class ValueType {
+    public static ValueType valueOf(String value) {
+        return value == null ? null : new ValueType(value);
     }
 
     private final String value;
 
-    private SampleValueType(String value) {
+    private ValueType(String value) {
         this.value = value;
     }
 
@@ -34,7 +34,7 @@ public class SampleValueType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SampleValueType that = (SampleValueType) o;
+        ValueType that = (ValueType) o;
 
         return this.value.equals(that.value);
     }

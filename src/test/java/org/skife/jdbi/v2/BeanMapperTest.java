@@ -230,7 +230,7 @@ public class BeanMapperTest {
 
         expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
         expect(ctx.columnMapperFor(String.class)).andReturn(StringColumnMapper.INSTANCE);
-        expect(ctx.columnMapperFor(SampleValueType.class)).andReturn(new SampleValueTypeMapper());
+        expect(ctx.columnMapperFor(ValueType.class)).andReturn(new ValueTypeMapper());
         replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
@@ -243,7 +243,7 @@ public class BeanMapperTest {
 
         Long expected = 123L;
         assertEquals(expected, sampleBean.getLongField());
-        assertEquals(SampleValueType.valueOf("foo"), sampleBean.getValueTypeField());
+        assertEquals(ValueType.valueOf("foo"), sampleBean.getValueTypeField());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -254,7 +254,7 @@ public class BeanMapperTest {
         replay(resultSetMetaData);
 
         expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
-        expect(ctx.columnMapperFor(SampleValueType.class)).andReturn(null);
+        expect(ctx.columnMapperFor(ValueType.class)).andReturn(null);
         replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
