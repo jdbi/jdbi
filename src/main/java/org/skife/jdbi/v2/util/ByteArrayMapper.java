@@ -16,6 +16,10 @@ package org.skife.jdbi.v2.util;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * @deprecated Use {@link ByteArrayColumnMapper} instead.
+ */
+@Deprecated
 public class ByteArrayMapper extends TypedMapper<byte[]>
 {
 

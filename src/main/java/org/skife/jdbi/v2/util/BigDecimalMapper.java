@@ -17,6 +17,10 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * @deprecated Use {@link BigDecimalColumnMapper} instead.
+ */
+@Deprecated
 public class BigDecimalMapper extends TypedMapper<BigDecimal>
 {
     public BigDecimalMapper()

@@ -16,6 +16,10 @@ package org.skife.jdbi.v2.util;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * @deprecated Use {@link DoubleColumnMapper} instead.
+ */
+@Deprecated
 public class DoubleMapper extends TypedMapper<Double>
 {
     public DoubleMapper()
