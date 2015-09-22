@@ -19,7 +19,10 @@ import java.sql.SQLException;
 /**
  * Convenience ResultSetMapper for extracting a single value result
  * from a query.
+ *
+ * @deprecated Use {@link BooleanColumnMapper} instead.
  */
+@Deprecated
 public class BooleanMapper extends TypedMapper<Boolean>
 {
     /**

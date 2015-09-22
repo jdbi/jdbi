@@ -19,7 +19,10 @@ import java.sql.SQLException;
 /**
  * Convenience ResultSetMapper for extracting a single value result
  * from a query.
+ *
+ * @deprecated Use {@link IntegerColumnMapper} instead.
  */
+@Deprecated
 public class IntegerMapper extends TypedMapper<Integer>
 {
     /**
