@@ -1,7 +1,16 @@
-2.64
+2.70 *** MAJOR CHANGES ***
   - switch to standard Maven toolchains.xml for cross-compilation, #169.
     See https://maven.apache.org/guides/mini/guide-using-toolchains.html
     for instructions on how to use it.
+  - Correctly handle semicolons and inline comments in SQL statements.
+    Existing SQL statements may break due to lexer changes, ensure you have
+    test coverage.
+  - Introduce "column mappers" which dramatically improve type handling
+    for BeanMapper-style automatic mapping
+      see https://github.com/jdbi/jdbi/pull/164
+  - Disallow "nested" transactions explicitly.  They almost certainly don't
+    work the way you expect.  Use savepoints instead.
+  - Eagerly check return type of @SqlUpdate annotated SqlObject methods
 
 2.63
   - Include lambda-friendly callback methods on Handle and DBI, #156
