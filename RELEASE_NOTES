@@ -8,6 +8,8 @@
   - Introduce "column mappers" which dramatically improve type handling
     for BeanMapper-style automatic mapping
       see https://github.com/jdbi/jdbi/pull/164
+  - Disallow "nested" transactions explicitly.  They almost certainly don't
+    work the way you expect.  Use savepoints instead.
 
 2.63
   - Include lambda-friendly callback methods on Handle and DBI, #156
