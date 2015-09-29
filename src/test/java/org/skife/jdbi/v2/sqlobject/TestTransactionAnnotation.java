@@ -82,16 +82,6 @@ public class TestTransactionAnnotation
     }
 
     @Test
-    public void testNestedTransactions() throws Exception
-    {
-        Dao dao = handle.attach(Dao.class);
-
-        Something s = dao.insertAndFetchWithNestedTransaction(1, "Ian");
-        assertThat(s, equalTo(new Something(1, "Ian")));
-
-    }
-
-    @Test
     public void testTxActuallyCommits() throws Exception
     {
         Handle h2 = dbi.open();
@@ -192,12 +182,6 @@ public class TestTransactionAnnotation
         {
             insert(id, name);
             return findById(id);
-        }
-
-        @Transaction
-        public Something insertAndFetchWithNestedTransaction(int id, String name)
-        {
-            return insertAndFetch(id, name);
         }
 
         @Transaction
