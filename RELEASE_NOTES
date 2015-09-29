@@ -10,6 +10,7 @@
       see https://github.com/jdbi/jdbi/pull/164
   - Disallow "nested" transactions explicitly.  They almost certainly don't
     work the way you expect.  Use savepoints instead.
+  - Eagerly check return type of @SqlUpdate annotated SqlObject methods
 
 2.63
   - Include lambda-friendly callback methods on Handle and DBI, #156
