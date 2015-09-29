@@ -15,11 +15,15 @@ package org.skife.jdbi.v2.sqlobject;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.exceptions.UnableToCreateSqlObjectException;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -114,5 +118,20 @@ public class TestCreateSqlObjectAnnotation
 
     }
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
+    @Test
+    public void testMeaningfulExceptionWhenWrongReturnType() throws Exception {
+        expectedException.expect(UnableToCreateSqlObjectException.class);
+        expectedException.expectMessage("BogusDao.getNames method is annotated with @SqlUpdate " +
+                "so should return void or Number but is returning: java.util.List<java.lang.String>");
+
+        dbi.open(BogusDao.class);
+    }
+
+    public static interface BogusDao {
+        @SqlUpdate("select name from something")
+        public List<String> getNames();
+    }
 }

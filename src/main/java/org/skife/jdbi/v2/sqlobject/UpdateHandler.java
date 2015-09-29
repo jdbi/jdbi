@@ -18,6 +18,7 @@ import net.sf.cglib.proxy.MethodProxy;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.GeneratedKeys;
 import org.skife.jdbi.v2.Update;
+import org.skife.jdbi.v2.exceptions.UnableToCreateSqlObjectException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -29,6 +30,10 @@ class UpdateHandler extends CustomizingStatementHandler
     public UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
+
+        if(returnTypeIsInvalid(method.getRawMember().getReturnType()) ) {
+            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
+        }
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
         if (method.getRawMember().isAnnotationPresent(GetGeneratedKeys.class)) {
 
@@ -77,5 +82,18 @@ class UpdateHandler extends CustomizingStatementHandler
     private interface Returner
     {
         Object value(Update update, HandleDing baton);
+    }
+
+    private boolean returnTypeIsInvalid(Class<?> type) {
+        return !Number.class.isAssignableFrom(type) &&
+                !type.equals(Integer.TYPE) &&
+                !type.equals(Long.TYPE) &&
+                !type.equals(Void.TYPE);
+    }
+
+    private String invalidReturnTypeMessage(ResolvedMethod method) {
+        return method.getDeclaringType() + "." + method +
+                " method is annotated with @SqlUpdate so should return void or Number but is returning: " +
+                method.getReturnType();
     }
 }
