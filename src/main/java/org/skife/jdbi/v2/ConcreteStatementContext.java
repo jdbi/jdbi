@@ -22,10 +22,13 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
+
 public final class ConcreteStatementContext implements StatementContext
 {
     private final Set<Cleanable> cleanables = new LinkedHashSet<Cleanable>();
     private final Map<String, Object>        attributes = new HashMap<String, Object>();
+    private final MappingRegistry mappingRegistry;
 
     private String            rawSql;
     private String            rewrittenSql;
@@ -38,9 +41,10 @@ public final class ConcreteStatementContext implements StatementContext
     private boolean           returningGeneratedKeys;
     private boolean           concurrentUpdatable;
 
-    ConcreteStatementContext(Map<String, Object> globalAttributes)
+    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry)
     {
         attributes.putAll(globalAttributes);
+        this.mappingRegistry = mappingRegistry;
     }
 
     /**
@@ -80,6 +84,12 @@ public final class ConcreteStatementContext implements StatementContext
     public Map<String, Object> getAttributes()
     {
         return attributes;
+    }
+
+    @Override
+    public ResultColumnMapper columnMapperFor(Class type)
+    {
+        return mappingRegistry.columnMapperFor(type, this);
     }
 
     void setRawSql(String rawSql)

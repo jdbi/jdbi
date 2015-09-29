@@ -13,12 +13,14 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.util.SingleColumnMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,7 +55,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
         this.mapper = mapper;
-        this.mappingRegistry = new MappingRegistry(mappingRegistry);
+        this.mappingRegistry = mappingRegistry;
     }
 
     /**
@@ -310,6 +312,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this.map(new RegisteredMapper(resultType, mappingRegistry));
     }
 
+    public <T> Query<T> map(ResultColumnMapper<T> mapper) {
+        return this.map(new SingleColumnMapper(mapper));
+    }
+
     public <T> Query<T> map(ResultSetMapper<T> mapper)
     {
         return new Query<T>(getParameters(),
@@ -323,7 +329,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getLog(),
                             getTimingCollector(),
                             getStatementCustomizers(),
-                            new MappingRegistry(mappingRegistry),
+                            mappingRegistry,
                             getForeman().createChild(),
                             getContainerMapperRegistry().createChild());
     }
@@ -411,11 +417,20 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     public void registerMapper(ResultSetMapper m)
     {
-        this.mappingRegistry.add(new InferredMapperFactory(m));
+        this.mappingRegistry.addMapper(new InferredMapperFactory(m));
     }
 
     public void registerMapper(ResultSetMapperFactory m)
     {
-        this.mappingRegistry.add(m);
+        this.mappingRegistry.addMapper(m);
+    }
+
+    public void registerColumnMapper(ResultColumnMapper m)
+    {
+        this.mappingRegistry.addColumnMapper(m);
+    }
+
+    public void registerColumnMapper(ResultColumnMapperFactory m) {
+        this.mappingRegistry.addColumnMapper(m);
     }
 }

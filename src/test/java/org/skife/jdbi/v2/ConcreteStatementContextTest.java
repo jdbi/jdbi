@@ -14,8 +14,14 @@
 package org.skife.jdbi.v2;
 
 import org.junit.Test;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConcreteStatementContextTest {
 
@@ -23,7 +29,7 @@ public class ConcreteStatementContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
         final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap());
+                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), new MappingRegistry());
 
         context.setReturningGeneratedKeys(true);
         context.setConcurrentUpdatable(true);
@@ -32,9 +38,37 @@ public class ConcreteStatementContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
         final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap());
+                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), new MappingRegistry());
 
         context.setConcurrentUpdatable(true);
         context.setReturningGeneratedKeys(true);
+    }
+
+    private static class Foo {
+    }
+
+    private static class FooMapper implements ResultColumnMapper<Foo> {
+        @Override
+        public Foo mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+            return null;
+        }
+
+        @Override
+        public Foo mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
+            return null;
+        }
+    }
+
+    @Test
+    public void testMapperForDelegatesToRegistry() {
+        ResultColumnMapper mapper = new FooMapper();
+
+        MappingRegistry registry = new MappingRegistry();
+        registry.addColumnMapper(mapper);
+
+        final ConcreteStatementContext context =
+                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry);
+
+        assertThat(context.columnMapperFor(Foo.class), equalTo(mapper));
     }
 }

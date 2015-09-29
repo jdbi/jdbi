@@ -11,23 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2.tweak;
+package org.skife.jdbi.v2.util;
 
-import org.skife.jdbi.v2.BeanMapper;
-import org.skife.jdbi.v2.ResultSetMapperFactory;
+import org.skife.jdbi.v2.ResultColumnMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
-public class BeanMapperFactory implements ResultSetMapperFactory
-{
+/**
+ * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
+ */
+public class EnumByOrdinalColumnMapperFactory implements ResultColumnMapperFactory {
     @Override
-    public boolean accepts(Class type, StatementContext ctx)
-    {
-        return ctx.columnMapperFor(type) == null;
+    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
+        return EnumColumnMapper.byOrdinal(type);
     }
 
     @Override
-    public ResultSetMapper mapperFor(Class type, StatementContext ctx)
-    {
-        return new BeanMapper(type);
+    public boolean accepts(Class type, StatementContext ctx) {
+        return type.isEnum();
     }
 }

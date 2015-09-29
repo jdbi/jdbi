@@ -16,7 +16,6 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -30,14 +29,14 @@ public class Script
     private Handle handle;
     private final StatementLocator locator;
     private final String name;
-    private final Map<String, Object> globalStatementAttributes;
+    private final StatementContext statementContext;
 
-    Script(Handle h, StatementLocator locator, String name, Map<String, Object> globalStatementAttributes)
+    Script(Handle h, StatementLocator locator, String name, StatementContext statementContext)
     {
         this.handle = h;
         this.locator = locator;
         this.name = name;
-        this.globalStatementAttributes = globalStatementAttributes;
+        this.statementContext = statementContext;
     }
 
     /**
@@ -71,14 +70,13 @@ public class Script
 
     private String[] getStatements() {
         final String script;
-        final StatementContext ctx = new ConcreteStatementContext(globalStatementAttributes);
         try
         {
-            script = locator.locate(name, ctx);
+            script = locator.locate(name, statementContext);
         }
         catch (Exception e)
         {
-            throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, ctx);
+            throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, statementContext);
         }
 
         return script.replaceAll("\n", " ").replaceAll("\r", "").split(";");

@@ -13,6 +13,8 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
+
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -53,6 +55,13 @@ public interface StatementContext
      */
     Map<String, Object> getAttributes();
 
+    /**
+     * Obtain a column mapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
+     */
+    ResultColumnMapper columnMapperFor(Class type);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

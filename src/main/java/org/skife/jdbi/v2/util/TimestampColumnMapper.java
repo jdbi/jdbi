@@ -11,23 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2.tweak;
+package org.skife.jdbi.v2.util;
 
-import org.skife.jdbi.v2.BeanMapper;
-import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
-public class BeanMapperFactory implements ResultSetMapperFactory
-{
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+
+public enum TimestampColumnMapper implements ResultColumnMapper<Timestamp> {
+    INSTANCE;
+
     @Override
-    public boolean accepts(Class type, StatementContext ctx)
-    {
-        return ctx.columnMapperFor(type) == null;
+    public Timestamp mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        return r.getTimestamp(columnNumber);
     }
 
     @Override
-    public ResultSetMapper mapperFor(Class type, StatementContext ctx)
-    {
-        return new BeanMapper(type);
+    public Timestamp mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
+        return r.getTimestamp(columnLabel);
     }
 }

@@ -23,6 +23,6 @@ import java.lang.annotation.Target;
 @BindingAnnotation(BindBeanFactory.class)
 public @interface BindBean
 {
-    final String BARE_BINDING = "___jdbi_bare___";
+    String BARE_BINDING = "___jdbi_bare___";
     String value() default BARE_BINDING;
 }

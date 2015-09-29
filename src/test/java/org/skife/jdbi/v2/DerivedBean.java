@@ -11,23 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2.tweak;
 
-import org.skife.jdbi.v2.BeanMapper;
-import org.skife.jdbi.v2.ResultSetMapperFactory;
-import org.skife.jdbi.v2.StatementContext;
+package org.skife.jdbi.v2;
 
-public class BeanMapperFactory implements ResultSetMapperFactory
-{
-    @Override
-    public boolean accepts(Class type, StatementContext ctx)
-    {
-        return ctx.columnMapperFor(type) == null;
+class DerivedBean extends SampleBean {
+    private Long blongField;
+
+    public Long getBlongField() {
+        return blongField;
     }
 
-    @Override
-    public ResultSetMapper mapperFor(Class type, StatementContext ctx)
-    {
-        return new BeanMapper(type);
+    public void setBlongField(Long blongField) {
+        this.blongField = blongField;
     }
 }
