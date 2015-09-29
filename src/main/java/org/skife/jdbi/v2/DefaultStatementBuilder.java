@@ -41,6 +41,10 @@ public class DefaultStatementBuilder implements StatementBuilder
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
         if (ctx.isReturningGeneratedKeys()) {
+            String[] columnNames = ctx.getGeneratedKeysColumnNames();
+            if (columnNames != null && columnNames.length > 0) {
+                return conn.prepareStatement(sql, columnNames);
+            }
             return conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         }
         else if (ctx.isConcurrentUpdatable()) {

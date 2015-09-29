@@ -51,7 +51,7 @@ class UpdateHandler extends CustomizingStatementHandler
                 @Override
                 public Object value(Update update, HandleDing baton)
                 {
-                    GeneratedKeys o = update.executeAndReturnGeneratedKeys(mapper);
+                    GeneratedKeys o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
                     return magic.result(o, baton);
                 }
             };
