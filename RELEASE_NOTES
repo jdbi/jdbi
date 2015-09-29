@@ -1,4 +1,4 @@
-2.64 *** MAJOR CHANGES ***
+2.70 *** MAJOR CHANGES ***
   - switch to standard Maven toolchains.xml for cross-compilation, #169.
     See https://maven.apache.org/guides/mini/guide-using-toolchains.html
     for instructions on how to use it.
