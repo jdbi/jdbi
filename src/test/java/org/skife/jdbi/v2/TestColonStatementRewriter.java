@@ -18,8 +18,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
+import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -96,4 +98,30 @@ public class TestColonStatementRewriter
         catch (UnableToCreateStatementException e) {
         }
     }
+
+    @Test
+    public void testCachesRewrittenStatements() throws Exception
+    {
+        final AtomicInteger ctr = new AtomicInteger(0);
+        ColonPrefixNamedParamStatementRewriter rw = new ColonPrefixNamedParamStatementRewriter()
+        {
+            @Override
+            ParsedStatement parseString(final String sql) throws IllegalArgumentException
+            {
+                ctr.incrementAndGet();
+                return super.parseString(sql);
+            }
+        };
+
+        rw.rewrite("insert into something (id, name) values (:id, :name)", new Binding(),
+                new ConcreteStatementContext(new HashMap<String, Object>()));
+
+        assertEquals(1, ctr.get());
+
+        rw.rewrite("insert into something (id, name) values (:id, :name)", new Binding(),
+                new ConcreteStatementContext(new HashMap<String, Object>()));
+
+        assertEquals(1, ctr.get());
+    }
+
 }
