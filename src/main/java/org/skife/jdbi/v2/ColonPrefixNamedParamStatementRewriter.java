@@ -62,7 +62,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
         if (stmt == null) {
             try {
                 stmt = parseString(sql);
-                cache.putIfAbsent(sql, stmt);
+                cache.put(sql, stmt);
             }
             catch (IllegalArgumentException e) {
                 throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);

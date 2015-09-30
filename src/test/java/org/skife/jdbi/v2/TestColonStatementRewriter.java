@@ -114,12 +114,12 @@ public class TestColonStatementRewriter
         };
 
         rw.rewrite("insert into something (id, name) values (:id, :name)", new Binding(),
-                new ConcreteStatementContext(new HashMap<String, Object>()));
+                new ConcreteStatementContext(new HashMap<String, Object>(), null));
 
         assertEquals(1, ctr.get());
 
         rw.rewrite("insert into something (id, name) values (:id, :name)", new Binding(),
-                new ConcreteStatementContext(new HashMap<String, Object>()));
+                new ConcreteStatementContext(new HashMap<String, Object>(), null));
 
         assertEquals(1, ctr.get());
     }
