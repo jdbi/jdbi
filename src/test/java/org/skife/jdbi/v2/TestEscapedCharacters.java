@@ -25,7 +25,7 @@ public class TestEscapedCharacters
 
     private String parseString(final String src)
     {
-        return rewriter.parseString(src, new ColonPrefixNamedParamStatementRewriter.ParsedStatement());
+        return rewriter.parseString(src).getParsedSql();
     }
 
     @Test
