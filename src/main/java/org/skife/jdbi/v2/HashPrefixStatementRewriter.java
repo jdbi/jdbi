@@ -25,9 +25,10 @@ import org.skife.jdbi.v2.tweak.StatementRewriter;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import static org.skife.jdbi.rewriter.hash.HashStatementLexer.DOUBLE_QUOTED_TEXT;
 import static org.skife.jdbi.rewriter.hash.HashStatementLexer.ESCAPED_TEXT;
@@ -41,7 +42,7 @@ import static org.skife.jdbi.rewriter.hash.HashStatementLexer.QUOTED_TEXT;
  */
 public class HashPrefixStatementRewriter implements StatementRewriter
 {
-    private final ConcurrentMap<String, ParsedStatement> cache = new ConcurrentHashMap<String, ParsedStatement>();
+    private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<String, ParsedStatement>());
 
     /**
      * Munge up the SQL as desired. Responsible for figuring out ow to bind any
