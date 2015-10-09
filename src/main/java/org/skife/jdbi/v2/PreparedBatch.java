@@ -15,13 +15,15 @@ package org.skife.jdbi.v2;
 
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.skife.jdbi.v2.util.SingleColumnMapper;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -109,6 +111,11 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
             }
         });
 
+    }
+
+    @SuppressWarnings("unchecked")
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
+        return executeAndGenerateKeys(new SingleColumnMapper<GeneratedKeyType>(mapper));
     }
 
     private <Result> Object internalBatchExecute(QueryResultMunger<Result> munger) {

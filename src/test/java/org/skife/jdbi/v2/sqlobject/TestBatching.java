@@ -22,7 +22,6 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -96,7 +95,7 @@ public class TestBatching
         assertThat(b.size(), equalTo(5));
 
         List<String> names = handle.createQuery("select distinct name from something")
-                                   .map(StringMapper.FIRST)
+                                   .mapTo(String.class)
                                    .list();
         assertThat(names, equalTo(Arrays.asList("Johan")));
     }
@@ -113,7 +112,7 @@ public class TestBatching
         assertThat(b.size(), equalTo(3));
 
         List<String> ins_names = handle.createQuery("select distinct name from something order by name")
-                                       .map(StringMapper.FIRST)
+                                       .mapTo(String.class)
                                        .list();
         assertThat(ins_names, equalTo(Arrays.asList("David", "Mike", "Tim")));
     }

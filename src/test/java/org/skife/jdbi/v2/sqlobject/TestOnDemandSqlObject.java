@@ -32,7 +32,6 @@ import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -80,7 +79,7 @@ public class TestOnDemandSqlObject
 
         s.insert(7, "Bill");
 
-        String bill = handle.createQuery("select name from something where id = 7").map(StringMapper.FIRST).first();
+        String bill = handle.createQuery("select name from something where id = 7").mapTo(String.class).first();
 
         assertEquals("Bill", bill);
     }
@@ -270,7 +269,7 @@ public class TestOnDemandSqlObject
         }
     }
 
-    public static class HandleTrackerDBI extends DBI 
+    public static class HandleTrackerDBI extends DBI
     {
         final List<Handle> openedHandle = new ArrayList<Handle>();
 
@@ -292,5 +291,5 @@ public class TestOnDemandSqlObject
             return false;
         }
     }
-    
+
 }

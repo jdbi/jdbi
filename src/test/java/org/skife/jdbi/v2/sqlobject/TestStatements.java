@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.UUID;
 
@@ -58,7 +57,7 @@ public class TestStatements
         // this is what is under test here
         int rows_affected = i.insert(2, "Diego");
 
-        String name = handle.createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
+        String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).first();
 
         assertEquals(1, rows_affected);
         assertEquals("Diego", name);
@@ -74,7 +73,7 @@ public class TestStatements
         // this is what is under test here
         i.insertWithVoidReturn(2, "Diego");
 
-        String name = handle.createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
+        String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).first();
 
         assertEquals("Diego", name);
 

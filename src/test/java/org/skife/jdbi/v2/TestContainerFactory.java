@@ -23,7 +23,6 @@ import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterContainerMapper;
 import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -62,7 +61,7 @@ public class TestContainerFactory
 
         Maybe<String> rs = h.createQuery("select name from something where id = :id")
                             .bind("id", 1)
-                            .map(StringMapper.FIRST)
+                            .mapTo(String.class)
                             .first(Maybe.class);
 
         assertThat(rs.isKnown(), equalTo(true));
@@ -77,7 +76,7 @@ public class TestContainerFactory
 
         Maybe<String> rs = h.createQuery("select name from something where id = :id")
                             .bind("id", 2)
-                            .map(StringMapper.FIRST)
+                            .mapTo(String.class)
                             .first(Maybe.class);
 
         assertThat(rs.isKnown(), equalTo(false));
@@ -92,7 +91,7 @@ public class TestContainerFactory
         h.execute("insert into something (id, name) values (2, 'Brian')");
 
         ImmutableList<String> rs = h.createQuery("select name from something order by id")
-                                    .map(StringMapper.FIRST)
+                                    .mapTo(String.class)
                                     .list(ImmutableList.class);
 
         assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));

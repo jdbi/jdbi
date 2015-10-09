@@ -19,7 +19,6 @@ import org.skife.jdbi.v2.exceptions.NoResultsException;
 import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -355,7 +354,7 @@ public class TestQueries extends DBITestCase
          .execute();
 
         List<String> rs = h.createQuery("select name from something order by id")
-                           .map(StringMapper.FIRST)
+                           .mapTo(String.class)
                            .fold(new ArrayList<String>(), new Folder3<List<String>, String>()
                            {
                                @Override
