@@ -30,7 +30,6 @@ import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -77,7 +76,7 @@ public class TestMixinInterfaces
             public String withHandle(Handle handle) throws Exception {
                 handle.execute("insert into something (id, name) values (8, 'Mike')");
 
-                return handle.createQuery("select name from something where id = 8").map(StringMapper.FIRST).first();
+                return handle.createQuery("select name from something where id = 8").mapTo(String.class).first();
             }
         });
 
@@ -164,7 +163,7 @@ public class TestMixinInterfaces
             h1.begin();
             h1.execute("update something set name = 'Miker' where id = 8");
 
-            assertEquals("Mike", h2.createQuery("select name from something where id = 8").map(StringMapper.FIRST).first());
+            assertEquals("Mike", h2.createQuery("select name from something where id = 8").mapTo(String.class).first());
             h1.commit();
         }
     }

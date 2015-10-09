@@ -24,7 +24,6 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +72,7 @@ public class TestConcurrentUpdatingQuery
 
         final String name = handle.createQuery("select name from something where id = :id")
                 .bind("id", 7)
-                .map(StringMapper.FIRST)
+                .mapTo(String.class)
                 .first();
 
         assertEquals("Tom", name);

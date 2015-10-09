@@ -42,7 +42,6 @@ import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +79,7 @@ public class TestOnDemandSqlObject
 
         s.insert(7, "Bill");
 
-        String bill = handle.createQuery("select name from something where id = 7").map(StringMapper.FIRST).first();
+        String bill = handle.createQuery("select name from something where id = 7").mapTo(String.class).first();
 
         assertEquals("Bill", bill);
     }

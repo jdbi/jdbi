@@ -29,7 +29,6 @@ import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,7 +96,7 @@ public class TestReentrancy
                         dao.insert(new Something(1, "x"));
 
                         List<String> rs = conn.createQuery("select name from something where id = 1")
-                                              .map(StringMapper.FIRST)
+                                              .mapTo(String.class)
                                               .list();
                         assertThat(rs.size(), equalTo(1));
 

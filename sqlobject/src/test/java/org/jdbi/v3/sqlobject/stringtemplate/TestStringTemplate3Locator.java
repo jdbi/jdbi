@@ -30,8 +30,6 @@ import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.Define;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +61,7 @@ public class TestStringTemplate3Locator
         wombat.insert(new Something(7, "Henning"));
 
         String name = handle.createQuery("select name from something where id = 7")
-                            .map(StringMapper.FIRST)
+                            .mapTo(String.class)
                             .first();
 
         assertThat(name, equalTo("Henning"));
@@ -92,7 +90,7 @@ public class TestStringTemplate3Locator
         SqlObjectBuilder.attach(handle, Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
         SqlObjectBuilder.attach(handle, Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
         String name = handle.createQuery("select name from something where id = 5")
-                            .map(StringMapper.FIRST)
+                            .mapTo(String.class)
                             .first();
 
         assertThat(name, equalTo("Bouncer"));

@@ -24,7 +24,6 @@ import java.util.List;
 import org.jdbi.v3.exceptions.DBIException;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.TransactionFailedException;
-import org.jdbi.v3.util.IntegerMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -137,11 +136,11 @@ public class TestTransactions
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
         h.checkpoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 2, "Martin");
-        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
         h.rollback("first");
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
         h.commit();
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
     }
 
     @Test

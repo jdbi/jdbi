@@ -21,7 +21,6 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +55,7 @@ public class TestBeanBinder
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
         s.insert(new Something(2, "Bean"));
 
-        String name = handle.createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
+        String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).first();
         assertEquals("Bean", name);
     }
 

@@ -24,7 +24,6 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -154,7 +153,7 @@ public class TestPreparedBatch
 
         b.execute();
 
-        assertEquals(h.createQuery("select name from something order by id").map(StringMapper.FIRST).list(),
+        assertEquals(h.createQuery("select name from something order by id").mapTo(String.class).list(),
                      Arrays.asList("Jeff", "Tom"));
 
     }
@@ -173,7 +172,7 @@ public class TestPreparedBatch
 
         b.execute();
 
-        assertEquals(h.createQuery("select name from something order by id").map(StringMapper.FIRST).list(),
+        assertEquals(h.createQuery("select name from something order by id").mapTo(String.class).list(),
                      Arrays.asList("Jeff", "Tom"));
     }
 }

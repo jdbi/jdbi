@@ -28,7 +28,6 @@ import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.util.IntegerMapper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -72,7 +71,7 @@ public class TestPostgresBugs
             @Override
             public Integer withHandle(Handle handle) throws Exception
             {
-                return handle.createQuery("select 2 + 2").map(IntegerMapper.FIRST).first();
+                return handle.createQuery("select 2 + 2").mapTo(Integer.class).first();
             }
         });
 

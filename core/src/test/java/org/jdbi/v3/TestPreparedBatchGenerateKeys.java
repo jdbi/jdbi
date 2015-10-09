@@ -18,7 +18,7 @@ package org.jdbi.v3;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.util.IntegerMapper;
+import org.jdbi.v3.util.IntegerColumnMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class TestPreparedBatchGenerateKeys {
             PreparedBatch batch = h.prepareBatch("insert into something (name) values (?)");
             batch.add("Brian");
             batch.add("Thom");
-            List<Integer> ids = batch.executeAndGenerateKeys(IntegerMapper.FIRST).list();
+            List<Integer> ids = batch.executeAndGenerateKeys(IntegerColumnMapper.WRAPPER).list();
             Assert.assertEquals(Arrays.asList(10000, 10001), ids);
 
             List<Something> somethings = h.createQuery("select id, name from something")

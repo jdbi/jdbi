@@ -26,7 +26,6 @@ import org.jdbi.v3.sqlobject.customizers.Define;
 import org.jdbi.v3.sqlobject.customizers.OverrideStatementLocatorWith;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.stringtemplate.StringTemplate3StatementLocator;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +59,7 @@ public class TestOverrideStatementLocatorWith
         wombat.insert(new Something(7, "Henning"));
 
         String name = handle.createQuery("select name from something where id = 7")
-                            .map(StringMapper.FIRST)
+                            .mapTo(String.class)
                             .first();
 
         assertThat(name, equalTo("Henning"));
@@ -88,7 +87,7 @@ public class TestOverrideStatementLocatorWith
     {
         SqlObjectBuilder.attach(handle, Kangaroo.class).weirdInsert("something", "id", "name", 5, "Bouncer");
         String name = handle.createQuery("select name from something where id = 5")
-                            .map(StringMapper.FIRST)
+                            .mapTo(String.class)
                             .first();
 
         assertThat(name, equalTo("Bouncer"));

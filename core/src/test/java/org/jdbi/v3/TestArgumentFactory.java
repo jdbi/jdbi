@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -40,7 +39,7 @@ public class TestArgumentFactory
               .bind("name", new Name("Brian", "McCallister"))
               .execute();
 
-            String full_name = h.createQuery("select name from something where id = 7").map(StringMapper.FIRST).first();
+            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).first();
 
             assertThat(full_name, equalTo("Brian McCallister"));
         }
@@ -56,7 +55,7 @@ public class TestArgumentFactory
              .bind("name", new Name("Brian", "McCallister"))
              .execute();
 
-            String full_name = h.createQuery("select name from something where id = 7").map(StringMapper.FIRST).first();
+            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).first();
 
             assertThat(full_name, equalTo("Brian McCallister"));
         }
@@ -84,7 +83,7 @@ public class TestArgumentFactory
         batch.execute();
 
         List<String> rs = h.createQuery("select name from something order by id")
-                           .map(StringMapper.FIRST)
+                           .mapTo(String.class)
                            .list();
 
         assertThat(rs.get(0), equalTo("Brian McCallister"));

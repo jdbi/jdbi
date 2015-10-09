@@ -23,12 +23,14 @@ import java.util.Map;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
+import org.jdbi.v3.util.SingleColumnMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +112,11 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
             }
         });
 
+    }
+
+    @SuppressWarnings("unchecked")
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
+        return executeAndGenerateKeys(new SingleColumnMapper<GeneratedKeyType>(mapper));
     }
 
     private <Result> Object internalBatchExecute(QueryResultMunger<Result> munger) {

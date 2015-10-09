@@ -27,7 +27,6 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,7 +95,7 @@ public class TestBatching
         assertThat(b.size(), equalTo(5));
 
         List<String> names = handle.createQuery("select distinct name from something")
-                                   .map(StringMapper.FIRST)
+                                   .mapTo(String.class)
                                    .list();
         assertThat(names, equalTo(Arrays.asList("Johan")));
     }
@@ -113,7 +112,7 @@ public class TestBatching
         assertThat(b.size(), equalTo(3));
 
         List<String> ins_names = handle.createQuery("select distinct name from something order by name")
-                                       .map(StringMapper.FIRST)
+                                       .mapTo(String.class)
                                        .list();
         assertThat(ins_names, equalTo(Arrays.asList("David", "Mike", "Tim")));
     }

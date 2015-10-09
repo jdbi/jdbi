@@ -18,11 +18,13 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
+import org.jdbi.v3.util.SingleColumnMapper;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements
@@ -88,6 +90,10 @@ public class Update extends SQLStatement<Update>
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {
         return executeAndReturnGeneratedKeys(mapper, null);
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
+        return executeAndReturnGeneratedKeys(new SingleColumnMapper<GeneratedKeyType>(mapper), null);
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

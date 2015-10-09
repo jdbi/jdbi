@@ -35,7 +35,6 @@ import org.jdbi.v3.exceptions.NoResultsException;
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -351,10 +350,9 @@ public class TestQueries
          .execute();
 
         List<String> rs = h.createQuery("select name from something order by id")
-                           .map(StringMapper.FIRST)
+                           .mapTo(String.class)
                            .stream()
                            .collect(Collectors.toList());
-
         assertEquals(2, rs.size());
         assertEquals(Arrays.asList("Brian", "Keith"), rs);
     }
