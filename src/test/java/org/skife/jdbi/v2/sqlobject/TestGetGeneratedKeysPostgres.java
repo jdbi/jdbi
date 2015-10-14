@@ -13,10 +13,9 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -25,15 +24,20 @@ import org.skife.jdbi.v2.tweak.HandleCallback;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class TestGetGeneratedKeysPostgres
 {
-    private JdbcConnectionPool ds;
     private DBI                dbi;
+
+    @BeforeClass
+    public static void isPostgresInstalled() {
+        assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
+    }
 
     @Before
     public void setUp() throws Exception {
-        dbi = new DBI("jdbc:postgresql:test", "postgres", "postgres");
+        dbi = new DBI("jdbc:postgresql:jdbi_test", "postgres", "");
         dbi.withHandle(new HandleCallback<Object>() {
             @Override
             public Object withHandle(Handle handle) throws Exception
@@ -67,7 +71,6 @@ public class TestGetGeneratedKeysPostgres
         public String findNameById(@Bind long id);
     }
 
-    @Ignore
     @Test
     public void testFoo() throws Exception {
         DAO dao = dbi.open(DAO.class);
