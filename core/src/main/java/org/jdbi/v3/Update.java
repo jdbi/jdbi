@@ -65,11 +65,15 @@ public class Update extends SQLStatement<Update>
      * Execute the statement and returns any auto-generated keys. This requires the JDBC driver to support
      * the {@link Statement#getGeneratedKeys()} method.
      * @param mapper the mapper to generate the resulting key object
+     * @param columnName name of the column that generates the key
      * @return the generated key or null if none was returned
      */
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper)
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper, String columnName)
     {
         getConcreteContext().setReturningGeneratedKeys(true);
+        if (columnName != null) {
+            getConcreteContext().setGeneratedKeysColumnNames(new String[] { columnName } );
+        }
         return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>() {
             @Override
             public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
@@ -80,6 +84,10 @@ public class Update extends SQLStatement<Update>
                                                            getContext());
             }
         });
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {
+        return executeAndReturnGeneratedKeys(mapper, null);
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()
