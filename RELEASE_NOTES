@@ -1,7 +1,10 @@
-2.61
+2.62
+  - Also include asm in shade, fixes build.  Sorry about the broken releases...
+
+2.61 *** DO NOT USE ***
   - Fix shading broken in 2.60, fixes #152
 
-2.60
+2.60 *** DO NOT USE ***
   - Fix Javadoc generation for JDK6 and JDK8
   - Add support for /* */ style comments in statements
   - Add @BindMap annotation which allows parameters passed in a Map<String, Object>

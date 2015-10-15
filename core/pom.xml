@@ -181,9 +181,15 @@
                                     <include>org.antlr:antlr-runtime</include>
                                     <include>com.fasterxml:classmate</include>
                                     <include>cglib:cglib</include>
+                                    <include>org.ow2.asm:asm</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>org.jdbi.asm</shadedPattern>
+                                </relocation>
+
                                 <relocation>
                                     <pattern>org.antlr.runtime</pattern>
                                     <shadedPattern>org.jdbi.org.antlr.runtime</shadedPattern>
