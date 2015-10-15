@@ -18,14 +18,22 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.List;
+import java.util.UUID;
 import java.util.UUID;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
+import org.junit.After;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class TestCreateSqlObjectAnnotation
 {
@@ -114,5 +122,20 @@ public class TestCreateSqlObjectAnnotation
 
     }
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
+    @Test
+    public void testMeaningfulExceptionWhenWrongReturnType() throws Exception {
+        expectedException.expect(UnableToCreateSqlObjectException.class);
+        expectedException.expectMessage("BogusDao.getNames method is annotated with @SqlUpdate " +
+                "so should return void or Number but is returning: java.util.List<java.lang.String>");
+
+        SqlObjectBuilder.open(dbi, BogusDao.class);
+    }
+
+    public static interface BogusDao {
+        @SqlUpdate("select name from something")
+        public List<String> getNames();
+    }
 }

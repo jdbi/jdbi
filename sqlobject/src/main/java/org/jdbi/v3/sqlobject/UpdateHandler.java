@@ -21,6 +21,7 @@ import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.GeneratedKeys;
 import org.jdbi.v3.Update;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 import org.jdbi.v3.tweak.ResultSetMapper;
 
 class UpdateHandler extends CustomizingStatementHandler
@@ -31,6 +32,10 @@ class UpdateHandler extends CustomizingStatementHandler
     public UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
+
+        if(returnTypeIsInvalid(method.getRawMember().getReturnType()) ) {
+            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
+        }
         this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
         if (method.getRawMember().isAnnotationPresent(GetGeneratedKeys.class)) {
 
@@ -79,5 +84,18 @@ class UpdateHandler extends CustomizingStatementHandler
     private interface Returner
     {
         Object value(Update update, HandleDing baton);
+    }
+
+    private boolean returnTypeIsInvalid(Class<?> type) {
+        return !Number.class.isAssignableFrom(type) &&
+                !type.equals(Integer.TYPE) &&
+                !type.equals(Long.TYPE) &&
+                !type.equals(Void.TYPE);
+    }
+
+    private String invalidReturnTypeMessage(ResolvedMethod method) {
+        return method.getDeclaringType() + "." + method +
+                " method is annotated with @SqlUpdate so should return void or Number but is returning: " +
+                method.getReturnType();
     }
 }
