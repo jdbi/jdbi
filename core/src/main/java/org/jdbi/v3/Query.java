@@ -192,6 +192,19 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this;
     }
 
+    /**
+     * Specify that the result set should be concurrent updatable.
+     *
+     * This will allow the update methods to be called on the result set produced by this
+     * Query.
+     *
+     * @return the modified query
+     */
+    public Query<ResultType> concurrentUpdatable() {
+        getConcreteContext().setConcurrentUpdatable(true);
+        return this;
+    }
+
     public void registerMapper(ResultSetMapper<?> m)
     {
         this.mappingRegistry.add(new InferredMapperFactory(m));

@@ -16,6 +16,7 @@ package org.jdbi.v3;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -45,6 +46,9 @@ public class DefaultStatementBuilder implements StatementBuilder
                 return conn.prepareStatement(sql, columnNames);
             }
             return conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        }
+        else if (ctx.isConcurrentUpdatable()) {
+            return conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
         }
         else {
             return conn.prepareStatement(sql);

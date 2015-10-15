@@ -110,4 +110,15 @@ public interface StatementContext
 
     void addCleanable(Cleanable cleanable);
 
+    /**
+     * Return if the statement should be concurrent updatable.
+     *
+     * If this returns true, the concurrency level of the created ResultSet will be
+     * {@link java.sql.ResultSet#CONCUR_UPDATABLE}, otherwise the result set is not updatable,
+     * and will have concurrency level {@link java.sql.ResultSet#CONCUR_READ_ONLY}.
+     *
+     * @return if the statement generated should be concurrent updatable.
+     */
+    boolean isConcurrentUpdatable();
+
 }
