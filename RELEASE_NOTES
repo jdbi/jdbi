@@ -2,6 +2,9 @@
   - switch to standard Maven toolchains.xml for cross-compilation, #169.
     See https://maven.apache.org/guides/mini/guide-using-toolchains.html
     for instructions on how to use it.
+  - Correctly handle semicolons and inline comments in SQL statements.
+    Existing SQL statements may break due to lexer changes, ensure you have
+    test coverage.
 
 2.63
   - Include lambda-friendly callback methods on Handle and DBI, #156

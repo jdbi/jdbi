@@ -21,4 +21,7 @@
     <Match>
         <Class name="org.jdbi.rewriter.printf.FormatterStatementLexer" />
     </Match>
+    <Match>
+        <Class name="org.jdbi.v3.SqlScriptLexer" />
+    </Match>
 </FindBugsFilter>
