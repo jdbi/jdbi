@@ -19,9 +19,6 @@ import java.sql.Types;
 
 import org.jdbi.v3.tweak.Argument;
 
-/**
- *
- */
 class ObjectArgument implements Argument
 {
     private final Object value;
@@ -45,5 +42,9 @@ class ObjectArgument implements Argument
     @Override
     public String toString() {
         return String.valueOf(value);
+    }
+
+    public Object getValue() {
+        return value;
     }
 }
