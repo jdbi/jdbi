@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-standard-oss</artifactId>
-        <version>9</version>
+        <version>11</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -122,7 +122,7 @@
 
             <dependency>
                 <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
+                <artifactId>cglib</artifactId>
                 <version>2.2.2</version>
             </dependency>
 
@@ -182,6 +182,12 @@
                 <version>9.1-901-1.jdbc4</version>
             </dependency>
             <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>5.0.2</version>
+            </dependency>
+
+            <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.1.1</version>
@@ -191,6 +197,12 @@
                 <groupId>org.easymock</groupId>
                 <artifactId>easymock</artifactId>
                 <version>3.1</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>cglib</groupId>
+                    <artifactId>cglib-nodep</artifactId>
+                  </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
