@@ -24,7 +24,7 @@ import org.jdbi.v3.tweak.TransactionHandler;
 
 /**
  * Handler designed to behave properly in a J2EE CMT environment. It will never
- * explicitely begin or commit a transaction, and will throw a runtime exception
+ * explicitly begin or commit a transaction, and will throw a runtime exception
  * when rollback is called to force rollback.
  */
 public class CMTTransactionHandler implements TransactionHandler

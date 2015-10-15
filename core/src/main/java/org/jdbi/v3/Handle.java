@@ -145,6 +145,15 @@ public interface Handle extends Closeable
      * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
      * result of the callback will be returned. If it fails a {@link TransactionFailedException}
      * will be thrown.
+     *
+     * @throws TransactionFailedException if the transaction failed in the callback
+     */
+    void inTransaction(TransactionConsumer callback) throws TransactionFailedException;
+
+    /**
+     * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
+     * result of the callback will be returned. If it fails a {@link TransactionFailedException}
+     * will be thrown.
      * <p>
      * This form accepts a transaction isolation level which will be applied to the connection
      * for the scope of this transaction, after which the original isolation level will be restored.
@@ -154,6 +163,19 @@ public interface Handle extends Closeable
      */
     <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
                                           TransactionCallback<ReturnType> callback) throws TransactionFailedException;
+
+    /**
+     * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
+     * result of the callback will be returned. If it fails a {@link TransactionFailedException}
+     * will be thrown.
+     * <p>
+     * This form accepts a transaction isolation level which will be applied to the connection
+     * for the scope of this transaction, after which the original isolation level will be restored.
+     * </p>
+     * @return value returned from the callback
+     * @throws TransactionFailedException if the transaction failed in the callback
+     */
+    void inTransaction(TransactionIsolationLevel level, TransactionConsumer callback) throws TransactionFailedException;
 
     /**
      * Convenience method which executes a select with purely positional arguments
