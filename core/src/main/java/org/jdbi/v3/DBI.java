@@ -290,12 +290,12 @@ public class DBI
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    public void withHandle(final HandleConsumer callback) throws CallbackFailedException
+    public void useHandle(final HandleConsumer callback) throws CallbackFailedException
     {
         withHandle(new VoidHandleCallback() {
             @Override
             protected void execute(Handle handle) throws Exception {
-                callback.withHandle(handle);
+                callback.useHandle(handle);
             }
         });
     }
@@ -324,13 +324,13 @@ public class DBI
         });
     }
 
-    public void inTransaction(final TransactionConsumer callback) throws CallbackFailedException
+    public void useTransaction(final TransactionConsumer callback) throws CallbackFailedException
     {
-        withHandle(new HandleConsumer() {
+        useHandle(new HandleConsumer() {
             @Override
-            public void withHandle(Handle handle) throws Exception
+            public void useHandle(Handle handle) throws Exception
             {
-                handle.inTransaction(callback);
+                handle.useTransaction(callback);
             }
         });
     }
@@ -346,13 +346,13 @@ public class DBI
         });
     }
 
-    public void inTransaction(final TransactionIsolationLevel isolation, final TransactionConsumer callback) throws CallbackFailedException
+    public void useTransaction(final TransactionIsolationLevel isolation, final TransactionConsumer callback) throws CallbackFailedException
     {
-        withHandle(new HandleConsumer() {
+        useHandle(new HandleConsumer() {
             @Override
-            public void withHandle(Handle handle) throws Exception
+            public void useHandle(Handle handle) throws Exception
             {
-                handle.inTransaction(isolation, callback);
+                handle.useTransaction(isolation, callback);
             }
         });
     }

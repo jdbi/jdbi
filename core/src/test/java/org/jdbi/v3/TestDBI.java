@@ -19,13 +19,17 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.Connection;
+import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.SQLException;
 
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
+import org.jdbi.v3.tweak.HandleConsumer;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.Test;
 
 public class TestDBI
@@ -94,12 +98,25 @@ public class TestDBI
         DBI dbi = new DBI(db.getConnectionString());
         String value = dbi.withHandle(new HandleCallback<String>() {
             @Override
-            public String withHandle(Handle handle) throws Exception
-            {
+            public String withHandle(Handle handle) throws Exception {
                 handle.insert("insert into something (id, name) values (1, 'Brian')");
                 return handle.createQuery("select name from something where id = 1").map(Something.class).first().getName();
             }
         });
         assertEquals("Brian", value);
+    }
+
+    @Test
+    public void testUseHandle() throws Exception
+    {
+        DBI dbi = new DBI(db.getConnectionString());
+        dbi.useHandle(new HandleConsumer() {
+            @Override
+            public void useHandle(Handle handle) throws Exception {
+                handle.insert("insert into something (id, name) values (1, 'Brian')");
+                String value = handle.createQuery("select name from something where id = 1").map(Something.class).first().getName();
+                assertEquals("Brian", value);
+            }
+        });
     }
 }

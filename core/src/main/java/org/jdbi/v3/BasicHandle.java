@@ -305,12 +305,12 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void inTransaction(final TransactionConsumer callback)
+    public void useTransaction(final TransactionConsumer callback)
     {
         transactions.inTransaction(this, new VoidTransactionCallback() {
             @Override
             protected void execute(Handle handle, TransactionStatus status) throws Exception {
-                callback.inTransaction(handle, status);
+                callback.useTransaction(handle, status);
             }
         });
     }
@@ -344,12 +344,12 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void inTransaction(TransactionIsolationLevel level, final TransactionConsumer callback)
+    public void useTransaction(TransactionIsolationLevel level, final TransactionConsumer callback)
     {
         inTransaction(level, new VoidTransactionCallback() {
             @Override
             protected void execute(Handle handle, TransactionStatus status) throws Exception {
-                callback.inTransaction(handle, status);
+                callback.useTransaction(handle, status);
             }
         });
     }
