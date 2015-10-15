@@ -180,7 +180,7 @@
                                 <includes>
                                     <include>org.antlr:antlr-runtime</include>
                                     <include>com.fasterxml:classmate</include>
-                                    <include>cglib:cglib-nodep</include>
+                                    <include>cglib:cglib</include>
                                 </includes>
                             </artifactSet>
                             <relocations>

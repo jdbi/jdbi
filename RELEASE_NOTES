@@ -1,3 +1,6 @@
+2.61
+  - Fix shading broken in 2.60, fixes #152
+
 2.60
   - Fix Javadoc generation for JDK6 and JDK8
   - Add support for /* */ style comments in statements
