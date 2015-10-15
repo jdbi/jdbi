@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeBindings;
+import com.fasterxml.classmate.members.ResolvedMethod;
+
 import org.jdbi.v3.Query;
 import org.jdbi.v3.ResultBearing;
 import org.jdbi.v3.ResultIterator;
@@ -27,10 +31,6 @@ import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.jdbi.v3.tweak.ResultSetMapper;
-
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeBindings;
-import com.fasterxml.classmate.members.ResolvedMethod;
 
 abstract class ResultReturnThing
 {
@@ -167,12 +167,18 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, final HandleDing baton)
         {
             final ResultIterator<?> itty = q.iterator();
-            baton.retain("iterator");
+
+            final boolean isEmpty = !itty.hasNext();
+            if (isEmpty) {
+                itty.close();
+            } else {
+                baton.retain("iterator");
+            }
 
             return new ResultIterator<Object>()
             {
-                private boolean closed = false;
-                private boolean hasNext = itty.hasNext();
+                private boolean closed = isEmpty;
+                private boolean hasNext = !isEmpty;
 
                 @Override
                 public void close()
