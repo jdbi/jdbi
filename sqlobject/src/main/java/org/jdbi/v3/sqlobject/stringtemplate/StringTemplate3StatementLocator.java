@@ -190,6 +190,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
         this.group.setErrorListener(errorListener);
     }
 
+    @SuppressWarnings("resource")
     private static StringTemplateGroup createGroup(final String templateGroupFilePathOnClasspath,
                                                    final StringTemplateErrorListener errorListener,
                                                    final String cacheKey,

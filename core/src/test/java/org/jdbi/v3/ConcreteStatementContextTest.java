@@ -61,7 +61,7 @@ public class ConcreteStatementContextTest {
 
     @Test
     public void testMapperForDelegatesToRegistry() {
-        ResultColumnMapper mapper = new FooMapper();
+        ResultColumnMapper<?> mapper = new FooMapper();
 
         MappingRegistry registry = new MappingRegistry();
         registry.addColumnMapper(mapper);

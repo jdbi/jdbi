@@ -256,7 +256,7 @@ public interface Handle extends Closeable
      *
      * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
      */
-    void registerColumnMapper(ResultColumnMapper mapper);
+    void registerColumnMapper(ResultColumnMapper<?> mapper);
 
     /**
      * Register a result column mapper factory.

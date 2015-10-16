@@ -13,49 +13,36 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
+@SuppressWarnings("resource")
 public class TestVariousOddities
 {
-    private DBI dbi;
-    private Handle handle;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
     @Test
     public void testAttach() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
         s.insert(new Something(14, "Tom"));
 
         Something tom = s.byId(14);
@@ -71,8 +58,8 @@ public class TestVariousOddities
     @Test
     public void testEquals()
     {
-        Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
-        Spiffy s2 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s1 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s2 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
         assertEquals(s1, s1);
         assertNotSame(s1, s2);
         assertFalse(s1.equals(s2));
@@ -81,8 +68,8 @@ public class TestVariousOddities
     @Test
     public void testToString()
     {
-        Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
-        Spiffy s2 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s1 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s2 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
         assertNotNull(s1.toString());
         assertNotNull(s2.toString());
         assertTrue(s1.toString() != s2.toString());
@@ -91,8 +78,8 @@ public class TestVariousOddities
     @Test
     public void testHashCode()
     {
-        Spiffy s1 = SqlObjectBuilder.attach(handle, Spiffy.class);
-        Spiffy s2 = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s1 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s2 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
         assertFalse(0 == s1.hashCode());
         assertFalse(0 == s2.hashCode());
         assertTrue(s1.hashCode() != s2.hashCode());
@@ -102,10 +89,9 @@ public class TestVariousOddities
     public void testConcurrentHashCode() throws ExecutionException, InterruptedException
     {
         Callable<SpiffyConcurrent> callable = new Callable<SpiffyConcurrent>() {
-
             @Override
             public SpiffyConcurrent call() throws Exception {
-                return SqlObjectBuilder.attach(handle, SpiffyConcurrent.class);
+                return SqlObjectBuilder.attach(db.getSharedHandle(), SpiffyConcurrent.class);
             }
         };
 
@@ -123,7 +109,7 @@ public class TestVariousOddities
     public void testNullQueryReturn()
     {
         try {
-            SqlObjectBuilder.attach(handle, SpiffyBoom.class);
+            SqlObjectBuilder.attach(db.getSharedHandle(), SpiffyBoom.class);
         } catch (IllegalStateException e) {
             assertEquals("Method org.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
                     "is annotated as if it should return a value, but the method is void.", e.getMessage());

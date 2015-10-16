@@ -76,12 +76,10 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
             fail("unexpected exception");
         }
 
-        final Handle h = DBI.open(ds);
-
-        int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
-
-        assertEquals(0, count);
-        h.close();
+        try (final Handle h = DBI.open(ds)) {
+            int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
+            assertEquals(0, count);
+        }
     }
 
     public void testNested() throws Exception

@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
@@ -37,9 +38,9 @@ public class TestDBI
     public void testDataSourceConstructor() throws Exception
     {
         DBI dbi = new DBI(db.getConnectionString());
-        Handle h = dbi.open();
-        assertNotNull(h);
-        h.close();
+        try (Handle h = dbi.open()) {
+            assertNotNull(h);
+        }
     }
 
     @Test
@@ -60,9 +61,9 @@ public class TestDBI
                 }
             }
         });
-        Handle h = dbi.open();
-        assertNotNull(h);
-        h.close();
+        try (Handle h = dbi.open()) {
+            assertNotNull(h);
+        }
     }
 
     @Test

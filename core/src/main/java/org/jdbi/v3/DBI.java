@@ -249,7 +249,7 @@ public class DBI
      *
      * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
      */
-    public void registerColumnMapper(ResultColumnMapper mapper) {
+    public void registerColumnMapper(ResultColumnMapper<?> mapper) {
         mappingRegistry.addColumnMapper(mapper);
     }
 
@@ -287,15 +287,11 @@ public class DBI
      */
     public <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException
     {
-        final Handle h = this.open();
-        try {
+        try (Handle h = this.open()) {
             return callback.withHandle(h);
         }
         catch (Exception e) {
             throw new CallbackFailedException(e);
-        }
-        finally {
-            h.close();
         }
     }
 

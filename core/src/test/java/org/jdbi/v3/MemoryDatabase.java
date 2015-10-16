@@ -26,13 +26,15 @@ public class MemoryDatabase extends ExternalResource
 {
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private Connection con;
+    private Handle sharedHandle;
 
     @Override
     protected void before() throws Throwable
     {
-        con = DBI.open(uri).getConnection();
+        sharedHandle = DBI.open(uri);
+        con = sharedHandle.getConnection();
         try (Statement s = con.createStatement()) {
-            s.execute("create table something ( id integer, name varchar(50), integerValue integer, intValue integer )");
+            s.execute("create table something ( id identity primary key, name varchar(50), integerValue integer, intValue integer )");
         }
     }
 
@@ -54,6 +56,11 @@ public class MemoryDatabase extends ExternalResource
     public DBI getDbi()
     {
         return new DBI(uri);
+    }
+
+    public Handle getSharedHandle()
+    {
+        return sharedHandle;
     }
 
     public Handle openHandle()

@@ -406,7 +406,7 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerColumnMapper(ResultColumnMapper mapper) {
+    public void registerColumnMapper(ResultColumnMapper<?> mapper) {
         mappingRegistry.addColumnMapper(mapper);
     }
 

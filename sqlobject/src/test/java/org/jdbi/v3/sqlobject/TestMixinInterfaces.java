@@ -139,39 +139,34 @@ public class TestMixinInterfaces
     public void testTransactionIsolationActuallyHappens() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
-        TransactionStuff tx2 = SqlObjectBuilder.open(dbi, TransactionStuff.class);
+        try (TransactionStuff tx2 = SqlObjectBuilder.open(dbi, TransactionStuff.class)) {
+            txl.insert(8, "Mike");
 
+            txl.begin();
 
-        txl.insert(8, "Mike");
+            txl.updateName(8, "Miker");
+            assertEquals("Miker", txl.byId(8).getName());
+            assertEquals("Mike", tx2.byId(8).getName());
 
-        txl.begin();
+            txl.commit();
 
-        txl.updateName(8, "Miker");
-        assertEquals("Miker", txl.byId(8).getName());
-        assertEquals("Mike", tx2.byId(8).getName());
-
-        txl.commit();
-
-        assertEquals("Miker", tx2.byId(8).getName());
-
-        tx2.close();
+            assertEquals("Miker", tx2.byId(8).getName());
+        }
     }
 
     @Test
     public void testJustJdbiTransactions() throws Exception
     {
-        Handle h1 = dbi.open();
-        Handle h2 = dbi.open();
+        try (Handle h1 = dbi.open();
+             Handle h2 = dbi.open()) {
+            h1.execute("insert into something (id, name) values (8, 'Mike')");
 
-        h1.execute("insert into something (id, name) values (8, 'Mike')");
+            h1.begin();
+            h1.execute("update something set name = 'Miker' where id = 8");
 
-        h1.begin();
-        h1.execute("update something set name = 'Miker' where id = 8");
-
-        assertEquals("Mike", h2.createQuery("select name from something where id = 8").map(StringMapper.FIRST).first());
-        h1.commit();
-        h1.close();
-        h2.close();
+            assertEquals("Mike", h2.createQuery("select name from something where id = 8").map(StringMapper.FIRST).first());
+            h1.commit();
+        }
     }
 
     public static interface WithGetHandle extends CloseMe, GetHandle

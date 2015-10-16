@@ -30,20 +30,11 @@ public class TestUpdateGeneratedKeys
     @Before
     public void setUp() throws Exception
     {
-        final Connection conn = db.getConnectionFactory().openConnection();
-
-        final Statement create = conn.createStatement();
-        try
+        try (   final Connection conn = db.getConnectionFactory().openConnection();
+                final Statement create = conn.createStatement())
         {
             create.execute("create table something_else ( id integer not null generated always as identity, name varchar(50) )");
         }
-        catch (Exception e)
-        {
-            // probably still exists because of previous failed test, just delete then
-            create.execute("delete from something_else");
-        }
-        create.close();
-        conn.close();
     }
 
     @Test

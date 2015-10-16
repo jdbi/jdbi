@@ -15,70 +15,42 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.UUID;
-
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.util.StringMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestStatements
 {
-    private DBI dbi;
-    private Handle handle;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
     @Test
     public void testInsert() throws Exception
     {
-        Inserter i = SqlObjectBuilder.open(dbi, Inserter.class);
+        try (Inserter i = SqlObjectBuilder.open(db.getDbi(), Inserter.class)) {
+            // this is what is under test here
+            int rows_affected = i.insert(2, "Diego");
 
-        // this is what is under test here
-        int rows_affected = i.insert(2, "Diego");
+            String name = db.getSharedHandle().createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
 
-        String name = handle.createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
-
-        assertEquals(1, rows_affected);
-        assertEquals("Diego", name);
-
-        i.close();
+            assertEquals(1, rows_affected);
+            assertEquals("Diego", name);
+        }
     }
 
     @Test
     public void testInsertWithVoidReturn() throws Exception
     {
-        Inserter i = SqlObjectBuilder.open(dbi, Inserter.class);
+        try (Inserter i = SqlObjectBuilder.open(db.getDbi(), Inserter.class)) {
+            // this is what is under test here
+            i.insertWithVoidReturn(2, "Diego");
 
-        // this is what is under test here
-        i.insertWithVoidReturn(2, "Diego");
+            String name = db.getSharedHandle().createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
 
-        String name = handle.createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
-
-        assertEquals("Diego", name);
-
-        i.close();
+            assertEquals("Diego", name);
+        }
     }
 
     public static interface Inserter extends CloseMe

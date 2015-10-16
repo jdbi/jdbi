@@ -41,7 +41,7 @@ public class TestNamedParams
     @Test
     public void testDemo() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = db.getSharedHandle();
         h.createStatement("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1)
                 .bind("name", "Brian")
@@ -59,8 +59,6 @@ public class TestNamedParams
         assertEquals(2, r.size());
         assertEquals(2, r.get(0).getId());
         assertEquals(3, r.get(1).getId());
-
-        h.close();
     }
 
     @Test

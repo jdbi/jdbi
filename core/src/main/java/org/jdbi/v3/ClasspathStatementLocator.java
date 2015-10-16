@@ -70,7 +70,7 @@ public class ClasspathStatementLocator implements StatementLocator
      *          if an IOException occurs reading a found resource
      */
     @Override
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings({ "PMD.EmptyCatchBlock", "resource" })
     @SuppressFBWarnings("DM_STRING_CTOR")
     public String locate(String name, StatementContext ctx)
     {
@@ -147,11 +147,6 @@ public class ClasspathStatementLocator implements StatementLocator
             loader = ClasspathStatementLocator.class.getClassLoader();
         }
         return loader;
-    }
-
-    private static boolean isComment(final String line)
-    {
-        return line.startsWith("#") || line.startsWith("--") || line.startsWith("//");
     }
 
     private static final String SEP = "/"; // *Not* System.getProperty("file.separator"), which breaks in jars

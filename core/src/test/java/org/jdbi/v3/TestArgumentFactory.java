@@ -17,74 +17,55 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.util.StringMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestArgumentFactory
 {
-    private DBI    dbi;
-    private Handle h;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        h = dbi.open();
-
-        h.execute("create table something (id int primary key, name varchar(100))");
-
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        h.execute("drop table something");
-        h.close();
-    }
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
     @Test
     public void testRegisterOnDBI() throws Exception
     {
+        final DBI dbi = db.getDbi();
         dbi.registerArgumentFactory(new NameAF());
-        Handle h2 = dbi.open();
-        h2.createStatement("insert into something (id, name) values (:id, :name)")
-          .bind("id", 7)
-          .bind("name", new Name("Brian", "McCallister"))
-          .execute();
+        try (Handle h = dbi.open()) {
+            h.createStatement("insert into something (id, name) values (:id, :name)")
+              .bind("id", 7)
+              .bind("name", new Name("Brian", "McCallister"))
+              .execute();
 
-        String full_name = h.createQuery("select name from something where id = 7").map(StringMapper.FIRST).first();
+            String full_name = h.createQuery("select name from something where id = 7").map(StringMapper.FIRST).first();
 
-        assertThat(full_name, equalTo("Brian McCallister"));
-        h2.close();
+            assertThat(full_name, equalTo("Brian McCallister"));
+        }
     }
 
     @Test
     public void testRegisterOnHandle() throws Exception
     {
-        h.registerArgumentFactory(new NameAF());
-        h.createStatement("insert into something (id, name) values (:id, :name)")
-         .bind("id", 7)
-         .bind("name", new Name("Brian", "McCallister"))
-         .execute();
+        try (Handle h = db.openHandle()) {
+            h.registerArgumentFactory(new NameAF());
+            h.createStatement("insert into something (id, name) values (:id, :name)")
+             .bind("id", 7)
+             .bind("name", new Name("Brian", "McCallister"))
+             .execute();
 
-        String full_name = h.createQuery("select name from something where id = 7").map(StringMapper.FIRST).first();
+            String full_name = h.createQuery("select name from something where id = 7").map(StringMapper.FIRST).first();
 
-        assertThat(full_name, equalTo("Brian McCallister"));
+            assertThat(full_name, equalTo("Brian McCallister"));
+        }
     }
 
     @Test
     public void testRegisterOnStatement() throws Exception
     {
-        h.createStatement("insert into something (id, name) values (:id, :name)")
+        db.getSharedHandle().createStatement("insert into something (id, name) values (:id, :name)")
          .registerArgumentFactory(new NameAF())
          .bind("id", 1)
          .bind("name", new Name("Brian", "McCallister"))
@@ -94,6 +75,7 @@ public class TestArgumentFactory
     @Test
     public void testOnPreparedBatch() throws Exception
     {
+        Handle h = db.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         batch.registerArgumentFactory(new NameAF());
 

@@ -73,14 +73,12 @@ public class TestGetGeneratedKeysPostgres
 
     @Test
     public void testFoo() throws Exception {
-        DAO dao = SqlObjectBuilder.attach(dbi.open(), DAO.class);
+        try (DAO dao = SqlObjectBuilder.attach(dbi.open(), DAO.class)) {
+            long brian_id = dao.insert("Brian");
+            long keith_id = dao.insert("Keith");
 
-        Long brian_id = dao.insert("Brian");
-        long keith_id = dao.insert("Keith");
-
-        assertThat(dao.findNameById(brian_id), equalTo("Brian"));
-        assertThat(dao.findNameById(keith_id), equalTo("Keith"));
-
-        dao.close();
+            assertThat(dao.findNameById(brian_id), equalTo("Brian"));
+            assertThat(dao.findNameById(keith_id), equalTo("Keith"));
+        }
     }
 }

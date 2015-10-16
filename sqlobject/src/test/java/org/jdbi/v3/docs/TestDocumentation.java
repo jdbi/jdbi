@@ -18,15 +18,16 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jdbi.v3.ExtraMatchers.equalsOneOf;
 import static org.junit.Assert.assertThat;
 
+import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.Bind;
@@ -41,77 +42,54 @@ import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.util.StringMapper;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestDocumentation
 {
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
+
     @Test
     public void testFiveMinuteFluentApi() throws Exception
     {
-        // using in-memory H2 database via a pooled DataSource
-        JdbcConnectionPool ds = JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(),
-                                                          "username",
-                                                          "password");
-        DBI dbi = new DBI(ds);
-        Handle h = dbi.open();
-        h.execute("create table something (id int primary key, name varchar(100))");
+        try (Handle h = db.openHandle()) {
+            h.execute("insert into something (id, name) values (?, ?)", 1, "Brian");
 
-        h.execute("insert into something (id, name) values (?, ?)", 1, "Brian");
-
-        String name = h.createQuery("select name from something where id = :id")
-            .bind("id", 1)
-            .map(StringMapper.FIRST)
-            .first();
-        assertThat(name, equalTo("Brian"));
-
-        h.close();
-        ds.dispose();
+            String name = h.createQuery("select name from something where id = :id")
+                .bind("id", 1)
+                .map(StringMapper.FIRST)
+                .first();
+            assertThat(name, equalTo("Brian"));
+        }
     }
 
-    public interface MyDAO
+    public interface MyDAO extends Closeable
     {
-        @SqlUpdate("create table something (id int primary key, name varchar(100))")
-        void createSomethingTable();
-
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind("id") int id);
-
-        /**
-         * close with no args is used to close the connection
-         */
-        void close();
     }
 
     @Test
     public void testFiveMinuteSqlObjectExample() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
+        try (MyDAO dao = SqlObjectBuilder.open(db.getDbi(), MyDAO.class)) {
+            dao.insert(2, "Aaron");
 
-        MyDAO dao = SqlObjectBuilder.open(dbi, MyDAO.class);
+            String name = dao.findNameById(2);
 
-        dao.createSomethingTable();
-
-        dao.insert(2, "Aaron");
-
-        String name = dao.findNameById(2);
-
-        assertThat(name, equalTo("Aaron"));
-
-        dao.close();
+            assertThat(name, equalTo("Aaron"));
+        }
     }
 
 
     @Test
     public void testObtainHandleViaOpen() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle handle = dbi.open();
-
-        // make sure to close it!
-        handle.close();
+        try (Handle handle = db.getDbi().open()) { }
     }
 
     @Test
@@ -132,91 +110,74 @@ public class TestDocumentation
     @Test
     public void testExecuteSomeStatements() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
+        try (Handle h = db.openHandle()) {
+            h.execute("insert into something (id, name) values (?, ?)", 3, "Patrick");
 
-        h.execute("create table something (id int primary key, name varchar(100))");
-        h.execute("insert into something (id, name) values (?, ?)", 3, "Patrick");
+            List<Map<String, Object>> rs = h.select("select id, name from something");
+            assertThat(rs.size(), equalTo(1));
 
-        List<Map<String, Object>> rs = h.select("select id, name from something");
-        assertThat(rs.size(), equalTo(1));
-
-        Map<String, Object> row = rs.get(0);
-        assertThat((Integer) row.get("id"), equalTo(3));
-        assertThat((String) row.get("name"), equalTo("Patrick"));
-
-        h.close();
+            Map<String, Object> row = rs.get(0);
+            assertThat((Long) row.get("id"), equalTo(3L));
+            assertThat((String) row.get("name"), equalTo("Patrick"));
+        }
     }
 
     @Test
     public void testFluentUpdate() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
-        h.execute("create table something (id int primary key, name varchar(100))");
-
-        h.createStatement("insert into something(id, name) values (:id, :name)")
-            .bind("id", 4)
-            .bind("name", "Martin")
-            .execute();
-
-        h.close();
+        try (Handle h = db.openHandle()) {
+            h.createStatement("insert into something(id, name) values (:id, :name)")
+                .bind("id", 4)
+                .bind("name", "Martin")
+                .execute();
+        }
     }
 
     @Test
     public void testMappingExampleChainedIterator2() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
-        h.execute("create table something (id int primary key, name varchar(100))");
-        h.execute("insert into something (id, name) values (1, 'Brian')");
-        h.execute("insert into something (id, name) values (2, 'Keith')");
+        try (Handle h = db.openHandle()) {
+            h.execute("insert into something (id, name) values (1, 'Brian')");
+            h.execute("insert into something (id, name) values (2, 'Keith')");
 
+            Iterator<String> rs = h.createQuery("select name from something order by id")
+                .map(StringMapper.FIRST)
+                .iterator();
 
-        Iterator<String> rs = h.createQuery("select name from something order by id")
-            .map(StringMapper.FIRST)
-            .iterator();
-
-        assertThat(rs.next(), equalTo("Brian"));
-        assertThat(rs.next(), equalTo("Keith"));
-        assertThat(rs.hasNext(), equalTo(false));
-
-        h.close();
+            assertThat(rs.next(), equalTo("Brian"));
+            assertThat(rs.next(), equalTo("Keith"));
+            assertThat(rs.hasNext(), equalTo(false));
+        }
     }
 
     @Test
     public void testMappingExampleChainedIterator3() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
-        h.execute("create table something (id int primary key, name varchar(100))");
-        h.execute("insert into something (id, name) values (1, 'Brian')");
-        h.execute("insert into something (id, name) values (2, 'Keith')");
+        try (Handle h = db.openHandle()) {
+            h.execute("insert into something (id, name) values (1, 'Brian')");
+            h.execute("insert into something (id, name) values (2, 'Keith')");
 
-        for (String name : h.createQuery("select name from something order by id").map(StringMapper.FIRST)) {
-            assertThat(name, equalsOneOf("Brian", "Keith"));
+            for (String name : h.createQuery("select name from something order by id").map(StringMapper.FIRST)) {
+                assertThat(name, equalsOneOf("Brian", "Keith"));
+            }
         }
-
-        h.close();
     }
 
     @Test
     public void testAttachToObject() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
-        SqlObjectBuilder.attach(h, MyDAO.class);
-
-        // do stuff with the dao
-
-        h.close();
+        try (Handle h = db.openHandle();
+             MyDAO dao = SqlObjectBuilder.attach(h, MyDAO.class)) {
+            dao.insert(1, "test");
+        }
     }
 
     @Test
     public void testOnDemandDao() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        SqlObjectBuilder.onDemand(dbi, MyDAO.class);
+        try (MyDAO dao = SqlObjectBuilder.onDemand(db.getDbi(), MyDAO.class)) {
+            dao.insert(2, "test");
+        }
     }
 
     public static interface SomeQueries
@@ -234,27 +195,25 @@ public class TestDocumentation
     @Test
     public void testSomeQueriesWorkCorrectly() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
-        h.execute("create table something (id int primary key, name varchar(32))");
-        h.prepareBatch("insert into something (id, name) values (:id, :name)")
-            .add().bind("id", 1).bind("name", "Brian")
-            .next().bind("id", 2).bind("name", "Robert")
-            .next().bind("id", 3).bind("name", "Patrick")
-            .next().bind("id", 4).bind("name", "Maniax")
-            .submit().execute();
+        try (Handle h = db.openHandle()) {
+            h.prepareBatch("insert into something (id, name) values (:id, :name)")
+                .add().bind("id", 1).bind("name", "Brian")
+                .next().bind("id", 2).bind("name", "Robert")
+                .next().bind("id", 3).bind("name", "Patrick")
+                .next().bind("id", 4).bind("name", "Maniax")
+                .submit().execute();
 
-        SomeQueries sq = SqlObjectBuilder.attach(h, SomeQueries.class);
-        assertThat(sq.findName(2), equalTo("Robert"));
-        assertThat(sq.findNamesBetween(1, 4), equalTo(Arrays.asList("Robert", "Patrick")));
+            SomeQueries sq = SqlObjectBuilder.attach(h, SomeQueries.class);
+            assertThat(sq.findName(2), equalTo("Robert"));
+            assertThat(sq.findNamesBetween(1, 4), equalTo(Arrays.asList("Robert", "Patrick")));
 
-        Iterator<String> names = sq.findAllNames();
-        assertThat(names.next(), equalTo("Brian"));
-        assertThat(names.next(), equalTo("Robert"));
-        assertThat(names.next(), equalTo("Patrick"));
-        assertThat(names.next(), equalTo("Maniax"));
-        assertThat(names.hasNext(), equalTo(false));
-        h.close();
+            Iterator<String> names = sq.findAllNames();
+            assertThat(names.next(), equalTo("Brian"));
+            assertThat(names.next(), equalTo("Robert"));
+            assertThat(names.next(), equalTo("Patrick"));
+            assertThat(names.next(), equalTo("Maniax"));
+            assertThat(names.hasNext(), equalTo(false));
+        }
     }
 
     @RegisterMapper(SomethingMapper.class)
@@ -280,21 +239,17 @@ public class TestDocumentation
     @Test
     public void testAnotherCoupleInterfaces() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
+        try (Handle h = db.openHandle()) {
+            SqlObjectBuilder.attach(h, BatchInserter.class).insert(new Something(1, "Brian"),
+                                                 new Something(3, "Patrick"),
+                                                 new Something(2, "Robert"));
 
-        h.execute("create table something (id int primary key, name varchar(32))");
-        SqlObjectBuilder.attach(h, BatchInserter.class).insert(new Something(1, "Brian"),
-                                             new Something(3, "Patrick"),
-                                             new Something(2, "Robert"));
+            AnotherQuery aq = SqlObjectBuilder.attach(h, AnotherQuery.class);
+            YetAnotherQuery yaq = SqlObjectBuilder.attach(h, YetAnotherQuery.class);
 
-        AnotherQuery aq = SqlObjectBuilder.attach(h, AnotherQuery.class);
-        YetAnotherQuery yaq = SqlObjectBuilder.attach(h, YetAnotherQuery.class);
-
-        assertThat(yaq.findById(3), equalTo(new Something(3, "Patrick")));
-        assertThat(aq.findById(2), equalTo(new Something(2, "Robert")));
-
-        h.close();
+            assertThat(yaq.findById(3), equalTo(new Something(3, "Patrick")));
+            assertThat(aq.findById(2), equalTo(new Something(2, "Robert")));
+        }
     }
 
     public static interface QueryReturningQuery
@@ -306,28 +261,21 @@ public class TestDocumentation
     @Test
     public void testFoo() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
+        try (Handle h = db.openHandle()) {
+            SqlObjectBuilder.attach(h, BatchInserter.class).insert(new Something(1, "Brian"),
+                                                 new Something(3, "Patrick"),
+                                                 new Something(2, "Robert"));
 
-        h.execute("create table something (id int primary key, name varchar(32))");
-        SqlObjectBuilder.attach(h, BatchInserter.class).insert(new Something(1, "Brian"),
-                                             new Something(3, "Patrick"),
-                                             new Something(2, "Robert"));
+            QueryReturningQuery qrq = SqlObjectBuilder.attach(h, QueryReturningQuery.class);
 
-        QueryReturningQuery qrq = SqlObjectBuilder.attach(h, QueryReturningQuery.class);
-
-        Query<String> q = qrq.findById(1);
-        q.setMaxFieldSize(100);
-        assertThat(q.first(), equalTo("Brian"));
-
-        h.close();
+            Query<String> q = qrq.findById(1);
+            q.setMaxFieldSize(100);
+            assertThat(q.first(), equalTo("Brian"));
+        }
     }
 
     public static interface Update
     {
-        @SqlUpdate("create table something (id integer primary key, name varchar(32))")
-        void createSomethingTable();
-
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@Bind("id") int id, @Bind("name") String name);
 
@@ -338,20 +286,16 @@ public class TestDocumentation
     @Test
     public void testUpdateAPI() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
+        try (Handle h = db.openHandle()) {
+            Update u = SqlObjectBuilder.attach(h, Update.class);
+            u.insert(17, "David");
+            u.update(new Something(17, "David P."));
 
-        Update u = SqlObjectBuilder.attach(h, Update.class);
-        u.createSomethingTable();
-        u.insert(17, "David");
-        u.update(new Something(17, "David P."));
-
-        String name = h.createQuery("select name from something where id = 17")
-            .map(StringMapper.FIRST)
-            .first();
-        assertThat(name, equalTo("David P."));
-
-        h.close();
+            String name = h.createQuery("select name from something where id = 17")
+                .map(StringMapper.FIRST)
+                .first();
+            assertThat(name, equalTo("David P."));
+        }
     }
 
     public static interface BatchExample
@@ -362,9 +306,6 @@ public class TestDocumentation
                           @Bind("last") String lastName);
 
 
-        @SqlUpdate("create table something(id int primary key, name varchar(32))")
-        void createSomethingTable();
-
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind("id") int id);
     }
@@ -372,24 +313,20 @@ public class TestDocumentation
     @Test
     public void testBatchExample() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        Handle h = dbi.open();
+        try (Handle h = db.openHandle()) {
+            BatchExample b = SqlObjectBuilder.attach(h, BatchExample.class);
 
-        BatchExample b = SqlObjectBuilder.attach(h, BatchExample.class);
-        b.createSomethingTable();
+            List<Integer> ids = asList(1, 2, 3, 4, 5);
+            Iterator<String> first_names = asList("Tip", "Jane", "Brian", "Keith", "Eric").iterator();
 
-        List<Integer> ids = asList(1, 2, 3, 4, 5);
-        Iterator<String> first_names = asList("Tip", "Jane", "Brian", "Keith", "Eric").iterator();
+            b.insertFamily(ids, first_names, "McCallister");
 
-        b.insertFamily(ids, first_names, "McCallister");
-
-        assertThat(b.findNameById(1), equalTo("Tip McCallister"));
-        assertThat(b.findNameById(2), equalTo("Jane McCallister"));
-        assertThat(b.findNameById(3), equalTo("Brian McCallister"));
-        assertThat(b.findNameById(4), equalTo("Keith McCallister"));
-        assertThat(b.findNameById(5), equalTo("Eric McCallister"));
-
-        h.close();
+            assertThat(b.findNameById(1), equalTo("Tip McCallister"));
+            assertThat(b.findNameById(2), equalTo("Jane McCallister"));
+            assertThat(b.findNameById(3), equalTo("Brian McCallister"));
+            assertThat(b.findNameById(4), equalTo("Keith McCallister"));
+            assertThat(b.findNameById(5), equalTo("Eric McCallister"));
+        }
     }
 
     public static interface ChunkedBatchExample
@@ -424,27 +361,6 @@ public class TestDocumentation
         @SqlUpdate("update something set name = :s.name where id = :s.id")
         void update(@BindBean("s") Something something);
     }
-
-//    @BindingAnnotation(SomethingBinderFactory.class)
-//    @Retention(RetentionPolicy.RUNTIME)
-//    @Target({ElementType.PARAMETER})
-//    public static @interface BindSomething { }
-//
-//    public static class SomethingBinderFactory implements BinderFactory
-//    {
-//        public Binder build(Annotation annotation)
-//        {
-//            return new Binder<BindSomething, Something>()
-//            {
-//                public void bind(SQLStatement q, BindSomething bind, Something arg)
-//                {
-//                    q.bind("ident", arg.getId());
-//                    q.bind("nom", arg.getName());
-//                }
-//            };
-//        }
-//    }
-
 }
 
 

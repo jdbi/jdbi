@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Maps;
+
 import org.jdbi.HandyMapThing;
 import org.jdbi.v3.exceptions.NoResultsException;
 import org.jdbi.v3.exceptions.StatementException;
@@ -38,8 +40,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import com.google.common.collect.Maps;
 
 public class TestQueries
 {
@@ -220,19 +220,17 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        ResultIterator<Something> i = h.createQuery("select * from something order by id")
+        try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
                                        .map(Something.class)
-                                       .iterator();
-
-        assertTrue(i.hasNext());
-        Something first = i.next();
-        assertEquals("eric", first.getName());
-        assertTrue(i.hasNext());
-        Something second = i.next();
-        assertEquals(2, second.getId());
-        assertFalse(i.hasNext());
-
-        i.close();
+                                       .iterator()) {
+            assertTrue(i.hasNext());
+            Something first = i.next();
+            assertEquals("eric", first.getName());
+            assertTrue(i.hasNext());
+            Something second = i.next();
+            assertEquals(2, second.getId());
+            assertFalse(i.hasNext());
+        }
     }
 
     @Test
@@ -241,20 +239,18 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        ResultIterator<Something> i = h.createQuery("select * from something order by id")
+        try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
                                        .map(Something.class)
-                                       .iterator();
-
-        assertTrue(i.hasNext());
-        assertTrue(i.hasNext());
-        Something first = i.next();
-        assertEquals("eric", first.getName());
-        assertTrue(i.hasNext());
-        Something second = i.next();
-        assertEquals(2, second.getId());
-        assertFalse(i.hasNext());
-
-        i.close();
+                                       .iterator()) {
+            assertTrue(i.hasNext());
+            assertTrue(i.hasNext());
+            Something first = i.next();
+            assertEquals("eric", first.getName());
+            assertTrue(i.hasNext());
+            Something second = i.next();
+            assertEquals(2, second.getId());
+            assertFalse(i.hasNext());
+        }
     }
 
     @Test
@@ -263,17 +259,16 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        ResultIterator<Something> i = h.createQuery("select * from something order by id")
+        try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
                                        .map(Something.class)
-                                       .iterator();
+                                       .iterator()) {
 
-        Something first = i.next();
-        assertEquals("eric", first.getName());
-        Something second = i.next();
-        assertEquals(2, second.getId());
-        assertFalse(i.hasNext());
-
-        i.close();
+            Something first = i.next();
+            assertEquals("eric", first.getName());
+            Something second = i.next();
+            assertEquals(2, second.getId());
+            assertFalse(i.hasNext());
+        }
     }
 
     @Test

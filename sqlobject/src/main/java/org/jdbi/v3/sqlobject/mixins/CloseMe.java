@@ -13,13 +13,16 @@
  */
 package org.jdbi.v3.sqlobject.mixins;
 
+import java.io.Closeable;
+
 /**
  * A convenience mixin interface which defines the close() method.
  */
-public interface CloseMe
+public interface CloseMe extends Closeable
 {
     /**
      * Close the underlying handle on the sql object
      */
+    @Override
     void close();
 }

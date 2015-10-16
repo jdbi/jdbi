@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Closeable;
+import java.sql.Connection;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
@@ -56,17 +57,15 @@ public class TestNewApiOnDbiAndHandle
     @Test
     public void testOpenNewSpiffy() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
-        try {
+        final Connection c;
+        try (Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class)) {
             spiffy.insert(new Something(1, "Tim"));
             spiffy.insert(new Something(2, "Diego"));
 
             assertEquals("Diego", spiffy.findNameById(2));
+            c = spiffy.getHandle().getConnection();
         }
-        finally {
-            spiffy.close();
-        }
-        assertTrue(spiffy.getHandle().getConnection().isClosed());
+        assertTrue(c.isClosed());
     }
 
     @Test

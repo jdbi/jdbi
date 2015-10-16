@@ -137,43 +137,39 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnMethod() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
-        IsoLevels iso = SqlObjectBuilder.open(dbi, IsoLevels.class);
+        try (Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
+             IsoLevels iso = SqlObjectBuilder.open(dbi, IsoLevels.class)) {
 
-        spiffy.begin();
-        spiffy.insert(1, "Tom");
+            spiffy.begin();
+            spiffy.insert(1, "Tom");
 
-        Something tom = iso.findById(1);
-        assertThat(tom, notNullValue());
+            Something tom = iso.findById(1);
+            assertThat(tom, notNullValue());
 
-        spiffy.rollback();
+            spiffy.rollback();
 
-        Something not_tom = iso.findById(1);
-        assertThat(not_tom, nullValue());
-
-        spiffy.close();
-        iso.close();
+            Something not_tom = iso.findById(1);
+            assertThat(not_tom, nullValue());
+        }
     }
 
     @Test
     public void testIsolationLevelOnParam() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
-        IsoLevels iso = SqlObjectBuilder.open(dbi, IsoLevels.class);
+        try (Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
+             IsoLevels iso = SqlObjectBuilder.open(dbi, IsoLevels.class)) {
 
-        spiffy.begin();
-        spiffy.insert(1, "Tom");
+            spiffy.begin();
+            spiffy.insert(1, "Tom");
 
-        Something tom = iso.findById(1, READ_UNCOMMITTED);
-        assertThat(tom, notNullValue());
+            Something tom = iso.findById(1, READ_UNCOMMITTED);
+            assertThat(tom, notNullValue());
 
-        spiffy.rollback();
+            spiffy.rollback();
 
-        Something not_tom = iso.findById(1);
-        assertThat(not_tom, nullValue());
-
-        spiffy.close();
-        iso.close();
+            Something not_tom = iso.findById(1);
+            assertThat(not_tom, nullValue());
+        }
     }
 
     public static interface Spiffy extends CloseMe, Transactional<Spiffy>

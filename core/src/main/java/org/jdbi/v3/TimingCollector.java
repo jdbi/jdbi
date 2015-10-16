@@ -41,5 +41,5 @@ public interface TimingCollector
         {
             // GNDN
         }
-    };
+    }
 }

@@ -64,13 +64,13 @@ public class TestScript
 
         List<Map<String, Object>> rows = h.select("select * from something order by id");
         assertEquals(4, rows.size());
-        assertEquals(rows.get(0).get("id"), 1);
+        assertEquals(rows.get(0).get("id"), 1L);
         assertEquals(rows.get(0).get("name"), "eric");
-        assertEquals(rows.get(1).get("id"), 2);
+        assertEquals(rows.get(1).get("id"), 2L);
         assertEquals(rows.get(1).get("name"), "sally;ann");
-        assertEquals(rows.get(2).get("id"), 3);
+        assertEquals(rows.get(2).get("id"), 3L);
         assertEquals(rows.get(2).get("name"), "bob");
-        assertEquals(rows.get(3).get("id"), 12);
+        assertEquals(rows.get(3).get("id"), 12L);
         assertEquals(rows.get(3).get("name"), "sally;ann;junior");
     }
 

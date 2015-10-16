@@ -48,9 +48,9 @@ public class TestHandle
     @Test
     public void testSillyNumberOfCallbacks() throws Exception
     {
-        Handle h = db.openHandle();
-        h.insert("insert into something (id, name) values (1, 'Keith')");
-        h.close();
+        try (Handle h = db.openHandle()) {
+            h.insert("insert into something (id, name) values (1, 'Keith')");
+        }
 
         String value = db.getDbi().withHandle(new HandleCallback<String>()
         {

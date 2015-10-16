@@ -15,59 +15,32 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.UUID;
-
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestCustomBinder
 {
-    private DBI    dbi;
-    private Handle handle;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
     @Test
     public void testFoo() throws Exception
     {
-        handle.execute("insert into something (id, name) values (2, 'Martin')");
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
-
-        Something s = spiffy.findSame(new Something(2, "Unknown"));
-
-        assertEquals("Martin", s.getName());
-
-        spiffy.close();
+        db.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
+        try (Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class)) {
+            Something s = spiffy.findSame(new Something(2, "Unknown"));
+            assertEquals("Martin", s.getName());
+        }
     }
 
     @Test
     public void testCustomBindingAnnotation() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
 
         s.insert(new Something(2, "Keith"));
 

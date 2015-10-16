@@ -188,7 +188,7 @@ public class TestOnDemandSqlObject
 
         Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
 
-        ResultIterator<Something> nothing = spiffy.findAll();
+        spiffy.findAll();
 
         assertFalse(dbi.hasOpenedHandle());
     }
@@ -200,8 +200,7 @@ public class TestOnDemandSqlObject
         Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
         spiffy.insert(1, "Tom");
 
-        ResultIterator<Something> all = spiffy.findAll();
-        all.close();
+        try (ResultIterator<Something> all = spiffy.findAll()) {}
 
         assertFalse( dbi.hasOpenedHandle() );
     }
@@ -270,7 +269,7 @@ public class TestOnDemandSqlObject
         }
     }
 
-    public static class HandleTrackerDBI extends DBI 
+    public static class HandleTrackerDBI extends DBI
     {
         final List<Handle> openedHandle = new ArrayList<Handle>();
 

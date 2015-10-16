@@ -23,43 +23,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.helpers.MapResultAsBean;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestRegisteredMappersWork
 {
-    private DBI    dbi;
-    private Handle handle;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
 
     public static interface BooleanDao {
@@ -70,7 +49,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testFoo() throws Exception
     {
-        boolean world_is_right = SqlObjectBuilder.attach(handle, BooleanDao.class).fetchABoolean();
+        boolean world_is_right = SqlObjectBuilder.attach(db.getSharedHandle(), BooleanDao.class).fetchABoolean();
         assertThat(world_is_right, equalTo(true));
     }
 
@@ -116,16 +95,16 @@ public class TestRegisteredMappersWork
     @Test
     public void testBeanMapperFactory() throws Exception
     {
-        BeanMappingDao db = SqlObjectBuilder.attach(handle, BeanMappingDao.class);
-        db.createBeanTable();
+        BeanMappingDao bdb = SqlObjectBuilder.attach(db.getSharedHandle(), BeanMappingDao.class);
+        bdb.createBeanTable();
 
         Bean lima = new Bean();
         lima.setColor("green");
         lima.setName("lima");
 
-        db.insertBean(lima);
+        bdb.insertBean(lima);
 
-        Bean another_lima = db.findByName("lima");
+        Bean another_lima = bdb.findByName("lima");
         assertThat(another_lima.getName(), equalTo(lima.getName()));
         assertThat(another_lima.getColor(), equalTo(lima.getColor()));
     }
@@ -133,9 +112,9 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegistered() throws Exception
     {
-        handle.registerMapper(new SomethingMapper());
+        db.getSharedHandle().registerMapper(new SomethingMapper());
 
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -147,8 +126,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testBuiltIn() throws Exception
     {
-
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -158,7 +136,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegisterMapperAnnotationWorks() throws Exception
     {
-        Kabob bob = SqlObjectBuilder.onDemand(dbi, Kabob.class);
+        Kabob bob = SqlObjectBuilder.onDemand(db.getDbi(), Kabob.class);
 
         bob.insert(1, "Henning");
         Something henning = bob.find(1);
@@ -169,23 +147,19 @@ public class TestRegisteredMappersWork
     @Test(expected = UnsupportedOperationException.class)
     public void testNoRootRegistrations() throws Exception
     {
-        Handle h = dbi.open();
-        h.insert("insert into something (id, name) values (1, 'Henning')");
-        try {
+        try (Handle h = db.openHandle()) {
+            h.insert("insert into something (id, name) values (1, 'Henning')");
             h.createQuery("select id, name from something where id = 1")
                                  .mapTo(Something.class)
                                  .first();
             fail("should have raised an exception");
-        }
-        finally {
-            h.close();
         }
     }
 
     @Test
     public void testNoErrorOnNoData() throws Exception
     {
-        Kabob bob = SqlObjectBuilder.onDemand(dbi, Kabob.class);
+        Kabob bob = SqlObjectBuilder.onDemand(db.getDbi(), Kabob.class);
 
         Something henning = bob.find(1);
         assertThat(henning, nullValue());

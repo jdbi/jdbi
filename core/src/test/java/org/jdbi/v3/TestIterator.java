@@ -226,7 +226,7 @@ public class TestIterator
             .iterator()
             .next();
 
-        assertEquals(1, result.get("id"));
+        assertEquals(1L, result.get("id"));
         assertEquals("eric", result.get("name"));
     }
 
@@ -242,7 +242,7 @@ public class TestIterator
             .iterator()
             .next();
 
-        assertEquals(1, result.get("id"));
+        assertEquals(1L, result.get("id"));
         assertEquals("eric", result.get("name"));
 
         assertFalse(((BasicHandle) h).isClosed());
@@ -261,20 +261,15 @@ public class TestIterator
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
 
-        final ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
-            .cleanupHandle()
-            .iterator();
-
-        try {
+        try (final ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
+                .cleanupHandle()
+                .iterator()) {
             final Map<String, Object> result =  it.next();
 
-            assertEquals(1, result.get("id"));
+            assertEquals(1L, result.get("id"));
             assertEquals("eric", result.get("name"));
 
             assertFalse(((BasicHandle) h).isClosed());
-        }
-        finally {
-            it.close();
         }
     }
 }

@@ -51,6 +51,7 @@ class SampleBean {
         return privateBigDecimalField;
     }
 
+    @SuppressWarnings("unused")
     private void setPrivateBigDecimalField(BigDecimal privateBigDecimalField) {
         this.privateBigDecimalField = privateBigDecimalField;
     }

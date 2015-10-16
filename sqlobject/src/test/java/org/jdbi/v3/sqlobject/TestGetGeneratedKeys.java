@@ -16,45 +16,15 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import java.util.UUID;
-
-import org.h2.jdbcx.JdbcConnectionPool;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-import org.jdbi.v3.tweak.HandleCallback;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestGetGeneratedKeys
 {
-    private JdbcConnectionPool ds;
-    private DBI                dbi;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        ds = JdbcConnectionPool.create("jdbc:h2:mem:" + UUID.randomUUID(),
-                                       "username",
-                                       "password");
-        dbi = new DBI(ds);
-        dbi.withHandle(new HandleCallback<Object>()
-        {
-            @Override
-            public Object withHandle(Handle handle) throws Exception
-            {
-                handle.execute("create table something (id identity primary key, name varchar(32))");
-                return null;
-            }
-        });
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        ds.dispose();
-    }
+    @Rule
+    public MemoryDatabase db = new MemoryDatabase();
 
     public static interface DAO extends CloseMe
     {
@@ -69,15 +39,12 @@ public class TestGetGeneratedKeys
     @Test
     public void testFoo() throws Exception
     {
-        DAO dao = SqlObjectBuilder.open(dbi, DAO.class);
+        try (DAO dao = SqlObjectBuilder.open(db.getDbi(), DAO.class)) {
+            long brian_id = dao.insert("Brian");
+            long keith_id = dao.insert("Keith");
 
-        long brian_id = dao.insert("Brian");
-        long keith_id = dao.insert("Keith");
-
-        assertThat(dao.findNameById(brian_id), equalTo("Brian"));
-        assertThat(dao.findNameById(keith_id), equalTo("Keith"));
-
-        dao.close();
+            assertThat(dao.findNameById(brian_id), equalTo("Brian"));
+            assertThat(dao.findNameById(keith_id), equalTo("Keith"));
+        }
     }
-
 }

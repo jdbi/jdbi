@@ -124,7 +124,7 @@ public class TestingStatementContext implements StatementContext
         throw new UnsupportedOperationException();
     }
 
-    public void registerColumnMapper(ResultColumnMapper m) {
+    public void registerColumnMapper(ResultColumnMapper<?> m) {
         registry.addColumnMapper(m);
     }
 

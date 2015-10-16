@@ -129,6 +129,7 @@ public class TestClosingHandle
         assertTrue(h.isClosed());
     }
 
+    @SuppressWarnings("resource")
     @Test
     public void testIteratorClose() throws Exception {
         h.createStatement("insert into something (id, name) values (1, 'eric')").execute();

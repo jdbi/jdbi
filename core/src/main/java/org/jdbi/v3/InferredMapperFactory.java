@@ -17,7 +17,6 @@ import java.util.List;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
-import com.google.common.base.Preconditions;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
 
@@ -49,7 +48,9 @@ class InferredMapperFactory<X> implements ResultSetMapperFactory
     @Override
     public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx)
     {
-        Preconditions.checkState(type.equals(maps));
+        if (!type.equals(maps)) {
+            throw new IllegalArgumentException("Expected to map " + type + " but I only map " + maps);
+        }
         return (ResultSetMapper<? extends T>) mapper;
     }
 }

@@ -16,7 +16,6 @@ package org.jdbi.v3.sqlobject;
 import static org.junit.Assert.assertEquals;
 
 import org.jdbi.v3.Binding;
-import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.StatementContext;
@@ -41,25 +40,23 @@ public class TestBindBeanFactory
         BindBeanFactory factory = new BindBeanFactory();
         Binder<BindBean, Object> beanBinder = factory.build(bindBeanImpl);
 
-        final DBI dbi = db.getDbi();
-        final Handle handle = dbi.open();
-        final Update testStatement = handle.createStatement("does not matter");
+        try (final Handle handle = db.openHandle()) {
+            final Update testStatement = handle.createStatement("does not matter");
 
-        TestBean testBean = new TestBean();
+            TestBean testBean = new TestBean();
 
-        beanBinder.bind(testStatement, null, bindBeanImpl, testBean);
+            beanBinder.bind(testStatement, null, bindBeanImpl, testBean);
 
-        StatementContext context = testStatement.getContext();
-        Binding binding = context.getBinding();
+            StatementContext context = testStatement.getContext();
+            Binding binding = context.getBinding();
 
-        assertEquals("LongArgument", binding.forName("ALong").getClass().getSimpleName());
-        assertEquals("BooleanArgument", binding.forName("ARealBoolean").getClass().getSimpleName());
-        assertEquals("BooleanArgument", binding.forName("ANullBoolean").getClass().getSimpleName());
-        assertEquals("StringArgument", binding.forName("AString").getClass().getSimpleName());
-        assertEquals("ObjectArgument", binding.forName("AFoo").getClass().getSimpleName());
-        assertEquals("ShortArgument", binding.forName("AShort").getClass().getSimpleName());
-
-        handle.close();
+            assertEquals("LongArgument", binding.forName("ALong").getClass().getSimpleName());
+            assertEquals("BooleanArgument", binding.forName("ARealBoolean").getClass().getSimpleName());
+            assertEquals("BooleanArgument", binding.forName("ANullBoolean").getClass().getSimpleName());
+            assertEquals("StringArgument", binding.forName("AString").getClass().getSimpleName());
+            assertEquals("ObjectArgument", binding.forName("AFoo").getClass().getSimpleName());
+            assertEquals("ShortArgument", binding.forName("AShort").getClass().getSimpleName());
+        }
     }
 
     public static class TestBean
