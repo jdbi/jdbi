@@ -14,43 +14,31 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 
-import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.PGDatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.tweak.HandleCallback;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestPostgresBugs
 {
-    private static DBI createDbi()
+    @Rule
+    public PGDatabaseRule db = new PGDatabaseRule();
+
+    @Before
+    public void setUp() throws Exception
     {
-        String user = System.getenv("POSTGRES_USER");
-        String pass = System.getenv("POSTGRES_PASS");
-        String url = System.getenv("POSTGRES_URL");
-
-        assumeThat(user, notNullValue());
-//        assumeThat(pass, notNullValue());
-        assumeThat(url, notNullValue());
-
-        org.postgresql.Driver.getVersion();
-        return new DBI(url, user, pass);
-    }
-
-    @BeforeClass
-    public static void setUp() throws Exception
-    {
-        createDbi().withHandle(new HandleCallback<Object>()
+        db.getDbi().withHandle(new HandleCallback<Object>()
         {
             @Override
             public Object withHandle(Handle handle) throws Exception
@@ -65,8 +53,7 @@ public class TestPostgresBugs
     @Test
     public void testConnected() throws Exception
     {
-        DBI dbi = createDbi();
-        int four = dbi.withHandle(new HandleCallback<Integer>()
+        int four = db.getDbi().withHandle(new HandleCallback<Integer>()
         {
             @Override
             public Integer withHandle(Handle handle) throws Exception
@@ -81,8 +68,7 @@ public class TestPostgresBugs
     @Test
     public void testTransactions() throws Exception
     {
-        DBI dbi = createDbi();
-        Dao dao = SqlObjectBuilder.onDemand(dbi, Dao.class);
+        Dao dao = SqlObjectBuilder.onDemand(db.getDbi(), Dao.class);
 
         dao.begin();
         Something s = dao.insertAndFetch(1, "Brian");
@@ -93,8 +79,7 @@ public class TestPostgresBugs
     @Test
     public void testExplicitBeginAndInTransaction() throws Exception
     {
-        DBI dbi = createDbi();
-        Dao dao = SqlObjectBuilder.onDemand(dbi, Dao.class);
+        Dao dao = SqlObjectBuilder.onDemand(db.getDbi(), Dao.class);
 
         dao.begin();
         Something s = dao.inTransaction(new org.jdbi.v3.Transaction<Something, Dao>() {

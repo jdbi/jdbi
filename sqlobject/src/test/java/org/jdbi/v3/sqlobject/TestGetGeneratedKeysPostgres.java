@@ -15,30 +15,24 @@ package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeTrue;
 
-import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.PGDatabaseRule;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestGetGeneratedKeysPostgres
 {
-    private DBI                dbi;
-
-    @BeforeClass
-    public static void isPostgresInstalled() {
-        assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
-    }
+    @Rule
+    public PGDatabaseRule db = new PGDatabaseRule();
 
     @Before
     public void setUp() throws Exception {
-        dbi = new DBI("jdbc:postgresql:jdbi_test", "postgres", "");
-        dbi.withHandle(new HandleCallback<Object>() {
+        db.getDbi().withHandle(new HandleCallback<Object>() {
             @Override
             public Object withHandle(Handle handle) throws Exception
             {
@@ -51,7 +45,7 @@ public class TestGetGeneratedKeysPostgres
 
     @After
     public void tearDown() throws Exception {
-        dbi.withHandle(new HandleCallback<Object>() {
+        db.getDbi().withHandle(new HandleCallback<Object>() {
             @Override
             public Object withHandle(Handle handle) throws Exception
             {
@@ -73,7 +67,7 @@ public class TestGetGeneratedKeysPostgres
 
     @Test
     public void testFoo() throws Exception {
-        try (DAO dao = SqlObjectBuilder.attach(dbi.open(), DAO.class)) {
+        try (DAO dao = SqlObjectBuilder.open(db.getDbi(), DAO.class)) {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
