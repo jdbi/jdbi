@@ -16,6 +16,10 @@ package org.skife.jdbi.v2.util;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * @deprecated Use {@link ShortColumnMapper} instead.
+ */
+@Deprecated
 public class ShortMapper extends TypedMapper<Short>
 {
     public ShortMapper()

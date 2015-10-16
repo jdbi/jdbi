@@ -29,7 +29,6 @@ import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.tweak.HandleCallback;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.UUID;
 
@@ -79,7 +78,7 @@ public class TestMixinInterfaces
             public String withHandle(Handle handle) throws Exception {
                 handle.execute("insert into something (id, name) values (8, 'Mike')");
 
-                return handle.createQuery("select name from something where id = 8").map(StringMapper.FIRST).first();
+                return handle.createQuery("select name from something where id = 8").mapTo(String.class).first();
             }
         });
 
@@ -170,7 +169,7 @@ public class TestMixinInterfaces
         h1.begin();
         h1.execute("update something set name = 'Miker' where id = 8");
 
-        assertEquals("Mike", h2.createQuery("select name from something where id = 8").map(StringMapper.FIRST).first());
+        assertEquals("Mike", h2.createQuery("select name from something where id = 8").mapTo(String.class).first());
         h1.commit();
         h1.close();
         h2.close();

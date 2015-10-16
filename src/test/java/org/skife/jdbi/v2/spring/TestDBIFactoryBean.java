@@ -20,7 +20,6 @@ import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.IDBI;
-import org.skife.jdbi.v2.util.IntegerMapper;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 import javax.sql.DataSource;
@@ -118,7 +117,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
 
         final Handle h = DBI.open(derby);
 
-        int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
+        int count = h.createQuery("select count(*) from something").mapTo(Integer.class).first();
 
         assertEquals(0, count);
         h.close();
@@ -144,7 +143,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                                 final Handle h = DBIUtil.getHandle(inner);
                                 h.insert("insert into something (id, name) values (8, 'ignored again')");
 
-                                int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
+                                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).first();
                                 assertEquals(2, count);
                                 throw new ForceRollback();
                             }
@@ -154,7 +153,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                     catch (ForceRollback e) {
                         assertTrue(true);
                     }
-                    int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
+                    int count = h.createQuery("select count(*) from something").mapTo(Integer.class).first();
                     assertEquals(1, count);
                     throw new ForceRollback();
                 }
@@ -171,7 +170,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
             public void call(IDBI dbi)
             {
                 final Handle h = DBIUtil.getHandle(dbi);
-                int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
+                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).first();
                 assertEquals(0, count);
             }
         });
@@ -194,7 +193,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                         public void call(IDBI inner)
                         {
                             final Handle h = DBIUtil.getHandle(inner);
-                            int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
+                            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).first();
                             assertEquals(1, count);
                             h.insert("insert into something (id, name) values (8, 'ignored again')");
                             throw new ForceRollback();
@@ -205,7 +204,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                     assertTrue(true);
                 }
 
-                int count = h.createQuery("select count(*) from something").map(new IntegerMapper()).first();
+                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).first();
                 assertEquals(1, count);
             }
         });

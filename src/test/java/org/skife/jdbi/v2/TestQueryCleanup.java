@@ -24,7 +24,6 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.tweak.HandleCallback;
-import org.skife.jdbi.v2.util.IntegerMapper;
 
 import com.google.common.collect.Iterators;
 
@@ -65,7 +64,7 @@ public class TestQueryCleanup
         throws Exception
     {
         final Handle handle = dbi.open();
-        final Query<Integer> q = handle.createQuery("SELECT COUNT(1) FROM something").map(IntegerMapper.FIRST);
+        final Query<Integer> q = handle.createQuery("SELECT COUNT(1) FROM something").mapTo(Integer.class);
         final ResultIterator<Integer> it = q.iterator();
         assertEquals(COUNT, Iterators.getOnlyElement(it).intValue());
         assertFalse(it.hasNext());
@@ -81,7 +80,7 @@ public class TestQueryCleanup
         final Handle handle = dbi.open();
         final Query<Integer> q = handle.createQuery("SELECT COUNT(1) FROM something")
             .cleanupHandle()
-            .map(IntegerMapper.FIRST);
+            .mapTo(Integer.class);
         final ResultIterator<Integer> it = q.iterator();
         assertEquals(COUNT, Iterators.getOnlyElement(it).intValue());
         assertFalse(it.hasNext());
@@ -93,7 +92,7 @@ public class TestQueryCleanup
         throws Exception
     {
         final Handle handle = dbi.open();
-        final Query<Integer> q = handle.createQuery("SELECT id FROM something").map(IntegerMapper.FIRST);
+        final Query<Integer> q = handle.createQuery("SELECT id FROM something").mapTo(Integer.class);
         final ResultIterator<Integer> it = q.iterator();
 
         for (int i = 0; i < COUNT / 2; i++) {
@@ -113,7 +112,7 @@ public class TestQueryCleanup
         final Handle handle = dbi.open();
         final Query<Integer> q = handle.createQuery("SELECT id FROM something")
             .cleanupHandle()
-            .map(IntegerMapper.FIRST);
+            .mapTo(Integer.class);
         final ResultIterator<Integer> it = q.iterator();
 
         for (int i = 0; i < COUNT / 2; i++) {
@@ -133,7 +132,7 @@ public class TestQueryCleanup
         final Handle handle = dbi.open();
         final Query<Integer> q = handle.createQuery("SELECT id FROM something")
             .cleanupHandle()
-            .map(IntegerMapper.FIRST);
+            .mapTo(Integer.class);
         final ResultIterator<Integer> it = q.iterator();
 
         for (int i = 0; i < COUNT / 2; i++) {
@@ -155,7 +154,7 @@ public class TestQueryCleanup
             .createQuery("SELECT id FROM something")
             .cleanupHandle()
             .cleanupHandle()
-            .map(IntegerMapper.FIRST);
+            .mapTo(Integer.class);
         final ResultIterator<Integer> it = q.iterator();
 
         while (it.hasNext()) {
@@ -174,7 +173,7 @@ public class TestQueryCleanup
             .createQuery("SELECT id FROM something")
             .cleanupHandle()
             .cleanupHandle()
-            .map(IntegerMapper.FIRST);
+            .mapTo(Integer.class);
         final ResultIterator<Integer> it = q.iterator();
 
         for (int i = 0; i < COUNT / 2; i++) {
@@ -196,7 +195,7 @@ public class TestQueryCleanup
             .createQuery("SELECT id FROM something")
             .cleanupHandle()
             .cleanupHandle()
-            .map(IntegerMapper.FIRST);
+            .mapTo(Integer.class);
         final ResultIterator<Integer> it = q.iterator();
 
         for (int i = 0; i < COUNT / 2; i++) {

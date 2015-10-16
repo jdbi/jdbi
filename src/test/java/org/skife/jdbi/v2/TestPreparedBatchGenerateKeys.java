@@ -17,7 +17,7 @@ package org.skife.jdbi.v2;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.skife.jdbi.v2.util.IntegerMapper;
+import org.skife.jdbi.v2.util.IntegerColumnMapper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +36,7 @@ public class TestPreparedBatchGenerateKeys {
         PreparedBatch batch = h.prepareBatch("insert into something (name) values (?)");
         batch.add("Brian");
         batch.add("Thom");
-        List<Integer> ids = batch.executeAndGenerateKeys(IntegerMapper.FIRST).list();
+        List<Integer> ids = batch.executeAndGenerateKeys(IntegerColumnMapper.WRAPPER).list();
         Assert.assertEquals(Arrays.asList(10000, 10001), ids);
 
         List<Something> somethings = h.createQuery("select id, name from something")

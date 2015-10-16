@@ -24,7 +24,6 @@ import org.skife.jdbi.v2.sqlobject.customizers.Define;
 import org.skife.jdbi.v2.sqlobject.customizers.OverrideStatementLocatorWith;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.StringTemplate3StatementLocator;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.UUID;
 
@@ -60,7 +59,7 @@ public class TestOverrideStatementLocatorWith
         wombat.insert(new Something(7, "Henning"));
 
         String name = handle.createQuery("select name from something where id = 7")
-                            .map(StringMapper.FIRST)
+                            .mapTo(String.class)
                             .first();
 
         assertThat(name, equalTo("Henning"));
@@ -88,7 +87,7 @@ public class TestOverrideStatementLocatorWith
     {
         handle.attach(Kangaroo.class).weirdInsert("something", "id", "name", 5, "Bouncer");
         String name = handle.createQuery("select name from something where id = 5")
-                            .map(StringMapper.FIRST)
+                            .mapTo(String.class)
                             .first();
 
         assertThat(name, equalTo("Bouncer"));

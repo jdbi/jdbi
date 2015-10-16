@@ -17,6 +17,10 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * @deprecated Use {@link URLColumnMapper} instead.
+ */
+@Deprecated
 public class URLMapper extends TypedMapper<URL>
 {
 
