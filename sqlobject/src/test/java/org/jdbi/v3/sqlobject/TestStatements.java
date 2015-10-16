@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.jdbi.v3.MemoryDatabase;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,7 +32,7 @@ public class TestStatements
             // this is what is under test here
             int rows_affected = i.insert(2, "Diego");
 
-            String name = db.getSharedHandle().createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
+            String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).first();
 
             assertEquals(1, rows_affected);
             assertEquals("Diego", name);
@@ -47,7 +46,7 @@ public class TestStatements
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
 
-            String name = db.getSharedHandle().createQuery("select name from something where id = 2").map(StringMapper.FIRST).first();
+            String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).first();
 
             assertEquals("Diego", name);
         }

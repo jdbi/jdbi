@@ -41,7 +41,6 @@ import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.util.StringMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,7 +57,7 @@ public class TestDocumentation
 
             String name = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
-                .map(StringMapper.FIRST)
+                .mapTo(String.class)
                 .first();
             assertThat(name, equalTo("Brian"));
         }
@@ -141,7 +140,7 @@ public class TestDocumentation
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
             Iterator<String> rs = h.createQuery("select name from something order by id")
-                .map(StringMapper.FIRST)
+                .mapTo(String.class)
                 .iterator();
 
             assertThat(rs.next(), equalTo("Brian"));
@@ -157,7 +156,7 @@ public class TestDocumentation
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
-            for (String name : h.createQuery("select name from something order by id").map(StringMapper.FIRST)) {
+            for (String name : h.createQuery("select name from something order by id").mapTo(String.class)) {
                 assertThat(name, equalsOneOf("Brian", "Keith"));
             }
         }
@@ -292,7 +291,7 @@ public class TestDocumentation
             u.update(new Something(17, "David P."));
 
             String name = h.createQuery("select name from something where id = 17")
-                .map(StringMapper.FIRST)
+                .mapTo(String.class)
                 .first();
             assertThat(name, equalTo("David P."));
         }
