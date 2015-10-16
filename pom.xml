@@ -110,7 +110,7 @@
               <toolchains>
                 <jdk>
                   <version>${project.build.targetJdk}</version>
-                  <vendor>sun</vendor>
+                  <vendor>oracle</vendor>
                 </jdk>
               </toolchains>
             </configuration>
