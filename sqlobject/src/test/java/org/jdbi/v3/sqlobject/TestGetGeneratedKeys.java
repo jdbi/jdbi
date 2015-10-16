@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.jdbi.v3.MemoryDatabase;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,7 +24,7 @@ import org.junit.Test;
 public class TestGetGeneratedKeys
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     public static interface DAO extends CloseMe
     {

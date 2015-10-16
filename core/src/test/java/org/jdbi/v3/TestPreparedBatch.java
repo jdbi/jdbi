@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TestPreparedBatch
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testDesignApi() throws Exception

@@ -25,7 +25,7 @@ import org.junit.Test;
 public class TestNamedParams
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testInsert() throws Exception

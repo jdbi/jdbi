@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.jdbi.v3.Binding;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.MemoryDatabase;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Update;
 import org.junit.Rule;
@@ -26,7 +26,7 @@ import org.junit.Test;
 public class TestBindBeanFactory
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     void dummyBindBean(@BindBean int wat) { }
 

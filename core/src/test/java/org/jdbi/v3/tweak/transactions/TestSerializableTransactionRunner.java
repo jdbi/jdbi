@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.MemoryDatabase;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
@@ -31,7 +31,7 @@ import org.junit.Test;
 public class TestSerializableTransactionRunner
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     private DBI dbi;
 

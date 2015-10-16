@@ -26,7 +26,7 @@ import org.junit.Test;
 public class TestHandle
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testInTransaction() throws Exception

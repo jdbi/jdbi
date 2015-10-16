@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.MemoryDatabase;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
@@ -38,7 +38,7 @@ import org.junit.Test;
 public class TestRegisteredMappersWork
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
 
     public static interface BooleanDao {

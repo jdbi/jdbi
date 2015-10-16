@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TestTimingCollector
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     private BasicHandle h;
 

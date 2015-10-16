@@ -22,7 +22,7 @@ import java.util.UUID;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.junit.rules.ExternalResource;
 
-public class MemoryDatabase extends ExternalResource
+public class H2DatabaseRule extends ExternalResource
 {
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private Connection con;

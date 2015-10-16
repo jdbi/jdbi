@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.MemoryDatabase;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.ValueType;
 import org.jdbi.v3.ValueTypeMapper;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
@@ -34,7 +34,7 @@ import org.junit.Test;
 public class TestBeanMapperFactory
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     public static class TestBean
     {

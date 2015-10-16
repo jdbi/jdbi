@@ -23,7 +23,7 @@ import org.junit.Test;
 public class TestStatements
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     private Handle h;
 

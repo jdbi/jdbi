@@ -15,7 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jdbi.v3.MemoryDatabase;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import org.junit.Test;
 public class TestStatements
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testInsert() throws Exception

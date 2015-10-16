@@ -32,7 +32,7 @@ import org.junit.Test;
 public class TestDBI
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testDataSourceConstructor() throws Exception

@@ -31,7 +31,7 @@ import org.junit.Test;
 public class TestColumnMappers
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     public static class SomeBean
     {

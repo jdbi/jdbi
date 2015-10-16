@@ -22,7 +22,7 @@ import org.junit.Test;
 public class TestStatementExceptionContext
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testFoo() throws Exception {

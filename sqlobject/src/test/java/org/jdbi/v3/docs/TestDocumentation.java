@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.MemoryDatabase;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.Bind;
@@ -47,7 +47,7 @@ import org.junit.Test;
 public class TestDocumentation
 {
     @Rule
-    public MemoryDatabase db = new MemoryDatabase();
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testFiveMinuteFluentApi() throws Exception
