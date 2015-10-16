@@ -70,28 +70,25 @@ public class TestPostgresBugs
     {
         Dao dao = SqlObjectBuilder.onDemand(db.getDbi(), Dao.class);
 
-        dao.begin();
         Something s = dao.insertAndFetch(1, "Brian");
-        dao.commit();
         assertThat(s, equalTo(new Something(1, "Brian")));
     }
 
     @Test
-    public void testExplicitBeginAndInTransaction() throws Exception
+    public void testExplicitTransaction() throws Exception
     {
         Dao dao = SqlObjectBuilder.onDemand(db.getDbi(), Dao.class);
 
-        dao.begin();
         Something s = dao.inTransaction(new org.jdbi.v3.Transaction<Something, Dao>() {
 
             @Override
             public Something inTransaction(Dao transactional, TransactionStatus status) throws Exception
             {
-                return  transactional.insertAndFetch(1, "Brian");
+                transactional.insert(1, "Brian");
+                return transactional.findById(1);
             }
         });
 
-        dao.commit();
         assertThat(s, equalTo(new Something(1, "Brian")));
     }
 
@@ -110,12 +107,6 @@ public class TestPostgresBugs
         {
             insert(id, name);
             return findById(id);
-        }
-
-        @Transaction
-        public Something insertAndFetchWithNestedTransaction(int id, String name)
-        {
-            return insertAndFetch(id, name);
         }
 
         @Transaction
