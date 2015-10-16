@@ -89,7 +89,7 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public ResultColumnMapper columnMapperFor(Class type)
+    public <T> ResultColumnMapper<T> columnMapperFor(Class<T> type)
     {
         return mappingRegistry.columnMapperFor(type, this);
     }

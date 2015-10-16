@@ -38,7 +38,7 @@ import org.jdbi.v3.util.URLColumnMapper;
  * Result column mapper factory which knows how to map standard JDBC-recognized types.
  */
 public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory {
-    private static final Map<Class, ResultColumnMapper> mappers = new HashMap<Class, ResultColumnMapper>();
+    private static final Map<Class<?>, ResultColumnMapper<?>> mappers = new HashMap<>();
 
     static {
         mappers.put(boolean.class, BooleanColumnMapper.PRIMITIVE);
@@ -69,15 +69,16 @@ public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory 
     }
 
     @Override
-    public boolean accepts(Class type, StatementContext ctx) {
+    public boolean accepts(Class<?> type, StatementContext ctx) {
         return type.isEnum() || mappers.containsKey(type);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
+    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx) {
         if (type.isEnum()) {
-            return EnumColumnMapper.byName(type);
+            return (ResultColumnMapper<? extends T>) EnumColumnMapper.byName(type.asSubclass(Enum.class));
         }
-        return mappers.get(type);
+        return (ResultColumnMapper<? extends T>) mappers.get(type);
     }
 }

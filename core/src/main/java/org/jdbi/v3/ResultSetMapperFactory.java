@@ -30,5 +30,5 @@ public interface ResultSetMapperFactory
     /**
      * Supplies a result set mapper which will map result sets to type
      */
-    ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx);
+    <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx);
 }

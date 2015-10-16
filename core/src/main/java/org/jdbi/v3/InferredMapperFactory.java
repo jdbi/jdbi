@@ -15,18 +15,19 @@ package org.jdbi.v3;
 
 import java.util.List;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
-
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
+import com.google.common.base.Preconditions;
 
-class InferredMapperFactory implements ResultSetMapperFactory
+import org.jdbi.v3.tweak.ResultSetMapper;
+
+class InferredMapperFactory<X> implements ResultSetMapperFactory
 {
     private static final TypeResolver TR = new TypeResolver();
     private final Class<?> maps;
-    private final ResultSetMapper<?> mapper;
+    private final ResultSetMapper<? extends X> mapper;
 
-    public InferredMapperFactory(ResultSetMapper<?> mapper)
+    public InferredMapperFactory(ResultSetMapper<? extends X> mapper)
     {
         this.mapper = mapper;
         ResolvedType rt = TR.resolve(mapper.getClass());
@@ -44,9 +45,11 @@ class InferredMapperFactory implements ResultSetMapperFactory
         return maps.equals(type);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx)
+    public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx)
     {
-        return mapper;
+        Preconditions.checkState(type.equals(maps));
+        return (ResultSetMapper<? extends T>) mapper;
     }
 }

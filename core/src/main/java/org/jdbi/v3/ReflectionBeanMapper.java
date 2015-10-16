@@ -40,7 +40,7 @@ public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
     }
 
     private void cacheAllFieldsIncludingSuperClass(Class<T> type) {
-        Class aClass = type;
+        Class<?> aClass = type;
         while(aClass != null) {
             for (Field field : aClass.getDeclaredFields()) {
                 properties.put(field.getName().toLowerCase(), field);

@@ -24,6 +24,7 @@ import org.jdbi.v3.tweak.ResultColumnMapper;
 public class TestingStatementContext implements StatementContext
 {
     private final Map<String, Object> attributes;
+    private final MappingRegistry registry = new MappingRegistry();
 
     public TestingStatementContext(final Map<String, Object> globalAttributes)
     {
@@ -49,8 +50,8 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public ResultColumnMapper columnMapperFor(Class type) {
-        throw new UnsupportedOperationException();
+    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type) {
+        return registry.columnMapperFor(type, this);
     }
 
     @Override
@@ -121,6 +122,10 @@ public class TestingStatementContext implements StatementContext
     @Override
     public boolean isConcurrentUpdatable() {
         throw new UnsupportedOperationException();
+    }
+
+    public void registerColumnMapper(ResultColumnMapper m) {
+        registry.addColumnMapper(m);
     }
 
 }

@@ -92,13 +92,14 @@ public class TestRegisterMapperFactory
             return type.isAnnotationPresent(MapWith.class);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
-        public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx)
+        public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx)
         {
 
             MapWith rm = type.getAnnotation(MapWith.class);
             try {
-                return rm.value().newInstance();
+                return (ResultSetMapper<? extends T>) rm.value().newInstance();
             }
             catch (Exception e) {
                 throw new RuntimeException(e);

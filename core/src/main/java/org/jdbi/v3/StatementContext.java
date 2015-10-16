@@ -61,7 +61,7 @@ public interface StatementContext
      * @param type the target type to map to
      * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
-    ResultColumnMapper columnMapperFor(Class type);
+    <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

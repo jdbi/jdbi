@@ -13,19 +13,19 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
-import org.jdbi.v3.Query;
-import org.jdbi.v3.ResultColumnMapperFactory;
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+
+import org.jdbi.v3.Query;
+import org.jdbi.v3.ResultColumnMapperFactory;
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
 /**
  * Used to register a result column mapper with either a sql object type or for a specific method.
@@ -44,7 +44,7 @@ public @interface RegisterColumnMapperFactory
     {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final RegisterColumnMapperFactory ma = (RegisterColumnMapperFactory) annotation;
             final ResultColumnMapperFactory[] m = new ResultColumnMapperFactory[ma.value().length];
@@ -61,21 +61,20 @@ public @interface RegisterColumnMapperFactory
             return new SqlStatementCustomizer()
             {
                 @Override
-                public void apply(SQLStatement statement)
+                public void apply(SQLStatement<?> statement)
                 {
                     if (statement instanceof Query) {
-                        Query q = (Query) statement;
+                        Query<?> q = (Query<?>) statement;
                         for (ResultColumnMapperFactory factory : m) {
                             q.registerColumnMapper(factory);
                         }
-
                     }
                 }
             };
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final RegisterColumnMapperFactory ma = (RegisterColumnMapperFactory) annotation;
             final ResultColumnMapperFactory[] m = new ResultColumnMapperFactory[ma.value().length];
@@ -92,10 +91,10 @@ public @interface RegisterColumnMapperFactory
             return new SqlStatementCustomizer()
             {
                 @Override
-                public void apply(SQLStatement statement)
+                public void apply(SQLStatement<?> statement)
                 {
                     if (statement instanceof Query) {
-                        Query q = (Query) statement;
+                        Query<?> q = (Query<?>) statement;
                         for (ResultColumnMapperFactory factory : m) {
                             q.registerColumnMapper(factory);
                         }
@@ -106,7 +105,7 @@ public @interface RegisterColumnMapperFactory
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not defined for parameter");
         }

@@ -43,10 +43,10 @@ public @interface RegisterColumnMapper
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final RegisterColumnMapper ma = (RegisterColumnMapper) annotation;
-            final ResultColumnMapper[] m = new ResultColumnMapper[ma.value().length];
+            final ResultColumnMapper<?>[] m = new ResultColumnMapper[ma.value().length];
             try {
                 Class<? extends ResultColumnMapper<?>>[] mcs = ma.value();
                 for (int i = 0; i < mcs.length; i++) {
@@ -60,11 +60,11 @@ public @interface RegisterColumnMapper
             return new SqlStatementCustomizer()
             {
                 @Override
-                public void apply(SQLStatement statement)
+                public void apply(SQLStatement<?> statement)
                 {
                     if (statement instanceof Query) {
-                        Query q = (Query) statement;
-                        for (ResultColumnMapper mapper : m) {
+                        Query<?> q = (Query<?>) statement;
+                        for (ResultColumnMapper<?> mapper : m) {
                             q.registerColumnMapper(mapper);
                         }
 
@@ -74,10 +74,10 @@ public @interface RegisterColumnMapper
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final RegisterColumnMapper ma = (RegisterColumnMapper) annotation;
-            final ResultColumnMapper[] m = new ResultColumnMapper[ma.value().length];
+            final ResultColumnMapper<?>[] m = new ResultColumnMapper[ma.value().length];
             try {
                 Class<? extends ResultColumnMapper<?>>[] mcs = ma.value();
                 for (int i = 0; i < mcs.length; i++) {
@@ -90,11 +90,11 @@ public @interface RegisterColumnMapper
             return new SqlStatementCustomizer()
             {
                 @Override
-                public void apply(SQLStatement statement)
+                public void apply(SQLStatement<?> statement)
                 {
                     if (statement instanceof Query) {
-                        Query q = (Query) statement;
-                        for (ResultColumnMapper mapper : m) {
+                        Query<?> q = (Query<?>) statement;
+                        for (ResultColumnMapper<?> mapper : m) {
                             q.registerColumnMapper(mapper);
                         }
                     }
@@ -103,7 +103,7 @@ public @interface RegisterColumnMapper
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
         {
             throw new UnsupportedOperationException("Not defined for parameter");
         }

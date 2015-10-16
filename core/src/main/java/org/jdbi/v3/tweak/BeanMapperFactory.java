@@ -17,7 +17,7 @@ import org.jdbi.v3.BeanMapper;
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
 
-public class BeanMapperFactory<T> implements ResultSetMapperFactory
+public class BeanMapperFactory implements ResultSetMapperFactory
 {
     @Override
     public boolean accepts(Class<?> type, StatementContext ctx)
@@ -25,10 +25,9 @@ public class BeanMapperFactory<T> implements ResultSetMapperFactory
         return ctx.columnMapperFor(type) == null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public ResultSetMapper<T> mapperFor(Class<?> type, StatementContext ctx)
+    public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx)
     {
-        return new BeanMapper<T>((Class<T>) type);
+        return new BeanMapper<T>(type);
     }
 }

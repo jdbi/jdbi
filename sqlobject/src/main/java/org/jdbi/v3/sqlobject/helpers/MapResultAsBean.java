@@ -46,7 +46,7 @@ public @interface MapResultAsBean
                 public void apply(SQLStatement<?> s) throws SQLException
                 {
                     Query<?> q = (Query<?>) s;
-                    q.registerMapper(new BeanMapperFactory<Object>());
+                    q.registerMapper(new BeanMapperFactory());
                 }
             };
         }

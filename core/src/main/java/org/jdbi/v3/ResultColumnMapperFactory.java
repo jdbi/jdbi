@@ -25,10 +25,10 @@ public interface ResultColumnMapperFactory
      * @param type the target type to map to
      * @return true if it can, false if it cannot
      */
-    boolean accepts(Class type, StatementContext ctx);
+    boolean accepts(Class<?> type, StatementContext ctx);
 
     /**
      * Supplies a column mapper which will map result set columns to type
      */
-    ResultColumnMapper columnMapperFor(Class type, StatementContext ctx);
+    <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx);
 }

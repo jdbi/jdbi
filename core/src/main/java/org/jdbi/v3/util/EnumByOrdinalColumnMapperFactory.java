@@ -21,13 +21,14 @@ import org.jdbi.v3.tweak.ResultColumnMapper;
  * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
  */
 public class EnumByOrdinalColumnMapperFactory implements ResultColumnMapperFactory {
+    @SuppressWarnings("unchecked")
     @Override
-    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
-        return EnumColumnMapper.byOrdinal(type);
+    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx) {
+        return (ResultColumnMapper<? extends T>) EnumColumnMapper.byOrdinal(type.asSubclass(Enum.class));
     }
 
     @Override
-    public boolean accepts(Class type, StatementContext ctx) {
+    public boolean accepts(Class<?> type, StatementContext ctx) {
         return type.isEnum();
     }
 }

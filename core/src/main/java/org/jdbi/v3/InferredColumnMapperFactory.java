@@ -20,13 +20,14 @@ import com.fasterxml.classmate.TypeResolver;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-class InferredColumnMapperFactory implements ResultColumnMapperFactory
+class InferredColumnMapperFactory<X> implements ResultColumnMapperFactory
 {
     private static final TypeResolver tr = new TypeResolver();
-    private final Class<?> maps;
-    private final ResultColumnMapper mapper;
+    private final Class<X> maps;
+    private final ResultColumnMapper<X> mapper;
 
-    public InferredColumnMapperFactory(ResultColumnMapper mapper)
+    @SuppressWarnings("unchecked")
+    public InferredColumnMapperFactory(ResultColumnMapper<X> mapper)
     {
         this.mapper = mapper;
         ResolvedType rt = tr.resolve(mapper.getClass());
@@ -35,18 +36,19 @@ class InferredColumnMapperFactory implements ResultColumnMapperFactory
             throw new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here");
         }
 
-        maps = rs.get(0).getErasedType();
+        maps = (Class<X>) rs.get(0).getErasedType();
     }
 
     @Override
-    public boolean accepts(Class type, StatementContext ctx)
+    public boolean accepts(Class<?> type, StatementContext ctx)
     {
         return maps.equals(type);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx)
+    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx)
     {
-        return mapper;
+        return (ResultColumnMapper<? extends T>) mapper;
     }
 }

@@ -85,11 +85,11 @@ public class PrimitivesMapperFactory implements ResultSetMapperFactory
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public ResultSetMapper<?> mapperFor(Class<?> type, StatementContext ctx)
+    public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx)
     {
         if (type.isEnum()) {
             return new EnumMapper(1, type);
         }
-        return mappers.get(type);
+        return (ResultSetMapper<? extends T>) mappers.get(type);
     }
 }

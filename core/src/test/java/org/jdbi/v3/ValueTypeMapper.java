@@ -14,11 +14,10 @@
 
 package org.jdbi.v3;
 
-import org.jdbi.v3.ResultColumnMapperFactory;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
     public ValueTypeMapper() {}
@@ -35,13 +34,14 @@ public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
 
     public static class Factory implements ResultColumnMapperFactory {
         @Override
-        public boolean accepts(Class type, StatementContext ctx) {
+        public boolean accepts(Class<?> type, StatementContext ctx) {
             return ValueType.class.isAssignableFrom(type);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
-        public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
-            return new ValueTypeMapper();
+        public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx) {
+            return (ResultColumnMapper<? extends T>) new ValueTypeMapper();
         }
     }
 }
