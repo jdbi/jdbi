@@ -38,9 +38,6 @@ class PassThroughHandler implements Handler
                                                " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
         }
         catch (Throwable throwable) {
-            /*
-
-             */
             if (throwable instanceof RuntimeException) {
                 throw (RuntimeException) throwable;
             }

@@ -23,8 +23,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.sf.cglib.transform.AbstractClassLoader;
-
+import org.easymock.cglib.transform.AbstractClassLoader;
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.StatementLocator;
