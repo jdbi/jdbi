@@ -340,6 +340,7 @@ public class DelegatingConnection implements Connection
         return connection.isWrapperFor(iface);
     }
 
+    @Override
     public String getSchema() throws SQLException
     {
         try {
@@ -362,6 +363,7 @@ public class DelegatingConnection implements Connection
         }
     }
 
+    @Override
     public void setSchema(String schema) throws SQLException
     {
         try {
@@ -384,6 +386,7 @@ public class DelegatingConnection implements Connection
         }
     }
 
+    @Override
     public void abort(Executor executor) throws SQLException
     {
         try {
@@ -406,6 +409,7 @@ public class DelegatingConnection implements Connection
         }
     }
 
+    @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException
     {
         try {
@@ -428,6 +432,7 @@ public class DelegatingConnection implements Connection
         }
     }
 
+    @Override
     public int getNetworkTimeout() throws SQLException
     {
         try {

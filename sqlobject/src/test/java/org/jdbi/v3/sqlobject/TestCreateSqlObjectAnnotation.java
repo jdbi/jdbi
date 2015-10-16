@@ -20,18 +20,13 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.UUID;
-
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 import org.junit.After;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 

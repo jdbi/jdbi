@@ -19,17 +19,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.Connection;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.SQLException;
-
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.tweak.HandleConsumer;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.Test;
 
 public class TestDBI
