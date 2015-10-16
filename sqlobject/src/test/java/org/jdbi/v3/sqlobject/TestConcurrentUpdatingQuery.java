@@ -42,7 +42,6 @@ public class TestConcurrentUpdatingQuery
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
-
     }
 
     @After

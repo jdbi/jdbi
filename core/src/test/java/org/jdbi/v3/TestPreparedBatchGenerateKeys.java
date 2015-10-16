@@ -36,6 +36,7 @@ public class TestPreparedBatchGenerateKeys {
             batch.add("Brian");
             batch.add("Thom");
             List<Integer> ids = batch.executeAndGenerateKeys(IntegerColumnMapper.WRAPPER).list();
+
             Assert.assertEquals(Arrays.asList(10000, 10001), ids);
 
             List<Something> somethings = h.createQuery("select id, name from something")
