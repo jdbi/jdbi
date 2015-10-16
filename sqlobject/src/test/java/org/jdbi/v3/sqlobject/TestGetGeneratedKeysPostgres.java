@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
@@ -22,16 +23,21 @@ import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestGetGeneratedKeysPostgres
 {
     private DBI                dbi;
 
+    @BeforeClass
+    public static void isPostgresInstalled() {
+        assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
+    }
+
     @Before
     public void setUp() throws Exception {
-        dbi = new DBI("jdbc:postgresql:test", "postgres", "postgres");
+        dbi = new DBI("jdbc:postgresql:jdbi_test", "postgres", "");
         dbi.withHandle(new HandleCallback<Object>() {
             @Override
             public Object withHandle(Handle handle) throws Exception
@@ -65,7 +71,6 @@ public class TestGetGeneratedKeysPostgres
         public String findNameById(@Bind long id);
     }
 
-    @Ignore
     @Test
     public void testFoo() throws Exception {
         DAO dao = SqlObjectBuilder.attach(dbi.open(), DAO.class);

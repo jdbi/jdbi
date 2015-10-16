@@ -18,6 +18,7 @@ import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
+import org.jdbi.v3.sqlobject.Transaction;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 
 @RegisterMapper(SomethingMapper.class)
@@ -34,5 +35,19 @@ public abstract class SomethingDao
     }
 
     public abstract void totallyBroken();
+
+
+    @Transaction
+    public void insertInSingleTransaction(final int id, final String name)
+    {
+        insert(id, name);
+    }
+
+    @Transaction
+    public void insertInNestedTransaction(final int id, final String name)
+    {
+        insertInSingleTransaction(id, name);
+    }
+
 
 }

@@ -71,7 +71,7 @@ public class Update extends SQLStatement<Update>
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper, String columnName)
     {
         getConcreteContext().setReturningGeneratedKeys(true);
-        if (columnName != null) {
+        if (columnName != null && !columnName.isEmpty()) {
             getConcreteContext().setGeneratedKeysColumnNames(new String[] { columnName } );
         }
         return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>() {

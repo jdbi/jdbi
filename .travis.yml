@@ -10,3 +10,6 @@ before_install:
 
 install: mvn -DskipTests=true -Dbasepom.check.skip-all=true -B install
 script: mvn -B verify
+
+before_script:
+  - "psql -c 'create database jdbi_test;' -U postgres"

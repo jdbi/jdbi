@@ -21,6 +21,7 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
+import org.jdbi.v3.exceptions.TransactionException;
 
 class PassThroughTransactionHandler implements Handler
 {
@@ -37,6 +38,11 @@ class PassThroughTransactionHandler implements Handler
         ding.retain("pass-through-transaction");
         try {
             Handle h = ding.getHandle();
+
+            if (h.isInTransaction()) {
+                throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
+            }
+
             if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
                 return h.inTransaction(new TransactionCallback<Object>()
                 {

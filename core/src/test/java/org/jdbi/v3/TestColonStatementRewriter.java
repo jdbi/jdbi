@@ -16,6 +16,7 @@ package org.jdbi.v3;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.RewrittenStatement;
@@ -93,4 +94,30 @@ public class TestColonStatementRewriter
         catch (UnableToCreateStatementException e) {
         }
     }
+
+    @Test
+    public void testCachesRewrittenStatements() throws Exception
+    {
+        final AtomicInteger ctr = new AtomicInteger(0);
+        ColonPrefixNamedParamStatementRewriter rw = new ColonPrefixNamedParamStatementRewriter()
+        {
+            @Override
+            ParsedStatement parseString(final String sql) throws IllegalArgumentException
+            {
+                ctr.incrementAndGet();
+                return super.parseString(sql);
+            }
+        };
+
+        rw.rewrite("insert into something (id, name) values (:id, :name)", new Binding(),
+                new ConcreteStatementContext(new HashMap<String, Object>(), null));
+
+        assertEquals(1, ctr.get());
+
+        rw.rewrite("insert into something (id, name) values (:id, :name)", new Binding(),
+                new ConcreteStatementContext(new HashMap<String, Object>(), null));
+
+        assertEquals(1, ctr.get());
+    }
+
 }

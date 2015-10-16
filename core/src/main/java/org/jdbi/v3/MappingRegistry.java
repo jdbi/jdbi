@@ -23,8 +23,7 @@ import org.jdbi.v3.util.SingleColumnMapper;
 
 class MappingRegistry
 {
-    private static final PrimitivesMapperFactory BUILT_IN_MAPPERS = new PrimitivesMapperFactory();
-    private static final PrimitivesColumnMapperFactory BUILT_IN_COLUMN_MAPPERS = new PrimitivesColumnMapperFactory();
+    private static final PrimitivesColumnMapperFactory BUILT_INS = new PrimitivesColumnMapperFactory();
 
     private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<ResultSetMapperFactory>();
     private final ConcurrentHashMap<Class<?>, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<Class<?>, ResultSetMapper<?>>();
@@ -73,13 +72,6 @@ class MappingRegistry
             }
         }
 
-        // TODO remove this and let the column mapper block below take over
-        if (BUILT_IN_MAPPERS.accepts(type, ctx)) {
-            mapper = BUILT_IN_MAPPERS.mapperFor(type, ctx);
-            rowCache.put(type, mapper);
-            return mapper;
-        }
-
         ResultColumnMapper columnMapper = columnMapperFor(type, ctx);
         if (columnMapper != null) {
             mapper = new SingleColumnMapper(columnMapper);
@@ -114,8 +106,8 @@ class MappingRegistry
             }
         }
 
-        if (BUILT_IN_COLUMN_MAPPERS.accepts(type, ctx)) {
-            mapper = BUILT_IN_COLUMN_MAPPERS.columnMapperFor(type, ctx);
+        if (BUILT_INS.accepts(type, ctx)) {
+            mapper = BUILT_INS.columnMapperFor(type, ctx);
             columnCache.put(type, mapper);
             return mapper;
         }

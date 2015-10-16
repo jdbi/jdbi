@@ -35,7 +35,10 @@ import org.jdbi.v3.util.URLMapper;
 
 /**
  * Result set mapper factory which knows how to construct java primitive types.
+ *
+ * @deprecated Use {@link PrimitivesColumnMapperFactory} instead.
  */
+@Deprecated
 public class PrimitivesMapperFactory implements ResultSetMapperFactory
 {
     private static final Map<Class<?>, ResultSetMapper<?>> mappers = new HashMap<>();

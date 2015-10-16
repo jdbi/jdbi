@@ -106,16 +106,18 @@ class BasicHandle implements Handle
     public void close()
     {
         if (!closed) {
-            statementBuilder.close(getConnection());
             try {
-                connection.close();
-            }
-            catch (SQLException e) {
-                throw new UnableToCloseResourceException("Unable to close Connection", e);
-            }
-            finally {
-                LOG.trace("Handle [{}] released", this);
-                closed = true;
+                statementBuilder.close(getConnection());
+            } finally {
+                try {
+                    connection.close();
+                }
+                catch (SQLException e) {
+                    throw new UnableToCloseResourceException("Unable to close Connection", e);
+                } finally {
+                    LOG.trace("Handle [{}] released", this);
+                    closed = true;
+                }
             }
         }
     }

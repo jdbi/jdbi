@@ -40,8 +40,8 @@ public final class ConcreteStatementContext implements StatementContext
     private Class<?>          sqlObjectType;
     private Method            sqlObjectMethod;
     private boolean           returningGeneratedKeys;
-    private String[]          generatedKeysColumnNames;
     private boolean           concurrentUpdatable;
+    private String[]          generatedKeysColumnNames;
 
     ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry)
     {

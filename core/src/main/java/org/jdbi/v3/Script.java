@@ -65,12 +65,10 @@ public class Script
 
     private List<String> getStatements() {
         final String script;
-        try
-        {
+
+        try {
             script = locator.locate(name, statementContext);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, statementContext);
         }
 

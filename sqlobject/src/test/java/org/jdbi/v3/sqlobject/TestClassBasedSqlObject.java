@@ -21,6 +21,7 @@ import java.util.UUID;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
 import org.junit.After;
@@ -83,6 +84,28 @@ public class TestClassBasedSqlObject
         dao.totallyBroken();
     }
 
+    @Test
+    public void testSimpleTransactionsSucceed() throws Exception
+    {
+        final SomethingDao dao = SqlObjectBuilder.onDemand(dbi, SomethingDao.class);
+
+        dao.insertInSingleTransaction(10, "Linda");
+    }
+
+    /**
+     * Currently, nested transactions are not supported. Make sure an appropriate exception is
+     * thrown in that case.
+     * <p>
+     *
+     * Side note: H2 does not have a problem with nested transactions - but MySQL has.
+     */
+    @Test(expected = TransactionException.class)
+    public void testNestedTransactionsThrowException()
+    {
+        final SomethingDao dao = SqlObjectBuilder.onDemand(dbi, SomethingDao.class);
+        dao.insertInNestedTransaction(11, "Angelina");
+    }
+
     @RegisterMapper(SomethingMapper.class)
     public static abstract class Dao
     {
@@ -99,4 +122,5 @@ public class TestClassBasedSqlObject
         public abstract void totallyBroken();
 
     }
+
 }
