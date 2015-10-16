@@ -55,7 +55,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         super(params, locator, statementRewriter, handle, cache, sql, ctx, timingCollector, customizers, foreman);
         this.mapper = mapper;
-        this.mappingRegistry = new MappingRegistry(mappingRegistry);
+        this.mappingRegistry = mappingRegistry;
     }
 
     /**
