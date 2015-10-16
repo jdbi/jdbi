@@ -100,7 +100,7 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
     private static class P
     {
         private final Constructor<?> ctor;
-        public P(Class<? extends Argument> argType)
+        P(Class<? extends Argument> argType)
         {
             this.ctor = argType.getDeclaredConstructors()[0];
         }

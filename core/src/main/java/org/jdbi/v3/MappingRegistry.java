@@ -31,20 +31,16 @@ class MappingRegistry
     private final List<ResultColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Class<?>, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
 
-    /**
-     * Copy Constructor
-     */
-    public MappingRegistry(MappingRegistry parent)
-    {
-        rowFactories.addAll(parent.rowFactories);
-        rowCache.putAll(parent.rowCache);
+    static MappingRegistry copyOf(MappingRegistry parent) {
+        MappingRegistry mr = new MappingRegistry();
 
-        columnFactories.addAll(parent.columnFactories);
-        columnCache.putAll(parent.columnCache);
-    }
+        mr.rowFactories.addAll(parent.rowFactories);
+        mr.rowCache.putAll(parent.rowCache);
 
-    public MappingRegistry() {
+        mr.columnFactories.addAll(parent.columnFactories);
+        mr.columnCache.putAll(parent.columnCache);
 
+        return mr;
     }
 
     public void addMapper(ResultSetMapper<?> mapper)

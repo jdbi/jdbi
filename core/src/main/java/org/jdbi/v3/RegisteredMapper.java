@@ -24,7 +24,7 @@ class RegisteredMapper<T> implements ResultSetMapper<T>
     private final Class<T> type;
     private final MappingRegistry registry;
 
-    public RegisteredMapper(Class<T> type, MappingRegistry registry) {
+    RegisteredMapper(Class<T> type, MappingRegistry registry) {
         this.type = type;
         this.registry = registry;
     }
@@ -33,6 +33,6 @@ class RegisteredMapper<T> implements ResultSetMapper<T>
     @SuppressWarnings("unchecked")
     public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
-        return (T) registry.mapperFor(type, ctx).map(index, r, ctx);
+        return registry.mapperFor(type, ctx).map(index, r, ctx);
     }
 }

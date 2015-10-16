@@ -27,7 +27,7 @@ class InferredColumnMapperFactory<X> implements ResultColumnMapperFactory
     private final ResultColumnMapper<X> mapper;
 
     @SuppressWarnings("unchecked")
-    public InferredColumnMapperFactory(ResultColumnMapper<X> mapper)
+    InferredColumnMapperFactory(ResultColumnMapper<X> mapper)
     {
         this.mapper = mapper;
         ResolvedType rt = tr.resolve(mapper.getClass());

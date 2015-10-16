@@ -216,7 +216,7 @@ public class DBI
                                        conn,
                                        globalStatementAttributes,
                                        timingCollector.get(),
-                                       new MappingRegistry(mappingRegistry),
+                                       MappingRegistry.copyOf(mappingRegistry),
                                        foreman.createChild());
             LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
             return h;

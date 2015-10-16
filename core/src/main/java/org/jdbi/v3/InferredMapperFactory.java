@@ -26,7 +26,7 @@ class InferredMapperFactory<X> implements ResultSetMapperFactory
     private final Class<?> maps;
     private final ResultSetMapper<? extends X> mapper;
 
-    public InferredMapperFactory(ResultSetMapper<? extends X> mapper)
+    InferredMapperFactory(ResultSetMapper<? extends X> mapper)
     {
         this.mapper = mapper;
         ResolvedType rt = TR.resolve(mapper.getClass());

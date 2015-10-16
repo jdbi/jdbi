@@ -38,7 +38,7 @@ public class NoOpStatementRewriter implements StatementRewriter
         private final String sql;
         private final StatementContext context;
 
-        public NoOpRewrittenStatement(String sql, StatementContext ctx)
+        NoOpRewrittenStatement(String sql, StatementContext ctx)
         {
             this.context = ctx;
             this.sql = sql;

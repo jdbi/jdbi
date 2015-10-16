@@ -239,17 +239,17 @@ public class LocalTransactionHandler implements TransactionHandler
         private final Map<String, Savepoint> checkpoints = new HashMap<String, Savepoint>();
         private final boolean initialAutocommit;
 
-        public LocalStuff(boolean initial)
+        LocalStuff(boolean initial)
         {
             this.initialAutocommit = initial;
         }
 
-        public Map<String, Savepoint> getCheckpoints()
+        Map<String, Savepoint> getCheckpoints()
         {
             return checkpoints;
         }
 
-        public boolean getInitialAutocommit()
+        boolean getInitialAutocommit()
         {
             return initialAutocommit;
         }

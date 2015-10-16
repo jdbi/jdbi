@@ -24,12 +24,12 @@ class Foreman
 
     private final List<ArgumentFactory<?>> factories = new CopyOnWriteArrayList<>();
 
-    public Foreman()
+    Foreman()
     {
         factories.add(BuiltInArgumentFactory.INSTANCE);
     }
 
-    public Foreman(List<ArgumentFactory<?>> factories)
+    Foreman(List<ArgumentFactory<?>> factories)
     {
         this.factories.addAll(factories);
     }
@@ -58,12 +58,12 @@ class Foreman
         throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(it));
     }
 
-    public void register(ArgumentFactory<?> argumentFactory)
+    void register(ArgumentFactory<?> argumentFactory)
     {
         factories.add(argumentFactory);
     }
 
-    public Foreman createChild()
+    Foreman createChild()
     {
         return new Foreman(factories);
     }

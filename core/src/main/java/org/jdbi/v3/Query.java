@@ -121,7 +121,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getConcreteContext(),
                             getTimingCollector(),
                             getStatementCustomizers(),
-                            new MappingRegistry(mappingRegistry),
+                            MappingRegistry.copyOf(mappingRegistry),
                             getForeman().createChild());
     }
 

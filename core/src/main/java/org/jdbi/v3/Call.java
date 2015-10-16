@@ -110,7 +110,7 @@ public class Call extends SQLStatement<Call>
         private final String name;
         private int position ;
 
-        public OutParamArgument(int sqlType, CallableStatementMapper mapper, String name)
+        OutParamArgument(int sqlType, CallableStatementMapper mapper, String name)
         {
             this.sqlType = sqlType;
             this.mapper = mapper;
