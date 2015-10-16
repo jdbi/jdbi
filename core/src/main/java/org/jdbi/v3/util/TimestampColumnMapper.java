@@ -11,24 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
+package org.jdbi.v3.util;
 
-import org.jdbi.v3.BeanMapper;
-import org.jdbi.v3.ResultSetMapperFactory;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public class BeanMapperFactory<T> implements ResultSetMapperFactory
-{
+public enum TimestampColumnMapper implements ResultColumnMapper<Timestamp> {
+    INSTANCE;
+
     @Override
-    public boolean accepts(Class<?> type, StatementContext ctx)
-    {
-        return ctx.columnMapperFor(type) == null;
+    public Timestamp mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        return r.getTimestamp(columnNumber);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public ResultSetMapper<T> mapperFor(Class<?> type, StatementContext ctx)
-    {
-        return new BeanMapper<T>((Class<T>) type);
+    public Timestamp mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
+        return r.getTimestamp(columnLabel);
     }
 }

@@ -20,13 +20,14 @@ import java.util.Map;
 
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
- * This represents a connection to the database system. It ususally is a wrapper around
+ * This represents a connection to the database system. It usually is a wrapper around
  * a JDBC Connection object.
  */
 public interface Handle extends Closeable
@@ -249,6 +250,20 @@ public interface Handle extends Closeable
      * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
      */
     void registerMapper(ResultSetMapperFactory factory);
+
+    /**
+     * Register a result column mapper which will have its parameterized type inspected to determine what it maps to
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    void registerColumnMapper(ResultColumnMapper mapper);
+
+    /**
+     * Register a result column mapper factory.
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    void registerColumnMapper(ResultColumnMapperFactory factory);
 
     /**
      * Set the transaction isolation level on the underlying connection

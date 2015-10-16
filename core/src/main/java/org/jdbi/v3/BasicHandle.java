@@ -23,6 +23,7 @@ import java.util.Map;
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
@@ -75,6 +76,7 @@ class BasicHandle implements Handle
     @Override
     public Query<Map<String, Object>> createQuery(String sql)
     {
+        MappingRegistry queryRegistry = new MappingRegistry(this.mappingRegistry);
         return new Query<Map<String, Object>>(new Binding(),
                                               new DefaultMapper(),
                                               statementLocator,
@@ -82,10 +84,10 @@ class BasicHandle implements Handle
                                               this,
                                               statementBuilder,
                                               sql,
-                                              new ConcreteStatementContext(globalStatementAttributes),
+                                              new ConcreteStatementContext(globalStatementAttributes, queryRegistry),
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
-                                              new MappingRegistry(mappingRegistry),
+                                              queryRegistry,
                                               foreman.createChild());
     }
 
@@ -238,7 +240,7 @@ class BasicHandle implements Handle
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes),
+                          new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                           timingCollector,
                           foreman);
     }
@@ -251,7 +253,7 @@ class BasicHandle implements Handle
                         statementRewriter,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(globalStatementAttributes),
+                        new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
                         foreman);
@@ -282,7 +284,7 @@ class BasicHandle implements Handle
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(this.globalStatementAttributes),
+                                 new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
                                  foreman);
@@ -293,7 +295,7 @@ class BasicHandle implements Handle
     {
         return new Batch(this.statementRewriter,
                          this.connection,
-                         globalStatementAttributes,
+                         new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                          timingCollector,
                          foreman.createChild());
     }
@@ -380,7 +382,7 @@ class BasicHandle implements Handle
     @Override
     public Script createScript(String name)
     {
-        return new Script(this, statementLocator, name, globalStatementAttributes);
+        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)));
     }
 
     @Override
@@ -392,13 +394,23 @@ class BasicHandle implements Handle
     @Override
     public void registerMapper(ResultSetMapper<?> mapper)
     {
-        mappingRegistry.add(mapper);
+        mappingRegistry.addMapper(mapper);
     }
 
     @Override
     public void registerMapper(ResultSetMapperFactory factory)
     {
-        mappingRegistry.add(factory);
+        mappingRegistry.addMapper(factory);
+    }
+
+    @Override
+    public void registerColumnMapper(ResultColumnMapper mapper) {
+        mappingRegistry.addColumnMapper(mapper);
+    }
+
+    @Override
+    public void registerColumnMapper(ResultColumnMapperFactory factory) {
+        mappingRegistry.addColumnMapper(factory);
     }
 
     @Override

@@ -11,18 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.jdbi.v3;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER})
-@BindingAnnotation(BindBeanFactory.class)
-public @interface BindBean
-{
-    String BARE_BINDING = "___jdbi_bare___";
-    String value() default BARE_BINDING;
+class DerivedBean extends SampleBean {
+    private Long blongField;
+
+    public Long getBlongField() {
+        return blongField;
+    }
+
+    public void setBlongField(Long blongField) {
+        this.blongField = blongField;
+    }
 }

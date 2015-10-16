@@ -73,6 +73,20 @@ public class TestEnums
     }
 
     @Test
+    public void testMapToEnum() throws Exception
+    {
+        Handle h = db.openHandle();
+        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+
+        List<SomethingElse.Name> results = h.createQuery("select name from something order by id")
+                                   .mapTo(SomethingElse.Name.class)
+                                   .list();
+        assertEquals(SomethingElse.Name.eric, results.get(0));
+        assertEquals(SomethingElse.Name.brian, results.get(1));
+    }
+
+    @Test
     public void testMapInvalidEnumValue() throws SQLException
     {
         Handle h = db.openHandle();

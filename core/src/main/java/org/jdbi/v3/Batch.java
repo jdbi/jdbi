@@ -18,7 +18,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
@@ -33,18 +32,18 @@ public class Batch extends BaseStatement
 {
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
-    private List<String> parts = new ArrayList<String>();
+    private final List<String> parts = new ArrayList<String>();
     private final StatementRewriter rewriter;
     private final Connection connection;
     private final TimingCollector timingCollector;
 
     Batch(StatementRewriter rewriter,
           Connection connection,
-          Map<String, Object> globalStatementAttributes,
+          ConcreteStatementContext statementContext,
           TimingCollector timingCollector,
           Foreman foreman)
     {
-        super(new ConcreteStatementContext(globalStatementAttributes), foreman);
+        super(statementContext, foreman);
         this.rewriter = rewriter;
         this.connection = connection;
         this.timingCollector = timingCollector;

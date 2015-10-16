@@ -13,11 +13,7 @@
  */
 package org.jdbi.v3;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -27,34 +23,36 @@ import java.util.Map;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 
+
 /**
  * A result set mapper which maps the fields in a statement into a JavaBean. This uses
- * the JDK's built in bean mapping facilities, so it does not support nested properties.
+ * the reflection to set the fields on the bean including its super class fields, it does not support nested properties.
  */
-public class BeanMapper<T> implements ResultSetMapper<T>
+public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
-    private final Map<String, PropertyDescriptor> properties = new HashMap<String, PropertyDescriptor>();
+    private final Map<String, Field> properties = new HashMap<String, Field>();
 
-    public BeanMapper(Class<T> type)
+    public ReflectionBeanMapper(Class<T> type)
     {
         this.type = type;
-        try {
-            BeanInfo info = Introspector.getBeanInfo(type);
+        cacheAllFieldsIncludingSuperClass(type);
+    }
 
-            for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
-                properties.put(descriptor.getName().toLowerCase(), descriptor);
+    private void cacheAllFieldsIncludingSuperClass(Class<T> type) {
+        Class aClass = type;
+        while(aClass != null) {
+            for (Field field : aClass.getDeclaredFields()) {
+                properties.put(field.getName().toLowerCase(), field);
             }
-        }
-        catch (IntrospectionException e) {
-            throw new IllegalArgumentException(e);
+            aClass = aClass.getSuperclass();
         }
     }
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public T map(int row, ResultSet rs, StatementContext ctx)
-        throws SQLException
+            throws SQLException
     {
         T bean;
         try {
@@ -62,7 +60,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         }
         catch (Exception e) {
             throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
-                                                             "which was not instantiable", type.getName()), e);
+                    "which was not instantiable", type.getName()), e);
         }
 
         ResultSetMetaData metadata = rs.getMetaData();
@@ -70,10 +68,10 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i).toLowerCase();
 
-            PropertyDescriptor descriptor = properties.get(name);
+            Field field = properties.get(name);
 
-            if (descriptor != null) {
-                Class type = descriptor.getPropertyType();
+            if (field != null) {
+                Class type = field.getType();
 
                 Object value;
                 ResultColumnMapper mapper = ctx.columnMapperFor(type);
@@ -86,26 +84,17 @@ public class BeanMapper<T> implements ResultSetMapper<T>
 
                 try
                 {
-                    descriptor.getWriteMethod().invoke(bean, value);
+                    field.setAccessible(true);
+                    field.set(bean, value);
                 }
                 catch (IllegalAccessException e) {
-                    throw new IllegalArgumentException(String.format("Unable to access setter for " +
-                                                                     "property, %s", name), e);
+                    throw new IllegalArgumentException(String.format("Unable to access " +
+                            "property, %s", name), e);
                 }
-                catch (InvocationTargetException e) {
-                    throw new IllegalArgumentException(String.format("Invocation target exception trying to " +
-                                                                     "invoker setter for the %s property", name), e);
-                }
-                catch (NullPointerException e) {
-                    throw new IllegalArgumentException(String.format("No appropriate method to " +
-                                                                     "write property %s", name), e);
-                }
-
             }
         }
 
         return bean;
     }
-
 }
 

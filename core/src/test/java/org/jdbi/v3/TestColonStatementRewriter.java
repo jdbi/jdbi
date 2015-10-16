@@ -37,7 +37,7 @@ public class TestColonStatementRewriter
     public void testNewlinesOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from something\n where id = :id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("select * from something\n where id = ?", rws.getSql());
     }
 
@@ -45,7 +45,7 @@ public class TestColonStatementRewriter
     public void testOddCharacters() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("~* :boo ':nope' _%&^& *@ :id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("~* ? ':nope' _%&^& *@ ?", rws.getSql());
     }
 
@@ -53,7 +53,7 @@ public class TestColonStatementRewriter
     public void testNumbers() throws Exception
     {
         RewrittenStatement rws = rw.rewrite(":bo0 ':nope' _%&^& *@ :id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
     }
 
@@ -61,7 +61,7 @@ public class TestColonStatementRewriter
     public void testDollarSignOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from v$session", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("select * from v$session", rws.getSql());
     }
 
@@ -69,7 +69,7 @@ public class TestColonStatementRewriter
     public void testHashInColumnNameOkay() throws Exception
     {
        RewrittenStatement rws = rw.rewrite("select column# from thetable where id = :id", new Binding(),
-                                           new ConcreteStatementContext(new HashMap<String, Object>()));
+                                           new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
        assertEquals("select column# from thetable where id = ?", rws.getSql());
     }
 
@@ -77,7 +77,7 @@ public class TestColonStatementRewriter
     public void testBacktickOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from `v$session", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("select * from `v$session", rws.getSql());
     }
 
@@ -86,7 +86,7 @@ public class TestColonStatementRewriter
     {
         try {
             rw.rewrite("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
 
             Assert.fail("Expected 'UnableToCreateStatementException' but got none");
         }

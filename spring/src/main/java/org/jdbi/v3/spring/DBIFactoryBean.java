@@ -33,6 +33,18 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     private StatementLocator statementLocator;
     private final Map<String, Object> globalDefines = new HashMap<String, Object>();
 
+    public DBIFactoryBean() {
+    }
+
+    public DBIFactoryBean(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public DBIFactoryBean(DataSource dataSource, StatementLocator statementLocator) {
+        this.dataSource = dataSource;
+        this.statementLocator = statementLocator;
+    }
+
     /**
      * See org.springframework.beans.factory.FactoryBean#getObject
      */

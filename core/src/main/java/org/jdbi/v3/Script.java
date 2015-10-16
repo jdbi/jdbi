@@ -15,7 +15,6 @@ package org.jdbi.v3;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
@@ -31,14 +30,14 @@ public class Script
     private final Handle handle;
     private final StatementLocator locator;
     private final String name;
-    private final Map<String, Object> globalStatementAttributes;
+    private final StatementContext statementContext;
 
-    Script(Handle h, StatementLocator locator, String name, Map<String, Object> globalStatementAttributes)
+    Script(Handle h, StatementLocator locator, String name, StatementContext statementContext)
     {
         this.handle = h;
         this.locator = locator;
         this.name = name;
-        this.globalStatementAttributes = globalStatementAttributes;
+        this.statementContext = statementContext;
     }
 
     /**
@@ -66,11 +65,13 @@ public class Script
 
     private List<String> getStatements() {
         final String script;
-        final StatementContext ctx = new ConcreteStatementContext(globalStatementAttributes);
-        try {
-            script = locator.locate(name, ctx);
-        } catch (Exception e) {
-            throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, ctx);
+        try
+        {
+            script = locator.locate(name, statementContext);
+        }
+        catch (Exception e)
+        {
+            throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, statementContext);
         }
 
         return splitToStatements(script);

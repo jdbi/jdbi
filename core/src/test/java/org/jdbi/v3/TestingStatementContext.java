@@ -19,9 +19,7 @@ import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jdbi.v3.Binding;
-import org.jdbi.v3.Cleanable;
-import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public class TestingStatementContext implements StatementContext
 {
@@ -48,6 +46,11 @@ public class TestingStatementContext implements StatementContext
     public Map<String, Object> getAttributes()
     {
         return attributes;
+    }
+
+    @Override
+    public ResultColumnMapper columnMapperFor(Class type) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

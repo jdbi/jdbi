@@ -11,24 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
+package org.jdbi.v3.util;
 
-import org.jdbi.v3.BeanMapper;
-import org.jdbi.v3.ResultSetMapperFactory;
+import org.jdbi.v3.ResultColumnMapperFactory;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public class BeanMapperFactory<T> implements ResultSetMapperFactory
-{
+/**
+ * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
+ */
+public class EnumByNameColumnMapperFactory implements ResultColumnMapperFactory {
     @Override
-    public boolean accepts(Class<?> type, StatementContext ctx)
-    {
-        return ctx.columnMapperFor(type) == null;
+    public ResultColumnMapper columnMapperFor(Class type, StatementContext ctx) {
+        return EnumColumnMapper.byName(type);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public ResultSetMapper<T> mapperFor(Class<?> type, StatementContext ctx)
-    {
-        return new BeanMapper<T>((Class<T>) type);
+    public boolean accepts(Class type, StatementContext ctx) {
+        return type.isEnum();
     }
 }

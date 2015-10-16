@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3;
 
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -29,6 +30,7 @@ import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.tweak.HandleConsumer;
+import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementBuilderFactory;
@@ -230,16 +232,34 @@ public class DBI
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerMapper(ResultSetMapper<?> mapper) {
-        mappingRegistry.add(mapper);
+        mappingRegistry.addMapper(mapper);
     }
 
     /**
      * Register a result set mapper factory.
      *
-     * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerMapper(ResultSetMapperFactory factory) {
-        mappingRegistry.add(factory);
+        mappingRegistry.addMapper(factory);
+    }
+
+    /**
+     * Register a result column mapper which will have its parameterized type inspected to determine what it maps to
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    public void registerColumnMapper(ResultColumnMapper mapper) {
+        mappingRegistry.addColumnMapper(mapper);
+    }
+
+    /**
+     * Register a result column mapper factory.
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    public void registerColumnMapper(ResultColumnMapperFactory factory) {
+        mappingRegistry.addColumnMapper(factory);
     }
 
     /**

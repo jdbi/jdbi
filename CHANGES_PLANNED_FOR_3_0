@@ -10,3 +10,4 @@ This file describes the changes expected in some eventual 3.0 release.
    so that we can avoid duplicating that logic. Means rejiggering how stuff gets
    bound quite a bit.
 * Clean up naming on sql object api elements
+* Use Type instead of Class to support more robust generics in mappers.

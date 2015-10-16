@@ -19,6 +19,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
@@ -207,11 +208,21 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     public void registerMapper(ResultSetMapper<?> m)
     {
-        this.mappingRegistry.add(new InferredMapperFactory(m));
+        this.mappingRegistry.addMapper(new InferredMapperFactory(m));
     }
 
     public void registerMapper(ResultSetMapperFactory m)
     {
-        this.mappingRegistry.add(m);
+        this.mappingRegistry.addMapper(m);
+    }
+
+    public void registerColumnMapper(ResultColumnMapper m)
+    {
+        this.mappingRegistry.addColumnMapper(m);
+    }
+
+    public void registerColumnMapper(ResultColumnMapperFactory m)
+    {
+        this.mappingRegistry.addColumnMapper(m);
     }
 }
