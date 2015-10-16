@@ -1,6 +1,6 @@
 This file describes the changes expected in some eventual 3.0 release.
 
-* Make hashed prefix statement rewriter the default
+* Make hashed prefix statement rewriter the default (Actually, figure out something that won't ever conflict with SQL!)
 * Clean up exceptions, a lot
 ** Consider using Spring's exception mapping code to expose more useful exceptions
 * Batter batch interface
@@ -11,3 +11,6 @@ This file describes the changes expected in some eventual 3.0 release.
    bound quite a bit.
 * Clean up naming on sql object api elements
 * Use Type instead of Class to support more robust generics in mappers.
+* Rework the sharing of StatementContext and Mappers to make ownership of these objects more clear
+* Consider using Jackson for type mapping?
+
