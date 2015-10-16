@@ -86,7 +86,7 @@
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
         <basepom.test.fork-count>8</basepom.test.fork-count>
-        <basepom.test.reuse-vm>false</basepom.test.reuse-vm>
+        <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>120</basepom.test.timeout>
     </properties>
 
