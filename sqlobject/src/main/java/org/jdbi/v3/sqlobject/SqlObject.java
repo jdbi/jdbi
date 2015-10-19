@@ -27,10 +27,12 @@ import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 
+import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.NoOp;
 
 class SqlObject
 {
@@ -65,14 +67,12 @@ class SqlObject
             }
             e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
             final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
-            e.setCallback(new MethodInterceptor()
-            {
-                @Override
-                public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable
-                {
-                    return so.invoke(o, method, objects, methodProxy);
-                }
+            e.setCallbackFilter(m -> m.isDefault() ? 1 : 0);
+            e.setCallbacks(new Callback[] {
+                (MethodInterceptor) so::invoke,
+                NoOp.INSTANCE
             });
+
             T t = (T) e.create();
             T actual = (T) factories.putIfAbsent(sqlObjectType, (Factory) t);
             if (actual == null) {
@@ -81,14 +81,11 @@ class SqlObject
             f = (Factory) actual;
         }
 
+        // TODO 3: this is duplicated from the above setCallbacks, can we clean that up?
         final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
-        return (T) f.newInstance(new MethodInterceptor()
-        {
-            @Override
-            public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable
-            {
-                return so.invoke(o, method, objects, methodProxy);
-            }
+        return (T) f.newInstance(new Callback[] {
+            (MethodInterceptor) so::invoke,
+            NoOp.INSTANCE
         });
     }
 
