@@ -19,20 +19,35 @@ import org.jdbi.v3.SQLStatement;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
 {
+    private final int paramIndex;
+
+    DefaultObjectBinder()
+    {
+        this(-1);
+    }
+
+    DefaultObjectBinder(int paramIndex)
+    {
+        this.paramIndex = paramIndex;
+    }
+
     @Override
     public void bind(SQLStatement<?> q, Parameter param, Bind b, Object arg)
     {
-        String value = b.value();
-
-        if (value.equals(Bind.USE_PARAM_NAME)) {
-            if (!param.isNamePresent()) {
-                throw new UnsupportedOperationException("A parameter was annotated with @Bind "
-                        + "but no name was specified, and parameter name data is not present "
-                        + "in the class file.  " + param.getDeclaringExecutable() + " :: " + param);
+        final String bindName;
+        if (b == null || b.value().equals(Bind.USE_PARAM_NAME)) {
+            if (param.isNamePresent()) {
+                bindName = param.getName();
+            } else {
+                throw new UnsupportedOperationException("A parameter was not given a name, "
+                        + "and parameter name data is not present in the class file, for: "
+                        + param.getDeclaringExecutable() + " :: " + param);
             }
-            value = param.getName();
+        } else {
+            bindName = b.value();
         }
 
-        q.bind(value, arg);
+        q.bind(paramIndex, arg);
+        q.bind(bindName, arg);
     }
 }

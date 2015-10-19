@@ -111,8 +111,8 @@ abstract class CustomizingStatementHandler implements Handler
             }
             if (!thereBindingAnnotation) {
                 // If there is no binding annotation on a parameter,
-                // then add a positional parameter binder
-                binders.add(new Bindifier(method.getRawMember(), null, param_idx, new PositionalBinder(param_idx)));
+                // then add a default parameter binder
+                binders.add(new Bindifier<>(method.getRawMember(), null, param_idx, new DefaultObjectBinder(param_idx)));
             }
         }
     }
