@@ -78,10 +78,10 @@ public @interface BindIn
         }
     }
 
-    class BindingFactory implements BinderFactory
+    class BindingFactory implements BinderFactory<Annotation, Object>
     {
         @Override
-        public Binder<?,?> build(Annotation annotation)
+        public Binder<Annotation, Object> build(Annotation annotation)
         {
             final BindIn in = (BindIn) annotation;
             final String key = in.value();

@@ -30,6 +30,6 @@ public @interface BindingAnnotation
     /**
      * Build a BinderFactory which will be used to build Binders, which will bind arguments
      */
-    Class<? extends BinderFactory> value();
+    Class<? extends BinderFactory<?, ?>> value();
 
 }

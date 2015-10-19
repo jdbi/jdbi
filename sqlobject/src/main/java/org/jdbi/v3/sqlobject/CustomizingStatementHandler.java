@@ -27,7 +27,7 @@ import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 
 abstract class CustomizingStatementHandler implements Handler
 {
-    private final List<Bindifier>                    binders                        = new ArrayList<Bindifier>();
+    private final List<Bindifier<?>>                 binders                        = new ArrayList<>();
     private final List<FactoryAnnotationPair>        typeBasedCustomizerFactories   = new ArrayList<FactoryAnnotationPair>();
     private final List<FactoryAnnotationPair>        methodBasedCustomizerFactories = new ArrayList<FactoryAnnotationPair>();
     private final List<FactoryAnnotationIndexTriple> paramBasedCustomizerFactories  = new ArrayList<FactoryAnnotationIndexTriple>();
@@ -85,8 +85,8 @@ abstract class CustomizingStatementHandler implements Handler
                     // we have a binder
                     BindingAnnotation ba = annotation.annotationType().getAnnotation(BindingAnnotation.class);
                     try {
-                        BinderFactory fact = ba.value().newInstance();
-                        binders.add(new Bindifier(this.method, annotation, param_idx, (Binder<Annotation, Object>)fact.build(annotation)));
+                        BinderFactory<Annotation, Object> fact = (BinderFactory<Annotation, Object>) ba.value().newInstance();
+                        binders.add(new Bindifier<Annotation>(this.method, annotation, param_idx, fact.build(annotation)));
 
                     }
                     catch (Exception e) {
@@ -125,7 +125,7 @@ abstract class CustomizingStatementHandler implements Handler
 
     protected void applyBinders(SQLStatement<?> q, Object[] args)
     {
-        for (Bindifier binder : binders) {
+        for (Bindifier<?> binder : binders) {
             binder.bind(q, args);
         }
     }

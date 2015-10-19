@@ -16,13 +16,12 @@ package org.jdbi.v3.sqlobject;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-class BindBeanFactory implements BinderFactory
+class BindBeanFactory implements BinderFactory<BindBean, Object>
 {
     @Override
-    public Binder<BindBean, Object> build(Annotation annotation)
+    public Binder<BindBean, Object> build(BindBean annotation)
     {
         return (q, param, bind, arg) -> {
             final String prefix;
