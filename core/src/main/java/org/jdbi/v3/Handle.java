@@ -13,11 +13,6 @@
  */
 package org.jdbi.v3;
 
-import java.io.Closeable;
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
-
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ResultColumnMapper;
@@ -26,11 +21,15 @@ import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
 
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+
 /**
  * This represents a connection to the database system. It usually is a wrapper around
  * a JDBC Connection object.
  */
-public interface Handle extends Closeable
+public interface Handle extends AutoCloseable
 {
 
     /**
@@ -43,7 +42,6 @@ public interface Handle extends Closeable
      * @throws org.jdbi.v3.exceptions.UnableToCloseResourceException if any
      * resources throw exception while closing
      */
-    @Override
     void close();
 
     /**
@@ -83,31 +81,36 @@ public interface Handle extends Closeable
 
     /**
      * Return a default Query instance which can be executed later, as long as this handle remains open.
-     * @param sql the select sql
+     *
+     * @param sql the name of the sql to execute (or the raw sql)
+     * @param extra extra arguments used to resolve `name` to sql
      */
-    Query<Map<String, Object>> createQuery(String sql);
+    Query<Map<String, Object>> createQuery(Object sql, Object... extra);
 
     /**
      * Create an Insert or Update statement which returns the number of rows modified.
-     * @param sql The statement sql
+     * @param sql the name of the sql to execute (or the raw sql)
+     * @param extra extra arguments used to resolve `name` to sql
      */
-    Update createStatement(String sql);
+    Update createStatement(Object sql, Object... extra);
 
     /**
      * Create a call to a stored procedure
      *
-     * @param callableSql
+     * @param sql the name of the sql to execute (or the raw sql)
+     * @param extra extra arguments used to resolve `name` to sql
      * @return the Call
      */
-    Call createCall(String callableSql);
+    Call createCall(Object sql, Object... extra);
 
 
     /**
      * Execute a simple insert statement
-     * @param sql the insert SQL
+     * @param sql the name of the sql to execute (or the raw sql)
+     * @param extra extra arguments used to resolve `name` to sql
      * @return the number of rows inserted
      */
-    int insert(String sql, Object... args);
+    int insert(String sql, Object... extra);
 
     /**
      * Execute a simple update statement
@@ -115,15 +118,16 @@ public interface Handle extends Closeable
      * @param args positional arguments
      * @return the number of updated inserted
      */
-    int update(String sql, Object... args);
+    int update(String sql, Object... extra);
 
     /**
      * Prepare a batch to execute. This is for efficiently executing more than one
      * of the same statements with different parameters bound
-     * @param sql the batch SQL
+     * @param sql the name of the sql to execute (or the raw sql)
+     * @param extra extra arguments used to resolve `name` to sql
      * @return a batch which can have "statements" added
      */
-    PreparedBatch prepareBatch(String sql);
+    PreparedBatch prepareBatch(Object sql, Object... extra);
 
     /**
      * Create a non-prepared (no bound parameters, but different SQL, batch statement
@@ -201,15 +205,20 @@ public interface Handle extends Closeable
     /**
      * Creates an SQL script, looking for the source of the script using the
      * current statement locator (which defaults to searching the classpath)
+     *
+     * @param sql the name of the sql to execute (or the raw sql)
+     * @param extra extra arguments used to resolve `name` to sql
+     * @param extra extra arguments used to resolve `name` to sql
      */
-    Script createScript(String name);
+    Script createScript(Object name, Object... extra);
 
     /**
      * Execute some SQL with no return value
-     * @param sql the sql to execute
+     * @param sql the name of the sql to execute (or the raw sql)
+     * @param extra extra arguments used to resolve `name` to sql
      * @param args arguments to bind to the sql
      */
-    void execute(String sql, Object... args);
+    void execute(String sql, Object... extra);
 
     /**
      * Create a transaction checkpoint (savepoint in JDBC terminology) with the name provided.

@@ -130,7 +130,7 @@ public class TestTimingCollector
         @Override
         public synchronized void collect(final long elapsedTime, final StatementContext ctx)
         {
-            statements.add(ctx.getRawSql());
+            statements.add(ctx.getSqlName().toString());
         }
 
         public synchronized List<String> getStatements()

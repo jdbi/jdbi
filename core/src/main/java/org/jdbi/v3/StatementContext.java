@@ -68,7 +68,7 @@ public interface StatementContext
      *
      * @return the initial sql
      */
-    String getRawSql();
+    SqlName getSqlName();
 
     /**
      * Obtain the located and rewritten sql

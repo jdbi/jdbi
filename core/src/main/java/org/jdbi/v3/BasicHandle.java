@@ -13,13 +13,6 @@
  */
 package org.jdbi.v3;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -32,6 +25,13 @@ import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.tweak.TransactionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class BasicHandle implements Handle
 {
@@ -74,21 +74,21 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public Query<Map<String, Object>> createQuery(String sql)
+    public Query<Map<String, Object>> createQuery(Object sql, Object... args)
     {
         MappingRegistry queryRegistry = MappingRegistry.copyOf(this.mappingRegistry);
-        return new Query<Map<String, Object>>(new Binding(),
-                                              new DefaultMapper(),
-                                              statementLocator,
-                                              statementRewriter,
-                                              this,
-                                              statementBuilder,
-                                              sql,
-                                              new ConcreteStatementContext(globalStatementAttributes, queryRegistry),
-                                              timingCollector,
-                                              Collections.<StatementCustomizer>emptyList(),
-                                              queryRegistry,
-                                              foreman.createChild());
+        return new Query<>(new Binding(),
+                           new DefaultMapper(),
+                           statementLocator,
+                           statementRewriter,
+                           this,
+                           statementBuilder,
+                           new SqlName(sql, args),
+                           new ConcreteStatementContext(globalStatementAttributes, queryRegistry),
+                           timingCollector,
+                           Collections.<StatementCustomizer>emptyList(),
+                           queryRegistry,
+                           foreman.createChild());
     }
 
     /**
@@ -235,26 +235,26 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public Update createStatement(String sql)
+    public Update createStatement(Object sql, Object... extras)
     {
         return new Update(this,
                           statementLocator,
                           statementRewriter,
                           statementBuilder,
-                          sql,
+                          new SqlName(sql, extras),
                           new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
                           timingCollector,
                           foreman);
     }
 
     @Override
-    public Call createCall(String sql)
+    public Call createCall(Object sql, Object... extras)
     {
         return new Call(this,
                         statementLocator,
                         statementRewriter,
                         statementBuilder,
-                        sql,
+                        new SqlName(sql, extras),
                         new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
@@ -279,13 +279,13 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public PreparedBatch prepareBatch(String sql)
+    public PreparedBatch prepareBatch(Object sql, Object... extras)
     {
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
                                  this,
                                  statementBuilder,
-                                 sql,
+                                 new SqlName(sql, extras),
                                  new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
@@ -382,9 +382,12 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public Script createScript(String name)
+    public Script createScript(Object name, Object... extra)
     {
-        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)));
+        return new Script(this,
+                          statementLocator,
+                          new SqlName(name, extra),
+                          new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)));
     }
 
     @Override

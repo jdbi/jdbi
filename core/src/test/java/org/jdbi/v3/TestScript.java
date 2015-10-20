@@ -83,7 +83,7 @@ public class TestScript
             fail("Should fail because the script is malformed");
         } catch (StatementException e) {
             StatementContext context = e.getStatementContext();
-            assertEquals("insert into something(id, name) values (2, eric)", context.getRawSql().trim());
+            assertEquals("insert into something(id, name) values (2, eric)", context.getSqlName().toString().trim());
         }
     }
 }

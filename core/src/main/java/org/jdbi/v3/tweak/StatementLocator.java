@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.tweak;
 
+import org.jdbi.v3.SqlName;
 import org.jdbi.v3.StatementContext;
 
 /**
@@ -28,5 +29,5 @@ public interface StatementLocator
      * @return the SQL to execute, after it goes through a StatementRewriter
      * @throws Exception if anything goes wrong, jDBI will percolate expected exceptions
      */
-    String locate(String name, StatementContext ctx) throws Exception;
+    String locate(SqlName name, StatementContext ctx) throws Exception;
 }

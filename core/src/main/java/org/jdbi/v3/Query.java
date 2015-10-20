@@ -46,7 +46,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           StatementRewriter statementRewriter,
           Handle handle,
           StatementBuilder cache,
-          String sql,
+          SqlName sql,
           ConcreteStatementContext ctx,
           TimingCollector timingCollector,
           Collection<StatementCustomizer> customizers,

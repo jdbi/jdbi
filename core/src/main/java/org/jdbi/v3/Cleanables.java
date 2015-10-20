@@ -210,8 +210,7 @@ class Cleanables
         }
 
         @Override
-        public void cleanup()
-            throws SQLException
+        public void cleanup() throws SQLException
         {
             if (statementBuilder != null) {
                 statementBuilder.close(conn, sql, stmt);
