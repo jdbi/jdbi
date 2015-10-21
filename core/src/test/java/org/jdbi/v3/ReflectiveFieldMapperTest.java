@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(EasyMockRunner.class)
-public class ReflectionBeanMapperTest {
+public class ReflectiveFieldMapperTest {
 
     @Mock
     ResultSet resultSet;
@@ -41,7 +41,7 @@ public class ReflectionBeanMapperTest {
 
     TestingStatementContext ctx = new TestingStatementContext(Collections.emptyMap());
 
-    ReflectionBeanMapper<SampleBean> mapper = new ReflectionBeanMapper<SampleBean>(SampleBean.class);
+    ReflectiveFieldMapper<SampleBean> mapper = new ReflectiveFieldMapper<SampleBean>(SampleBean.class);
 
     @Test
     public void shouldSetValueOnPrivateField() throws Exception {
@@ -153,7 +153,7 @@ public class ReflectionBeanMapperTest {
         expect(resultSet.wasNull()).andReturn(false).anyTimes();
         replay(resultSet);
 
-        ReflectionBeanMapper<DerivedBean> mapper = new ReflectionBeanMapper<DerivedBean>(DerivedBean.class);
+        ReflectiveFieldMapper<DerivedBean> mapper = new ReflectiveFieldMapper<DerivedBean>(DerivedBean.class);
 
         DerivedBean derivedBean = mapper.map(0, resultSet, ctx);
 

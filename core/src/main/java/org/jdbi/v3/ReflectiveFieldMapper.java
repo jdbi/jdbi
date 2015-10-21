@@ -25,15 +25,18 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 
 
 /**
- * A result set mapper which maps the fields in a statement into a JavaBean. This uses
- * the reflection to set the fields on the bean including its super class fields, it does not support nested properties.
+ * A result set mapper which maps the fields in a statement into an object. This uses
+ * the reflection to set the fields on the object including its super class fields,
+ * it does not support nested properties.
+ *
+ * The class must have a default constructor.
  */
-public class ReflectionBeanMapper<T> implements ResultSetMapper<T>
+public class ReflectiveFieldMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
     private final Map<String, Field> properties = new HashMap<String, Field>();
 
-    public ReflectionBeanMapper(Class<T> type)
+    public ReflectiveFieldMapper(Class<T> type)
     {
         this.type = type;
         cacheAllFieldsIncludingSuperClass(type);
