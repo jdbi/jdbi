@@ -43,7 +43,7 @@ public class TestPositionalParameterBinding
 
         Something eric = h.createQuery("select * from something where name = ?")
                 .bind(0, "eric")
-                .map(Something.class)
+                .mapToBean(Something.class)
                 .list()
                 .get(0);
         assertEquals(1, eric.getId());
@@ -57,7 +57,7 @@ public class TestPositionalParameterBinding
 
         Something eric = h.createQuery("select * from something where id = ?")
                 .bind(0, 1)
-                .map(Something.class)
+                .mapToBean(Something.class)
                 .list().get(0);
         assertEquals(1, eric.getId());
     }
@@ -67,7 +67,7 @@ public class TestPositionalParameterBinding
     {
         Query<Something> q = h.createQuery("select * from something where id = ? and name = ?")
                 .bind(0, 1)
-                .map(Something.class);
+                .mapToBean(Something.class);
 
         try
         {
@@ -90,7 +90,7 @@ public class TestPositionalParameterBinding
         Query<Something> q = h.createQuery("select * from something where id = ?")
                 .bind(1, 1)
                 .bind(2, "Hi")
-                .map(Something.class);
+                .mapToBean(Something.class);
 
         try
         {

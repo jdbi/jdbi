@@ -87,7 +87,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a Query which provides the bean property mapping
      */
-    public <Type> Query<Type> map(Class<Type> resultType)
+    public <Type> Query<Type> mapToBean(Class<Type> resultType)
     {
         return this.map(new BeanMapper<Type>(resultType));
     }

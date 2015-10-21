@@ -40,7 +40,7 @@ public class TestPreparedBatch
         p.bind("id", 2).bind("name", "Brian").next().bind("id", 3).bind("name", "Keith");
         b.execute();
 
-        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertEquals(3, r.size());
         assertEquals("Keith", r.get(2).getName());
     }
@@ -76,7 +76,7 @@ public class TestPreparedBatch
 
         b.execute();
 
-        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertEquals(3, r.size());
         assertEquals("Brian", r.get(2).getName());
     }
@@ -94,7 +94,7 @@ public class TestPreparedBatch
 
         b.execute();
 
-        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertEquals(3, r.size());
         assertEquals("Brian", r.get(2).getName());
     }
@@ -109,7 +109,7 @@ public class TestPreparedBatch
         b.add(one).bind("name", "Keith");
         b.execute();
 
-        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertEquals(1, r.size());
         assertEquals("Keith", r.get(0).getName());
     }
@@ -122,7 +122,7 @@ public class TestPreparedBatch
 
         b.add().bind(0, 0).bind(1, "Keith").submit().execute();
 
-        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertEquals(1, r.size());
         assertEquals("Keith", r.get(0).getName());
     }

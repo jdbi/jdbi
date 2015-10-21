@@ -41,7 +41,7 @@ public class TestNoOpStatementRewriter
 
         String name = h.createQuery("select name from something where id = ?")
                 .bind(0, 1)
-                .map(Something.class)
+                .mapToBean(Something.class)
                 .only()
                 .getName();
         assertEquals("Keith", name);
@@ -56,7 +56,7 @@ public class TestNoOpStatementRewriter
         String name = h.createQuery("select name from something where id = ? and name = ?")
                 .bind(0, 1)
                 .bind(1, "Keith")
-                .map(Something.class)
+                .mapToBean(Something.class)
                 .only()
                 .getName();
         assertEquals("Keith", name);

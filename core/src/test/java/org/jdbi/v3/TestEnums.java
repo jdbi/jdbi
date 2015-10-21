@@ -66,7 +66,7 @@ public class TestEnums
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
 
         List<SomethingElse> results = h.createQuery("select * from something order by id")
-                                   .map(SomethingElse.class)
+                                   .mapToBean(SomethingElse.class)
                                    .list();
         assertEquals(SomethingElse.Name.eric, results.get(0).name);
         assertEquals(SomethingElse.Name.brian, results.get(1).name);
@@ -94,7 +94,7 @@ public class TestEnums
 
         try {
             h.createQuery("select * from something order by id")
-             .map(SomethingElse.class)
+             .mapToBean(SomethingElse.class)
              .first();
             fail("Expected IllegalArgumentException was not thrown");
         }

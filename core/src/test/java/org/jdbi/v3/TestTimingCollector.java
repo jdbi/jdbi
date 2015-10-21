@@ -94,7 +94,7 @@ public class TestTimingCollector
 
         h.insert(stmt1);
         h.createStatement(stmt2).execute();
-        Something eric = h.createQuery(stmt3).map(Something.class).list().get(0);
+        Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
         assertEquals("ERIC", eric.getName());
 
         final List<String> statements = tc.getStatements();
@@ -113,7 +113,7 @@ public class TestTimingCollector
 
         h.insert(stmt1);
         h.update(stmt2);
-        Something eric = h.createQuery(stmt3).map(Something.class).list().get(0);
+        Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
         assertEquals("cire", eric.getName());
 
         final List<String> statements = tc.getStatements();

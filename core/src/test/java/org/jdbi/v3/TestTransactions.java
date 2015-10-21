@@ -95,7 +95,7 @@ public class TestTransactions
             assertTrue(true);
         }
 
-        List<Something> r = h.createQuery("select * from something").map(Something.class).list();
+        List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
         assertEquals(0, r.size());
     }
 
@@ -123,7 +123,7 @@ public class TestTransactions
             assertTrue(true);
         }
 
-        List<Something> r = h.createQuery("select * from something").map(Something.class).list();
+        List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
         assertEquals(0, r.size());
     }
 

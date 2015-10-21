@@ -36,7 +36,7 @@ public class TestBatch
         b.add("insert into something (id, name) values (2, 'Brian')");
         b.execute();
 
-        List<Something> r = h.createQuery("select * from something order by id").map(Something.class).list();
+        List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertEquals(3, r.size());
     }
 }

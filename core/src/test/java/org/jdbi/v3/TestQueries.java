@@ -76,7 +76,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
+        Query<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
         Something eric = r.get(0);
@@ -89,7 +89,7 @@ public class TestQueries
     {
         h.insert("insert into something (id, name, integerValue) values (1, 'eric', null)");
 
-        Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
+        Query<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
         Something eric = r.get(0);
@@ -103,7 +103,7 @@ public class TestQueries
     {
         h.insert("insert into something (id, name, intValue) values (1, 'eric', null)");
 
-        Query<Something> query = h.createQuery("select * from something order by id").map(Something.class);
+        Query<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
         Something eric = r.get(0);
@@ -161,7 +161,7 @@ public class TestQueries
 
         List<Something> r = h.createQuery("select * from something where name = :name")
                              .bind(0, "eric")
-                             .map(Something.class)
+                             .mapToBean(Something.class)
                              .list();
 
         assertEquals(1, r.size());
@@ -177,7 +177,7 @@ public class TestQueries
         List<Something> r = h.createQuery("select * from something where name = :name and id = :id")
                              .bind(0, "eric")
                              .bind("id", 1)
-                             .map(Something.class)
+                             .mapToBean(Something.class)
                              .list();
 
         assertEquals(1, r.size());
@@ -206,7 +206,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         Something r = h.createQuery("select * from something order by id")
-                       .map(Something.class)
+                       .mapToBean(Something.class)
                        .first()
                        .get();
 
@@ -220,7 +220,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
-                                       .map(Something.class)
+                                       .mapToBean(Something.class)
                                        .iterator()) {
             assertTrue(i.hasNext());
             Something first = i.next();
@@ -239,7 +239,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
-                                       .map(Something.class)
+                                       .mapToBean(Something.class)
                                        .iterator()) {
             assertTrue(i.hasNext());
             assertTrue(i.hasNext());
@@ -259,7 +259,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
-                                       .map(Something.class)
+                                       .mapToBean(Something.class)
                                        .iterator()) {
 
             Something first = i.next();
@@ -277,7 +277,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (2, 'eric')");
 
         int count = 0;
-        for (Something s : h.createQuery("select * from something order by id").map(Something.class)) {
+        for (Something s : h.createQuery("select * from something order by id").mapToBean(Something.class)) {
             count++;
             assertEquals("eric", s.getName());
         }
@@ -291,7 +291,7 @@ public class TestQueries
     {
         h.createScript("default-data").execute();
 
-        Query<Something> q = h.createQuery("select id, name from something order by id").map(Something.class);
+        Query<Something> q = h.createQuery("select id, name from something order by id").mapToBean(Something.class);
 
         q.setFetchSize(1);
 
@@ -307,7 +307,7 @@ public class TestQueries
     @Test
     public void testFirstWithNoResult() throws Exception
     {
-        Optional<Something> s = h.createQuery("select id, name from something").map(Something.class).first();
+        Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).first();
         assertFalse(s.isPresent());
     }
 
@@ -320,8 +320,8 @@ public class TestQueries
          .add(3, "Eric")
          .execute();
 
-        assertEquals(1, h.createQuery("select id, name from something").map(Something.class).stream().limit(1).collect(Collectors.toList()).size());
-        assertEquals(2, h.createQuery("select id, name from something").map(Something.class).stream().limit(2).collect(Collectors.toList()).size());
+        assertEquals(1, h.createQuery("select id, name from something").mapToBean(Something.class).stream().limit(1).collect(Collectors.toList()).size());
+        assertEquals(2, h.createQuery("select id, name from something").mapToBean(Something.class).stream().limit(2).collect(Collectors.toList()).size());
     }
 
     @Test
@@ -382,7 +382,7 @@ public class TestQueries
 
         List<Something> rs = h.createQuery("select id, name from something")
                               .setMaxRows(1)
-                              .map(Something.class)
+                              .mapToBean(Something.class)
                               .list();
 
         assertEquals(1, rs.size());

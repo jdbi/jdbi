@@ -40,7 +40,7 @@ public class TestPreparedBatchGenerateKeys {
             Assert.assertEquals(Arrays.asList(10000, 10001), ids);
 
             List<Something> somethings = h.createQuery("select id, name from something")
-                    .map(Something.class)
+                    .mapToBean(Something.class)
                     .list();
 
             Assert.assertEquals(Arrays.asList(new Something(10000, "Brian"), new Something(10001, "Thom")), somethings);

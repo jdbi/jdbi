@@ -53,7 +53,7 @@ public class TestNamedParams
                                           "where name like :name " +
                                           "order by id")
                 .bind("name", "Eri%")
-                .map(Something.class)
+                .mapToBean(Something.class)
                 .list();
 
         assertEquals(2, r.size());
@@ -99,7 +99,7 @@ public class TestNamedParams
         });
         int insert_count = s.execute();
         assertEquals(1, insert_count);
-        Something something = h.createQuery("select id, name from something").map(Something.class).only();
+        Something something = h.createQuery("select id, name from something").mapToBean(Something.class).only();
         assertEquals("Keith", something.getName());
         assertEquals(0, something.getId());
     }
