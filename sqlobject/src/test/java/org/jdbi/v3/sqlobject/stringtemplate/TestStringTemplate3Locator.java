@@ -62,7 +62,7 @@ public class TestStringTemplate3Locator
 
         String name = handle.createQuery("select name from something where id = 7")
                             .mapTo(String.class)
-                            .first();
+                            .only();
 
         assertThat(name, equalTo("Henning"));
     }
@@ -91,7 +91,7 @@ public class TestStringTemplate3Locator
         SqlObjectBuilder.attach(handle, Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
         String name = handle.createQuery("select name from something where id = 5")
                             .mapTo(String.class)
-                            .first();
+                            .only();
 
         assertThat(name, equalTo("Bouncer"));
     }

@@ -136,11 +136,11 @@ public class TestTransactions
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
         h.checkpoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 2, "Martin");
-        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
+        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").mapTo(Integer.class).only());
         h.rollback("first");
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
+        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).only());
         h.commit();
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
+        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).only());
     }
 
     @Test

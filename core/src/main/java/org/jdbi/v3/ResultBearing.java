@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -23,9 +24,33 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
     @Override
     ResultIterator<ResultType> iterator();
 
-    default ResultType first() {
+    /**
+     * Get the only row in the result set.
+     * @throws IllegalStateException if zero or multiple rows are returned
+     * @return the object mapped from the singular row in the results
+     */
+    default ResultType only() {
         try (ResultIterator<ResultType> iter = iterator()) {
-            return iter.hasNext() ? iter.next() : null;
+            if (!iter.hasNext()) {
+                throw new IllegalStateException("No element found in 'only'");
+            }
+
+            final ResultType r = iter.next();
+
+            if (iter.hasNext()) {
+                throw new IllegalStateException("Multiple elements found in 'only'");
+            }
+
+            return r;
+        }
+    }
+
+    /**
+     * Get the first row in the result set, if present.
+     */
+    default Optional<ResultType> first() {
+        try (ResultIterator<ResultType> iter = iterator()) {
+            return iter.hasNext() ? Optional.of(iter.next()) : Optional.empty();
         }
     }
 

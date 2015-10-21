@@ -99,7 +99,7 @@ public class TestNamedParams
         });
         int insert_count = s.execute();
         assertEquals(1, insert_count);
-        Something something = h.createQuery("select id, name from something").map(Something.class).first();
+        Something something = h.createQuery("select id, name from something").map(Something.class).only();
         assertEquals("Keith", something.getName());
         assertEquals(0, something.getId());
     }

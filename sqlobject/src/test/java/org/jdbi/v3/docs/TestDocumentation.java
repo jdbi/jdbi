@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.H2DatabaseRule;
+import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.Bind;
@@ -58,7 +58,7 @@ public class TestDocumentation
             String name = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
                 .mapTo(String.class)
-                .first();
+                .only();
             assertThat(name, equalTo("Brian"));
         }
     }
@@ -269,7 +269,7 @@ public class TestDocumentation
 
             Query<String> q = qrq.findById(1);
             q.setMaxFieldSize(100);
-            assertThat(q.first(), equalTo("Brian"));
+            assertThat(q.only(), equalTo("Brian"));
         }
     }
 
@@ -292,7 +292,7 @@ public class TestDocumentation
 
             String name = h.createQuery("select name from something where id = 17")
                 .mapTo(String.class)
-                .first();
+                .only();
             assertThat(name, equalTo("David P."));
         }
     }

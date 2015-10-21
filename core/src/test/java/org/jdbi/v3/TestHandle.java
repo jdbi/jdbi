@@ -15,11 +15,7 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -39,7 +35,7 @@ public class TestHandle
             public String inTransaction(Handle handle, TransactionStatus status) throws Exception
             {
                 handle.insert("insert into something (id, name) values (1, 'Brian')");
-                return handle.createQuery("select name from something where id = 1").map(Something.class).first().getName();
+                return handle.createQuery("select name from something where id = 1").map(Something.class).only().getName();
             }
         });
         assertEquals("Brian", value);
@@ -62,14 +58,7 @@ public class TestHandle
                     @Override
                     public String inTransaction(Handle handle, TransactionStatus status) throws Exception
                     {
-                        return handle.createQuery("select name from something where id = 1").map(new ResultSetMapper<String>()
-                        {
-                            @Override
-                            public String map(int index, ResultSet r, StatementContext ctx) throws SQLException
-                            {
-                                return r.getString(1);
-                            }
-                        }).first();
+                        return handle.createQuery("select name from something where id = 1").mapTo(String.class).only();
                     }
                 });
             }

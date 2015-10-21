@@ -114,7 +114,7 @@ abstract class ResultReturnThing
             if (containerType != null) {
                 throw new IllegalStateException("TODO: not supported");
             }
-            return q.first();
+            return q.first().orElse(null);
         }
 
         @Override

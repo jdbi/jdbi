@@ -61,8 +61,7 @@ public class TestReturningQuery
 
         Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
 
-        Something s = spiffy.findById(7)
-                            .first();
+        Something s = spiffy.findById(7).only();
 
         assertEquals("Tim", s.getName());
     }
@@ -74,8 +73,7 @@ public class TestReturningQuery
 
         Spiffy2 spiffy = SqlObjectBuilder.open(dbi, Spiffy2.class);
 
-        Something s = spiffy.findByIdWithExplicitMapper(7)
-                            .first();
+        Something s = spiffy.findByIdWithExplicitMapper(7).only();
 
         assertEquals("Tim", s.getName());
     }

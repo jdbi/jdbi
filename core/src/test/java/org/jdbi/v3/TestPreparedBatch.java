@@ -15,15 +15,12 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -62,14 +59,7 @@ public class TestPreparedBatch
         }
         b.execute();
 
-        int row_count = h.createQuery("select count(id) from something").map(new ResultSetMapper<Integer>()
-        {
-            @Override
-            public Integer map(int index, ResultSet r, StatementContext ctx) throws SQLException
-            {
-                return r.getInt(1);
-            }
-        }).first();
+        int row_count = h.createQuery("select count(id) from something").mapTo(int.class).only();
 
         assertEquals(count, row_count);
     }

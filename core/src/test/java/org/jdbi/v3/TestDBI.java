@@ -97,7 +97,7 @@ public class TestDBI
             @Override
             public String withHandle(Handle handle) throws Exception {
                 handle.insert("insert into something (id, name) values (1, 'Brian')");
-                return handle.createQuery("select name from something where id = 1").map(Something.class).first().getName();
+                return handle.createQuery("select name from something where id = 1").map(Something.class).only().getName();
             }
         });
         assertEquals("Brian", value);
@@ -111,7 +111,7 @@ public class TestDBI
             @Override
             public void useHandle(Handle handle) throws Exception {
                 handle.insert("insert into something (id, name) values (1, 'Brian')");
-                String value = handle.createQuery("select name from something where id = 1").map(Something.class).first().getName();
+                String value = handle.createQuery("select name from something where id = 1").map(Something.class).only().getName();
                 assertEquals("Brian", value);
             }
         });

@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Optional;
 
 import org.jdbi.v3.util.LongColumnMapper;
 import org.junit.Assert;
@@ -44,13 +45,13 @@ public class TestUpdateGeneratedKeys
 
         Update insert1 = h.createStatement("insert into something_else (name) values (:name)");
         insert1.bind("name", "Brian");
-        Long id1 = insert1.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).first();
+        Long id1 = insert1.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).only();
 
         Assert.assertNotNull(id1);
 
         Update insert2 = h.createStatement("insert into something_else (name) values (:name)");
         insert2.bind("name", "Tom");
-        Long id2 = insert2.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).first();
+        Long id2 = insert2.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).only();
 
         Assert.assertNotNull(id2);
         Assert.assertTrue(id2 > id1);
@@ -63,16 +64,16 @@ public class TestUpdateGeneratedKeys
 
         Update insert = h.createStatement("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
-        Long id1 = insert.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).first();
+        Long id1 = insert.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).only();
 
         Assert.assertNotNull(id1);
 
         Update update = h.createStatement("update something_else set name = :name where id = :id");
         update.bind("id", id1);
         update.bind("name", "Tom");
-        Long id2 = update.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).first();
+        Optional<Long> id2 = update.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).first();
 
-        Assert.assertNull(id2);
+        Assert.assertFalse(id2.isPresent());
     }
 
     @Test
@@ -82,14 +83,14 @@ public class TestUpdateGeneratedKeys
 
         Update insert = h.createStatement("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
-        Long id1 = insert.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).first();
+        Long id1 = insert.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).only();
 
         Assert.assertNotNull(id1);
 
         Update delete = h.createStatement("delete from something_else where id = :id");
         delete.bind("id", id1);
-        Long id2 = delete.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).first();
+        Optional<Long> id2 = delete.executeAndReturnGeneratedKeys(LongColumnMapper.WRAPPER).first();
 
-        Assert.assertNull(id2);
+        Assert.assertFalse(id2.isPresent());
     }
 }

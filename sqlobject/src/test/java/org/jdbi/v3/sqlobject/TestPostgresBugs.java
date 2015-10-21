@@ -58,7 +58,7 @@ public class TestPostgresBugs
             @Override
             public Integer withHandle(Handle handle) throws Exception
             {
-                return handle.createQuery("select 2 + 2").mapTo(Integer.class).first();
+                return handle.createQuery("select 2 + 2").mapTo(Integer.class).only();
             }
         });
 
