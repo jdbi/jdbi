@@ -37,7 +37,6 @@ import org.jdbi.v3.tweak.StatementBuilderFactory;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.tweak.TransactionHandler;
-import org.jdbi.v3.tweak.VoidHandleCallback;
 import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -308,12 +307,7 @@ public class DBI
      */
     public void useHandle(final HandleConsumer callback) throws CallbackFailedException
     {
-        withHandle(new VoidHandleCallback() {
-            @Override
-            protected void execute(Handle handle) throws Exception {
-                callback.useHandle(handle);
-            }
-        });
+        withHandle(h -> { callback.useHandle(h); return null; });
     }
 
     /**
