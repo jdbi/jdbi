@@ -26,7 +26,7 @@ public final class StatementCustomizers
     }
 
     /**
-     * Hint to the statement, that we want only a single row. Used by {@link Query#first()} to limit the number
+     * Hint to the statement, that we want only a single row. Used by {@link Query#findFirst()} to limit the number
      * of rows returned by the database.
      */
     public static final StatementCustomizer MAX_ROW_ONE = new MaxRowsCustomizer(1);

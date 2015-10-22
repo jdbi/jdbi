@@ -54,7 +54,7 @@ public class TestBindAutomaticNames extends TestCase
 
         Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
 
-        Something s = spiffy.findById(7).only();
+        Something s = spiffy.findById(7).findOnly();
 
         assertEquals("Tim", s.getName());
     }

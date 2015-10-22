@@ -79,7 +79,7 @@ public class TestOnDemandSqlObject
 
         s.insert(7, "Bill");
 
-        String bill = handle.createQuery("select name from something where id = 7").mapTo(String.class).only();
+        String bill = handle.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
         assertEquals("Bill", bill);
     }

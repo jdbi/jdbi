@@ -35,7 +35,7 @@ public class TestHandle
             public String inTransaction(Handle handle, TransactionStatus status) throws Exception
             {
                 handle.insert("insert into something (id, name) values (1, 'Brian')");
-                return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).only().getName();
+                return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
             }
         });
         assertEquals("Brian", value);
@@ -58,7 +58,7 @@ public class TestHandle
                     @Override
                     public String inTransaction(Handle handle, TransactionStatus status) throws Exception
                     {
-                        return handle.createQuery("select name from something where id = 1").mapTo(String.class).only();
+                        return handle.createQuery("select name from something where id = 1").mapTo(String.class).findOnly();
                     }
                 });
             }

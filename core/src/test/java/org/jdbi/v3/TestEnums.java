@@ -95,7 +95,7 @@ public class TestEnums
         try {
             h.createQuery("select * from something order by id")
              .mapToBean(SomethingElse.class)
-             .first();
+             .findFirst();
             fail("Expected IllegalArgumentException was not thrown");
         }
         catch (IllegalArgumentException e) {

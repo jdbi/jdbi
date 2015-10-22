@@ -99,7 +99,7 @@ public class TestNamedParams
         });
         int insert_count = s.execute();
         assertEquals(1, insert_count);
-        Something something = h.createQuery("select id, name from something").mapToBean(Something.class).only();
+        Something something = h.createQuery("select id, name from something").mapToBean(Something.class).findOnly();
         assertEquals("Keith", something.getName());
         assertEquals(0, something.getId());
     }

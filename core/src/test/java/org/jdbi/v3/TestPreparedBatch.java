@@ -59,7 +59,7 @@ public class TestPreparedBatch
         }
         b.execute();
 
-        int row_count = h.createQuery("select count(id) from something").mapTo(int.class).only();
+        int row_count = h.createQuery("select count(id) from something").mapTo(int.class).findOnly();
 
         assertEquals(count, row_count);
     }

@@ -55,7 +55,7 @@ public class TestBeanBinder
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
         s.insert(new Something(2, "Bean"));
 
-        String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).only();
+        String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
         assertEquals("Bean", name);
     }
 

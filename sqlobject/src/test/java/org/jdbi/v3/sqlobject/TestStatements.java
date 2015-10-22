@@ -32,7 +32,7 @@ public class TestStatements
             // this is what is under test here
             int rows_affected = i.insert(2, "Diego");
 
-            String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).only();
+            String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
 
             assertEquals(1, rows_affected);
             assertEquals("Diego", name);
@@ -46,7 +46,7 @@ public class TestStatements
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
 
-            String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).only();
+            String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
 
             assertEquals("Diego", name);
         }

@@ -39,7 +39,7 @@ public class TestArgumentFactory
               .bind("name", new Name("Brian", "McCallister"))
               .execute();
 
-            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).only();
+            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
             assertThat(full_name, equalTo("Brian McCallister"));
         }
@@ -55,7 +55,7 @@ public class TestArgumentFactory
              .bind("name", new Name("Brian", "McCallister"))
              .execute();
 
-            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).only();
+            String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
             assertThat(full_name, equalTo("Brian McCallister"));
         }

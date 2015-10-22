@@ -76,7 +76,7 @@ public class TestMixinInterfaces
             public String withHandle(Handle handle) throws Exception {
                 handle.execute("insert into something (id, name) values (8, 'Mike')");
 
-                return handle.createQuery("select name from something where id = 8").mapTo(String.class).only();
+                return handle.createQuery("select name from something where id = 8").mapTo(String.class).findOnly();
             }
         });
 
@@ -163,7 +163,7 @@ public class TestMixinInterfaces
             h1.begin();
             h1.execute("update something set name = 'Miker' where id = 8");
 
-            assertEquals("Mike", h2.createQuery("select name from something where id = 8").mapTo(String.class).only());
+            assertEquals("Mike", h2.createQuery("select name from something where id = 8").mapTo(String.class).findOnly());
             h1.commit();
         }
     }

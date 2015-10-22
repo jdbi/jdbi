@@ -29,7 +29,7 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
      * @throws IllegalStateException if zero or multiple rows are returned
      * @return the object mapped from the singular row in the results
      */
-    default ResultType only() {
+    default ResultType findOnly() {
         try (ResultIterator<ResultType> iter = iterator()) {
             if (!iter.hasNext()) {
                 throw new IllegalStateException("No element found in 'only'");
@@ -48,7 +48,7 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
     /**
      * Get the first row in the result set, if present.
      */
-    default Optional<ResultType> first() {
+    default Optional<ResultType> findFirst() {
         try (ResultIterator<ResultType> iter = iterator()) {
             return iter.hasNext() ? Optional.of(iter.next()) : Optional.empty();
         }

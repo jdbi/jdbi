@@ -63,7 +63,7 @@ public class TestRegisteredMappers
                 return handle.createQuery("select id, name from something where id = :id")
                     .bind("id", 18)
                     .mapTo(Something.class)
-                    .only();
+                    .findOnly();
             }
         });
 

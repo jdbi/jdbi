@@ -207,7 +207,7 @@ public class TestQueries
 
         Something r = h.createQuery("select * from something order by id")
                        .mapToBean(Something.class)
-                       .first()
+                       .findFirst()
                        .get();
 
         assertEquals("eric", r.getName());
@@ -307,7 +307,7 @@ public class TestQueries
     @Test
     public void testFirstWithNoResult() throws Exception
     {
-        Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).first();
+        Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).findFirst();
         assertFalse(s.isPresent());
     }
 

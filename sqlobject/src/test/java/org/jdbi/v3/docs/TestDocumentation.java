@@ -58,7 +58,7 @@ public class TestDocumentation
             String name = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
                 .mapTo(String.class)
-                .only();
+                .findOnly();
             assertThat(name, equalTo("Brian"));
         }
     }
@@ -269,7 +269,7 @@ public class TestDocumentation
 
             Query<String> q = qrq.findById(1);
             q.setMaxFieldSize(100);
-            assertThat(q.only(), equalTo("Brian"));
+            assertThat(q.findOnly(), equalTo("Brian"));
         }
     }
 
@@ -292,7 +292,7 @@ public class TestDocumentation
 
             String name = h.createQuery("select name from something where id = 17")
                 .mapTo(String.class)
-                .only();
+                .findOnly();
             assertThat(name, equalTo("David P."));
         }
     }

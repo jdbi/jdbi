@@ -151,7 +151,7 @@ public class TestRegisteredMappersWork
             h.insert("insert into something (id, name) values (1, 'Henning')");
             h.createQuery("select id, name from something where id = 1")
                                  .mapTo(Something.class)
-                                 .first();
+                                 .findFirst();
             fail("should have raised an exception");
         }
     }

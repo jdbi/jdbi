@@ -56,7 +56,7 @@ public class TestTooManyCursors
                 {
                     handle.setStatementBuilder(new DefaultStatementBuilder());
                     for (int idx = 0; idx < 100; idx++) {
-                        handle.createQuery("SELECT " + idx + " FROM something").first();
+                        handle.createQuery("SELECT " + idx + " FROM something").findFirst();
                     }
                     return null;
                 }

@@ -60,7 +60,7 @@ public class TestOverrideStatementLocatorWith
 
         String name = handle.createQuery("select name from something where id = 7")
                             .mapTo(String.class)
-                            .only();
+                            .findOnly();
 
         assertThat(name, equalTo("Henning"));
     }
@@ -88,7 +88,7 @@ public class TestOverrideStatementLocatorWith
         SqlObjectBuilder.attach(handle, Kangaroo.class).weirdInsert("something", "id", "name", 5, "Bouncer");
         String name = handle.createQuery("select name from something where id = 5")
                             .mapTo(String.class)
-                            .only();
+                            .findOnly();
 
         assertThat(name, equalTo("Bouncer"));
     }
