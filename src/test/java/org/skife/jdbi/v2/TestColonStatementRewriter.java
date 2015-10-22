@@ -18,16 +18,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
-import org.skife.jdbi.v2.tweak.StatementRewriter;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
 public class TestColonStatementRewriter
 {
     private ColonPrefixNamedParamStatementRewriter rw;
@@ -38,72 +34,67 @@ public class TestColonStatementRewriter
         this.rw = new ColonPrefixNamedParamStatementRewriter();
     }
 
+    private RewrittenStatement rewrite(String sql)
+    {
+        return rw.rewrite(sql,
+                new Binding(),
+                new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+    }
+
     @Test
     public void testNewlinesOkay() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite("select * from something\n where id = :id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+        RewrittenStatement rws = rewrite("select * from something\n where id = :id");
         assertEquals("select * from something\n where id = ?", rws.getSql());
     }
 
     @Test
     public void testOddCharacters() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite("~* :boo ':nope' _%&^& *@ :id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+        RewrittenStatement rws = rewrite("~* :boo ':nope' _%&^& *@ :id");
         assertEquals("~* ? ':nope' _%&^& *@ ?", rws.getSql());
     }
 
     @Test
     public void testNumbers() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite(":bo0 ':nope' _%&^& *@ :id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+        RewrittenStatement rws = rewrite(":bo0 ':nope' _%&^& *@ :id");
         assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
     }
 
     @Test
     public void testDollarSignOkay() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite("select * from v$session", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+        RewrittenStatement rws = rewrite("select * from v$session");
         assertEquals("select * from v$session", rws.getSql());
     }
 
     @Test
     public void testHashInColumnNameOkay() throws Exception
     {
-       RewrittenStatement rws = rw.rewrite("select column# from thetable where id = :id", new Binding(),
-                                           new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+       RewrittenStatement rws = rewrite("select column# from thetable where id = :id");
        assertEquals("select column# from thetable where id = ?", rws.getSql());
     }
 
     @Test
     public void testBacktickOkay() throws Exception
     {
-        RewrittenStatement rws = rw.rewrite("select * from `v$session", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+        RewrittenStatement rws = rewrite("select * from `v$session");
         assertEquals("select * from `v$session", rws.getSql());
     }
 
-    @Test
+    @Test(expected = UnableToCreateStatementException.class)
     public void testBailsOutOnInvalidInput() throws Exception
     {
-        try {
-            rw.rewrite("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
-
-            Assert.fail("Expected 'UnableToCreateStatementException' but got none");
-        }
-        catch (UnableToCreateStatementException e) {
-        }
+        rewrite("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c");
+        Assert.fail("Expected 'UnableToCreateStatementException' but got none");
     }
 
     @Test
     public void testCachesRewrittenStatements() throws Exception
     {
         final AtomicInteger ctr = new AtomicInteger(0);
-        ColonPrefixNamedParamStatementRewriter rw = new ColonPrefixNamedParamStatementRewriter()
+        rw = new ColonPrefixNamedParamStatementRewriter()
         {
             @Override
             ParsedStatement parseString(final String sql) throws IllegalArgumentException
@@ -113,19 +104,17 @@ public class TestColonStatementRewriter
             }
         };
 
-        rw.rewrite("insert into something (id, name) values (:id, :name)", new Binding(),
-                new ConcreteStatementContext(new HashMap<String, Object>(), null));
+        rewrite("insert into something (id, name) values (:id, :name)");
 
         assertEquals(1, ctr.get());
 
-        rw.rewrite("insert into something (id, name) values (:id, :name)", new Binding(),
-                new ConcreteStatementContext(new HashMap<String, Object>(), null));
+        rewrite("insert into something (id, name) values (:id, :name)");
 
         assertEquals(1, ctr.get());
     }
 
     public void testCommentQuote() throws Exception
     {
-        rw.rewrite("select 1 /* ' \" */", new Binding(), new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+        rewrite("select 1 /* ' \" */");
     }
 }
