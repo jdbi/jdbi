@@ -35,7 +35,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       StatementRewriter rewriter,
                       Handle handle,
                       StatementBuilder cache,
-                      String sql,
+                      SqlName sql,
                       ConcreteStatementContext context,
                       TimingCollector timingCollector,
                       Foreman foreman)

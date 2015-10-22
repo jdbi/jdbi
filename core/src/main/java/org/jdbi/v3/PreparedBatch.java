@@ -51,7 +51,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                   StatementRewriter rewriter,
                   Handle handle,
                   StatementBuilder statementBuilder,
-                  String sql,
+                  SqlName sql,
                   ConcreteStatementContext ctx,
                   TimingCollector timingCollector,
                   Collection<StatementCustomizer> statementCustomizers,

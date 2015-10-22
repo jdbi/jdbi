@@ -77,7 +77,7 @@ public abstract class StatementException extends DBIException
         else {
             return String.format("%s [statement:\"%s\", located:\"%s\", rewritten:\"%s\", arguments:%s]",
                                  base,
-                                 ctx.getRawSql(),
+                                 ctx.getSqlName(),
                                  ctx.getLocatedSql(),
                                  ctx.getRewrittenSql(),
                                  ctx.getBinding());

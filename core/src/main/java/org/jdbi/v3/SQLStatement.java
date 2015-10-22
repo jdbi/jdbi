@@ -52,7 +52,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
     private final Binding          params;
     private final Handle           handle;
-    private final String           sql;
+    private final SqlName           sql;
     private final StatementBuilder statementBuilder;
 
     private StatementLocator  locator;
@@ -70,7 +70,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
                  StatementRewriter rewriter,
                  Handle handle,
                  StatementBuilder statementBuilder,
-                 String sql,
+                 SqlName sql,
                  ConcreteStatementContext ctx,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers,
@@ -90,7 +90,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         this.locator = locator;
 
         ctx.setConnection(handle.getConnection());
-        ctx.setRawSql(sql);
+        ctx.setSqlName(sql);
         ctx.setBinding(params);
     }
 
@@ -216,7 +216,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * The un-translated SQL used to create this statement
      */
-    protected String getSql()
+    protected SqlName getSql()
     {
         return sql;
     }
@@ -1257,7 +1257,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return bind(position, new SqlTypeArgument(value, sqlType));
     }
 
-    private String wrapLookup(String sql)
+    private String wrapLookup(SqlName sql)
     {
         try {
             return locator.locate(sql, this.getContext());
@@ -1287,7 +1287,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
         // caching statement builder relies on the statement *not* being closed.
-        addCleanable(new Cleanables.StatementBuilderCleanable(statementBuilder, handle.getConnection(), sql, stmt));
+        addCleanable(new Cleanables.StatementBuilderCleanable(statementBuilder,
+                                                              handle.getConnection(),
+                                                              rewritten.getSql(),
+                                                              stmt));
 
         getConcreteContext().setStatement(stmt);
 

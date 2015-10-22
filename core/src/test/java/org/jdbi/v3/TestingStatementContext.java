@@ -55,7 +55,7 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public String getRawSql()
+    public SqlName getSqlName()
     {
         throw new UnsupportedOperationException();
     }

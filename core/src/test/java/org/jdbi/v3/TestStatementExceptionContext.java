@@ -31,7 +31,7 @@ public class TestStatementExceptionContext
             h.insert("WOOF", 7, "Tom");
         }
         catch (StatementException e) {
-           assertEquals(e.getStatementContext().getRawSql(), "WOOF");
+           assertEquals(e.getStatementContext().getSqlName().toString(), "WOOF");
         }
     }
 }

@@ -39,7 +39,7 @@ public class Call extends SQLStatement<Call>
          StatementLocator locator,
          StatementRewriter rewriter,
          StatementBuilder cache,
-         String sql,
+         SqlName sql,
          ConcreteStatementContext ctx,
          TimingCollector timingCollector,
          Collection<StatementCustomizer> customizers,

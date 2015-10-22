@@ -31,7 +31,7 @@ public final class ConcreteStatementContext implements StatementContext
     private final Map<String, Object>        attributes = new HashMap<String, Object>();
     private final MappingRegistry mappingRegistry;
 
-    private String            rawSql;
+    private SqlName           rawSql;
     private String            rewrittenSql;
     private String            locatedSql;
     private PreparedStatement statement;
@@ -94,7 +94,7 @@ public final class ConcreteStatementContext implements StatementContext
         return mappingRegistry.columnMapperFor(type, this);
     }
 
-    void setRawSql(String rawSql)
+    void setSqlName(SqlName rawSql)
     {
         this.rawSql = rawSql;
     }
@@ -105,7 +105,7 @@ public final class ConcreteStatementContext implements StatementContext
      * @return the initial sql
      */
     @Override
-    public String getRawSql()
+    public SqlName getSqlName()
     {
         return rawSql;
     }

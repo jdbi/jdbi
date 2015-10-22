@@ -35,7 +35,7 @@ public class Update extends SQLStatement<Update>
            StatementLocator locator,
            StatementRewriter statementRewriter,
            StatementBuilder statementBuilder,
-           String sql,
+           SqlName sql,
            ConcreteStatementContext ctx,
            TimingCollector timingCollector,
            Foreman foreman)

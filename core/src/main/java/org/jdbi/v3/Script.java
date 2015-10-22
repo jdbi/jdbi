@@ -29,10 +29,10 @@ public class Script
 
     private final Handle handle;
     private final StatementLocator locator;
-    private final String name;
+    private final SqlName name;
     private final StatementContext statementContext;
 
-    Script(Handle h, StatementLocator locator, String name, StatementContext statementContext)
+    Script(Handle h, StatementLocator locator, SqlName name, StatementContext statementContext)
     {
         this.handle = h;
         this.locator = locator;

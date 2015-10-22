@@ -129,7 +129,7 @@ public class TestClasspathStatementLocator
     public void testCachesOriginalQueryWhenNotFound() throws Exception
     {
         StatementLocator statementLocator = new ClasspathStatementLocator();
-        StatementContext statementContext = new TestingStatementContext(new HashMap<String, Object>()) {
+        StatementContext statementContext = new TestingStatementContext(new HashMap<>()) {
 
             @Override
             public Class<?> getSqlObjectType() {
@@ -137,13 +137,13 @@ public class TestClasspathStatementLocator
             }
         };
 
-        String input = "missing query";
+        SqlName input = new SqlName("missing query");
         String located = statementLocator.locate(input, statementContext);
 
-        assertEquals(input, located); // first time just caches it
+        assertEquals(input.toString(), located); // first time just caches it
 
         located = statementLocator.locate(input, statementContext);
 
-        assertEquals(input, located); // second time reads from cache
+        assertEquals(input.toString(), located); // second time reads from cache
     }
 }

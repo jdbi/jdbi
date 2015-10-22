@@ -32,7 +32,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<String, String>());
+    private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<>());
 
     /**
      * Very basic sanity test to see if a string looks like it might be sql
@@ -72,28 +72,28 @@ public class ClasspathStatementLocator implements StatementLocator
     @Override
     @SuppressWarnings({ "PMD.EmptyCatchBlock", "resource" })
     @SuppressFBWarnings("DM_STRING_CTOR")
-    public String locate(String name, StatementContext ctx)
+    public String locate(SqlName name, StatementContext ctx)
     {
         final String cache_key;
         if (ctx.getSqlObjectType() != null) {
             cache_key = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
         }
         else {
-            cache_key = name;
+            cache_key = name.toString();
         }
 
         if (found.containsKey(cache_key)) {
             return found.get(cache_key);
         }
 
-        if (looksLikeSql(name)) {
+        if (looksLikeSql(name.toString())) {
             // No need to cache individual SQL statements that don't cause us to search the classpath
-            return name;
+            return name.toString();
         }
         final ClassLoader loader = selectClassLoader();
         InputStream in_stream = null;
         try {
-            in_stream = loader.getResourceAsStream(name);
+            in_stream = loader.getResourceAsStream(name.toString());
             if (in_stream == null) {
                 in_stream = loader.getResourceAsStream(name + ".sql");
             }
@@ -109,8 +109,8 @@ public class ClasspathStatementLocator implements StatementLocator
             if (in_stream == null) {
                 // Ensure we don't store an identity map entry which has a hard reference
                 // to the key (through the value) by copying the value, avoids potential memory leak.
-                found.put(cache_key, name == cache_key ? new String(name) : name);
-                return name;
+                found.put(cache_key, name.toString() == cache_key ? new String(name.toString()) : name.toString());
+                return name.toString();
             }
             String sql;
             try {

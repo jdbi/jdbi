@@ -26,6 +26,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
+import org.jdbi.v3.SqlName;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.StatementLocator;
 
@@ -242,11 +243,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
     }
 
     @Override
-    public String locate(String name, StatementContext ctx) throws Exception
+    public String locate(SqlName name, StatementContext ctx) throws Exception
     {
-        if (group.isDefined(name)) {
+        if (group.isDefined(name.toString())) {
             // yeah, found template for it!
-            StringTemplate t = group.getInstanceOf(name);
+            StringTemplate t = group.getInstanceOf(name.toString());
             t.reset();
             for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
                 t.setAttribute(entry.getKey(), entry.getValue());
@@ -255,9 +256,9 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
         else if (treatLiteralsAsTemplates) {
             // no template in the template group, but we want literals to be templates
-            final String key = new String(new Base64().encode(name.getBytes(UTF_8)), UTF_8);
+            final String key = new String(new Base64().encode(name.toString().getBytes(UTF_8)), UTF_8);
             if (!literals.isDefined(key)) {
-                literals.defineTemplate(key, name);
+                literals.defineTemplate(key, name.toString());
             }
             StringTemplate t = literals.lookupTemplate(key);
             for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
@@ -267,7 +268,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
         else {
             // no template, no literals as template, just use the literal as sql
-            return name;
+            return name.toString();
         }
     }
 
