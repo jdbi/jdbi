@@ -124,4 +124,8 @@ public class TestColonStatementRewriter
         assertEquals(1, ctr.get());
     }
 
+    public void testCommentQuote() throws Exception
+    {
+        rw.rewrite("select 1 /* ' \" */", new Binding(), new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+    }
 }
