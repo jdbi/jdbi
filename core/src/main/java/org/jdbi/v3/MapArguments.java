@@ -26,9 +26,9 @@ class MapArguments implements NamedArgumentFinder
 {
     private final Foreman foreman;
     private final StatementContext ctx;
-    private final Map<String, ? extends Object> args;
+    private final Map<String, ?> args;
 
-    MapArguments(Foreman foreman, StatementContext ctx, Map<String, ? extends Object> args)
+    MapArguments(Foreman foreman, StatementContext ctx, Map<String, ?> args)
     {
         this.foreman = foreman;
         this.ctx = ctx;
@@ -41,7 +41,7 @@ class MapArguments implements NamedArgumentFinder
         if (args.containsKey(name))
         {
             final Object argument = args.get(name);
-            final Class<? extends Object> argumentClass =
+            final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();
             return foreman.waffle(argumentClass, argument, ctx);
         }

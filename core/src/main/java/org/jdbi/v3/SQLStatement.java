@@ -150,12 +150,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      * @return this
      */
     @SuppressWarnings("unchecked")
-    public SelfType define(final Map<String, ? extends Object> values)
+    public SelfType define(final Map<String, ?> values)
     {
         final StatementContext context = getContext();
 
         if (values != null) {
-            for (Map.Entry<String, ? extends Object> entry : values.entrySet()) {
+            for (Map.Entry<String, ?> entry : values.entrySet()) {
                 context.setAttribute(entry.getKey(), entry.getValue());
             }
         }
@@ -310,7 +310,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      * @return modified statement
      */
     @SuppressWarnings("unchecked")
-    public SelfType bindFromMap(Map<String, ? extends Object> args)
+    public SelfType bindFromMap(Map<String, ?> args)
     {
         if (args != null) {
             return bindNamedArgumentFinder(new MapArguments(getForeman(), getContext(), args));

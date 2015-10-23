@@ -80,10 +80,10 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
      * @return this
      */
     @Override
-    public PreparedBatch define(final Map<String, ? extends Object> values)
+    public PreparedBatch define(final Map<String, ?> values)
     {
         if (values != null) {
-            for (Map.Entry<String, ? extends Object> entry: values.entrySet())
+            for (Map.Entry<String, ?> entry: values.entrySet())
             {
                 getContext().setAttribute(entry.getKey(), entry.getValue());
             }
@@ -231,7 +231,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
      *
      * @return the new batch part
      */
-    public PreparedBatchPart add(Map<String, ? extends Object> args)
+    public PreparedBatchPart add(Map<String, ?> args)
     {
         PreparedBatchPart part = add();
         part.bindFromMap(args);
