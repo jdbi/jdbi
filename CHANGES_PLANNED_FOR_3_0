@@ -13,4 +13,4 @@ This file describes the changes expected in some eventual 3.0 release.
 * Use Type instead of Class to support more robust generics in mappers.
 * Rework the sharing of StatementContext and Mappers to make ownership of these objects more clear
 * Consider using Jackson for type mapping?
-
+* Consider CallbackFailedException wrapping policy (see #198)
