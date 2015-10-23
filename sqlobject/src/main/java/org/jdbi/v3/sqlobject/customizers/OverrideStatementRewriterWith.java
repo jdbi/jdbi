@@ -21,7 +21,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -49,14 +48,7 @@ public @interface OverrideStatementRewriterWith
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, method);
-                return new SqlStatementCustomizer()
-                {
-                    @Override
-                    public void apply(SQLStatement<?> q)
-                    {
-                        q.setStatementRewriter(rw);
-                    }
-                };
+                return q -> q.setStatementRewriter(rw);
             }
             catch (Exception e) {
                 throw new IllegalStateException(e);
@@ -69,14 +61,7 @@ public @interface OverrideStatementRewriterWith
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, null);
-                return new SqlStatementCustomizer()
-                {
-                    @Override
-                    public void apply(SQLStatement<?> q)
-                    {
-                        q.setStatementRewriter(rw);
-                    }
-                };
+                return q -> q.setStatementRewriter(rw);
             }
             catch (Exception e) {
                 throw new IllegalStateException(e);

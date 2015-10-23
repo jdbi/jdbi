@@ -19,7 +19,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -52,19 +51,13 @@ public class TestRegisteredMappers
     public void testRegisterInferredOnDBI() throws Exception
     {
         dbi.registerMapper(new SomethingMapper());
-        Something sam = dbi.withHandle(new HandleCallback<Something>()
-        {
+        Something sam = dbi.withHandle(handle1 -> {
+            handle1.insert("insert into something (id, name) values (18, 'Sam')");
 
-            @Override
-            public Something withHandle(Handle handle) throws Exception
-            {
-                handle.insert("insert into something (id, name) values (18, 'Sam')");
-
-                return handle.createQuery("select id, name from something where id = :id")
-                    .bind("id", 18)
-                    .mapTo(Something.class)
-                    .findOnly();
-            }
+            return handle1.createQuery("select id, name from something where id = :id")
+                .bind("id", 18)
+                .mapTo(Something.class)
+                .findOnly();
         });
 
         assertEquals("Sam", sam.getName());

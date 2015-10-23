@@ -48,25 +48,13 @@ class UpdateHandler extends CustomizingStatementHandler
             catch (Exception e) {
                 throw new UnableToCreateStatementException("Unable to instantiate result set mapper for statement", e, null);
             }
-            this.returner = new Returner()
-            {
-                @Override
-                public Object value(Update update, HandleDing baton)
-                {
-                    GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
-                    return magic.result(o, baton);
-                }
+            this.returner = (update, baton) -> {
+                GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
+                return magic.result(o, baton);
             };
         }
         else {
-            this.returner = new Returner()
-            {
-                @Override
-                public Object value(Update update, HandleDing baton)
-                {
-                    return update.execute();
-                }
-            };
+            this.returner = (update, baton) -> update.execute();
         }
     }
 

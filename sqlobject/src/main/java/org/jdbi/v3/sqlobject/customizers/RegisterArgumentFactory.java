@@ -19,11 +19,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -75,14 +73,9 @@ public @interface RegisterArgumentFactory
                     throw new IllegalStateException("unable to instantiate specified argument factory", e);
                 }
             }
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q) throws SQLException
-                {
-                    for (ArgumentFactory<?> argumentFactory : ary) {
-                        q.registerArgumentFactory(argumentFactory);
-                    }
+            return q -> {
+                for (ArgumentFactory<?> argumentFactory : ary) {
+                    q.registerArgumentFactory(argumentFactory);
                 }
             };
         }

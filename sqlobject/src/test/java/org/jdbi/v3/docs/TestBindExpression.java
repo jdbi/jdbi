@@ -21,8 +21,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.UUID;
 
 import com.google.common.collect.ImmutableMap;
@@ -32,9 +30,7 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
@@ -44,8 +40,6 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.NamedArgumentFinder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,35 +110,11 @@ public class TestBindExpression
             {
                 final String root_name = ((BindRoot) annotation).value();
                 final JexlEngine engine = new JexlEngine();
-                return new SqlStatementCustomizer()
-                {
-                    @Override
-                    public void apply(SQLStatement<?> q) throws SQLException
-                    {
-                        q.bindNamedArgumentFinder(new NamedArgumentFinder()
-                        {
-                            @Override
-                            public Argument find(String name)
-                            {
-                                Expression e = engine.createExpression(name);
-                                final Object it = e.evaluate(new MapContext(ImmutableMap.of(root_name, root)));
-                                if (it != null) {
-                                    return new Argument()
-                                    {
-                                        @Override
-                                        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-                                        {
-                                            statement.setObject(position, it);
-                                        }
-                                    };
-                                }
-                                else {
-                                    return null;
-                                }
-                            }
-                        });
-                    }
-                };
+                return q -> q.bindNamedArgumentFinder(name -> {
+                    Expression e = engine.createExpression(name);
+                    final Object it = e.evaluate(new MapContext(ImmutableMap.of(root_name, root)));
+                    return it == null ? null : (position, statement, ctx) -> statement.setObject(position, it);
+                });
             }
         }
     }

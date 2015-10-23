@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3;
 
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.Map;
@@ -50,13 +49,7 @@ public class Update extends SQLStatement<Update>
     public int execute()
     {
         try {
-            return this.internalExecute(new QueryResultMunger<Integer>() {
-                @Override
-                public Integer munge(Statement results) throws SQLException
-                {
-                    return results.getUpdateCount();
-                }
-            });
+            return this.internalExecute(Statement::getUpdateCount);
         }
         finally {
             cleanup();
@@ -76,16 +69,11 @@ public class Update extends SQLStatement<Update>
         if (columnName != null && !columnName.isEmpty()) {
             getConcreteContext().setGeneratedKeysColumnNames(new String[] { columnName } );
         }
-        return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>() {
-            @Override
-            public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
-            {
-                return new GeneratedKeys<GeneratedKeyType>(mapper,
-                                                           Update.this,
-                                                           results,
-                                                           getContext());
-            }
-        });
+        return this.internalExecute(results ->
+                new GeneratedKeys<GeneratedKeyType>(mapper,
+                                                    Update.this,
+                                                    results,
+                                                    getContext()));
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {

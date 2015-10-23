@@ -168,14 +168,7 @@ public class LocalTransactionHandler implements TransactionHandler
     public <ReturnType> ReturnType inTransaction(Handle handle, TransactionCallback<ReturnType> callback)
     {
         final AtomicBoolean failed = new AtomicBoolean(false);
-        TransactionStatus status = new TransactionStatus()
-        {
-            @Override
-            public void setRollbackOnly()
-            {
-                failed.set(true);
-            }
-        };
+        TransactionStatus status = () -> failed.set(true);
         final ReturnType returnValue;
         try {
             handle.begin();

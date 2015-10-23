@@ -19,9 +19,7 @@ import static org.junit.Assert.assertThat;
 import java.util.UUID;
 
 import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,12 +30,8 @@ public class TestGetGeneratedKeysHsqlDb {
     @Before
     public void setUp() throws Exception {
         dbi = new DBI("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password");
-        dbi.withHandle(new HandleCallback<Object>() {
-            @Override
-            public Object withHandle(Handle handle) throws Exception {
-                handle.execute("create table something (id identity primary key, name varchar(32))");
-                return null;
-            }
+        dbi.useHandle(handle -> {
+            handle.execute("create table something (id identity primary key, name varchar(32))");
         });
     }
 

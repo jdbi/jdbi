@@ -15,10 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import net.sf.cglib.proxy.MethodProxy;
 
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.Transaction;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionStatus;
 
 class InTransactionHandler implements Handler
 {
@@ -29,14 +26,7 @@ class InTransactionHandler implements Handler
         try {
             @SuppressWarnings("unchecked")
             final Transaction<Object, Object> t = (Transaction<Object, Object>) args[0];
-            return h.getHandle().inTransaction(new TransactionCallback<Object>()
-            {
-                @Override
-                public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
-                {
-                    return t.inTransaction(target, status);
-                }
-            });
+            return h.getHandle().inTransaction((conn, status) -> t.inTransaction(target, status));
         }
         finally {
             h.release("transaction#implicit");

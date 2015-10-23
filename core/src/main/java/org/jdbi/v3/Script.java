@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.Token;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.StatementLocator;
 
@@ -77,12 +76,9 @@ public class Script
 
     private List<String> splitToStatements(String script) {
         final List<String> statements = new ArrayList<String>();
-        String lastStatement = new SqlScriptParser(new SqlScriptParser.TokenHandler() {
-            @Override
-            public void handle(Token t, StringBuilder sb) {
-                addStatement(sb.toString(), statements);
-                sb.setLength(0);
-            }
+        String lastStatement = new SqlScriptParser((t, sb) -> {
+            addStatement(sb.toString(), statements);
+            sb.setLength(0);
         }).parse(new ANTLRStringStream(script));
         addStatement(lastStatement, statements);
 

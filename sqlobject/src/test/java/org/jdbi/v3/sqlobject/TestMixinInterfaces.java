@@ -22,14 +22,11 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.Transaction;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -71,13 +68,10 @@ public class TestMixinInterfaces
     public void testWithHandle() throws Exception
     {
         WithGetHandle g = SqlObjectBuilder.attach(handle, WithGetHandle.class);
-        String name = g.withHandle(new HandleCallback<String>() {
-            @Override
-            public String withHandle(Handle handle) throws Exception {
-                handle.execute("insert into something (id, name) values (8, 'Mike')");
+        String name = g.withHandle(handle1 -> {
+            handle1.execute("insert into something (id, name) values (8, 'Mike')");
 
-                return handle.createQuery("select name from something where id = 8").mapTo(String.class).findOnly();
-            }
+            return handle1.createQuery("select name from something where id = 8").mapTo(String.class).findOnly();
         });
 
         assertEquals("Mike", name);
@@ -105,13 +99,7 @@ public class TestMixinInterfaces
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
         txl.insert(7, "Keith");
 
-        Something s = txl.inTransaction(new Transaction<Something, TransactionStuff>() {
-            @Override
-            public Something inTransaction(TransactionStuff conn, TransactionStatus status) throws Exception
-            {
-                return conn.byId(7);
-            }
-        });
+        Something s = txl.inTransaction((conn, status) -> conn.byId(7));
 
         assertEquals("Keith", s.getName());
     }
@@ -122,13 +110,9 @@ public class TestMixinInterfaces
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);
         txl.insert(7, "Keith");
 
-        Something s = txl.inTransaction(TransactionIsolationLevel.SERIALIZABLE, new Transaction<Something, TransactionStuff>() {
-            @Override
-            public Something inTransaction(TransactionStuff conn, TransactionStatus status) throws Exception
-            {
-                Assert.assertEquals(TransactionIsolationLevel.SERIALIZABLE, conn.getHandle().getTransactionIsolationLevel());
-                return conn.byId(7);
-            }
+        Something s = txl.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (conn, status) -> {
+            Assert.assertEquals(TransactionIsolationLevel.SERIALIZABLE, conn.getHandle().getTransactionIsolationLevel());
+            return conn.byId(7);
         });
 
         assertEquals("Keith", s.getName());

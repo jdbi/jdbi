@@ -16,10 +16,8 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.PGDatabaseRule;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,27 +30,17 @@ public class TestGetGeneratedKeysPostgres
 
     @Before
     public void setUp() throws Exception {
-        db.getDbi().withHandle(new HandleCallback<Object>() {
-            @Override
-            public Object withHandle(Handle handle) throws Exception
-            {
-                handle.execute("create sequence id_sequence INCREMENT 1 START WITH 100");
-                handle.execute("create table if not exists something (name text, id int DEFAULT nextval('id_sequence'), CONSTRAINT something_id PRIMARY KEY ( id ));");
-                return null;
-            }
+        db.getDbi().useHandle(handle -> {
+            handle.execute("create sequence id_sequence INCREMENT 1 START WITH 100");
+            handle.execute("create table if not exists something (name text, id int DEFAULT nextval('id_sequence'), CONSTRAINT something_id PRIMARY KEY ( id ));");
         });
     }
 
     @After
     public void tearDown() throws Exception {
-        db.getDbi().withHandle(new HandleCallback<Object>() {
-            @Override
-            public Object withHandle(Handle handle) throws Exception
-            {
-                handle.execute("drop table something");
-                handle.execute("drop sequence id_sequence");
-                return null;
-            }
+        db.getDbi().useHandle(handle -> {
+            handle.execute("drop table something");
+            handle.execute("drop sequence id_sequence");
         });
     }
 

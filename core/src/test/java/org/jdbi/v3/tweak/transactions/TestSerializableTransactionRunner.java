@@ -19,9 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,13 +47,9 @@ public class TestSerializableTransactionRunner
         Handle handle = dbi.open();
 
         try {
-            handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, new TransactionCallback<Void>() {
-                @Override
-                public Void inTransaction(Handle conn, TransactionStatus status) throws Exception
-                {
-                    tries.decrementAndGet();
-                    throw new SQLException("serialization", "40001");
-                }
+            handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (conn, status) -> {
+                tries.decrementAndGet();
+                throw new SQLException("serialization", "40001");
             });
         } catch (TransactionFailedException e)
         {
@@ -70,16 +64,12 @@ public class TestSerializableTransactionRunner
         final AtomicInteger tries = new AtomicInteger(3);
         Handle handle = dbi.open();
 
-        handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, new TransactionCallback<Void>() {
-            @Override
-            public Void inTransaction(Handle conn, TransactionStatus status) throws Exception
+        handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (conn, status) -> {
+            if (tries.decrementAndGet() == 0)
             {
-                if (tries.decrementAndGet() == 0)
-                {
-                    return null;
-                }
-                throw new SQLException("serialization", "40001");
+                return null;
             }
+            throw new SQLException("serialization", "40001");
         });
 
         Assert.assertEquals(0, tries.get());

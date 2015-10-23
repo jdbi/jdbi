@@ -22,10 +22,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -46,27 +44,17 @@ public class TestGetGeneratedKeysOracle {
     @Before
     public void setUp() throws Exception {
         dbi = new DBI("jdbc:oracle:thin:@localhost:test", "oracle", "oracle");
-        dbi.withHandle(new HandleCallback<Object>() {
-            @Override
-            public Object withHandle(Handle handle) throws Exception
-            {
-                handle.execute("create sequence something_id_sequence INCREMENT BY 1 START WITH 100");
-                handle.execute("create table something (name varchar(200), id int, constraint something_id primary key (id))");
-                return null;
-            }
+        dbi.useHandle(handle -> {
+            handle.execute("create sequence something_id_sequence INCREMENT BY 1 START WITH 100");
+            handle.execute("create table something (name varchar(200), id int, constraint something_id primary key (id))");
         });
     }
 
     @After
     public void tearDown() throws Exception {
-        dbi.withHandle(new HandleCallback<Object>() {
-            @Override
-            public Object withHandle(Handle handle) throws Exception
-            {
-                handle.execute("drop table something");
-                handle.execute("drop sequence something_id_sequence");
-                return null;
-            }
+        dbi.useHandle(handle -> {
+            handle.execute("drop table something");
+            handle.execute("drop sequence something_id_sequence");
         });
     }
 

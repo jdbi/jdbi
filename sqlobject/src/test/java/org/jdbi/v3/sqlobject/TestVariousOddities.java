@@ -88,12 +88,8 @@ public class TestVariousOddities
     @Test
     public void testConcurrentHashCode() throws ExecutionException, InterruptedException
     {
-        Callable<SpiffyConcurrent> callable = new Callable<SpiffyConcurrent>() {
-            @Override
-            public SpiffyConcurrent call() throws Exception {
-                return SqlObjectBuilder.attach(db.getSharedHandle(), SpiffyConcurrent.class);
-            }
-        };
+        Callable<SpiffyConcurrent> callable = () ->
+                SqlObjectBuilder.attach(db.getSharedHandle(), SpiffyConcurrent.class);
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
         Future<SpiffyConcurrent> f1 = pool.submit(callable);

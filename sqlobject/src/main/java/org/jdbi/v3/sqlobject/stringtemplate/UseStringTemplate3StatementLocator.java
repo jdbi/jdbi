@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 
 import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.antlr.stringtemplate.StringTemplateGroup;
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -66,14 +65,7 @@ public @interface UseStringTemplate3StatementLocator
 
             final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().withErrorListener(errorListener).build();
 
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q)
-                {
-                    q.setStatementLocator(l);
-                }
-            };
+            return q -> q.setStatementLocator(l);
         }
 
         @Override

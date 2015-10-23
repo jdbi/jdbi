@@ -40,7 +40,6 @@ import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -95,14 +94,8 @@ public class TestDocumentation
     public void testObtainHandleInCallback() throws Exception
     {
         DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi.withHandle(new HandleCallback<Void>()
-        {
-            @Override
-            public Void withHandle(Handle handle) throws Exception
-            {
-                handle.execute("create table silly (id int)");
-                return null;
-            }
+        dbi.useHandle(handle -> {
+            handle.execute("create table silly (id int)");
         });
     }
 

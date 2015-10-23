@@ -16,7 +16,6 @@ package org.jdbi.v3;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,20 +81,16 @@ public class Call extends SQLStatement<Call>
     public OutParameters invoke()
     {
         try {
-            return this.internalExecute(new QueryResultMunger<OutParameters>() {
-                @Override
-                public OutParameters munge(Statement results) throws SQLException
-                {
-                    OutParameters out = new OutParameters();
-                    for ( OutParamArgument param : params ) {
-                        Object obj = param.map((CallableStatement)results);
-                        out.getMap().put(param.position, obj);
-                        if ( param.name != null ) {
-                            out.getMap().put(param.name, obj);
-                        }
+            return this.internalExecute(results -> {
+                OutParameters out = new OutParameters();
+                for ( OutParamArgument param : params ) {
+                    Object obj = param.map((CallableStatement)results);
+                    out.getMap().put(param.position, obj);
+                    if ( param.name != null ) {
+                        out.getMap().put(param.name, obj);
                     }
-                    return out;
                 }
+                return out;
             });
         }
         finally {

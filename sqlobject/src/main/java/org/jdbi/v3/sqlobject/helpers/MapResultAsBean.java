@@ -19,10 +19,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 
 import org.jdbi.v3.Query;
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -40,14 +38,9 @@ public @interface MapResultAsBean
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> s) throws SQLException
-                {
-                    Query<?> q = (Query<?>) s;
-                    q.registerMapper(new BeanMapperFactory());
-                }
+            return s -> {
+                Query<?> q = (Query<?>) s;
+                q.registerMapper(new BeanMapperFactory());
             };
         }
 

@@ -17,14 +17,11 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
 import org.jdbi.v3.sqlobject.BindingAnnotation;
@@ -77,14 +74,7 @@ public @interface BindIn
             }
             final String ns = names.toString();
 
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q) throws SQLException
-                {
-                    q.define(key, ns);
-                }
-            };
+            return q -> q.define(key, ns);
         }
     }
 
@@ -96,17 +86,11 @@ public @interface BindIn
             final BindIn in = (BindIn) annotation;
             final String key = in.value();
 
-            return new Binder<Annotation, Object>()
-            {
-
-                @Override
-                public void bind(SQLStatement<?> q, Parameter param, Annotation bind, Object arg)
-                {
-                    Iterable<?> coll = (Iterable<?>) arg;
-                    int idx = 0;
-                    for (Object s : coll) {
-                        q.bind("__" + key + "_" + idx++, s);
-                    }
+            return (q, param, bind, arg) -> {
+                Iterable<?> coll = (Iterable<?>) arg;
+                int idx = 0;
+                for (Object s : coll) {
+                    q.bind("__" + key + "_" + idx++, s);
                 }
             };
         }

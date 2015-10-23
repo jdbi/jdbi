@@ -18,9 +18,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Parameter;
 
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.Something;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -35,15 +33,10 @@ public @interface BindSomething
         @Override
         public Binder<BindSomething, Object> build(Annotation annotation)
         {
-            return new Binder<BindSomething, Object>()
-            {
-                @Override
-                public void bind(SQLStatement<?> q, Parameter param, BindSomething bind, Object arg)
-                {
-                    Something it = (Something) arg;
-                    q.bind(bind.value() + ".id", it.getId());
-                    q.bind(bind.value() + ".name", it.getName());
-                }
+            return (q, param, bind, arg) -> {
+                Something it = (Something) arg;
+                q.bind(bind.value() + ".id", it.getId());
+                q.bind(bind.value() + ".name", it.getName());
             };
         }
     }
