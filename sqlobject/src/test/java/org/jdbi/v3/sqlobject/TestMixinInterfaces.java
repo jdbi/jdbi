@@ -84,6 +84,17 @@ public class TestMixinInterfaces
     }
 
     @Test
+    public void testUseHandle() throws Exception
+    {
+        WithGetHandle g = SqlObjectBuilder.attach(handle, WithGetHandle.class);
+        g.useHandle(handle -> {
+            handle.execute("insert into something(id, name) values (9, 'James')");
+        });
+
+        assertEquals("James", handle.createQuery("select name from something where id = 9").mapTo(String.class).findOnly());
+    }
+
+    @Test
     public void testBeginAndCommitTransaction() throws Exception
     {
         TransactionStuff txl = SqlObjectBuilder.attach(handle, TransactionStuff.class);

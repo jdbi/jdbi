@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.tweak.HandleCallback;
+import org.jdbi.v3.tweak.HandleConsumer;
 
 class GetHandleHelper
 {
@@ -28,6 +29,7 @@ class GetHandleHelper
             Map<Method, Handler> h = new HashMap<Method, Handler>();
             h.put(GetHandle.class.getMethod("getHandle"), new GetHandleHandler());
             h.put(GetHandle.class.getMethod("withHandle", HandleCallback.class), new WithHandleHandler());
+            h.put(GetHandle.class.getMethod("useHandle", HandleConsumer.class), new UseHandleHandler());
             return h;
         }
         catch (NoSuchMethodException e) {

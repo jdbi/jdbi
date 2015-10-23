@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject.mixins;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.tweak.HandleCallback;
+import org.jdbi.v3.tweak.HandleConsumer;
 
 /**
  * A mixin interface to define a method for obtaining the Handle attached to a sql object
@@ -41,4 +42,15 @@ public interface GetHandle
      *                                 wrap the exception thrown by the callback.
      */
     <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException;
+
+    /**
+     * A convenience function which manages the lifecycle of the handle associated to this sql object,
+     * and yields it to a consumer for use by clients.
+     *
+     * @param consumer A consumer which will receive the handle associated to this sql object
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    void useHandle(HandleConsumer consumer) throws CallbackFailedException;
 }
