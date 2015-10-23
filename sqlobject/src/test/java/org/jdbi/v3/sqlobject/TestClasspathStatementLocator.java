@@ -55,8 +55,8 @@ public class TestClasspathStatementLocator {
     }
 
     @RegisterMapper(SomethingMapper.class)
-    static interface Cromulence {
+    interface Cromulence {
         @SqlQuery
-        public Something findById(@Bind("id") Long id);
+        Something findById(@Bind("id") Long id);
     }
 }

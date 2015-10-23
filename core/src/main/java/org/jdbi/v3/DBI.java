@@ -92,14 +92,7 @@ public class DBI
      */
     public DBI(final String url)
     {
-        this(new ConnectionFactory()
-        {
-            @Override
-            public Connection openConnection() throws SQLException
-            {
-                return DriverManager.getConnection(url);
-            }
-        });
+        this(() -> DriverManager.getConnection(url));
     }
 
     /**
@@ -110,14 +103,7 @@ public class DBI
      */
     public DBI(final String url, final Properties props)
     {
-        this(new ConnectionFactory()
-        {
-            @Override
-            public Connection openConnection() throws SQLException
-            {
-                return DriverManager.getConnection(url, props);
-            }
-        });
+        this(() -> DriverManager.getConnection(url, props));
     }
 
     /**
@@ -129,14 +115,7 @@ public class DBI
      */
     public DBI(final String url, final String username, final String password)
     {
-        this(new ConnectionFactory()
-        {
-            @Override
-            public Connection openConnection() throws SQLException
-            {
-                return DriverManager.getConnection(url, username, password);
-            }
-        });
+        this(() -> DriverManager.getConnection(url, username, password));
     }
 
     /**
@@ -325,46 +304,22 @@ public class DBI
      */
     public <ReturnType> ReturnType inTransaction(final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
-        return withHandle(new HandleCallback<ReturnType>() {
-            @Override
-            public ReturnType withHandle(Handle handle) throws Exception
-            {
-                return handle.inTransaction(callback);
-            }
-        });
+        return withHandle(handle -> handle.inTransaction(callback));
     }
 
     public void useTransaction(final TransactionConsumer callback) throws CallbackFailedException
     {
-        useHandle(new HandleConsumer() {
-            @Override
-            public void useHandle(Handle handle) throws Exception
-            {
-                handle.useTransaction(callback);
-            }
-        });
+        useHandle(handle -> handle.useTransaction(callback));
     }
 
     public <ReturnType> ReturnType inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
-        return withHandle(new HandleCallback<ReturnType>() {
-            @Override
-            public ReturnType withHandle(Handle handle) throws Exception
-            {
-                return handle.inTransaction(isolation, callback);
-            }
-        });
+        return withHandle(handle -> handle.inTransaction(isolation, callback));
     }
 
     public void useTransaction(final TransactionIsolationLevel isolation, final TransactionConsumer callback) throws CallbackFailedException
     {
-        useHandle(new HandleConsumer() {
-            @Override
-            public void useHandle(Handle handle) throws Exception
-            {
-                handle.useTransaction(isolation, callback);
-            }
-        });
+        useHandle(handle -> handle.useTransaction(isolation, callback));
     }
 
     /**
@@ -390,14 +345,7 @@ public class DBI
     public static Handle open(final Connection connection)
     {
         assert connection != null;
-        return new DBI(new ConnectionFactory()
-        {
-            @Override
-            public Connection openConnection()
-            {
-                return connection;
-            }
-        }).open();
+        return new DBI(() -> connection).open();
     }
 
     /**

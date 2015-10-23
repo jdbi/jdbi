@@ -15,7 +15,6 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -29,14 +28,9 @@ public class TestHandle
     {
         Handle h = db.openHandle();
 
-        String value = h.inTransaction(new TransactionCallback<String>()
-        {
-            @Override
-            public String inTransaction(Handle handle, TransactionStatus status) throws Exception
-            {
-                handle.insert("insert into something (id, name) values (1, 'Brian')");
-                return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
-            }
+        String value = h.inTransaction((handle, status) -> {
+            handle.insert("insert into something (id, name) values (1, 'Brian')");
+            return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
         });
         assertEquals("Brian", value);
     }
@@ -48,21 +42,9 @@ public class TestHandle
             h.insert("insert into something (id, name) values (1, 'Keith')");
         }
 
-        String value = db.getDbi().withHandle(new HandleCallback<String>()
-        {
-            @Override
-            public String withHandle(Handle handle) throws Exception
-            {
-                return handle.inTransaction(new TransactionCallback<String>()
-                {
-                    @Override
-                    public String inTransaction(Handle handle, TransactionStatus status) throws Exception
-                    {
-                        return handle.createQuery("select name from something where id = 1").mapTo(String.class).findOnly();
-                    }
-                });
-            }
-        });
+        String value = db.getDbi().withHandle(handle ->
+                handle.inTransaction((handle1, status) ->
+                        handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
 
         assertEquals("Keith", value);
     }

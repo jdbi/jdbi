@@ -20,7 +20,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -39,7 +38,7 @@ public @interface Define
      */
     String value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
@@ -58,14 +57,7 @@ public @interface Define
         {
             Define d = (Define) annotation;
             final String key = d.value();
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q)
-                {
-                    q.define(key, arg);
-                }
-            };
+            return q -> q.define(key, arg);
         }
     }
 }

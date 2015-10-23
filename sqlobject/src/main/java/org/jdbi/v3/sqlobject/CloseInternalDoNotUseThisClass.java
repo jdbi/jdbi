@@ -27,7 +27,7 @@ public interface CloseInternalDoNotUseThisClass
 {
     void ___jdbi_close___();
 
-    static class CloseHandler implements Handler
+    class CloseHandler implements Handler
     {
         @Override
         public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
@@ -37,7 +37,7 @@ public interface CloseInternalDoNotUseThisClass
         }
     }
 
-    static class Helper
+    class Helper
     {
         static Map<Method, Handler> handlers()
         {

@@ -19,11 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface Service
 {
-    public void inPropagationRequired(Callback c);
+    void inPropagationRequired(Callback c);
 
-    public void inRequiresNew(Callback c);
+    void inRequiresNew(Callback c);
 
-    public void inNested(Callback c);
+    void inNested(Callback c);
 
     @Transactional(propagation= Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
     void inRequiresNewReadUncommitted(Callback c);

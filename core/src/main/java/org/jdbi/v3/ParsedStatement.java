@@ -74,7 +74,7 @@ class ParsedStatement
         {
             // we have quotes and tokens, juggling time
             final List<String> tokens = new ArrayList<String>();
-            final StringBuffer replaced = new StringBuffer();
+            final StringBuilder replaced = new StringBuilder();
 
             // copy everything up to beginning of first match into buffer
             final int end = quote_matcher.start() > token_matcher.start()

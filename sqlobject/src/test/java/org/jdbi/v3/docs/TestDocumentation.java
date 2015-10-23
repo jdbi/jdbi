@@ -40,7 +40,6 @@ import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -95,15 +94,7 @@ public class TestDocumentation
     public void testObtainHandleInCallback() throws Exception
     {
         DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi.withHandle(new HandleCallback<Void>()
-        {
-            @Override
-            public Void withHandle(Handle handle) throws Exception
-            {
-                handle.execute("create table silly (id int)");
-                return null;
-            }
-        });
+        dbi.useHandle(handle -> handle.execute("create table silly (id int)"));
     }
 
     @Test
@@ -179,7 +170,7 @@ public class TestDocumentation
         }
     }
 
-    public static interface SomeQueries
+    public interface SomeQueries
     {
         @SqlQuery("select name from something where id = :id")
         String findName(@Bind("id") int id);
@@ -216,20 +207,20 @@ public class TestDocumentation
     }
 
     @RegisterMapper(SomethingMapper.class)
-    public static interface AnotherQuery
+    public interface AnotherQuery
     {
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);
     }
 
-    public static interface YetAnotherQuery
+    public interface YetAnotherQuery
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
         Something findById(@Bind("id") int id);
     }
 
-    public static interface BatchInserter
+    public interface BatchInserter
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something... somethings);
@@ -251,7 +242,7 @@ public class TestDocumentation
         }
     }
 
-    public static interface QueryReturningQuery
+    public interface QueryReturningQuery
     {
         @SqlQuery("select name from something where id = :id")
         Query<String> findById(@Bind("id") int id);
@@ -273,7 +264,7 @@ public class TestDocumentation
         }
     }
 
-    public static interface Update
+    public interface Update
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@Bind("id") int id, @Bind("name") String name);
@@ -297,7 +288,7 @@ public class TestDocumentation
         }
     }
 
-    public static interface BatchExample
+    public interface BatchExample
     {
         @SqlBatch("insert into something (id, name) values (:id, :first || ' ' || :last)")
         void insertFamily(@Bind("id") List<Integer> ids,
@@ -328,7 +319,7 @@ public class TestDocumentation
         }
     }
 
-    public static interface ChunkedBatchExample
+    public interface ChunkedBatchExample
     {
         @SqlBatch("insert into something (id, name) values (:id, :first || ' ' || :last)")
         @BatchChunkSize(2)
@@ -343,7 +334,7 @@ public class TestDocumentation
         String findNameById(@Bind("id") int id);
     }
 
-    public static interface BindExamples
+    public interface BindExamples
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
@@ -352,7 +343,7 @@ public class TestDocumentation
         void deleteByName(@Bind String name);
     }
 
-    public static interface BindBeanExample
+    public interface BindBeanExample
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something s);

@@ -18,14 +18,11 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.PGDatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,29 +35,17 @@ public class TestPostgresBugs
     @Before
     public void setUp() throws Exception
     {
-        db.getDbi().withHandle(new HandleCallback<Object>()
-        {
-            @Override
-            public Object withHandle(Handle handle) throws Exception
-            {
-                handle.execute("create table if not exists something (id int primary key, name varchar(100))");
-                handle.execute("delete from something");
-                return null;
-            }
+        db.getDbi().useHandle(handle -> {
+            handle.execute("create table if not exists something (id int primary key, name varchar(100))");
+            handle.execute("delete from something");
         });
     }
 
     @Test
     public void testConnected() throws Exception
     {
-        int four = db.getDbi().withHandle(new HandleCallback<Integer>()
-        {
-            @Override
-            public Integer withHandle(Handle handle) throws Exception
-            {
-                return handle.createQuery("select 2 + 2").mapTo(Integer.class).findOnly();
-            }
-        });
+        int four = db.getDbi().withHandle(handle ->
+                handle.createQuery("select 2 + 2").mapTo(Integer.class).findOnly());
 
         assertThat(four, equalTo(4));
     }
@@ -79,14 +64,9 @@ public class TestPostgresBugs
     {
         Dao dao = SqlObjectBuilder.onDemand(db.getDbi(), Dao.class);
 
-        Something s = dao.inTransaction(new org.jdbi.v3.Transaction<Something, Dao>() {
-
-            @Override
-            public Something inTransaction(Dao transactional, TransactionStatus status) throws Exception
-            {
-                transactional.insert(1, "Brian");
-                return transactional.findById(1);
-            }
+        Something s = dao.inTransaction((transactional, status) -> {
+            transactional.insert(1, "Brian");
+            return transactional.findById(1);
         });
 
         assertThat(s, equalTo(new Something(1, "Brian")));

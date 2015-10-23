@@ -51,19 +51,14 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
     public void testFailsViaException() throws Exception
     {
         try {
-            service.inPropagationRequired(new Callback()
-            {
-                @Override
-                public void call(DBI dbi)
-                {
-                    Handle h = DBIUtil.getHandle(dbi);
-                    final int count = h.insert("insert into something (id, name) values (7, 'ignored')");
-                    if (count == 1) {
-                        throw new ForceRollback();
-                    }
-                    else {
-                        throw new RuntimeException("!ZABAK");
-                    }
+            service.inPropagationRequired(dbi -> {
+                Handle h = DBIUtil.getHandle(dbi);
+                final int count = h.insert("insert into something (id, name) values (7, 'ignored')");
+                if (count == 1) {
+                    throw new ForceRollback();
+                }
+                else {
+                    throw new RuntimeException("!ZABAK");
                 }
             });
         }
@@ -84,37 +79,27 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
     public void testNested() throws Exception
     {
         try {
-            service.inPropagationRequired(new Callback()
-            {
-                @Override
-                public void call(DBI outer)
-                {
-                    final Handle h = DBIUtil.getHandle(outer);
-                    h.insert("insert into something (id, name) values (7, 'ignored')");
+            service.inPropagationRequired(outer -> {
+                final Handle h = DBIUtil.getHandle(outer);
+                h.insert("insert into something (id, name) values (7, 'ignored')");
 
-                    try {
-                        service.inNested(new Callback()
-                        {
-                            @Override
-                            public void call(DBI inner)
-                            {
-                                final Handle h = DBIUtil.getHandle(inner);
-                                h.insert("insert into something (id, name) values (8, 'ignored again')");
+                try {
+                    service.inNested(inner -> {
+                        final Handle h1 = DBIUtil.getHandle(inner);
+                        h1.insert("insert into something (id, name) values (8, 'ignored again')");
 
-                                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                                assertEquals(2, count);
-                                throw new ForceRollback();
-                            }
-                        });
-                        fail("should have thrown an exception");
-                    }
-                    catch (ForceRollback e) {
-                        assertTrue(true);
-                    }
-                    int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                    assertEquals(1, count);
-                    throw new ForceRollback();
+                        int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+                        assertEquals(2, count);
+                        throw new ForceRollback();
+                    });
+                    fail("should have thrown an exception");
                 }
+                catch (ForceRollback e) {
+                    assertTrue(true);
+                }
+                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+                assertEquals(1, count);
+                throw new ForceRollback();
             });
             fail("should have thrown an exception");
         }
@@ -122,49 +107,34 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
             assertTrue(true);
         }
 
-        service.inPropagationRequired(new Callback()
-        {
-            @Override
-            public void call(DBI dbi)
-            {
-                final Handle h = DBIUtil.getHandle(dbi);
-                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                assertEquals(0, count);
-            }
+        service.inPropagationRequired(dbi -> {
+            final Handle h = DBIUtil.getHandle(dbi);
+            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+            assertEquals(0, count);
         });
     }
 
     public void testRequiresNew() throws Exception
     {
-        service.inPropagationRequired(new Callback()
-        {
-            @Override
-            public void call(DBI outer)
-            {
-                final Handle h = DBIUtil.getHandle(outer);
-                h.insert("insert into something (id, name) values (7, 'ignored')");
+        service.inPropagationRequired(outer -> {
+            final Handle h = DBIUtil.getHandle(outer);
+            h.insert("insert into something (id, name) values (7, 'ignored')");
 
-                try {
-                    service.inRequiresNewReadUncommitted(new Callback()
-                    {
-                        @Override
-                        public void call(DBI inner)
-                        {
-                            final Handle h = DBIUtil.getHandle(inner);
-                            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                            assertEquals(1, count);
-                            h.insert("insert into something (id, name) values (8, 'ignored again')");
-                            throw new ForceRollback();
-                        }
-                    });
-                }
-                catch (ForceRollback e) {
-                    assertTrue(true);
-                }
-
-                int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                assertEquals(1, count);
+            try {
+                service.inRequiresNewReadUncommitted(inner -> {
+                    final Handle h1 = DBIUtil.getHandle(inner);
+                    int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+                    assertEquals(1, count);
+                    h1.insert("insert into something (id, name) values (8, 'ignored again')");
+                    throw new ForceRollback();
+                });
             }
+            catch (ForceRollback e) {
+                assertTrue(true);
+            }
+
+            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+            assertEquals(1, count);
         });
     }
 }

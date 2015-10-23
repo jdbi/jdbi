@@ -15,15 +15,11 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,15 +54,10 @@ public class TestConcurrentUpdatingQuery
         handle.createQuery("select id, name from something where id = :id")
                 .bind("id", 7)
                 .concurrentUpdatable()
-                .map(new ResultSetMapper<Object>() {
-                    @Override
-                    public Object map(final int index,
-                                      final ResultSet r,
-                                      final StatementContext ctx) throws SQLException {
-                        r.updateString("name", "Tom");
-                        r.updateRow();
-                        return null;
-                    }
+                .map((index, r, ctx) -> {
+                    r.updateString("name", "Tom");
+                    r.updateRow();
+                    return null;
                 }).list();
 
         final String name = handle.createQuery("select name from something where id = :id")

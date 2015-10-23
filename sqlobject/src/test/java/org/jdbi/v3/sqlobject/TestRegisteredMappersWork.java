@@ -41,9 +41,9 @@ public class TestRegisteredMappersWork
     public H2DatabaseRule db = new H2DatabaseRule();
 
 
-    public static interface BooleanDao {
+    public interface BooleanDao {
         @SqlQuery("select 1+1 = 2")
-        public boolean fetchABoolean();
+        boolean fetchABoolean();
     }
 
     @Test
@@ -79,17 +79,17 @@ public class TestRegisteredMappersWork
         }
     }
 
-    public static interface BeanMappingDao
+    public interface BeanMappingDao
     {
         @SqlUpdate("create table beans ( name varchar primary key, color varchar )")
-        public void createBeanTable();
+        void createBeanTable();
 
         @SqlUpdate("insert into beans (name, color) values (:name, :color)")
-        public void insertBean(@BindBean Bean bean);
+        void insertBean(@BindBean Bean bean);
 
         @SqlQuery("select name, color from beans where name = :name")
         @MapResultAsBean
-        public Bean findByName(@Bind("name") String name);
+        Bean findByName(@Bind("name") String name);
     }
 
     @Test
@@ -171,34 +171,34 @@ public class TestRegisteredMappersWork
         assertThat(itty.hasNext(), equalTo(false));
     }
 
-    public static interface Spiffy extends CloseMe
+    public interface Spiffy extends CloseMe
     {
 
         @SqlQuery("select id, name from something where id = :id")
-        public Something byId(@Bind("id") long id);
+        Something byId(@Bind("id") long id);
 
         @SqlQuery("select name from something where id = :id")
-        public String findNameBy(@Bind("id") long id);
+        String findNameBy(@Bind("id") long id);
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insert(@Bind("id") long id, @Bind("name") String name);
+        void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
 
     @RegisterMapper(MySomethingMapper.class)
-    public static interface Kabob
+    public interface Kabob
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insert(@Bind("id") int id, @Bind("name") String name);
+        void insert(@Bind("id") int id, @Bind("name") String name);
 
         @SqlQuery("select id, name from something where id = :id")
-        public Something find(@Bind("id") int id);
+        Something find(@Bind("id") int id);
 
         @SqlQuery("select id, name from something order by id")
-        public List<Something> listAll();
+        List<Something> listAll();
 
         @SqlQuery("select id, name from something order by id")
-        public Iterator<Something> iterateAll();
+        Iterator<Something> iterateAll();
     }
 
     public static class MySomethingMapper implements ResultSetMapper<Something>

@@ -37,14 +37,7 @@ public class TestTransactions
     {
         Handle h = db.openHandle();
 
-        String woot = h.inTransaction(new TransactionCallback<String>()
-        {
-            @Override
-            public String inTransaction(Handle handle, TransactionStatus status) throws Exception
-            {
-                return "Woot!";
-            }
-        });
+        String woot = h.inTransaction((handle, status) -> "Woot!");
 
         assertEquals("Woot!", woot);
     }
@@ -78,15 +71,10 @@ public class TestTransactions
 
         try
         {
-            h.inTransaction(new TransactionCallback<Object>()
-            {
-                @Override
-                public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
-                {
-                    handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
+            h.inTransaction((handle, status) -> {
+                handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
 
-                    throw new IOException();
-                }
+                throw new IOException();
             });
             fail("Should have thrown exception");
         }
@@ -106,15 +94,10 @@ public class TestTransactions
 
         try
         {
-            h.inTransaction(new TransactionCallback<Object>()
-            {
-                @Override
-                public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
-                {
-                    handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
-                    status.setRollbackOnly();
-                    return "Hi";
-                }
+            h.inTransaction((handle, status) -> {
+                handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
+                status.setRollbackOnly();
+                return "Hi";
             });
             fail("Should have thrown exception");
         }
@@ -168,12 +151,8 @@ public class TestTransactions
     {
         Handle h = db.openHandle();
         try {
-            h.inTransaction(new TransactionCallback<Object>() {
-                @Override
-                public Object inTransaction(Handle handle, TransactionStatus status) throws Exception
-                {
-                    throw new IllegalArgumentException();
-                }
+            h.inTransaction((handle, status) -> {
+                throw new IllegalArgumentException();
             });
         }
         catch (DBIException e) {

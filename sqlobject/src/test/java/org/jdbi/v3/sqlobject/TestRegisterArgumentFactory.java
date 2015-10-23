@@ -16,8 +16,6 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
@@ -69,7 +67,7 @@ public class TestRegisterArgumentFactory
 
 
     @RegisterArgumentFactory(NameAF.class)
-    public static interface Waffle
+    public interface Waffle
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") Name name);
@@ -89,14 +87,7 @@ public class TestRegisterArgumentFactory
         @Override
         public Argument build(Class<?> expectedType, final Name value, StatementContext ctx)
         {
-            return new Argument()
-            {
-                @Override
-                public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-                {
-                    statement.setString(position, value.getFullName());
-                }
-            };
+            return (position, statement, ctx1) -> statement.setString(position, value.getFullName());
         }
     }
 

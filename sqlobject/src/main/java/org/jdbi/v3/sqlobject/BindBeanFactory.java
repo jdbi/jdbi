@@ -18,41 +18,33 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-
-import org.jdbi.v3.SQLStatement;
 
 class BindBeanFactory implements BinderFactory
 {
     @Override
     public Binder<BindBean, Object> build(Annotation annotation)
     {
-        return new Binder<BindBean, Object>()
-        {
-            @Override
-            public void bind(SQLStatement<?> q, Parameter param, BindBean bind, Object arg)
-            {
-                final String prefix;
-                if (BindBean.BARE_BINDING.equals(bind.value())) {
-                    prefix = "";
-                }
-                else {
-                    prefix = bind.value() + ".";
-                }
+        return (q, param, bind, arg) -> {
+            final String prefix;
+            if (BindBean.BARE_BINDING.equals(bind.value())) {
+                prefix = "";
+            }
+            else {
+                prefix = bind.value() + ".";
+            }
 
-                try {
-                    BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
-                    PropertyDescriptor[] props = infos.getPropertyDescriptors();
-                    for (PropertyDescriptor prop : props) {
-                        Method readMethod = prop.getReadMethod();
-                        if (readMethod != null) {
-                            q.dynamicBind(readMethod.getReturnType(), prefix + prop.getName(), readMethod.invoke(arg));
-                        }
+            try {
+                BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
+                PropertyDescriptor[] props = infos.getPropertyDescriptors();
+                for (PropertyDescriptor prop : props) {
+                    Method readMethod = prop.getReadMethod();
+                    if (readMethod != null) {
+                        q.dynamicBind(readMethod.getReturnType(), prefix + prop.getName(), readMethod.invoke(arg));
                     }
                 }
-                catch (Exception e) {
-                    throw new IllegalStateException("unable to bind bean properties", e);
-                }
+            }
+            catch (Exception e) {
+                throw new IllegalStateException("unable to bind bean properties", e);
             }
         };
     }

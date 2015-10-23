@@ -18,14 +18,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
-import org.jdbi.v3.tweak.ConnectionFactory;
-import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.tweak.HandleConsumer;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -46,19 +42,14 @@ public class TestDBI
     @Test
     public void testConnectionFactoryCtor() throws Exception
     {
-        DBI dbi = new DBI(new ConnectionFactory()
-        {
-            @Override
-            public Connection openConnection()
+        DBI dbi = new DBI(() -> {
+            try
             {
-                try
-                {
-                    return DriverManager.getConnection(db.getConnectionString());
-                }
-                catch (SQLException e)
-                {
-                    throw new UnableToObtainConnectionException(e);
-                }
+                return DriverManager.getConnection(db.getConnectionString());
+            }
+            catch (SQLException e)
+            {
+                throw new UnableToObtainConnectionException(e);
             }
         });
         try (Handle h = dbi.open()) {
@@ -69,13 +60,8 @@ public class TestDBI
     @Test
     public void testCorrectExceptionOnSQLException() throws Exception
     {
-        DBI dbi = new DBI(new ConnectionFactory()
-        {
-            @Override
-            public Connection openConnection() throws SQLException
-            {
-                throw new SQLException();
-            }
+        DBI dbi = new DBI(() -> {
+            throw new SQLException();
         });
 
         try
@@ -93,12 +79,9 @@ public class TestDBI
     public void testWithHandle() throws Exception
     {
         DBI dbi = new DBI(db.getConnectionString());
-        String value = dbi.withHandle(new HandleCallback<String>() {
-            @Override
-            public String withHandle(Handle handle) throws Exception {
-                handle.insert("insert into something (id, name) values (1, 'Brian')");
-                return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
-            }
+        String value = dbi.withHandle(handle -> {
+            handle.insert("insert into something (id, name) values (1, 'Brian')");
+            return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
         });
         assertEquals("Brian", value);
     }
@@ -107,13 +90,10 @@ public class TestDBI
     public void testUseHandle() throws Exception
     {
         DBI dbi = new DBI(db.getConnectionString());
-        dbi.useHandle(new HandleConsumer() {
-            @Override
-            public void useHandle(Handle handle) throws Exception {
-                handle.insert("insert into something (id, name) values (1, 'Brian')");
-                String value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
-                assertEquals("Brian", value);
-            }
+        dbi.useHandle(handle -> {
+            handle.insert("insert into something (id, name) values (1, 'Brian')");
+            String value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
+            assertEquals("Brian", value);
         });
     }
 }

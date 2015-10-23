@@ -28,8 +28,6 @@ import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.PreparedBatch;
 import org.jdbi.v3.PreparedBatchPart;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -178,14 +176,7 @@ class BatchHandler extends CustomizingStatementHandler
         if (!handle.isInTransaction() && transactional) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
-            return handle.inTransaction(new TransactionCallback<int[]>()
-            {
-                @Override
-                public int[] inTransaction(Handle conn, TransactionStatus status) throws Exception
-                {
-                    return batch.execute();
-                }
-            });
+            return handle.inTransaction((conn, status) -> batch.execute());
         }
         else {
             return batch.execute();

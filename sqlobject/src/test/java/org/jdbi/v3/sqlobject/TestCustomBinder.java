@@ -47,14 +47,14 @@ public class TestCustomBinder
         assertEquals("Keith", s.findNameById(2));
     }
 
-    public static interface Spiffy extends CloseMe
+    public interface Spiffy extends CloseMe
     {
         @SqlQuery("select id, name from something where id = :it.id")
         @Mapper(SomethingMapper.class)
-        public Something findSame(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something something);
+        Something findSame(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something something);
 
         @SqlUpdate("insert into something (id, name) values (:s.id, :s.name)")
-        public int insert(@BindSomething("s") Something something);
+        int insert(@BindSomething("s") Something something);
 
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind("id") int i);

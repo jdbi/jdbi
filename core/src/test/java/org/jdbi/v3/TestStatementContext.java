@@ -15,7 +15,6 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jdbi.v3.tweak.StatementLocator;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -28,14 +27,8 @@ public class TestStatementContext
     public void testFoo() throws Exception
     {
         Handle h = db.openHandle();
-        h.setStatementLocator(new StatementLocator() {
-
-            @Override
-            public String locate(String name, StatementContext ctx) throws Exception
-            {
-                return name.replaceAll("<table>", String.valueOf(ctx.getAttribute("table")));
-            }
-        });
+        h.setStatementLocator((name, ctx) ->
+                name.replaceAll("<table>", String.valueOf(ctx.getAttribute("table"))));
         final int inserted = h.createStatement("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", "Martin")

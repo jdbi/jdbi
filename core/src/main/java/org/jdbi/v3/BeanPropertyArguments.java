@@ -82,6 +82,6 @@ class BeanPropertyArguments implements NamedArgumentFinder
 
     @Override
     public String toString() {
-        return new StringBuilder().append("{lazy bean proprty arguments \"").append(bean).append("\"").toString();
+        return "{lazy bean proprty arguments \"" + bean + "\"";
     }
 }

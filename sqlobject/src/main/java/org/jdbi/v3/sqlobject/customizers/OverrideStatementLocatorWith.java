@@ -21,7 +21,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -41,7 +40,7 @@ public @interface OverrideStatementLocatorWith
      */
     Class<? extends org.jdbi.v3.tweak.StatementLocator> value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
 
         @Override
@@ -55,14 +54,7 @@ public @interface OverrideStatementLocatorWith
             catch (Exception e) {
                 throw new IllegalStateException("unable to instantiate a statement locator", e);
             }
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q)
-                {
-                    q.setStatementLocator(f);
-                }
-            };
+            return q -> q.setStatementLocator(f);
         }
 
         @Override
@@ -76,14 +68,7 @@ public @interface OverrideStatementLocatorWith
             catch (Exception e) {
                 throw new IllegalStateException("unable to instantiate a statement locator", e);
             }
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q)
-                {
-                    q.setStatementLocator(f);
-                }
-            };
+            return q -> q.setStatementLocator(f);
         }
 
 

@@ -51,7 +51,7 @@ public class TestBeanMapperFactory
 
     public enum TestEnum {
         foo,
-        bar;
+        bar
     }
 
     @RegisterMapperFactory(BeanMapperFactory.class)

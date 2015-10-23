@@ -14,7 +14,6 @@
 package org.jdbi.v3;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
@@ -65,18 +64,12 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     @Override
     public ResultIterator<ResultType> iterator()
     {
-        return this.internalExecute(new QueryResultMunger<ResultIterator<ResultType>>()
-        {
-            @Override
-            public ResultIterator<ResultType> munge(Statement stmt) throws SQLException
-            {
-                return new ResultSetResultIterator<ResultType>(mapper,
-                                                               Query.this,
-                                                               stmt,
-                                                               stmt.getResultSet(),
-                                                               getContext());
-            }
-        });
+        return this.internalExecute(stmt ->
+                new ResultSetResultIterator<ResultType>(mapper,
+                                                        Query.this,
+                                                        stmt,
+                                                        stmt.getResultSet(),
+                                                        getContext()));
     }
 
     /**

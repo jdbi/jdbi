@@ -15,11 +15,8 @@ package org.jdbi.v3.sqlobject;
 
 import net.sf.cglib.proxy.MethodProxy;
 
-import org.jdbi.v3.Handle;
 import org.jdbi.v3.Transaction;
-import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
 
 class InTransactionWithIsolationLevelHandler implements Handler
 {
@@ -32,14 +29,7 @@ class InTransactionWithIsolationLevelHandler implements Handler
             final Transaction<Object, Object> t = (Transaction<Object, Object>) args[1];
             final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];
 
-            return h.getHandle().inTransaction(level, new TransactionCallback<Object>()
-            {
-                @Override
-                public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
-                {
-                    return t.inTransaction(target, status);
-                }
-            });
+            return h.getHandle().inTransaction(level, (conn, status) -> t.inTransaction(target, status));
         }
         finally {
             h.release("transaction#withlevel");

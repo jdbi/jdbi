@@ -28,9 +28,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.Transaction;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.junit.After;
@@ -54,16 +52,12 @@ public class TestDoublyTransactional
     public void testDoublyTransactional() throws Exception
     {
         final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
-        dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, new Transaction<Void, TheBasics>() {
-            @Override
-            public Void inTransaction(TheBasics transactional, TransactionStatus status) throws Exception
-            {
-                transactional.insert(new Something(1, "2"));
-                inTransaction.set(true);
-                transactional.insert(new Something(2, "3"));
-                inTransaction.set(false);
-                return null;
-            }
+        dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (transactional, status) -> {
+            transactional.insert(new Something(1, "2"));
+            inTransaction.set(true);
+            transactional.insert(new Something(2, "3"));
+            inTransaction.set(false);
+            return null;
         });
     }
 

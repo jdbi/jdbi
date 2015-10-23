@@ -15,5 +15,5 @@ package org.jdbi.v3;
 
 public enum TransactionState
 {
-    ROLLBACK, COMMIT;
+    ROLLBACK, COMMIT
 }

@@ -151,28 +151,28 @@ public class TestBatching
 
     @BatchChunkSize(4)
     @UseStringTemplate3StatementLocator
-    public static interface UsesBatching
+    public interface UsesBatching
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
-        public int[] insertBeans(@BindBean Iterable<Something> elements);
+        int[] insertBeans(@BindBean Iterable<Something> elements);
 
         @SqlBatch(value = "insert into something (id, name) values (:id, :name)", transactional = false)
-        public int[] insertBeansNoTx(@BindBean Iterator<Something> elements);
+        int[] insertBeansNoTx(@BindBean Iterator<Something> elements);
 
         @SqlBatch("insert into something (id, name) values (:id, :name)")
-        public int[] withConstantValue(@Bind("id") Iterable<Integer> ids, @Bind("name") String name);
+        int[] withConstantValue(@Bind("id") Iterable<Integer> ids, @Bind("name") String name);
 
         @SqlBatch("insert into something (id, name) values (:id, :name)")
-        public int[] zipArgumentsTogether(@Bind("id") Iterable<Integer> ids, @Bind("name") List<String> name);
+        int[] zipArgumentsTogether(@Bind("id") Iterable<Integer> ids, @Bind("name") List<String> name);
 
         @SqlBatch("insert into something (id, name) values (:it.id, :it.name)")
         @BatchChunkSize(2)
-        public int[] insertChunked(@BindBean("it") Iterable<Something> its);
+        int[] insertChunked(@BindBean("it") Iterable<Something> its);
 
         @SqlBatch
-        public int[] insertChunked(@BatchChunkSize int size, @BindBean("it") Iterable<Something> its);
+        int[] insertChunked(@BatchChunkSize int size, @BindBean("it") Iterable<Something> its);
 
         @SqlQuery("select count(*) from something")
-        public int size();
+        int size();
     }
 }

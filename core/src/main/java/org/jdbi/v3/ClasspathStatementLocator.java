@@ -21,7 +21,6 @@ import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 
 import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.Token;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.StatementLocator;
 
@@ -182,10 +181,5 @@ public class ClasspathStatementLocator implements StatementLocator
         return str.substring(0, len);
     }
 
-    private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser(new SqlScriptParser.TokenHandler() {
-        @Override
-        public void handle(Token t, StringBuilder sb) {
-            sb.append(t.getText());
-        }
-    });
+    private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
 }

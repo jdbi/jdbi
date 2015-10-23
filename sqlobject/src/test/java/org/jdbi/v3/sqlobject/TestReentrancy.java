@@ -24,11 +24,8 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,17 +61,12 @@ public class TestReentrancy
     {
         final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
 
-        dao.withHandle(new HandleCallback<Void>()
-        {
-            @Override
-            public Void withHandle(Handle handle) throws Exception
-            {
-                dao.insert(new Something(7, "Martin"));
+        dao.withHandle(handle1 -> {
+            dao.insert(new Something(7, "Martin"));
 
-                handle.createQuery("SELECT 1").list();
+            handle1.createQuery("SELECT 1").list();
 
-                return null;
-            }
+            return null;
         });
     }
 
@@ -83,30 +75,19 @@ public class TestReentrancy
     {
         final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
 
-        dao.withHandle(new HandleCallback<Void>()
-        {
-            @Override
-            public Void withHandle(Handle handle) throws Exception
-            {
-                handle.inTransaction(new TransactionCallback<Void>()
-                {
-                    @Override
-                    public Void inTransaction(Handle conn, TransactionStatus status) throws Exception
-                    {
-                        dao.insert(new Something(1, "x"));
+        dao.withHandle(handle1 -> {
+            handle1.useTransaction((conn, status) -> {
+                dao.insert(new Something(1, "x"));
 
-                        List<String> rs = conn.createQuery("select name from something where id = 1")
-                                              .mapTo(String.class)
-                                              .list();
-                        assertThat(rs.size(), equalTo(1));
+                List<String> rs = conn.createQuery("select name from something where id = 1")
+                        .mapTo(String.class)
+                        .list();
+                assertThat(rs.size(), equalTo(1));
 
-                        conn.createQuery("SELECT 1").list();
-                        return null;
-                    }
-                });
+                conn.createQuery("SELECT 1").list();
+            });
 
-                return null;
-            }
+            return null;
         });
     }
 

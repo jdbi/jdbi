@@ -18,9 +18,7 @@ import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.TransactionException;
 
 class PassThroughTransactionHandler implements Handler
@@ -44,41 +42,31 @@ class PassThroughTransactionHandler implements Handler
             }
 
             if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
-                return h.inTransaction(new TransactionCallback<Object>()
-                {
-                    @Override
-                    public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
-                    {
-                        try {
-                            return mp.invokeSuper(target, args);
+                return h.inTransaction((conn, status) -> {
+                    try {
+                        return mp.invokeSuper(target, args);
+                    }
+                    catch (Throwable throwable) {
+                        if (throwable instanceof Exception) {
+                            throw (Exception) throwable;
                         }
-                        catch (Throwable throwable) {
-                            if (throwable instanceof Exception) {
-                                throw (Exception) throwable;
-                            }
-                            else {
-                                throw new RuntimeException(throwable);
-                            }
+                        else {
+                            throw new RuntimeException(throwable);
                         }
                     }
                 });
             }
             else {
-                return h.inTransaction(isolation, new TransactionCallback<Object>()
-                {
-                    @Override
-                    public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
-                    {
-                        try {
-                            return mp.invokeSuper(target, args);
+                return h.inTransaction(isolation, (conn, status) -> {
+                    try {
+                        return mp.invokeSuper(target, args);
+                    }
+                    catch (Throwable throwable) {
+                        if (throwable instanceof Exception) {
+                            throw (Exception) throwable;
                         }
-                        catch (Throwable throwable) {
-                            if (throwable instanceof Exception) {
-                                throw (Exception) throwable;
-                            }
-                            else {
-                                throw new RuntimeException(throwable);
-                            }
+                        else {
+                            throw new RuntimeException(throwable);
                         }
                     }
                 });

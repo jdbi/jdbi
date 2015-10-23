@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.Query;
 import org.jdbi.v3.ResultSetMapperFactory;
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -37,7 +36,7 @@ public @interface RegisterMapperFactory
 {
     Class<? extends ResultSetMapperFactory>[] value();
 
-    public static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
 
         @Override
@@ -55,16 +54,11 @@ public @interface RegisterMapperFactory
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
             }
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> statement)
-                {
-                    if (statement instanceof Query) {
-                        Query<?> q = (Query<?>) statement;
-                        for (ResultSetMapperFactory factory : m) {
-                            q.registerMapper(factory);
-                        }
+            return statement -> {
+                if (statement instanceof Query) {
+                    Query<?> q = (Query<?>) statement;
+                    for (ResultSetMapperFactory factory : m) {
+                        q.registerMapper(factory);
                     }
                 }
             };
@@ -85,18 +79,13 @@ public @interface RegisterMapperFactory
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
             }
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> statement)
-                {
-                    if (statement instanceof Query) {
-                        Query<?> q = (Query<?>) statement;
-                        for (ResultSetMapperFactory factory : m) {
-                            q.registerMapper(factory);
-                        }
-
+            return statement -> {
+                if (statement instanceof Query) {
+                    Query<?> q = (Query<?>) statement;
+                    for (ResultSetMapperFactory factory : m) {
+                        q.registerMapper(factory);
                     }
+
                 }
             };
         }

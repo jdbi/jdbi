@@ -19,9 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -36,34 +34,20 @@ public @interface QueryTimeOut
 {
     int value() default Integer.MAX_VALUE;
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q) throws SQLException
-                {
-                    q.setQueryTimeout(fs.value());
-                }
-            };
+            return q -> q.setQueryTimeout(fs.value());
         }
 
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q) throws SQLException
-                {
-                    q.setQueryTimeout(fs.value());
-                }
-            };
+            return q -> q.setQueryTimeout(fs.value());
         }
 
         @Override
@@ -73,14 +57,7 @@ public @interface QueryTimeOut
                                                          Object arg)
         {
             final Integer va = (Integer) arg;
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> q) throws SQLException
-                {
-                    q.setQueryTimeout(va);
-                }
-            };
+            return q -> q.setQueryTimeout(va);
         }
     }
 

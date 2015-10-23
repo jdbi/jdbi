@@ -19,8 +19,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +32,6 @@ import org.jdbi.HandyMapThing;
 import org.jdbi.v3.exceptions.NoResultsException;
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -118,14 +115,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        Query<String> query = h.createQuery("select name from something order by id").map(new ResultSetMapper<String>()
-        {
-            @Override
-            public String map(int index, ResultSet r, StatementContext ctx) throws SQLException
-            {
-                return r.getString(1);
-            }
-        });
+        Query<String> query = h.createQuery("select name from something order by id").map((index, r, ctx) -> r.getString(1));
 
         String name = query.list().get(0);
         assertEquals("eric", name);

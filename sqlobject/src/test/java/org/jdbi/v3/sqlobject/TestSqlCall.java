@@ -64,10 +64,10 @@ public class TestSqlCall
         assertThat(SqlObjectBuilder.attach(handle, Dao.class).findById(1), equalTo(new Something(1, "Jeff")));
     }
 
-    public static interface Dao
+    public interface Dao
     {
         @SqlCall("call stored_insert(:id, :name)")
-        public void insert(@Bind("id") int id, @Bind("name") String name);
+        void insert(@Bind("id") int id, @Bind("name") String name);
 
         @SqlQuery("select id, name from something where id = :id")
         @RegisterMapper(SomethingMapper.class)

@@ -33,7 +33,7 @@ public class TestFinalizeBehavior
 
     interface UselessDao
     {
-        public void finalize();
+        void finalize();
     }
 
     @Test

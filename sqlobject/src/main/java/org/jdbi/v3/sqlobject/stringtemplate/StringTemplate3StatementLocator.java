@@ -47,11 +47,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
     private final StringTemplateGroup group;
     private final boolean treatLiteralsAsTemplates;
 
-    public static final StringTemplate3StatementLocator.Builder builder(Class<?> baseClass)
+    public static StringTemplate3StatementLocator.Builder builder(Class<?> baseClass)
     {
         return new Builder(baseClass);
     }
-    public static final StringTemplate3StatementLocator.Builder builder(String path)
+    public static StringTemplate3StatementLocator.Builder builder(String path)
     {
         return new Builder(path);
     }

@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.tweak.ConnectionFactory;
-import org.jdbi.v3.tweak.HandleCallback;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -49,16 +48,10 @@ public class TestTooManyCursors
         DBI dbi = new DBI(errorCf);
 
         try {
-            dbi.withHandle(new HandleCallback<Object>()
-            {
-                @Override
-                public Void withHandle(Handle handle) throws Exception
-                {
-                    handle.setStatementBuilder(new DefaultStatementBuilder());
-                    for (int idx = 0; idx < 100; idx++) {
-                        handle.createQuery("SELECT " + idx + " FROM something").findFirst();
-                    }
-                    return null;
+            dbi.useHandle(handle -> {
+                handle.setStatementBuilder(new DefaultStatementBuilder());
+                for (int idx = 0; idx < 100; idx++) {
+                    handle.createQuery("SELECT " + idx + " FROM something").findFirst();
                 }
             });
         }

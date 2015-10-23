@@ -21,7 +21,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.Query;
-import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -40,7 +39,7 @@ public @interface RegisterMapper
      */
     Class<? extends ResultSetMapper<?>>[] value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
@@ -57,18 +56,13 @@ public @interface RegisterMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
             }
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> statement)
-                {
-                    if (statement instanceof Query) {
-                        Query<?> q = (Query<?>) statement;
-                        for (ResultSetMapper<?> mapper : m) {
-                            q.registerMapper(mapper);
-                        }
-
+            return statement -> {
+                if (statement instanceof Query) {
+                    Query<?> q = (Query<?>) statement;
+                    for (ResultSetMapper<?> mapper : m) {
+                        q.registerMapper(mapper);
                     }
+
                 }
             };
         }
@@ -87,16 +81,11 @@ public @interface RegisterMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified result set mapper", e);
             }
-            return new SqlStatementCustomizer()
-            {
-                @Override
-                public void apply(SQLStatement<?> statement)
-                {
-                    if (statement instanceof Query) {
-                        Query<?> q = (Query<?>) statement;
-                        for (ResultSetMapper<?> mapper : m) {
-                            q.registerMapper(mapper);
-                        }
+            return statement -> {
+                if (statement instanceof Query) {
+                    Query<?> q = (Query<?>) statement;
+                    for (ResultSetMapper<?> mapper : m) {
+                        q.registerMapper(mapper);
                     }
                 }
             };

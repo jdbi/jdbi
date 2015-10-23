@@ -20,7 +20,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -105,43 +104,33 @@ public class TestTransactionAnnotation
         final CountDownLatch committed = new CountDownLatch(1);
 
         final Other o = SqlObjectBuilder.onDemand(dbi, Other.class);
-        Future<Void> rf = es.submit(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                try {
-                    o.insert(inserted, 1, "diwaker");
-                    committed.countDown();
+        Future<Void> rf = es.submit(() -> {
+            try {
+                o.insert(inserted, 1, "diwaker");
+                committed.countDown();
 
-                    return null;
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    fail(e.getMessage());
-                    return null;
-                }
+                return null;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                fail(e.getMessage());
+                return null;
             }
         });
 
-        Future<Void> tf = es.submit(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                try {
-                    inserted.await();
-                    committed.await();
+        Future<Void> tf = es.submit(() -> {
+            try {
+                inserted.await();
+                committed.await();
 
-                    Something s2 = o.find(1);
-                    assertThat(s2, equalTo(new Something(1, "diwaker")));
-                    return null;
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    fail(e.getMessage());
-                    return null;
-                }
+                Something s2 = o.find(1);
+                assertThat(s2, equalTo(new Something(1, "diwaker")));
+                return null;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                fail(e.getMessage());
+                return null;
             }
         });
 
