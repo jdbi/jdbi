@@ -84,18 +84,13 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
                 h.insert("insert into something (id, name) values (7, 'ignored')");
 
                 try {
-                    service.inNested(new Callback()
-                    {
-                        @Override
-                        public void call(DBI inner)
-                        {
-                            final Handle h = DBIUtil.getHandle(inner);
-                            h.insert("insert into something (id, name) values (8, 'ignored again')");
+                    service.inNested(inner -> {
+                        final Handle h1 = DBIUtil.getHandle(inner);
+                        h1.insert("insert into something (id, name) values (8, 'ignored again')");
 
-                            int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                            assertEquals(2, count);
-                            throw new ForceRollback();
-                        }
+                        int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
+                        assertEquals(2, count);
+                        throw new ForceRollback();
                     });
                     fail("should have thrown an exception");
                 }
