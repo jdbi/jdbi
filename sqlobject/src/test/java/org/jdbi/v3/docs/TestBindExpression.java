@@ -70,13 +70,13 @@ public class TestBindExpression
     }
 
     @RegisterMapper(SomethingMapper.class)
-    public static interface DB
+    public interface DB
     {
         @SqlBatch("insert into something (id, name) values(:id, :name)")
-        public void insert(@BindBean Something... things);
+        void insert(@BindBean Something... things);
 
         @SqlQuery("select id, name from something where name = :breakfast.waffle.topping limit 1")
-        public Something findByBreakfast(@BindRoot("breakfast") Breakfast b);
+        Something findByBreakfast(@BindRoot("breakfast") Breakfast b);
     }
 
     @Test
@@ -90,11 +90,11 @@ public class TestBindExpression
 
     @Retention(RetentionPolicy.RUNTIME)
     @SqlStatementCustomizingAnnotation(BindRoot.BindExpressionCustomizerFactory.class)
-    public static @interface BindRoot
+    public @interface BindRoot
     {
         String value();
 
-        public static class BindExpressionCustomizerFactory implements SqlStatementCustomizerFactory
+        class BindExpressionCustomizerFactory implements SqlStatementCustomizerFactory
         {
             @Override
             public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)

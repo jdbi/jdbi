@@ -105,19 +105,19 @@ public class TestReturningQueryResults
         assertTrue(all.contains(new Something(3, "Diego")));
     }
 
-    public static interface Spiffy extends CloseMe
+    public interface Spiffy extends CloseMe
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
-        public Something findById(@Bind("id") int id);
+        Something findById(@Bind("id") int id);
 
         @SqlQuery("select id, name from something where id >= :from and id <= :to")
         @Mapper(SomethingMapper.class)
-        public Iterator<Something> findByIdRange(@Bind("from") int from, @Bind("to") int to);
+        Iterator<Something> findByIdRange(@Bind("from") int from, @Bind("to") int to);
 
         @SqlQuery("select id, name from something where id = :first or id = :second")
         @Mapper(SomethingMapper.class)
-        public List<Something> findTwoByIds(@Bind("first") int from, @Bind("second") int to);
+        List<Something> findTwoByIds(@Bind("first") int from, @Bind("second") int to);
 
     }
 }

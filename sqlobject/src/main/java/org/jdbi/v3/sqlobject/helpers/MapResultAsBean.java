@@ -34,7 +34,7 @@ import org.jdbi.v3.tweak.BeanMapperFactory;
 public @interface MapResultAsBean
 {
 
-    public static class MapAsBeanFactory implements SqlStatementCustomizerFactory
+    class MapAsBeanFactory implements SqlStatementCustomizerFactory
     {
 
         @Override

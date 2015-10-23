@@ -168,23 +168,23 @@ public class TestMixinInterfaces
         }
     }
 
-    public static interface WithGetHandle extends CloseMe, GetHandle
+    public interface WithGetHandle extends CloseMe, GetHandle
     {
 
     }
 
-    public static interface TransactionStuff extends CloseMe, Transactional<TransactionStuff>, GetHandle
+    public interface TransactionStuff extends CloseMe, Transactional<TransactionStuff>, GetHandle
     {
 
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
-        public Something byId(@Bind("id") long id);
+        Something byId(@Bind("id") long id);
 
         @SqlUpdate("update something set name = :name where id = :id")
-        public void updateName(@Bind("id") long id, @Bind("name") String name);
+        void updateName(@Bind("id") long id, @Bind("name") String name);
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insert(@Bind("id") long id, @Bind("name") String name);
+        void insert(@Bind("id") long id, @Bind("name") String name);
     }
 }
 

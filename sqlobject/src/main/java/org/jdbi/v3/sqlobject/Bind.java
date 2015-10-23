@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 @BindingAnnotation(BindFactory.class)
 public @interface Bind
 {
-    public static final String USE_PARAM_NAME = "___use_param_name___";
+    String USE_PARAM_NAME = "___use_param_name___";
 
     String value() default USE_PARAM_NAME;
 

@@ -118,24 +118,24 @@ public class TestStringTemplate3Locator
 
     @UseStringTemplate3StatementLocator
     @RegisterMapper(SomethingMapper.class)
-    static interface HoneyBadger
+    interface HoneyBadger
     {
         @SqlUpdate("insert into <table> (id, name) values (:id, :name)")
-        public void insert(@Define("table") String table, @BindBean Something s);
+        void insert(@Define("table") String table, @BindBean Something s);
 
         @SqlQuery("select id, name from <table> where id = :id")
-        public Something findById(@Define("table") String table, @Bind("id") Long id);
+        Something findById(@Define("table") String table, @Bind("id") Long id);
     }
 
     @UseStringTemplate3StatementLocator
     @RegisterMapper(SomethingMapper.class)
-    static interface Wombat
+    interface Wombat
     {
         @SqlUpdate
-        public void insert(@BindBean Something s);
+        void insert(@BindBean Something s);
 
         @SqlQuery
-        public Something findById(@Bind("id") Long id);
+        Something findById(@Bind("id") Long id);
 
         @SqlQuery("select name from something where id = :id")
         String findNameFor(@Bind("id") int id);

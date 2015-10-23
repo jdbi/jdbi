@@ -41,13 +41,13 @@ public class TestGetGeneratedKeysHsqlDb {
         });
     }
 
-    public static interface DAO extends CloseMe {
+    public interface DAO extends CloseMe {
         @SqlUpdate("insert into something (name) values (:name)")
         @GetGeneratedKeys
-        public long insert(@Bind String name);
+        long insert(@Bind String name);
 
         @SqlQuery("select name from something where id = :id")
-        public String findNameById(@Bind long id);
+        String findNameById(@Bind long id);
     }
 
     @Test

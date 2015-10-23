@@ -43,7 +43,7 @@ public @interface RegisterArgumentFactory
      */
     Class<? extends ArgumentFactory<?>>[] value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)

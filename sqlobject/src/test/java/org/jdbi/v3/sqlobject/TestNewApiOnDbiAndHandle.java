@@ -91,7 +91,7 @@ public class TestNewApiOnDbiAndHandle
     }
 
 
-    static interface Spiffy extends GetHandle, Closeable
+    interface Spiffy extends GetHandle, Closeable
     {
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
         void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something s);

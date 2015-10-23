@@ -36,7 +36,7 @@ public @interface QueryTimeOut
 {
     int value() default Integer.MAX_VALUE;
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)

@@ -39,7 +39,7 @@ public @interface UseStringTemplate3StatementLocator
 
     Class<?> errorListener() default StringTemplateErrorListener.class;
 
-    public static class LocatorFactory implements SqlStatementCustomizerFactory
+    class LocatorFactory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)

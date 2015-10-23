@@ -172,45 +172,45 @@ public class TestModifiers
         }
     }
 
-    public static interface Spiffy extends CloseMe, Transactional<Spiffy>
+    public interface Spiffy extends CloseMe, Transactional<Spiffy>
     {
         @SqlQuery("select id, name from something where id = :id")
-        public Something byId(@Bind("id") long id);
+        Something byId(@Bind("id") long id);
 
         @SqlQuery("select id, name from something")
-        public List<Something> findAll(@FetchSize(1) int fetchSize);
+        List<Something> findAll(@FetchSize(1) int fetchSize);
 
         @SqlQuery("select id, name from something")
         @FetchSize(2)
-        public List<Something> findAll();
+        List<Something> findAll();
 
 
         @SqlQuery("select id, name from something")
-        public List<Something> findAllWithMaxRows(@MaxRows(1) int fetchSize);
+        List<Something> findAllWithMaxRows(@MaxRows(1) int fetchSize);
 
         @SqlQuery("select id, name from something")
         @MaxRows(1)
-        public List<Something> findAllWithMaxRows();
+        List<Something> findAllWithMaxRows();
 
         @SqlQuery("select id, name from something")
-        public List<Something> findAllWithQueryTimeOut(@QueryTimeOut(1) int timeOutInSeconds);
+        List<Something> findAllWithQueryTimeOut(@QueryTimeOut(1) int timeOutInSeconds);
 
         @SqlQuery("select id, name from something")
         @QueryTimeOut(1)
-        public List<Something> findAllWithQueryTimeOut();
+        List<Something> findAllWithQueryTimeOut();
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insert(@Bind("id") long id, @Bind("name") String name);
+        void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
-    public static interface IsoLevels extends CloseMe
+    public interface IsoLevels extends CloseMe
     {
         @TransactionIsolation(READ_UNCOMMITTED)
         @SqlQuery("select id, name from something where id = :id")
-        public Something findById(@Bind("id") int id);
+        Something findById(@Bind("id") int id);
 
         @SqlQuery("select id, name from something where id = :id")
-        public Something findById(@Bind("id") int id, @TransactionIsolation TransactionIsolationLevel iso);
+        Something findById(@Bind("id") int id, @TransactionIsolation TransactionIsolationLevel iso);
 
     }
 

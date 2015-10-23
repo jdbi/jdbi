@@ -44,7 +44,7 @@ public @interface TransactionIsolation
 
     TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
 
         @Override
@@ -67,7 +67,7 @@ public @interface TransactionIsolation
         }
     }
 
-    static class MyCustomizer implements SqlStatementCustomizer
+    class MyCustomizer implements SqlStatementCustomizer
     {
 
         private final TransactionIsolationLevel level;

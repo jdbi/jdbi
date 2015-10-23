@@ -59,9 +59,9 @@ public class TestBindAutomaticNames extends TestCase
         assertEquals("Tim", s.getName());
     }
 
-    public static interface Spiffy
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
-        public Query<Something> findById(@Bind int id);
+        Query<Something> findById(@Bind int id);
     }
 }

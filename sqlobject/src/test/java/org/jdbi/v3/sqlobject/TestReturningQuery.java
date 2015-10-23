@@ -78,16 +78,16 @@ public class TestReturningQuery
         assertEquals("Tim", s.getName());
     }
 
-    public static interface Spiffy extends CloseMe
+    public interface Spiffy extends CloseMe
     {
         @SqlQuery("select id, name from something where id = :id")
-        public Query<Something> findById(@Bind("id") int id);
+        Query<Something> findById(@Bind("id") int id);
     }
 
-    public static interface Spiffy2 extends CloseMe
+    public interface Spiffy2 extends CloseMe
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
-        public Query<Something> findByIdWithExplicitMapper(@Bind("id") int id);
+        Query<Something> findByIdWithExplicitMapper(@Bind("id") int id);
     }
 }

@@ -87,12 +87,12 @@ public class TestPaging
     }
 
     @RegisterMapper(SomethingMapper.class)
-    public static interface Sql
+    public interface Sql
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
-        public int[] insert(@Bind("id") Iterable<Integer> ids, @Bind("name") Iterable<String> names);
+        int[] insert(@Bind("id") Iterable<Integer> ids, @Bind("name") Iterable<String> names);
 
         @SqlQuery("select id, name from something where id > :end_of_last_page order by id limit :size")
-        public List<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
+        List<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
     }
 }

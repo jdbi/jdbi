@@ -57,7 +57,7 @@ public class TestEnumMapping extends TestCase
         assertSame(CoolName.JOE, spiffy.findById(joeId));
     }
 
-    public static interface Spiffy
+    public interface Spiffy
     {
         @SqlUpdate("insert into something(name) values(:name)")
         @GetGeneratedKeys

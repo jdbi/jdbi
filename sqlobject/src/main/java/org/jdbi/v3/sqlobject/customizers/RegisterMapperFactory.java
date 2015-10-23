@@ -37,7 +37,7 @@ public @interface RegisterMapperFactory
 {
     Class<? extends ResultSetMapperFactory>[] value();
 
-    public static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
 
         @Override

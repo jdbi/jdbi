@@ -129,8 +129,8 @@ public class TestCreateSqlObjectAnnotation
         SqlObjectBuilder.open(dbi, BogusDao.class);
     }
 
-    public static interface BogusDao {
+    public interface BogusDao {
         @SqlUpdate("select name from something")
-        public List<String> getNames();
+        List<String> getNames();
     }
 }

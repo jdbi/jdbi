@@ -90,9 +90,9 @@ public class TestObjectMethods
     }
 
 
-    public static interface DAO
+    public interface DAO
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insert(@Bind("id")long id, @Bind("name") String name);
+        void insert(@Bind("id") long id, @Bind("name") String name);
     }
 }

@@ -48,14 +48,14 @@ public class TestDefaultMethods
         assertEquals(-6, dao.insertAndReturn(123, "fake").getId());
     }
 
-    public static interface Spiffy extends CloseMe
+    public interface Spiffy extends CloseMe
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
-        public Something byId(@Bind("id") int id);
+        Something byId(@Bind("id") int id);
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
-        public void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
+        void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
 
         default Something insertAndReturn(int id, String name) {
             insert(new Something(id, name));
@@ -63,14 +63,14 @@ public class TestDefaultMethods
         }
     }
 
-    public static interface SpiffyOverride extends Spiffy
+    public interface SpiffyOverride extends Spiffy
     {
         @Override
         @SqlQuery("select id, name from something where id = :id")
         Something insertAndReturn(@Bind int id, @Bind String name);
     }
 
-    public static interface SpiffyOverrideWithDefault extends SpiffyOverride
+    public interface SpiffyOverrideWithDefault extends SpiffyOverride
     {
         @Override
         default Something insertAndReturn(int id, String name) {

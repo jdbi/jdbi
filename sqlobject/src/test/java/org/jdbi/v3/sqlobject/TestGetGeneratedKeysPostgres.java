@@ -56,13 +56,13 @@ public class TestGetGeneratedKeysPostgres
         });
     }
 
-    public static interface DAO extends CloseMe {
+    public interface DAO extends CloseMe {
         @SqlUpdate("insert into something (name, id) values (:name, nextval('id_sequence'))")
         @GetGeneratedKeys(columnName = "id")
-        public long insert(@Bind("name") String name);
+        long insert(@Bind("name") String name);
 
         @SqlQuery("select name from something where id = :id")
-        public String findNameById(@Bind long id);
+        String findNameById(@Bind long id);
     }
 
     @Test

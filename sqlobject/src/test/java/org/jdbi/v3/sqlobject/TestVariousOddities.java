@@ -118,18 +118,18 @@ public class TestVariousOddities
         fail();
     }
 
-    public static interface Spiffy extends CloseMe
+    public interface Spiffy extends CloseMe
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
-        public Something byId(@Bind("id") long id);
+        Something byId(@Bind("id") long id);
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
-        public void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
+        void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
 
     }
 
-    public static interface SpiffyBoom extends CloseMe
+    public interface SpiffyBoom extends CloseMe
     {
         @SqlQuery("SELECT 1")
         void returnNothing();
@@ -138,7 +138,7 @@ public class TestVariousOddities
     /**
      * This interface should not be loaded by any test other than {@link TestVariousOddities#testConcurrentHashCode()}.
      */
-    public static interface SpiffyConcurrent
+    public interface SpiffyConcurrent
     {
 
     }

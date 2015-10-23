@@ -73,7 +73,7 @@ public class TestRegisterMapperFactory
     }
 
     @RegisterMapperFactory(MyFactory.class)
-    public static interface FooDao
+    public interface FooDao
     {
         @SqlQuery("select * from something")
         List<Foo> select();

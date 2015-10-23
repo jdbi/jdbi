@@ -30,7 +30,7 @@ public @interface BindSomething
 {
     String value();
 
-    static class Factory implements BinderFactory
+    class Factory implements BinderFactory
     {
         @Override
         public Binder<BindSomething, Object> build(Annotation annotation)

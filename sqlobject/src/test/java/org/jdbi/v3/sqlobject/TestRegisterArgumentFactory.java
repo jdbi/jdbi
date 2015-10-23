@@ -69,7 +69,7 @@ public class TestRegisterArgumentFactory
 
 
     @RegisterArgumentFactory(NameAF.class)
-    public static interface Waffle
+    public interface Waffle
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") Name name);

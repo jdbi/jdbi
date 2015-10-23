@@ -96,13 +96,13 @@ public class TestOverrideStatementLocatorWith
 
     @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
     @RegisterMapper(SomethingMapper.class)
-    static interface Kangaroo
+    interface Kangaroo
     {
         @SqlUpdate
-        public void insert(@BindBean Something s);
+        void insert(@BindBean Something s);
 
         @SqlQuery
-        public Something findById(@Bind("id") Long id);
+        Something findById(@Bind("id") Long id);
 
         @SqlQuery("select name from something where id = :id")
         String findNameFor(@Bind("id") int id);

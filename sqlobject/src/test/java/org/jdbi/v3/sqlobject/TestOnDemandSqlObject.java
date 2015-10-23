@@ -220,10 +220,10 @@ public class TestOnDemandSqlObject
         assertFalse(all.hasNext());
     }
 
-    public static interface Spiffy extends GetHandle
+    public interface Spiffy extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insert(@Bind("id") long id, @Bind("name") String name);
+        void insert(@Bind("id") long id, @Bind("name") String name);
 
         @SqlQuery("select name, id from something")
         @Mapper(SomethingMapper.class)
@@ -239,20 +239,20 @@ public class TestOnDemandSqlObject
 
     }
 
-    public static interface TransactionStuff extends GetHandle, Transactional<TransactionStuff>
+    public interface TransactionStuff extends GetHandle, Transactional<TransactionStuff>
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
-        public Something byId(@Bind("id") long id);
+        Something byId(@Bind("id") long id);
 
         @SqlUpdate("update something set name = :name where id = :id")
-        public void updateName(@Bind("id") long id, @Bind("name") String name);
+        void updateName(@Bind("id") long id, @Bind("name") String name);
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insert(@Bind("id") long id, @Bind("name") String name);
+        void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
-    public static interface ExternalSql extends GetHandle
+    public interface ExternalSql extends GetHandle
     {
         @SqlQuery("all-something")
         @Mapper(SomethingMapper.class)

@@ -63,9 +63,9 @@ public class TestInClauseExpansion
     }
 
     @UseStringTemplate3StatementLocator
-    public static interface DAO
+    public interface DAO
     {
         @SqlQuery
-        public Set<String> findIdsForNames(@BindIn("names") List<Integer> names);
+        Set<String> findIdsForNames(@BindIn("names") List<Integer> names);
     }
 }

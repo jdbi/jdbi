@@ -39,7 +39,7 @@ public @interface BindIn
 {
     String value();
 
-    public static final class CustomizerFactory implements SqlStatementCustomizerFactory
+    final class CustomizerFactory implements SqlStatementCustomizerFactory
     {
 
         @Override
@@ -88,7 +88,7 @@ public @interface BindIn
         }
     }
 
-    public static class BindingFactory implements BinderFactory
+    class BindingFactory implements BinderFactory
     {
         @Override
         public Binder<?,?> build(Annotation annotation)

@@ -52,12 +52,12 @@ public class TestStatements
         }
     }
 
-    public static interface Inserter extends CloseMe
+    public interface Inserter extends CloseMe
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public int insert(@Bind("id") long id, @Bind("name") String name);
+        int insert(@Bind("id") long id, @Bind("name") String name);
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public void insertWithVoidReturn(@Bind("id") long id, @Bind("name") String name);
+        void insertWithVoidReturn(@Bind("id") long id, @Bind("name") String name);
     }
 }

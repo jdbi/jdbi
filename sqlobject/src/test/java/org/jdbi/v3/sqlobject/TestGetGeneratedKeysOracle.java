@@ -82,13 +82,13 @@ public class TestGetGeneratedKeysOracle {
         }
     }
 
-    public static interface DAO extends CloseMe {
+    public interface DAO extends CloseMe {
         @SqlUpdate("insert into something (name, id) values (:name, something_id_sequence.nextval)")
         @GetGeneratedKeys(columnName = "id", value = OracleGeneratedKeyMapper.class)
-        public long insert(@Bind("name") String name);
+        long insert(@Bind("name") String name);
 
         @SqlQuery("select name from something where id = :it")
-        public String findNameById(@Bind long id);
+        String findNameById(@Bind long id);
     }
 
     @Ignore

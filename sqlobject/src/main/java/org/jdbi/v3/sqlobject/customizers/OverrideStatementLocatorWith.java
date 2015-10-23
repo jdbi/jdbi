@@ -41,7 +41,7 @@ public @interface OverrideStatementLocatorWith
      */
     Class<? extends org.jdbi.v3.tweak.StatementLocator> value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
 
         @Override

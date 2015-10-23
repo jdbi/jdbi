@@ -69,13 +69,13 @@ public class TestOverrideStatementRewriter
 
     @OverrideStatementRewriterWith(HashPrefixStatementRewriter.class)
     @RegisterMapper(SomethingMapper.class)
-    static interface Hashed
+    interface Hashed
     {
         @SqlUpdate("insert into something (id, name) values (#id, #name)")
-        public void insert(@BindBean Something s);
+        void insert(@BindBean Something s);
 
         @SqlQuery("select id, name from something where id = #id")
-        public Something findById(@Bind("id") int id);
+        Something findById(@Bind("id") int id);
 
     }
 
