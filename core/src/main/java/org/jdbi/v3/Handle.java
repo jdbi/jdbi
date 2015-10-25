@@ -25,6 +25,7 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
+import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
  * This represents a connection to the database system. It usually is a wrapper around
@@ -287,4 +288,6 @@ public interface Handle extends Closeable
     TransactionIsolationLevel getTransactionIsolationLevel();
 
     void registerArgumentFactory(ArgumentFactory<?> argumentFactory);
+
+    void registerCollectorFactory(CollectorFactory<?, ?> factory);
 }

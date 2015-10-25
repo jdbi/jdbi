@@ -51,6 +51,7 @@ public class DBI
 
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private final MappingRegistry mappingRegistry = new MappingRegistry();
+    private final CollectorFactoryRegistry collectorFactoryRegistry = new CollectorFactoryRegistry();
     private final Foreman foreman = new Foreman();
 
     private final ConnectionFactory connectionFactory;
@@ -195,7 +196,8 @@ public class DBI
                                        globalStatementAttributes,
                                        timingCollector.get(),
                                        MappingRegistry.copyOf(mappingRegistry),
-                                       foreman.createChild());
+                                       foreman.createChild(),
+                                       collectorFactoryRegistry.createChild());
             LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
             return h;
         }

@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -59,8 +60,32 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
     }
 
     default List<ResultType> list() {
+        return collect(Collectors.toList());
+    }
+
+    /**
+     * Collect the query results into a container specified by a collector.
+     *
+     * @param collector       the collector
+     * @param <ContainerType> the generic type of the container
+     * @param <A>             the generic type of the container builder
+     * @return the container with the query result
+     */
+    default <ContainerType, A> ContainerType collect(Collector<ResultType, A, ContainerType> collector) {
         try (Stream<ResultType> stream = stream()) {
-            return stream.collect(Collectors.<ResultType>toList());
+            return stream.collect(collector);
         }
     }
+
+    /**
+     * Collect the query result into a container of the type specified by the given class.
+     * A factory for building the container should be registered in the query's
+     * collector factory registry.
+     *
+     * @param containerType   the class that represents the container
+     * @param <ContainerType> the generic type of the container
+     * @return the container with the query result
+     */
+    <ContainerType> ContainerType collectInto(Class<ContainerType> containerType);
+
 }

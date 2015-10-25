@@ -38,6 +38,7 @@ import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +65,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     private       RewrittenStatement rewritten;
     private       PreparedStatement  stmt;
     private final TimingCollector    timingCollector;
+    private final CollectorFactoryRegistry collectorFactoryRegistry;
 
     SQLStatement(Binding params,
                  StatementLocator locator,
@@ -74,7 +76,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
                  ConcreteStatementContext ctx,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers,
-                 Foreman foreman)
+                 Foreman foreman,
+                 CollectorFactoryRegistry collectorFactoryRegistry)
     {
         super(ctx, foreman);
         assert verifyOurNastyDowncastIsOkay();
@@ -88,12 +91,23 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
+        this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
 
         ctx.setConnection(handle.getConnection());
         ctx.setRawSql(sql);
         ctx.setBinding(params);
     }
 
+    CollectorFactoryRegistry getCollectorFactoryRegistry()
+    {
+        return collectorFactoryRegistry;
+    }
+
+    @SuppressWarnings("unchecked")
+    public SelfType registerCollectorFactory(CollectorFactory<?, ?> collectorFactory) {
+        this.collectorFactoryRegistry.register(collectorFactory);
+        return (SelfType) this;
+    }
 
     @SuppressWarnings("unchecked")
     public SelfType registerArgumentFactory(ArgumentFactory<?> argumentFactory)
