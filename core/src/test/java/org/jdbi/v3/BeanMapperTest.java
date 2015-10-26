@@ -66,9 +66,6 @@ public class BeanMapperTest {
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("LONG_FIELD");
         replay(resultSetMetaData);
 
-        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
-        replay(ctx);
-
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
         expect(resultSet.getLong(1)).andReturn(aLongVal);
