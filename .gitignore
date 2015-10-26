@@ -17,3 +17,5 @@ out
 .settings
 *~
 test-output
+dependency-reduced-pom.xml
+

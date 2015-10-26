@@ -1,17 +1,16 @@
 This file describes the changes expected in some eventual 3.0 release.
 
-* Change package name (org.skife.jdbi.v2 -> org.skife.jdbi.v3)
-* Make hashed prefix statement rewriter the default
+* Make hashed prefix statement rewriter the default (Actually, figure out something that won't ever conflict with SQL!)
 * Clean up exceptions, a lot
 ** Consider using Spring's exception mapping code to expose more useful exceptions
-* Rename Folder2 to Folder, deleting the old Folder
 * Batter batch interface
 ** That the batch isn't a statement is a problem for the sql object api as you
    cannot apply sql statement customizers.
 ** It should use the same SQLStatement#internalExecute method for execution
    so that we can avoid duplicating that logic. Means rejiggering how stuff gets
    bound quite a bit.
-* Clean up folding a LOT
 * Clean up naming on sql object api elements
-* Get rid of @Transmogrify
 * Use Type instead of Class to support more robust generics in mappers.
+* Rework the sharing of StatementContext and Mappers to make ownership of these objects more clear
+* Consider using Jackson for type mapping?
+* Consider CallbackFailedException wrapping policy (see #198)
