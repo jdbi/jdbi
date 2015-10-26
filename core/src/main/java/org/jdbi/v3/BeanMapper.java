@@ -40,7 +40,7 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 public class BeanMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
-    private final Map<String, PropertyDescriptor> properties = new HashMap<String, PropertyDescriptor>();
+    private final Map<String, PropertyDescriptor> properties = new HashMap<>();
 
     public BeanMapper(Class<T> type)
     {
@@ -82,7 +82,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
     {
         Locale locale = getLocale();
 
-        List<String> columnName = new ArrayList<String>(5);
+        List<String> columnName = new ArrayList<>(5);
 
         // Add the bean property name as-is.
         columnName.add(propertyName);
