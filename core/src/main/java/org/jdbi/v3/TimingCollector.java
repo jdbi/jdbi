@@ -34,7 +34,7 @@ public interface TimingCollector
      */
     TimingCollector NOP_TIMING_COLLECTOR = new NopTimingCollector();
 
-    final class NopTimingCollector implements TimingCollector
+    class NopTimingCollector implements TimingCollector
     {
         @Override
         public void collect(final long elapsedTime, final StatementContext ctx)
