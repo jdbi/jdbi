@@ -16,6 +16,7 @@ package org.jdbi.v3.docs;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -23,7 +24,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
@@ -102,7 +102,7 @@ public class TestFoldToObjectGraph
         public Map<String, Team> findAllTeams()
         {
             Iterator<TeamPersonJoinRow> i = findAllTeamsAndPeople();
-            Map<String, Team> acc = Maps.newHashMap();
+            Map<String, Team> acc = new HashMap<>();
             while (i.hasNext()) {
                 TeamPersonJoinRow row = i.next();
                 if (!acc.containsKey(row.getTeamName())) {
