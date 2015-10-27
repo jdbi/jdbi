@@ -88,6 +88,8 @@
         <basepom.test.fork-count>8</basepom.test.fork-count>
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>120</basepom.test.timeout>
+
+        <basepom.check.skip-modernizer>false</basepom.check.skip-modernizer>
     </properties>
 
     <build>
