@@ -19,9 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 
-import org.jdbi.v3.SqlStatement;
 import org.jdbi.v3.StatementCustomizers;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -45,21 +43,21 @@ public @interface FetchDirection
     {
         public SqlStatementCustomizer createForParameter(Annotation annotation, Object arg)
         {
-            return new FetchDirectionSqlStatementCustomizer((Integer) arg);
+            return create((Integer) arg);
         }
 
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final FetchDirection fs = (FetchDirection) annotation;
-            return new FetchDirectionSqlStatementCustomizer(fs.value());
+            return create(fs.value());
         }
 
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final FetchDirection fs = (FetchDirection) annotation;
-            return new FetchDirectionSqlStatementCustomizer(fs.value());
+            return create(fs.value());
         }
 
         @Override
@@ -68,23 +66,12 @@ public @interface FetchDirection
                                                          Method method,
                                                          Object arg)
         {
-            return new FetchDirectionSqlStatementCustomizer((Integer) arg);
-        }
-    }
-
-    class FetchDirectionSqlStatementCustomizer implements SqlStatementCustomizer
-    {
-        private final Integer direction;
-
-        FetchDirectionSqlStatementCustomizer(final Integer direction)
-        {
-            this.direction = direction;
+            return create((Integer) arg);
         }
 
-        @Override
-        public void apply(SqlStatement<?> q) throws SQLException
+        private static SqlStatementCustomizer create(Integer direction)
         {
-            q.addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(direction));
+            return q -> q.addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(direction));
         }
     }
 }
