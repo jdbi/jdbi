@@ -19,9 +19,6 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.tweak.Argument;
 
-/**
- *
- */
 class CharacterStreamArgument implements Argument
 {
     private final Reader value;
