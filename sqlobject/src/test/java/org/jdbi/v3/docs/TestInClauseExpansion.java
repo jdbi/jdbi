@@ -24,7 +24,7 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.customizers.RegisterContainerMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.unstable.BindIn;
@@ -65,7 +65,7 @@ public class TestInClauseExpansion
     }
 
     @UseStringTemplate3StatementLocator
-    @RegisterContainerMapper(ImmutableSetCollectorFactory.class)
+    @RegisterCollectorFactory(ImmutableSetCollectorFactory.class)
     public interface DAO
     {
         @SqlQuery

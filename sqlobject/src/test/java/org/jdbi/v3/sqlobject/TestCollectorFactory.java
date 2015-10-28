@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.RegisterContainerMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.junit.Rule;
@@ -120,7 +120,7 @@ public class TestCollectorFactory {
     }
 
 
-    @RegisterContainerMapper({ImmutableListCollectorFactory.class, GuavaOptionalCollectorFactory.class})
+    @RegisterCollectorFactory({ImmutableListCollectorFactory.class, GuavaOptionalCollectorFactory.class})
     public interface Dao extends Base<String> {
         @SqlQuery("select name from something order by id")
         ImmutableList<String> findAll();

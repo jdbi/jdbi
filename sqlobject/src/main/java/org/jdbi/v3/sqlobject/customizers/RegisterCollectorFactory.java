@@ -34,20 +34,20 @@ import java.util.List;
  * Used to register container mappers on the current {@link Query}
  * either for a sql object type or for a method.
  */
-@SqlStatementCustomizingAnnotation(RegisterContainerMapper.Factory.class)
+@SqlStatementCustomizingAnnotation(RegisterCollectorFactory.Factory.class)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RegisterContainerMapper {
+public @interface RegisterCollectorFactory {
 
     Class<? extends CollectorFactory>[] value();
 
     class Factory implements SqlStatementCustomizerFactory {
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method) {
-            return new Customizer((RegisterContainerMapper) annotation);
+            return new Customizer((RegisterCollectorFactory) annotation);
         }
 
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType) {
-            return new Customizer((RegisterContainerMapper) annotation);
+            return new Customizer((RegisterCollectorFactory) annotation);
         }
 
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method,
@@ -59,7 +59,7 @@ public @interface RegisterContainerMapper {
     class Customizer implements SqlStatementCustomizer {
         private final List<CollectorFactory<?, ?>> factories;
 
-        Customizer(RegisterContainerMapper annotation) {
+        Customizer(RegisterCollectorFactory annotation) {
             List<CollectorFactory<?, ?>> factories = new ArrayList<>();
             for (Class<? extends CollectorFactory> type : annotation.value()) {
                 try {

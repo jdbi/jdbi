@@ -30,7 +30,7 @@ import org.jdbi.v3.sqlobject.SqlBatch;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.TestCollectorFactory;
-import org.jdbi.v3.sqlobject.customizers.RegisterContainerMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -89,7 +89,7 @@ public class TestPaging
     }
 
     @RegisterMapper(SomethingMapper.class)
-    @RegisterContainerMapper(TestCollectorFactory.ImmutableListCollectorFactory.class)
+    @RegisterCollectorFactory(TestCollectorFactory.ImmutableListCollectorFactory.class)
     public interface Sql
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
