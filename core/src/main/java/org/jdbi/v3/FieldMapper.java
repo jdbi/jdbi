@@ -36,18 +36,18 @@ import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
  *
  * The class must have a default constructor.
  */
-public class ReflectiveFieldMapper<T> implements ResultSetMapper<T>
+public class FieldMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
     private final ConcurrentMap<String, Optional<Field>> fieldByNameCache = new ConcurrentHashMap<>();
     private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
-    public ReflectiveFieldMapper(Class<T> type)
+    public FieldMapper(Class<T> type)
     {
         this(type, BeanMapper.DEFAULT_STRATEGIES);
     }
 
-    public ReflectiveFieldMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
+    public FieldMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
     {
         this.type = type;
         this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
