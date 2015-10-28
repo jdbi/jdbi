@@ -21,34 +21,102 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 
 /**
- * A result set mapper which maps the fields in a statement into a JavaBean. This uses
- * the JDK's built in bean mapping facilities, so it does not support nested properties.
+ * A result set mapper which maps the fields in a statement into a JavaBean. The default implementation will perform a
+ * case insensitive mapping between the bean property names and the column labels, also considering camel-case to
+ * underscores conversion. This uses the JDK's built in bean mapping facilities, so it does not support nested
+ * properties.
  */
 public class BeanMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
-    private final Map<String, PropertyDescriptor> properties = new HashMap<String, PropertyDescriptor>();
+    private final Map<String, PropertyDescriptor> properties = new HashMap<>();
 
     public BeanMapper(Class<T> type)
     {
         this.type = type;
-        try {
+
+        try
+        {
             BeanInfo info = Introspector.getBeanInfo(type);
 
+            Locale locale = getLocale();
+
             for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
-                properties.put(descriptor.getName().toLowerCase(), descriptor);
+                    Collection<String> columnNames = mapToColumnNames(descriptor.getName());
+                    if (columnNames == null) {
+                        continue;
+                    }
+                    for (String columnName : columnNames) {
+                        properties.put(columnName.toLowerCase(locale), descriptor);
+                    }
             }
         }
         catch (IntrospectionException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    /**
+     * Maps a property name to possible column names candidates. This default implementation will map the property name
+     * as-is, and converted from the camel-case syntax to an underscore separated name.
+     * <p>
+     * Processing of the returned mappings will be case insensitive. The mappings are not expected to change across
+     * invocations.
+     *
+     * @param propertyName the bean property name
+     *
+     * @return a collection holding the possible column names (mutable in the default implementation)
+     */
+    protected Collection<String> mapToColumnNames(String propertyName)
+    {
+        Locale locale = getLocale();
+
+        List<String> columnNames = new ArrayList<>(5);
+
+        // Add the bean property name as-is.
+        columnNames.add(propertyName);
+
+        // Convert the property name from camel-case to underscores syntax. Freely adapted from Spring
+        // BeanPropertyRowMapper.
+        StringBuilder propertyNameWithUnderscores = new StringBuilder();
+        propertyNameWithUnderscores.append(propertyName.substring(0, 1));
+        for (int i = 1; i < propertyName.length(); i++) {
+            // Do case comparison using strings rather than chars (avoid to deal with non-BMP char handling).
+            String s = propertyName.substring(i, i + 1);
+            String slc = s.toLowerCase(locale);
+            if (!s.equals(slc)) {
+                // Different cases: tokenize.
+                propertyNameWithUnderscores.append("_").append(slc);
+            }
+            else {
+                propertyNameWithUnderscores.append(s);
+            }
+        }
+        columnNames.add(propertyNameWithUnderscores.toString());
+
+        return columnNames;
+    }
+
+    /**
+     * Gets the locale used to manipulate the Bean properties name. This locale is useful, for example, when doing
+     * case conversion. The locale is expected to be constant across method invocations. By default the {@code ROOT}
+     * locale will be used.
+     *
+     * @return the target locale, never {@code null}
+     */
+    protected Locale getLocale() {
+        return Locale.ROOT;
     }
 
     @Override

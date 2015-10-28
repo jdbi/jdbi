@@ -61,6 +61,40 @@ public class BeanMapperTest {
     }
 
     @Test
+    public void shouldHandleColumNameWithUnderscores() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("LONG_FIELD");
+        replay(resultSetMetaData);
+
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
+        Long aLongVal = 100l;
+        expect(resultSet.getLong(1)).andReturn(aLongVal);
+        expect(resultSet.wasNull()).andReturn(false);
+        replay(resultSet);
+
+        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+
+        assertEquals(aLongVal, sampleBean.getLongField());
+    }
+
+    @Test
+    public void shouldBeCaseInSensitiveOfColumnWithUnderscoresAndPropertyNames() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("LoNg_FiElD");
+        replay(resultSetMetaData);
+
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
+        Long aLongVal = 100l;
+        expect(resultSet.getLong(1)).andReturn(aLongVal);
+        expect(resultSet.wasNull()).andReturn(false);
+        replay(resultSet);
+
+        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+
+        assertEquals(aLongVal, sampleBean.getLongField());
+    }
+
+    @Test
     public void shouldHandleEmptyResult() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(0);
         replay(resultSetMetaData);
