@@ -30,6 +30,8 @@ import java.util.Map;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A result set mapper which maps the fields in a statement into a JavaBean. The default implementation will perform a
@@ -39,6 +41,8 @@ import org.jdbi.v3.tweak.ResultSetMapper;
  */
 public class BeanMapper<T> implements ResultSetMapper<T>
 {
+    private static final Logger LOG = LoggerFactory.getLogger(BeanMapper.class);
+
     private final Class<T> type;
     private final Map<String, PropertyDescriptor> properties = new HashMap<>();
 
@@ -58,7 +62,11 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                     continue;
                 }
                 for (String columnName : columnNames) {
-                    properties.put(columnName.toLowerCase(locale), descriptor);
+                    PropertyDescriptor existing = properties.put(columnName.toLowerCase(locale), descriptor);
+                    if (existing != null) {
+                        LOG.warn("For type {}, property '{}' and '{}' yield colliding normalized column name '{}'",
+                                type.getName(), descriptor.getName(), existing.getName(), columnName);
+                    }
                 }
             }
         }
