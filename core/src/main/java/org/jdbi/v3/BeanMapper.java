@@ -82,10 +82,10 @@ public class BeanMapper<T> implements ResultSetMapper<T>
     {
         Locale locale = getLocale();
 
-        List<String> columnName = new ArrayList<>(5);
+        List<String> columnNames = new ArrayList<>(5);
 
         // Add the bean property name as-is.
-        columnName.add(propertyName);
+        columnNames.add(propertyName);
 
         // Convert the property name from camel-case to underscores syntax. Freely adapted from Spring
         // BeanPropertyRowMapper.
@@ -103,20 +103,20 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                 propertyNameWithUnderscores.append(s);
             }
         }
-        columnName.add(propertyNameWithUnderscores.toString());
+        columnNames.add(propertyNameWithUnderscores.toString());
 
-        return columnName;
+        return columnNames;
     }
 
     /**
      * Gets the locale used to manipulate the Bean properties name. This locale is useful, for example, when doing
-     * case conversion. The locale is expected to be constant across method invocations. By default the {@code US}
+     * case conversion. The locale is expected to be constant across method invocations. By default the {@code ROOT}
      * locale will be used.
      *
      * @return the target locale, never {@code null}
      */
     protected Locale getLocale() {
-        return Locale.US;
+        return Locale.ROOT;
     }
 
     @Override
