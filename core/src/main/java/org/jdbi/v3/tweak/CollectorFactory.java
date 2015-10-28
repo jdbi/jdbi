@@ -25,7 +25,7 @@ import java.util.stream.Collector;
 public interface CollectorFactory<T, R> {
 
     /**
-     * Whether the corresponding collector accepts objects of the given type.
+     * Whether the corresponding collector produces results of the given type.
      *
      * @param type the object type
      * @return {@code true}, if accepts, otherwise {@code false}
