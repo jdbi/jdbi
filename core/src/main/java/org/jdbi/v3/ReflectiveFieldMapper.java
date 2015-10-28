@@ -17,11 +17,16 @@ import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
 
 
 /**
@@ -34,22 +39,18 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 public class ReflectiveFieldMapper<T> implements ResultSetMapper<T>
 {
     private final Class<T> type;
-    private final Map<String, Field> properties = new HashMap<String, Field>();
+    private final ConcurrentMap<String, Optional<Field>> fieldByNameCache = new ConcurrentHashMap<>();
+    private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
     public ReflectiveFieldMapper(Class<T> type)
     {
-        this.type = type;
-        cacheAllFieldsIncludingSuperClass(type);
+        this(type, BeanMapper.DEFAULT_STRATEGIES);
     }
 
-    private void cacheAllFieldsIncludingSuperClass(Class<T> type) {
-        Class<?> aClass = type;
-        while(aClass != null) {
-            for (Field field : aClass.getDeclaredFields()) {
-                properties.put(field.getName().toLowerCase(), field);
-            }
-            aClass = aClass.getSuperclass();
-        }
+    public ReflectiveFieldMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
+    {
+        this.type = type;
+        this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
     }
 
     @Override
@@ -71,33 +72,52 @@ public class ReflectiveFieldMapper<T> implements ResultSetMapper<T>
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i).toLowerCase();
 
-            Field field = properties.get(name);
+            Optional<Field> maybeField = fieldByNameCache.computeIfAbsent(name, this::fieldByColumn);
 
-            if (field != null) {
-                Class type = field.getType();
+            if (!maybeField.isPresent()) {
+                continue;
+            }
 
-                Object value;
-                ResultColumnMapper mapper = ctx.columnMapperFor(type);
-                if (mapper != null) {
-                    value = mapper.mapColumn(rs, i, ctx);
-                }
-                else {
-                    value = rs.getObject(i);
-                }
+            final Field field = maybeField.get();
+            final Class type = field.getType();
+            final Object value;
+            final ResultColumnMapper mapper = ctx.columnMapperFor(type);
 
-                try
-                {
-                    field.setAccessible(true);
-                    field.set(bean, value);
-                }
-                catch (IllegalAccessException e) {
-                    throw new IllegalArgumentException(String.format("Unable to access " +
-                            "property, %s", name), e);
-                }
+            if (mapper != null) {
+                value = mapper.mapColumn(rs, i, ctx);
+            }
+            else {
+                value = rs.getObject(i);
+            }
+
+            try
+            {
+                field.setAccessible(true);
+                field.set(bean, value);
+            }
+            catch (IllegalAccessException e) {
+                throw new IllegalArgumentException(String.format("Unable to access " +
+                        "property, %s", name), e);
             }
         }
 
         return bean;
+    }
+
+    private Optional<Field> fieldByColumn(String columnName)
+    {
+        Class<?> aClass = type;
+        while(aClass != null) {
+            for (Field field : aClass.getDeclaredFields()) {
+                for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
+                    if (strategy.nameMatches(field.getName(), columnName)) {
+                        return Optional.of(field);
+                    }
+                }
+            }
+            aClass = aClass.getSuperclass();
+        }
+        return Optional.empty();
     }
 }
 
