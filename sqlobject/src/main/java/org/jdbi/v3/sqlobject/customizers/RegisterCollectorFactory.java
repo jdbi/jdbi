@@ -13,13 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
-import org.jdbi.v3.Query;
-import org.jdbi.v3.SQLStatement;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.tweak.CollectorFactory;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -30,6 +23,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.Query;
+import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.tweak.CollectorFactory;
+
 /**
  * Used to register container mappers on the current {@link Query}
  * either for a sql object type or for a method.
@@ -39,18 +39,22 @@ import java.util.List;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterCollectorFactory {
 
+    @SuppressWarnings("rawtypes")
     Class<? extends CollectorFactory>[] value();
 
     class Factory implements SqlStatementCustomizerFactory {
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method) {
+        @Override
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             return new Customizer((RegisterCollectorFactory) annotation);
         }
 
-        public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType) {
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
             return new Customizer((RegisterCollectorFactory) annotation);
         }
 
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method,
+        @Override
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method,
                                                          Object arg) {
             throw new UnsupportedOperationException("@RegisterContainerMapper is not supported on parameters");
         }
@@ -61,7 +65,7 @@ public @interface RegisterCollectorFactory {
 
         Customizer(RegisterCollectorFactory annotation) {
             List<CollectorFactory<?, ?>> factories = new ArrayList<>();
-            for (Class<? extends CollectorFactory> type : annotation.value()) {
+            for (@SuppressWarnings("rawtypes") Class<? extends CollectorFactory> type : annotation.value()) {
                 try {
                     factories.add(type.newInstance());
                 } catch (InstantiationException | IllegalAccessException e) {
@@ -71,9 +75,10 @@ public @interface RegisterCollectorFactory {
             this.factories = factories;
         }
 
-        public void apply(SQLStatement q) throws SQLException {
+        @Override
+        public void apply(SQLStatement<?> q) throws SQLException {
             if (q instanceof Query) {
-                Query<?> query = (Query) q;
+                Query<?> query = (Query<?>) q;
                 for (CollectorFactory<?, ?> collectorFactory : factories) {
                     query.registerCollectorFactory(collectorFactory);
                 }

@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.CollectorFactory;
-
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -22,6 +20,8 @@ import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
  * Registry of collector factories.
@@ -64,10 +64,12 @@ class CollectorFactoryRegistry {
 
     private static class SortedSetCollectorFactory<T> implements CollectorFactory<T, SortedSet<T>> {
 
+        @Override
         public boolean accepts(Class<?> type) {
             return type.equals(SortedSet.class);
         }
 
+        @Override
         public Collector<T, ?, SortedSet<T>> newCollector(Class<SortedSet<T>> type) {
             return Collectors.toCollection(TreeSet::new);
         }
@@ -75,10 +77,12 @@ class CollectorFactoryRegistry {
 
     private static class ListCollectorFactory<T> implements CollectorFactory<T, List<T>> {
 
+        @Override
         public boolean accepts(Class<?> type) {
             return type.equals(List.class);
         }
 
+        @Override
         public Collector<T, ?, List<T>> newCollector(Class<List<T>> type) {
             return Collectors.toList();
         }
@@ -86,10 +90,12 @@ class CollectorFactoryRegistry {
 
     private static class SetCollectorFactory<T> implements CollectorFactory<T, Set<T>> {
 
+        @Override
         public boolean accepts(Class<?> type) {
             return type.equals(Set.class);
         }
 
+        @Override
         public Collector<T, ?, Set<T>> newCollector(Class<Set<T>> type) {
             return Collectors.toSet();
         }

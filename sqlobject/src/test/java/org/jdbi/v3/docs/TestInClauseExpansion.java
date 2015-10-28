@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collector;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
@@ -31,8 +33,6 @@ import org.jdbi.v3.unstable.BindIn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableSet;
 
 public class TestInClauseExpansion
 {
@@ -74,6 +74,7 @@ public class TestInClauseExpansion
 
     public static class ImmutableSetCollectorFactory<T> implements CollectorFactory<T, ImmutableSet<T>> {
 
+        @Override
         public boolean accepts(Class<?> type) {
             return ImmutableSet.class.isAssignableFrom(type);
         }

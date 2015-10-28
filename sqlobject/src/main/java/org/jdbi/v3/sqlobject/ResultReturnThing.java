@@ -13,12 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
@@ -259,7 +255,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {
-                return ((Query) q).collectInto(erased_type);
+                return ((Query<?>) q).collectInto(erased_type);
             } else {
                 throw new UnsupportedOperationException("Collect is not supported for " + q);
             }

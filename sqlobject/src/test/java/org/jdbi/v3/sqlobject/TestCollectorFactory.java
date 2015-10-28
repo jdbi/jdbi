@@ -13,9 +13,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
+import java.util.SortedSet;
+import java.util.stream.Collector;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
+
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
@@ -24,12 +31,6 @@ import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.SortedSet;
-import java.util.stream.Collector;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class TestCollectorFactory {
 
@@ -40,7 +41,7 @@ public class TestCollectorFactory {
     public void testExists() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(new GuavaOptionalCollectorFactory());
+        h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
 
         @SuppressWarnings("unchecked")
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -56,7 +57,7 @@ public class TestCollectorFactory {
     public void testDoesNotExist() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(new GuavaOptionalCollectorFactory());
+        h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
 
         @SuppressWarnings("unchecked")
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -70,7 +71,7 @@ public class TestCollectorFactory {
     @Test
     public void testOnList() throws Exception {
         Handle h = h2.getSharedHandle();
-        h.registerCollectorFactory(new ImmutableListCollectorFactory());
+        h.registerCollectorFactory(new ImmutableListCollectorFactory<>());
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
@@ -148,6 +149,7 @@ public class TestCollectorFactory {
 
     public static class ImmutableListCollectorFactory<T> implements CollectorFactory<T, ImmutableList<T>> {
 
+        @Override
         public boolean accepts(Class<?> type) {
             return ImmutableList.class.equals(type);
         }
@@ -162,6 +164,7 @@ public class TestCollectorFactory {
 
     public static class GuavaOptionalCollectorFactory<T> implements CollectorFactory<T, Optional<T>> {
 
+        @Override
         public boolean accepts(Class<?> type) {
             return type.equals(Optional.class);
         }
