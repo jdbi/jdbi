@@ -29,6 +29,8 @@ import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
+import org.jdbi.v3.sqlobject.TestCollectorFactory;
+import org.jdbi.v3.sqlobject.customizers.RegisterContainerMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -87,12 +89,13 @@ public class TestPaging
     }
 
     @RegisterMapper(SomethingMapper.class)
+    @RegisterContainerMapper(TestCollectorFactory.ImmutableListCollectorFactory.class)
     public interface Sql
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         int[] insert(@Bind("id") Iterable<Integer> ids, @Bind("name") Iterable<String> names);
 
         @SqlQuery("select id, name from something where id > :end_of_last_page order by id limit :size")
-        List<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
+        ImmutableList<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
     }
 }

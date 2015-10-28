@@ -112,7 +112,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
-                throw new IllegalStateException("TODO: not supported");
+                return q.collectInto(containerType);
             }
             return q.findFirst().orElse(null);
         }
@@ -258,22 +258,11 @@ abstract class ResultReturnThing
         @Override
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
-            final Object result;
-            final Consumer<Object> consumer;
-            if (erased_type == List.class) {
-                List<Object> list = new ArrayList<>();
-                result = list;
-                consumer = list::add;
-            } else if (erased_type == Set.class) {
-                Set<Object> set = new HashSet<>();
-                result = set;
-                consumer = set::add;
+            if (q instanceof Query) {
+                return ((Query) q).collectInto(erased_type);
             } else {
-                throw new UnsupportedOperationException("TODO: this mapping code sucks");
+                throw new UnsupportedOperationException("Collect is not supported for " + q);
             }
-
-            ((ResultBearing<Object>)q).stream().forEach(consumer);
-            return result;
         }
 
         @Override

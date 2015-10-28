@@ -37,9 +37,11 @@ public class Update extends SQLStatement<Update>
            String sql,
            ConcreteStatementContext ctx,
            TimingCollector timingCollector,
-           Foreman foreman)
+           Foreman foreman,
+           CollectorFactoryRegistry collectorFactoryRegistry)
     {
-        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, timingCollector, Collections.<StatementCustomizer>emptyList(), foreman);
+        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, timingCollector,
+                Collections.<StatementCustomizer>emptyList(), foreman, collectorFactoryRegistry);
     }
 
     /**
@@ -73,7 +75,8 @@ public class Update extends SQLStatement<Update>
                 new GeneratedKeys<GeneratedKeyType>(mapper,
                                                     Update.this,
                                                     results,
-                                                    getContext()));
+                                                    getContext(),
+                                                    getCollectorFactoryRegistry()));
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {

@@ -30,6 +30,7 @@ import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.tweak.TransactionHandler;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,7 @@ class BasicHandle implements Handle
 
     private final Map<String, Object>      globalStatementAttributes;
     private final MappingRegistry          mappingRegistry;
+    private final CollectorFactoryRegistry collectorFactoryRegistry;
     private final Foreman                  foreman;
     private final TransactionHandler       transactions;
     private final Connection               connection;
@@ -59,7 +61,8 @@ class BasicHandle implements Handle
                 Map<String, Object> globalStatementAttributes,
                 TimingCollector timingCollector,
                 MappingRegistry mappingRegistry,
-                Foreman foreman)
+                Foreman foreman,
+                CollectorFactoryRegistry collectorFactoryRegistry)
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
@@ -71,6 +74,7 @@ class BasicHandle implements Handle
         this.foreman = foreman;
         this.globalStatementAttributes = new HashMap<String, Object>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
+        this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
     }
 
     @Override
@@ -88,7 +92,8 @@ class BasicHandle implements Handle
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
                                               queryRegistry,
-                                              foreman.createChild());
+                                              foreman.createChild(),
+                                              collectorFactoryRegistry.createChild());
     }
 
     /**
@@ -244,7 +249,8 @@ class BasicHandle implements Handle
                           sql,
                           new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
                           timingCollector,
-                          foreman);
+                          foreman,
+                          collectorFactoryRegistry);
     }
 
     @Override
@@ -258,7 +264,8 @@ class BasicHandle implements Handle
                         new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
-                        foreman);
+                        foreman,
+                collectorFactoryRegistry);
     }
 
     @Override
@@ -289,7 +296,8 @@ class BasicHandle implements Handle
                                  new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
-                                 foreman);
+                                 foreman,
+                collectorFactoryRegistry);
     }
 
     @Override
@@ -447,5 +455,10 @@ class BasicHandle implements Handle
     public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
     {
         this.foreman.register(argumentFactory);
+    }
+
+    @Override
+    public void registerCollectorFactory(CollectorFactory<?, ?> factory) {
+        this.collectorFactoryRegistry.register(factory);
     }
 }

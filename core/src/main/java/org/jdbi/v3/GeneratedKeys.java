@@ -32,6 +32,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
     private final Statement                stmt;
     private final ResultSet                results;
     private final StatementContext         context;
+    private final CollectorFactoryRegistry collectorFactoryRegistry;
 
     /**
      * Creates a new wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
@@ -45,7 +46,8 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
     GeneratedKeys(ResultSetMapper<Type> mapper,
                   SQLStatement<?> jdbiStatement,
                   Statement stmt,
-                  StatementContext context) throws SQLException
+                  StatementContext context,
+                  CollectorFactoryRegistry collectorFactoryRegistry) throws SQLException
     {
         this.mapper = mapper;
         this.jdbiStatement = jdbiStatement;
@@ -53,6 +55,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         this.results = stmt.getGeneratedKeys();
         this.context = context;
         this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
+        this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
     }
 
     /**
@@ -73,5 +76,10 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         catch (SQLException e) {
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
         }
+    }
+
+    @Override
+    public <ContainerType> ContainerType collectInto(Class<ContainerType> containerType) {
+        return collect(collectorFactoryRegistry.createCollectorFor(containerType));
     }
 }

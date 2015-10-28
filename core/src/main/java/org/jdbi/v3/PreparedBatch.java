@@ -55,9 +55,11 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                   ConcreteStatementContext ctx,
                   TimingCollector timingCollector,
                   Collection<StatementCustomizer> statementCustomizers,
-                  Foreman foreman)
+                  Foreman foreman,
+                  CollectorFactoryRegistry collectorFactoryRegistry)
     {
-        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, timingCollector, statementCustomizers, foreman);
+        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, timingCollector,
+                statementCustomizers, foreman, collectorFactoryRegistry);
         this.currentBinding = new Binding();
     }
 
@@ -106,7 +108,8 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                 new GeneratedKeys<GeneratedKeyType>(mapper,
                                                     PreparedBatch.this,
                                                     results,
-                                                    getContext()));
+                                                    getContext(),
+                                                    getCollectorFactoryRegistry()));
 
     }
 
@@ -203,7 +206,8 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                                                        getSql(),
                                                        getConcreteContext(),
                                                        getTimingCollector(),
-                                                       getForeman());
+                                                       getForeman(),
+                                                       getCollectorFactoryRegistry());
         parts.add(part);
         this.currentBinding = new Binding();
         return part;
