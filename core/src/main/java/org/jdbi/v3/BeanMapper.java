@@ -21,12 +21,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -57,7 +56,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
             Locale locale = getLocale();
 
             for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
-                Collection<String> columnNames = mapToColumnNames(descriptor.getName());
+                Set<String> columnNames = mapToColumnNames(descriptor.getName());
                 if (columnNames == null) {
                     continue;
                 }
@@ -86,11 +85,11 @@ public class BeanMapper<T> implements ResultSetMapper<T>
      *
      * @return a collection holding the possible column names (mutable in the default implementation)
      */
-    protected Collection<String> mapToColumnNames(String propertyName)
+    protected Set<String> mapToColumnNames(String propertyName)
     {
         Locale locale = getLocale();
 
-        List<String> columnNames = new ArrayList<>(5);
+        Set<String> columnNames = new HashSet<>();
 
         // Add the bean property name as-is.
         columnNames.add(propertyName);
