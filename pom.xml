@@ -250,6 +250,7 @@
     <modules>
         <module>core</module>
         <module>sqlobject</module>
+        <module>guava</module>
         <module>spring</module>
     </modules>
 </project>
