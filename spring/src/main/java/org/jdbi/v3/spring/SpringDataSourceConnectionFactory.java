@@ -21,14 +21,11 @@ import javax.sql.DataSource;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
-/**
- *
- */
 class SpringDataSourceConnectionFactory implements ConnectionFactory
 {
     private final DataSource dataSource;
 
-    public SpringDataSourceConnectionFactory(DataSource dataSource)
+    SpringDataSourceConnectionFactory(DataSource dataSource)
     {
         this.dataSource = dataSource;
     }
