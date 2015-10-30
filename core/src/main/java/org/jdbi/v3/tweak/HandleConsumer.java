@@ -18,6 +18,7 @@ import org.jdbi.v3.Handle;
 /**
  * Callback for use with {@link org.skife.jdbi.v2.DBI#useHandle(HandleConsumer)}
  */
+@FunctionalInterface
 public interface HandleConsumer
 {
     /**
