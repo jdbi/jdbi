@@ -13,43 +13,29 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.UUID;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
+import org.jdbi.v3.H2DatabaseRule;
+import org.jdbi.v3.Handle;
+import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
 public class TestObjectMethods
 {
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
 
-    private DBI    dbi;
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        dbi.registerMapper(new SomethingMapper());
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
+        handle = db.getSharedHandle();
     }
 
     @Test
@@ -90,6 +76,7 @@ public class TestObjectMethods
     }
 
 
+    @RegisterMapper(SomethingMapper.class)
     public interface DAO
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

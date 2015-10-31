@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -24,15 +26,16 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestMapBinder extends TestCase
+public class TestMapBinder
 {
     private DBI    dbi;
     private Handle handle;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
@@ -43,14 +46,13 @@ public class TestMapBinder extends TestCase
         handle.execute("create table something (id int primary key, name varchar(100), a varchar(100), b int, c varchar(100))");
     }
 
-    @Override
-    public void tearDown() throws Exception
+    @After
+    public void cleanUp()
     {
-        handle.execute("drop table something");
         handle.close();
     }
 
-
+    @Test
     public void testInsert() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -61,7 +63,7 @@ public class TestMapBinder extends TestCase
         assertEquals(3, elem.b);
     }
 
-
+    @Test
     public void testUpdate() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
@@ -80,6 +82,7 @@ public class TestMapBinder extends TestCase
         assertEquals("too", elem.c);
     }
 
+    @Test
     public void testUpdatePrefix() throws Exception
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);

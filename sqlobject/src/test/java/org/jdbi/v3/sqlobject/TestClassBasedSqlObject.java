@@ -16,38 +16,27 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import java.util.UUID;
-
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestClassBasedSqlObject
 {
-    private DBI    dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        handle = dbi.open();
+        handle = db.getSharedHandle();
 
-        handle.execute("create table something (id int primary key, name varchar(100))");
-
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
     }
 
     @Test
@@ -87,7 +76,7 @@ public class TestClassBasedSqlObject
     @Test
     public void testSimpleTransactionsSucceed() throws Exception
     {
-        final SomethingDao dao = SqlObjectBuilder.onDemand(dbi, SomethingDao.class);
+        final SomethingDao dao = SqlObjectBuilder.onDemand(db.getDbi(), SomethingDao.class);
 
         dao.insertInSingleTransaction(10, "Linda");
     }
@@ -102,7 +91,7 @@ public class TestClassBasedSqlObject
     @Test(expected = TransactionException.class)
     public void testNestedTransactionsThrowException()
     {
-        final SomethingDao dao = SqlObjectBuilder.onDemand(dbi, SomethingDao.class);
+        final SomethingDao dao = SqlObjectBuilder.onDemand(db.getDbi(), SomethingDao.class);
         dao.insertInNestedTransaction(11, "Angelina");
     }
 

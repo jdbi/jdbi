@@ -16,43 +16,33 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import java.util.UUID;
-
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.ColonPrefixNamedParamStatementRewriter;
 import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.HashPrefixStatementRewriter;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.OverrideStatementRewriterWith;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestOverrideStatementRewriter
 {
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
+
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        DBI dbi = new DBI(ds);
+        DBI dbi = db.getDbi();
 
         // this is the default, but be explicit for sake of clarity in test
         dbi.setStatementRewriter(new ColonPrefixNamedParamStatementRewriter());
         handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
     }
 
     @Test

@@ -20,48 +20,35 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestReturningQueryResults
 {
-    private DBI    dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-
+        handle = db.getSharedHandle();
     }
 
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
 
     @Test
     public void testSingleValue() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
+        Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
 
 
         Something s = spiffy.findById(7);
@@ -74,7 +61,7 @@ public class TestReturningQueryResults
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
+        Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
 
 
         Iterator<Something> itty = spiffy.findByIdRange(2, 10);
@@ -95,7 +82,7 @@ public class TestReturningQueryResults
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
+        Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
 
 
         List<Something> all = spiffy.findTwoByIds(3, 7);

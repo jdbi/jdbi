@@ -19,42 +19,32 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestTransactionAnnotation
 {
-    private DBI dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
+
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
+        handle = db.getSharedHandle();
     }
 
     @Test
@@ -83,7 +73,7 @@ public class TestTransactionAnnotation
     @Test
     public void testTxActuallyCommits() throws Exception
     {
-        Handle h2 = dbi.open();
+        Handle h2 = db.openHandle();
         Dao one = SqlObjectBuilder.attach(handle, Dao.class);
         Dao two = SqlObjectBuilder.attach(h2, Dao.class);
 
@@ -103,7 +93,7 @@ public class TestTransactionAnnotation
         final CountDownLatch inserted = new CountDownLatch(1);
         final CountDownLatch committed = new CountDownLatch(1);
 
-        final Other o = SqlObjectBuilder.onDemand(dbi, Other.class);
+        final Other o = SqlObjectBuilder.onDemand(db.getDbi(), Other.class);
         Future<Void> rf = es.submit(() -> {
             try {
                 o.insert(inserted, 1, "diwaker");

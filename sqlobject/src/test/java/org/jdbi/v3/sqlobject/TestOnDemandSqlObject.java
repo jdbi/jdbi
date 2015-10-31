@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
 import org.easymock.EasyMock;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
@@ -38,6 +36,7 @@ import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.DBIException;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
+import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;

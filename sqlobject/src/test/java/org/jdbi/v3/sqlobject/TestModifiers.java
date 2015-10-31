@@ -20,45 +20,33 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizers.FetchSize;
 import org.jdbi.v3.sqlobject.customizers.MaxRows;
 import org.jdbi.v3.sqlobject.customizers.QueryTimeOut;
+import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestModifiers
 {
-    private DBI    dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        dbi.registerMapper(new SomethingMapper());
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
+        handle = db.getSharedHandle();
+        handle.registerMapper(new SomethingMapper());
     }
 
     @Test
@@ -137,8 +125,8 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnMethod() throws Exception
     {
-        try (Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
-             IsoLevels iso = SqlObjectBuilder.open(dbi, IsoLevels.class)) {
+        try (Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
+             IsoLevels iso = SqlObjectBuilder.open(db.getDbi(), IsoLevels.class)) {
 
             spiffy.begin();
             spiffy.insert(1, "Tom");
@@ -156,8 +144,8 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnParam() throws Exception
     {
-        try (Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
-             IsoLevels iso = SqlObjectBuilder.open(dbi, IsoLevels.class)) {
+        try (Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
+             IsoLevels iso = SqlObjectBuilder.open(db.getDbi(), IsoLevels.class)) {
 
             spiffy.begin();
             spiffy.insert(1, "Tom");
@@ -172,6 +160,7 @@ public class TestModifiers
         }
     }
 
+    @RegisterMapper(SomethingMapper.class)
     public interface Spiffy extends CloseMe, Transactional<Spiffy>
     {
         @SqlQuery("select id, name from something where id = :id")
@@ -203,6 +192,7 @@ public class TestModifiers
         void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
+    @RegisterMapper(SomethingMapper.class)
     public interface IsoLevels extends CloseMe
     {
         @TransactionIsolation(READ_UNCOMMITTED)
