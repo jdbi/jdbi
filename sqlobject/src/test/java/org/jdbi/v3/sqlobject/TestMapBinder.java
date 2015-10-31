@@ -40,7 +40,7 @@ public class TestMapBinder
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:test");
-        dbi = new DBI(ds);
+        dbi = DBI.create(ds);
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100), a varchar(100), b int, c varchar(100))");

@@ -16,19 +16,18 @@ package org.jdbi.v3.sqlobject.stringtemplate;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
+
 import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.jdbi.v3.unstable.BindIn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 public class TestStringTemplate3StatementLocatorWithCustomErrorHandler {
 
@@ -38,7 +37,7 @@ public class TestStringTemplate3StatementLocatorWithCustomErrorHandler {
 
     @Before
     public void setUp() {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
+        dbi = DBI.create("jdbc:h2:mem:" + UUID.randomUUID());
         handle = dbi.open();
         handle.createStatement(
                 "create table foo (id int, bar varchar(100) default null);")

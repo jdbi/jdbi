@@ -93,7 +93,7 @@ public class TestDocumentation
     @Test
     public void testObtainHandleInCallback() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
+        DBI dbi = DBI.create("jdbc:h2:mem:" + UUID.randomUUID());
         dbi.useHandle(handle -> handle.execute("create table silly (id int)"));
     }
 

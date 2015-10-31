@@ -40,7 +40,7 @@ public class TestNewApiOnDbiAndHandle
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
+        dbi = DBI.create(ds);
         dbi.registerMapper(new SomethingMapper());
         handle = dbi.open();
 

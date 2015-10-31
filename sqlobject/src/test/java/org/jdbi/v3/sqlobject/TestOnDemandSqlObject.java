@@ -49,6 +49,7 @@ public class TestOnDemandSqlObject
 {
     private DBI    dbi;
     private Handle handle;
+    private final HandleTracker tracker = new HandleTracker();
     private JdbcDataSource ds;
 
     @Before
@@ -57,7 +58,8 @@ public class TestOnDemandSqlObject
         ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = new DBI(ds);
+        dbi = DBI.create(ds);
+        dbi.addPlugin(tracker);
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
@@ -151,8 +153,6 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorCloseHandleOnError() throws Exception {
-        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
-
         Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
         try {
             s.crashNow();
@@ -160,13 +160,11 @@ public class TestOnDemandSqlObject
         } catch (DBIException e) {
         }
 
-        assertFalse( dbi.hasOpenedHandle() );
+        assertFalse( tracker.hasOpenedHandle() );
     }
 
     @Test
     public void testIteratorClosedOnReadError() throws Exception {
-        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
-
         Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
         spiffy.insert(1, "Tom");
 
@@ -177,7 +175,7 @@ public class TestOnDemandSqlObject
         } catch (DBIException ex) {
         }
 
-        assertFalse(dbi.hasOpenedHandle());
+        assertFalse(tracker.hasOpenedHandle());
     }
 
     @Test
@@ -267,19 +265,13 @@ public class TestOnDemandSqlObject
         }
     }
 
-    public static class HandleTrackerDBI extends DBI
+    static class HandleTracker implements JdbiPlugin
     {
         final List<Handle> openedHandle = new ArrayList<Handle>();
 
-        HandleTrackerDBI(DataSource dataSource) {
-            super(dataSource);
-        }
-
         @Override
-        public Handle open() {
-                Handle h  = super.open();
-                openedHandle.add(h);
-                return h;
+        public void customizeHandle(Handle handle) {
+            openedHandle.add(handle);
         }
 
         boolean hasOpenedHandle() throws SQLException {

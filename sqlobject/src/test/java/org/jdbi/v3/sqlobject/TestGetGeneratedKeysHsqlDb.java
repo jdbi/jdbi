@@ -29,7 +29,7 @@ public class TestGetGeneratedKeysHsqlDb {
 
     @Before
     public void setUp() throws Exception {
-        dbi = new DBI("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password");
+        dbi = DBI.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password");
         dbi.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
     }
 

@@ -19,6 +19,7 @@ import java.sql.SQLException;
 /**
  * Interface which abstracts away how JDBC Connections are obtained
  */
+@FunctionalInterface
 public interface ConnectionFactory
 {
     /**

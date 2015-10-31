@@ -51,7 +51,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     @Override
     public Object getObject() throws Exception
     {
-        final DBI dbi = new DBI(new SpringDataSourceConnectionFactory(dataSource));
+        final DBI dbi = DBI.create(new SpringDataSourceConnectionFactory(dataSource));
         if (statementLocator != null) {
             dbi.setStatementLocator(statementLocator);
         }
