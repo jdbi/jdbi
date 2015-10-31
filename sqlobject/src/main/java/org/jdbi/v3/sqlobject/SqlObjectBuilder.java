@@ -17,7 +17,7 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 
 /**
- * This duplicates the API on {@link org.skife.jdbi.v2.DBI} and {@link Handle} for creating sql objects. While it is fine to use these
+ * This duplicates the API on {@link DBI} and {@link Handle} for creating sql objects. While it is fine to use these
  * methods to create sql objects, there is no real difference between them and the oones on DBI and Handle.
  */
 public class SqlObjectBuilder
@@ -38,7 +38,7 @@ public class SqlObjectBuilder
 
     /**
      * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
-     * sql object (via a close() method, or calling {@link org.skife.jdbi.v3.IDBI#close(Object)}
+     * sql object (via a close() method, or calling {@link DBI#close(Object)}
      *
      * @param dbi             the dbi to be used for opening the underlying handle
      * @param sqlObjectType   an interface with annotations declaring desired behavior

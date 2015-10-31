@@ -28,7 +28,7 @@ public class TestStatements
     @Test
     public void testInsert() throws Exception
     {
-        try (Inserter i = SqlObjectBuilder.open(db.getDbi(), Inserter.class)) {
+        try (Inserter i = db.getDbi().open(Inserter.class)) {
             // this is what is under test here
             int rows_affected = i.insert(2, "Diego");
 
@@ -42,7 +42,7 @@ public class TestStatements
     @Test
     public void testInsertWithVoidReturn() throws Exception
     {
-        try (Inserter i = SqlObjectBuilder.open(db.getDbi(), Inserter.class)) {
+        try (Inserter i = db.getDbi().open(Inserter.class)) {
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
 

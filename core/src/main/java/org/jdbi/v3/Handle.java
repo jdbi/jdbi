@@ -267,6 +267,16 @@ public interface Handle extends Closeable
     void registerColumnMapper(ResultColumnMapperFactory factory);
 
     /**
+     * Create an sql object of the specified type bound to this handle. Any state changes to the handle, or the
+     * sql object, such as transaction status, closing it, etc, will apply to both the object and the handle.
+     *
+     * @param sqlObjectType
+     * @param <SqlObjectType>
+     * @return the new sql object bound to this handle
+     */
+    <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType);
+
+    /**
      * Set the transaction isolation level on the underlying connection
      *
      * @param level the isolation level to use

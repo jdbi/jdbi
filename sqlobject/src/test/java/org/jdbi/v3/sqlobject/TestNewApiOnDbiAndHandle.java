@@ -24,6 +24,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.After;
 import org.junit.Before;
@@ -58,7 +59,7 @@ public class TestNewApiOnDbiAndHandle
     public void testOpenNewSpiffy() throws Exception
     {
         final Connection c;
-        try (Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class)) {
+        try (Spiffy spiffy = dbi.open(Spiffy.class)) {
             spiffy.insert(new Something(1, "Tim"));
             spiffy.insert(new Something(2, "Diego"));
 
@@ -71,7 +72,7 @@ public class TestNewApiOnDbiAndHandle
     @Test
     public void testOnDemandSpiffy() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy spiffy = handle.attach(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
         spiffy.insert(new Something(2, "Diego"));
@@ -82,7 +83,7 @@ public class TestNewApiOnDbiAndHandle
     @Test
     public void testAttach() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy spiffy = handle.attach(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
         spiffy.insert(new Something(2, "Diego"));
@@ -90,6 +91,24 @@ public class TestNewApiOnDbiAndHandle
         assertEquals("Diego", spiffy.findNameById(2));
     }
 
+    @Test(expected = UnableToObtainConnectionException.class)
+    public void testCorrectExceptionIfUnableToConnectOnDemand(){
+        DBI.create("jdbc:mysql://localhost/test", "john", "scott")
+                .onDemand(Spiffy.class)
+                .findNameById(1);
+    }
+
+    @Test(expected = UnableToObtainConnectionException.class)
+    public void testCorrectExceptionIfUnableToConnectOnOpen(){
+        DBI.create("jdbc:mysql://localhost/test", "john", "scott")
+                .open(Spiffy.class);
+    }
+
+    @Test(expected = UnableToObtainConnectionException.class)
+    public void testCorrectExceptionIfUnableToConnectOnAttach(){
+        DBI.open("jdbc:mysql://localhost/test", "john", "scott")
+                .attach(Spiffy.class);
+    }
 
     interface Spiffy extends GetHandle, Closeable
     {

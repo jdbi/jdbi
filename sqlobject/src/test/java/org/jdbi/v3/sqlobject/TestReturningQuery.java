@@ -44,11 +44,13 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy spiffy = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy spiffy = db.getDbi().open(Spiffy.class);
 
         Something s = spiffy.findById(7).findOnly();
 
         assertEquals("Tim", s.getName());
+
+        db.getDbi().close(spiffy);
     }
 
     @Test
@@ -56,11 +58,13 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy2 spiffy = SqlObjectBuilder.attach(handle, Spiffy2.class);
+        Spiffy2 spiffy = db.getDbi().open(Spiffy2.class);
 
         Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
 
         assertEquals("Tim", s.getName());
+
+        db.getDbi().close(spiffy);
     }
 
     @RegisterMapper(SomethingMapper.class)

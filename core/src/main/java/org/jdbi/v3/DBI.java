@@ -370,6 +370,40 @@ public class DBI
     }
 
     /**
+     * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
+     * sql object (via a close() method, or calling {@link DBI#close(Object)}
+     * @param sqlObjectType an interface with annotations declaring desired behavior
+     * @param <SqlObjectType>
+     * @return a new sql object of the specified type, with a dedicated handle
+     */
+    public <SqlObjectType> SqlObjectType open(Class<SqlObjectType> sqlObjectType)
+    {
+       return SqlObjectBuilderBridge.open(this, sqlObjectType);
+    }
+
+    /**
+     * Create a new sql object which will obtain and release connections from this dbi instance, as it needs to,
+     * and can, respectively. You should not explicitely close this sql object
+     *
+     * @param sqlObjectType an interface with annotations declaring desired behavior
+     * @param <SqlObjectType>
+     * @return a new sql object of the specified type, with a dedicated handle
+     */
+    public <SqlObjectType> SqlObjectType onDemand(Class<SqlObjectType> sqlObjectType)
+    {
+        return SqlObjectBuilderBridge.onDemand(this, sqlObjectType);
+    }
+
+    /**
+     * Used to close a sql object which lacks a close() method.
+     * @param sqlObject the sql object to close
+     */
+    public void close(Object sqlObject)
+    {
+        SqlObjectBuilderBridge.close(sqlObject);
+    }
+
+    /**
      * Convenience methd used to obtain a handle from a specific data source
      *
      * @param dataSource
