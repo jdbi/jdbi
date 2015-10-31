@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.easymock.EasyMock;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
@@ -34,8 +33,6 @@ import org.jdbi.v3.ResultIterator;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.DBIException;
-import org.jdbi.v3.exceptions.TransactionException;
-import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
@@ -59,17 +56,15 @@ public class TestOnDemandSqlObject
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = DBI.create(ds);
-        dbi.addPlugin(tracker);
         handle = dbi.open();
-
         handle.execute("create table something (id int primary key, name varchar(100))");
 
+        dbi.installPlugin(tracker);
     }
 
     @After
     public void tearDown() throws Exception
     {
-        handle.execute("drop table something");
         handle.close();
     }
 
@@ -80,7 +75,7 @@ public class TestOnDemandSqlObject
 
         s.insert(7, "Bill");
 
-        String bill = handle.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+        String bill = dbi.open().createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
         assertEquals("Bill", bill);
     }
@@ -180,25 +175,21 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorClosedIfEmpty() throws Exception {
-        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
-
         Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
 
         spiffy.findAll();
 
-        assertFalse(dbi.hasOpenedHandle());
+        assertFalse(tracker.hasOpenedHandle());
     }
 
     @Test
     public void testIteratorPrepatureClose() throws Exception {
-        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
-
         Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
         spiffy.insert(1, "Tom");
 
         try (ResultIterator<Something> all = spiffy.findAll()) {}
 
-        assertFalse( dbi.hasOpenedHandle() );
+        assertFalse( tracker.hasOpenedHandle() );
     }
 
     @Test

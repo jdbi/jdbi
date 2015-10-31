@@ -19,13 +19,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
 import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
+import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
@@ -62,6 +65,8 @@ public class DBI
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
     private final AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
 
+    private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
+
     private DBI(ConnectionFactory connectionFactory)
     {
         if (connectionFactory == null) {
@@ -90,6 +95,7 @@ public class DBI
      */
     public static DBI create(ConnectionFactory connectionFactory) {
         DBI dbi = new DBI(connectionFactory);
+        dbi.installPlugins();
         return dbi;
     }
 
@@ -142,6 +148,25 @@ public class DBI
             throw new IllegalArgumentException("null password");
         }
         return create(() -> DriverManager.getConnection(url, username, password));
+    }
+
+    public DBI installPlugins()
+    {
+        ServiceLoader.load(JdbiPlugin.class).forEach(plugins::add);
+        LOG.debug("Automatically installed plugins {}", plugins);
+        return this;
+    }
+
+    public DBI installPlugin(JdbiPlugin plugin)
+    {
+        plugins.add(plugin);
+        return this;
+    }
+
+    public DBI resetPlugins()
+    {
+        plugins.clear();
+        return this;
     }
 
     /**
@@ -223,6 +248,7 @@ public class DBI
                                        MappingRegistry.copyOf(mappingRegistry),
                                        foreman.createChild(),
                                        collectorFactoryRegistry.createChild());
+            plugins.forEach(p -> p.customizeHandle(h));
             LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
             return h;
         }

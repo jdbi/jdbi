@@ -70,8 +70,6 @@ public class TestGuavaCollectors {
             db.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i);
             expected.add(i);
         }
-
-        db.getSharedHandle().registerCollectorFactory(GuavaCollectors.factory());
     }
 
     @Test
