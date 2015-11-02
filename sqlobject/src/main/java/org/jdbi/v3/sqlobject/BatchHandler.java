@@ -29,6 +29,7 @@ import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.PreparedBatch;
 import org.jdbi.v3.PreparedBatchPart;
+import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 
 class BatchHandler extends CustomizingStatementHandler
@@ -90,22 +91,31 @@ class BatchHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
+        boolean foundIterator = false;
         Handle handle = h.getHandle();
 
         List<Iterator<?>> extras = new ArrayList<>();
         for (final Object arg : args) {
             if (arg instanceof Iterable) {
                 extras.add(((Iterable<?>) arg).iterator());
+                foundIterator = true;
             }
             else if (arg instanceof Iterator) {
                 extras.add((Iterator<?>) arg);
+                foundIterator = true;
             }
             else if (arg.getClass().isArray()) {
                 extras.add(Arrays.asList((Object[])arg).iterator());
+                foundIterator = true;
             }
             else {
                 extras.add(Stream.generate(() -> arg).iterator());
             }
+        }
+
+        if (!foundIterator) {
+            throw new UnableToCreateStatementException("@SqlBatch method has no Iterable or array parameters,"
+                    + " did you mean @SqlQuery?", null, null);
         }
 
         int processed = 0;
