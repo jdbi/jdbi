@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.io.Closeable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,9 @@ import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.NoOp;
+
+import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
+import org.jdbi.v3.sqlobject.mixins.CloseMe;
 
 class SqlObject
 {
@@ -58,7 +62,7 @@ class SqlObject
             e.setClassLoader(sqlObjectType.getClassLoader());
 
             List<Class<?>> interfaces = new ArrayList<>();
-            interfaces.add(CloseInternalDoNotUseThisClass.class);
+            interfaces.add(CloseMe.class);
             if (sqlObjectType.isInterface()) {
                 interfaces.add(sqlObjectType);
             }
@@ -119,9 +123,6 @@ class SqlObject
             else if(raw_method.isAnnotationPresent(CreateSqlObject.class)) {
                 handlers.put(raw_method, new CreateSqlObjectHandler(raw_method.getReturnType()));
             }
-            else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
-                handlers.put(raw_method, new CloseHandler());
-            }
             else if (raw_method.isAnnotationPresent(Transaction.class)) {
                 handlers.put(raw_method, new PassThroughTransactionHandler(raw_method, raw_method.getAnnotation(Transaction.class)));
             }
@@ -133,9 +134,7 @@ class SqlObject
             }
         }
 
-        // this is an implicit mixin, not an explicit one, so we need to *always* add it
-        handlers.putAll(CloseInternalDoNotUseThisClass.Helper.handlers());
-
+        attachClose(handlers, AutoCloseable.class, Closeable.class, CloseMe.class);
         handlers.putAll(EqualsHandler.handler());
         handlers.putAll(ToStringHandler.handler(sqlObjectType.getName()));
         handlers.putAll(HashCodeHandler.handler());
@@ -143,6 +142,20 @@ class SqlObject
         handlersCache.put(sqlObjectType, handlers);
 
         return handlers;
+    }
+
+    @SafeVarargs
+    private static void attachClose(Map<Method, Handler> handlers, Class<? extends AutoCloseable>... classes)
+    {
+        for (Class<?> klass : classes) {
+            Method closeMethod;
+            try {
+                closeMethod = klass.getMethod("close");
+            } catch (NoSuchMethodException | SecurityException e) {
+                throw new UnableToCreateSqlObjectException("Could not find AutoCloseable#close");
+            }
+            handlers.put(closeMethod, new CloseHandler());
+        }
     }
 
 
@@ -187,11 +200,10 @@ class SqlObject
 
     public static void close(Object sqlObject)
     {
-        if (!(sqlObject instanceof CloseInternalDoNotUseThisClass)) {
+        if (!(sqlObject instanceof CloseMe)) {
             throw new IllegalArgumentException(sqlObject + " is not a sql object");
         }
-        CloseInternalDoNotUseThisClass closer = (CloseInternalDoNotUseThisClass) sqlObject;
-        closer.___jdbi_close___();
+        ((CloseMe) sqlObject).close();
     }
 
     static String getSql(SqlCall q, Method m)
