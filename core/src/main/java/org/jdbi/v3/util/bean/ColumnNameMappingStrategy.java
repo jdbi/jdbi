@@ -17,6 +17,7 @@ package org.jdbi.v3.util.bean;
  * Strategy for mapping Java bean property and field names
  * to SQL column names.
  */
+// TODO 3: Is this the right pattern?
 public interface ColumnNameMappingStrategy {
     /**
      * Given the Java name and SQL column name,
