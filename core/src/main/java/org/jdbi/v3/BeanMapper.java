@@ -21,16 +21,19 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
+import org.jdbi.v3.util.bean.CaseInsensitiveColumnNameStrategy;
+import org.jdbi.v3.util.bean.SnakeCaseColumnNameStrategy;
 
 /**
  * A result set mapper which maps the fields in a statement into a JavaBean. The default implementation will perform a
@@ -40,94 +43,36 @@ import org.slf4j.LoggerFactory;
  */
 public class BeanMapper<T> implements ResultSetMapper<T>
 {
-    private static final Logger LOG = LoggerFactory.getLogger(BeanMapper.class);
+    static final Collection<ColumnNameMappingStrategy> DEFAULT_STRATEGIES =
+            Collections.unmodifiableList(Arrays.asList(
+                    CaseInsensitiveColumnNameStrategy.INSTANCE,
+                    SnakeCaseColumnNameStrategy.INSTANCE
+            ));
 
     private final Class<T> type;
-    private final Map<String, PropertyDescriptor> properties = new HashMap<>();
+    private final BeanInfo info;
+    private final ConcurrentMap<String, Optional<PropertyDescriptor>> descriptorByColumnCache = new ConcurrentHashMap<>();
+    private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
     public BeanMapper(Class<T> type)
     {
-        this.type = type;
+        this(type, DEFAULT_STRATEGIES);
+    }
 
+    public BeanMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
+    {
+        this.type = type;
+        this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
         try
         {
-            BeanInfo info = Introspector.getBeanInfo(type);
-
-            Locale locale = getLocale();
-
-            for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
-                Set<String> columnNames = mapToColumnNames(descriptor.getName());
-                if (columnNames == null) {
-                    continue;
-                }
-                for (String columnName : columnNames) {
-                    PropertyDescriptor existing = properties.put(columnName.toLowerCase(locale), descriptor);
-                    if (existing != null) {
-                        LOG.warn("For type {}, property '{}' and '{}' yield colliding normalized column name '{}'",
-                                type.getName(), descriptor.getName(), existing.getName(), columnName);
-                    }
-                }
-            }
+            info = Introspector.getBeanInfo(type);
         }
         catch (IntrospectionException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
-    /**
-     * Maps a property name to possible column names candidates. This default implementation will map the property name
-     * as-is, and converted from the camel-case syntax to an underscore separated name.
-     * <p>
-     * Processing of the returned mappings will be case insensitive. The mappings are not expected to change across
-     * invocations.
-     *
-     * @param propertyName the bean property name
-     *
-     * @return a collection holding the possible column names (mutable in the default implementation)
-     */
-    protected Set<String> mapToColumnNames(String propertyName)
-    {
-        Locale locale = getLocale();
-
-        Set<String> columnNames = new HashSet<>();
-
-        // Add the bean property name as-is.
-        columnNames.add(propertyName);
-
-        // Convert the property name from camel-case to underscores syntax. Freely adapted from Spring
-        // BeanPropertyRowMapper.
-        StringBuilder propertyNameWithUnderscores = new StringBuilder();
-        propertyNameWithUnderscores.append(propertyName.substring(0, 1));
-        for (int i = 1; i < propertyName.length(); i++) {
-            // Do case comparison using strings rather than chars (avoid to deal with non-BMP char handling).
-            String s = propertyName.substring(i, i + 1);
-            String slc = s.toLowerCase(locale);
-            if (!s.equals(slc)) {
-                // Different cases: tokenize.
-                propertyNameWithUnderscores.append("_").append(slc);
-            }
-            else {
-                propertyNameWithUnderscores.append(s);
-            }
-        }
-        columnNames.add(propertyNameWithUnderscores.toString());
-
-        return columnNames;
-    }
-
-    /**
-     * Gets the locale used to manipulate the Bean properties name. This locale is useful, for example, when doing
-     * case conversion. The locale is expected to be constant across method invocations. By default the {@code ROOT}
-     * locale will be used.
-     *
-     * @return the target locale, never {@code null}
-     */
-    protected Locale getLocale() {
-        return Locale.ROOT;
-    }
-
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public T map(int row, ResultSet rs, StatementContext ctx)
         throws SQLException
     {
@@ -143,44 +88,58 @@ public class BeanMapper<T> implements ResultSetMapper<T>
         ResultSetMetaData metadata = rs.getMetaData();
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
-            String name = metadata.getColumnLabel(i).toLowerCase();
+            String name = metadata.getColumnLabel(i);
 
-            PropertyDescriptor descriptor = properties.get(name);
+            final Optional<PropertyDescriptor> maybeDescriptor =
+                    descriptorByColumnCache.computeIfAbsent(name, this::descriptorForColumn);
 
-            if (descriptor != null) {
-                Class type = descriptor.getPropertyType();
+            if (!maybeDescriptor.isPresent()) {
+                continue;
+            }
 
-                Object value;
-                ResultColumnMapper mapper = ctx.columnMapperFor(type);
-                if (mapper != null) {
-                    value = mapper.mapColumn(rs, i, ctx);
-                }
-                else {
-                    value = rs.getObject(i);
-                }
+            final PropertyDescriptor descriptor = maybeDescriptor.get();
+            final Class<?> type = descriptor.getPropertyType();
+            final Object value;
+            final ResultColumnMapper<?> mapper = ctx.columnMapperFor(type);
 
-                try
-                {
-                    descriptor.getWriteMethod().invoke(bean, value);
-                }
-                catch (IllegalAccessException e) {
-                    throw new IllegalArgumentException(String.format("Unable to access setter for " +
-                                                                     "property, %s", name), e);
-                }
-                catch (InvocationTargetException e) {
-                    throw new IllegalArgumentException(String.format("Invocation target exception trying to " +
-                                                                     "invoker setter for the %s property", name), e);
-                }
-                catch (NullPointerException e) {
-                    throw new IllegalArgumentException(String.format("No appropriate method to " +
-                                                                     "write property %s", name), e);
-                }
+            if (mapper != null) {
+                value = mapper.mapColumn(rs, i, ctx);
+            }
+            else {
+                value = rs.getObject(i);
+            }
 
+            try
+            {
+                descriptor.getWriteMethod().invoke(bean, value);
+            }
+            catch (IllegalAccessException e) {
+                throw new IllegalArgumentException(String.format("Unable to access setter for " +
+                                                                 "property, %s", name), e);
+            }
+            catch (InvocationTargetException e) {
+                throw new IllegalArgumentException(String.format("Invocation target exception trying to " +
+                                                                 "invoker setter for the %s property", name), e);
+            }
+            catch (NullPointerException e) {
+                throw new IllegalArgumentException(String.format("No appropriate method to " +
+                                                                 "write property %s", name), e);
             }
         }
 
         return bean;
     }
 
+    private Optional<PropertyDescriptor> descriptorForColumn(String columnName)
+    {
+        for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
+            for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
+                if (strategy.nameMatches(descriptor.getName(), columnName)) {
+                    return Optional.of(descriptor);
+                }
+            }
+        }
+        return Optional.empty();
+    }
 }
 
