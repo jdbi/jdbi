@@ -25,6 +25,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.junit.After;
@@ -149,6 +150,20 @@ public class TestBatching
         }
     }
 
+    @Test(expected = UnableToCreateStatementException.class, timeout=5000)
+    public void testNoIterable() throws Exception
+    {
+        BadBatch b = SqlObjectBuilder.attach(handle, BadBatch.class);
+        b.insertBeans(new Something(1, "x"));
+    }
+
+    @Test(expected = UnableToCreateStatementException.class, timeout=5000)
+    public void testNoParameterAtAll() throws Exception
+    {
+        BadBatch b = SqlObjectBuilder.attach(handle, BadBatch.class);
+        b.insertBeans();
+    }
+
     @BatchChunkSize(4)
     @UseStringTemplate3StatementLocator
     public interface UsesBatching
@@ -174,5 +189,14 @@ public class TestBatching
 
         @SqlQuery("select count(*) from something")
         int size();
+    }
+
+    interface BadBatch
+    {
+        @SqlBatch("insert into something (id, name) values (:id, :name)")
+        int[] insertBeans(@BindBean Something elements); // whoops, no Iterable!
+
+        @SqlBatch("insert into something (id, name) values (0, '')")
+        int[] insertBeans(); // whoops, no parameters at all!
     }
 }

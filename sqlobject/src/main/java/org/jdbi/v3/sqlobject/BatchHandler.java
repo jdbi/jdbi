@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
 
@@ -28,9 +29,8 @@ import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.PreparedBatch;
 import org.jdbi.v3.PreparedBatchPart;
+import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 class BatchHandler extends CustomizingStatementHandler
 {
@@ -91,43 +91,31 @@ class BatchHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
+        boolean foundIterator = false;
         Handle handle = h.getHandle();
 
         List<Iterator<?>> extras = new ArrayList<>();
         for (final Object arg : args) {
             if (arg instanceof Iterable) {
                 extras.add(((Iterable<?>) arg).iterator());
+                foundIterator = true;
             }
             else if (arg instanceof Iterator) {
                 extras.add((Iterator<?>) arg);
+                foundIterator = true;
             }
             else if (arg.getClass().isArray()) {
                 extras.add(Arrays.asList((Object[])arg).iterator());
+                foundIterator = true;
             }
             else {
-                extras.add(new Iterator<Object>()
-                {
-                    @Override
-                    public boolean hasNext()
-                    {
-                        return true;
-                    }
-
-                    @Override
-                    @SuppressFBWarnings("IT_NO_SUCH_ELEMENT")
-                    public Object next()
-                    {
-                        return arg;
-                    }
-
-                    @Override
-                    public void remove()
-                    {
-                        throw new UnsupportedOperationException("May not remove");
-                    }
-                }
-                );
+                extras.add(Stream.generate(() -> arg).iterator());
             }
+        }
+
+        if (!foundIterator) {
+            throw new UnableToCreateStatementException("@SqlBatch method has no Iterable or array parameters,"
+                    + " did you mean @SqlQuery?", null, null);
         }
 
         int processed = 0;
