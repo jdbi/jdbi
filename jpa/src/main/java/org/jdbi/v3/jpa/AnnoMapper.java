@@ -30,9 +30,7 @@ public class AnnoMapper<C> implements ResultSetMapper<C> {
     private final AnnoClass<C> annos;
 
     public static boolean accept(Class<?> clazz) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("accept " + clazz);
-        }
+        logger.debug("accept {}", clazz);
         return clazz.getAnnotation(Entity.class) != null;
     }
 
@@ -41,9 +39,7 @@ public class AnnoMapper<C> implements ResultSetMapper<C> {
     }
 
     private AnnoMapper(Class<C> clazz) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("init " + clazz);
-        }
+        logger.debug("init {}", clazz);
         this.clazz = clazz;
         this.annos = AnnoClass.get(clazz);
     }
@@ -51,9 +47,7 @@ public class AnnoMapper<C> implements ResultSetMapper<C> {
     @Override
     public C map(int i, ResultSet rs, StatementContext ctx) throws SQLException {
         C obj;
-        if (logger.isDebugEnabled()) {
-            logger.debug("map " + clazz);
-        }
+        logger.debug("map {}", clazz);
         try {
             Constructor<C> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);

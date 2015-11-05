@@ -37,14 +37,10 @@ class AnnoClass<C> {
     private final List<AnnoMember> getters = new ArrayList<>();
 
     private AnnoClass(Class<C> clazz) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("init " + clazz);
-        }
+        logger.debug("init {}", clazz);
         inspectClass(clazz);
         inspectSuperclasses(clazz);
-        if (logger.isDebugEnabled()) {
-            logger.debug("init " + clazz + ": " + setters.size() + " setters and " + getters.size() + " getters.");
-        }
+        logger.debug("init {}: {} setters and {} getters.", clazz, setters.size(), getters.size());
     }
 
     private void inspectSuperclasses(Class<? super C> clazz) {

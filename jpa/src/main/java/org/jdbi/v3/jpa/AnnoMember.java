@@ -71,9 +71,7 @@ class AnnoMember {
     public void write(Object obj, Object value)
             throws IllegalArgumentException, IllegalAccessException,
             InvocationTargetException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("write" + clazz + "/" + name + "/" + type + "/" + value);
-        }
+        logger.debug("write {}/{}/{}/{}", clazz, name, type, value);
         if (method != null) {
             method.setAccessible(true);
             method.invoke(obj, value);
