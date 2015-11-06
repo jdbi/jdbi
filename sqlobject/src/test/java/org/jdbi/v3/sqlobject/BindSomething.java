@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,10 +27,10 @@ public @interface BindSomething
 {
     String value();
 
-    class Factory implements BinderFactory
+    class Factory implements BinderFactory<BindSomething, Object>
     {
         @Override
-        public Binder<BindSomething, Object> build(Annotation annotation)
+        public Binder<BindSomething, Object> build(BindSomething annotation)
         {
             return (q, param, bind, arg) -> {
                 Something it = (Something) arg;

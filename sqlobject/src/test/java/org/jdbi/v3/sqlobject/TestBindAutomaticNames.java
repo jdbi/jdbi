@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,24 +33,32 @@ public class TestBindAutomaticNames
     public void setUp() throws Exception
     {
         handle = db.getSharedHandle();
+        handle.execute("insert into something (id, name) values (7, 'Tim')");
     }
 
     @Test
-    public void testWithRegisteredMapper() throws Exception
+    public void testAnnotationNoValue() throws Exception
     {
-        handle.execute("insert into something (id, name) values (7, 'Tim')");
+        Spiffy spiffy = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Something s = spiffy.findById(7);
+        assertEquals("Tim", s.getName());
+    }
 
-        Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
-
-        Something s = spiffy.findById(7).findOnly();
-
-        Assert.assertEquals("Tim", s.getName());
+    @Test
+    public void testNoAnnotation() throws Exception
+    {
+        Spiffy spiffy = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Something s = spiffy.findByIdNoAnnotation(7);
+        assertEquals("Tim", s.getName());
     }
 
     @RegisterMapper(SomethingMapper.class)
     public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
-        Query<Something> findById(@Bind int id);
+        Something findById(@Bind int id);
+
+        @SqlQuery("select id, name from something where id = :id")
+        Something findByIdNoAnnotation(int id);
     }
 }

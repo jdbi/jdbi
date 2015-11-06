@@ -13,15 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.annotation.Annotation;
-
-class BindFactory implements BinderFactory
+class BindFactory implements BinderFactory<Bind, Object>
 {
     @SuppressWarnings("unchecked")
     @Override
-    public Binder<Bind, Object> build(Annotation annotation)
+    public Binder<Bind, Object> build(Bind bind)
     {
-        Bind bind = (Bind) annotation;
         try {
             return (Binder<Bind, Object>) bind.binder().newInstance();
         }

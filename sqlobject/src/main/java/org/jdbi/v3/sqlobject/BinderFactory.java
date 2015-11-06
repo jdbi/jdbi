@@ -19,12 +19,12 @@ import java.lang.annotation.Annotation;
  * Factor for building {@link Binder} instances. This interface is used by
  * the {@link BindingAnnotation}
  */
-public interface BinderFactory
+public interface BinderFactory<BindAnnotationType extends Annotation, BoundObjectType>
 {
     /**
      * Called to build a Binder
      * @param annotation the {@link BindingAnnotation} which lead to this call
      * @return a binder to use
      */
-    Binder<?,?> build(Annotation annotation);
+    Binder<BindAnnotationType, BoundObjectType> build(BindAnnotationType annotation);
 }

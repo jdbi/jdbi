@@ -19,14 +19,14 @@ import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.SQLStatement;
 
-class Bindifier
+class Bindifier<AnnoType extends Annotation>
 {
     private final int    param_idx;
-    private final Binder<Annotation, Object> binder;
-    private final Annotation annotation;
+    private final Binder<AnnoType, Object> binder;
+    private final AnnoType annotation;
     private final Parameter parameter;
 
-    Bindifier(Method method, Annotation bind, int param_idx, Binder<Annotation, Object> binder)
+    Bindifier(Method method, AnnoType bind, int param_idx, Binder<AnnoType, Object> binder)
     {
         this.annotation = bind;
         this.param_idx = param_idx;

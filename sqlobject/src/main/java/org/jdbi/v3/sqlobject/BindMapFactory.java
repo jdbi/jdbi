@@ -13,17 +13,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-class BindMapFactory implements BinderFactory
+class BindMapFactory implements BinderFactory<BindMap, Map<String, Object>>
 {
     @Override
-    public Binder<BindMap, Map<String, Object>> build(Annotation annotation)
+    public Binder<BindMap, Map<String, Object>> build(BindMap annotation)
     {
         return (q, param, bind, arg) -> {
             final String prefix;
