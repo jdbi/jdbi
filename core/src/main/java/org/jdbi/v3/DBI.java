@@ -248,7 +248,9 @@ public class DBI
                                        MappingRegistry.copyOf(mappingRegistry),
                                        foreman.createChild(),
                                        collectorFactoryRegistry.createChild());
-            plugins.forEach(p -> p.customizeHandle(h));
+            for (JdbiPlugin p : plugins) {
+                h = p.customizeHandle(h);
+            }
             LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
             return h;
         }

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import org.easymock.EasyMock;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
@@ -33,6 +34,8 @@ import org.jdbi.v3.ResultIterator;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.DBIException;
+import org.jdbi.v3.exceptions.TransactionException;
+import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
@@ -127,9 +130,9 @@ public class TestOnDemandSqlObject
 
     @Test(expected=TransactionException.class)
     public void testExceptionOnClose() throws Exception {
-        DBI dbi = new DBI(ds) {
+        JdbiPlugin plugin = new JdbiPlugin() {
             @Override
-            public Handle open() {
+            public Handle customizeHandle(Handle handle) {
                 Handle h = EasyMock.createMock(Handle.class);
                 h.createStatement(EasyMock.anyObject(String.class));
                 EasyMock.expectLastCall()
@@ -141,6 +144,7 @@ public class TestOnDemandSqlObject
                 return h;
             }
         };
+        dbi.installPlugin(plugin);
 
         Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
         s.insert(1, "Tom");
@@ -261,8 +265,9 @@ public class TestOnDemandSqlObject
         final List<Handle> openedHandle = new ArrayList<Handle>();
 
         @Override
-        public void customizeHandle(Handle handle) {
+        public Handle customizeHandle(Handle handle) {
             openedHandle.add(handle);
+            return handle;
         }
 
         boolean hasOpenedHandle() throws SQLException {

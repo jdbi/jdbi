@@ -16,5 +16,5 @@ package org.jdbi.v3.spi;
 import org.jdbi.v3.Handle;
 
 public interface JdbiPlugin {
-    default void customizeHandle(Handle handle) { }
+    default Handle customizeHandle(Handle handle) { return handle; }
 }
