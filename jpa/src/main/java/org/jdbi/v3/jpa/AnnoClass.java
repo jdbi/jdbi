@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.util.Collections.unmodifiableList;
+
 class AnnoClass<C> {
 
     private static final Map<Class<?>, AnnoClass<?>> cache = new ConcurrentHashMap<>();
@@ -71,11 +73,11 @@ class AnnoClass<C> {
     }
 
     public List<AnnoMember> setters() {
-        return setters;
+        return unmodifiableList(setters);
     }
 
     public List<AnnoMember> getters() {
-        return getters;
+        return unmodifiableList(getters);
     }
 
     private static Logger logger = LoggerFactory.getLogger(AnnoClass.class);
