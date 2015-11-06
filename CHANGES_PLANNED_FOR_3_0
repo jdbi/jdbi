@@ -15,3 +15,5 @@ This file describes the changes expected in some eventual 3.0 release.
 * Consider using Jackson for type mapping?
 * Consider CallbackFailedException wrapping policy (see #198)
 * Decide if ColumnNameMappingStrategy is the right abstraction?
+* Revisit how SqlObject binding annotations work - lots of icky generics that don't seem to actually provide safety
+* DefaultObjectBinder default constructor behaves differently due to lack of position information, so adding @Bind causes loss of functionality

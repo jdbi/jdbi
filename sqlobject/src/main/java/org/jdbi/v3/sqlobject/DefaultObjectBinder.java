@@ -23,7 +23,7 @@ class DefaultObjectBinder implements Binder<Bind, Object>
 
     DefaultObjectBinder()
     {
-        this(-1);
+        this(-1); // TODO 3: this sucks, if you @Bind with default settings, you lose position info
     }
 
     DefaultObjectBinder(int paramIndex)
