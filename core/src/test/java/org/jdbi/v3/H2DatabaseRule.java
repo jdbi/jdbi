@@ -28,11 +28,15 @@ public class H2DatabaseRule extends ExternalResource
     private Connection con;
     private DBI dbi;
     private Handle sharedHandle;
+    private boolean installPlugins = false;
 
     @Override
     protected void before() throws Throwable
     {
         dbi = DBI.create(uri);
+        if (installPlugins) {
+            dbi.installPlugins();
+        }
         sharedHandle = dbi.open();
         con = sharedHandle.getConnection();
         try (Statement s = con.createStatement()) {
@@ -48,6 +52,12 @@ public class H2DatabaseRule extends ExternalResource
         } catch (SQLException e) {
             throw new AssertionError(e);
         }
+    }
+
+    public H2DatabaseRule withPlugins()
+    {
+        installPlugins = true;
+        return this;
     }
 
     public String getConnectionString()

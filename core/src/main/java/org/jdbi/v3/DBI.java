@@ -94,9 +94,7 @@ public class DBI
      * @param connectionFactory Prvides JDBC connections to Handle instances
      */
     public static DBI create(ConnectionFactory connectionFactory) {
-        DBI dbi = new DBI(connectionFactory);
-        dbi.installPlugins();
-        return dbi;
+        return new DBI(connectionFactory);
     }
 
     /**
@@ -160,12 +158,6 @@ public class DBI
     public DBI installPlugin(JdbiPlugin plugin)
     {
         plugins.add(plugin);
-        return this;
-    }
-
-    public DBI resetPlugins()
-    {
-        plugins.clear();
         return this;
     }
 
