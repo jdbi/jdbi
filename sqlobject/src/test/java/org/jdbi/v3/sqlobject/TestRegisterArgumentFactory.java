@@ -16,49 +16,35 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import java.util.UUID;
-
-import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.ColonPrefixNamedParamStatementRewriter;
 import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterArgumentFactory;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestRegisterArgumentFactory
 {
-    private Handle handle;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL(String.format("jdbc:h2:mem:%s", UUID.randomUUID()));
-        DBI dbi = new DBI(ds);
+        DBI dbi = db.getDbi();
 
         // this is the default, but be explicit for sake of clarity in test
         dbi.setStatementRewriter(new ColonPrefixNamedParamStatementRewriter());
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
     }
 
     @Test
     public void testFoo() throws Exception
     {
-        Waffle w = SqlObjectBuilder.attach(handle, Waffle.class);
+        Waffle w = SqlObjectBuilder.open(db.getDbi(), Waffle.class);
 
         w.insert(1, new Name("Brian", "McCallister"));
 

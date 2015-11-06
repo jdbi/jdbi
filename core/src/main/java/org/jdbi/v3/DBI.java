@@ -19,13 +19,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
 import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
+import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.HandleCallback;
@@ -62,28 +65,36 @@ public class DBI
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
     private final AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
 
+    private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
+
+    private DBI(ConnectionFactory connectionFactory)
+    {
+        if (connectionFactory == null) {
+            throw new IllegalArgumentException("null connectionFactory");
+        }
+        this.connectionFactory = connectionFactory;
+    }
+
     /**
      * Constructor for use with a DataSource which will provide
      *
      * @param dataSource
      */
-    public DBI(DataSource dataSource)
+    public static DBI create(DataSource dataSource)
     {
-        this(dataSource::getConnection);
+        return create(dataSource::getConnection);
     }
 
     /**
-     * Constructor used to allow for obtaining a Connection in a customized manner.
+     * Factory used to allow for obtaining a Connection in a customized manner.
      * <p/>
      * The {@link org.jdbi.v3.tweak.ConnectionFactory#openConnection()} method will
      * be invoked to obtain a connection instance whenever a Handle is opened.
      *
-     * @param connectionFactory PrvidesJDBC connections to Handle instances
+     * @param connectionFactory Prvides JDBC connections to Handle instances
      */
-    public DBI(ConnectionFactory connectionFactory)
-    {
-        assert connectionFactory != null;
-        this.connectionFactory = connectionFactory;
+    public static DBI create(ConnectionFactory connectionFactory) {
+        return new DBI(connectionFactory);
     }
 
     /**
@@ -91,20 +102,29 @@ public class DBI
      *
      * @param url JDBC URL for connections
      */
-    public DBI(final String url)
+    public static DBI create(final String url)
     {
-        this(() -> DriverManager.getConnection(url));
+        if (url == null) {
+            throw new IllegalArgumentException("null url");
+        }
+        return create(() -> DriverManager.getConnection(url));
     }
 
     /**
      * Create a DBI which directly uses the DriverManager
      *
      * @param url   JDBC URL for connections
-     * @param props Properties to pass to DriverManager.getConnection(url, props) for each new handle
+     * @param properties Properties to pass to DriverManager.getConnection(url, props) for each new handle
      */
-    public DBI(final String url, final Properties props)
+    public static DBI create(final String url, final Properties properties)
     {
-        this(() -> DriverManager.getConnection(url, props));
+        if (url == null) {
+            throw new IllegalArgumentException("null url");
+        }
+        if (properties == null) {
+            throw new IllegalArgumentException("null properties");
+        }
+        return create(() -> DriverManager.getConnection(url, properties));
     }
 
     /**
@@ -114,9 +134,31 @@ public class DBI
      * @param username User name for connection authentication
      * @param password Password for connection authentication
      */
-    public DBI(final String url, final String username, final String password)
+    public static DBI create(final String url, final String username, final String password)
     {
-        this(() -> DriverManager.getConnection(url, username, password));
+        if (url == null) {
+            throw new IllegalArgumentException("null url");
+        }
+        if (username == null) {
+            throw new IllegalArgumentException("null username");
+        }
+        if (password == null) {
+            throw new IllegalArgumentException("null password");
+        }
+        return create(() -> DriverManager.getConnection(url, username, password));
+    }
+
+    public DBI installPlugins()
+    {
+        ServiceLoader.load(JdbiPlugin.class).forEach(plugins::add);
+        LOG.debug("Automatically installed plugins {}", plugins);
+        return this;
+    }
+
+    public DBI installPlugin(JdbiPlugin plugin)
+    {
+        plugins.add(plugin);
+        return this;
     }
 
     /**
@@ -198,6 +240,9 @@ public class DBI
                                        MappingRegistry.copyOf(mappingRegistry),
                                        foreman.createChild(),
                                        collectorFactoryRegistry.createChild());
+            for (JdbiPlugin p : plugins) {
+                h = p.customizeHandle(h);
+            }
             LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
             return h;
         }
@@ -333,8 +378,7 @@ public class DBI
      */
     public static Handle open(DataSource dataSource)
     {
-        assert dataSource != null;
-        return new DBI(dataSource).open();
+        return create(dataSource).open();
     }
 
     /**
@@ -346,8 +390,10 @@ public class DBI
      */
     public static Handle open(final Connection connection)
     {
-        assert connection != null;
-        return new DBI(() -> connection).open();
+        if (connection == null) {
+            throw new IllegalArgumentException("null connection");
+        }
+        return create(() -> connection).open();
     }
 
     /**
@@ -359,8 +405,7 @@ public class DBI
      */
     public static Handle open(final String url)
     {
-        assert url != null;
-        return new DBI(url).open();
+        return create(url).open();
     }
 
     /**
@@ -374,8 +419,7 @@ public class DBI
      */
     public static Handle open(final String url, final String username, final String password)
     {
-        assert url != null;
-        return new DBI(url, username, password).open();
+        return create(url, username, password).open();
     }
 
     /**
@@ -388,8 +432,7 @@ public class DBI
      */
     public static Handle open(final String url, final Properties props)
     {
-        assert url != null;
-        return new DBI(url, props).open();
+        return create(url, props).open();
     }
 
     /**

@@ -13,42 +13,22 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.UUID;
+import static org.junit.Assert.assertSame;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.H2DatabaseRule;
+import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.junit.Rule;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestEnumMapping extends TestCase
+public class TestEnumMapping
 {
-    private DBI    dbi;
-    private Handle handle;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
 
-    @Override
-    public void setUp() throws Exception
-    {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key auto_increment, name varchar(10))");
-    }
-
-    @Override
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
-
+    @Test
     public void testEnums() throws Exception
     {
-        dbi.registerMapper(new SomethingMapper());
-
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
+        Spiffy spiffy = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);
         int joeId = spiffy.addCoolName(CoolName.JOE);
@@ -57,6 +37,7 @@ public class TestEnumMapping extends TestCase
         assertSame(CoolName.JOE, spiffy.findById(joeId));
     }
 
+    @RegisterMapper(SomethingMapper.class)
     public interface Spiffy
     {
         @SqlUpdate("insert into something(name) values(:name)")

@@ -13,52 +13,41 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.UUID;
-
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestBindAutomaticNames extends TestCase
+public class TestBindAutomaticNames
 {
-    private DBI    dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
     private Handle handle;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
+        handle = db.getSharedHandle();
     }
 
-    @Override
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
-
+    @Test
     public void testWithRegisteredMapper() throws Exception
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        dbi.registerMapper(new SomethingMapper());
-
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
+        Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
 
         Something s = spiffy.findById(7).findOnly();
 
-        assertEquals("Tim", s.getName());
+        Assert.assertEquals("Tim", s.getName());
     }
 
+    @RegisterMapper(SomethingMapper.class)
     public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")

@@ -17,34 +17,22 @@ import static org.junit.Assert.assertEquals;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-
 
 public class TestRegisteredMappers
 {
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
     private DBI dbi;
-    private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
+        dbi = db.getDbi();
     }
 
     @Test

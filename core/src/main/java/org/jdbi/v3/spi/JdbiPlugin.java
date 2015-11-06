@@ -11,19 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
+package org.jdbi.v3.spi;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import org.jdbi.v3.Handle;
 
-/**
- * Interface which abstracts away how JDBC Connections are obtained
- */
-@FunctionalInterface
-public interface ConnectionFactory
-{
-    /**
-     * Provides a Connection
-     */
-    Connection openConnection() throws SQLException;
+public interface JdbiPlugin {
+    default Handle customizeHandle(Handle handle) { return handle; }
 }

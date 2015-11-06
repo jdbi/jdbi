@@ -33,7 +33,7 @@ public class TestDBI
     @Test
     public void testDataSourceConstructor() throws Exception
     {
-        DBI dbi = new DBI(db.getConnectionString());
+        DBI dbi = DBI.create(db.getConnectionString());
         try (Handle h = dbi.open()) {
             assertNotNull(h);
         }
@@ -42,7 +42,7 @@ public class TestDBI
     @Test
     public void testConnectionFactoryCtor() throws Exception
     {
-        DBI dbi = new DBI(() -> {
+        DBI dbi = DBI.create(() -> {
             try
             {
                 return DriverManager.getConnection(db.getConnectionString());
@@ -60,7 +60,7 @@ public class TestDBI
     @Test
     public void testCorrectExceptionOnSQLException() throws Exception
     {
-        DBI dbi = new DBI(() -> {
+        DBI dbi = DBI.create(() -> {
             throw new SQLException();
         });
 
@@ -78,7 +78,7 @@ public class TestDBI
     @Test
     public void testWithHandle() throws Exception
     {
-        DBI dbi = new DBI(db.getConnectionString());
+        DBI dbi = DBI.create(db.getConnectionString());
         String value = dbi.withHandle(handle -> {
             handle.insert("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
@@ -89,7 +89,7 @@ public class TestDBI
     @Test
     public void testUseHandle() throws Exception
     {
-        DBI dbi = new DBI(db.getConnectionString());
+        DBI dbi = DBI.create(db.getConnectionString());
         dbi.useHandle(handle -> {
             handle.insert("insert into something (id, name) values (1, 'Brian')");
             String value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();

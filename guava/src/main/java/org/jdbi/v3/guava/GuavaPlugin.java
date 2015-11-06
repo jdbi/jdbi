@@ -11,36 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.guava;
 
-import static org.junit.Assume.assumeTrue;
+import org.jdbi.v3.Handle;
+import org.jdbi.v3.spi.JdbiPlugin;
 
-import org.junit.rules.ExternalResource;
-
-public class PGDatabaseRule extends ExternalResource
-{
-    private DBI dbi;
-
+public class GuavaPlugin implements JdbiPlugin {
     @Override
-    protected void before() throws Throwable
-    {
-        assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
-        dbi = DBI.create("jdbc:postgresql:jdbi_test", "postgres", "");
-    }
-
-    @Override
-    protected void after()
-    {
-        dbi = null;
-    }
-
-    public DBI getDbi()
-    {
-        return dbi;
-    }
-
-    public Handle openHandle()
-    {
-        return getDbi().open();
+    public Handle customizeHandle(Handle handle) {
+        handle.registerCollectorFactory(GuavaCollectors.factory());
+        return handle;
     }
 }

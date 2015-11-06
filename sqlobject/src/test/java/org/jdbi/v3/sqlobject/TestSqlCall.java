@@ -19,28 +19,27 @@ import static org.junit.Assert.assertThat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.UUID;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestSqlCall
 {
-    private DBI    dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
+
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-
-        handle = dbi.open();
-        handle.execute("create table something( id integer primary key, name varchar(100) )");
+        handle = db.getSharedHandle();
         handle.execute("CREATE ALIAS stored_insert FOR \"org.jdbi.v3.sqlobject.TestSqlCall.insertSomething\";");
     }
 

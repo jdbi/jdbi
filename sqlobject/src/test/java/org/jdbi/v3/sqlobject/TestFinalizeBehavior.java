@@ -55,6 +55,6 @@ public class TestFinalizeBehavior
                 throw new UnsupportedOperationException();
             }
         };
-        dbi = new DBI(ds);
+        dbi = DBI.create(ds);
     }
 }

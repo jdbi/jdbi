@@ -18,10 +18,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
-import java.util.UUID;
+
+import com.google.common.collect.ImmutableList;
 
 import org.hamcrest.CoreMatchers;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.Bind;
@@ -32,30 +33,21 @@ import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.TestCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableList;
 
 public class TestPaging
 {
-    private DBI    dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
+
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-
-        handle = dbi.open();
-        handle.execute("create table something( id integer primary key, name varchar(100) )");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.close();
+        handle = db.getSharedHandle();
     }
 
     @Test
