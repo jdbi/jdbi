@@ -32,13 +32,13 @@ import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
-import org.jdbi.v3.tweak.CollectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -636,68 +636,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     public final SelfType bind(String name, Boolean value)
     {
         return bind(name, getForeman().waffle(Boolean.class, value, getContext()));
-    }
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
-     *
-     * @return the same Query instance
-     */
-    public final SelfType bindAsInt(int position, boolean value)
-    {
-        return bind(position, new BooleanIntegerArgument(value));
-    }
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
-     *
-     * @return the same Query instance
-     */
-    public final SelfType bindAsInt(int position, Boolean value)
-    {
-        if (value != null) {
-            return bind(position, new BooleanIntegerArgument(value));
-        }
-        else {
-            return bind(position, new NullArgument(Types.INTEGER));
-        }
-    }
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
-     *
-     * @return the same Query instance
-     */
-    public final SelfType bindAsInt(String name, boolean value)
-    {
-        return bind(name, new BooleanIntegerArgument(value));
-    }
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
-     *
-     * @return the same Query instance
-     */
-    public final SelfType bindAsInt(String name, Boolean value)
-    {
-        if (value != null) {
-            return bind(name, new BooleanIntegerArgument(value));
-        }
-        else {
-            return bind(name, new NullArgument(Types.INTEGER));
-        }
     }
 
     /**
