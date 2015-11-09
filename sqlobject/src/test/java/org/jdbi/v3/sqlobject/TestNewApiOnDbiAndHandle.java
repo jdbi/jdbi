@@ -93,20 +93,20 @@ public class TestNewApiOnDbiAndHandle
 
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnDemand(){
-        DBI.create("jdbc:mysql://localhost/test", "john", "scott")
+        DBI.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .onDemand(Spiffy.class)
                 .findNameById(1);
     }
 
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnOpen(){
-        DBI.create("jdbc:mysql://localhost/test", "john", "scott")
+        DBI.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .open(Spiffy.class);
     }
 
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnAttach(){
-        DBI.open("jdbc:mysql://localhost/test", "john", "scott")
+        DBI.open("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .attach(Spiffy.class);
     }
 
