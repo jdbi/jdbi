@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.DBIException;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -65,7 +63,7 @@ class SqlObjectBuilderBridge {
         try {
             check(ATTACH);
             return (T) ATTACH.invoke(handle, sqlObjectType);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             throw e;
         } catch (Throwable t) {
             throw new RuntimeException("Error during `SqlObjectBuilder.attach` invocation", t);
@@ -77,7 +75,7 @@ class SqlObjectBuilderBridge {
         try {
             check(OPEN);
             return (T) OPEN.invoke(dbi, sqlObjectType);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             throw e;
         } catch (Throwable t) {
             throw new RuntimeException("Error during `SqlObjectBuilder.open` invocation", t);
@@ -89,7 +87,7 @@ class SqlObjectBuilderBridge {
         try {
             check(ON_DEMAND);
             return (T) ON_DEMAND.invoke(dbi, sqlObjectType);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             throw e;
         } catch (Throwable t) {
             throw new RuntimeException("Error during `SqlObjectBuilder.onDemand` invocation", t);
@@ -100,7 +98,7 @@ class SqlObjectBuilderBridge {
         try {
             check(CLOSE);
             CLOSE.invoke(sqlObject);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             throw e;
         } catch (Throwable t) {
             throw new RuntimeException("Error during `SqlObjectBuilder.close` invocation", t);
