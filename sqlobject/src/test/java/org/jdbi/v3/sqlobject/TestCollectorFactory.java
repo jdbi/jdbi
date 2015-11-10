@@ -182,6 +182,9 @@ public class TestCollectorFactory {
         private Optional<T> optional = Optional.absent();
 
         public void set(T value) {
+            if (optional.isPresent()) {
+                throw new IllegalStateException("Attempt to collect multiple values into an Optional!");
+            }
             optional = Optional.of(value);
         }
 
