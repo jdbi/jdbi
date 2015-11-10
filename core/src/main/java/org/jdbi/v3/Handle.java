@@ -18,14 +18,16 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.classmate.TypeResolver;
+
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
-import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
  * This represents a connection to the database system. It usually is a wrapper around
@@ -299,5 +301,7 @@ public interface Handle extends Closeable
 
     void registerArgumentFactory(ArgumentFactory<?> argumentFactory);
 
-    void registerCollectorFactory(CollectorFactory<?, ?> factory);
+    void registerCollectorFactory(CollectorFactory factory);
+
+    TypeResolver getTypeResolver();
 }

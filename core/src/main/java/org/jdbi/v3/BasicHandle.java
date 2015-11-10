@@ -20,9 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.classmate.TypeResolver;
+
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
@@ -30,7 +33,6 @@ import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.tweak.TransactionHandler;
-import org.jdbi.v3.tweak.CollectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +53,7 @@ class BasicHandle implements Handle
     private final Foreman                  foreman;
     private final TransactionHandler       transactions;
     private final Connection               connection;
+    private final TypeResolver             typeResolver;
 
 
     BasicHandle(TransactionHandler transactions,
@@ -62,7 +65,8 @@ class BasicHandle implements Handle
                 TimingCollector timingCollector,
                 MappingRegistry mappingRegistry,
                 Foreman foreman,
-                CollectorFactoryRegistry collectorFactoryRegistry)
+                CollectorFactoryRegistry collectorFactoryRegistry,
+                TypeResolver typeResolver)
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
@@ -72,6 +76,7 @@ class BasicHandle implements Handle
         this.timingCollector = timingCollector;
         this.mappingRegistry = mappingRegistry;
         this.foreman = foreman;
+        this.typeResolver = typeResolver;
         this.globalStatementAttributes = new HashMap<String, Object>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
         this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
@@ -464,7 +469,12 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerCollectorFactory(CollectorFactory<?, ?> factory) {
+    public void registerCollectorFactory(CollectorFactory factory) {
         this.collectorFactoryRegistry.register(factory);
+    }
+
+    @Override
+    public TypeResolver getTypeResolver() {
+        return typeResolver;
     }
 }

@@ -80,6 +80,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
 
     @Override
     public <ContainerType> ContainerType collectInto(Class<ContainerType> containerType) {
-        return collect(collectorFactoryRegistry.createCollectorFor(containerType));
+        return collect(collectorFactoryRegistry.createCollectorFor(
+                jdbiStatement.getHandle().getTypeResolver().resolve(containerType)));
     }
 }

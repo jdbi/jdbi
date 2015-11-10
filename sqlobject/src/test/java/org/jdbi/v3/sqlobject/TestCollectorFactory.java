@@ -19,10 +19,12 @@ import static org.junit.Assert.assertThat;
 import java.util.SortedSet;
 import java.util.stream.Collector;
 
+import com.fasterxml.classmate.ResolvedType;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 
+import org.jdbi.v3.CollectorUtils;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
@@ -41,7 +43,7 @@ public class TestCollectorFactory {
     public void testExists() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
+        h.registerCollectorFactory(new GuavaOptionalCollectorFactory());
 
         @SuppressWarnings("unchecked")
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -57,7 +59,7 @@ public class TestCollectorFactory {
     public void testDoesNotExist() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
+        h.registerCollectorFactory(new GuavaOptionalCollectorFactory());
 
         @SuppressWarnings("unchecked")
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -71,7 +73,7 @@ public class TestCollectorFactory {
     @Test
     public void testOnList() throws Exception {
         Handle h = h2.getSharedHandle();
-        h.registerCollectorFactory(new ImmutableListCollectorFactory<>());
+        h.registerCollectorFactory(new ImmutableListCollectorFactory());
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
@@ -147,33 +149,37 @@ public class TestCollectorFactory {
         Optional<T> inheritedGenericFindNameById(@Bind("id") int id);
     }
 
-    public static class ImmutableListCollectorFactory<T> implements CollectorFactory<T, ImmutableList<T>> {
+    public static class ImmutableListCollectorFactory implements CollectorFactory {
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return ImmutableList.class.equals(type);
+        public boolean accepts(ResolvedType type) {
+            return ImmutableList.class.equals(type.getErasedType());
         }
 
         @Override
-        public Collector<T, ImmutableList.Builder<T>, ImmutableList<T>> newCollector(Class<ImmutableList<T>> type) {
-            return Collector.of(ImmutableList.Builder::new, ImmutableList.Builder::add, (first, second) -> {
-                throw new UnsupportedOperationException("Parallel collecting is not supported");
-            }, ImmutableList.Builder<T>::build);
+        public Collector<?, ?, ?> newCollector(ResolvedType type) {
+            return Collector.<Object, ImmutableList.Builder<Object>, Object>of(
+                    ImmutableList.Builder::new,
+                    ImmutableList.Builder::add,
+                    CollectorUtils.disallowParallel(),
+                    ImmutableList.Builder::build);
         }
     }
 
-    public static class GuavaOptionalCollectorFactory<T> implements CollectorFactory<T, Optional<T>> {
+    public static class GuavaOptionalCollectorFactory implements CollectorFactory {
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return type.equals(Optional.class);
+        public boolean accepts(ResolvedType type) {
+            return type.getErasedType().equals(Optional.class);
         }
 
         @Override
-        public Collector<T, GuavaOptionalBuilder<T>, Optional<T>> newCollector(Class<Optional<T>> type) {
-            return Collector.of(GuavaOptionalBuilder::new, GuavaOptionalBuilder::set, (first, second) -> {
-                throw new UnsupportedOperationException("Parallel collecting is not supported");
-            }, GuavaOptionalBuilder::build);
+        public Collector<?, ?, ?> newCollector(ResolvedType type) {
+            return Collector.<Object, GuavaOptionalBuilder<Object>, Object>of(
+                    GuavaOptionalBuilder::new,
+                    GuavaOptionalBuilder::set,
+                    CollectorUtils.disallowParallel(),
+                    GuavaOptionalBuilder::build);
         }
     }
 

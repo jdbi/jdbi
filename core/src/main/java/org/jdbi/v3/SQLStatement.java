@@ -32,13 +32,13 @@ import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
-import org.jdbi.v3.tweak.CollectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +104,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     @SuppressWarnings("unchecked")
-    public SelfType registerCollectorFactory(CollectorFactory<?, ?> collectorFactory) {
+    public SelfType registerCollectorFactory(CollectorFactory collectorFactory) {
         this.collectorFactoryRegistry.register(collectorFactory);
         return (SelfType) this;
     }
