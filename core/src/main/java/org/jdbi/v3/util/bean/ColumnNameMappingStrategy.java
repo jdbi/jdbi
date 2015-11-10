@@ -11,26 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
-
-import org.jdbi.v3.SQLStatement;
+package org.jdbi.v3.util.bean;
 
 /**
- * A binder that bind an argument by its position in the arguments list
+ * Strategy for mapping Java bean property and field names
+ * to SQL column names.
  */
-public class PositionalBinder implements Binder<Annotation, Object> {
-
-    private final int position;
-
-    public PositionalBinder(int position) {
-        this.position = position;
-    }
-
-    @Override
-    public void bind(SQLStatement<?> q, Parameter p, Annotation bind, Object arg) {
-        q.bind(String.valueOf(position), arg);
-    }
+// TODO 3: Is this the right pattern?
+public interface ColumnNameMappingStrategy {
+    /**
+     * Given the Java name and SQL column name,
+     * return true if they are logically equivalent.
+     */
+    boolean nameMatches(String propertyName, String sqlColumnName);
 }

@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
 import org.easymock.EasyMock;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
@@ -38,6 +36,7 @@ import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.DBIException;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
+import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
@@ -50,6 +49,7 @@ public class TestOnDemandSqlObject
 {
     private DBI    dbi;
     private Handle handle;
+    private final HandleTracker tracker = new HandleTracker();
     private JdbcDataSource ds;
 
     @Before
@@ -58,28 +58,27 @@ public class TestOnDemandSqlObject
         ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = new DBI(ds);
+        dbi = DBI.create(ds);
         handle = dbi.open();
-
         handle.execute("create table something (id int primary key, name varchar(100))");
 
+        dbi.installPlugin(tracker);
     }
 
     @After
     public void tearDown() throws Exception
     {
-        handle.execute("drop table something");
         handle.close();
     }
 
     @Test
     public void testAPIWorks() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        Spiffy s = dbi.onDemand(Spiffy.class);
 
         s.insert(7, "Bill");
 
-        String bill = handle.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+        String bill = dbi.open().createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
         assertEquals("Bill", bill);
     }
@@ -87,8 +86,8 @@ public class TestOnDemandSqlObject
     @Test
     public void testTransactionBindsTheHandle() throws Exception
     {
-        TransactionStuff txl = SqlObjectBuilder.onDemand(dbi, TransactionStuff.class);
-        TransactionStuff tx2 = SqlObjectBuilder.onDemand(dbi, TransactionStuff.class);
+        TransactionStuff txl = dbi.onDemand(TransactionStuff.class);
+        TransactionStuff tx2 = dbi.onDemand(TransactionStuff.class);
 
         txl.insert(8, "Mike");
 
@@ -110,7 +109,7 @@ public class TestOnDemandSqlObject
     @Test
     public void testIteratorBindsTheHandle() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        Spiffy s = dbi.onDemand(Spiffy.class);
 
         s.insert(1, "Tom");
         s.insert(2, "Sam");
@@ -131,9 +130,9 @@ public class TestOnDemandSqlObject
 
     @Test(expected=TransactionException.class)
     public void testExceptionOnClose() throws Exception {
-        DBI dbi = new DBI(ds) {
+        JdbiPlugin plugin = new JdbiPlugin() {
             @Override
-            public Handle open() {
+            public Handle customizeHandle(Handle handle) {
                 Handle h = EasyMock.createMock(Handle.class);
                 h.createStatement(EasyMock.anyObject(String.class));
                 EasyMock.expectLastCall()
@@ -145,30 +144,27 @@ public class TestOnDemandSqlObject
                 return h;
             }
         };
+        dbi.installPlugin(plugin);
 
-        Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        Spiffy s = dbi.onDemand(Spiffy.class);
         s.insert(1, "Tom");
     }
 
     @Test
     public void testIteratorCloseHandleOnError() throws Exception {
-        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
-
-        Spiffy s = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        Spiffy s = dbi.onDemand(Spiffy.class);
         try {
             s.crashNow();
             fail();
         } catch (DBIException e) {
         }
 
-        assertFalse( dbi.hasOpenedHandle() );
+        assertFalse( tracker.hasOpenedHandle() );
     }
 
     @Test
     public void testIteratorClosedOnReadError() throws Exception {
-        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
-
-        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        Spiffy spiffy = dbi.onDemand(Spiffy.class);
         spiffy.insert(1, "Tom");
 
         Iterator<Something> i = spiffy.crashOnFirstRead();
@@ -178,37 +174,33 @@ public class TestOnDemandSqlObject
         } catch (DBIException ex) {
         }
 
-        assertFalse(dbi.hasOpenedHandle());
+        assertFalse(tracker.hasOpenedHandle());
     }
 
     @Test
     public void testIteratorClosedIfEmpty() throws Exception {
-        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
-
-        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        Spiffy spiffy = dbi.onDemand(Spiffy.class);
 
         spiffy.findAll();
 
-        assertFalse(dbi.hasOpenedHandle());
+        assertFalse(tracker.hasOpenedHandle());
     }
 
     @Test
     public void testIteratorPrepatureClose() throws Exception {
-        HandleTrackerDBI dbi = new HandleTrackerDBI(ds);
-
-        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
+        Spiffy spiffy = dbi.onDemand(Spiffy.class);
         spiffy.insert(1, "Tom");
 
         try (ResultIterator<Something> all = spiffy.findAll()) {}
 
-        assertFalse( dbi.hasOpenedHandle() );
+        assertFalse( tracker.hasOpenedHandle() );
     }
 
     @Test
     public void testSqlFromExternalFileWorks() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.onDemand(dbi, Spiffy.class);
-        ExternalSql external = SqlObjectBuilder.onDemand(dbi, ExternalSql.class);
+        Spiffy spiffy = dbi.onDemand(Spiffy.class);
+        ExternalSql external = dbi.onDemand(ExternalSql.class);
 
         spiffy.insert(1, "Tom");
         spiffy.insert(2, "Sam");
@@ -268,19 +260,14 @@ public class TestOnDemandSqlObject
         }
     }
 
-    public static class HandleTrackerDBI extends DBI
+    static class HandleTracker implements JdbiPlugin
     {
         final List<Handle> openedHandle = new ArrayList<Handle>();
 
-        HandleTrackerDBI(DataSource dataSource) {
-            super(dataSource);
-        }
-
         @Override
-        public Handle open() {
-                Handle h  = super.open();
-                openedHandle.add(h);
-                return h;
+        public Handle customizeHandle(Handle handle) {
+            openedHandle.add(handle);
+            return handle;
         }
 
         boolean hasOpenedHandle() throws SQLException {

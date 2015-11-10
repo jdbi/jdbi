@@ -11,19 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.spi;
 
-class BindFactory implements BinderFactory<Bind, Object>
-{
-    @SuppressWarnings("unchecked")
-    @Override
-    public Binder<Bind, Object> build(Bind bind)
-    {
-        try {
-            return (Binder<Bind, Object>) bind.binder().newInstance();
-        }
-        catch (Exception e) {
-            throw new IllegalStateException("unable to instantiate specified binder", e);
-        }
-    }
+import org.jdbi.v3.Handle;
+
+public interface JdbiPlugin {
+    default Handle customizeHandle(Handle handle) { return handle; }
 }

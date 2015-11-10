@@ -19,7 +19,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A binding annotation
+ * A binding annotation.  Will bind both as the {@code value}
+ * of the annotation as well as the parameter index.  If the
+ * {@code value} is not specified, it will default to using the parameter
+ * name.  It is an error to not specify the name when there is no
+ * parameter naming information in your class files.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})

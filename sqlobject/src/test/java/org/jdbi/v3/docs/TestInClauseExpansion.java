@@ -17,12 +17,11 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collector;
 
 import com.google.common.collect.ImmutableSet;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
@@ -30,28 +29,20 @@ import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.unstable.BindIn;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestInClauseExpansion
 {
-    private DBI    dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-
-        handle = dbi.open();
-        handle.execute("create table something( id integer primary key, name varchar(100) )");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.close();
+        handle = db.getSharedHandle();
     }
 
     @Test

@@ -25,7 +25,7 @@ public class PGDatabaseRule extends ExternalResource
     protected void before() throws Throwable
     {
         assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
-        dbi = new DBI("jdbc:postgresql:jdbi_test", "postgres", "");
+        dbi = DBI.create("jdbc:postgresql:jdbi_test", "postgres", "");
     }
 
     @Override

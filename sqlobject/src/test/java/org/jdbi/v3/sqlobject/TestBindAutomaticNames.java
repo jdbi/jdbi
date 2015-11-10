@@ -13,55 +13,52 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.UUID;
+import static org.junit.Assert.assertEquals;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestBindAutomaticNames extends TestCase
+public class TestBindAutomaticNames
 {
-    private DBI    dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
     private Handle handle;
 
-    @Override
+    @Before
     public void setUp() throws Exception
     {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @Override
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
-
-    public void testWithRegisteredMapper() throws Exception
-    {
+        handle = db.getSharedHandle();
         handle.execute("insert into something (id, name) values (7, 'Tim')");
+    }
 
-        dbi.registerMapper(new SomethingMapper());
-
-        Spiffy spiffy = SqlObjectBuilder.open(dbi, Spiffy.class);
-
-        Something s = spiffy.findById(7).findOnly();
-
+    @Test
+    public void testAnnotationNoValue() throws Exception
+    {
+        Spiffy spiffy = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Something s = spiffy.findById(7);
         assertEquals("Tim", s.getName());
     }
 
+    @Test
+    public void testNoAnnotation() throws Exception
+    {
+        Spiffy spiffy = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Something s = spiffy.findByIdNoAnnotation(7);
+        assertEquals("Tim", s.getName());
+    }
+
+    @RegisterMapper(SomethingMapper.class)
     public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
-        Query<Something> findById(@Bind int id);
+        Something findById(@Bind int id);
+
+        @SqlQuery("select id, name from something where id = :id")
+        Something findByIdNoAnnotation(int id);
     }
 }

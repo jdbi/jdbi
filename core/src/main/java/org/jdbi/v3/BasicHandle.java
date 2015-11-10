@@ -420,6 +420,12 @@ class BasicHandle implements Handle
     }
 
     @Override
+    public <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType)
+    {
+        return SqlObjectBuilderBridge.attach(this, sqlObjectType);
+    }
+
+    @Override
     public void setTransactionIsolation(TransactionIsolationLevel level)
     {
         setTransactionIsolation(level.intValue());

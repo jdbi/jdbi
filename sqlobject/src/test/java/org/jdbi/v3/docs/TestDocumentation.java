@@ -34,7 +34,6 @@ import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
@@ -74,7 +73,7 @@ public class TestDocumentation
     @Test
     public void testFiveMinuteSqlObjectExample() throws Exception
     {
-        try (MyDAO dao = SqlObjectBuilder.open(db.getDbi(), MyDAO.class)) {
+        try (MyDAO dao = db.getDbi().open(MyDAO.class)) {
             dao.insert(2, "Aaron");
 
             String name = dao.findNameById(2);
@@ -93,7 +92,7 @@ public class TestDocumentation
     @Test
     public void testObtainHandleInCallback() throws Exception
     {
-        DBI dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
+        DBI dbi = DBI.create("jdbc:h2:mem:" + UUID.randomUUID());
         dbi.useHandle(handle -> handle.execute("create table silly (id int)"));
     }
 
@@ -157,7 +156,7 @@ public class TestDocumentation
     public void testAttachToObject() throws Exception
     {
         try (Handle h = db.openHandle();
-             MyDAO dao = SqlObjectBuilder.attach(h, MyDAO.class)) {
+             MyDAO dao = h.attach(MyDAO.class)) {
             dao.insert(1, "test");
         }
     }
@@ -165,7 +164,7 @@ public class TestDocumentation
     @Test
     public void testOnDemandDao() throws Exception
     {
-        try (MyDAO dao = SqlObjectBuilder.onDemand(db.getDbi(), MyDAO.class)) {
+        try (MyDAO dao = db.getDbi().onDemand(MyDAO.class)) {
             dao.insert(2, "test");
         }
     }
@@ -193,7 +192,7 @@ public class TestDocumentation
                 .next().bind("id", 4).bind("name", "Maniax")
                 .submit().execute();
 
-            SomeQueries sq = SqlObjectBuilder.attach(h, SomeQueries.class);
+            SomeQueries sq = h.attach(SomeQueries.class);
             assertThat(sq.findName(2), equalTo("Robert"));
             assertThat(sq.findNamesBetween(1, 4), equalTo(Arrays.asList("Robert", "Patrick")));
 
@@ -230,12 +229,12 @@ public class TestDocumentation
     public void testAnotherCoupleInterfaces() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            SqlObjectBuilder.attach(h, BatchInserter.class).insert(new Something(1, "Brian"),
-                                                 new Something(3, "Patrick"),
-                                                 new Something(2, "Robert"));
+            h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
+                    new Something(3, "Patrick"),
+                    new Something(2, "Robert"));
 
-            AnotherQuery aq = SqlObjectBuilder.attach(h, AnotherQuery.class);
-            YetAnotherQuery yaq = SqlObjectBuilder.attach(h, YetAnotherQuery.class);
+            AnotherQuery aq = h.attach(AnotherQuery.class);
+            YetAnotherQuery yaq = h.attach(YetAnotherQuery.class);
 
             assertThat(yaq.findById(3), equalTo(new Something(3, "Patrick")));
             assertThat(aq.findById(2), equalTo(new Something(2, "Robert")));
@@ -252,11 +251,11 @@ public class TestDocumentation
     public void testFoo() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            SqlObjectBuilder.attach(h, BatchInserter.class).insert(new Something(1, "Brian"),
+            h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
                                                  new Something(3, "Patrick"),
                                                  new Something(2, "Robert"));
 
-            QueryReturningQuery qrq = SqlObjectBuilder.attach(h, QueryReturningQuery.class);
+            QueryReturningQuery qrq = h.attach(QueryReturningQuery.class);
 
             Query<String> q = qrq.findById(1);
             q.setMaxFieldSize(100);
@@ -277,7 +276,7 @@ public class TestDocumentation
     public void testUpdateAPI() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            Update u = SqlObjectBuilder.attach(h, Update.class);
+            Update u = h.attach(Update.class);
             u.insert(17, "David");
             u.update(new Something(17, "David P."));
 
@@ -304,7 +303,7 @@ public class TestDocumentation
     public void testBatchExample() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            BatchExample b = SqlObjectBuilder.attach(h, BatchExample.class);
+            BatchExample b = h.attach(BatchExample.class);
 
             List<Integer> ids = asList(1, 2, 3, 4, 5);
             Iterator<String> first_names = asList("Tip", "Jane", "Brian", "Keith", "Eric").iterator();

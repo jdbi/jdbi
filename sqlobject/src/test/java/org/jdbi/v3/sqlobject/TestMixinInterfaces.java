@@ -42,7 +42,7 @@ public class TestMixinInterfaces
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = new DBI(ds);
+        dbi = DBI.create(ds);
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");

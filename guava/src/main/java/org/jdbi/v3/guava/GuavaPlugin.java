@@ -11,19 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.guava;
 
-class BindFactory implements BinderFactory<Bind, Object>
-{
-    @SuppressWarnings("unchecked")
+import org.jdbi.v3.Handle;
+import org.jdbi.v3.spi.JdbiPlugin;
+
+public class GuavaPlugin implements JdbiPlugin {
     @Override
-    public Binder<Bind, Object> build(Bind bind)
-    {
-        try {
-            return (Binder<Bind, Object>) bind.binder().newInstance();
-        }
-        catch (Exception e) {
-            throw new IllegalStateException("unable to instantiate specified binder", e);
-        }
+    public Handle customizeHandle(Handle handle) {
+        handle.registerCollectorFactory(GuavaCollectors.factory());
+        return handle;
     }
 }

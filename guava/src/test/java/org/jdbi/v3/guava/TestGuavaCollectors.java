@@ -40,7 +40,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TestGuavaCollectors {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugins();
     private final List<Integer> expected = new ArrayList<>();
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -70,8 +70,6 @@ public class TestGuavaCollectors {
             db.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i);
             expected.add(i);
         }
-
-        db.getSharedHandle().registerCollectorFactory(GuavaCollectors.factory());
     }
 
     @Test

@@ -26,12 +26,18 @@ public class H2DatabaseRule extends ExternalResource
 {
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private Connection con;
+    private DBI dbi;
     private Handle sharedHandle;
+    private boolean installPlugins = false;
 
     @Override
     protected void before() throws Throwable
     {
-        sharedHandle = DBI.open(uri);
+        dbi = DBI.create(uri);
+        if (installPlugins) {
+            dbi.installPlugins();
+        }
+        sharedHandle = dbi.open();
         con = sharedHandle.getConnection();
         try (Statement s = con.createStatement()) {
             s.execute("create table something ( id identity primary key, name varchar(50), integerValue integer, intValue integer )");
@@ -48,6 +54,12 @@ public class H2DatabaseRule extends ExternalResource
         }
     }
 
+    public H2DatabaseRule withPlugins()
+    {
+        installPlugins = true;
+        return this;
+    }
+
     public String getConnectionString()
     {
         return uri;
@@ -55,7 +67,7 @@ public class H2DatabaseRule extends ExternalResource
 
     public DBI getDbi()
     {
-        return new DBI(uri);
+        return dbi;
     }
 
     public Handle getSharedHandle()

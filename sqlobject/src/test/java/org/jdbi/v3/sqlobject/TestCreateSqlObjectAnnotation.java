@@ -19,12 +19,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import java.util.UUID;
-import org.jdbi.v3.DBI;
+
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,26 +31,19 @@ import org.junit.rules.ExpectedException;
 
 public class TestCreateSqlObjectAnnotation
 {
-    private DBI dbi;
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
+
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi.registerMapper(new SomethingMapper());
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-
+        db.getDbi().registerMapper(new SomethingMapper());
+        handle = db.getSharedHandle();
+        handle.registerMapper(new SomethingMapper());
     }
 
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
 
     @Test
     public void testSimpleCreate() throws Exception
@@ -73,7 +65,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testTransactionPropagates() throws Exception
     {
-        Foo foo = SqlObjectBuilder.onDemand(dbi, Foo.class);
+        Foo foo = SqlObjectBuilder.onDemand(db.getDbi(), Foo.class);
 
         try {
             foo.insertAndFail(1, "Jeff");
@@ -126,7 +118,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusDao.getNames method is annotated with @SqlUpdate " +
                 "so should return void or Number but is returning: java.util.List<java.lang.String>");
 
-        SqlObjectBuilder.open(dbi, BogusDao.class);
+        SqlObjectBuilder.open(db.getDbi(), BogusDao.class);
     }
 
     public interface BogusDao {

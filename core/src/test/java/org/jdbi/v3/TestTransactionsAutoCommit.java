@@ -34,7 +34,7 @@ public class TestTransactionsAutoCommit
         final Connection connection = createNiceMock(Connection.class);
         final PreparedStatement statement = createNiceMock(PreparedStatement.class);
 
-        Handle h = new DBI(() -> connection).open();
+        Handle h = DBI.create(() -> connection).open();
 
         // expected behaviour chain:
         // 1. store initial auto-commit state

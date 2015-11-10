@@ -21,15 +21,13 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
-import java.util.UUID;
 
 import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
@@ -40,28 +38,13 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestBindExpression
 {
-    private DBI    dbi;
-    private Handle handle;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        dbi = new DBI("jdbc:h2:mem:" + UUID.randomUUID());
-        handle = dbi.open();
-        handle.execute("create table something( id integer primary key, name varchar(100) )");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.close();
-    }
+    @Rule
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @RegisterMapper(SomethingMapper.class)
     public interface DB
@@ -76,7 +59,7 @@ public class TestBindExpression
     @Test
     public void testExpression() throws Exception
     {
-        DB db = SqlObjectBuilder.attach(handle, DB.class);
+        DB db = SqlObjectBuilder.attach(dbRule.getSharedHandle(), DB.class);
         db.insert(new Something(1, "syrup"), new Something(2, "whipped cream"));
         Something with_syrup = db.findByBreakfast(new Breakfast());
         assertThat(with_syrup, equalTo(new Something(1, "syrup")));

@@ -41,7 +41,7 @@ public class TestGetGeneratedKeysOracle {
 
     @Before
     public void setUp() throws Exception {
-        dbi = new DBI("jdbc:oracle:thin:@localhost:test", "oracle", "oracle");
+        dbi = DBI.create("jdbc:oracle:thin:@localhost:test", "oracle", "oracle");
         dbi.useHandle(handle -> {
             handle.execute("create sequence something_id_sequence INCREMENT BY 1 START WITH 100");
             handle.execute("create table something (name varchar(200), id int, constraint something_id primary key (id))");

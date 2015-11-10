@@ -45,7 +45,7 @@ public class TestTooManyCursors
     {
         ConnectionFactory cf = db.getConnectionFactory();
         ConnectionFactory errorCf = new ErrorProducingConnectionFactory(cf, 99);
-        DBI dbi = new DBI(errorCf);
+        DBI dbi = DBI.create(errorCf);
 
         try {
             dbi.useHandle(handle -> {

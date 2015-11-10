@@ -16,49 +16,26 @@ package org.jdbi.v3.sqlobject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.TestRegisterMapperFactory.Foo.FooMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapperFactory;
 import org.jdbi.v3.tweak.ResultSetMapper;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestRegisterMapperFactory
 {
-    private Handle handle;
-
-    private DBI dbi;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = new DBI(ds);
-        handle = dbi.open();
-
-        handle.execute("create table something (id int primary key, name varchar(100))");
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table something");
-        handle.close();
-    }
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testSimple() throws Exception
     {
-        FooDao fooDao = SqlObjectBuilder.onDemand(dbi, FooDao.class);
+        FooDao fooDao = SqlObjectBuilder.onDemand(db.getDbi(), FooDao.class);
 
         List<Foo> foos = fooDao.select();
         Assert.assertNotNull(foos);

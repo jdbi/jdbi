@@ -17,37 +17,31 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestPositionalBinder {
+
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     private Handle handle;
     private SomethingDao somethingDao;
 
     @Before
     public void setUp() throws Exception {
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        DBI dbi = new DBI(ds);
-        handle = dbi.open();
+        handle = db.getSharedHandle();
         somethingDao = SqlObjectBuilder.attach(handle, SomethingDao.class);
 
+        handle.execute("drop table something");
         handle.execute("create table something (something_id int primary key, name varchar(100), code int)");
         handle.execute("insert into something(something_id, name, code) values (1, 'Brian', 12)");
         handle.execute("insert into something(something_id, name, code) values (2, 'Keith', 27)");
         handle.execute("insert into something(something_id, name, code) values (3, 'Coda', 14)");
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        handle.close();
     }
 
     @Test
