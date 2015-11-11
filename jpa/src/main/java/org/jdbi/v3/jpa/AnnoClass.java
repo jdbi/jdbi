@@ -88,6 +88,7 @@ class AnnoClass<C> {
         try {
             Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                     .filter(property -> !members.containsKey(property.getName()))
+                    .filter(property -> !transients.contains(property.getName()))
                     .filter(property -> !(property instanceof IndexedPropertyDescriptor))
                     .filter(property -> !"class".equals(property.getName()))
                     .forEach(property -> {
@@ -132,5 +133,5 @@ class AnnoClass<C> {
         return members;
     }
 
-    private static Logger logger = LoggerFactory.getLogger(AnnoClass.class);
+    private static final Logger logger = LoggerFactory.getLogger(AnnoClass.class);
 }
