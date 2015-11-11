@@ -27,18 +27,17 @@ import java.sql.Types;
 import java.util.Collection;
 import java.util.Map;
 
-import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
-import org.jdbi.v3.tweak.CollectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1281,7 +1280,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         }
     }
 
-    protected <Result> Result internalExecute(final QueryResultMunger<Result> munger)
+    protected PreparedStatement internalExecute()
     {
         final String located_sql = wrapLookup(sql);
         getConcreteContext().setLocatedSql(located_sql);
@@ -1327,12 +1326,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
         afterExecution(stmt);
 
-        try {
-            return munger.munge(stmt);
-        }
-        catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, getContext());
-        }
+        return stmt;
     }
 
     protected TimingCollector getTimingCollector()
