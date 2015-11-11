@@ -24,6 +24,23 @@
     <artifactId>jdbi3-jpa</artifactId>
     <name>jDBI JPA Integration</name>
 
+    <developers>
+        <developer>
+            <name>Matthew Hall</name>
+            <url>https://github.com/qualidafial</url>
+            <roles>
+                <role>Project maintainer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Ali Shakiba</name>
+            <url>https://github.com/shakiba</url>
+            <roles>
+                <role>Original project creator</role>
+            </roles>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -40,6 +57,7 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-sqlobject</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
