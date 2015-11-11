@@ -583,6 +583,54 @@ public class AnnoTest {
         assertThingEquals(rs.get(1), new FieldThing(2, null));
     }
 
+    @MappedSuperclass
+    static class OverriddenSuperclassThing implements Thing {
+        @Column(name = "foo") private int id;
+        @Column(name = "bar") private String name;
+
+        public int getId() { return id; }
+        public String getName() { return name; }
+
+        public void setId(int id) { this.id = id; }
+        public void setName(String name) { this.name = name; }
+    }
+
+    @Entity
+    static class OverridingSubclassThing extends OverriddenSuperclassThing {
+        public OverridingSubclassThing() {}
+        public OverridingSubclassThing(int id, String name) { setId(id); setName(name); }
+
+        @Override @Column(name = "meow") public int getId() { return super.getId(); }
+    }
+
+    interface OverridingSubclassThingDao {
+        @SqlUpdate("insert into something(id, name) values (:meow, :bar)")
+        void insert(@BindAnno OverridingSubclassThing thing);
+
+        @SqlQuery("select id as meow, name as bar from something")
+        @RegisterMapperFactory(AnnoMapperFactory.class)
+        List<OverridingSubclassThing> list();
+    }
+
+    @Test
+    public void subclassAnnotationOverridesSuperclass() {
+        // Annotated takes precedence over no annotation, even if annotated in superclass
+        // Annotated member in subclass takes precedence over annotated member in superclass
+
+        OverridingSubclassThing brian = new OverridingSubclassThing(1, "Brian");
+        OverridingSubclassThing keith = new OverridingSubclassThing(2, "Keith");
+
+        OverridingSubclassThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), OverridingSubclassThingDao.class);
+        dao.insert(brian);
+        dao.insert(keith);
+
+        List<OverridingSubclassThing> rs = dao.list();
+
+        assertEquals(rs.size(), 2);
+        assertThingEquals(rs.get(0), brian);
+        assertThingEquals(rs.get(1), keith);
+    }
+
     public static void assertThingEquals(Thing one, Thing two) {
         assertEquals(one.getId(), two.getId());
         assertEquals(one.getName(), two.getName());

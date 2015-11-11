@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -48,16 +49,22 @@ class AnnoClass<C> {
     private AnnoClass(Class<C> clazz) {
         logger.debug("init {}", clazz);
 
+        this.members = unmodifiableList(new ArrayList<>(inspectClass(clazz)));
+
+        logger.debug("init {}: {} members.", clazz, members.size());
+    }
+
+    private static Collection<AnnoMember> inspectClass(Class<?> clazz) {
         Map<String, AnnoMember> members = new HashMap<>();
         List<String> transients = new ArrayList<>();
 
-        inspectClass(clazz, members, transients);
+        inspectFields(clazz, members, transients);
+        inspectAnnotatedProperties(clazz, members, transients);
         inspectSuperclasses(clazz, members, transients);
+        inspectNonAnnotatedProperties(clazz, members, transients);
         transients.forEach(members::remove);
 
-        this.members = unmodifiableList(new ArrayList<>(members.values()));
-
-        logger.debug("init {}: {} members.", clazz, members.size());
+        return members.values();
     }
 
     private static void inspectSuperclasses(Class<?> clazz,
@@ -65,17 +72,21 @@ class AnnoClass<C> {
                                             List<String> transients) {
         while ((clazz = clazz.getSuperclass()) != null) {
             if (clazz.isAnnotationPresent(MappedSuperclass.class)) {
-                inspectClass(clazz, members, transients);
+                inspectFields(clazz, members, transients);
             }
         }
     }
 
-    private static void inspectClass(Class<?> clazz,
-                                     Map<String, AnnoMember> members,
-                                     List<String> transients) {
+    private static void inspectFields(Class<?> clazz,
+                                      Map<String, AnnoMember> members,
+                                      List<String> transients) {
         for (Field member : clazz.getDeclaredFields()) {
             if (member.getAnnotation(Transient.class) != null) {
                 transients.add(member.getName());
+                continue;
+            }
+
+            if (members.containsKey(member.getName())) {
                 continue;
             }
 
@@ -84,7 +95,24 @@ class AnnoClass<C> {
                 members.put(member.getName(), new AnnoMember(clazz, column, member));
             }
         }
+    }
 
+    private static void inspectAnnotatedProperties(Class<?> clazz,
+                                                   Map<String, AnnoMember> members,
+                                                   List<String> transients) {
+        inspectProperties(clazz, members, transients, true);
+    }
+
+    private static void inspectNonAnnotatedProperties(Class<?> clazz,
+                                                   Map<String, AnnoMember> members,
+                                                   List<String> transients) {
+        inspectProperties(clazz, members, transients, false);
+    }
+
+    private static void inspectProperties(Class<?> clazz,
+                                          Map<String, AnnoMember> members,
+                                          List<String> transients,
+                                          boolean hasColumnAnnotation) {
         try {
             Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                     .filter(property -> !members.containsKey(property.getName()))
@@ -113,7 +141,9 @@ class AnnoClass<C> {
                                 .filter(Objects::nonNull)
                                 .findFirst()
                                 .orElse(null);
-                        members.put(property.getName(), new AnnoMember(clazz, column, property));
+                        if ((column != null) == hasColumnAnnotation) {
+                            members.put(property.getName(), new AnnoMember(clazz, column, property));
+                        }
                     });
         } catch (IntrospectionException e) {
             logger.warn("Unable to introspect " + clazz, e);
