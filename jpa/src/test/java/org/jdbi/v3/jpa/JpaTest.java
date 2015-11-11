@@ -30,7 +30,7 @@ import javax.persistence.Transient;
 
 import static org.junit.Assert.assertEquals;
 
-public class AnnoTest {
+public class JpaTest {
     private static final String INSERT_BY_PROPERTY_NAME = "insert into something(id, name) values (:id, :name)";
     private static final String SELECT_BY_PROPERTY_NAME = "select id, name from something";
 
@@ -64,10 +64,10 @@ public class AnnoTest {
 
     interface EntityThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
-        void insert(@BindAnno EntityThing thing);
+        void insert(@BindJpa EntityThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<EntityThing> list();
     }
 
@@ -104,10 +104,10 @@ public class AnnoTest {
 
     interface FieldThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
-        void insert(@BindAnno FieldThing thing);
+        void insert(@BindJpa FieldThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<FieldThing> list();
     }
 
@@ -144,10 +144,10 @@ public class AnnoTest {
 
     interface NamedFieldThingDao {
         @SqlUpdate(INSERT_BY_ANNOTATION_NAME)
-        void insert(@BindAnno NamedFieldThing thing);
+        void insert(@BindJpa NamedFieldThing thing);
 
         @SqlQuery(SELECT_BY_ANNOTATION_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<NamedFieldThing> list();
     }
 
@@ -184,10 +184,10 @@ public class AnnoTest {
 
     interface GetterThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
-        void insert(@BindAnno GetterThing thing);
+        void insert(@BindJpa GetterThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<GetterThing> list();
     }
 
@@ -224,10 +224,10 @@ public class AnnoTest {
 
     interface NamedGetterThingDao {
         @SqlUpdate(INSERT_BY_ANNOTATION_NAME)
-        void insert(@BindAnno NamedGetterThing thing);
+        void insert(@BindJpa NamedGetterThing thing);
 
         @SqlQuery(SELECT_BY_ANNOTATION_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<NamedGetterThing> list();
     }
 
@@ -264,10 +264,10 @@ public class AnnoTest {
 
     interface SetterThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
-        void insert(@BindAnno SetterThing thing);
+        void insert(@BindJpa SetterThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<SetterThing> list();
     }
 
@@ -304,10 +304,10 @@ public class AnnoTest {
 
     interface NamedSetterThingDao {
         @SqlUpdate(INSERT_BY_ANNOTATION_NAME)
-        void insert(@BindAnno NamedSetterThing thing);
+        void insert(@BindJpa NamedSetterThing thing);
 
         @SqlQuery(SELECT_BY_ANNOTATION_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<NamedSetterThing> list();
     }
 
@@ -346,10 +346,10 @@ public class AnnoTest {
 
     interface MappedSuperclassThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
-        void insert(@BindAnno ExtendsMappedSuperclassThing thing);
+        void insert(@BindJpa ExtendsMappedSuperclassThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<ExtendsMappedSuperclassThing> list();
     }
 
@@ -386,10 +386,10 @@ public class AnnoTest {
 
     interface AnnotationPriorityThingDao {
         @SqlUpdate(INSERT_BY_ANNOTATION_NAME)
-        void insert(@BindAnno AnnotationPriorityThing thing);
+        void insert(@BindJpa AnnotationPriorityThing thing);
 
         @SqlQuery(SELECT_BY_ANNOTATION_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<AnnotationPriorityThing> list();
     }
 
@@ -427,10 +427,10 @@ public class AnnoTest {
 
     interface TransientFieldThingDao {
         @SqlUpdate("insert into something(id, name) values (:id, 'dummy')")
-        void insert(@BindAnno TransientFieldThing thing);
+        void insert(@BindJpa TransientFieldThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<TransientFieldThing> list();
     }
 
@@ -468,10 +468,10 @@ public class AnnoTest {
 
     interface TransientGetterThingDao {
         @SqlUpdate("insert into something(id, name) values (:id, 'dummy')")
-        void insert(@BindAnno TransientGetterThing thing);
+        void insert(@BindJpa TransientGetterThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<TransientGetterThing> list();
     }
 
@@ -509,10 +509,10 @@ public class AnnoTest {
 
     interface TransientSetterThingDao {
         @SqlUpdate("insert into something(id, name) values (:id, 'dummy')")
-        void insert(@BindAnno TransientSetterThing thing);
+        void insert(@BindJpa TransientSetterThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<TransientSetterThing> list();
     }
 
@@ -535,10 +535,10 @@ public class AnnoTest {
 
     interface SuperfluousColumnDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
-        void insert(@BindAnno FieldThing thing);
+        void insert(@BindJpa FieldThing thing);
 
         @SqlQuery("select id, name, 'Rob Schneider' as extra from something")
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<FieldThing> list();
     }
     
@@ -560,10 +560,10 @@ public class AnnoTest {
 
     interface MissingColumnDao {
         @SqlUpdate("insert into something(id) values (:id)")
-        void insert(@BindAnno FieldThing thing);
+        void insert(@BindJpa FieldThing thing);
 
         @SqlQuery("select id from something")
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<FieldThing> list();
     }
 
@@ -605,10 +605,10 @@ public class AnnoTest {
 
     interface OverridingSubclassThingDao {
         @SqlUpdate("insert into something(id, name) values (:meow, :bar)")
-        void insert(@BindAnno OverridingSubclassThing thing);
+        void insert(@BindJpa OverridingSubclassThing thing);
 
         @SqlQuery("select id as meow, name as bar from something")
-        @RegisterMapperFactory(AnnoMapperFactory.class)
+        @RegisterMapperFactory(JpaMapperFactory.class)
         List<OverridingSubclassThing> list();
     }
 

@@ -16,15 +16,15 @@ package org.jdbi.v3.jpa;
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
 
-public class AnnoMapperFactory implements ResultSetMapperFactory {
+public class JpaMapperFactory implements ResultSetMapperFactory {
 
     @Override
     public boolean accepts(Class clazz, StatementContext ctx) {
-        return AnnoMapper.accept(clazz);
+        return JpaMapper.accept(clazz);
     }
 
     @Override
-    public <T> AnnoMapper<T> mapperFor(Class<T> clazz, StatementContext ctx) {
-        return AnnoMapper.get(clazz);
+    public <T> JpaMapper<T> mapperFor(Class<T> clazz, StatementContext ctx) {
+        return JpaMapper.get(clazz);
     }
 }

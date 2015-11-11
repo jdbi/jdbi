@@ -25,16 +25,16 @@ public class Something {
 
 #### Map
 
-Use `AnnoMapper` to create `ResultSetMapper`:
+Use `JpaMapper` to create `ResultSetMapper`:
 
 ```java
-ResultSetMapper<Something> mapper = AnnoMapper.get(Something.class);
+ResultSetMapper<Something> mapper = JpaMapper.get(Something.class);
 ```
 
-Or register `AnnoMapperFactory` as a `ResultSetMapperFactory`:
+Or register `JpaMapperFactory` as a `ResultSetMapperFactory`:
 
 ```java
-@RegisterMapperFactory(AnnoMapperFactory.class)
+@RegisterMapperFactory(JpaMapperFactory.class)
 public interface SomethingDAO {
 
     @SqlQuery("select * from Something where id = :id")
@@ -44,13 +44,13 @@ public interface SomethingDAO {
 ```
 #### Bind
 
-Use `@BindAnno` instead of `@BindBean` to bind annotated classes.
+Use `@BindJpa` instead of `@BindBean` to bind annotated classes.
 
 ```java
 public interface SomethingDAO {
 
     @SqlUpdate("update something set name = :s.name where id = :s.id")
-    void update(@BindAnno("s") Something something);
+    void update(@BindJpa("s") Something something);
 
 }
 ```

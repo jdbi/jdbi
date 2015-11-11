@@ -24,24 +24,24 @@ import java.lang.reflect.Constructor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AnnoMapper<C> implements ResultSetMapper<C> {
+public class JpaMapper<C> implements ResultSetMapper<C> {
 
     private final Class<C> clazz;
-    private final AnnoClass<C> annos;
+    private final JpaClass<C> jpaClass;
 
     public static boolean accept(Class<?> clazz) {
         logger.debug("accept {}", clazz);
         return clazz.getAnnotation(Entity.class) != null;
     }
 
-    public static <C> AnnoMapper<C> get(Class<C> clazz) {
-        return new AnnoMapper<C>(clazz);
+    public static <C> JpaMapper<C> get(Class<C> clazz) {
+        return new JpaMapper<C>(clazz);
     }
 
-    private AnnoMapper(Class<C> clazz) {
+    private JpaMapper(Class<C> clazz) {
         logger.debug("init {}", clazz);
         this.clazz = clazz;
-        this.annos = AnnoClass.get(clazz);
+        this.jpaClass = JpaClass.get(clazz);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class AnnoMapper<C> implements ResultSetMapper<C> {
             obj = constructor.newInstance();
             for (int colIndex = rs.getMetaData().getColumnCount(); colIndex >= 1; colIndex--) {
                 String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
-                AnnoMember member = annos.lookupMember(columnLabel);
+                JpaMember member = jpaClass.lookupMember(columnLabel);
                 if (member != null) {
                     member.write(obj, get(member, rs, ctx));
                 }
@@ -67,12 +67,12 @@ public class AnnoMapper<C> implements ResultSetMapper<C> {
         return obj;
     }
 
-    private Object get(AnnoMember annoMember, ResultSet rs, StatementContext ctx) throws SQLException {
-        Class memberType = annoMember.getType();
-        String name = annoMember.getColumnName();
+    private Object get(JpaMember jpaMember, ResultSet rs, StatementContext ctx) throws SQLException {
+        Class memberType = jpaMember.getType();
+        String name = jpaMember.getColumnName();
         ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
         return columnMapper.mapColumn(rs, name, ctx);
     }
 
-    private static Logger logger = LoggerFactory.getLogger(AnnoMapper.class);
+    private static Logger logger = LoggerFactory.getLogger(JpaMapper.class);
 }

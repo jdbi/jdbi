@@ -22,8 +22,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@BindingAnnotation(BindAnnoFactory.class)
-public @interface BindAnno {
+@BindingAnnotation(BindJpaFactory.class)
+public @interface BindJpa {
     String DEFAULT = "___jdbi_bare___";
 
     String value() default DEFAULT;

@@ -16,20 +16,20 @@ package org.jdbi.v3.jpa;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
 
-public class BindAnnoFactory implements BinderFactory<BindAnno, Object> {
+public class BindJpaFactory implements BinderFactory<BindJpa, Object> {
     @Override
-    public Binder<BindAnno, Object> build(BindAnno annotation) {
+    public Binder<BindJpa, Object> build(BindJpa annotation) {
         return (q, parameter, bind, arg) -> {
             final String prefix;
-            if (BindAnno.DEFAULT.equals(bind.value())) {
+            if (BindJpa.DEFAULT.equals(bind.value())) {
                 prefix = "";
             } else {
                 prefix = bind.value() + ".";
             }
 
             try {
-                AnnoClass<?> annoClass = AnnoClass.get(arg.getClass());
-                for (AnnoMember member : annoClass.members()) {
+                JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
+                for (JpaMember member : jpaClass.members()) {
                     q.dynamicBind(member.getType(), prefix + member.getColumnName(), member.read(arg));
                 }
             } catch (Exception e) {

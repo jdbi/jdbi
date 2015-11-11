@@ -25,7 +25,7 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-class AnnoMember {
+class JpaMember {
 
     interface Getter {
         Object get(Object obj) throws IllegalAccessException, InvocationTargetException;
@@ -41,7 +41,7 @@ class AnnoMember {
     private final Getter accessor;
     private final Setter mutator;
 
-    AnnoMember(Class<?> clazz, Column column, Field field) {
+    JpaMember(Class<?> clazz, Column column, Field field) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, field.getName());
         this.type = field.getType();
@@ -50,7 +50,7 @@ class AnnoMember {
         this.mutator = field::set;
     }
 
-    AnnoMember(Class<?> clazz, Column column, PropertyDescriptor property) {
+    JpaMember(Class<?> clazz, Column column, PropertyDescriptor property) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, property.getName());
         this.type = property.getPropertyType();
@@ -88,5 +88,5 @@ class AnnoMember {
                 .orElse(memberName);
     }
 
-    private static Logger logger = LoggerFactory.getLogger(AnnoMember.class);
+    private static Logger logger = LoggerFactory.getLogger(JpaMember.class);
 }

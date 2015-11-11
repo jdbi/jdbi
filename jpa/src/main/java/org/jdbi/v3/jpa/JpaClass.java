@@ -36,17 +36,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Collections.unmodifiableList;
 
-class AnnoClass<C> {
+class JpaClass<C> {
 
-    private static final Map<Class<?>, AnnoClass<?>> cache = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, JpaClass<?>> cache = new ConcurrentHashMap<>();
 
-    public static <C> AnnoClass<C> get(Class<C> clazz) {
-        return (AnnoClass<C>) cache.computeIfAbsent(clazz, AnnoClass::new);
+    public static <C> JpaClass<C> get(Class<C> clazz) {
+        return (JpaClass<C>) cache.computeIfAbsent(clazz, JpaClass::new);
     }
 
-    private final List<AnnoMember> members;
+    private final List<JpaMember> members;
 
-    private AnnoClass(Class<C> clazz) {
+    private JpaClass(Class<C> clazz) {
         logger.debug("init {}", clazz);
 
         this.members = unmodifiableList(new ArrayList<>(inspectClass(clazz)));
@@ -54,8 +54,8 @@ class AnnoClass<C> {
         logger.debug("init {}: {} members.", clazz, members.size());
     }
 
-    private static Collection<AnnoMember> inspectClass(Class<?> clazz) {
-        Map<String, AnnoMember> members = new HashMap<>();
+    private static Collection<JpaMember> inspectClass(Class<?> clazz) {
+        Map<String, JpaMember> members = new HashMap<>();
         List<String> transients = new ArrayList<>();
 
         inspectFields(clazz, members, transients);
@@ -68,7 +68,7 @@ class AnnoClass<C> {
     }
 
     private static void inspectSuperclasses(Class<?> clazz,
-                                            Map<String, AnnoMember> members,
+                                            Map<String, JpaMember> members,
                                             List<String> transients) {
         while ((clazz = clazz.getSuperclass()) != null) {
             if (clazz.isAnnotationPresent(MappedSuperclass.class)) {
@@ -78,7 +78,7 @@ class AnnoClass<C> {
     }
 
     private static void inspectFields(Class<?> clazz,
-                                      Map<String, AnnoMember> members,
+                                      Map<String, JpaMember> members,
                                       List<String> transients) {
         for (Field member : clazz.getDeclaredFields()) {
             if (member.getAnnotation(Transient.class) != null) {
@@ -92,25 +92,25 @@ class AnnoClass<C> {
 
             Column column = member.getAnnotation(Column.class);
             if (column != null) {
-                members.put(member.getName(), new AnnoMember(clazz, column, member));
+                members.put(member.getName(), new JpaMember(clazz, column, member));
             }
         }
     }
 
     private static void inspectAnnotatedProperties(Class<?> clazz,
-                                                   Map<String, AnnoMember> members,
+                                                   Map<String, JpaMember> members,
                                                    List<String> transients) {
         inspectProperties(clazz, members, transients, true);
     }
 
     private static void inspectNonAnnotatedProperties(Class<?> clazz,
-                                                   Map<String, AnnoMember> members,
+                                                   Map<String, JpaMember> members,
                                                    List<String> transients) {
         inspectProperties(clazz, members, transients, false);
     }
 
     private static void inspectProperties(Class<?> clazz,
-                                          Map<String, AnnoMember> members,
+                                          Map<String, JpaMember> members,
                                           List<String> transients,
                                           boolean hasColumnAnnotation) {
         try {
@@ -142,7 +142,7 @@ class AnnoClass<C> {
                                 .findFirst()
                                 .orElse(null);
                         if ((column != null) == hasColumnAnnotation) {
-                            members.put(property.getName(), new AnnoMember(clazz, column, property));
+                            members.put(property.getName(), new JpaMember(clazz, column, property));
                         }
                     });
         } catch (IntrospectionException e) {
@@ -151,7 +151,7 @@ class AnnoClass<C> {
         }
     }
 
-    public AnnoMember lookupMember(String columnLabel) {
+    public JpaMember lookupMember(String columnLabel) {
         String column = columnLabel.toLowerCase(Locale.ROOT);
         return members.stream()
                 .filter(member -> column.equals(member.getColumnName().toLowerCase(Locale.ROOT)))
@@ -159,9 +159,9 @@ class AnnoClass<C> {
                 .orElse(null);
     }
 
-    public List<AnnoMember> members() {
+    public List<JpaMember> members() {
         return members;
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(AnnoClass.class);
+    private static final Logger logger = LoggerFactory.getLogger(JpaClass.class);
 }
