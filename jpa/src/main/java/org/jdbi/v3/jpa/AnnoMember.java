@@ -45,14 +45,9 @@ class AnnoMember {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, field.getName());
         this.type = field.getType();
-        this.accessor = obj -> {
-            field.setAccessible(true);
-            return field.get(obj);
-        };
-        this.mutator = (obj, value) -> {
-            field.setAccessible(true);
-            field.set(obj, value);
-        };
+        field.setAccessible(true);
+        this.accessor = field::get;
+        this.mutator = field::set;
     }
 
     AnnoMember(Class<?> clazz, Column column, PropertyDescriptor property) {
@@ -61,15 +56,11 @@ class AnnoMember {
         this.type = property.getPropertyType();
 
         Method getter = property.getReadMethod();
-        this.accessor = obj -> {
-            getter.setAccessible(true);
-            return getter.invoke(obj);
-        };
         Method setter = property.getWriteMethod();
-        this.mutator = (obj, value) -> {
-            setter.setAccessible(true);
-            setter.invoke(obj, value);
-        };
+        getter.setAccessible(true);
+        setter.setAccessible(true);
+        this.accessor = obj -> getter.invoke(obj);
+        this.mutator = (obj, value) -> setter.invoke(obj, value);
     }
 
     public String getColumnName() {
