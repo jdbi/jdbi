@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.sqlobject.SingleValue;
 
 abstract class ResultReturner
@@ -34,19 +34,7 @@ abstract class ResultReturner
     public Object map(Method method, Query q)
     {
         StatementContext ctx = q.getContext();
-        if (method.isAnnotationPresent(UseRowMapper.class)) {
-            final RowMapper<?> mapper;
-            try {
-                mapper = method.getAnnotation(UseRowMapper.class).value().newInstance();
-            }
-            catch (Exception e) {
-                throw new UnableToCreateStatementException("unable to access mapper", e, null);
-            }
-            return result(q.map(mapper), ctx);
-        }
-        else {
-            return result(q.mapTo(elementType(ctx)), ctx);
-        }
+        return result(q.mapTo(elementType(ctx)), ctx);
     }
 
     static ResultReturner forOptionalReturn(Class<?> extensionType, Method method)
