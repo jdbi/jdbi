@@ -56,7 +56,10 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
                 String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
                 JpaMember member = jpaClass.lookupMember(columnLabel);
                 if (member != null) {
-                    member.write(obj, get(member, rs, ctx));
+                    Class<?> memberType = member.getType();
+                    ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
+                    Object value = columnMapper.mapColumn(rs, columnLabel, ctx);
+                    member.write(obj, value);
                 }
             }
         } catch (RuntimeException e) {
@@ -65,13 +68,6 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
             throw new RuntimeException(e);
         }
         return obj;
-    }
-
-    private Object get(JpaMember jpaMember, ResultSet rs, StatementContext ctx) throws SQLException {
-        Class memberType = jpaMember.getType();
-        String name = jpaMember.getColumnName();
-        ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
-        return columnMapper.mapColumn(rs, name, ctx);
     }
 
     private static Logger logger = LoggerFactory.getLogger(JpaMapper.class);
