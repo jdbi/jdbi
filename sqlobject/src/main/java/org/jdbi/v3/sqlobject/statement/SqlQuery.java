@@ -45,7 +45,7 @@ public @interface SqlQuery {
     class Factory implements HandlerFactory {
         @Override
         public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new QueryHandler(sqlObjectType, method, ResultReturner.forMethod(sqlObjectType, method));
+            return new QueryHandler(sqlObjectType, method);
         }
     }
 
@@ -54,11 +54,11 @@ public @interface SqlQuery {
         private final Method method;
         private final ResultReturner magic;
 
-        QueryHandler(Class<?> sqlObjectType, Method method, ResultReturner magic) {
+        QueryHandler(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
             this.sqlObjectType = sqlObjectType;
             this.method = method;
-            this.magic = magic;
+            this.magic = ResultReturner.forMethod(sqlObjectType, method);
         }
 
         @Override
