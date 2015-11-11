@@ -18,10 +18,10 @@ import org.jdbi.v3.sqlobject.BinderFactory;
 
 import java.lang.annotation.Annotation;
 
-public class BindAnnoFactory implements BinderFactory {
+public class BindAnnoFactory implements BinderFactory<BindAnno, Object> {
 
     @Override
-    public Binder<BindAnno, Object> build(Annotation annotation) {
+    public Binder<BindAnno, Object> build(BindAnno annotation) {
         return (q, parameter, bind, arg) -> {
             final String prefix;
             if ("___jdbi_bare___".equals(bind.value())) {
