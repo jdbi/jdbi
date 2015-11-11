@@ -24,5 +24,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.PARAMETER })
 @BindingAnnotation(BindAnnoFactory.class)
 public @interface BindAnno {
-    String value() default "___jdbi_bare___";
+    String DEFAULT = "___jdbi_bare___";
+
+    String value() default DEFAULT;
 }

@@ -52,8 +52,12 @@ public class AnnoMapper<C> implements ResultSetMapper<C> {
             Constructor<C> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             obj = constructor.newInstance();
-            for (AnnoMember annoMember : annos.setters()) {
-                annoMember.write(obj, get(annoMember, rs, ctx));
+            for (int colIndex = rs.getMetaData().getColumnCount(); colIndex >= 1; colIndex--) {
+                String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
+                AnnoMember member = annos.lookupMember(columnLabel);
+                if (member != null) {
+                    member.write(obj, get(member, rs, ctx));
+                }
             }
         } catch (RuntimeException e) {
             throw e;
@@ -65,7 +69,7 @@ public class AnnoMapper<C> implements ResultSetMapper<C> {
 
     private Object get(AnnoMember annoMember, ResultSet rs, StatementContext ctx) throws SQLException {
         Class memberType = annoMember.getType();
-        String name = annoMember.getName();
+        String name = annoMember.getColumnName();
         ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
         return columnMapper.mapColumn(rs, name, ctx);
     }

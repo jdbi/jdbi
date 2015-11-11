@@ -18,11 +18,19 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
+import java.beans.IndexedPropertyDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Collections.unmodifiableList;
@@ -35,49 +43,93 @@ class AnnoClass<C> {
         return (AnnoClass<C>) cache.computeIfAbsent(clazz, AnnoClass::new);
     }
 
-    private final List<AnnoMember> setters = new ArrayList<>();
-    private final List<AnnoMember> getters = new ArrayList<>();
+    private final List<AnnoMember> members;
 
     private AnnoClass(Class<C> clazz) {
         logger.debug("init {}", clazz);
-        inspectClass(clazz);
-        inspectSuperclasses(clazz);
-        logger.debug("init {}: {} setters and {} getters.", clazz, setters.size(), getters.size());
+
+        Map<String, AnnoMember> members = new HashMap<>();
+        List<String> transients = new ArrayList<>();
+
+        inspectClass(clazz, members, transients);
+        inspectSuperclasses(clazz, members, transients);
+        transients.forEach(members::remove);
+
+        this.members = unmodifiableList(new ArrayList<>(members.values()));
+
+        logger.debug("init {}: {} members.", clazz, members.size());
     }
 
-    private void inspectSuperclasses(Class<? super C> clazz) {
+    private static void inspectSuperclasses(Class<?> clazz,
+                                            Map<String, AnnoMember> members,
+                                            List<String> transients) {
         while ((clazz = clazz.getSuperclass()) != null) {
             if (clazz.isAnnotationPresent(MappedSuperclass.class)) {
-                inspectClass(clazz);
+                inspectClass(clazz, members, transients);
             }
         }
     }
 
-    private void inspectClass(Class<? super C> clazz) {
+    private static void inspectClass(Class<?> clazz,
+                                     Map<String, AnnoMember> members,
+                                     List<String> transients) {
         for (Field member : clazz.getDeclaredFields()) {
-            if (member.getAnnotation(Column.class) != null) {
-                setters.add(new AnnoMember(clazz, member));
-                getters.add(new AnnoMember(clazz, member));
-            }
-        }
-        for (Method member : clazz.getDeclaredMethods()) {
-            if (member.getAnnotation(Column.class) == null) {
+            if (member.getAnnotation(Transient.class) != null) {
+                transients.add(member.getName());
                 continue;
             }
-            if (member.getParameterTypes().length == 1) {
-                setters.add(new AnnoMember(clazz, member));
-            } else if (member.getParameterTypes().length == 0) {
-                getters.add(new AnnoMember(clazz, member));
+
+            Column column = member.getAnnotation(Column.class);
+            if (column != null) {
+                members.put(member.getName(), new AnnoMember(clazz, column, member));
             }
+        }
+
+        try {
+            Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
+                    .filter(property -> !members.containsKey(property.getName()))
+                    .filter(property -> !(property instanceof IndexedPropertyDescriptor))
+                    .filter(property -> !"class".equals(property.getName()))
+                    .forEach(property -> {
+                        Method getter = property.getReadMethod();
+                        Method setter = property.getWriteMethod();
+
+                        boolean isTransient = Arrays
+                                .stream(new Method[]{getter, setter})
+                                .filter(Objects::nonNull)
+                                .map(method -> method.getAnnotation(Transient.class))
+                                .anyMatch(Objects::nonNull);
+
+                        if (isTransient) {
+                            transients.add(property.getName());
+                            return;
+                        }
+
+                        Column column = Arrays
+                                .stream(new Method[]{getter, setter})
+                                .filter(Objects::nonNull)
+                                .map(method -> method.getAnnotation(Column.class))
+                                .filter(Objects::nonNull)
+                                .findFirst()
+                                .orElse(null);
+                        members.put(property.getName(), new AnnoMember(clazz, column, property));
+                    });
+        } catch (IntrospectionException e) {
+            logger.warn("Unable to introspect " + clazz, e);
+            return;
         }
     }
 
-    public List<AnnoMember> setters() {
-        return unmodifiableList(setters);
+    public AnnoMember lookupMember(String columnLabel) {
+        String column = columnLabel.toLowerCase(Locale.ROOT);
+        return members.stream()
+                .filter(member -> column.equals(member.getColumnName().toLowerCase(Locale.ROOT)))
+                .findFirst()
+                .orElse(null);
     }
 
-    public List<AnnoMember> getters() {
-        return unmodifiableList(getters);
+    public List<AnnoMember> members() {
+        return members;
     }
 
     private static Logger logger = LoggerFactory.getLogger(AnnoClass.class);

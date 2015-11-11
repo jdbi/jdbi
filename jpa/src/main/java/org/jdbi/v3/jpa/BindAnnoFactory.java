@@ -16,24 +16,21 @@ package org.jdbi.v3.jpa;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
 
-import java.lang.annotation.Annotation;
-
 public class BindAnnoFactory implements BinderFactory<BindAnno, Object> {
-
     @Override
     public Binder<BindAnno, Object> build(BindAnno annotation) {
         return (q, parameter, bind, arg) -> {
             final String prefix;
-            if ("___jdbi_bare___".equals(bind.value())) {
+            if (BindAnno.DEFAULT.equals(bind.value())) {
                 prefix = "";
             } else {
                 prefix = bind.value() + ".";
             }
 
             try {
-                AnnoClass<?> annos = AnnoClass.get(arg.getClass());
-                for (AnnoMember anno : annos.getters()) {
-                    q.bind(prefix + anno.getName(), anno.read(arg));
+                AnnoClass<?> annoClass = AnnoClass.get(arg.getClass());
+                for (AnnoMember member : annoClass.members()) {
+                    q.dynamicBind(member.getType(), prefix + member.getColumnName(), member.read(arg));
                 }
             } catch (Exception e) {
                 throw new IllegalStateException(

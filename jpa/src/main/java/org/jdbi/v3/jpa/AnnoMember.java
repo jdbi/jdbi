@@ -17,86 +17,84 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
 
 class AnnoMember {
 
-    private Column column;
-    private String name;
-    private Field field;
-    private Method method;
-    private Class<?> clazz;
-    private Class<?> type;
-
-    AnnoMember(Class<?> clazz, Field member) {
-        this.clazz = clazz;
-        this.field = member;
-        this.column = member.getAnnotation(Column.class);
-        this.name = nameOf(member, column);
-        this.type = member.getType();
+    interface Getter {
+        Object get(Object obj) throws IllegalAccessException, InvocationTargetException;
     }
 
-    AnnoMember(Class<?> clazz, Method member) {
-        this.clazz = clazz;
-        this.method = member;
-        this.column = member.getAnnotation(Column.class);
-        this.name = nameOf(member, column);
-        this.type = member.getParameterTypes()[0];
+    interface Setter {
+        void set(Object obj, Object value) throws IllegalAccessException, InvocationTargetException;
     }
 
-    public String getName() {
-        return name;
+    private final Class<?> clazz;
+    private final String columnName;
+    private final Class<?> type;
+    private final Getter accessor;
+    private final Setter mutator;
+
+    AnnoMember(Class<?> clazz, Column column, Field field) {
+        this.clazz = requireNonNull(clazz);
+        this.columnName = nameOf(column, field.getName());
+        this.type = field.getType();
+        this.accessor = obj -> {
+            field.setAccessible(true);
+            return field.get(obj);
+        };
+        this.mutator = (obj, value) -> {
+            field.setAccessible(true);
+            field.set(obj, value);
+        };
+    }
+
+    AnnoMember(Class<?> clazz, Column column, PropertyDescriptor property) {
+        this.clazz = requireNonNull(clazz);
+        this.columnName = nameOf(column, property.getName());
+        this.type = property.getPropertyType();
+
+        Method getter = property.getReadMethod();
+        this.accessor = obj -> {
+            getter.setAccessible(true);
+            return getter.invoke(obj);
+        };
+        Method setter = property.getWriteMethod();
+        this.mutator = (obj, value) -> {
+            setter.setAccessible(true);
+            setter.invoke(obj, value);
+        };
+    }
+
+    public String getColumnName() {
+        return columnName;
     }
 
     public Class<?> getType() {
         return type;
     }
 
-    public Object read(Object obj) throws IllegalArgumentException,
-            IllegalAccessException, InvocationTargetException {
-        if (method != null) {
-            method.setAccessible(true);
-            return method.invoke(obj);
-        }
-        if (field != null) {
-            field.setAccessible(true);
-            return field.get(obj);
-        }
-        // unreachable!
-        throw new RuntimeException("Reached unreachable!");
+    public Object read(Object obj) throws IllegalAccessException, InvocationTargetException {
+        return accessor.get(obj);
     }
 
-    public void write(Object obj, Object value)
-            throws IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException {
-        logger.debug("write {}/{}/{}/{}", clazz, name, type, value);
-        if (method != null) {
-            method.setAccessible(true);
-            method.invoke(obj, value);
-        }
-        if (field != null) {
-            field.setAccessible(true);
-            field.set(obj, value);
-        }
+    public void write(Object obj, Object value) throws IllegalAccessException, InvocationTargetException {
+        logger.debug("write {}/{}/{}/{}", clazz, columnName, type, value);
+
+        mutator.set(obj, value);
     }
 
-    private String nameOf(Field member, Column column) {
-        String name = column.name();
-        if (name == null || name.length() == 0) {
-            name = member.getName();
-        }
-        return name;
-    }
-
-    private String nameOf(Method member, Column column) {
-        String name = column.name();
-        if (name == null || name.length() == 0) {
-            name = member.getName();
-            // TODO: drop set/get/is
-        }
-        return name;
+    private static String nameOf(Column column, String memberName) {
+        return Optional.ofNullable(column)
+                .map(Column::name)
+                .filter(name -> name.length() > 0)
+                .orElse(memberName);
     }
 
     private static Logger logger = LoggerFactory.getLogger(AnnoMember.class);
