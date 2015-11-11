@@ -229,6 +229,11 @@ public class DBI
             final long start = System.nanoTime();
             Connection conn = connectionFactory.openConnection();
             final long stop = System.nanoTime();
+
+            for (JdbiPlugin p : plugins) {
+                conn = p.customizeConnection(conn);
+            }
+
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
             Handle h = new BasicHandle(transactionhandler.get(),
                                        statementLocator.get(),
