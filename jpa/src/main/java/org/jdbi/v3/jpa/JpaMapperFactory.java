@@ -11,17 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.guava;
+package org.jdbi.v3.jpa;
 
-import com.google.auto.service.AutoService;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.spi.JdbiPlugin;
+import org.jdbi.v3.ResultSetMapperFactory;
+import org.jdbi.v3.StatementContext;
 
-@AutoService(JdbiPlugin.class)
-public class GuavaPlugin implements JdbiPlugin {
+public class JpaMapperFactory implements ResultSetMapperFactory {
+
     @Override
-    public Handle customizeHandle(Handle handle) {
-        handle.registerCollectorFactory(GuavaCollectors.factory());
-        return handle;
+    public boolean accepts(Class clazz, StatementContext ctx) {
+        return JpaMapper.accept(clazz);
+    }
+
+    @Override
+    public <T> JpaMapper<T> mapperFor(Class<T> clazz, StatementContext ctx) {
+        return JpaMapper.get(clazz);
     }
 }

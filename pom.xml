@@ -147,6 +147,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-sqlobject</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
                 <version>3.1</version>
@@ -236,6 +242,12 @@
                   </exclusion>
                 </exclusions>
             </dependency>
+
+            <dependency>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>1.0-rc2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -251,6 +263,7 @@
         <module>core</module>
         <module>sqlobject</module>
         <module>guava</module>
+        <module>jpa</module>
         <module>spring</module>
     </modules>
 </project>

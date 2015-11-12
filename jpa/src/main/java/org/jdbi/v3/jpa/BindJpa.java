@@ -11,17 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.guava;
+package org.jdbi.v3.jpa;
 
-import com.google.auto.service.AutoService;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.spi.JdbiPlugin;
+import org.jdbi.v3.sqlobject.BindingAnnotation;
 
-@AutoService(JdbiPlugin.class)
-public class GuavaPlugin implements JdbiPlugin {
-    @Override
-    public Handle customizeHandle(Handle handle) {
-        handle.registerCollectorFactory(GuavaCollectors.factory());
-        return handle;
-    }
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.PARAMETER })
+@BindingAnnotation(BindJpaFactory.class)
+public @interface BindJpa {
+    String DEFAULT = "___jdbi_bare___";
+
+    String value() default DEFAULT;
 }

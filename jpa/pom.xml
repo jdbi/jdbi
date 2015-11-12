@@ -21,13 +21,36 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3-guava</artifactId>
-    <name>jDBI Guava Integration</name>
+    <artifactId>jdbi3-jpa</artifactId>
+    <name>jDBI JPA Integration</name>
+
+    <developers>
+        <developer>
+            <name>Matthew Hall</name>
+            <url>https://github.com/qualidafial</url>
+            <roles>
+                <role>Project maintainer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Ali Shakiba</name>
+            <url>https://github.com/shakiba</url>
+            <roles>
+                <role>Original project creator</role>
+            </roles>
+        </developer>
+    </developers>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -37,13 +60,20 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <dependency>

@@ -11,17 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.guava;
+package org.jdbi.v3.jpa;
 
-import com.google.auto.service.AutoService;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.spi.JdbiPlugin;
+import org.jdbi.v3.exceptions.DBIException;
 
-@AutoService(JdbiPlugin.class)
-public class GuavaPlugin implements JdbiPlugin {
-    @Override
-    public Handle customizeHandle(Handle handle) {
-        handle.registerCollectorFactory(GuavaCollectors.factory());
-        return handle;
+public class NoSuchColumnMapperException extends DBIException {
+    public NoSuchColumnMapperException(String string, Throwable throwable) {
+        super(string, throwable);
+    }
+
+    public NoSuchColumnMapperException(Throwable cause) {
+        super(cause);
+    }
+
+    public NoSuchColumnMapperException(String message) {
+        super(message);
     }
 }
