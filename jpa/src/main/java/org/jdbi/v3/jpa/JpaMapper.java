@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.Entity;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -46,26 +47,34 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
 
     @Override
     public C map(int i, ResultSet rs, StatementContext ctx) throws SQLException {
-        C obj;
         logger.debug("map {}", clazz);
         try {
-            Constructor<C> constructor = clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            obj = constructor.newInstance();
-            for (int colIndex = rs.getMetaData().getColumnCount(); colIndex >= 1; colIndex--) {
-                String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
-                JpaMember member = jpaClass.lookupMember(columnLabel);
-                if (member != null) {
-                    Class<?> memberType = member.getType();
-                    ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
-                    Object value = columnMapper.mapColumn(rs, columnLabel, ctx);
-                    member.write(obj, value);
+            return tryMap(rs, ctx);
+        } catch (NoSuchMethodException |
+                InstantiationException |
+                IllegalAccessException |
+                InvocationTargetException e) {
+            throw new EntityMemberAccessException(String.format("Unable to map %s entity", clazz), e);
+        }
+    }
+
+    private C tryMap(ResultSet rs, StatementContext ctx)
+            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, SQLException {
+        Constructor<C> constructor = clazz.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        C obj = constructor.newInstance();
+        for (int colIndex = rs.getMetaData().getColumnCount(); colIndex >= 1; colIndex--) {
+            String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
+            JpaMember member = jpaClass.lookupMember(columnLabel);
+            if (member != null) {
+                Class<?> memberType = member.getType();
+                ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
+                if (columnMapper == null) {
+                    throw new NoSuchColumnMapperException("No column mapper for " + memberType);
                 }
+                Object value = columnMapper.mapColumn(rs, columnLabel, ctx);
+                member.write(obj, value);
             }
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
         return obj;
     }
