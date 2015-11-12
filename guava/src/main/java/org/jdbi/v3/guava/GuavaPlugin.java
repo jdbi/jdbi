@@ -13,9 +13,11 @@
  */
 package org.jdbi.v3.guava;
 
+import com.google.auto.service.AutoService;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.spi.JdbiPlugin;
 
+@AutoService(JdbiPlugin.class)
 public class GuavaPlugin implements JdbiPlugin {
     @Override
     public Handle customizeHandle(Handle handle) {
