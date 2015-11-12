@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -54,36 +53,27 @@ class JpaClass<C> {
 
     private static Collection<JpaMember> inspectClass(Class<?> clazz) {
         Map<String, JpaMember> members = new HashMap<>();
-        List<String> transients = new ArrayList<>();
 
-        inspectFields(clazz, members, transients);
-        inspectAnnotatedProperties(clazz, members, transients);
-        inspectSuperclasses(clazz, members, transients);
-        inspectNonAnnotatedProperties(clazz, members, transients);
-        transients.forEach(members::remove);
+        inspectFields(clazz, members);
+        inspectAnnotatedProperties(clazz, members);
+        inspectSuperclasses(clazz, members);
+        inspectNonAnnotatedProperties(clazz, members);
 
         return members.values();
     }
 
     private static void inspectSuperclasses(Class<?> clazz,
-                                            Map<String, JpaMember> members,
-                                            List<String> transients) {
+                                            Map<String, JpaMember> members) {
         while ((clazz = clazz.getSuperclass()) != null) {
             if (clazz.isAnnotationPresent(MappedSuperclass.class)) {
-                inspectFields(clazz, members, transients);
+                inspectFields(clazz, members);
             }
         }
     }
 
     private static void inspectFields(Class<?> clazz,
-                                      Map<String, JpaMember> members,
-                                      List<String> transients) {
+                                      Map<String, JpaMember> members) {
         for (Field member : clazz.getDeclaredFields()) {
-            if (member.getAnnotation(Transient.class) != null) {
-                transients.add(member.getName());
-                continue;
-            }
-
             if (members.containsKey(member.getName())) {
                 continue;
             }
@@ -96,41 +86,26 @@ class JpaClass<C> {
     }
 
     private static void inspectAnnotatedProperties(Class<?> clazz,
-                                                   Map<String, JpaMember> members,
-                                                   List<String> transients) {
-        inspectProperties(clazz, members, transients, true);
+                                                   Map<String, JpaMember> members) {
+        inspectProperties(clazz, members, true);
     }
 
     private static void inspectNonAnnotatedProperties(Class<?> clazz,
-                                                   Map<String, JpaMember> members,
-                                                   List<String> transients) {
-        inspectProperties(clazz, members, transients, false);
+                                                   Map<String, JpaMember> members) {
+        inspectProperties(clazz, members, false);
     }
 
     private static void inspectProperties(Class<?> clazz,
                                           Map<String, JpaMember> members,
-                                          List<String> transients,
                                           boolean hasColumnAnnotation) {
         try {
             Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                     .filter(property -> !members.containsKey(property.getName()))
-                    .filter(property -> !transients.contains(property.getName()))
                     .filter(property -> !(property instanceof IndexedPropertyDescriptor))
                     .filter(property -> !"class".equals(property.getName()))
                     .forEach(property -> {
                         Method getter = property.getReadMethod();
                         Method setter = property.getWriteMethod();
-
-                        boolean isTransient = Arrays
-                                .stream(new Method[]{getter, setter})
-                                .filter(Objects::nonNull)
-                                .map(method -> method.getAnnotation(Transient.class))
-                                .anyMatch(Objects::nonNull);
-
-                        if (isTransient) {
-                            transients.add(property.getName());
-                            return;
-                        }
 
                         Column column = Arrays
                                 .stream(new Method[]{getter, setter})

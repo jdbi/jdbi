@@ -26,7 +26,6 @@ import org.junit.Test;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 
 import static org.junit.Assert.assertEquals;
 
@@ -408,129 +407,6 @@ public class JpaTest {
         assertEquals(rs.size(), 2);
         assertThingEquals(rs.get(0), brian);
         assertThingEquals(rs.get(1), keith);
-    }
-
-    @Entity
-    static class TransientFieldThing implements Thing {
-        private int id;
-        @Transient private String name;
-
-        public TransientFieldThing() {}
-        public TransientFieldThing(int id, String name) { setId(id); setName(name); }
-
-        public int getId() { return id; }
-        public String getName() { return name; }
-
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
-    }
-
-    interface TransientFieldThingDao {
-        @SqlUpdate("insert into something(id, name) values (:id, 'dummy')")
-        void insert(@BindJpa TransientFieldThing thing);
-
-        @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
-        List<TransientFieldThing> list();
-    }
-
-    @Test
-    public void testTransientField() throws Exception {
-        // fields before getters before setters
-        TransientFieldThing brian = new TransientFieldThing(1, "Brian");
-        TransientFieldThing keith = new TransientFieldThing(2, "Keith");
-
-        TransientFieldThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), TransientFieldThingDao.class);
-        dao.insert(brian);
-        dao.insert(keith);
-
-        List<TransientFieldThing> rs = dao.list();
-
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), new TransientFieldThing(1, null));
-        assertThingEquals(rs.get(1), new TransientFieldThing(2, null));
-    }
-
-    @Entity
-    static class TransientGetterThing implements Thing {
-        private int id;
-        private String name;
-
-        public TransientGetterThing() {}
-        public TransientGetterThing(int id, String name) { setId(id); setName(name); }
-
-        public int getId() { return id; }
-        @Transient public String getName() { return name; }
-
-        public void setId(int id) { this.id = id; }
-        public void setName(String name) { this.name = name; }
-    }
-
-    interface TransientGetterThingDao {
-        @SqlUpdate("insert into something(id, name) values (:id, 'dummy')")
-        void insert(@BindJpa TransientGetterThing thing);
-
-        @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
-        List<TransientGetterThing> list();
-    }
-
-    @Test
-    public void testTransientGetter() throws Exception {
-        // fields before getters before setters
-        TransientGetterThing brian = new TransientGetterThing(1, "Brian");
-        TransientGetterThing keith = new TransientGetterThing(2, "Keith");
-
-        TransientGetterThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), TransientGetterThingDao.class);
-        dao.insert(brian);
-        dao.insert(keith);
-
-        List<TransientGetterThing> rs = dao.list();
-
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), new TransientGetterThing(1, null));
-        assertThingEquals(rs.get(1), new TransientGetterThing(2, null));
-    }
-
-    @Entity
-    static class TransientSetterThing implements Thing {
-        private int id;
-        private String name;
-
-        public TransientSetterThing() {}
-        public TransientSetterThing(int id, String name) { setId(id); setName(name); }
-
-        public int getId() { return id; }
-        public String getName() { return name; }
-
-        public void setId(int id) { this.id = id; }
-        @Transient public void setName(String name) { this.name = name; }
-    }
-
-    interface TransientSetterThingDao {
-        @SqlUpdate("insert into something(id, name) values (:id, 'dummy')")
-        void insert(@BindJpa TransientSetterThing thing);
-
-        @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
-        List<TransientSetterThing> list();
-    }
-
-    @Test
-    public void testTransientSetter() throws Exception {
-        // fields before getters before setters
-        TransientSetterThing brian = new TransientSetterThing(1, "Brian");
-        TransientSetterThing keith = new TransientSetterThing(2, "Keith");
-
-        TransientSetterThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), TransientSetterThingDao.class);
-        dao.insert(brian);
-        dao.insert(keith);
-
-        List<TransientSetterThing> rs = dao.list();
-
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), new TransientSetterThing(1, null));
-        assertThingEquals(rs.get(1), new TransientSetterThing(2, null));
     }
 
     interface SuperfluousColumnDao {
