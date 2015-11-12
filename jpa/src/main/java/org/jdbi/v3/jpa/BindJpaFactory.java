@@ -16,6 +16,8 @@ package org.jdbi.v3.jpa;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
 
+import java.lang.reflect.InvocationTargetException;
+
 public class BindJpaFactory implements BinderFactory<BindJpa, Object> {
     @Override
     public Binder<BindJpa, Object> build(BindJpa annotation) {
@@ -27,15 +29,26 @@ public class BindJpaFactory implements BinderFactory<BindJpa, Object> {
                 prefix = bind.value() + ".";
             }
 
-            try {
-                JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
-                for (JpaMember member : jpaClass.members()) {
-                    q.dynamicBind(member.getType(), prefix + member.getColumnName(), member.read(arg));
-                }
-            } catch (Exception e) {
-                throw new IllegalStateException(
-                        "unable to bind bean properties", e);
+            JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
+            for (JpaMember member : jpaClass.members()) {
+                q.dynamicBind(member.getType(), prefix + member.getColumnName(), readMember(arg, member));
             }
         };
+    }
+
+    private static Object readMember(Object entity, JpaMember member) {
+        try {
+            return member.read(entity);
+        } catch (IllegalAccessException e) {
+            String message = String.format(
+                    "Unable to access property value for column %s",
+                    member.getColumnName());
+            throw new EntityMemberAccessException(message, e);
+        } catch (InvocationTargetException e) {
+            String message = String.format(
+                    "Exception thrown in accessor method for column %s",
+                    member.getColumnName());
+            throw new EntityMemberAccessException(message, e);
+        }
     }
 }
