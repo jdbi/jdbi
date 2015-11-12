@@ -13,10 +13,12 @@
  */
 package org.jdbi.v3;
 
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
@@ -51,7 +53,9 @@ public class Update extends SQLStatement<Update>
     public int execute()
     {
         try {
-            return this.internalExecute(Statement::getUpdateCount);
+            return internalExecute().getUpdateCount();
+        } catch (SQLException e) {
+            throw new UnableToExecuteStatementException("Could not get update count", e, getContext());
         }
         finally {
             cleanup();
@@ -71,12 +75,11 @@ public class Update extends SQLStatement<Update>
         if (columnName != null && !columnName.isEmpty()) {
             getConcreteContext().setGeneratedKeysColumnNames(new String[] { columnName } );
         }
-        return this.internalExecute(results ->
-                new GeneratedKeys<GeneratedKeyType>(mapper,
-                                                    Update.this,
-                                                    results,
-                                                    getContext(),
-                                                    getCollectorFactoryRegistry()));
+        return new GeneratedKeys<GeneratedKeyType>(mapper,
+                                                   Update.this,
+                                                   internalExecute(),
+                                                   getContext(),
+                                                   getCollectorFactoryRegistry());
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {

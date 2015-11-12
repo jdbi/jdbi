@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
@@ -118,7 +119,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
         return executeAndGenerateKeys(new SingleColumnMapper<GeneratedKeyType>(mapper));
     }
 
-    private <Result> Object internalBatchExecute(QueryResultMunger<Result> munger) {
+    private <Result> Object internalBatchExecute(Function<PreparedStatement, Result> munger) {
         boolean generateKeys = munger != null;
         // short circuit empty batch
         if (parts.size() == 0) {
@@ -171,7 +172,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
 
                 afterExecution(stmt);
 
-                return generateKeys ? munger.munge(stmt) : rs;
+                return generateKeys ? munger.apply(stmt) : rs;
             }
             catch (SQLException e) {
                 throw new UnableToExecuteStatementException(e, getContext());

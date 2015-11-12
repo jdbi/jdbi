@@ -47,12 +47,16 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
                   SQLStatement<?> jdbiStatement,
                   Statement stmt,
                   StatementContext context,
-                  CollectorFactoryRegistry collectorFactoryRegistry) throws SQLException
+                  CollectorFactoryRegistry collectorFactoryRegistry)
     {
         this.mapper = mapper;
         this.jdbiStatement = jdbiStatement;
         this.stmt = stmt;
-        this.results = stmt.getGeneratedKeys();
+        try {
+            this.results = stmt.getGeneratedKeys();
+        } catch (SQLException e) {
+            throw new ResultSetException("Could not get generated keys", e, context);
+        }
         this.context = context;
         this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
         this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
@@ -69,13 +73,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         if (results == null) {
             return new EmptyResultIterator<Type>();
         }
-
-        try {
-            return new ResultSetResultIterator<Type>(mapper, jdbiStatement, stmt, results, context);
-        }
-        catch (SQLException e) {
-            throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, context);
-        }
+        return new ResultSetResultIterator<Type>(mapper, jdbiStatement, stmt, results, context);
     }
 
     @Override

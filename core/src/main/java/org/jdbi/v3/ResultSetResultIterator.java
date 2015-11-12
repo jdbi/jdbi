@@ -39,7 +39,6 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
                             Statement stmt,
                             ResultSet results,
                             StatementContext context)
-            throws SQLException
     {
         this.mapper = mapper;
         this.context = context;

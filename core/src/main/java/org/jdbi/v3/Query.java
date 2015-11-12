@@ -13,11 +13,14 @@
  */
 package org.jdbi.v3;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
@@ -66,12 +69,16 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     @Override
     public ResultIterator<ResultType> iterator()
     {
-        return this.internalExecute(stmt ->
-                new ResultSetResultIterator<ResultType>(mapper,
-                                                        Query.this,
-                                                        stmt,
-                                                        stmt.getResultSet(),
-                                                        getContext()));
+        final PreparedStatement stmt = internalExecute();
+        try {
+            return new ResultSetResultIterator<ResultType>(mapper,
+                                                           Query.this,
+                                                           stmt,
+                                                           stmt.getResultSet(),
+                                                           getContext());
+        } catch (SQLException e) {
+            throw new ResultSetException("Could not get result set", e, getContext());
+        }
     }
 
     @Override
