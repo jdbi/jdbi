@@ -47,8 +47,6 @@ class JpaClass<C> {
     private final List<JpaMember> members;
 
     private JpaClass(Class<C> clazz) {
-        logger.debug("init {}", clazz);
-
         this.members = unmodifiableList(new ArrayList<>(inspectClass(clazz)));
 
         logger.debug("init {}: {} members.", clazz, members.size());
