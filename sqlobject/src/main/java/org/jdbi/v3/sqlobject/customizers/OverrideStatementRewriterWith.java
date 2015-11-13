@@ -68,12 +68,6 @@ public @interface OverrideStatementRewriterWith
             }
         }
 
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
-        {
-            throw new IllegalStateException("Not defined on parameters!");
-        }
-
         private StatementRewriter instantiate(Class<? extends StatementRewriter> value,
                                               Class<?> sqlObjectType,
                                               Method m) throws Exception

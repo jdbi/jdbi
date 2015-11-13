@@ -18,7 +18,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
 import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -67,22 +66,5 @@ public @interface UseStringTemplate3StatementLocator
 
             return q -> q.setStatementLocator(l);
         }
-
-        @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation,
-                                                      Class<?> sqlObjectType,
-                                                      Method method)
-        {
-            throw new UnsupportedOperationException("Not Defined on Method");
-        }
-
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method, Object arg)
-        {
-            throw new UnsupportedOperationException("Not defined on parameter");
-        }
     }
-
 }

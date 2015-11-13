@@ -43,17 +43,5 @@ public @interface MapResultAsBean
                 q.registerMapper(new BeanMapperFactory());
             };
         }
-
-        @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            throw new UnsupportedOperationException("Not allowed on type");
-        }
-
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
-        {
-            throw new UnsupportedOperationException("Not allowed on parameter");
-        }
     }
 }
