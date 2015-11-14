@@ -52,12 +52,6 @@ public @interface RegisterCollectorFactory {
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
             return new Customizer((RegisterCollectorFactory) annotation);
         }
-
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method,
-                                                         Object arg) {
-            throw new UnsupportedOperationException("@RegisterContainerMapper is not supported on parameters");
-        }
     }
 
     class Customizer implements SqlStatementCustomizer {

@@ -92,11 +92,5 @@ public @interface RegisterColumnMapperFactory
                 }
             };
         }
-
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
-        {
-            throw new UnsupportedOperationException("Not defined for parameter");
-        }
     }
 }
