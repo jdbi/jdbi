@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -255,7 +256,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
         }
         else if (treatLiteralsAsTemplates) {
             // no template in the template group, but we want literals to be templates
-            final String key = new String(new Base64().encode(name.getBytes(UTF_8)), UTF_8);
+            final String key = Base64.getEncoder().encodeToString(name.getBytes(UTF_8));
             if (!literals.isDefined(key)) {
                 literals.defineTemplate(key, name);
             }
