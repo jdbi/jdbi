@@ -77,6 +77,11 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                                                            stmt.getResultSet(),
                                                            getContext());
         } catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException e1) {
+                e.addSuppressed(e1);
+            }
             throw new ResultSetException("Could not get result set", e, getContext());
         }
     }

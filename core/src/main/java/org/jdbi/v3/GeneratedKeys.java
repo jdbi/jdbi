@@ -55,6 +55,11 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         try {
             this.results = stmt.getGeneratedKeys();
         } catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException e1) {
+                e.addSuppressed(e1);
+            }
             throw new ResultSetException("Could not get generated keys", e, context);
         }
         this.context = context;
