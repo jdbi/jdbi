@@ -1272,7 +1272,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return stmt;
     }
 
-
     protected TimingCollector getTimingCollector()
     {
         return timingCollector;
