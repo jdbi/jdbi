@@ -122,16 +122,30 @@ public class TestCreateSqlObjectAnnotation
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testMeaningfulExceptionWhenWrongReturnType() throws Exception {
+    public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlUpdate() throws Exception {
         expectedException.expect(UnableToCreateSqlObjectException.class);
-        expectedException.expectMessage("BogusDao.getNames method is annotated with @SqlUpdate " +
+        expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate " +
                 "so should return void or Number but is returning: java.util.List<java.lang.String>");
 
-        dbi.open(BogusDao.class);
+        dbi.open(BogusSqlUpdateDao.class);
     }
 
-    public static interface BogusDao {
+    public static interface BogusSqlUpdateDao {
         @SqlUpdate("select name from something")
         public List<String> getNames();
+    }
+
+    @Test
+    public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlBatch() throws Exception {
+        expectedException.expect(UnableToCreateSqlObjectException.class);
+        expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch " +
+                "so should return void or int[] but is returning: int");
+
+        dbi.open(BogusSqlBatchDao.class);
+    }
+
+    public static interface BogusSqlBatchDao {
+        @SqlBatch("insert into table (a) values (:a)")
+        public int getNames(@Bind("a") String a);
     }
 }
