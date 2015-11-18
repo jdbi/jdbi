@@ -1259,6 +1259,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             timingCollector.collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException e1) {
+                e.addSuppressed(e1);
+            }
             throw new UnableToExecuteStatementException(e, getContext());
         }
 
