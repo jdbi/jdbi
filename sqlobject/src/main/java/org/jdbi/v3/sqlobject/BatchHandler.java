@@ -31,6 +31,7 @@ import org.jdbi.v3.PreparedBatch;
 import org.jdbi.v3.PreparedBatchPart;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
+import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
 class BatchHandler extends CustomizingStatementHandler
 {
@@ -41,6 +42,9 @@ class BatchHandler extends CustomizingStatementHandler
     public BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
+        if(!returnTypeIsValid(method.getRawMember().getReturnType()) ) {
+            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
+        }
         Method raw_method = method.getRawMember();
         SqlBatch anno = raw_method.getAnnotation(SqlBatch.class);
         this.sql = SqlObject.getSql(anno, raw_method);
@@ -218,5 +222,21 @@ class BatchHandler extends CustomizingStatementHandler
         {
             return (Integer)args[index];
         }
+    }
+
+    private static boolean returnTypeIsValid(Class<?> type) {
+        if (type.equals(Void.TYPE)) {
+            return true;
+        }
+        if (type.isArray() && type.getComponentType().equals(Integer.TYPE)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static String invalidReturnTypeMessage(ResolvedMethod method) {
+        return method.getDeclaringType() + "." + method +
+                " method is annotated with @SqlBatch so should return void or int[] but is returning: " +
+                method.getReturnType();
     }
 }
