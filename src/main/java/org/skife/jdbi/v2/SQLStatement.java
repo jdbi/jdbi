@@ -1329,6 +1329,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             timingCollector.collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace(); // TODO: we have nowhere to log this, and suppressed exceptions were added in Java 7...
+            }
             throw new UnableToExecuteStatementException(e, getContext());
         }
 
@@ -1338,6 +1343,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             return munger.munge(stmt);
         }
         catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace(); // TODO: ditto above
+            }
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, getContext());
         }
     }
