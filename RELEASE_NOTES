@@ -1,4 +1,5 @@
 2.70 *** MAJOR CHANGES ***
+  - allow JDK8 default methods in SQLObject interfaces. Backport of #190.
   - switch to standard Maven toolchains.xml for cross-compilation, #169.
     See https://maven.apache.org/guides/mini/guide-using-toolchains.html
     for instructions on how to use it.
