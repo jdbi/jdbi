@@ -13,15 +13,16 @@
  */
 package org.jdbi.v3;
 
+import com.google.common.reflect.TypeToken;
+import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.tweak.NamedArgumentFinder;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.NamedArgumentFinder;
 
 /**
  *
@@ -59,9 +60,10 @@ class BeanPropertyArguments implements NamedArgumentFinder
             {
                 try
                 {
-                    return foreman.waffle(descriptor.getReadMethod().getReturnType(),
-                                   descriptor.getReadMethod().invoke(bean),
-                                   ctx);
+                    return foreman.waffle(
+                            TypeToken.of(descriptor.getReadMethod().getGenericReturnType()),
+                            descriptor.getReadMethod().invoke(bean),
+                            ctx);
                 }
                 catch (IllegalAccessException e)
                 {

@@ -18,6 +18,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.junit.Rule;
@@ -93,13 +94,13 @@ public class TestArgumentFactory
     public static class NameAF implements ArgumentFactory<Name>
     {
         @Override
-        public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
+        public boolean accepts(TypeToken<?> expectedType, Object value, StatementContext ctx)
         {
-            return expectedType == Object.class && value instanceof Name;
+            return expectedType.getRawType() == Object.class && value instanceof Name;
         }
 
         @Override
-        public Argument build(Class<?> expectedType, Name value, StatementContext ctx)
+        public Argument build(TypeToken<?> expectedType, Name value, StatementContext ctx)
         {
             return new StringArgument(value.getFullName());
         }

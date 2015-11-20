@@ -11,14 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
+package org.jdbi.v3;
 
 import com.google.common.reflect.TypeToken;
-import org.jdbi.v3.StatementContext;
 
-public interface ArgumentFactory<T>
-{
-    boolean accepts(TypeToken<?> expectedType, Object value, StatementContext ctx);
-
-    Argument build(TypeToken<?> expectedType, T value, StatementContext ctx);
+class TypeTokens {
+    static final TypeToken<Object> JAVA_LANG_OBJECT = new TypeToken<Object>() {};
 }

@@ -27,6 +27,7 @@ import java.sql.Types;
 import java.util.Collection;
 import java.util.Map;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.Argument;
@@ -1107,7 +1108,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Object value)
     {
-        return bind(position, getForeman().waffle(value != null ? value.getClass() : Object.class, value, getContext()));
+        return bind(position, getForeman().waffle(value == null ? Object.class : value.getClass(), value, getContext()));
     }
 
     /**
@@ -1120,7 +1121,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Object value)
     {
-        return bind(name, getForeman().waffle(value != null ? value.getClass() : Object.class, value, getContext()));
+        return bind(name, getForeman().waffle(value == null ? Object.class : value.getClass(), value, getContext()));
     }
 
     /**
@@ -1204,6 +1205,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument dynamically by the class passed in.
      *
+     * @param argumentClass class of value argument
      * @param name  token name to bind the paramater to
      * @param value to bind
      *
@@ -1211,7 +1213,21 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(Class<?> argumentClass, String name, Object value)
     {
-        return bind(name, getForeman().waffle(argumentClass, value, getContext()));
+        return dynamicBind(TypeToken.of(argumentClass), name, value);
+    }
+
+    /**
+     * Bind an argument dynamically by the type token passed in.
+     *
+     * @param argumentType type token for value argument
+     * @param name  token name to bind the paramater to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType dynamicBind(TypeToken<?> argumentType, String name, Object value)
+    {
+        return bind(name, getForeman().waffle(argumentType, value, getContext()));
     }
 
     /**

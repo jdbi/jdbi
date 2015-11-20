@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
@@ -63,17 +64,18 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
     }
 
     @Override
-    public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
+    public boolean accepts(TypeToken<?> expectedType, Object value, StatementContext ctx)
     {
-        return b.containsKey(expectedType) || value == null || value.getClass().isEnum();
+        return b.containsKey(expectedType.getRawType()) || value == null || value.getClass().isEnum();
     }
 
     @Override
-    public Argument build(Class<?> expectedType, T value, StatementContext ctx)
+    public Argument build(TypeToken<?> expectedType, T value, StatementContext ctx)
     {
-        P p = b.get(expectedType);
+        Class<?> expectedClass = expectedType.getRawType();
+        P p = b.get(expectedClass);
 
-        if (value != null && expectedType == Object.class) {
+        if (value != null && expectedClass == Object.class) {
             P v = b.get(value.getClass());
             if (v != null) {
                 return v.build(value);
@@ -89,7 +91,7 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
         }
 
         // Enums must be bound as VARCHAR.
-        if (expectedType.isEnum()) {
+        if (expectedClass.isEnum()) {
             return new StringArgument(value.toString());
         }
 

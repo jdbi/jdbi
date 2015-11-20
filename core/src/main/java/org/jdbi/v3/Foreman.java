@@ -16,6 +16,7 @@ package org.jdbi.v3;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
@@ -36,6 +37,11 @@ class Foreman
 
     Argument waffle(Class<?> expectedType, Object it, StatementContext ctx)
     {
+        return waffle(TypeToken.of(expectedType), it, ctx);
+    }
+
+    Argument waffle(TypeToken<?> expectedType, Object it, StatementContext ctx)
+    {
         ArgumentFactory<Object> candidate = null;
 
         for (int i = factories.size() - 1; i >= 0; i--) {
@@ -47,12 +53,12 @@ class Foreman
             }
             // Fall back to any factory accepting Object if necessary but
             // prefer any more specific factory first.
-            if (candidate == null && factory.accepts(Object.class, it, ctx)) {
+            if (candidate == null && factory.accepts(TypeTokens.JAVA_LANG_OBJECT, it, ctx)) {
                 candidate = factory;
             }
         }
         if (candidate != null) {
-            return candidate.build(Object.class, it, ctx);
+            return candidate.build(TypeTokens.JAVA_LANG_OBJECT, it, ctx);
         }
 
         throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(it));
