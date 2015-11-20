@@ -38,19 +38,6 @@ public @interface BindIn
 
     final class CustomizerFactory implements SqlStatementCustomizerFactory
     {
-
-        @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            throw new UnsupportedOperationException("Not supported on method!");
-        }
-
-        @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            throw new UnsupportedOperationException("Not supported on type");
-        }
-
         @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                          Class<?> sqlObjectType,

@@ -55,12 +55,6 @@ public @interface RegisterArgumentFactory
             return create(annotation);
         }
 
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, final Object arg)
-        {
-            throw new IllegalStateException("not allowed on parameter");
-        }
-
         private SqlStatementCustomizer create(Annotation annotation)
         {
             final RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;

@@ -646,68 +646,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindAsInt(int position, boolean value)
-    {
-        return bind(position, new BooleanIntegerArgument(value));
-    }
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
-     *
-     * @return the same Query instance
-     */
-    public final SelfType bindAsInt(int position, Boolean value)
-    {
-        if (value != null) {
-            return bind(position, new BooleanIntegerArgument(value));
-        }
-        else {
-            return bind(position, new NullArgument(Types.INTEGER));
-        }
-    }
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
-     *
-     * @return the same Query instance
-     */
-    public final SelfType bindAsInt(String name, boolean value)
-    {
-        return bind(name, new BooleanIntegerArgument(value));
-    }
-
-    /**
-     * Bind an argument by name
-     *
-     * @param name  token name to bind the paramater to
-     * @param value to bind
-     *
-     * @return the same Query instance
-     */
-    public final SelfType bindAsInt(String name, Boolean value)
-    {
-        if (value != null) {
-            return bind(name, new BooleanIntegerArgument(value));
-        }
-        else {
-            return bind(name, new NullArgument(Types.INTEGER));
-        }
-    }
-
-    /**
-     * Bind an argument positionally
-     *
-     * @param position position to bind the paramater at, starting at 0
-     * @param value    to bind
-     *
-     * @return the same Query instance
-     */
     public final SelfType bind(int position, byte value)
     {
         return bind(position, getForeman().waffle(byte.class, value, getContext()));
@@ -1337,6 +1275,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             timingCollector.collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException e1) {
+                e.addSuppressed(e1);
+            }
             throw new UnableToExecuteStatementException(e, getContext());
         }
 

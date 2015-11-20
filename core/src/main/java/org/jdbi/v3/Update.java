@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -52,8 +53,8 @@ public class Update extends SQLStatement<Update>
      */
     public int execute()
     {
-        try {
-            return internalExecute().getUpdateCount();
+        try (final PreparedStatement stmt = internalExecute()) {
+            return stmt.getUpdateCount();
         } catch (SQLException e) {
             throw new UnableToExecuteStatementException("Could not get update count", e, getContext());
         }

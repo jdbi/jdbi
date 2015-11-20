@@ -96,11 +96,5 @@ public @interface OverrideStatementLocatorWith
             }
 
         }
-
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
-        {
-            throw new UnsupportedOperationException("Not applicable to parameter");
-        }
     }
 }

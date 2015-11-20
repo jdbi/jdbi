@@ -30,7 +30,10 @@ public interface SqlStatementCustomizerFactory
      * @param method the method which was annotated
      * @return the customizer which will be applied to the generated statement
      */
-    SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method);
+    default SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+    {
+        throw new UnsupportedOperationException("Not supported for method");
+    }
 
     /**
      * Used to create customizers for annotations on sql object interfaces
@@ -39,7 +42,10 @@ public interface SqlStatementCustomizerFactory
      * @param sqlObjectType sql object class (interface)
      * @return the customizer which will be applied to the generated statement
      */
-    SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType);
+    default SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+    {
+        throw new UnsupportedOperationException("Not supported for type");
+    }
 
     /**
      * Used to create customizers for annotations on parameters
@@ -50,5 +56,8 @@ public interface SqlStatementCustomizerFactory
      * @param arg the argument value for the annotated parameter
      * @return the customizer which will be applied to the generated statement
      */
-    SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg);
+    default SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
+    {
+        throw new UnsupportedOperationException("Not supported for parameter");
+    }
 }
