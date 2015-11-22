@@ -18,6 +18,7 @@ import org.skife.jdbi.v2.util.BigDecimalColumnMapper;
 import org.skife.jdbi.v2.util.BooleanColumnMapper;
 import org.skife.jdbi.v2.util.ByteArrayColumnMapper;
 import org.skife.jdbi.v2.util.ByteColumnMapper;
+import org.skife.jdbi.v2.util.CharColumnMapper;
 import org.skife.jdbi.v2.util.DoubleColumnMapper;
 import org.skife.jdbi.v2.util.EnumColumnMapper;
 import org.skife.jdbi.v2.util.FloatColumnMapper;
@@ -26,9 +27,11 @@ import org.skife.jdbi.v2.util.LongColumnMapper;
 import org.skife.jdbi.v2.util.ShortColumnMapper;
 import org.skife.jdbi.v2.util.StringColumnMapper;
 import org.skife.jdbi.v2.util.TimestampColumnMapper;
+import org.skife.jdbi.v2.util.URIColumnMapper;
 import org.skife.jdbi.v2.util.URLColumnMapper;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -43,6 +46,7 @@ public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory 
     static {
         mappers.put(boolean.class, BooleanColumnMapper.PRIMITIVE);
         mappers.put(byte.class, ByteColumnMapper.PRIMITIVE);
+        mappers.put(char.class, CharColumnMapper.PRIMITIVE);
         mappers.put(short.class, ShortColumnMapper.PRIMITIVE);
         mappers.put(int.class, IntegerColumnMapper.PRIMITIVE);
         mappers.put(long.class, LongColumnMapper.PRIMITIVE);
@@ -51,6 +55,7 @@ public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory 
 
         mappers.put(Boolean.class, BooleanColumnMapper.WRAPPER);
         mappers.put(Byte.class, ByteColumnMapper.WRAPPER);
+        mappers.put(Character.class, CharColumnMapper.WRAPPER);
         mappers.put(Short.class, ShortColumnMapper.WRAPPER);
         mappers.put(Integer.class, IntegerColumnMapper.WRAPPER);
         mappers.put(Long.class, LongColumnMapper.WRAPPER);
@@ -66,6 +71,7 @@ public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory 
         mappers.put(Timestamp.class, TimestampColumnMapper.INSTANCE);
 
         mappers.put(URL.class, URLColumnMapper.INSTANCE);
+        mappers.put(URI.class, URIColumnMapper.INSTANCE);
     }
 
     @Override
