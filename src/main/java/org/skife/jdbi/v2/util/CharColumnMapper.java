@@ -19,8 +19,17 @@ import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Map JDBC column value to a Java <code>char</code> or <code>Character</code>.
+ */
 public enum CharColumnMapper implements ResultColumnMapper<Character> {
+    /**
+     * Map to <code>char</code>.  Nulls and empty strings are silently replaced with a null char <code>'\0'</code>.
+     */
     PRIMITIVE(false),
+    /**
+     * Map to <code>Character</code>.  Nulls and empty strings are replaced with a <code>null</code> reference.
+     */
     WRAPPER(true);
 
     private final boolean nullable;
