@@ -1,4 +1,5 @@
 2.70 *** MAJOR CHANGES ***
+  - allow JDK8 default methods in SQLObject interfaces. Backport of #190.
   - switch to standard Maven toolchains.xml for cross-compilation, #169.
     See https://maven.apache.org/guides/mini/guide-using-toolchains.html
     for instructions on how to use it.
@@ -14,6 +15,7 @@
   - Allow getting generated keys by name for Oracle
   - Allow getting generated keys from prepared Batch statements
   - Cache StatementRewriter parsing of statements
+  - Support mapping of URI, char, Character types
 
 2.63
   - Include lambda-friendly callback methods on Handle and DBI, #156
