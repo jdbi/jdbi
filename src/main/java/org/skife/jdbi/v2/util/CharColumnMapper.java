@@ -40,7 +40,7 @@ public enum CharColumnMapper implements ResultColumnMapper<Character> {
     }
 
     public Character charFromString(String s) {
-        if (s != null) {
+        if (s != null && !s.isEmpty()) {
             return s.charAt(0);
         }
         if (nullable) {

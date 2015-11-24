@@ -127,7 +127,7 @@ public class TestColumnMappers extends DBITestCase
         h.createStatement(
             "create table someBean (" +
             "  primitiveInt integer, wrapperLong bigint, " +
-            "  primitiveChar char(1), wrappedChar char(1), " +
+            "  primitiveChar varchar(1), wrappedChar varchar(1), " +
             "  string varchar(50), valueType varchar(50), " +
             "  uri varchar(50) " +
             " )").execute();
@@ -167,6 +167,15 @@ public class TestColumnMappers extends DBITestCase
     }
 
     @Test
+    public void testMapPrimitiveCharFromEmpty() throws Exception {
+        h.createStatement("insert into someBean (primitiveChar) values ('')").execute();
+
+        List<SomeBean> beans = dao.listBeans();
+        assertEquals(1, beans.size());
+        assertEquals('\000', beans.get(0).getPrimitiveChar());
+    }
+
+    @Test
     public void testMapPrimitiveCharFromNull() throws Exception {
         h.createStatement("insert into someBean (primitiveChar) values (null)").execute();
 
@@ -182,6 +191,15 @@ public class TestColumnMappers extends DBITestCase
         List<SomeBean> beans = dao.listBeans();
         assertEquals(1, beans.size());
         assertEquals(Character.valueOf('c'), beans.get(0).getWrappedChar());
+    }
+
+    @Test
+    public void testMapWrappedCharFromEmpty() throws Exception {
+        h.createStatement("insert into someBean (wrappedChar) values ('')").execute();
+
+        List<SomeBean> beans = dao.listBeans();
+        assertEquals(1, beans.size());
+        assertEquals(null, beans.get(0).getWrappedChar());
     }
 
     @Test
