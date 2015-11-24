@@ -15,6 +15,7 @@
   - Allow getting generated keys by name for Oracle
   - Allow getting generated keys from prepared Batch statements
   - Cache StatementRewriter parsing of statements
+  - Support mapping of URI, char, Character types
 
 2.63
   - Include lambda-friendly callback methods on Handle and DBI, #156
