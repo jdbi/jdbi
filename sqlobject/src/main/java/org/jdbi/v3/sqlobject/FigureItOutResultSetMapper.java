@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -25,11 +26,11 @@ class FigureItOutResultSetMapper implements ResultSetMapper<Object> {
     @Override
     public Object map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         Method m = ctx.getSqlObjectMethod();
-        Class<?> rt = m.getReturnType();
+        TypeToken<?> type = TypeToken.of(m.getGenericReturnType());
         GetGeneratedKeys ggk = m.getAnnotation(GetGeneratedKeys.class);
         String keyColumn = ggk.columnName();
 
-        ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(rt);
+        ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(type);
 
         if ("".equals(keyColumn)) {
             return columnMapper.mapColumn(r, 1, ctx);

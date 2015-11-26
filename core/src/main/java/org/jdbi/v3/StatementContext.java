@@ -18,6 +18,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 /**
@@ -61,7 +62,17 @@ public interface StatementContext
      * @param type the target type to map to
      * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
-    <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type);
+    default <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type) {
+        return columnMapperFor(TypeToken.of(type));
+    }
+
+    /**
+     * Obtain a column mapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
+     */
+    <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

@@ -13,41 +13,47 @@
  */
 package org.jdbi.v3;
 
-import java.util.List;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Optional;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
-
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 class InferredColumnMapperFactory<X> implements ResultColumnMapperFactory
 {
-    private static final TypeResolver tr = new TypeResolver();
-    private final Class<X> maps;
+    private final TypeToken<X> maps;
     private final ResultColumnMapper<X> mapper;
 
     @SuppressWarnings("unchecked")
     InferredColumnMapperFactory(ResultColumnMapper<X> mapper)
     {
-        this.mapper = mapper;
-        ResolvedType rt = tr.resolve(mapper.getClass());
-        List<ResolvedType> rs = rt.typeParametersFor(ResultColumnMapper.class);
-        if (rs.isEmpty() || rs.get(0).getErasedType().equals(Object.class)) {
-            throw new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here");
+        Optional<Type> parameterType = Arrays.stream(mapper.getClass().getGenericInterfaces())
+                .filter(type -> type instanceof ParameterizedType)
+                .map(type -> (ParameterizedType) type)
+                .filter(type -> type.getRawType().equals(ResultColumnMapper.class))
+                .map(type -> type.getActualTypeArguments()[0])
+                .filter(type -> type instanceof Class)
+                .findFirst();
+
+        if (!parameterType.isPresent()) {
+            throw new UnsupportedOperationException("Must use a concretely typed ResultSetMapper here");
         }
 
-        maps = (Class<X>) rs.get(0).getErasedType();
+        this.maps = (TypeToken<X>) TypeToken.of(parameterType.get());
+        this.mapper = mapper;
     }
 
     @Override
-    public boolean accepts(Class<?> type, StatementContext ctx)
+    public boolean accepts(TypeToken<?> type, StatementContext ctx)
     {
         return maps.equals(type);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx)
+    public <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type, StatementContext ctx)
     {
         return (ResultColumnMapper<? extends T>) mapper;
     }

@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
@@ -79,7 +80,7 @@ public class FieldMapper<T> implements ResultSetMapper<T>
             }
 
             final Field field = maybeField.get();
-            final Class type = field.getType();
+            final TypeToken type = TypeToken.of(field.getGenericType());
             final Object value;
             final ResultColumnMapper mapper = ctx.columnMapperFor(type);
 

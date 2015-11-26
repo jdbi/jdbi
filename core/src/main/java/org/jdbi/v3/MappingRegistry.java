@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.SingleColumnMapper;
@@ -29,7 +30,7 @@ class MappingRegistry
     private final ConcurrentHashMap<Class<?>, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();
 
     private final List<ResultColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<Class<?>, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<TypeToken<?>, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
 
     static MappingRegistry copyOf(MappingRegistry parent) {
         MappingRegistry mr = new MappingRegistry();
@@ -69,7 +70,7 @@ class MappingRegistry
             }
         }
 
-        ResultColumnMapper<? extends T> columnMapper = columnMapperFor(type, ctx);
+        ResultColumnMapper<? extends T> columnMapper = columnMapperFor(TypeToken.of(type), ctx);
         if (columnMapper != null) {
             mapper = new SingleColumnMapper<>(columnMapper);
             rowCache.put(type, mapper);
@@ -90,7 +91,7 @@ class MappingRegistry
     }
 
     @SuppressWarnings("unchecked")
-    public <T> ResultColumnMapper<T> columnMapperFor(Class<T> type, StatementContext ctx) {
+    public <T> ResultColumnMapper<T> columnMapperFor(TypeToken<T> type, StatementContext ctx) {
         ResultColumnMapper<?> mapper = columnCache.get(type);
         if (mapper != null) {
             return (ResultColumnMapper<T>) mapper;

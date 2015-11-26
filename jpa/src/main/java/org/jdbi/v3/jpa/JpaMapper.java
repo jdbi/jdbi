@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.jpa;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -67,7 +68,7 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
             String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
             JpaMember member = jpaClass.lookupMember(columnLabel);
             if (member != null) {
-                Class<?> memberType = member.getRawType();
+                TypeToken<?> memberType = member.getType();
                 ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
                 if (columnMapper == null) {
                     throw new NoSuchColumnMapperException("No column mapper for " + memberType);

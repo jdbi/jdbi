@@ -72,11 +72,6 @@ class JpaMember {
         return type;
     }
 
-    /* DELETE ME after ResultColumnMapperFactory is migrated to TypeToken */
-    public Class<?> getRawType() {
-        return type.getRawType();
-    }
-
     public Object read(Object obj) throws IllegalAccessException, InvocationTargetException {
         return accessor.get(obj);
     }

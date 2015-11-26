@@ -23,12 +23,13 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public final class ConcreteStatementContext implements StatementContext
 {
-    private final Set<Cleanable> cleanables = new LinkedHashSet<Cleanable>();
-    private final Map<String, Object>        attributes = new HashMap<String, Object>();
+    private final Set<Cleanable> cleanables = new LinkedHashSet<>();
+    private final Map<String, Object>        attributes = new HashMap<>();
     private final MappingRegistry mappingRegistry;
 
     private String            rawSql;
@@ -89,7 +90,7 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public <T> ResultColumnMapper<T> columnMapperFor(Class<T> type)
+    public <T> ResultColumnMapper<T> columnMapperFor(TypeToken<T> type)
     {
         return mappingRegistry.columnMapperFor(type, this);
     }

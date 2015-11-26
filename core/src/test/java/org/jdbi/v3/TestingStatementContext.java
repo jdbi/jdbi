@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public class TestingStatementContext implements StatementContext
@@ -50,7 +51,7 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type) {
+    public <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type) {
         return registry.columnMapperFor(type, this);
     }
 
