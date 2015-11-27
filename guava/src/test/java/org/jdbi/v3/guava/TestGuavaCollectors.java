@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 
+import com.google.common.reflect.TypeToken;
 import org.hamcrest.CoreMatchers;
 import org.jdbi.v3.H2DatabaseRule;
 import org.junit.Before;
@@ -47,9 +48,9 @@ public class TestGuavaCollectors {
     @Parameters(name="{0}")
     public static Object[][] data() {
         return new Object[][] {
-            { ImmutableList.class, f(ImmutableList::copyOf) },
-            { ImmutableSet.class, f(ImmutableSet::copyOf) },
-            { ImmutableSortedSet.class, f(ImmutableSortedSet::copyOf) }
+            { new TypeToken<ImmutableList<Integer>>() {}, f(ImmutableList::copyOf) },
+            { new TypeToken<ImmutableSet<Integer>> () {}, f(ImmutableSet::copyOf) },
+            { new TypeToken<ImmutableSortedSet<Integer>> () {}, f(ImmutableSortedSet::copyOf) }
         };
     }
 
@@ -59,7 +60,7 @@ public class TestGuavaCollectors {
     }
 
     @Parameter(value=0)
-    public Class<? extends Collection<Integer>> type;
+    public TypeToken<? extends Collection<Integer>> type;
 
     @Parameter(value=1)
     public Function<List<Integer>, List<Integer>> transformer;
@@ -79,7 +80,7 @@ public class TestGuavaCollectors {
             .collectInto(type);
 
         // Same type
-        assertTrue(type.isInstance(collection));
+        assertTrue(type.getRawType().isInstance(collection));
 
         // Same elements, same order
         assertEquals(expected.size(), collection.size());

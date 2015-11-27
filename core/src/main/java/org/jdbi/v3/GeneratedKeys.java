@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.ResultSetMapper;
 
@@ -82,7 +83,7 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
     }
 
     @Override
-    public <ContainerType> ContainerType collectInto(Class<ContainerType> containerType) {
+    public <ContainerType> ContainerType collectInto(TypeToken<ContainerType> containerType) {
         return collect(collectorFactoryRegistry.createCollectorFor(containerType));
     }
 }

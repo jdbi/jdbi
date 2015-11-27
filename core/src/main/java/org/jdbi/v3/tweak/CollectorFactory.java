@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.tweak;
 
+import com.google.common.reflect.TypeToken;
+
 import java.util.stream.Collector;
 
 /**
@@ -30,7 +32,7 @@ public interface CollectorFactory<T, R> {
      * @param type the object type
      * @return {@code true}, if accepts, otherwise {@code false}
      */
-    boolean accepts(Class<?> type);
+    boolean accepts(TypeToken<?> type);
 
     /**
      * Builds a new {@link Collector}.
@@ -38,5 +40,5 @@ public interface CollectorFactory<T, R> {
      * @param type the actual type of the container
      * @return the {@link Collector}
      */
-    Collector<T, ?, R> newCollector(Class<R> type);
+    Collector<T, ?, R> newCollector(TypeToken<R> type);
 }

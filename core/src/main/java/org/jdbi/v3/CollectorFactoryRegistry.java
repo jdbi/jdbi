@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
@@ -46,14 +47,14 @@ class CollectorFactoryRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    <T, R> Collector<T, ?, R> createCollectorFor(Class<R> type) {
+    <T, R> Collector<T, ?, R> createCollectorFor(TypeToken<R> type) {
         for (CollectorFactory<?, ?> factory : factories) {
             if (factory.accepts(type)) {
                 return ((CollectorFactory<T, R>) factory).newCollector(type);
             }
         }
 
-        throw new IllegalStateException("No collector builder available for " + type.getName());
+        throw new IllegalStateException("No collector builder available for " + type);
     }
 
     static CollectorFactoryRegistry copyOf(CollectorFactoryRegistry registry) {
@@ -65,12 +66,12 @@ class CollectorFactoryRegistry {
     private static class SortedSetCollectorFactory<T> implements CollectorFactory<T, SortedSet<T>> {
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return type.equals(SortedSet.class);
+        public boolean accepts(TypeToken<?> type) {
+            return type.getRawType().equals(SortedSet.class);
         }
 
         @Override
-        public Collector<T, ?, SortedSet<T>> newCollector(Class<SortedSet<T>> type) {
+        public Collector<T, ?, SortedSet<T>> newCollector(TypeToken<SortedSet<T>> type) {
             return Collectors.toCollection(TreeSet::new);
         }
     }
@@ -78,12 +79,12 @@ class CollectorFactoryRegistry {
     private static class ListCollectorFactory<T> implements CollectorFactory<T, List<T>> {
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return type.equals(List.class);
+        public boolean accepts(TypeToken<?> type) {
+            return type.getRawType().equals(List.class);
         }
 
         @Override
-        public Collector<T, ?, List<T>> newCollector(Class<List<T>> type) {
+        public Collector<T, ?, List<T>> newCollector(TypeToken<List<T>> type) {
             return Collectors.toList();
         }
     }
@@ -91,12 +92,12 @@ class CollectorFactoryRegistry {
     private static class SetCollectorFactory<T> implements CollectorFactory<T, Set<T>> {
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return type.equals(Set.class);
+        public boolean accepts(TypeToken<?> type) {
+            return type.getRawType().equals(Set.class);
         }
 
         @Override
-        public Collector<T, ?, Set<T>> newCollector(Class<Set<T>> type) {
+        public Collector<T, ?, Set<T>> newCollector(TypeToken<Set<T>> type) {
             return Collectors.toSet();
         }
     }

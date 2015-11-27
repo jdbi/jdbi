@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3;
 
+import com.google.common.reflect.TypeToken;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collector;
@@ -86,6 +88,6 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
      * @param <ContainerType> the generic type of the container
      * @return the container with the query result
      */
-    <ContainerType> ContainerType collectInto(Class<ContainerType> containerType);
+    <ContainerType> ContainerType collectInto(TypeToken<ContainerType> containerType);
 
 }

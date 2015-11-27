@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
@@ -80,14 +81,14 @@ public class GuavaCollectors {
                 .build();
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return collectors.containsKey(type);
+        public boolean accepts(TypeToken<?> type) {
+            return collectors.containsKey(type.getRawType());
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Collector<Object, ?, Collection<Object>> newCollector(Class<Collection<Object>> type) {
-            return (Collector<Object, ?, Collection<Object>>) collectors.get(type);
+        public Collector<Object, ?, Collection<Object>> newCollector(TypeToken<Collection<Object>> type) {
+            return (Collector<Object, ?, Collection<Object>>) collectors.get(type.getRawType());
         }
     }
 }

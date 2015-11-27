@@ -88,7 +88,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     @Override
-    public <ContainerType> ContainerType collectInto(Class<ContainerType> containerType) {
+    public <ContainerType> ContainerType collectInto(TypeToken<ContainerType> containerType) {
         return collect(getCollectorFactoryRegistry().createCollectorFor(containerType));
     }
 

@@ -20,6 +20,7 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
 import com.fasterxml.classmate.members.ResolvedMethod;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.ResultBearing;
 import org.jdbi.v3.ResultIterator;
@@ -108,7 +109,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
-                return q.collectInto(containerType);
+                return q.collectInto(TypeToken.of(containerType));
             }
             return q.findFirst().orElse(null);
         }
@@ -255,7 +256,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {
-                return ((Query<?>) q).collectInto(erased_type);
+                return q.collectInto(TypeToken.of(erased_type));
             } else {
                 throw new UnsupportedOperationException("Collect is not supported for " + q);
             }

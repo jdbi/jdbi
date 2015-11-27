@@ -13,16 +13,10 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
-import java.util.SortedSet;
-import java.util.stream.Collector;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
-
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
@@ -31,6 +25,12 @@ import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.SortedSet;
+import java.util.stream.Collector;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class TestCollectorFactory {
 
@@ -47,7 +47,7 @@ public class TestCollectorFactory {
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
                 .mapTo(String.class)
-                .collectInto(Optional.class);
+                .collectInto(new TypeToken<Optional<String>>() {});
 
         assertThat(rs.isPresent(), equalTo(true));
         assertThat(rs.get(), equalTo("Coda"));
@@ -63,7 +63,7 @@ public class TestCollectorFactory {
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 2)
                 .mapTo(String.class)
-                .collectInto(Optional.class);
+                .collectInto(new TypeToken<Optional<String>>() {});
 
         assertThat(rs.isPresent(), equalTo(false));
     }
@@ -79,7 +79,7 @@ public class TestCollectorFactory {
         @SuppressWarnings("unchecked")
         ImmutableList<String> rs = h.createQuery("select name from something order by id")
                 .mapTo(String.class)
-                .collectInto(ImmutableList.class);
+                .collectInto(new TypeToken<ImmutableList<String>>() {});
 
         assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));
     }
@@ -150,12 +150,12 @@ public class TestCollectorFactory {
     public static class ImmutableListCollectorFactory<T> implements CollectorFactory<T, ImmutableList<T>> {
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return ImmutableList.class.equals(type);
+        public boolean accepts(TypeToken<?> type) {
+            return type.getRawType().equals(ImmutableList.class);
         }
 
         @Override
-        public Collector<T, ImmutableList.Builder<T>, ImmutableList<T>> newCollector(Class<ImmutableList<T>> type) {
+        public Collector<T, ImmutableList.Builder<T>, ImmutableList<T>> newCollector(TypeToken<ImmutableList<T>> type) {
             return Collector.of(ImmutableList.Builder::new, ImmutableList.Builder::add, (first, second) -> {
                 throw new UnsupportedOperationException("Parallel collecting is not supported");
             }, ImmutableList.Builder<T>::build);
@@ -165,12 +165,12 @@ public class TestCollectorFactory {
     public static class GuavaOptionalCollectorFactory<T> implements CollectorFactory<T, Optional<T>> {
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return type.equals(Optional.class);
+        public boolean accepts(TypeToken<?> type) {
+            return type.getRawType().equals(Optional.class);
         }
 
         @Override
-        public Collector<T, GuavaOptionalBuilder<T>, Optional<T>> newCollector(Class<Optional<T>> type) {
+        public Collector<T, GuavaOptionalBuilder<T>, Optional<T>> newCollector(TypeToken<Optional<T>> type) {
             return Collector.of(GuavaOptionalBuilder::new, GuavaOptionalBuilder::set, (first, second) -> {
                 throw new UnsupportedOperationException("Parallel collecting is not supported");
             }, GuavaOptionalBuilder::build);
