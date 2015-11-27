@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
@@ -64,17 +65,17 @@ public class TestRegisterMapperFactory
     {
 
         @Override
-        public boolean accepts(Class<?> type, StatementContext ctx)
+        public boolean accepts(TypeToken<?> type, StatementContext ctx)
         {
-            return type.isAnnotationPresent(MapWith.class);
+            return type.getRawType().isAnnotationPresent(MapWith.class);
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx)
+        public <T> ResultSetMapper<? extends T> mapperFor(TypeToken<T> type, StatementContext ctx)
         {
 
-            MapWith rm = type.getAnnotation(MapWith.class);
+            MapWith rm = type.getRawType().getAnnotation(MapWith.class);
             try {
                 return (ResultSetMapper<? extends T>) rm.value().newInstance();
             }

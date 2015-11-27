@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultSetMapper;
 
 /**
@@ -25,10 +26,10 @@ public interface ResultSetMapperFactory
      * @param type the target type to map to
      * @return true if it can, false if it cannot
      */
-    boolean accepts(Class<?> type, StatementContext ctx);
+    boolean accepts(TypeToken<?> type, StatementContext ctx);
 
     /**
      * Supplies a result set mapper which will map result sets to type
      */
-    <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx);
+    <T> ResultSetMapper<? extends T> mapperFor(TypeToken<T> type, StatementContext ctx);
 }

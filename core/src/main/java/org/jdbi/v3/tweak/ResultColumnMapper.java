@@ -21,6 +21,7 @@ import org.jdbi.v3.StatementContext;
 /**
  * Maps result set columns to objects.
  * @see StatementContext#columnMapperFor(Class)
+ * @see StatementContext#columnMapperFor(com.google.common.reflect.TypeToken)
  */
 public interface ResultColumnMapper<T>
 {

@@ -27,7 +27,7 @@ class MappingRegistry
     private static final PrimitivesColumnMapperFactory BUILT_INS = new PrimitivesColumnMapperFactory();
 
     private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<Class<?>, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<TypeToken<?>, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();
 
     private final List<ResultColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<TypeToken<?>, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
@@ -56,7 +56,7 @@ class MappingRegistry
     }
 
     @SuppressWarnings("unchecked")
-    public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx) {
+    public <T> ResultSetMapper<? extends T> mapperFor(TypeToken<T> type, StatementContext ctx) {
         ResultSetMapper<? extends T> mapper = (ResultSetMapper<? extends T>) rowCache.get(type);
         if (mapper != null) {
             return mapper;
@@ -70,14 +70,14 @@ class MappingRegistry
             }
         }
 
-        ResultColumnMapper<? extends T> columnMapper = columnMapperFor(TypeToken.of(type), ctx);
+        ResultColumnMapper<? extends T> columnMapper = columnMapperFor(type, ctx);
         if (columnMapper != null) {
             mapper = new SingleColumnMapper<>(columnMapper);
             rowCache.put(type, mapper);
             return mapper;
         }
 
-        throw new UnsupportedOperationException("No mapper registered for " + type.getName());
+        throw new UnsupportedOperationException("No mapper registered for " + type);
     }
 
     public void addColumnMapper(ResultColumnMapper<?> mapper)

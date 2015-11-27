@@ -13,18 +13,19 @@
  */
 package org.jdbi.v3.jpa;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
 
 public class JpaMapperFactory implements ResultSetMapperFactory {
 
     @Override
-    public boolean accepts(Class clazz, StatementContext ctx) {
-        return JpaMapper.accept(clazz);
+    public boolean accepts(TypeToken<?> type, StatementContext ctx) {
+        return JpaMapper.accept(type.getRawType());
     }
 
     @Override
-    public <T> JpaMapper<T> mapperFor(Class<T> clazz, StatementContext ctx) {
-        return JpaMapper.get(clazz);
+    public <T> JpaMapper<T> mapperFor(TypeToken<T> type, StatementContext ctx) {
+        return JpaMapper.get((Class<T>) type.getRawType());
     }
 }

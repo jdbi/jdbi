@@ -20,6 +20,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -117,6 +118,23 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
      */
     public <T> Query<T> mapTo(Class<T> resultType)
+    {
+        return mapTo(TypeToken.of(resultType));
+    }
+
+    /**
+     * Makes use of registered mappers to map the result set to the desired type.
+     *
+     * @param resultType the type to map the query results to
+     *
+     * @return a new query instance which will map to the desired type
+     *
+     * @see DBI#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     * @see DBI#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     */
+    public <T> Query<T> mapTo(TypeToken<T> resultType)
     {
         return this.map(new RegisteredMapper<T>(resultType, mappingRegistry));
     }

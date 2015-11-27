@@ -16,15 +16,16 @@ package org.jdbi.v3;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultSetMapper;
 
 class RegisteredMapper<T> implements ResultSetMapper<T>
 {
 
-    private final Class<T> type;
+    private final TypeToken<T> type;
     private final MappingRegistry registry;
 
-    RegisteredMapper(Class<T> type, MappingRegistry registry) {
+    RegisteredMapper(TypeToken<T> type, MappingRegistry registry) {
         this.type = type;
         this.registry = registry;
     }

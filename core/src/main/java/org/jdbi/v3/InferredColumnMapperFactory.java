@@ -14,9 +14,7 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Optional;
 
 import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.ResultColumnMapper;
@@ -29,19 +27,15 @@ class InferredColumnMapperFactory<X> implements ResultColumnMapperFactory
     @SuppressWarnings("unchecked")
     InferredColumnMapperFactory(ResultColumnMapper<X> mapper)
     {
-        Optional<Type> parameterType = Arrays.stream(mapper.getClass().getGenericInterfaces())
+        this.maps = Arrays.stream(mapper.getClass().getGenericInterfaces())
                 .filter(type -> type instanceof ParameterizedType)
                 .map(type -> (ParameterizedType) type)
                 .filter(type -> type.getRawType().equals(ResultColumnMapper.class))
                 .map(type -> type.getActualTypeArguments()[0])
                 .filter(type -> type instanceof Class)
-                .findFirst();
-
-        if (!parameterType.isPresent()) {
-            throw new UnsupportedOperationException("Must use a concretely typed ResultSetMapper here");
-        }
-
-        this.maps = (TypeToken<X>) TypeToken.of(parameterType.get());
+                .map(type -> (TypeToken<X>) TypeToken.of(type))
+                .findFirst()
+                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ResultSetMapper here"));
         this.mapper = mapper;
     }
 
