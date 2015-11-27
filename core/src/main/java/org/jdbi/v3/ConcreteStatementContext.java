@@ -23,7 +23,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
+import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public final class ConcreteStatementContext implements StatementContext
@@ -31,6 +33,7 @@ public final class ConcreteStatementContext implements StatementContext
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
     private final Map<String, Object>        attributes = new HashMap<>();
     private final MappingRegistry mappingRegistry;
+    private final Foreman foreman;
 
     private String            rawSql;
     private String            rewrittenSql;
@@ -44,10 +47,16 @@ public final class ConcreteStatementContext implements StatementContext
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
 
-    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry)
+    @VisibleForTesting
+    ConcreteStatementContext() {
+        this(new HashMap<>(), new MappingRegistry(), new Foreman());
+    }
+
+    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry, Foreman foreman)
     {
         attributes.putAll(globalAttributes);
         this.mappingRegistry = mappingRegistry;
+        this.foreman = foreman;
     }
 
     /**
@@ -93,6 +102,11 @@ public final class ConcreteStatementContext implements StatementContext
     public <T> ResultColumnMapper<T> columnMapperFor(TypeToken<T> type)
     {
         return mappingRegistry.columnMapperFor(type, this);
+    }
+
+    @Override
+    public <T> Argument argumentFor(TypeToken<T> type, T value) {
+        return foreman.waffle(type, value, this);
     }
 
     void setRawSql(String rawSql)

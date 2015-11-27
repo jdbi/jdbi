@@ -20,12 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.reflect.TypeToken;
+import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public class TestingStatementContext implements StatementContext
 {
     private final Map<String, Object> attributes;
     private final MappingRegistry registry = new MappingRegistry();
+    private final Foreman foreman = new Foreman();
 
     public TestingStatementContext(final Map<String, Object> globalAttributes)
     {
@@ -53,6 +55,11 @@ public class TestingStatementContext implements StatementContext
     @Override
     public <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type) {
         return registry.columnMapperFor(type, this);
+    }
+
+    @Override
+    public <T> Argument argumentFor(TypeToken<T> type, T value) {
+        return foreman.waffle(type, value, this);
     }
 
     @Override

@@ -39,7 +39,7 @@ public class TestColonStatementRewriter
     {
         return rw.rewrite(sql,
                 new Binding(),
-                new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+                new ConcreteStatementContext());
     }
 
     @Test

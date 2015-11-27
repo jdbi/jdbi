@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.util.Map;
 
 import com.google.common.reflect.TypeToken;
+import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 /**
@@ -73,6 +74,26 @@ public interface StatementContext
      * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
     <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type);
+
+    /**
+     * Obtain an argument factory for given value in this context
+     * @param type the type of the argument.
+     * @param value the argument value.
+     * @param <T> argument type
+     * @return an Argument for the given value, or null if no argument factory is registered for the given type
+     */
+    default <T> Argument argumentFor(Class<T> type, T value) {
+        return argumentFor(TypeToken.of(type), value);
+    }
+
+    /**
+     * Obtain an argument factory for given value in this context
+     * @param type the type of the argument.
+     * @param value the argument value.
+     * @param <T> argument type
+     * @return an Argument for the given value, or null if no argument factory is registered for the given type
+     */
+    <T> Argument argumentFor(TypeToken<T> type, T value);
 
     /**
      * Obtain the initial sql for the statement used to create the statement
