@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Blob;
@@ -22,6 +23,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.Argument;
@@ -66,7 +68,7 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
     @Override
     public boolean accepts(TypeToken<?> expectedType, Object value, StatementContext ctx)
     {
-        return b.containsKey(expectedType.getRawType()) || value == null || value.getClass().isEnum();
+        return b.containsKey(expectedType.getRawType()) || value == null || value.getClass().isEnum() || value instanceof Optional;
     }
 
     @Override
@@ -93,6 +95,22 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
         // Enums must be bound as VARCHAR.
         if (expectedClass.isEnum()) {
             return new StringArgument(value.toString());
+        }
+
+        if (value instanceof Optional) {
+            TypeToken<?> nestedType;
+            Object nestedValue = ((Optional)value).orElse(null);
+            if (expectedClass.equals(Optional.class) && expectedType.getType() instanceof ParameterizedType) {
+                ParameterizedType optionalType = (ParameterizedType) expectedType.getType();
+                nestedType = TypeToken.of(optionalType.getActualTypeArguments()[0]);
+            }
+            else {
+                nestedType = TypeToken.of(nestedValue == null ? Object.class : nestedValue.getClass());
+            }
+            Argument optionalArgument = ctx.argumentFor(nestedType, nestedValue);
+            if (optionalArgument != null) {
+                return optionalArgument;
+            }
         }
 
         // Fallback to generic ObjectArgument
