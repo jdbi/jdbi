@@ -79,21 +79,9 @@ public interface StatementContext
      * Obtain an argument factory for given value in this context
      * @param type the type of the argument.
      * @param value the argument value.
-     * @param <T> argument type
      * @return an Argument for the given value, or null if no argument factory is registered for the given type
      */
-    default <T> Argument argumentFor(Class<T> type, T value) {
-        return argumentFor(TypeToken.of(type), value);
-    }
-
-    /**
-     * Obtain an argument factory for given value in this context
-     * @param type the type of the argument.
-     * @param value the argument value.
-     * @param <T> argument type
-     * @return an Argument for the given value, or null if no argument factory is registered for the given type
-     */
-    <T> Argument argumentFor(TypeToken<T> type, T value);
+    Argument argumentFor(TypeToken<?> type, Object value);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

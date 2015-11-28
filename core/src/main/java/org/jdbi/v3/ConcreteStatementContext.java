@@ -105,7 +105,7 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public <T> Argument argumentFor(TypeToken<T> type, T value) {
+    public Argument argumentFor(TypeToken<?> type, Object value) {
         return foreman.waffle(type, value, this);
     }
 
