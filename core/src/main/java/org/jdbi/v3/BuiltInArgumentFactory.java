@@ -14,7 +14,6 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Blob;
@@ -100,9 +99,8 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
         if (value instanceof Optional) {
             TypeToken<?> nestedType;
             Object nestedValue = ((Optional)value).orElse(null);
-            if (expectedClass.equals(Optional.class) && expectedType.getType() instanceof ParameterizedType) {
-                ParameterizedType optionalType = (ParameterizedType) expectedType.getType();
-                nestedType = TypeToken.of(optionalType.getActualTypeArguments()[0]);
+            if (expectedClass.equals(Optional.class)) {
+                nestedType = expectedType.resolveType(Optional.class.getTypeParameters()[0]);
             }
             else {
                 nestedType = TypeToken.of(nestedValue == null ? Object.class : nestedValue.getClass());

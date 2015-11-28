@@ -17,8 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -78,14 +76,11 @@ public @interface BindIn
 
             return (q, param, bind, arg) -> {
                 Iterable<?> coll = (Iterable<?>) arg;
-                TypeToken<? extends Iterable<?>> iterableSubtype =
+                TypeToken<?> elementType = TypeToken.of(Object.class);
+                TypeToken<? extends Iterable<?>> parameterType =
                         (TypeToken<? extends Iterable<?>>) TypeToken.of(param.getParameterizedType());
-                Type elementType = Object.class;
-                if (Iterable.class.isAssignableFrom(iterableSubtype.getRawType())) {
-                    Type iterableType = iterableSubtype.getSupertype(Iterable.class).getType();
-                    if (iterableType instanceof ParameterizedType) {
-                        elementType = ((ParameterizedType)iterableType).getActualTypeArguments()[0];
-                    }
+                if (Iterable.class.isAssignableFrom(parameterType.getRawType())) {
+                    elementType = parameterType.resolveType(Iterable.class.getTypeParameters()[0]);
                 }
                 int idx = 0;
                 for (Object s : coll) {
