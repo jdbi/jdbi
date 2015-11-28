@@ -54,12 +54,12 @@ class Foreman
             }
             // Fall back to any factory accepting Object if necessary but
             // prefer any more specific factory first.
-            if (candidate == null && factory.accepts(TypeTokens.JAVA_LANG_OBJECT, it, ctx)) {
+            if (candidate == null && factory.accepts(TypeToken.of(Object.class), it, ctx)) {
                 candidate = factory;
             }
         }
         if (candidate != null) {
-            return candidate.build(TypeTokens.JAVA_LANG_OBJECT, it, ctx);
+            return candidate.build(TypeToken.of(Object.class), it, ctx);
         }
 
         throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(it));
