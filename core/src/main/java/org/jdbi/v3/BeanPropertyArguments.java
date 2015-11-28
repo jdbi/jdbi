@@ -61,7 +61,7 @@ class BeanPropertyArguments implements NamedArgumentFinder
                 try
                 {
                     return foreman.waffle(
-                            TypeToken.of(descriptor.getReadMethod().getGenericReturnType()),
+                            descriptor.getReadMethod().getGenericReturnType(),
                             descriptor.getReadMethod().invoke(bean),
                             ctx);
                 }
