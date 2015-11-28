@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 import org.jdbi.v3.SQLStatement;
 
@@ -47,7 +48,9 @@ class DefaultObjectBinder implements Binder<Bind, Object>
             bindName = b.value();
         }
 
-        q.bind(paramIndex, arg);
-        q.bind(bindName, arg);
+        Type type = param.getParameterizedType();
+
+        q.dynamicBind(type, paramIndex, arg);
+        q.dynamicBind(type, bindName, arg);
     }
 }

@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Blob;
@@ -1141,24 +1142,52 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     /**
-     * Bind an argument dynamically by the class passed in.
+     * Bind an argument dynamically by the type passed in.
      *
-     * @param argumentClass class of value argument
-     * @param name  token name to bind the paramater to
+     * @param argumentType type for value argument
+     * @param position position to bind the parameter at, starting at 0
      * @param value to bind
      *
      * @return the same Query instance
      */
-    public final SelfType dynamicBind(Class<?> argumentClass, String name, Object value)
+    public final SelfType dynamicBind(Type argumentType, int position, Object value)
     {
-        return dynamicBind(TypeToken.of(argumentClass), name, value);
+        return dynamicBind(TypeToken.of(argumentType), position, value);
     }
 
     /**
      * Bind an argument dynamically by the type token passed in.
      *
      * @param argumentType type token for value argument
-     * @param name  token name to bind the paramater to
+     * @param position position to bind the parameter at, starting at 0
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType dynamicBind(TypeToken<?> argumentType, int position, Object value)
+    {
+        return bind(position, getForeman().waffle(argumentType, value, getContext()));
+    }
+
+    /**
+     * Bind an argument dynamically by the type passed in.
+     *
+     * @param argumentType type for value argument
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType dynamicBind(Type argumentType, String name, Object value)
+    {
+        return dynamicBind(TypeToken.of(argumentType), name, value);
+    }
+
+    /**
+     * Bind an argument dynamically by the type token passed in.
+     *
+     * @param argumentType type token for value argument
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance

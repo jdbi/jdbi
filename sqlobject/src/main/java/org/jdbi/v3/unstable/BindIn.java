@@ -17,11 +17,14 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
 import org.jdbi.v3.sqlobject.BindingAnnotation;
@@ -75,9 +78,18 @@ public @interface BindIn
 
             return (q, param, bind, arg) -> {
                 Iterable<?> coll = (Iterable<?>) arg;
+                TypeToken<? extends Iterable<?>> iterableSubtype =
+                        (TypeToken<? extends Iterable<?>>) TypeToken.of(param.getParameterizedType());
+                Type elementType = Object.class;
+                if (Iterable.class.isAssignableFrom(iterableSubtype.getRawType())) {
+                    Type iterableType = iterableSubtype.getSupertype(Iterable.class).getType();
+                    if (iterableType instanceof ParameterizedType) {
+                        elementType = ((ParameterizedType)iterableType).getActualTypeArguments()[0];
+                    }
+                }
                 int idx = 0;
                 for (Object s : coll) {
-                    q.bind("__" + key + "_" + idx++, s);
+                    q.dynamicBind(elementType, "__" + key + "_" + idx++, s);
                 }
             };
         }

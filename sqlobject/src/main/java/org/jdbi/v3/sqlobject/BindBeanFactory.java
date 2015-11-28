@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import com.google.common.reflect.TypeToken;
-
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -41,7 +39,7 @@ class BindBeanFactory implements BinderFactory<BindBean, Object>
                     Method readMethod = prop.getReadMethod();
                     if (readMethod != null) {
                         q.dynamicBind(
-                                TypeToken.of(readMethod.getGenericReturnType()),
+                                readMethod.getGenericReturnType(),
                                 prefix + prop.getName(),
                                 readMethod.invoke(arg));
                     }
