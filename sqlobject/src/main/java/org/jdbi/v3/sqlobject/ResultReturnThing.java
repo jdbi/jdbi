@@ -72,13 +72,13 @@ abstract class ResultReturnThing
 
     protected abstract Object result(ResultBearing<?> q, HandleDing baton);
 
-    protected abstract Class<?> mapTo(ResolvedMethod method);
+    protected abstract ResolvedType mapTo(ResolvedMethod method);
 
 
     static class SingleValueResultReturnThing extends ResultReturnThing
     {
-        private final Class<?> returnType;
-        private final Class<?> containerType;
+        private final ResolvedType returnType;
+        private final ResolvedType containerType;
 
         public SingleValueResultReturnThing(ResolvedMethod method)
         {
@@ -88,18 +88,18 @@ abstract class ResultReturnThing
                 if(SingleValueResult.Default.class == svr.value()){
                     TypeBindings typeBindings = method.getReturnType().getTypeBindings();
                     if(typeBindings.size() == 1){
-                        this.returnType = typeBindings.getBoundType(0).getErasedType();
+                        this.returnType = typeBindings.getBoundType(0);
                     }else{
                         throw new IllegalArgumentException("Ambiguous generic information. SingleValueResult type could not be fetched.");
                     }
 
                 }else{
-                    this.returnType = svr.value();
+                    this.returnType = new TypeResolver().resolve(svr.value());
                 }
-                this.containerType = method.getReturnType().getErasedType();
+                this.containerType = method.getReturnType();
             }
             else {
-                this.returnType = method.getReturnType().getErasedType();
+                this.returnType = method.getReturnType();
                 this.containerType = null;
             }
 
@@ -115,7 +115,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Class<?> mapTo(ResolvedMethod method)
+        protected ResolvedType mapTo(ResolvedMethod method)
         {
             return returnType;
         }
@@ -142,9 +142,9 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Class<?> mapTo(ResolvedMethod method)
+        protected ResolvedType mapTo(ResolvedMethod method)
         {
-            return resolvedType.getErasedType();
+            return resolvedType;
         }
     }
 
@@ -231,9 +231,9 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Class<?> mapTo(ResolvedMethod method)
+        protected ResolvedType mapTo(ResolvedMethod method)
         {
-            return resolvedType.getErasedType();
+            return resolvedType;
         }
     }
 
@@ -261,9 +261,9 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Class<?> mapTo(ResolvedMethod method)
+        protected ResolvedType mapTo(ResolvedMethod method)
         {
-            return elementType.getErasedType();
+            return elementType;
         }
     }
 }
