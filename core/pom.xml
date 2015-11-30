@@ -195,9 +195,9 @@
                                     <shadedPattern>org.jdbi.cglib</shadedPattern>
                                 </relocation>
 
-                                <relocation>		
-                                    <pattern>com.fasterxml.classmate</pattern>		
-                                    <shadedPattern>org.jdbi.com.fasterxml.classmate</shadedPattern>		
+                                <relocation>
+                                    <pattern>com.fasterxml.classmate</pattern>
+                                    <shadedPattern>org.jdbi.com.fasterxml.classmate</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
