@@ -23,8 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
@@ -47,7 +46,7 @@ public final class ConcreteStatementContext implements StatementContext
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
 
-    @VisibleForTesting
+    /* visible for testing */
     ConcreteStatementContext() {
         this(new HashMap<>(), new MappingRegistry(), new Foreman());
     }
@@ -99,13 +98,13 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public <T> ResultColumnMapper<T> columnMapperFor(TypeToken<T> type)
+    public <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type)
     {
         return mappingRegistry.columnMapperFor(type, this);
     }
 
     @Override
-    public Argument argumentFor(TypeToken<?> type, Object value) {
+    public Argument argumentFor(ResolvedType type, Object value) {
         return foreman.waffle(type, value, this);
     }
 

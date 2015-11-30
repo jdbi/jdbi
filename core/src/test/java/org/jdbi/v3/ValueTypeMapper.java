@@ -17,7 +17,7 @@ package org.jdbi.v3;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
@@ -35,13 +35,13 @@ public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
 
     public static class Factory implements ResultColumnMapperFactory {
         @Override
-        public boolean accepts(TypeToken<?> type, StatementContext ctx) {
-            return ValueType.class.isAssignableFrom(type.getRawType());
+        public boolean accepts(ResolvedType type, StatementContext ctx) {
+            return ValueType.class.isAssignableFrom(type.getErasedType());
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type, StatementContext ctx) {
+        public <T> ResultColumnMapper<? extends T> columnMapperFor(ResolvedType type, StatementContext ctx) {
             return (ResultColumnMapper<? extends T>) new ValueTypeMapper();
         }
     }

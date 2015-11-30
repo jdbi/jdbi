@@ -28,7 +28,9 @@ import java.sql.Types;
 import java.util.Collection;
 import java.util.Map;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.GenericType;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.Argument;
@@ -1152,7 +1154,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(Type argumentType, int position, Object value)
     {
-        return dynamicBind(TypeToken.of(argumentType), position, value);
+        return dynamicBind(new TypeResolver().resolve(argumentType), position, value);
     }
 
     /**
@@ -1164,8 +1166,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType dynamicBind(TypeToken<?> argumentType, int position, Object value)
+    public final SelfType dynamicBind(GenericType<?> argumentType, int position, Object value)
     {
+        return dynamicBind(new TypeResolver().resolve(argumentType), position, value);
+    }
+
+    private SelfType dynamicBind(ResolvedType argumentType, int position, Object value) {
         return bind(position, getForeman().waffle(argumentType, value, getContext()));
     }
 
@@ -1180,7 +1186,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(Type argumentType, String name, Object value)
     {
-        return dynamicBind(TypeToken.of(argumentType), name, value);
+        return dynamicBind(new TypeResolver().resolve(argumentType), name, value);
     }
 
     /**
@@ -1192,8 +1198,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType dynamicBind(TypeToken<?> argumentType, String name, Object value)
+    public final SelfType dynamicBind(GenericType<?> argumentType, String name, Object value)
     {
+        return dynamicBind(new TypeResolver().resolve(argumentType), name, value);
+    }
+
+    private SelfType dynamicBind(ResolvedType argumentType, String name, Object value) {
         return bind(name, getForeman().waffle(argumentType, value, getContext()));
     }
 

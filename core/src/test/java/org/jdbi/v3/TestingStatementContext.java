@@ -19,7 +19,7 @@ import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
@@ -53,12 +53,12 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type) {
+    public <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type) {
         return registry.columnMapperFor(type, this);
     }
 
     @Override
-    public Argument argumentFor(TypeToken<?> type, Object value) {
+    public Argument argumentFor(ResolvedType type, Object value) {
         return foreman.waffle(type, value, this);
     }
 

@@ -20,7 +20,7 @@ import static org.junit.Assert.assertSame;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.junit.Test;
@@ -109,13 +109,13 @@ public class TestForeman
     private static class WeirdClassArgumentFactory implements ArgumentFactory<Weird>
     {
         @Override
-        public boolean accepts(TypeToken<?> expectedType, Object value, StatementContext ctx)
+        public boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx)
         {
-            return expectedType.getRawType() == Weird.class;
+            return expectedType.getErasedType() == Weird.class;
         }
 
         @Override
-        public Argument build(TypeToken<?> expectedType, Weird value, StatementContext ctx)
+        public Argument build(ResolvedType expectedType, Weird value, StatementContext ctx)
         {
             return new WeirdArgument();
         }
@@ -124,13 +124,13 @@ public class TestForeman
     private static class WeirdValueArgumentFactory implements ArgumentFactory<Weird>
     {
         @Override
-        public boolean accepts(TypeToken<?> expectedType, Object value, StatementContext ctx)
+        public boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx)
         {
             return value instanceof Weird;
         }
 
         @Override
-        public Argument build(TypeToken<?> expectedType, Weird value, StatementContext ctx)
+        public Argument build(ResolvedType expectedType, Weird value, StatementContext ctx)
         {
             return new WeirdArgument();
         }

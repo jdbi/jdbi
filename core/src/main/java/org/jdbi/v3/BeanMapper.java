@@ -29,7 +29,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
@@ -86,6 +87,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
                                                              "which was not instantiable", type.getName()), e);
         }
 
+        TypeResolver typeResolver = new TypeResolver();
         ResultSetMetaData metadata = rs.getMetaData();
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
@@ -99,7 +101,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
             }
 
             final PropertyDescriptor descriptor = maybeDescriptor.get();
-            final TypeToken<?> type = TypeToken.of(descriptor.getReadMethod().getGenericReturnType());
+            final ResolvedType type = typeResolver.resolve(descriptor.getReadMethod().getGenericReturnType());
             final Object value;
             final ResultColumnMapper<?> mapper = ctx.columnMapperFor(type);
 

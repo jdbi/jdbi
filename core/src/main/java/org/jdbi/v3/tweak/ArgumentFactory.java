@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.tweak;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.StatementContext;
 
 public interface ArgumentFactory<T>
 {
-    boolean accepts(TypeToken<?> expectedType, Object value, StatementContext ctx);
+    boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx);
 
-    Argument build(TypeToken<?> expectedType, T value, StatementContext ctx);
+    Argument build(ResolvedType expectedType, T value, StatementContext ctx);
 }

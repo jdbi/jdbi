@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.SingleColumnMapper;
@@ -27,10 +27,10 @@ class MappingRegistry
     private static final PrimitivesColumnMapperFactory BUILT_INS = new PrimitivesColumnMapperFactory();
 
     private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<TypeToken<?>, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<ResolvedType, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();
 
     private final List<ResultColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<TypeToken<?>, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<ResolvedType, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
 
     static MappingRegistry copyOf(MappingRegistry parent) {
         MappingRegistry mr = new MappingRegistry();
@@ -56,7 +56,7 @@ class MappingRegistry
     }
 
     @SuppressWarnings("unchecked")
-    public <T> ResultSetMapper<? extends T> mapperFor(TypeToken<T> type, StatementContext ctx) {
+    public <T> ResultSetMapper<? extends T> mapperFor(ResolvedType type, StatementContext ctx) {
         ResultSetMapper<? extends T> mapper = (ResultSetMapper<? extends T>) rowCache.get(type);
         if (mapper != null) {
             return mapper;
@@ -91,7 +91,7 @@ class MappingRegistry
     }
 
     @SuppressWarnings("unchecked")
-    public <T> ResultColumnMapper<T> columnMapperFor(TypeToken<T> type, StatementContext ctx) {
+    public <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type, StatementContext ctx) {
         ResultColumnMapper<?> mapper = columnCache.get(type);
         if (mapper != null) {
             return (ResultColumnMapper<T>) mapper;

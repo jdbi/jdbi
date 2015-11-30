@@ -19,9 +19,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.stream.Collector;
 
+import com.fasterxml.classmate.ResolvedType;
 import com.google.common.collect.ImmutableSet;
 
-import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
@@ -67,15 +67,18 @@ public class TestInClauseExpansion
     public static class ImmutableSetCollectorFactory<T> implements CollectorFactory<T, ImmutableSet<T>> {
 
         @Override
-        public boolean accepts(TypeToken<?> type) {
-            return type.getRawType().equals(ImmutableSet.class);
+        public boolean accepts(ResolvedType type) {
+            return type.getErasedType().equals(ImmutableSet.class);
         }
 
         @Override
-        public Collector<T, ImmutableSet.Builder<T>, ImmutableSet<T>> newCollector(TypeToken<ImmutableSet<T>> type) {
-            return Collector.of(ImmutableSet.Builder::new, ImmutableSet.Builder::add, (first, second) -> {
-                throw new UnsupportedOperationException("Parallel collecting is not supported");
-            }, ImmutableSet.Builder::build, Collector.Characteristics.UNORDERED);
+        public Collector<T, ImmutableSet.Builder<T>, ImmutableSet<T>> newCollector(ResolvedType type) {
+            return Collector.of(
+                    ImmutableSet.Builder::new,
+                    ImmutableSet.Builder::add,
+                    (first, second) -> { throw new UnsupportedOperationException("Parallel collecting is not supported"); },
+                    ImmutableSet.Builder::build,
+                    Collector.Characteristics.UNORDERED);
         }
     }
 }

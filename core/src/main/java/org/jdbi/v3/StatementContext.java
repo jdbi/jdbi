@@ -18,7 +18,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
@@ -63,17 +63,7 @@ public interface StatementContext
      * @param type the target type to map to
      * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
-    default <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type) {
-        return columnMapperFor(TypeToken.of(type));
-    }
-
-    /**
-     * Obtain a column mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
-     */
-    <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type);
+    <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type);
 
     /**
      * Obtain an argument factory for given value in this context
@@ -81,7 +71,7 @@ public interface StatementContext
      * @param value the argument value.
      * @return an Argument for the given value, or null if no argument factory is registered for the given type
      */
-    Argument argumentFor(TypeToken<?> type, Object value);
+    Argument argumentFor(ResolvedType type, Object value);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

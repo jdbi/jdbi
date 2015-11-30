@@ -17,12 +17,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collector;
 
+import com.fasterxml.classmate.ResolvedType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 
-import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
@@ -81,14 +81,14 @@ public class GuavaCollectors {
                 .build();
 
         @Override
-        public boolean accepts(TypeToken<?> type) {
-            return collectors.containsKey(type.getRawType());
+        public boolean accepts(ResolvedType type) {
+            return collectors.containsKey(type.getErasedType());
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Collector<Object, ?, Collection<Object>> newCollector(TypeToken<Collection<Object>> type) {
-            return (Collector<Object, ?, Collection<Object>>) collectors.get(type.getRawType());
+        public Collector<Object, ?, Collection<Object>> newCollector(ResolvedType type) {
+            return (Collector<Object, ?, Collection<Object>>) collectors.get(type.getErasedType());
         }
     }
 }

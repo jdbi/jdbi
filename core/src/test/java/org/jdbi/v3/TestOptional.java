@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalPresent() throws Exception {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .dynamicBind(new TypeToken<Optional<String>>() {}, "name", Optional.of("eric"))
+                .dynamicBind(new GenericType<Optional<String>>() {}, "name", Optional.of("eric"))
                 .mapToBean(Something.class)
                 .findOnly();
 
@@ -56,7 +56,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalEmpty() throws Exception {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .dynamicBind(new TypeToken<Optional<String>>() {}, "name", Optional.empty())
+                .dynamicBind(new GenericType<Optional<String>>() {}, "name", Optional.empty())
                 .mapToBean(Something.class)
                 .list();
 

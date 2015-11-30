@@ -43,6 +43,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.fasterxml</groupId>
+            <artifactId>classmate</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
         </dependency>
@@ -78,6 +83,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -168,6 +174,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.antlr:antlr-runtime</include>
+                                    <include>com.fasterxml:classmate</include>
                                     <include>cglib:cglib</include>
                                     <include>org.ow2.asm:asm</include>
                                 </includes>
@@ -186,6 +193,11 @@
                                 <relocation>
                                     <pattern>net.sf.cglib</pattern>
                                     <shadedPattern>org.jdbi.cglib</shadedPattern>
+                                </relocation>
+
+                                <relocation>		
+                                    <pattern>com.fasterxml.classmate</pattern>		
+                                    <shadedPattern>org.jdbi.com.fasterxml.classmate</shadedPattern>		
                                 </relocation>
                             </relocations>
                         </configuration>

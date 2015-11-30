@@ -17,7 +17,8 @@ import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -26,7 +27,7 @@ class FigureItOutResultSetMapper implements ResultSetMapper<Object> {
     @Override
     public Object map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         Method m = ctx.getSqlObjectMethod();
-        TypeToken<?> type = TypeToken.of(m.getGenericReturnType());
+        ResolvedType type = new TypeResolver().resolve(m.getGenericReturnType());
         GetGeneratedKeys ggk = m.getAnnotation(GetGeneratedKeys.class);
         String keyColumn = ggk.columnName();
 

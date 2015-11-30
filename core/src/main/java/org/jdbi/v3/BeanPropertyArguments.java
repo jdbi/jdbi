@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3;
 
-import com.google.common.reflect.TypeToken;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.NamedArgumentFinder;

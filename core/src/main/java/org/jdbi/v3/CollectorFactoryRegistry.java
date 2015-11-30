@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
@@ -47,7 +47,7 @@ class CollectorFactoryRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    <T, R> Collector<T, ?, R> createCollectorFor(TypeToken<R> type) {
+    <T, R> Collector<T, ?, R> createCollectorFor(ResolvedType type) {
         for (CollectorFactory<?, ?> factory : factories) {
             if (factory.accepts(type)) {
                 return ((CollectorFactory<T, R>) factory).newCollector(type);
@@ -66,12 +66,12 @@ class CollectorFactoryRegistry {
     private static class SortedSetCollectorFactory<T> implements CollectorFactory<T, SortedSet<T>> {
 
         @Override
-        public boolean accepts(TypeToken<?> type) {
-            return type.getRawType().equals(SortedSet.class);
+        public boolean accepts(ResolvedType type) {
+            return type.getErasedType().equals(SortedSet.class);
         }
 
         @Override
-        public Collector<T, ?, SortedSet<T>> newCollector(TypeToken<SortedSet<T>> type) {
+        public Collector<T, ?, SortedSet<T>> newCollector(ResolvedType type) {
             return Collectors.toCollection(TreeSet::new);
         }
     }
@@ -79,12 +79,12 @@ class CollectorFactoryRegistry {
     private static class ListCollectorFactory<T> implements CollectorFactory<T, List<T>> {
 
         @Override
-        public boolean accepts(TypeToken<?> type) {
-            return type.getRawType().equals(List.class);
+        public boolean accepts(ResolvedType type) {
+            return type.getErasedType().equals(List.class);
         }
 
         @Override
-        public Collector<T, ?, List<T>> newCollector(TypeToken<List<T>> type) {
+        public Collector<T, ?, List<T>> newCollector(ResolvedType type) {
             return Collectors.toList();
         }
     }
@@ -92,12 +92,12 @@ class CollectorFactoryRegistry {
     private static class SetCollectorFactory<T> implements CollectorFactory<T, Set<T>> {
 
         @Override
-        public boolean accepts(TypeToken<?> type) {
-            return type.getRawType().equals(Set.class);
+        public boolean accepts(ResolvedType type) {
+            return type.getErasedType().equals(Set.class);
         }
 
         @Override
-        public Collector<T, ?, Set<T>> newCollector(TypeToken<Set<T>> type) {
+        public Collector<T, ?, Set<T>> newCollector(ResolvedType type) {
             return Collectors.toSet();
         }
     }

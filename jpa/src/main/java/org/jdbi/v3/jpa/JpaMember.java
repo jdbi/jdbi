@@ -13,7 +13,8 @@
  */
 package org.jdbi.v3.jpa;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,14 +39,14 @@ class JpaMember {
 
     private final Class<?> clazz;
     private final String columnName;
-    private final TypeToken<?> type;
+    private final ResolvedType type;
     private final Getter accessor;
     private final Setter mutator;
 
     JpaMember(Class<?> clazz, Column column, Field field) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, field.getName());
-        this.type = TypeToken.of(field.getGenericType());
+        this.type = new TypeResolver().resolve(field.getGenericType());
         field.setAccessible(true);
         this.accessor = field::get;
         this.mutator = field::set;
@@ -54,7 +55,7 @@ class JpaMember {
     JpaMember(Class<?> clazz, Column column, PropertyDescriptor property) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, property.getName());
-        this.type = TypeToken.of(property.getReadMethod().getGenericReturnType());
+        this.type = new TypeResolver().resolve(property.getReadMethod().getGenericReturnType());
 
         Method getter = property.getReadMethod();
         Method setter = property.getWriteMethod();
@@ -68,7 +69,7 @@ class JpaMember {
         return columnName;
     }
 
-    public TypeToken<?> getType() {
+    public ResolvedType getType() {
         return type;
     }
 

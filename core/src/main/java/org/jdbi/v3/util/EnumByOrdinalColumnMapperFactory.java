@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.util;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.ResultColumnMapperFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
@@ -24,13 +24,13 @@ import org.jdbi.v3.tweak.ResultColumnMapper;
 public class EnumByOrdinalColumnMapperFactory implements ResultColumnMapperFactory {
     @SuppressWarnings("unchecked")
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type, StatementContext ctx) {
-        return (ResultColumnMapper<? extends T>) EnumColumnMapper.byOrdinal(
-                (Class<? extends Enum>) type.getRawType().asSubclass(Enum.class));
+    public <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type, StatementContext ctx) {
+        return (ResultColumnMapper<T>) EnumColumnMapper.byOrdinal(
+                (Class<? extends Enum>) type.getErasedType().asSubclass(Enum.class));
     }
 
     @Override
-    public boolean accepts(TypeToken<?> type, StatementContext ctx) {
-        return type.getRawType().isEnum();
+    public boolean accepts(ResolvedType type, StatementContext ctx) {
+        return type.getErasedType().isEnum();
     }
 }

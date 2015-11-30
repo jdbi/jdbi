@@ -13,34 +13,37 @@
  */
 package org.jdbi.v3;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.tweak.ResultSetMapper;
+
+import java.util.List;
 
 class InferredMapperFactory<X> implements ResultSetMapperFactory
 {
-    private final TypeToken<X> maps;
+    private final ResolvedType maps;
     private final ResultSetMapper<X> mapper;
 
     InferredMapperFactory(ResultSetMapper<X> mapper)
     {
-        TypeToken<?> mappedType = TypeToken.of(mapper.getClass())
-                .resolveType(ResultSetMapper.class.getTypeParameters()[0]);
-        if (!(mappedType.getType() instanceof Class)) {
+        List<ResolvedType> typeParameters = new TypeResolver().resolve(mapper.getClass())
+                .typeParametersFor(ResultSetMapper.class);
+        if (typeParameters.isEmpty() || typeParameters.get(0).getErasedType().equals(Object.class)) {
           throw new UnsupportedOperationException("Must use a concretely typed ResultSetMapper here");
         }
-        this.maps = (TypeToken<X>) mappedType;
+        this.maps = typeParameters.get(0);
         this.mapper = mapper;
     }
 
     @Override
-    public boolean accepts(TypeToken<?> type, StatementContext ctx)
+    public boolean accepts(ResolvedType type, StatementContext ctx)
     {
         return maps.equals(type);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> ResultSetMapper<? extends T> mapperFor(TypeToken<T> type, StatementContext ctx)
+    public <T> ResultSetMapper<? extends T> mapperFor(ResolvedType type, StatementContext ctx)
     {
         if (!type.equals(maps)) {
             throw new IllegalArgumentException("Expected to map " + type + " but I only map " + maps);

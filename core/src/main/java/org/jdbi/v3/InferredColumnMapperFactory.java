@@ -13,35 +13,38 @@
  */
 package org.jdbi.v3;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.tweak.ResultColumnMapper;
+
+import java.util.List;
 
 class InferredColumnMapperFactory<X> implements ResultColumnMapperFactory
 {
-    private final TypeToken<X> maps;
+    private final ResolvedType maps;
     private final ResultColumnMapper<X> mapper;
 
     @SuppressWarnings("unchecked")
     InferredColumnMapperFactory(ResultColumnMapper<X> mapper)
     {
-        TypeToken<?> mappedType = TypeToken.of(mapper.getClass())
-                .resolveType(ResultColumnMapper.class.getTypeParameters()[0]);
-        if (!(mappedType.getType() instanceof Class)) {
-            throw new UnsupportedOperationException("Must use a concretely typed ResultSetMapper here");
+        List<ResolvedType> typeParameters = new TypeResolver().resolve(mapper.getClass())
+                .typeParametersFor(ResultColumnMapper.class);
+        if (typeParameters.isEmpty() || typeParameters.get(0).getErasedType().equals(Object.class)) {
+            throw new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here");
         }
-        this.maps = (TypeToken<X>) mappedType;
+        this.maps = typeParameters.get(0);
         this.mapper = mapper;
     }
 
     @Override
-    public boolean accepts(TypeToken<?> type, StatementContext ctx)
+    public boolean accepts(ResolvedType type, StatementContext ctx)
     {
         return maps.equals(type);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(TypeToken<T> type, StatementContext ctx)
+    public <T> ResultColumnMapper<? extends T> columnMapperFor(ResolvedType type, StatementContext ctx)
     {
         return (ResultColumnMapper<? extends T>) mapper;
     }

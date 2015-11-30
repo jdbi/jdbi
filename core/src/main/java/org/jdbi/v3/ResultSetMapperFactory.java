@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.ResultSetMapper;
 
 /**
@@ -26,10 +26,10 @@ public interface ResultSetMapperFactory
      * @param type the target type to map to
      * @return true if it can, false if it cannot
      */
-    boolean accepts(TypeToken<?> type, StatementContext ctx);
+    boolean accepts(ResolvedType type, StatementContext ctx);
 
     /**
      * Supplies a result set mapper which will map result sets to type
      */
-    <T> ResultSetMapper<? extends T> mapperFor(TypeToken<T> type, StatementContext ctx);
+    <T> ResultSetMapper<? extends T> mapperFor(ResolvedType type, StatementContext ctx);
 }

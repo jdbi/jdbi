@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.tweak;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 
 import java.util.stream.Collector;
 
@@ -32,7 +32,7 @@ public interface CollectorFactory<T, R> {
      * @param type the object type
      * @return {@code true}, if accepts, otherwise {@code false}
      */
-    boolean accepts(TypeToken<?> type);
+    boolean accepts(ResolvedType type);
 
     /**
      * Builds a new {@link Collector}.
@@ -40,5 +40,5 @@ public interface CollectorFactory<T, R> {
      * @param type the actual type of the container
      * @return the {@link Collector}
      */
-    Collector<T, ?, R> newCollector(TypeToken<R> type);
+    Collector<T, ?, R> newCollector(ResolvedType type);
 }

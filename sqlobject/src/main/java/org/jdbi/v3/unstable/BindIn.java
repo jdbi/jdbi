@@ -22,7 +22,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
 import org.jdbi.v3.sqlobject.BindingAnnotation;
@@ -76,11 +77,13 @@ public @interface BindIn
 
             return (q, param, bind, arg) -> {
                 Iterable<?> coll = (Iterable<?>) arg;
-                TypeToken<?> elementType = TypeToken.of(Object.class);
-                TypeToken<? extends Iterable<?>> parameterType =
-                        (TypeToken<? extends Iterable<?>>) TypeToken.of(param.getParameterizedType());
-                if (Iterable.class.isAssignableFrom(parameterType.getRawType())) {
-                    elementType = parameterType.resolveType(Iterable.class.getTypeParameters()[0]);
+                ResolvedType elementType = new TypeResolver().resolve(Object.class);
+                ResolvedType parameterType = new TypeResolver().resolve(param.getParameterizedType());
+                if (Iterable.class.isAssignableFrom(parameterType.getErasedType())) {
+                    List<ResolvedType> typeParameters = parameterType.typeParametersFor(Iterable.class);
+                    if (!typeParameters.isEmpty()) {
+                        elementType = typeParameters.get(0);
+                    }
                 }
                 int idx = 0;
                 for (Object s : coll) {

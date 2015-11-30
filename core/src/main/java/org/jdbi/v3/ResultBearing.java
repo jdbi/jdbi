@@ -13,7 +13,9 @@
  */
 package org.jdbi.v3;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.GenericType;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 
 import java.util.List;
 import java.util.Optional;
@@ -88,6 +90,19 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
      * @param <ContainerType> the generic type of the container
      * @return the container with the query result
      */
-    <ContainerType> ContainerType collectInto(TypeToken<ContainerType> containerType);
+    default <ContainerType> ContainerType collectInto(GenericType<ContainerType> containerType) {
+        return collectInto(new TypeResolver().resolve(containerType));
+    }
+
+    /**
+     * Collect the query result into a container of the type specified by the given class.
+     * A factory for building the container should be registered in the query's
+     * collector factory registry.
+     *
+     * @param containerType   the class that represents the container
+     * @param <ContainerType> the generic type of the container
+     * @return the container with the query result
+     */
+    <ContainerType> ContainerType collectInto(ResolvedType containerType);
 
 }

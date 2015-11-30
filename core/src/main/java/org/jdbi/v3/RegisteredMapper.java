@@ -16,16 +16,16 @@ package org.jdbi.v3;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.ResultSetMapper;
 
 class RegisteredMapper<T> implements ResultSetMapper<T>
 {
 
-    private final TypeToken<T> type;
+    private final ResolvedType type;
     private final MappingRegistry registry;
 
-    RegisteredMapper(TypeToken<T> type, MappingRegistry registry) {
+    RegisteredMapper(ResolvedType type, MappingRegistry registry) {
         this.type = type;
         this.registry = registry;
     }
@@ -34,6 +34,6 @@ class RegisteredMapper<T> implements ResultSetMapper<T>
     @SuppressWarnings("unchecked")
     public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
-        return registry.mapperFor(type, ctx).map(index, r, ctx);
+        return registry.<T>mapperFor(type, ctx).map(index, r, ctx);
     }
 }

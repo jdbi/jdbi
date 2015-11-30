@@ -21,10 +21,12 @@ import java.sql.Clob;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
@@ -65,15 +67,15 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
     }
 
     @Override
-    public boolean accepts(TypeToken<?> expectedType, Object value, StatementContext ctx)
+    public boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx)
     {
-        return b.containsKey(expectedType.getRawType()) || value == null || value.getClass().isEnum() || value instanceof Optional;
+        return b.containsKey(expectedType.getErasedType()) || value == null || value.getClass().isEnum() || value instanceof Optional;
     }
 
     @Override
-    public Argument build(TypeToken<?> expectedType, T value, StatementContext ctx)
+    public Argument build(ResolvedType expectedType, T value, StatementContext ctx)
     {
-        Class<?> expectedClass = expectedType.getRawType();
+        Class<?> expectedClass = expectedType.getErasedType();
         P p = b.get(expectedClass);
 
         if (value != null && expectedClass == Object.class) {
@@ -97,13 +99,13 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
         }
 
         if (value instanceof Optional) {
-            TypeToken<?> nestedType;
             Object nestedValue = ((Optional)value).orElse(null);
+            ResolvedType nestedType = new TypeResolver().resolve(nestedValue == null ? Object.class : nestedValue.getClass());
             if (expectedClass.equals(Optional.class)) {
-                nestedType = expectedType.resolveType(Optional.class.getTypeParameters()[0]);
-            }
-            else {
-                nestedType = TypeToken.of(nestedValue == null ? Object.class : nestedValue.getClass());
+                List<ResolvedType> typeParameters = expectedType.typeParametersFor(Optional.class);
+                if (!typeParameters.isEmpty()) {
+                    nestedType = typeParameters.get(0);
+                }
             }
             Argument optionalArgument = ctx.argumentFor(nestedType, nestedValue);
             if (optionalArgument != null) {

@@ -20,7 +20,9 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
 
-import com.google.common.reflect.TypeToken;
+import com.fasterxml.classmate.GenericType;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -88,7 +90,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     @Override
-    public <ContainerType> ContainerType collectInto(TypeToken<ContainerType> containerType) {
+    public <ContainerType> ContainerType collectInto(ResolvedType containerType) {
         return collect(getCollectorFactoryRegistry().createCollectorFor(containerType));
     }
 
@@ -119,7 +121,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapTo(Class<T> resultType)
     {
-        return mapTo(TypeToken.of(resultType));
+        return mapTo(new TypeResolver().resolve(resultType));
     }
 
     /**
@@ -134,8 +136,24 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @see Handle#registerMapper(ResultSetMapperFactory)
      * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
      */
-    public <T> Query<T> mapTo(TypeToken<T> resultType)
+    public <T> Query<T> mapTo(GenericType<T> resultType)
     {
+        return mapTo(new TypeResolver().resolve(resultType));
+    }
+
+    /**
+     * Makes use of registered mappers to map the result set to the desired type.
+     *
+     * @param resultType the type to map the query results to
+     *
+     * @return a new query instance which will map to the desired type
+     *
+     * @see DBI#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     * @see DBI#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     */
+    public <T> Query<T> mapTo(ResolvedType resultType) {
         return this.map(new RegisteredMapper<T>(resultType, mappingRegistry));
     }
 

@@ -22,12 +22,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 
-import com.google.common.reflect.TypeToken;
 import org.hamcrest.CoreMatchers;
 import org.jdbi.v3.H2DatabaseRule;
 import org.junit.Before;
@@ -47,10 +48,11 @@ public class TestGuavaCollectors {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Parameters(name="{0}")
     public static Object[][] data() {
+        TypeResolver typeResolver = new TypeResolver();
         return new Object[][] {
-            { new TypeToken<ImmutableList<Integer>>() {}, f(ImmutableList::copyOf) },
-            { new TypeToken<ImmutableSet<Integer>> () {}, f(ImmutableSet::copyOf) },
-            { new TypeToken<ImmutableSortedSet<Integer>> () {}, f(ImmutableSortedSet::copyOf) }
+            { typeResolver.resolve(ImmutableList.class, Integer.class), f(ImmutableList::copyOf) },
+            { typeResolver.resolve(ImmutableSet.class, Integer.class), f(ImmutableSet::copyOf) },
+            { typeResolver.resolve(ImmutableSortedSet.class, Integer.class), f(ImmutableSortedSet::copyOf) }
         };
     }
 
@@ -60,7 +62,7 @@ public class TestGuavaCollectors {
     }
 
     @Parameter(value=0)
-    public TypeToken<? extends Collection<Integer>> type;
+    public ResolvedType type;
 
     @Parameter(value=1)
     public Function<List<Integer>, List<Integer>> transformer;
@@ -80,7 +82,7 @@ public class TestGuavaCollectors {
             .collectInto(type);
 
         // Same type
-        assertTrue(type.getRawType().isInstance(collection));
+        assertTrue(type.getErasedType().isInstance(collection));
 
         // Same elements, same order
         assertEquals(expected.size(), collection.size());
