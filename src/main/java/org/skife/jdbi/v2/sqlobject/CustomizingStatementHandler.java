@@ -13,6 +13,7 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
+import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.members.ResolvedMethod;
 import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.SQLStatement;
@@ -22,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 abstract class CustomizingStatementHandler implements Handler
@@ -31,12 +33,12 @@ abstract class CustomizingStatementHandler implements Handler
     private final List<FactoryAnnotationPair>        methodBasedCustomizerFactories = new ArrayList<FactoryAnnotationPair>();
     private final List<FactoryAnnotationIndexTriple> paramBasedCustomizerFactories  = new ArrayList<FactoryAnnotationIndexTriple>();
     private final Class<?> sqlObjectType;
-    private final Method method;
+    private final ResolvedMethod method;
 
     CustomizingStatementHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         this.sqlObjectType = sqlObjectType;
-        this.method = method.getRawMember();
+        this.method = method;
 
         for (final Annotation annotation : sqlObjectType.getAnnotations()) {
             if (annotation.annotationType().isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
@@ -73,19 +75,19 @@ abstract class CustomizingStatementHandler implements Handler
         }
 
         final Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
+
         for (int param_idx = 0; param_idx < param_annotations.length; param_idx++) {
             boolean thereBindingAnnotation = false;
             for (final Annotation annotation : param_annotations[param_idx]) {
                 final Class<? extends Annotation> anno_class = annotation.annotationType();
 
-
                 if (anno_class.isAnnotationPresent(BindingAnnotation.class)) {
-                    // we have a binder
                     BindingAnnotation ba = annotation.annotationType().getAnnotation(BindingAnnotation.class);
+                    Class<?> argumentClass = getArgumentClass(method.getArgumentType(param_idx));
+
                     try {
                         BinderFactory fact = ba.value().newInstance();
-                        binders.add(new Bindifier(annotation, param_idx, fact.build(annotation)));
-
+                        binders.add(new Bindifier(annotation, param_idx, fact.build(annotation, argumentClass)));
                     }
                     catch (Exception e) {
                         throw new IllegalStateException("unable to instantiate cusotmizer", e);
@@ -115,9 +117,26 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
+    private static Class<?> getArgumentClass(ResolvedType resolvedType) {
+        if (resolvedType.isArray()) {
+            return resolvedType.getArrayElementType().getErasedType();
+        }
+        else  {
+            Class<?> erasedType = resolvedType.getErasedType();
+            boolean isIterableType = Iterable.class.isAssignableFrom(erasedType) || Iterator.class.isAssignableFrom(erasedType);
+
+            if (isIterableType) {
+                List<ResolvedType> typeParameters = resolvedType.getTypeParameters();
+                return typeParameters.size() > 0 ? typeParameters.get(0).getErasedType() : Object.class;
+            }
+
+            return resolvedType.getErasedType();
+        }
+    }
+
     protected final void populateSqlObjectData(ConcreteStatementContext q)
     {
-        q.setSqlObjectMethod(method);
+        q.setSqlObjectMethod(method.getRawMember());
         q.setSqlObjectType(sqlObjectType);
     }
 
@@ -141,7 +160,7 @@ abstract class CustomizingStatementHandler implements Handler
 
         for (FactoryAnnotationPair pair : methodBasedCustomizerFactories) {
             try {
-                pair.factory.createForMethod(pair.annotation, sqlObjectType, method).apply(q);
+                pair.factory.createForMethod(pair.annotation, sqlObjectType, method.getRawMember()).apply(q);
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException("unable to apply customizer", e, q.getContext());
@@ -152,7 +171,7 @@ abstract class CustomizingStatementHandler implements Handler
             for (FactoryAnnotationIndexTriple triple : paramBasedCustomizerFactories) {
                 try {
                     triple.factory
-                        .createForParameter(triple.annotation, sqlObjectType, method, args[triple.index])
+                        .createForParameter(triple.annotation, sqlObjectType, method.getRawMember(), args[triple.index])
                         .apply(q);
                 }
                 catch (SQLException e) {

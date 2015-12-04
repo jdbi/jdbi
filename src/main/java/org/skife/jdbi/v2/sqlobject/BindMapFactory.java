@@ -25,7 +25,7 @@ import org.skife.jdbi.v2.SQLStatement;
 class BindMapFactory implements BinderFactory
 {
     @Override
-    public Binder build(Annotation annotation)
+    public Binder build(Annotation annotation, final Class<?> parameterClass)
     {
         return new Binder<BindMap, Object>()
         {

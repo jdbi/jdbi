@@ -24,7 +24,9 @@ public interface BinderFactory
     /**
      * Called to build a Binder
      * @param annotation the {@link BindingAnnotation} which lead to this call
+     * @param parameterClass the type of the annotated parameter OR in the case its an Array/Iterable/Iterator the contained
+     *                       type.
      * @return a binder to use
      */
-    Binder build(Annotation annotation);
+    Binder build(Annotation annotation, Class<?> parameterClass);
 }
