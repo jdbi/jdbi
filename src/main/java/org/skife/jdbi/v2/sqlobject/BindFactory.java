@@ -18,7 +18,7 @@ import java.lang.annotation.Annotation;
 class BindFactory implements BinderFactory
 {
     @Override
-    public Binder build(Annotation annotation)
+    public Binder build(Annotation annotation, Class<?> parameterClass)
     {
         Bind bind = (Bind) annotation;
         try {

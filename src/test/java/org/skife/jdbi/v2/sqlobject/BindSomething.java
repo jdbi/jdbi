@@ -33,7 +33,7 @@ public @interface BindSomething
     static class Factory implements BinderFactory
     {
         @Override
-        public Binder build(Annotation annotation)
+        public Binder build(Annotation annotation, Class<?> parameterClass)
         {
             return new Binder()
             {

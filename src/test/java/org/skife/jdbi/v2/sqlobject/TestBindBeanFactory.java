@@ -51,7 +51,7 @@ public class TestBindBeanFactory
     {
         BindBeanFactory factory = new BindBeanFactory();
         @SuppressWarnings("unchecked")
-        Binder<BindBean, Object> beanBinder = factory.build(new BindBeanImpl());
+        Binder<BindBean, Object> beanBinder = factory.build(new BindBeanImpl(), TestBean.class);
 
         final DBI dbi = new DBI(DERBY_HELPER.getDataSource());
         final Handle handle = dbi.open();

@@ -24,8 +24,7 @@ import java.lang.reflect.Method;
 class BindBeanFactory implements BinderFactory
 {
     @Override
-    public Binder build(Annotation annotation)
-    {
+    public Binder build(Annotation annotation, final Class<?> parameterClass) {
         return new Binder<BindBean, Object>()
         {
             @Override
@@ -40,7 +39,7 @@ class BindBeanFactory implements BinderFactory
                 }
 
                 try {
-                    BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
+                    BeanInfo infos = Introspector.getBeanInfo(parameterClass);
                     PropertyDescriptor[] props = infos.getPropertyDescriptors();
                     for (PropertyDescriptor prop : props) {
                         Method readMethod = prop.getReadMethod();
@@ -52,8 +51,6 @@ class BindBeanFactory implements BinderFactory
                 catch (Exception e) {
                     throw new IllegalStateException("unable to bind bean properties", e);
                 }
-
-
             }
         };
     }

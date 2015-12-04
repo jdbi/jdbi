@@ -90,7 +90,7 @@ public @interface BindIn
     public static class BindingFactory implements BinderFactory
     {
         @Override
-        public Binder build(Annotation annotation)
+        public Binder build(Annotation annotation, Class<?> parameterClass)
         {
             final BindIn in = (BindIn) annotation;
             final String key = in.value();

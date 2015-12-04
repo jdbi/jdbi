@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.sqlobject.subpackage.PrivateImplementationFactory;
 
 import java.util.UUID;
 
@@ -77,5 +78,18 @@ public class TestBeanBinder
         @SqlQuery("select id, name from something where id = :s.id and name = :s.name")
         Something findByEqualsOnBothFields(@BindBean("s") Something s);
 
+        @SqlQuery("select :pi.value")
+        String selectPublicInterfaceValue(@BindBean("pi") PublicInterface pi);
+    }
+
+    @Test
+    public void testBindingPrivateTypeUsingPublicInterface() throws Exception
+    {
+        Spiffy s = handle.attach(Spiffy.class);
+        assertEquals("IShouldBind", s.selectPublicInterfaceValue(PrivateImplementationFactory.create()));
+    }
+
+    public interface PublicInterface {
+        String getValue();
     }
 }
