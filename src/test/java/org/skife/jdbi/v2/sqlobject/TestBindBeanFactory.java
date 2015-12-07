@@ -103,7 +103,7 @@ public class TestBindBeanFactory
 
         public Short getAShort()
         {
-            return Short.valueOf((short) 12345);
+            return (short) 12345;
         }
     }
 
@@ -124,6 +124,11 @@ public class TestBindBeanFactory
         public String value()
         {
             return "___jdbi_bare___";
+        }
+
+        @Override
+        public Class<?> type() {
+            return Default.class;
         }
     }
 }
