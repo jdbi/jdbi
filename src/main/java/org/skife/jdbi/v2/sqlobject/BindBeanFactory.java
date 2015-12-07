@@ -40,7 +40,11 @@ class BindBeanFactory implements BinderFactory
                 }
 
                 try {
-                    BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
+                    Class<?> beanType = bind.type().equals(BindBean.Default.class)
+                        ? arg.getClass()
+                        : bind.type();
+
+                    BeanInfo infos = Introspector.getBeanInfo(beanType);
                     PropertyDescriptor[] props = infos.getPropertyDescriptors();
                     for (PropertyDescriptor prop : props) {
                         Method readMethod = prop.getReadMethod();
