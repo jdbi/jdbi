@@ -61,7 +61,7 @@ public class SingleColumnMapper<T> implements ResultSetMapper<T> {
         private final ResultColumnMapper<T> mapper;
         private final String label;
 
-        public ByLabel(ResultColumnMapper<T> mapper, String label) {
+        ByLabel(ResultColumnMapper<T> mapper, String label) {
             this.mapper = mapper;
             this.label = label;
         }
@@ -76,7 +76,7 @@ public class SingleColumnMapper<T> implements ResultSetMapper<T> {
         private final ResultColumnMapper<T> mapper;
         private final int number;
 
-        public ByNumber(ResultColumnMapper<T> mapper, int number) {
+        ByNumber(ResultColumnMapper<T> mapper, int number) {
             this.mapper = mapper;
             this.number = number;
         }

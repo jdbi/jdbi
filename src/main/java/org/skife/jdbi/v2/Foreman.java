@@ -33,12 +33,12 @@ class Foreman
 
     private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<ArgumentFactory>();
 
-    public Foreman()
+    Foreman()
     {
         factories.add(BUILT_INS);
     }
 
-    public Foreman(List<ArgumentFactory> factories)
+    Foreman(List<ArgumentFactory> factories)
     {
         this.factories.addAll(factories);
     }

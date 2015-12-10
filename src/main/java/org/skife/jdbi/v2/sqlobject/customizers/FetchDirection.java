@@ -40,7 +40,7 @@ public @interface FetchDirection
      */
     int value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         public SqlStatementCustomizer createForParameter(Annotation annotation, Object arg)
         {
@@ -71,11 +71,11 @@ public @interface FetchDirection
         }
     }
 
-    static class FetchDirectionSqlStatementCustomizer implements SqlStatementCustomizer
+    class FetchDirectionSqlStatementCustomizer implements SqlStatementCustomizer
     {
         private final Integer direction;
 
-        public FetchDirectionSqlStatementCustomizer(final Integer direction)
+        FetchDirectionSqlStatementCustomizer(final Integer direction)
         {
             this.direction = direction;
         }

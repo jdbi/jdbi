@@ -23,7 +23,7 @@ class DataSourceConnectionFactory implements ConnectionFactory
 {
     private DataSource dataSource;
 
-    public DataSourceConnectionFactory(DataSource dataSource)
+    DataSourceConnectionFactory(DataSource dataSource)
     {
         this.dataSource = dataSource;
     }

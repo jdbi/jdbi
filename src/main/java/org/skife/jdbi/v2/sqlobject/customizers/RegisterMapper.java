@@ -40,7 +40,7 @@ public @interface RegisterMapper
      */
     Class<? extends ResultSetMapper<?>>[] value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)

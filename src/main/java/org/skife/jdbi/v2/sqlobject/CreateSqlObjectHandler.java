@@ -19,7 +19,7 @@ class CreateSqlObjectHandler implements Handler
 {
     private final Class<?> sqlObjectTypeToCreate;
 
-    public CreateSqlObjectHandler(Class<?> sqlObjectTypeToCreate)
+    CreateSqlObjectHandler(Class<?> sqlObjectTypeToCreate)
     {
         this.sqlObjectTypeToCreate = sqlObjectTypeToCreate;
     }

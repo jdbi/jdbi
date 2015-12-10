@@ -26,7 +26,7 @@ class SqlScriptParser {
 
     private final TokenHandler semicolonHandler;
 
-    public SqlScriptParser(TokenHandler semicolonHandler) {
+    SqlScriptParser(TokenHandler semicolonHandler) {
         this.semicolonHandler = semicolonHandler;
     }
 

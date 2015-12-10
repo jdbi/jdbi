@@ -25,7 +25,7 @@ class InferredColumnMapperFactory implements ResultColumnMapperFactory
     private final Class<?> maps;
     private final ResultColumnMapper mapper;
 
-    public InferredColumnMapperFactory(ResultColumnMapper mapper)
+    InferredColumnMapperFactory(ResultColumnMapper mapper)
     {
         this.mapper = mapper;
         ResolvedType rt = tr.resolve(mapper.getClass());

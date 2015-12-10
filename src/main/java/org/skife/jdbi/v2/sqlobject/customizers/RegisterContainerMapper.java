@@ -37,7 +37,7 @@ public @interface RegisterContainerMapper
 {
     Class<? extends ContainerFactory>[] value();
 
-    public static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
 
         @Override
@@ -59,7 +59,7 @@ public @interface RegisterContainerMapper
         }
     }
 
-    static class MyCustomizer implements SqlStatementCustomizer
+    class MyCustomizer implements SqlStatementCustomizer
     {
         private final List<ContainerFactory> factory;
 

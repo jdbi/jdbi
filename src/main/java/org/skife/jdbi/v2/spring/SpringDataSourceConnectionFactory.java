@@ -27,7 +27,7 @@ class SpringDataSourceConnectionFactory implements ConnectionFactory
 {
     private final DataSource dataSource;
 
-    public SpringDataSourceConnectionFactory(DataSource dataSource)
+    SpringDataSourceConnectionFactory(DataSource dataSource)
     {
         this.dataSource = dataSource;
     }
