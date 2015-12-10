@@ -24,7 +24,7 @@ class EnumArgument<T extends Enum<T>> implements Argument {
 
     private final T value;
 
-    public EnumArgument(T value) {
+    EnumArgument(T value) {
         this.value = value;
     }
 

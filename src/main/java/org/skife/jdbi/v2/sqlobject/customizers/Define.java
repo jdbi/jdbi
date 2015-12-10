@@ -39,7 +39,7 @@ public @interface Define
      */
     String value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)

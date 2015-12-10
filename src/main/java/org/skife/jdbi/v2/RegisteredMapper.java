@@ -24,7 +24,7 @@ class RegisteredMapper<T> implements ResultSetMapper<T>
     private final Class<T> type;
     private final MappingRegistry registry;
 
-    public RegisteredMapper(Class<T> type, MappingRegistry registry) {
+    RegisteredMapper(Class<T> type, MappingRegistry registry) {
         this.type = type;
         this.registry = registry;
     }

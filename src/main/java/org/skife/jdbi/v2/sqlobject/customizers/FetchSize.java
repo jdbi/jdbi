@@ -34,7 +34,7 @@ public @interface FetchSize
 {
     int value() default 0;
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)

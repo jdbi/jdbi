@@ -35,7 +35,7 @@ class MappingRegistry
     /**
      * Copy Constructor
      */
-    public MappingRegistry(MappingRegistry parent)
+    MappingRegistry(MappingRegistry parent)
     {
         rowFactories.addAll(parent.rowFactories);
         rowCache.putAll(parent.rowCache);
@@ -44,7 +44,7 @@ class MappingRegistry
         columnCache.putAll(parent.columnCache);
     }
 
-    public MappingRegistry() {
+    MappingRegistry() {
 
     }
 

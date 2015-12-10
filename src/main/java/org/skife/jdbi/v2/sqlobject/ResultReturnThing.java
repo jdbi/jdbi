@@ -79,7 +79,7 @@ abstract class ResultReturnThing
         private final Class<?> returnType;
         private final Class<?> containerType;
 
-        public SingleValueResultReturnThing(ResolvedMethod method)
+        SingleValueResultReturnThing(ResolvedMethod method)
         {
             if (method.getRawMember().isAnnotationPresent(SingleValueResult.class)) {
                 SingleValueResult svr = method.getRawMember().getAnnotation(SingleValueResult.class);
@@ -122,7 +122,7 @@ abstract class ResultReturnThing
 
         private final ResolvedType resolvedType;
 
-        public ResultBearingResultReturnThing(ResolvedMethod method)
+        ResultBearingResultReturnThing(ResolvedMethod method)
         {
             // extract T from Query<T>
             ResolvedType query_type = method.getReturnType();
@@ -148,7 +148,7 @@ abstract class ResultReturnThing
     {
         private final ResolvedType resolvedType;
 
-        public IteratorResultReturnThing(ResolvedMethod method)
+        IteratorResultReturnThing(ResolvedMethod method)
         {
             ResolvedType query_type = method.getReturnType();
             List<ResolvedType> query_return_types = query_type.typeParametersFor(Iterator.class);
@@ -238,7 +238,7 @@ abstract class ResultReturnThing
         private final ResolvedType resolvedType;
         private final Class<?> erased_type;
 
-        public IterableReturningThing(ResolvedMethod method)
+        IterableReturningThing(ResolvedMethod method)
         {
             // extract T from List<T>
             ResolvedType query_type = method.getReturnType();

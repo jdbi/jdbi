@@ -97,7 +97,7 @@ class CGLIBDispatchBuilder
         private final Map<Method, Integer> indices;
         private final int defalt_idx;
 
-        public MyCallbackFilter(Map<Method, Integer> indices, int defalt_idx)
+        MyCallbackFilter(Map<Method, Integer> indices, int defalt_idx)
         {
             this.indices = indices;
             this.defalt_idx = defalt_idx;

@@ -113,7 +113,7 @@ public class HashPrefixStatementRewriter implements StatementRewriter
         private final ParsedStatement stmt;
         private final StatementContext context;
 
-        public MyRewrittenStatement(ParsedStatement stmt, StatementContext ctx)
+        MyRewrittenStatement(ParsedStatement stmt, StatementContext ctx)
         {
             this.context = ctx;
             this.stmt = stmt;

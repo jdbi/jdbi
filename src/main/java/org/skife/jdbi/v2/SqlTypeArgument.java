@@ -26,7 +26,7 @@ class SqlTypeArgument implements Argument
     private final Object value;
     private final int sqlType;
 
-    public SqlTypeArgument(Object value, int sqlType)
+    SqlTypeArgument(Object value, int sqlType)
     {
         this.value = value;
         this.sqlType = sqlType;

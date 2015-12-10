@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class SLF4JLog extends FormattedLog {
 
-    public static enum Level
+    public enum Level
     {
         TRACE {
             @Override

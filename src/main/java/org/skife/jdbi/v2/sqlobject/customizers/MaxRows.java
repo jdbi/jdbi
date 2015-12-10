@@ -41,7 +41,7 @@ public @interface MaxRows
      */
     int value();
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class sqlObjectType, Method method)

@@ -62,14 +62,14 @@ public abstract class FormattedLog implements SQLLog
                 private boolean added = false;
 
                 @Override
-                public final void add(String sql)
+                public void add(String sql)
                 {
                     added = true;
                     builder.append("[").append(sql).append("], ");
                 }
 
                 @Override
-                public final void log(long time)
+                public void log(long time)
                 {
                     if (added) {
                         builder.delete(builder.length() - 2, builder.length());

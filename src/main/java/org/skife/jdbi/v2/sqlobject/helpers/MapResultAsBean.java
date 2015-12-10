@@ -34,7 +34,7 @@ import java.sql.SQLException;
 public @interface MapResultAsBean
 {
 
-    public static class MapAsBeanFactory implements SqlStatementCustomizerFactory
+    class MapAsBeanFactory implements SqlStatementCustomizerFactory
     {
 
         @Override

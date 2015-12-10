@@ -191,7 +191,7 @@ class SqlObject
     private final Map<Method, Handler> handlers;
     private final HandleDing           ding;
 
-    public SqlObject(Map<Method, Handler> handlers, HandleDing ding)
+    SqlObject(Map<Method, Handler> handlers, HandleDing ding)
     {
         this.handlers = handlers;
         this.ding = ding;

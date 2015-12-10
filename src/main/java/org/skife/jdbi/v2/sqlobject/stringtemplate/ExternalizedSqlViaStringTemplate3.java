@@ -39,7 +39,7 @@ public @interface ExternalizedSqlViaStringTemplate3
 
     String value() default DEFAULT_VALUE;
 
-    public static class LocatorFactory implements SqlStatementCustomizerFactory
+    class LocatorFactory implements SqlStatementCustomizerFactory
     {
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
