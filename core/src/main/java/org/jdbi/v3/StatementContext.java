@@ -66,7 +66,7 @@ public interface StatementContext
     <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type);
 
     /**
-     * Obtain an argument factory for given value in this context
+     * Obtain an argument for given value in this context
      * @param type the type of the argument.
      * @param value the argument value.
      * @return an Argument for the given value, or null if no argument factory is registered for the given type
