@@ -13,11 +13,18 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
+import java.util.SortedSet;
+import java.util.stream.Collector;
+
 import com.fasterxml.classmate.GenericType;
 import com.fasterxml.classmate.ResolvedType;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
+
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
@@ -26,12 +33,6 @@ import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.SortedSet;
-import java.util.stream.Collector;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class TestCollectorFactory {
 

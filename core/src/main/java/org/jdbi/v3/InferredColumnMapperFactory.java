@@ -13,11 +13,12 @@
  */
 package org.jdbi.v3;
 
+import java.util.List;
+
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
-import org.jdbi.v3.tweak.ResultColumnMapper;
 
-import java.util.List;
+import org.jdbi.v3.tweak.ResultColumnMapper;
 
 class InferredColumnMapperFactory<X> implements ResultColumnMapperFactory
 {
