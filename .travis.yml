@@ -5,6 +5,9 @@ jdk:
 
 sudo: false
 
+before_install:
+    - cp core/src/build/travis-toolchains.xml ~/.m2/toolchains.xml
+
 install: mvn -DskipTests=true -Dbasepom.check.skip-all=true -B install
 script: mvn -B verify
 
