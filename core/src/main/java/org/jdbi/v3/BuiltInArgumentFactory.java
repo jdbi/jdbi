@@ -116,6 +116,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     private static class P
     {
         private final Constructor<?> ctor;
+
         P(Class<? extends Argument> argType)
         {
             this.ctor = argType.getDeclaredConstructors()[0];

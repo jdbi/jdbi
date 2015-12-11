@@ -61,7 +61,7 @@ class OnDemandHandleDing implements HandleDing
         private final Set<String> retentions = new HashSet<String>();
         private final Handle handle;
 
-        public LocalDing(Handle handle)
+        LocalDing(Handle handle)
         {
             this.handle = handle;
         }

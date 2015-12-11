@@ -29,7 +29,7 @@ class UpdateHandler extends CustomizingStatementHandler
     private final String sql;
     private final Returner returner;
 
-    public UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
 

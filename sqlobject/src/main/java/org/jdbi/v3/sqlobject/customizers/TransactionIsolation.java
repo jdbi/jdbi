@@ -72,7 +72,7 @@ public @interface TransactionIsolation
 
         private final TransactionIsolationLevel level;
 
-        public MyCustomizer(TransactionIsolationLevel level) {this.level = level;}
+        MyCustomizer(TransactionIsolationLevel level) {this.level = level;}
 
         @Override
         public void apply(SQLStatement<?> q) throws SQLException
