@@ -26,7 +26,7 @@ class QueryHandler extends CustomizingStatementHandler
     private final ResolvedMethod    method;
     private final ResultReturnThing magic;
 
-    public QueryHandler(Class<?> sqlObjectType, ResolvedMethod method, ResultReturnThing magic)
+    QueryHandler(Class<?> sqlObjectType, ResolvedMethod method, ResultReturnThing magic)
     {
         super(sqlObjectType, method);
         this.method = method;

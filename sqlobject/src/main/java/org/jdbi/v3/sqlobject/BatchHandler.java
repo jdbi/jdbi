@@ -39,7 +39,7 @@ class BatchHandler extends CustomizingStatementHandler
     private final boolean transactional;
     private final ChunkSizeFunction batchChunkSize;
 
-    public BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
         if(!returnTypeIsValid(method.getRawMember().getReturnType()) ) {
@@ -225,12 +225,10 @@ class BatchHandler extends CustomizingStatementHandler
     }
 
     private static boolean returnTypeIsValid(Class<?> type) {
-        if (type.equals(Void.TYPE)) {
+        if (type.equals(Void.TYPE) || type.isArray() && type.getComponentType().equals(Integer.TYPE)) {
             return true;
         }
-        if (type.isArray() && type.getComponentType().equals(Integer.TYPE)) {
-            return true;
-        }
+
         return false;
     }
 

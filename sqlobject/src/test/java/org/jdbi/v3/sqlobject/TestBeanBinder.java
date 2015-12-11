@@ -19,6 +19,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.subpackage.PrivateImplementationFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,5 +65,18 @@ public class TestBeanBinder
         @SqlQuery("select id, name from something where id = :s.id and name = :s.name")
         Something findByEqualsOnBothFields(@BindBean("s") Something s);
 
+        @SqlQuery("select :pi.value")
+        String selectPublicInterfaceValue(@BindBean(value = "pi", type = PublicInterface.class) PublicInterface pi);
+    }
+
+    @Test
+    public void testBindingPrivateTypeUsingPublicInterface() throws Exception
+    {
+        Spiffy s = handle.attach(Spiffy.class);
+        assertEquals("IShouldBind", s.selectPublicInterfaceValue(PrivateImplementationFactory.create()));
+    }
+
+    public interface PublicInterface {
+        String getValue();
     }
 }

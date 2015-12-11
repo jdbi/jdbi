@@ -75,7 +75,7 @@ public @interface FetchDirection
     {
         private final Integer direction;
 
-        public FetchDirectionSqlStatementCustomizer(final Integer direction)
+        FetchDirectionSqlStatementCustomizer(final Integer direction)
         {
             this.direction = direction;
         }
