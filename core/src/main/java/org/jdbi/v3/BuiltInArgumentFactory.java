@@ -30,9 +30,9 @@ import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
-public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
+public class BuiltInArgumentFactory implements ArgumentFactory {
 
-    public static final ArgumentFactory<?> INSTANCE = new BuiltInArgumentFactory<Object>();
+    public static final ArgumentFactory<?> INSTANCE = new BuiltInArgumentFactory();
 
     private static final Map<Class<?>, P> b = new IdentityHashMap<>();
 
@@ -69,52 +69,48 @@ public class BuiltInArgumentFactory<T> implements ArgumentFactory<T> {
     @Override
     public boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx)
     {
-        return b.containsKey(expectedType.getErasedType()) || value == null || value.getClass().isEnum() || value instanceof Optional;
+        return b.containsKey(expectedType.getErasedType())
+                || value == null
+                || value.getClass().isEnum()
+                || value instanceof Optional;
     }
 
     @Override
-    public Argument build(ResolvedType expectedType, T value, StatementContext ctx)
+    public Argument build(ResolvedType expectedType, Object value, StatementContext ctx)
     {
         Class<?> expectedClass = expectedType.getErasedType();
-        P p = b.get(expectedClass);
 
         if (value != null && expectedClass == Object.class) {
-            P v = b.get(value.getClass());
-            if (v != null) {
-                return v.build(value);
-            }
-
-            if (value.getClass().isEnum()) {
-                return new StringArgument(((Enum<?>)value).name());
-            }
+            expectedClass = value.getClass();
         }
 
-        if (p != null) {
-            return p.build(value);
+        if (b.containsKey(expectedClass)) {
+            return b.get(expectedClass).build(value);
         }
 
         // Enums must be bound as VARCHAR.
-        if (expectedClass.isEnum()) {
-            return new StringArgument(value.toString());
+        if (value instanceof Enum) {
+            return new StringArgument(((Enum)value).name());
         }
 
         if (value instanceof Optional) {
             Object nestedValue = ((Optional)value).orElse(null);
-            ResolvedType nestedType = new TypeResolver().resolve(nestedValue == null ? Object.class : nestedValue.getClass());
-            if (expectedClass.equals(Optional.class)) {
-                List<ResolvedType> typeParameters = expectedType.typeParametersFor(Optional.class);
-                if (!typeParameters.isEmpty()) {
-                    nestedType = typeParameters.get(0);
-                }
-            }
-            Argument optionalArgument = ctx.argumentFor(nestedType, nestedValue);
-            if (optionalArgument != null) {
-                return optionalArgument;
-            }
+            ResolvedType nestedType = findOptionalType(expectedType, nestedValue);
+            return build(nestedType, nestedValue, ctx);
         }
 
         // Fallback to generic ObjectArgument
         return new ObjectArgument(value);
+    }
+
+    private ResolvedType findOptionalType(ResolvedType wrapperType, Object nestedValue) {
+        if (wrapperType.getErasedType().equals(Optional.class)) {
+            List<ResolvedType> typeParameters = wrapperType.typeParametersFor(Optional.class);
+            if (!typeParameters.isEmpty()) {
+                return typeParameters.get(0);
+            }
+        }
+        return new TypeResolver().resolve(nestedValue == null ? Object.class : nestedValue.getClass());
     }
 
     private static class P
