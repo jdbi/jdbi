@@ -22,7 +22,7 @@
     </provides>
     <configuration>
       <!-- Location of a JDK8 in the Travis build environment -->
-      <jdkHome>/usr/lib/jvm/java-8-openjdk-amd64</jdkHome>
+      <jdkHome>/usr/lib/jvm/java-8-oracle</jdkHome>
     </configuration>
   </toolchain>
 </toolchains>
