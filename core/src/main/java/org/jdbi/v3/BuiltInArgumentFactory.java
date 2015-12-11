@@ -96,7 +96,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         if (value instanceof Optional) {
             Object nestedValue = ((Optional)value).orElse(null);
             ResolvedType nestedType = findOptionalType(expectedType, nestedValue);
-            return build(nestedType, nestedValue, ctx);
+            return ctx.argumentFor(nestedType, nestedValue);
         }
 
         // Fallback to generic ObjectArgument
