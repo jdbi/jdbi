@@ -24,6 +24,7 @@ import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestStatements
 {
@@ -80,6 +81,13 @@ public class TestStatements
         i.close();
     }
 
+    @Test
+    public void testDoubleArgumentBind() throws Exception
+    {
+        Doubler d = dbi.open(Doubler.class);
+        assertTrue(d.doubleTest("wooooot"));
+    }
+
     public static interface Inserter extends CloseMe
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
@@ -87,5 +95,11 @@ public class TestStatements
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         public void insertWithVoidReturn(@Bind("id") long id, @Bind("name") String name);
+    }
+
+    public interface Doubler
+    {
+        @SqlQuery("select :test = :test")
+        boolean doubleTest(@Bind("test") String test);
     }
 }
