@@ -1,3 +1,6 @@
+2.71
+  - fix @BindBean of private subtypes, #242
+
 2.70 *** MAJOR CHANGES ***
   - allow JDK8 default methods in SQLObject interfaces. Backport of #190.
   - switch to standard Maven toolchains.xml for cross-compilation, #169.
