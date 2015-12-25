@@ -246,6 +246,13 @@
                 <artifactId>postgresql</artifactId>
                 <version>9.1-901-1.jdbc4</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.opentable.components</groupId>
+                <artifactId>otj-pg-embedded</artifactId>
+                <version>0.6.0-SNAPSHOT</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
@@ -299,6 +306,7 @@
         <module>guava</module>
         <module>jodatime</module>
         <module>jpa</module>
+        <module>pg</module>
         <module>spring</module>
         <module>docs</module>
     </modules>
