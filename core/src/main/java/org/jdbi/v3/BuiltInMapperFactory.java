@@ -32,6 +32,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.util.EnumMapper;
@@ -72,6 +73,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
 
         mappers.put(URL.class, referenceMapper(ResultSet::getURL));
         mappers.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
+        mappers.put(UUID.class, BuiltInMapperFactory::getUUID);
 
         mappers.put(Instant.class, referenceMapper(BuiltInMapperFactory::getInstant));
         mappers.put(LocalDate.class, referenceMapper(BuiltInMapperFactory::getLocalDate));
@@ -127,6 +129,14 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         } catch(URISyntaxException e) {
             throw new SQLException("Failed to convert data to URI", e);
         }
+    }
+
+    private static UUID getUUID(ResultSet r, int i, StatementContext ctx) throws SQLException {
+        String s = r.getString(i);
+        if (s == null) {
+            return null;
+        }
+        return UUID.fromString(s);
     }
 
     private static Instant getInstant(ResultSet r, int i) throws SQLException {
