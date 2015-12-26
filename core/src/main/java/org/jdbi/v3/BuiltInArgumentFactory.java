@@ -33,12 +33,11 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.UUID;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -99,6 +98,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, Timestamp.class, Types.TIMESTAMP, PreparedStatement::setTimestamp);
         register(map, URL.class, Types.DATALINK, PreparedStatement::setURL);
         register(map, URI.class, Types.VARCHAR, stringifyValue(PreparedStatement::setString));
+        register(map, UUID.class, Types.VARCHAR, PreparedStatement::setObject);
 
         register(map, Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
         register(map, LocalDate.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v.atStartOfDay())));
