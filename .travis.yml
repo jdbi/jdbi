@@ -6,6 +6,10 @@ jdk:
 
 sudo: false
 
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+
 before_install:
     - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
 
