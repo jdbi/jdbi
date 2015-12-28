@@ -19,9 +19,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgreSQLRule;
-
-import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
@@ -32,17 +29,13 @@ import org.junit.Test;
 
 public class TestUuid {
     @Rule
-    public EmbeddedPostgreSQLRule pg = new EmbeddedPostgreSQLRule();
+    public PostgresDbRule db = new PostgresDbRule();
 
-    public DBI dbi;
     public Handle h;
 
     @Before
     public void setupDbi() throws Exception {
-        dbi = DBI.create(pg.getEmbeddedPostgreSQL().getDatabase("postgres", "postgres"))
-                .installPlugin(new PostgresJdbiPlugin());
-
-        h = dbi.open();
+        h = db.getDbi().open();
         h.execute("CREATE TABLE foo (bar UUID)");
     }
 
