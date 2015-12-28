@@ -14,17 +14,18 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.Type;
 import java.util.SortedSet;
 import java.util.stream.Collector;
 
-import com.fasterxml.classmate.GenericType;
-import com.fasterxml.classmate.ResolvedType;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 
+import org.jdbi.v3.GenericType;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
@@ -45,7 +46,6 @@ public class TestCollectorFactory {
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
 
-        @SuppressWarnings("unchecked")
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
                 .mapTo(String.class)
@@ -61,7 +61,6 @@ public class TestCollectorFactory {
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
 
-        @SuppressWarnings("unchecked")
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 2)
                 .mapTo(String.class)
@@ -78,7 +77,6 @@ public class TestCollectorFactory {
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
 
-        @SuppressWarnings("unchecked")
         ImmutableList<String> rs = h.createQuery("select name from something order by id")
                 .mapTo(String.class)
                 .collectInto(new GenericType<ImmutableList<String>>() {});
@@ -149,15 +147,15 @@ public class TestCollectorFactory {
         Optional<T> inheritedGenericFindNameById(@Bind("id") int id);
     }
 
-    public static class ImmutableListCollectorFactory<T> implements CollectorFactory<T, ImmutableList<T>> {
+    public static class ImmutableListCollectorFactory<T> implements CollectorFactory {
 
         @Override
-        public boolean accepts(ResolvedType type) {
-            return type.getErasedType().equals(ImmutableList.class);
+        public boolean accepts(Type type) {
+            return getErasedType(type).equals(ImmutableList.class);
         }
 
         @Override
-        public Collector<T, ?, ImmutableList<T>> newCollector(ResolvedType type) {
+        public Collector<T, ?, ImmutableList<T>> newCollector(Type type) {
             return Collector.of(
                     ImmutableList.Builder::new,
                     ImmutableList.Builder::add,
@@ -166,15 +164,15 @@ public class TestCollectorFactory {
         }
     }
 
-    public static class GuavaOptionalCollectorFactory<T> implements CollectorFactory<T, Optional<T>> {
+    public static class GuavaOptionalCollectorFactory<T> implements CollectorFactory {
 
         @Override
-        public boolean accepts(ResolvedType type) {
-            return type.getErasedType().equals(Optional.class);
+        public boolean accepts(Type type) {
+            return getErasedType(type).equals(Optional.class);
         }
 
         @Override
-        public Collector<T, GuavaOptionalBuilder<T>, Optional<T>> newCollector(ResolvedType type) {
+        public Collector<T, GuavaOptionalBuilder<T>, Optional<T>> newCollector(Type type) {
             return Collector.of(
                     GuavaOptionalBuilder::new,
                     GuavaOptionalBuilder::set,

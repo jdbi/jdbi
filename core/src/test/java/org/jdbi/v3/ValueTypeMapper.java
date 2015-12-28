@@ -14,10 +14,12 @@
 
 package org.jdbi.v3;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
@@ -35,14 +37,13 @@ public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
 
     public static class Factory implements ResultColumnMapperFactory {
         @Override
-        public boolean accepts(ResolvedType type, StatementContext ctx) {
-            return ValueType.class.isAssignableFrom(type.getErasedType());
+        public boolean accepts(Type type, StatementContext ctx) {
+            return ValueType.class.isAssignableFrom(getErasedType(type));
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public <T> ResultColumnMapper<? extends T> columnMapperFor(ResolvedType type, StatementContext ctx) {
-            return (ResultColumnMapper<? extends T>) new ValueTypeMapper();
+        public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+            return new ValueTypeMapper();
         }
     }
 }

@@ -20,7 +20,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 
-import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.junit.Test;
 
@@ -68,6 +67,6 @@ public class ConcreteStatementContextTest {
         final ConcreteStatementContext context =
                 new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry, new Foreman());
 
-        assertThat(context.columnMapperFor(new TypeResolver().resolve(Foo.class)), equalTo(mapper));
+        assertThat(context.columnMapperFor(Foo.class), equalTo(mapper));
     }
 }

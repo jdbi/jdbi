@@ -474,7 +474,7 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerCollectorFactory(CollectorFactory<?, ?> factory) {
+    public void registerCollectorFactory(CollectorFactory factory) {
         this.collectorFactoryRegistry.register(factory);
     }
 }

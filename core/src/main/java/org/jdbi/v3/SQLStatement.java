@@ -28,9 +28,6 @@ import java.sql.Types;
 import java.util.Collection;
 import java.util.Map;
 
-import com.fasterxml.classmate.GenericType;
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.Argument;
@@ -107,7 +104,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     @SuppressWarnings("unchecked")
-    public SelfType registerCollectorFactory(CollectorFactory<?, ?> collectorFactory) {
+    public SelfType registerCollectorFactory(CollectorFactory collectorFactory) {
         this.collectorFactoryRegistry.register(collectorFactory);
         return (SelfType) this;
     }
@@ -1154,7 +1151,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(Type argumentType, int position, Object value)
     {
-        return dynamicBind(new TypeResolver().resolve(argumentType), position, value);
+        return bind(position, getForeman().waffle(argumentType, value, getContext()));
     }
 
     /**
@@ -1168,11 +1165,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(GenericType<?> argumentType, int position, Object value)
     {
-        return dynamicBind(new TypeResolver().resolve(argumentType), position, value);
-    }
-
-    private SelfType dynamicBind(ResolvedType argumentType, int position, Object value) {
-        return bind(position, getForeman().waffle(argumentType, value, getContext()));
+        return dynamicBind(argumentType.getType(), position, value);
     }
 
     /**
@@ -1186,7 +1179,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(Type argumentType, String name, Object value)
     {
-        return dynamicBind(new TypeResolver().resolve(argumentType), name, value);
+        return bind(name, getForeman().waffle(argumentType, value, getContext()));
     }
 
     /**
@@ -1200,11 +1193,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(GenericType<?> argumentType, String name, Object value)
     {
-        return dynamicBind(new TypeResolver().resolve(argumentType), name, value);
-    }
-
-    private SelfType dynamicBind(ResolvedType argumentType, String name, Object value) {
-        return bind(name, getForeman().waffle(argumentType, value, getContext()));
+        return dynamicBind(argumentType.getType(), name, value);
     }
 
     /**

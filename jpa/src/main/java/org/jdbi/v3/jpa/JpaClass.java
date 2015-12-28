@@ -39,6 +39,7 @@ class JpaClass<C> {
 
     private static final Map<Class<?>, JpaClass<?>> cache = new ConcurrentHashMap<>();
 
+    @SuppressWarnings("unchecked")
     public static <C> JpaClass<C> get(Class<C> clazz) {
         return (JpaClass<C>) cache.computeIfAbsent(clazz, JpaClass::new);
     }

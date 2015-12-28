@@ -13,42 +13,36 @@
  */
 package org.jdbi.v3;
 
-import java.util.List;
+import static org.jdbi.v3.Types.findGenericParameter;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
+import java.lang.reflect.Type;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
 
 class InferredMapperFactory<X> implements ResultSetMapperFactory
 {
-    private final ResolvedType maps;
+    private final Type maps;
     private final ResultSetMapper<X> mapper;
 
     InferredMapperFactory(ResultSetMapper<X> mapper)
     {
-        List<ResolvedType> typeParameters = new TypeResolver().resolve(mapper.getClass())
-                .typeParametersFor(ResultSetMapper.class);
-        if (typeParameters.isEmpty() || typeParameters.get(0).getErasedType().equals(Object.class)) {
-          throw new UnsupportedOperationException("Must use a concretely typed ResultSetMapper here");
-        }
-        this.maps = typeParameters.get(0);
+        this.maps = findGenericParameter(mapper.getClass(), ResultSetMapper.class)
+                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here"));
         this.mapper = mapper;
     }
 
     @Override
-    public boolean accepts(ResolvedType type, StatementContext ctx)
+    public boolean accepts(Type type, StatementContext ctx)
     {
         return maps.equals(type);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> ResultSetMapper<? extends T> mapperFor(ResolvedType type, StatementContext ctx)
+    public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx)
     {
         if (!type.equals(maps)) {
             throw new IllegalArgumentException("Expected to map " + type + " but I only map " + maps);
         }
-        return (ResultSetMapper<? extends T>) mapper;
+        return mapper;
     }
 }

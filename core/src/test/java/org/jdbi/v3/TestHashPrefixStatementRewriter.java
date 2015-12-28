@@ -15,8 +15,6 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.junit.Assert;

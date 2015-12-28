@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
@@ -23,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
@@ -98,13 +98,13 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type)
+    public ResultColumnMapper<?> columnMapperFor(Type type)
     {
         return mappingRegistry.columnMapperFor(type, this);
     }
 
     @Override
-    public Argument argumentFor(ResolvedType type, Object value) {
+    public Argument argumentFor(Type type, Object value) {
         return foreman.waffle(type, value, this);
     }
 

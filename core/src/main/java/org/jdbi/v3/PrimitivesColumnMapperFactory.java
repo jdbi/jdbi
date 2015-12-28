@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URL;
@@ -20,7 +23,6 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.util.BigDecimalColumnMapper;
 import org.jdbi.v3.util.BooleanColumnMapper;
@@ -76,19 +78,19 @@ public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory 
     }
 
     @Override
-    public boolean accepts(ResolvedType type, StatementContext ctx) {
-        Class<?> rawType = type.getErasedType();
+    public boolean accepts(Type type, StatementContext ctx) {
+        Class<?> rawType = getErasedType(type);
         return rawType.isEnum() || mappers.containsKey(rawType);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(ResolvedType type, StatementContext ctx) {
-        Class<?> rawType = type.getErasedType();
+    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+        Class<?> rawType = getErasedType(type);
         if (rawType.isEnum()) {
-            return (ResultColumnMapper<? extends T>) EnumColumnMapper.byName(
+            return EnumColumnMapper.byName(
                     (Class<? extends Enum>) rawType.asSubclass(Enum.class));
         }
-        return (ResultColumnMapper<T>) mappers.get(rawType);
+        return mappers.get(rawType);
     }
 }

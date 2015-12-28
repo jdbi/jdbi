@@ -15,7 +15,6 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;

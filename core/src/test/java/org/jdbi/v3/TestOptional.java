@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3;
 
-import com.fasterxml.classmate.GenericType;
-import com.fasterxml.classmate.ResolvedType;
-
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -24,11 +21,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertEquals;
 
 public class TestOptional {
@@ -81,7 +80,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalOfCustomType() throws Exception {
         handle.registerArgumentFactory(new NameArgumentFactory());
-        List<Something> result = handle.createQuery(SELECT_BY_NAME)
+        handle.createQuery(SELECT_BY_NAME)
                 .dynamicBind(new GenericType<Optional<Name>>() {}, "name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
                 .list();
@@ -90,7 +89,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalOfUnregisteredCustomType() throws Exception {
         exception.expect(UnableToCreateStatementException.class);
-        List<Something> result = handle.createQuery(SELECT_BY_NAME)
+        handle.createQuery(SELECT_BY_NAME)
                 .dynamicBind(new GenericType<Optional<Name>>() {}, "name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
                 .list();
@@ -130,12 +129,17 @@ public class TestOptional {
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
                 .list();
+
+        assertThat(result.size(), equalTo(1));
+
+        assertEquals(1, result.get(0).getId());
+        assertEquals("eric", result.get(0).getName());
     }
 
     @Test
     public void testBindOptionalOfUnregisteredCustomType() throws Exception {
         exception.expect(UnableToCreateStatementException.class);
-        List<Something> result = handle.createQuery(SELECT_BY_NAME)
+        handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
                 .list();
@@ -160,12 +164,12 @@ public class TestOptional {
 
     class NameArgumentFactory implements ArgumentFactory<Name> {
         @Override
-        public boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx) {
-            return expectedType.getErasedType() == Name.class;
+        public boolean accepts(Type expectedType, Object value, StatementContext ctx) {
+            return getErasedType(expectedType) == Name.class;
         }
 
         @Override
-        public Argument build(ResolvedType expectedType, Name value, StatementContext ctx) {
+        public Argument build(Type expectedType, Name value, StatementContext ctx) {
             return (pos, stmt, c) -> stmt.setString(pos, value.value);
         }
     }

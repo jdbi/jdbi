@@ -14,11 +14,10 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -27,7 +26,7 @@ class FigureItOutResultSetMapper implements ResultSetMapper<Object> {
     @Override
     public Object map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         Method m = ctx.getSqlObjectMethod();
-        ResolvedType type = new TypeResolver().resolve(m.getGenericReturnType());
+        Type type = m.getGenericReturnType();
         GetGeneratedKeys ggk = m.getAnnotation(GetGeneratedKeys.class);
         String keyColumn = ggk.columnName();
 

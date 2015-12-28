@@ -39,7 +39,6 @@ import org.jdbi.v3.tweak.CollectorFactory;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterCollectorFactory {
 
-    @SuppressWarnings("rawtypes")
     Class<? extends CollectorFactory>[] value();
 
     class Factory implements SqlStatementCustomizerFactory {
@@ -55,11 +54,11 @@ public @interface RegisterCollectorFactory {
     }
 
     class Customizer implements SqlStatementCustomizer {
-        private final List<CollectorFactory<?, ?>> factories;
+        private final List<CollectorFactory> factories;
 
         Customizer(RegisterCollectorFactory annotation) {
-            List<CollectorFactory<?, ?>> factories = new ArrayList<>();
-            for (@SuppressWarnings("rawtypes") Class<? extends CollectorFactory> type : annotation.value()) {
+            List<CollectorFactory> factories = new ArrayList<>();
+            for (Class<? extends CollectorFactory> type : annotation.value()) {
                 try {
                     factories.add(type.newInstance());
                 } catch (InstantiationException | IllegalAccessException e) {
@@ -73,7 +72,7 @@ public @interface RegisterCollectorFactory {
         public void apply(SQLStatement<?> q) throws SQLException {
             if (q instanceof Query) {
                 Query<?> query = (Query<?>) q;
-                for (CollectorFactory<?, ?> collectorFactory : factories) {
+                for (CollectorFactory collectorFactory : factories) {
                     query.registerCollectorFactory(collectorFactory);
                 }
             }

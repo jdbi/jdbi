@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.guava;
 
+import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -22,14 +23,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 
 import org.hamcrest.CoreMatchers;
+import org.jdbi.v3.GenericType;
 import org.jdbi.v3.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,14 +45,12 @@ public class TestGuavaCollectors {
     public H2DatabaseRule db = new H2DatabaseRule().withPlugins();
     private final List<Integer> expected = new ArrayList<>();
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Parameters(name="{0}")
     public static Object[][] data() {
-        TypeResolver typeResolver = new TypeResolver();
         return new Object[][] {
-            { typeResolver.resolve(ImmutableList.class, Integer.class), f(ImmutableList::copyOf) },
-            { typeResolver.resolve(ImmutableSet.class, Integer.class), f(ImmutableSet::copyOf) },
-            { typeResolver.resolve(ImmutableSortedSet.class, Integer.class), f(ImmutableSortedSet::copyOf) }
+            { new GenericType<ImmutableList<Integer>>() {}, f(ImmutableList::copyOf) },
+            { new GenericType<ImmutableSet<Integer>>() {}, f(ImmutableSet::copyOf) },
+            { new GenericType<ImmutableSortedSet<Integer>>() {}, f(ImmutableSortedSet::copyOf) }
         };
     }
 
@@ -62,7 +60,7 @@ public class TestGuavaCollectors {
     }
 
     @Parameter(value=0)
-    public ResolvedType type;
+    public GenericType<? extends Collection<Integer>> type;
 
     @Parameter(value=1)
     public Function<List<Integer>, List<Integer>> transformer;
@@ -82,7 +80,7 @@ public class TestGuavaCollectors {
             .collectInto(type);
 
         // Same type
-        assertTrue(type.getErasedType().isInstance(collection));
+        assertTrue(getErasedType(type.getType()).isInstance(collection));
 
         // Same elements, same order
         assertEquals(expected.size(), collection.size());

@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.tweak;
 
-import com.fasterxml.classmate.ResolvedType;
-
+import java.lang.reflect.Type;
 import java.util.stream.Collector;
 
 /**
@@ -24,7 +23,7 @@ import java.util.stream.Collector;
  * @param <T> the type of the container elements
  * @param <R> the type of the container
  */
-public interface CollectorFactory<T, R> {
+public interface CollectorFactory {
 
     /**
      * Whether the corresponding collector produces results of the given type.
@@ -32,7 +31,7 @@ public interface CollectorFactory<T, R> {
      * @param type the object type
      * @return {@code true}, if accepts, otherwise {@code false}
      */
-    boolean accepts(ResolvedType type);
+    boolean accepts(Type type);
 
     /**
      * Builds a new {@link Collector}.
@@ -40,5 +39,5 @@ public interface CollectorFactory<T, R> {
      * @param type the actual type of the container
      * @return the {@link Collector}
      */
-    Collector<T, ?, R> newCollector(ResolvedType type);
+    Collector<?, ?, ?> newCollector(Type type);
 }

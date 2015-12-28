@@ -72,7 +72,7 @@ abstract class ResultReturnThing
 
     protected abstract Object result(ResultBearing<?> q, HandleDing baton);
 
-    protected abstract ResolvedType mapTo(ResolvedMethod method);
+    protected abstract Class<?> mapTo(ResolvedMethod method);
 
 
     static class SingleValueResultReturnThing extends ResultReturnThing
@@ -109,15 +109,15 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
-                return q.collectInto(new TypeResolver().resolve(containerType));
+                return q.collectInto(containerType.getErasedType());
             }
             return q.findFirst().orElse(null);
         }
 
         @Override
-        protected ResolvedType mapTo(ResolvedMethod method)
+        protected Class<?> mapTo(ResolvedMethod method)
         {
-            return returnType;
+            return returnType.getErasedType();
         }
     }
 
@@ -142,9 +142,9 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected ResolvedType mapTo(ResolvedMethod method)
+        protected Class<?> mapTo(ResolvedMethod method)
         {
-            return resolvedType;
+            return resolvedType.getErasedType();
         }
     }
 
@@ -231,9 +231,9 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected ResolvedType mapTo(ResolvedMethod method)
+        protected Class<?> mapTo(ResolvedMethod method)
         {
-            return resolvedType;
+            return resolvedType.getErasedType();
         }
     }
 
@@ -249,21 +249,20 @@ abstract class ResultReturnThing
             this.elementType = iterableType.typeParametersFor(Iterable.class).get(0);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {
-                return q.collectInto(iterableType);
+                return q.collectInto(iterableType.getErasedType());
             } else {
                 throw new UnsupportedOperationException("Collect is not supported for " + q);
             }
         }
 
         @Override
-        protected ResolvedType mapTo(ResolvedMethod method)
+        protected Class<?> mapTo(ResolvedMethod method)
         {
-            return elementType;
+            return elementType.getErasedType();
         }
     }
 }

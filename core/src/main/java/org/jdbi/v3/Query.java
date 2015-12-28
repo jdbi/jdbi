@@ -13,16 +13,15 @@
  */
 package org.jdbi.v3;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.stream.Collector;
 
-import com.fasterxml.classmate.GenericType;
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -90,8 +89,18 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     @Override
-    public <ContainerType> ContainerType collectInto(ResolvedType containerType) {
-        return collect(getCollectorFactoryRegistry().createCollectorFor(containerType));
+    public <R> R collectInto(GenericType<R> containerType) {
+        return this.<R>collectInto(containerType.getType());
+    }
+
+    @Override
+    public <R> R collectInto(Class<R> containerType) {
+        return this.<R>collectInto((Type) containerType);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R> R collectInto(Type containerType) {
+        return collect((Collector<ResultType, ?, R>) getCollectorFactoryRegistry().createCollectorFor(containerType));
     }
 
     /**
@@ -102,9 +111,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a Query which provides the bean property mapping
      */
-    public <Type> Query<Type> mapToBean(Class<Type> resultType)
+    public <T> Query<T> mapToBean(Class<T> resultType)
     {
-        return this.map(new BeanMapper<Type>(resultType));
+        return this.map(new BeanMapper<T>(resultType));
     }
 
     /**
@@ -121,7 +130,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapTo(Class<T> resultType)
     {
-        return mapTo(new TypeResolver().resolve(resultType));
+        return this.<T>mapTo((Type) resultType);
     }
 
     /**
@@ -138,7 +147,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapTo(GenericType<T> resultType)
     {
-        return mapTo(new TypeResolver().resolve(resultType));
+        return this.<T>mapTo(resultType.getType());
     }
 
     /**
@@ -153,7 +162,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @see Handle#registerMapper(ResultSetMapperFactory)
      * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
      */
-    public <T> Query<T> mapTo(ResolvedType resultType) {
+    private <T> Query<T> mapTo(Type resultType) {
         return this.map(new RegisteredMapper<T>(resultType, mappingRegistry));
     }
 

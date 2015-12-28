@@ -13,11 +13,11 @@
  */
 package org.jdbi.v3;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.SingleColumnMapper;
@@ -27,10 +27,10 @@ class MappingRegistry
     private static final PrimitivesColumnMapperFactory BUILT_INS = new PrimitivesColumnMapperFactory();
 
     private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<ResolvedType, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Type, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();
 
     private final List<ResultColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<ResolvedType, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Type, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
 
     static MappingRegistry copyOf(MappingRegistry parent) {
         MappingRegistry mr = new MappingRegistry();
@@ -55,9 +55,8 @@ class MappingRegistry
         rowCache.clear();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> ResultSetMapper<? extends T> mapperFor(ResolvedType type, StatementContext ctx) {
-        ResultSetMapper<? extends T> mapper = (ResultSetMapper<? extends T>) rowCache.get(type);
+    public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx) {
+        ResultSetMapper<?> mapper = rowCache.get(type);
         if (mapper != null) {
             return mapper;
         }
@@ -70,7 +69,7 @@ class MappingRegistry
             }
         }
 
-        ResultColumnMapper<? extends T> columnMapper = columnMapperFor(type, ctx);
+        ResultColumnMapper<?> columnMapper = columnMapperFor(type, ctx);
         if (columnMapper != null) {
             mapper = new SingleColumnMapper<>(columnMapper);
             rowCache.put(type, mapper);
@@ -90,25 +89,24 @@ class MappingRegistry
         columnCache.clear();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type, StatementContext ctx) {
+    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
         ResultColumnMapper<?> mapper = columnCache.get(type);
         if (mapper != null) {
-            return (ResultColumnMapper<T>) mapper;
+            return mapper;
         }
 
         for (ResultColumnMapperFactory factory : columnFactories) {
             if (factory.accepts(type, ctx)) {
                 mapper = factory.columnMapperFor(type, ctx);
                 columnCache.put(type, mapper);
-                return (ResultColumnMapper<T>) mapper;
+                return mapper;
             }
         }
 
         if (BUILT_INS.accepts(type, ctx)) {
             mapper = BUILT_INS.columnMapperFor(type, ctx);
             columnCache.put(type, mapper);
-            return (ResultColumnMapper<T>) mapper;
+            return mapper;
         }
 
         return null;

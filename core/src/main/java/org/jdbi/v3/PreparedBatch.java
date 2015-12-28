@@ -114,7 +114,6 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
 
     }
 
-    @SuppressWarnings("unchecked")
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
         return executeAndGenerateKeys(new SingleColumnMapper<GeneratedKeyType>(mapper));
     }

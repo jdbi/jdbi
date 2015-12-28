@@ -14,11 +14,11 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
 
-import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
@@ -63,7 +63,7 @@ public interface StatementContext
      * @param type the target type to map to
      * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
-    <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type);
+    ResultColumnMapper<?> columnMapperFor(Type type);
 
     /**
      * Obtain an argument for given value in this context
@@ -71,7 +71,7 @@ public interface StatementContext
      * @param value the argument value.
      * @return an Argument for the given value, or null if no argument factory is registered for the given type
      */
-    Argument argumentFor(ResolvedType type, Object value);
+    Argument argumentFor(Type type, Object value);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

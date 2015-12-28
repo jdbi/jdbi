@@ -14,13 +14,14 @@
 package org.jdbi.v3;
 
 
+import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.junit.Test;
@@ -109,13 +110,13 @@ public class TestForeman
     private static class WeirdClassArgumentFactory implements ArgumentFactory<Weird>
     {
         @Override
-        public boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx)
+        public boolean accepts(Type expectedType, Object value, StatementContext ctx)
         {
-            return expectedType.getErasedType() == Weird.class;
+            return getErasedType(expectedType) == Weird.class;
         }
 
         @Override
-        public Argument build(ResolvedType expectedType, Weird value, StatementContext ctx)
+        public Argument build(Type expectedType, Weird value, StatementContext ctx)
         {
             return new WeirdArgument();
         }
@@ -124,13 +125,13 @@ public class TestForeman
     private static class WeirdValueArgumentFactory implements ArgumentFactory<Weird>
     {
         @Override
-        public boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx)
+        public boolean accepts(Type expectedType, Object value, StatementContext ctx)
         {
             return value instanceof Weird;
         }
 
         @Override
-        public Argument build(ResolvedType expectedType, Weird value, StatementContext ctx)
+        public Argument build(Type expectedType, Weird value, StatementContext ctx)
         {
             return new WeirdArgument();
         }

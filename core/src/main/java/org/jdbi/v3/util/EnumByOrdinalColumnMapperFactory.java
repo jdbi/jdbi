@@ -13,7 +13,10 @@
  */
 package org.jdbi.v3.util;
 
-import com.fasterxml.classmate.ResolvedType;
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
+
 import org.jdbi.v3.ResultColumnMapperFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
@@ -22,15 +25,15 @@ import org.jdbi.v3.tweak.ResultColumnMapper;
  * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
  */
 public class EnumByOrdinalColumnMapperFactory implements ResultColumnMapperFactory {
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public <T> ResultColumnMapper<T> columnMapperFor(ResolvedType type, StatementContext ctx) {
-        return (ResultColumnMapper<T>) EnumColumnMapper.byOrdinal(
-                (Class<? extends Enum>) type.getErasedType().asSubclass(Enum.class));
+    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+        return EnumColumnMapper.byOrdinal(
+                (Class<? extends Enum>) getErasedType(type).asSubclass(Enum.class));
     }
 
     @Override
-    public boolean accepts(ResolvedType type, StatementContext ctx) {
-        return type.getErasedType().isEnum();
+    public boolean accepts(Type type, StatementContext ctx) {
+        return getErasedType(type).isEnum();
     }
 }

@@ -15,6 +15,7 @@ package org.jdbi.v3.jpa;
 
 import org.jdbi.v3.exceptions.DBIException;
 
+@SuppressWarnings("serial")
 public class EntityMemberAccessException extends DBIException {
     public EntityMemberAccessException(String string, Throwable throwable) {
         super(string, throwable);

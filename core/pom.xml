@@ -43,11 +43,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.fasterxml</groupId>
-            <artifactId>classmate</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
         </dependency>
@@ -83,7 +78,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -174,7 +168,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.antlr:antlr-runtime</include>
-                                    <include>com.fasterxml:classmate</include>
+                                    <include>com.google.guava:guava</include>
                                     <include>cglib:cglib</include>
                                     <include>org.ow2.asm:asm</include>
                                 </includes>
@@ -182,22 +176,22 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.objectweb.asm</pattern>
-                                    <shadedPattern>org.jdbi.asm</shadedPattern>
+                                    <shadedPattern>org.jdbi.v3.asm</shadedPattern>
                                 </relocation>
 
                                 <relocation>
                                     <pattern>org.antlr.runtime</pattern>
-                                    <shadedPattern>org.jdbi.org.antlr.runtime</shadedPattern>
+                                    <shadedPattern>org.jdbi.v3.org.antlr.runtime</shadedPattern>
                                 </relocation>
 
                                 <relocation>
                                     <pattern>net.sf.cglib</pattern>
-                                    <shadedPattern>org.jdbi.cglib</shadedPattern>
+                                    <shadedPattern>org.jdbi.v3.cglib</shadedPattern>
                                 </relocation>
 
                                 <relocation>
-                                    <pattern>com.fasterxml.classmate</pattern>
-                                    <shadedPattern>org.jdbi.com.fasterxml.classmate</shadedPattern>
+                                    <pattern>com.google.guava</pattern>
+                                    <shadedPattern>org.jdbi.v3.com.google.guava</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

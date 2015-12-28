@@ -11,27 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
+package org.jdbi.v3;
 
-import static org.jdbi.v3.Types.getErasedType;
+import static org.jdbi.v3.Types.findGenericParameter;
 
 import java.lang.reflect.Type;
 
-import org.jdbi.v3.BeanMapper;
-import org.jdbi.v3.ResultSetMapperFactory;
-import org.jdbi.v3.StatementContext;
+public abstract class GenericType<T> {
+    private Type type;
 
-public class BeanMapperFactory implements ResultSetMapperFactory
-{
-    @Override
-    public boolean accepts(Type type, StatementContext ctx)
-    {
-        return ctx.columnMapperFor(type) == null;
+    protected GenericType() {
+        this.type = findGenericParameter(getClass(), GenericType.class)
+                .orElseThrow(() -> new UnsupportedOperationException("Missing generic type parameter."));
     }
 
-    @Override
-    public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx)
-    {
-        return new BeanMapper<>(getErasedType(type));
+    public final Type getType() {
+        return type;
     }
 }

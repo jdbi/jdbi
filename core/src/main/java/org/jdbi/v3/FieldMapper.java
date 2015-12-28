@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -24,12 +25,9 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
-
 
 /**
  * A result set mapper which maps the fields in a statement into an object. This uses
@@ -56,7 +54,7 @@ public class FieldMapper<T> implements ResultSetMapper<T>
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"rawtypes"})
     public T map(int row, ResultSet rs, StatementContext ctx)
             throws SQLException
     {
@@ -70,7 +68,6 @@ public class FieldMapper<T> implements ResultSetMapper<T>
         }
 
         ResultSetMetaData metadata = rs.getMetaData();
-        TypeResolver typeResolver = new TypeResolver();
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i).toLowerCase();
@@ -82,7 +79,7 @@ public class FieldMapper<T> implements ResultSetMapper<T>
             }
 
             final Field field = maybeField.get();
-            final ResolvedType type = typeResolver.resolve(field.getGenericType());
+            final Type type = field.getGenericType();
             final Object value;
             final ResultColumnMapper mapper = ctx.columnMapperFor(type);
 

@@ -14,11 +14,12 @@
 package org.jdbi.v3;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
-import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.junit.Rule;
@@ -94,13 +95,13 @@ public class TestArgumentFactory
     public static class NameAF implements ArgumentFactory<Name>
     {
         @Override
-        public boolean accepts(ResolvedType expectedType, Object value, StatementContext ctx)
+        public boolean accepts(Type expectedType, Object value, StatementContext ctx)
         {
-            return expectedType.getErasedType() == Object.class && value instanceof Name;
+            return getErasedType(expectedType) == Object.class && value instanceof Name;
         }
 
         @Override
-        public Argument build(ResolvedType expectedType, Name value, StatementContext ctx)
+        public Argument build(Type expectedType, Name value, StatementContext ctx)
         {
             return new StringArgument(value.getFullName());
         }

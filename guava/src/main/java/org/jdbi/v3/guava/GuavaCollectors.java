@@ -13,11 +13,13 @@
  */
 package org.jdbi.v3.guava;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collector;
 
-import com.fasterxml.classmate.ResolvedType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -33,7 +35,7 @@ public class GuavaCollectors {
     /**
      * @return a collector into {@code ImmutableList<T>}
      */
-    public static <T> Collector<T, ImmutableList.Builder<T>, ImmutableList<T>> toImmutableList() {
+    public static <T> Collector<T, ?, ImmutableList<T>> toImmutableList() {
         return Collector.<T, ImmutableList.Builder<T>, ImmutableList<T>>of(
                 ImmutableList::builder,
                 (builder, element) -> builder.add(element),
@@ -44,7 +46,7 @@ public class GuavaCollectors {
     /**
      * @return a collector into {@code ImmutableSet<T>}
      */
-    public static <T> Collector<T, ImmutableSet.Builder<T>, ImmutableSet<T>> toImmutableSet() {
+    public static <T> Collector<T, ?, ImmutableSet<T>> toImmutableSet() {
         return Collector.<T, ImmutableSet.Builder<T>, ImmutableSet<T>>of(
                 ImmutableSet::builder,
                 (builder, element) -> builder.add(element),
@@ -55,7 +57,7 @@ public class GuavaCollectors {
     /**
      * @return a collector into {@code ImmutableSortedSet<T>}
      */
-    public static <T extends Comparable<T>> Collector<T, ImmutableSortedSet.Builder<T>, ImmutableSortedSet<T>> toImmutableSortedSet() {
+    public static <T extends Comparable<T>> Collector<T, ?, ImmutableSortedSet<T>> toImmutableSortedSet() {
         return Collector.<T, ImmutableSortedSet.Builder<T>, ImmutableSortedSet<T>>of(
                 ImmutableSortedSet::naturalOrder,
                 (builder, element) -> builder.add(element),
@@ -67,11 +69,11 @@ public class GuavaCollectors {
     /**
      * @return a {@code CollectorFactory} which knows how to create all supported Guava types
      */
-    public static CollectorFactory<?, ?> factory() {
-        return new Factory();
+    public static CollectorFactory factory() {
+        return new Factory<>();
     }
 
-    private static class Factory implements CollectorFactory<Object, Collection<Object>> {
+    private static class Factory<T> implements CollectorFactory {
 
         private static final Map<Class<?>, Collector<?, ?, ?>> collectors =
             ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
@@ -81,14 +83,14 @@ public class GuavaCollectors {
                 .build();
 
         @Override
-        public boolean accepts(ResolvedType type) {
-            return collectors.containsKey(type.getErasedType());
+        public boolean accepts(Type type) {
+            return collectors.containsKey(getErasedType(type));
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Collector<Object, ?, Collection<Object>> newCollector(ResolvedType type) {
-            return (Collector<Object, ?, Collection<Object>>) collectors.get(type.getErasedType());
+        public Collector<T, ?, ? extends Collection<T>> newCollector(Type type) {
+            return (Collector<T, ?, ? extends Collection<T>>) collectors.get(getErasedType(type));
         }
     }
 }

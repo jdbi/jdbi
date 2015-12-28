@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -21,7 +24,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import com.fasterxml.classmate.ResolvedType;
 import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
@@ -30,7 +32,7 @@ import org.jdbi.v3.tweak.CollectorFactory;
  */
 class CollectorFactoryRegistry {
 
-    private final Set<CollectorFactory<?, ?>> factories = new CopyOnWriteArraySet<>();
+    private final Set<CollectorFactory> factories = new CopyOnWriteArraySet<>();
 
     CollectorFactoryRegistry() {
         factories.add(new ListCollectorFactory<>());
@@ -42,15 +44,14 @@ class CollectorFactoryRegistry {
         return copyOf(this);
     }
 
-    void register(CollectorFactory<?, ?> factory) {
+    void register(CollectorFactory factory) {
         factories.add(factory);
     }
 
-    @SuppressWarnings("unchecked")
-    <T, R> Collector<T, ?, R> createCollectorFor(ResolvedType type) {
-        for (CollectorFactory<?, ?> factory : factories) {
+    Collector<?, ?, ?> createCollectorFor(Type type) {
+        for (CollectorFactory factory : factories) {
             if (factory.accepts(type)) {
-                return ((CollectorFactory<T, R>) factory).newCollector(type);
+                return factory.newCollector(type);
             }
         }
 
@@ -63,41 +64,41 @@ class CollectorFactoryRegistry {
         return newRegistry;
     }
 
-    private static class SortedSetCollectorFactory<T> implements CollectorFactory<T, SortedSet<T>> {
+    private static class SortedSetCollectorFactory<T> implements CollectorFactory {
 
         @Override
-        public boolean accepts(ResolvedType type) {
-            return type.getErasedType().equals(SortedSet.class);
+        public boolean accepts(Type type) {
+            return getErasedType(type).equals(SortedSet.class);
         }
 
         @Override
-        public Collector<T, ?, SortedSet<T>> newCollector(ResolvedType type) {
+        public Collector<T, ?, SortedSet<T>> newCollector(Type type) {
             return Collectors.toCollection(TreeSet::new);
         }
     }
 
-    private static class ListCollectorFactory<T> implements CollectorFactory<T, List<T>> {
+    private static class ListCollectorFactory<T> implements CollectorFactory {
 
         @Override
-        public boolean accepts(ResolvedType type) {
-            return type.getErasedType().equals(List.class);
+        public boolean accepts(Type type) {
+            return getErasedType(type).equals(List.class);
         }
 
         @Override
-        public Collector<T, ?, List<T>> newCollector(ResolvedType type) {
+        public Collector<T, ?, List<T>> newCollector(Type type) {
             return Collectors.toList();
         }
     }
 
-    private static class SetCollectorFactory<T> implements CollectorFactory<T, Set<T>> {
+    private static class SetCollectorFactory<T> implements CollectorFactory {
 
         @Override
-        public boolean accepts(ResolvedType type) {
-            return type.getErasedType().equals(Set.class);
+        public boolean accepts(Type type) {
+            return getErasedType(type).equals(Set.class);
         }
 
         @Override
-        public Collector<T, ?, Set<T>> newCollector(ResolvedType type) {
+        public Collector<T, ?, Set<T>> newCollector(Type type) {
             return Collectors.toSet();
         }
     }
