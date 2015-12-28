@@ -24,7 +24,7 @@ public class GenericTypeTest {
     public void generic() {
         assertThat(new GenericType<String>() {}.getType(), equalTo(String.class));
     }
-    
+
     @SuppressWarnings("rawtypes")
     @Test(expected = UnsupportedOperationException.class)
     public void raw() {
