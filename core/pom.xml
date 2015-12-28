@@ -169,7 +169,6 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.antlr:antlr-runtime</include>
-                                    <include>com.google.guava:guava</include>
                                     <include>cglib:cglib</include>
                                     <include>org.ow2.asm:asm</include>
                                 </includes>
@@ -188,11 +187,6 @@
                                 <relocation>
                                     <pattern>net.sf.cglib</pattern>
                                     <shadedPattern>org.jdbi.v3.cglib</shadedPattern>
-                                </relocation>
-
-                                <relocation>
-                                    <pattern>com.google.guava</pattern>
-                                    <shadedPattern>org.jdbi.v3.com.google.guava</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
