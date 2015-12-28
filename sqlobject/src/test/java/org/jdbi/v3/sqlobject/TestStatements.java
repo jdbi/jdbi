@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
@@ -52,6 +53,13 @@ public class TestStatements
         }
     }
 
+    @Test
+    public void testDoubleArgumentBind() throws Exception
+    {
+        Doubler d = db.getDbi().open(Doubler.class);
+        assertTrue(d.doubleTest("wooooot"));
+    }
+
     public interface Inserter extends CloseMe
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
@@ -59,5 +67,11 @@ public class TestStatements
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insertWithVoidReturn(@Bind("id") long id, @Bind("name") String name);
+    }
+
+    public interface Doubler
+    {
+        @SqlQuery("select :test = :test")
+        boolean doubleTest(@Bind("test") String test);
     }
 }
