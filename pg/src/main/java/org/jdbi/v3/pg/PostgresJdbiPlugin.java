@@ -19,6 +19,8 @@ import org.jdbi.v3.spi.JdbiPlugin;
 public class PostgresJdbiPlugin implements JdbiPlugin {
     @Override
     public Handle customizeHandle(Handle handle) {
+        handle.registerArgumentFactory(new SqlArrayArgumentFactory());
+        handle.registerColumnMapper(new SqlArrayMapperFactory());
         return handle;
     }
 }
