@@ -35,18 +35,15 @@ public @interface BindSomething
         @Override
         public Binder build(Annotation annotation)
         {
-            return new Binder()
+            return new Binder<BindSomething, Something>()
             {
                 @Override
-                public void bind(SQLStatement q, Annotation bind, Object arg)
+                public void bind(SQLStatement q, BindSomething bs, Something arg)
                 {
-                    BindSomething bs = (BindSomething) bind;
-                    Something it = (Something) arg;
-                    q.bind(bs.value() + ".id", it.getId());
-                    q.bind(bs.value() + ".name", it.getName());
+                    q.bind(bs.value() + ".id", arg.getId());
+                    q.bind(bs.value() + ".name", arg.getName());
                 }
             };
         }
     }
-
 }

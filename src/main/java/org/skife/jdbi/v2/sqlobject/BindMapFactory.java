@@ -27,12 +27,10 @@ class BindMapFactory implements BinderFactory
     @Override
     public Binder build(Annotation annotation)
     {
-        return new Binder<BindMap, Object>()
+        return new Binder<BindMap, Map<String, Object>>()
         {
-            @SuppressWarnings("unchecked")
             @Override
-            public void bind(SQLStatement q, BindMap bind, Object arg)
-            {
+            public void bind(SQLStatement<?> q, BindMap bind, Map<String, Object> map) {
                 final String prefix;
                 if (BindBean.BARE_BINDING.equals(bind.prefix())) {
                     prefix = "";
@@ -42,7 +40,6 @@ class BindMapFactory implements BinderFactory
                 }
 
                 final Set<String> allowedKeys = new HashSet<String>(Arrays.asList(bind.value()));
-                final Map<String, Object> map = (Map<String, Object>) arg;
 
                 for (Entry e : map.entrySet()) {
                     final Object keyObj = e.getKey();
