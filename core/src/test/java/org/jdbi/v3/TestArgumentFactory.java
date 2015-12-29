@@ -101,7 +101,7 @@ public class TestArgumentFactory
         @Override
         public Argument build(Class<?> expectedType, Name value, StatementContext ctx)
         {
-            return new StringArgument(value.getFullName());
+            return BuiltInArgumentFactory.build(value.getFullName());
         }
     }
 

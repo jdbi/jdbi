@@ -13,11 +13,7 @@
  */
 package org.jdbi.v3;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -360,7 +356,7 @@ public class TestQueries
         }
         catch (StatementException e) {
             assertTrue(e.getMessage()
-                        .contains("arguments:{ positional:{7:8}, named:{name:'brian'}, finder:[{one=two},{lazy bean proprty arguments \"java.lang.Object"));
+                        .contains("arguments:{ positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean proprty arguments \"java.lang.Object"));
         }
     }
 
