@@ -17,6 +17,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import com.google.common.reflect.TypeToken;
+
 public class Types {
     /**
      * Returns the erased class for the given type.
@@ -32,16 +34,7 @@ public class Types {
      * @return the erased class
      */
     public static Class<?> getErasedType(Type type) {
-        // return TypeToken.of(type).getRawType();
-        if (type instanceof Class) {
-            return (Class<?>) type;
-        }
-
-        if (type instanceof ParameterizedType) {
-            return (Class<?>) ((ParameterizedType)type).getRawType();
-        }
-
-        return Object.class;
+        return TypeToken.of(type).getRawType();
     }
 
     /**
@@ -70,31 +63,11 @@ public class Types {
      * @return the parameter on the supertype, if it is concretely defined.
      */
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype) {
-        Class<?> erasedType = getErasedType(type);
-
-        if (erasedType.equals(parameterizedSupertype) && type instanceof ParameterizedType) {
-            Type[] typeArguments = ((ParameterizedType)type).getActualTypeArguments();
-            if (typeArguments.length == 0) {
-                return Optional.empty();
-            }
-            Type parameterType = typeArguments[0];
-            if (parameterType instanceof Class || parameterType instanceof ParameterizedType) {
-                return Optional.of(parameterType);
-            }
-            return Optional.empty();
-        }
-
-        if (type instanceof Class) {
-            Optional<Type> parameterType = findGenericParameter(erasedType.getGenericSuperclass(), parameterizedSupertype);
-            if (parameterType.isPresent()) {
-                return parameterType;
-            }
-            for (Type genericInterface : erasedType.getGenericInterfaces()) {
-                parameterType = findGenericParameter(genericInterface, parameterizedSupertype);
-                if (parameterType.isPresent()) {
-                    return parameterType;
-                }
-            }
+        Type parameterType = TypeToken.of(type)
+                .resolveType(parameterizedSupertype.getTypeParameters()[0])
+                .getType();
+        if (parameterType instanceof Class || parameterType instanceof ParameterizedType) {
+            return Optional.of(parameterType);
         }
         return Optional.empty();
     }
