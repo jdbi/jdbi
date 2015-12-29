@@ -72,9 +72,34 @@ public class TypesTest {
                 equalTo(Optional.of(methodReturnType("generic"))));
     }
 
+    class Bar<T> extends Foo<T> {
+    }
+
+    Bar<Integer> subTypeGeneric() {
+        return null;
+    }
+
+    @Test
+    public void findGenericParameterOfSuperClass() throws Exception {
+        assertThat(Types.findGenericParameter(methodReturnType("subTypeGeneric"), Foo.class),
+                equalTo(Optional.of(Integer.class)));
+    }
+
+    class Baz<T> extends Bar<T> {
+    }
+
+    Baz<String> descendentTypeGeneric() {
+        return null;
+    }
+
+    @Test
+    public void findGenericParameterOfAncestorClass() throws Exception {
+        assertThat(Types.findGenericParameter(methodReturnType("descendentTypeGeneric"), Foo.class),
+                equalTo(Optional.of(String.class)));
+    }
+
     private Type methodReturnType(String methodName) throws NoSuchMethodException {
-        Type rawType = getClass().getDeclaredMethod(methodName).getGenericReturnType();
-        return rawType;
+        return getClass().getDeclaredMethod(methodName).getGenericReturnType();
     }
 
 }
