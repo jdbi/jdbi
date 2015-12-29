@@ -13,40 +13,47 @@
  */
 package org.jdbi.v3;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.sql.PreparedStatement;
+import java.sql.Types;
+import java.util.Collections;
 import java.util.Map;
 
-import org.jdbi.v3.tweak.Argument;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 public class TestMapArguments
 {
+    @Rule
+    public MockitoRule rule = MockitoJUnit.rule();
+
+    @Mock
+    PreparedStatement stmt;
+
+    Foreman foreman = new Foreman();
+
+    StatementContext ctx = new ConcreteStatementContext();
 
     @Test
     public void testBind() throws Exception
     {
-        Map<String, Object> args = new HashMap<String, Object>();
-        args.put("foo", BigDecimal.ONE);
-        Foreman foreman = new Foreman();
-        StatementContext ctx = new ConcreteStatementContext();
-        MapArguments mapArguments = new MapArguments(foreman, ctx, args);
-        Argument argument = mapArguments.find("foo");
-        assertThat(argument, instanceOf(BigDecimalArgument.class));
+        Map<String, Object> args = Collections.singletonMap("foo", BigDecimal.ONE);
+        new MapArguments(foreman, ctx, args).find("foo").apply(5, stmt, null);
+
+        verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
 
     @Test
     public void testNullBinding() throws Exception
     {
-        Map<String, Object> args = new HashMap<String, Object>();
-        args.put("foo", null);
-        Foreman foreman = new Foreman();
-        StatementContext ctx = new ConcreteStatementContext();
-        MapArguments mapArguments = new MapArguments(foreman, ctx, args);
-        Argument argument = mapArguments.find("foo");
-        assertThat(argument, instanceOf(ObjectArgument.class));
+        Map<String, Object> args = Collections.singletonMap("foo", null);
+        new MapArguments(foreman, ctx, args).find("foo").apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.NULL);
     }
 }
