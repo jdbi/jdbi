@@ -17,9 +17,11 @@ import static org.jdbi.v3.Types.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collector;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -38,8 +40,8 @@ public class GuavaCollectors {
     public static <T> Collector<T, ?, ImmutableList<T>> toImmutableList() {
         return Collector.<T, ImmutableList.Builder<T>, ImmutableList<T>>of(
                 ImmutableList::builder,
-                (builder, element) -> builder.add(element),
-                (left, right) -> { left.addAll(right.build()); return left; },
+                ImmutableList.Builder::add,
+                GuavaCollectors::combineBuilders,
                 ImmutableList.Builder::build);
     }
 
@@ -49,8 +51,8 @@ public class GuavaCollectors {
     public static <T> Collector<T, ?, ImmutableSet<T>> toImmutableSet() {
         return Collector.<T, ImmutableSet.Builder<T>, ImmutableSet<T>>of(
                 ImmutableSet::builder,
-                (builder, element) -> builder.add(element),
-                (left, right) -> { left.addAll(right.build()); return left; },
+                ImmutableSet.Builder::add,
+                GuavaCollectors::combineBuilders,
                 ImmutableSet.Builder::build);
     }
 
@@ -60,11 +62,27 @@ public class GuavaCollectors {
     public static <T extends Comparable<T>> Collector<T, ?, ImmutableSortedSet<T>> toImmutableSortedSet() {
         return Collector.<T, ImmutableSortedSet.Builder<T>, ImmutableSortedSet<T>>of(
                 ImmutableSortedSet::naturalOrder,
-                (builder, element) -> builder.add(element),
-                (left, right) -> { left.addAll(right.build()); return left; },
+                ImmutableSortedSet.Builder::add,
+                GuavaCollectors::combineBuilders,
                 ImmutableSortedSet.Builder::build);
     }
 
+    /**
+     * @param comparator the comparator for sorting set elements.
+     * @return a collector into {@code ImmutableSortedSet<T>} using the given comparator for sorting
+     */
+    public static <T> Collector<T, ?, ImmutableSortedSet<T>> toImmutableSortedSet(Comparator<T> comparator) {
+        return Collector.<T, ImmutableSortedSet.Builder<T>, ImmutableSortedSet<T>> of(
+                () -> ImmutableSortedSet.orderedBy(comparator),
+                ImmutableSortedSet.Builder::add,
+                GuavaCollectors::combineBuilders,
+                ImmutableSortedSet.Builder::build);
+    }
+
+    private static <T, C extends ImmutableCollection.Builder<T>> C combineBuilders(C left, C right) {
+        left.addAll(right.build());
+        return left;
+    }
 
     /**
      * @return a {@code CollectorFactory} which knows how to create all supported Guava types

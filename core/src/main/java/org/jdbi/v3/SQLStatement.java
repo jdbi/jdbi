@@ -1155,7 +1155,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     /**
-     * Bind an argument dynamically by the type token passed in.
+     * Bind an argument dynamically by the generic type passed in.
      *
      * @param argumentType type token for value argument
      * @param position position to bind the parameter at, starting at 0
@@ -1183,7 +1183,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     /**
-     * Bind an argument dynamically by the type token passed in.
+     * Bind an argument dynamically by the generic type passed in.
      *
      * @param argumentType type token for value argument
      * @param name  token name to bind the parameter to
