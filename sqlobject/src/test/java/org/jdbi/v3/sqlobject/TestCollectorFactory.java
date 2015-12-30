@@ -29,6 +29,7 @@ import org.jdbi.v3.GenericType;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.jdbi.v3.tweak.CollectorFactory;
@@ -156,11 +157,7 @@ public class TestCollectorFactory {
 
         @Override
         public Collector<T, ?, ImmutableList<T>> newCollector(Type type) {
-            return Collector.of(
-                    ImmutableList.Builder::new,
-                    ImmutableList.Builder::add,
-                    (first, second) -> { throw new UnsupportedOperationException("Parallel collecting is not supported"); },
-                    ImmutableList.Builder<T>::build);
+            return GuavaCollectors.toImmutableList();
         }
     }
 
@@ -172,8 +169,8 @@ public class TestCollectorFactory {
         }
 
         @Override
-        public Collector<T, GuavaOptionalBuilder<T>, Optional<T>> newCollector(Type type) {
-            return Collector.of(
+        public Collector<T, ?, Optional<T>> newCollector(Type type) {
+            return Collector.<T, GuavaOptionalBuilder<T>, Optional<T>>of(
                     GuavaOptionalBuilder::new,
                     GuavaOptionalBuilder::set,
                     (first, second) -> { throw new UnsupportedOperationException("Parallel collecting is not supported"); },

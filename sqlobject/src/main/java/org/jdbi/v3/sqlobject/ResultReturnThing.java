@@ -18,7 +18,6 @@ import java.util.List;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
-import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 
 import org.jdbi.v3.Query;
@@ -77,8 +76,8 @@ abstract class ResultReturnThing
 
     static class SingleValueResultReturnThing extends ResultReturnThing
     {
-        private final ResolvedType returnType;
-        private final ResolvedType containerType;
+        private final Class<?> returnType;
+        private final Class<?> containerType;
 
         SingleValueResultReturnThing(ResolvedMethod method)
         {
@@ -88,18 +87,18 @@ abstract class ResultReturnThing
                 if(SingleValueResult.Default.class == svr.value()){
                     TypeBindings typeBindings = method.getReturnType().getTypeBindings();
                     if(typeBindings.size() == 1){
-                        this.returnType = typeBindings.getBoundType(0);
+                        this.returnType = typeBindings.getBoundType(0).getErasedType();
                     }else{
                         throw new IllegalArgumentException("Ambiguous generic information. SingleValueResult type could not be fetched.");
                     }
 
                 }else{
-                    this.returnType = new TypeResolver().resolve(svr.value());
+                    this.returnType = svr.value();
                 }
-                this.containerType = method.getReturnType();
+                this.containerType = method.getReturnType().getErasedType();
             }
             else {
-                this.returnType = method.getReturnType();
+                this.returnType = method.getReturnType().getErasedType();
                 this.containerType = null;
             }
 
@@ -109,7 +108,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
-                return q.collectInto(containerType.getErasedType());
+                return q.collectInto(containerType);
             }
             return q.findFirst().orElse(null);
         }
@@ -117,7 +116,7 @@ abstract class ResultReturnThing
         @Override
         protected Class<?> mapTo(ResolvedMethod method)
         {
-            return returnType.getErasedType();
+            return returnType;
         }
     }
 
@@ -239,21 +238,22 @@ abstract class ResultReturnThing
 
     static class IterableReturningThing extends ResultReturnThing
     {
-        private final ResolvedType iterableType;
-        private final ResolvedType elementType;
+        private final Class<?> iterableType;
+        private final Class<?> elementType;
 
         IterableReturningThing(ResolvedMethod method)
         {
             // extract T from List<T>
-            this.iterableType = method.getReturnType();
-            this.elementType = iterableType.typeParametersFor(Iterable.class).get(0);
+            ResolvedType returnType = method.getReturnType();
+            this.iterableType = returnType.getErasedType();
+            this.elementType = returnType.typeParametersFor(Iterable.class).get(0).getErasedType();
         }
 
         @Override
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {
-                return q.collectInto(iterableType.getErasedType());
+                return q.collectInto(iterableType);
             } else {
                 throw new UnsupportedOperationException("Collect is not supported for " + q);
             }
@@ -262,7 +262,7 @@ abstract class ResultReturnThing
         @Override
         protected Class<?> mapTo(ResolvedMethod method)
         {
-            return elementType.getErasedType();
+            return elementType;
         }
     }
 }

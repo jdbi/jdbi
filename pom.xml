@@ -148,6 +148,11 @@
 
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-guava</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-sqlobject</artifactId>
                 <version>${project.version}</version>
             </dependency>
