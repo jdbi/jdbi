@@ -14,12 +14,9 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertThat;
 
-import java.lang.reflect.Type;
 import java.util.SortedSet;
-import java.util.stream.Collector;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -32,7 +29,6 @@ import org.jdbi.v3.Something;
 import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
-import org.jdbi.v3.tweak.CollectorFactory;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -45,7 +41,7 @@ public class TestCollectorFactory {
     public void testExists() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
+        h.registerCollectorFactory(GuavaCollectors.factory());
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
@@ -60,7 +56,7 @@ public class TestCollectorFactory {
     public void testDoesNotExist() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
+        h.registerCollectorFactory(GuavaCollectors.factory());
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 2)
@@ -73,7 +69,7 @@ public class TestCollectorFactory {
     @Test
     public void testOnList() throws Exception {
         Handle h = h2.getSharedHandle();
-        h.registerCollectorFactory(new ImmutableListCollectorFactory<>());
+        h.registerCollectorFactory(GuavaCollectors.factory());
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
@@ -121,8 +117,7 @@ public class TestCollectorFactory {
         assertThat(rs, equalTo(ImmutableSortedSet.of("Brian", "Coda")));
     }
 
-
-    @RegisterCollectorFactory({ImmutableListCollectorFactory.class, GuavaOptionalCollectorFactory.class})
+    @RegisterCollectorFactory(GuavaCollectors.Factory.class)
     public interface Dao extends Base<String> {
         @SqlQuery("select name from something order by id")
         ImmutableList<String> findAll();
@@ -146,49 +141,6 @@ public class TestCollectorFactory {
         @SqlQuery("select name from something where id = :id")
         @SingleValueResult
         Optional<T> inheritedGenericFindNameById(@Bind("id") int id);
-    }
-
-    public static class ImmutableListCollectorFactory<T> implements CollectorFactory {
-
-        @Override
-        public boolean accepts(Type type) {
-            return getErasedType(type).equals(ImmutableList.class);
-        }
-
-        @Override
-        public Collector<T, ?, ImmutableList<T>> newCollector(Type type) {
-            return GuavaCollectors.toImmutableList();
-        }
-    }
-
-    public static class GuavaOptionalCollectorFactory<T> implements CollectorFactory {
-
-        @Override
-        public boolean accepts(Type type) {
-            return getErasedType(type).equals(Optional.class);
-        }
-
-        @Override
-        public Collector<T, ?, Optional<T>> newCollector(Type type) {
-            return Collector.<T, GuavaOptionalBuilder<T>, Optional<T>>of(
-                    GuavaOptionalBuilder::new,
-                    GuavaOptionalBuilder::set,
-                    (first, second) -> { throw new UnsupportedOperationException("Parallel collecting is not supported"); },
-                    GuavaOptionalBuilder::build);
-        }
-    }
-
-    private static class GuavaOptionalBuilder<T> {
-
-        private Optional<T> optional = Optional.absent();
-
-        public void set(T value) {
-            optional = Optional.of(value);
-        }
-
-        public Optional<T> build() {
-            return optional;
-        }
     }
 
 }

@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collector;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -85,19 +86,44 @@ public class GuavaCollectors {
     }
 
     /**
+     * @return a collector into Guava's {@code Optional<T>}
+     */
+    public static <T> Collector<T, ?, Optional<T>> toOptional() {
+        return Collector.<T, GuavaOptionalBuilder<T>, Optional<T>>of(
+                GuavaOptionalBuilder::new,
+                GuavaOptionalBuilder::set,
+                (left, right) -> left.build().isPresent() ? left : right,
+                GuavaOptionalBuilder::build);
+    }
+
+    private static class GuavaOptionalBuilder<T> {
+
+        private Optional<T> optional = Optional.absent();
+
+        public void set(T value) {
+            optional = Optional.of(value);
+        }
+
+        public Optional<T> build() {
+            return optional;
+        }
+    }
+
+    /**
      * @return a {@code CollectorFactory} which knows how to create all supported Guava types
      */
     public static CollectorFactory factory() {
         return new Factory<>();
     }
 
-    private static class Factory<T> implements CollectorFactory {
+    public static class Factory<T> implements CollectorFactory {
 
         private static final Map<Class<?>, Collector<?, ?, ?>> collectors =
             ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
                 .put(ImmutableList.class, toImmutableList())
                 .put(ImmutableSet.class, toImmutableSet())
                 .put(ImmutableSortedSet.class, toImmutableSortedSet())
+                .put(Optional.class, toOptional())
                 .build();
 
         @Override
