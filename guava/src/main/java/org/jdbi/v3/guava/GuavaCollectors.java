@@ -113,10 +113,10 @@ public class GuavaCollectors {
      * @return a {@code CollectorFactory} which knows how to create all supported Guava types
      */
     public static CollectorFactory factory() {
-        return new Factory<>();
+        return new Factory();
     }
 
-    public static class Factory<T> implements CollectorFactory {
+    public static class Factory implements CollectorFactory {
 
         private static final Map<Class<?>, Collector<?, ?, ?>> collectors =
             ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
@@ -133,8 +133,8 @@ public class GuavaCollectors {
 
         @SuppressWarnings("unchecked")
         @Override
-        public Collector<T, ?, ? extends Collection<T>> newCollector(Type type) {
-            return (Collector<T, ?, ? extends Collection<T>>) collectors.get(getErasedType(type));
+        public Collector<?, ?, ?> newCollector(Type type) {
+            return collectors.get(getErasedType(type));
         }
     }
 }

@@ -19,9 +19,6 @@ import java.util.stream.Collector;
 /**
  * Factory for building containers of elements.
  * The collector produces only objects of the type of the container elements.
- *
- * @param <T> the type of the container elements
- * @param <R> the type of the container
  */
 public interface CollectorFactory {
 

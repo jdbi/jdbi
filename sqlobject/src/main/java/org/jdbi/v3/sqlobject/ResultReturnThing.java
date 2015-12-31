@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collector;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
@@ -108,7 +109,8 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
-                return q.collectInto(containerType);
+                Collector collector = ((Query)q).getContext().collectorFor(containerType);
+                return q.collect(collector);
             }
             return q.findFirst().orElse(null);
         }
@@ -253,7 +255,8 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {
-                return q.collectInto(iterableType);
+                Collector collector = ((Query) q).getContext().collectorFor(iterableType);
+                return q.collect(collector);
             } else {
                 throw new UnsupportedOperationException("Collect is not supported for " + q);
             }

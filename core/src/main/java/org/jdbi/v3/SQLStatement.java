@@ -91,7 +91,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
-        this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
+        this.collectorFactoryRegistry = collectorFactoryRegistry;
 
         ctx.setConnection(handle.getConnection());
         ctx.setRawSql(sql);

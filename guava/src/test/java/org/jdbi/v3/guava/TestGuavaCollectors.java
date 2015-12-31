@@ -13,78 +13,99 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.jdbi.v3.Types.getErasedType;
+import static com.google.common.collect.Iterables.toArray;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
+import java.util.Comparator;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Iterables;
 
-import org.hamcrest.CoreMatchers;
-import org.jdbi.v3.GenericType;
 import org.jdbi.v3.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(Parameterized.class)
 public class TestGuavaCollectors {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugins();
-    private final List<Integer> expected = new ArrayList<>();
 
-    @Parameters(name="{0}")
-    public static Object[][] data() {
-        return new Object[][] {
-            { new GenericType<ImmutableList<Integer>>() {}, f(ImmutableList::copyOf) },
-            { new GenericType<ImmutableSet<Integer>>() {}, f(ImmutableSet::copyOf) },
-            { new GenericType<ImmutableSortedSet<Integer>>() {}, f(ImmutableSortedSet::copyOf) }
-        };
-    }
-
-    /* fool the type inferencing */
-    private static Function<Collection<Integer>, Collection<Integer>> f(Function<Collection<Integer>, Collection<Integer>> f) {
-        return f;
-    }
-
-    @Parameter(value=0)
-    public GenericType<? extends Collection<Integer>> type;
-
-    @Parameter(value=1)
-    public Function<List<Integer>, List<Integer>> transformer;
+    private Collection<Integer> expected;
 
     @Before
     public void addData() {
+        ImmutableList.Builder<Integer> expected = ImmutableList.builder();
         for (int i = 10; i > 0; i--) {
             db.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i);
             expected.add(i);
         }
+        this.expected = expected.build();
     }
 
     @Test
-    public void test() throws Exception {
-        Collection<Integer> collection = db.getSharedHandle().createQuery("select intValue from something")
-            .mapTo(int.class)
-            .collectInto(type);
+    public void immutableList() {
+        ImmutableList<Integer> list = db.getSharedHandle().createQuery("select intValue from something")
+                .mapTo(int.class)
+                .collect(GuavaCollectors.toImmutableList());
 
-        // Same type
-        assertTrue(getErasedType(type.getType()).isInstance(collection));
-
-        // Same elements, same order
-        assertEquals(expected.size(), collection.size());
-        assertThat(new ArrayList<>(collection), CoreMatchers.hasItems(
-                Iterables.toArray(transformer.apply(expected), Object.class)));
+        assertEquals(expected.size(), list.size());
+        assertThat(list, hasItems(toArray(expected, Integer.class)));
     }
+
+    @Test
+    public void immutableSet() {
+        ImmutableSet<Integer> list = db.getSharedHandle().createQuery("select intValue from something")
+                .mapTo(int.class)
+                .collect(GuavaCollectors.toImmutableSet());
+
+        assertEquals(expected.size(), list.size());
+        assertThat(list, hasItems(toArray(expected, Integer.class)));
+    }
+
+    @Test
+    public void immutableSortedSet() {
+        ImmutableSortedSet<Integer> list = db.getSharedHandle().createQuery("select intValue from something")
+                .mapTo(int.class)
+                .collect(GuavaCollectors.toImmutableSortedSet());
+
+        assertEquals(expected.size(), list.size());
+        assertThat(list, hasItems(toArray(expected, Integer.class)));
+    }
+
+    @Test
+    public void immutableSortedSetWithComparator() {
+        Comparator<Integer> comparator = Comparator.<Integer>naturalOrder().reversed();
+        ImmutableSortedSet<Integer> list = db.getSharedHandle().createQuery("select intValue from something")
+                .mapTo(int.class)
+                .collect(GuavaCollectors.toImmutableSortedSet(comparator));
+
+        assertEquals(expected.size(), list.size());
+        assertThat(list, hasItems(toArray(expected, Integer.class)));
+    }
+
+    @Test
+    public void optionalPresent() {
+        Optional<Integer> shouldBePresent = db.getSharedHandle().createQuery("select intValue from something where intValue = 1")
+                .mapTo(int.class)
+                .collect(GuavaCollectors.toOptional());
+        assertTrue(shouldBePresent.isPresent());
+        assertThat(shouldBePresent.get(), equalTo(1));
+    }
+
+    @Test
+    public void optionalAbsent() {
+        Optional<Integer> shouldBeAbsent = db.getSharedHandle().createQuery("select intValue from something where intValue = 100")
+                .mapTo(int.class)
+                .collect(GuavaCollectors.toOptional());
+        assertFalse(shouldBeAbsent.isPresent());
+    }
+
 }

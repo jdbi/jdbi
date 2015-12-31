@@ -68,7 +68,6 @@ public interface ResultBearing<T> extends Iterable<T>
      *
      * @param collector       the collector
      * @param <R>             the generic type of the container
-     * @param <A>             the generic type of the container builder
      * @return the container with the query result
      */
     default <R> R collect(Collector<T, ?, R> collector) {
@@ -76,27 +75,5 @@ public interface ResultBearing<T> extends Iterable<T>
             return stream.collect(collector);
         }
     }
-
-    /**
-     * Collect the query result into a container of the type specified by the given class.
-     * A factory for building the container should be registered in the query's
-     * collector factory registry.
-     *
-     * @param containerType the generic type that represents the container
-     * @param <R> the generic type of the container
-     * @return the container with the query result
-     */
-    <R> R collectInto(GenericType<R> containerType);
-
-    /**
-     * Collect the query result into a container of the type specified by the given class.
-     * A factory for building the container should be registered in the query's
-     * collector factory registry.
-     *
-     * @param containerType   the class that represents the container
-     * @param <R> the generic type of the container
-     * @return the container with the query result
-     */
-    <R> R collectInto(Class<R> containerType);
 
 }

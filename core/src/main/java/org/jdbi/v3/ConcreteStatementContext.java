@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
@@ -33,6 +34,7 @@ public final class ConcreteStatementContext implements StatementContext
     private final Map<String, Object>        attributes = new HashMap<>();
     private final MappingRegistry mappingRegistry;
     private final Foreman foreman;
+    private final CollectorFactoryRegistry collectors;
 
     private String            rawSql;
     private String            rewrittenSql;
@@ -48,14 +50,15 @@ public final class ConcreteStatementContext implements StatementContext
 
     /* visible for testing */
     ConcreteStatementContext() {
-        this(new HashMap<>(), new MappingRegistry(), new Foreman());
+        this(new HashMap<>(), new MappingRegistry(), new Foreman(), new CollectorFactoryRegistry());
     }
 
-    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry, Foreman foreman)
+    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry, Foreman foreman, CollectorFactoryRegistry collectors)
     {
         attributes.putAll(globalAttributes);
         this.mappingRegistry = mappingRegistry;
         this.foreman = foreman;
+        this.collectors = collectors;
     }
 
     /**
@@ -106,6 +109,11 @@ public final class ConcreteStatementContext implements StatementContext
     @Override
     public Argument argumentFor(Type type, Object value) {
         return foreman.waffle(type, value, this);
+    }
+
+    @Override
+    public Collector<?, ?, ?> collectorFor(Type type) {
+        return collectors.createCollectorFor(type);
     }
 
     void setRawSql(String rawSql)

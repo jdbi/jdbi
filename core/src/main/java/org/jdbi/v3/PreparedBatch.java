@@ -106,11 +106,10 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     @SuppressWarnings("unchecked")
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultSetMapper<GeneratedKeyType> mapper) {
         return (GeneratedKeys<GeneratedKeyType>) internalBatchExecute(results ->
-                new GeneratedKeys<GeneratedKeyType>(mapper,
-                                                    PreparedBatch.this,
-                                                    results,
-                                                    getContext(),
-                                                    getCollectorFactoryRegistry()));
+                new GeneratedKeys<>(mapper,
+                                    PreparedBatch.this,
+                                    results,
+                                    getContext()));
 
     }
 

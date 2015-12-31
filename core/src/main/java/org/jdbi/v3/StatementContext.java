@@ -18,6 +18,7 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
+import java.util.stream.Collector;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
@@ -72,6 +73,8 @@ public interface StatementContext
      * @return an Argument for the given value, or null if no argument factory is registered for the given type
      */
     Argument argumentFor(Type type, Object value);
+
+    Collector<?, ?, ?> collectorFor(Type type);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

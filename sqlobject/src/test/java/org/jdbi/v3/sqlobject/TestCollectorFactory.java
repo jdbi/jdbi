@@ -22,7 +22,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 
-import org.jdbi.v3.GenericType;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
@@ -41,12 +40,11 @@ public class TestCollectorFactory {
     public void testExists() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(GuavaCollectors.factory());
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
                 .mapTo(String.class)
-                .collectInto(new GenericType<Optional<String>>() {});
+                .collect(GuavaCollectors.toOptional());
 
         assertThat(rs.isPresent(), equalTo(true));
         assertThat(rs.get(), equalTo("Coda"));
@@ -56,12 +54,11 @@ public class TestCollectorFactory {
     public void testDoesNotExist() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(GuavaCollectors.factory());
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 2)
                 .mapTo(String.class)
-                .collectInto(new GenericType<Optional<String>>() {});
+                .collect(GuavaCollectors.toOptional());
 
         assertThat(rs.isPresent(), equalTo(false));
     }
@@ -69,14 +66,13 @@ public class TestCollectorFactory {
     @Test
     public void testOnList() throws Exception {
         Handle h = h2.getSharedHandle();
-        h.registerCollectorFactory(GuavaCollectors.factory());
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
 
         ImmutableList<String> rs = h.createQuery("select name from something order by id")
                 .mapTo(String.class)
-                .collectInto(new GenericType<ImmutableList<String>>() {});
+                .collect(GuavaCollectors.toImmutableList());
 
         assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));
     }

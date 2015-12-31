@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
-import java.util.stream.Collector;
 
 import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.ResultColumnMapper;
@@ -86,21 +85,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
             }
             throw new ResultSetException("Could not get result set", e, getContext());
         }
-    }
-
-    @Override
-    public <R> R collectInto(GenericType<R> containerType) {
-        return this.<R>collectInto(containerType.getType());
-    }
-
-    @Override
-    public <R> R collectInto(Class<R> containerType) {
-        return this.<R>collectInto((Type) containerType);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <R> R collectInto(Type containerType) {
-        return collect((Collector<ResultType, ?, R>) getCollectorFactoryRegistry().createCollectorFor(containerType));
     }
 
     /**
