@@ -253,7 +253,7 @@ class BasicHandle implements Handle
                           new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), updateForeman),
                           timingCollector,
                           updateForeman,
-                          collectorFactoryRegistry);
+                          collectorFactoryRegistry.createChild());
     }
 
     @Override
@@ -269,7 +269,7 @@ class BasicHandle implements Handle
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
                         callForeman,
-                        collectorFactoryRegistry);
+                        collectorFactoryRegistry.createChild());
     }
 
     @Override
@@ -302,7 +302,7 @@ class BasicHandle implements Handle
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
                                  batchForeman,
-                                 collectorFactoryRegistry);
+                                 collectorFactoryRegistry.createChild());
     }
 
     @Override
