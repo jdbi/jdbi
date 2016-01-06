@@ -70,10 +70,15 @@ public interface StatementContext
      * Obtain an argument for given value in this context
      * @param type the type of the argument.
      * @param value the argument value.
-     * @return an Argument for the given value, or null if no argument factory is registered for the given type
+     * @return an Argument for the given value.
      */
     Argument argumentFor(Type type, Object value);
 
+    /**
+     * Obtain a collector for the given type in this context
+     * @param type the result type of the collector
+     * @return a Collector for the given result type, or null if no collector factory is registered for this type.
+     */
     Collector<?, ?, ?> collectorFor(Type type);
 
     /**
