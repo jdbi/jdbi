@@ -18,3 +18,4 @@ This file describes the changes expected in some eventual 3.0 release.
 * Revisit how SqlObject binding annotations work - lots of icky generics that don't seem to actually provide safety
 * DefaultObjectBinder default constructor behaves differently due to lack of position information, so adding @Bind causes loss of functionality
 * Revisit resource ownership -- we need a better model to keep track of all the various JDBC resources we use and ensure they are closed
+* Big fat warning about Stream resource leaks -- must always use try-with-resources
