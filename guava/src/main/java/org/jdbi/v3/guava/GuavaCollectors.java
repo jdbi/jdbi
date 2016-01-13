@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collector;
 
+import com.fasterxml.classmate.ResolvedType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -66,11 +67,11 @@ public class GuavaCollectors {
     /**
      * @return a {@code CollectorFactory} which knows how to create all supported Guava types
      */
-    public static CollectorFactory<?, ?> factory() {
+    public static CollectorFactory factory() {
         return new Factory();
     }
 
-    private static class Factory implements CollectorFactory<Object, Collection<Object>> {
+    private static class Factory implements CollectorFactory {
 
         private static final Map<Class<?>, Collector<?, ?, ?>> collectors =
             ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
@@ -80,14 +81,14 @@ public class GuavaCollectors {
                 .build();
 
         @Override
-        public boolean accepts(Class<?> type) {
-            return collectors.containsKey(type);
+        public boolean accepts(ResolvedType type) {
+            return collectors.containsKey(type.getErasedType());
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Collector<Object, ?, Collection<Object>> newCollector(Class<Collection<Object>> type) {
-            return (Collector<Object, ?, Collection<Object>>) collectors.get(type);
+        public Collector<Object, ?, Collection<Object>> newCollector(ResolvedType type) {
+            return (Collector<Object, ?, Collection<Object>>) collectors.get(type.getErasedType());
         }
     }
 }

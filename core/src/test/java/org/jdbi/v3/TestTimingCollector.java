@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.fasterxml.classmate.TypeResolver;
+
 import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +52,8 @@ public class TestTimingCollector
                                         tc,
                                         new MappingRegistry(),
                                         new Foreman(),
-                                        new CollectorFactoryRegistry());
+                                        new CollectorFactoryRegistry(),
+                                        new TypeResolver());
         return h;
     }
 

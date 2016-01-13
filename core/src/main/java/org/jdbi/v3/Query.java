@@ -63,7 +63,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     /**
-     * Obtain a forward-only result set iterator. Note that you must explicitely close
+     * Obtain a forward-only result set iterator. Note that you must explicitly close
      * the iterator to close the underlying resources.
      */
     @Override
@@ -88,7 +88,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     @Override
     public <ContainerType> ContainerType collectInto(Class<ContainerType> containerType) {
-        return collect(getCollectorFactoryRegistry().createCollectorFor(containerType));
+        return collect(getCollectorFactoryRegistry().createCollectorFor(getHandle().getTypeResolver().resolve(containerType)));
     }
 
     /**

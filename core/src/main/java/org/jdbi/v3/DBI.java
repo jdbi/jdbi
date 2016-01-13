@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
+import com.fasterxml.classmate.TypeResolver;
+
 import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.spi.JdbiPlugin;
@@ -56,6 +58,7 @@ public class DBI
     private final MappingRegistry mappingRegistry = new MappingRegistry();
     private final CollectorFactoryRegistry collectorFactoryRegistry = new CollectorFactoryRegistry();
     private final Foreman foreman = new Foreman();
+    private final TypeResolver typeResolver = new TypeResolver();
 
     private final ConnectionFactory connectionFactory;
 
@@ -244,7 +247,8 @@ public class DBI
                                        timingCollector.get(),
                                        MappingRegistry.copyOf(mappingRegistry),
                                        foreman.createChild(),
-                                       collectorFactoryRegistry.createChild());
+                                       collectorFactoryRegistry.createChild(),
+                                       typeResolver);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }

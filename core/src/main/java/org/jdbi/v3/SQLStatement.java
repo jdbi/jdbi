@@ -103,7 +103,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     @SuppressWarnings("unchecked")
-    public SelfType registerCollectorFactory(CollectorFactory<?, ?> collectorFactory) {
+    public SelfType registerCollectorFactory(CollectorFactory collectorFactory) {
         this.collectorFactoryRegistry.register(collectorFactory);
         return (SelfType) this;
     }
