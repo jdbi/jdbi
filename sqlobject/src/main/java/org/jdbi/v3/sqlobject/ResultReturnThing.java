@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
@@ -56,8 +57,12 @@ abstract class ResultReturnThing
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
                     method.getDeclaringType().getErasedType().getName(),
                     method.getName()));
-        } else if (return_type.isInstanceOf(ResultBearing.class)) {
+        }
+        else if (return_type.isInstanceOf(ResultBearing.class)) {
             return new ResultBearingResultReturnThing(method);
+        }
+        else if (return_type.isInstanceOf(Stream.class)) {
+            return new StreamReturnThing(method);
         }
         else if (return_type.isInstanceOf(Iterable.class)) {
             return new IterableReturningThing(method);
@@ -74,6 +79,26 @@ abstract class ResultReturnThing
 
     protected abstract Class<?> mapTo(ResolvedMethod method);
 
+    static class StreamReturnThing extends ResultReturnThing
+    {
+        private final ResolvedType type;
+
+        StreamReturnThing(ResolvedMethod method)
+        {
+            type = method.getReturnType().typeParametersFor(Stream.class).get(0);
+        }
+
+        @Override
+        protected Object result(ResultBearing<?> q, HandleDing baton) {
+            baton.retain("sqlobject-stream");
+            return q.stream().onClose(() -> baton.release("sqlobject-stream"));
+        }
+
+        @Override
+        protected Class<?> mapTo(ResolvedMethod method) {
+            return type.getErasedType();
+        }
+    }
 
     static class SingleValueResultReturnThing extends ResultReturnThing
     {
@@ -133,7 +158,6 @@ abstract class ResultReturnThing
             ResolvedType query_type = method.getReturnType();
             List<ResolvedType> query_return_types = query_type.typeParametersFor(org.jdbi.v3.Query.class);
             this.resolvedType = query_return_types.get(0);
-
         }
 
         @Override
