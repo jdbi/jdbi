@@ -19,3 +19,11 @@ This file describes the changes expected in some eventual 3.0 release.
 * DefaultObjectBinder default constructor behaves differently due to lack of position information, so adding @Bind causes loss of functionality
 * Revisit resource ownership -- we need a better model to keep track of all the various JDBC resources we use and ensure they are closed
 * Big fat warning about Stream resource leaks -- must always use try-with-resources
+* Reinstate maven-shade-plugin.
+* Implement Types.findGenericParameter by hand, or copy TypeToken from Guava, and strip it down to only what we need.
+* Remove ArgumentFactory<T> generic parameter T.
+* StatementContext: overload columnMapperFor, argumentFor, and/or collectorFor with variants that take Class<T> and GenericType<T>?
+  * Not much to be gained by overloading argumentFor, other than to help out folks who don't know that Class IS_A Type.
+* Rename Foreman to ArgumentRegistry?
+* Coalesce MappingRegistry, Foreman, and CollectorFactoryRegistry into a single type? They tend to get passed around together everywhere.
+* Coalesce `accepts` and `build/mapperFor/columnMapperFor/newCollector` methods in factory classes into a single method that returns an Optional? Would make factories more lambda-friendly. 
