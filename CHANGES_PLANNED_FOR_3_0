@@ -27,3 +27,4 @@ This file describes the changes expected in some eventual 3.0 release.
 * Rename Foreman to ArgumentRegistry?
 * Coalesce MappingRegistry, Foreman, and CollectorFactoryRegistry into a single type? They tend to get passed around together everywhere.
 * Coalesce `accepts` and `build/mapperFor/columnMapperFor/newCollector` methods in factory classes into a single method that returns an Optional? Would make factories more lambda-friendly. 
+* Migrate sqlobject from Classmate ResolvedType to Guava TypeToken?
