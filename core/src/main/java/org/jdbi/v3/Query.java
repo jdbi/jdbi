@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -86,11 +87,6 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         }
     }
 
-    @Override
-    public <ContainerType> ContainerType collectInto(Class<ContainerType> containerType) {
-        return collect(getCollectorFactoryRegistry().createCollectorFor(containerType));
-    }
-
     /**
      * Provide basic JavaBean mapping capabilities. Will instantiate an instance of resultType
      * for each row and set the JavaBean properties which match fields in the result set.
@@ -99,9 +95,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a Query which provides the bean property mapping
      */
-    public <Type> Query<Type> mapToBean(Class<Type> resultType)
+    public <T> Query<T> mapToBean(Class<T> resultType)
     {
-        return this.map(new BeanMapper<Type>(resultType));
+        return this.map(new BeanMapper<T>(resultType));
     }
 
     /**
@@ -118,6 +114,39 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapTo(Class<T> resultType)
     {
+        return this.<T>mapTo((Type) resultType);
+    }
+
+    /**
+     * Makes use of registered mappers to map the result set to the desired type.
+     *
+     * @param resultType the type to map the query results to
+     *
+     * @return a new query instance which will map to the desired type
+     *
+     * @see DBI#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     * @see DBI#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     */
+    public <T> Query<T> mapTo(GenericType<T> resultType)
+    {
+        return this.<T>mapTo(resultType.getType());
+    }
+
+    /**
+     * Makes use of registered mappers to map the result set to the desired type.
+     *
+     * @param resultType the type to map the query results to
+     *
+     * @return a new query instance which will map to the desired type
+     *
+     * @see DBI#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     * @see DBI#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(ResultSetMapperFactory)
+     * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     */
+    private <T> Query<T> mapTo(Type resultType) {
         return this.map(new RegisteredMapper<T>(resultType, mappingRegistry));
     }
 

@@ -79,8 +79,7 @@ public class Update extends SQLStatement<Update>
         return new GeneratedKeys<GeneratedKeyType>(mapper,
                                                    Update.this,
                                                    internalExecute(),
-                                                   getContext(),
-                                                   getCollectorFactoryRegistry());
+                                                   getContext());
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {

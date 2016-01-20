@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -25,11 +26,11 @@ class FigureItOutResultSetMapper implements ResultSetMapper<Object> {
     @Override
     public Object map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         Method m = ctx.getSqlObjectMethod();
-        Class<?> rt = m.getReturnType();
+        Type type = m.getGenericReturnType();
         GetGeneratedKeys ggk = m.getAnnotation(GetGeneratedKeys.class);
         String keyColumn = ggk.columnName();
 
-        ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(rt);
+        ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(type);
 
         if ("".equals(keyColumn)) {
             return columnMapper.mapColumn(r, 1, ctx);

@@ -13,18 +13,22 @@
  */
 package org.jdbi.v3.jpa;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
+
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
 
 public class JpaMapperFactory implements ResultSetMapperFactory {
 
     @Override
-    public boolean accepts(Class clazz, StatementContext ctx) {
-        return JpaMapper.accept(clazz);
+    public boolean accepts(Type type, StatementContext ctx) {
+        return JpaMapper.accept(getErasedType(type));
     }
 
     @Override
-    public <T> JpaMapper<T> mapperFor(Class<T> clazz, StatementContext ctx) {
-        return JpaMapper.get(clazz);
+    public JpaMapper<?> mapperFor(Type type, StatementContext ctx) {
+        return JpaMapper.get(getErasedType(type));
     }
 }

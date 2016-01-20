@@ -33,7 +33,7 @@ abstract class BaseStatement
     protected BaseStatement(final ConcreteStatementContext context, Foreman foreman)
     {
         this.context = context;
-        this.foreman = foreman.createChild();
+        this.foreman = foreman;
         addCustomizer(new StatementCleaningCustomizer());
     }
 

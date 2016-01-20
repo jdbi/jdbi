@@ -14,7 +14,10 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertThat;
+
+import java.lang.reflect.Type;
 
 import org.jdbi.v3.ColonPrefixNamedParamStatementRewriter;
 import org.jdbi.v3.DBI;
@@ -65,13 +68,13 @@ public class TestRegisterArgumentFactory
     public static class NameAF implements ArgumentFactory<Name>
     {
         @Override
-        public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx)
+        public boolean accepts(Type expectedType, Object value, StatementContext ctx)
         {
-            return expectedType == Object.class && value instanceof Name;
+            return getErasedType(expectedType) == Object.class && value instanceof Name;
         }
 
         @Override
-        public Argument build(Class<?> expectedType, final Name value, StatementContext ctx)
+        public Argument build(Type expectedType, final Name value, StatementContext ctx)
         {
             return (position, statement, ctx1) -> statement.setString(position, value.getFullName());
         }

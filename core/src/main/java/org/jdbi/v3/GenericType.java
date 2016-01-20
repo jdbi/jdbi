@@ -11,22 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jpa;
+package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.DBIException;
+import static org.jdbi.v3.Types.findGenericParameter;
 
-public class EntityMemberAccessException extends DBIException {
-    private static final long serialVersionUID = 1L;
+import java.lang.reflect.Type;
 
-    public EntityMemberAccessException(String string, Throwable throwable) {
-        super(string, throwable);
+public abstract class GenericType<T> {
+    private Type type;
+
+    protected GenericType() {
+        this.type = findGenericParameter(getClass(), GenericType.class)
+                .orElseThrow(() -> new UnsupportedOperationException("Missing generic type parameter."));
     }
 
-    public EntityMemberAccessException(Throwable cause) {
-        super(cause);
-    }
-
-    public EntityMemberAccessException(String message) {
-        super(message);
+    public final Type getType() {
+        return type;
     }
 }

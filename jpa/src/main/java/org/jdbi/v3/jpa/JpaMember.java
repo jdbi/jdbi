@@ -21,6 +21,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
@@ -37,14 +38,14 @@ class JpaMember {
 
     private final Class<?> clazz;
     private final String columnName;
-    private final Class<?> type;
+    private final Type type;
     private final Getter accessor;
     private final Setter mutator;
 
     JpaMember(Class<?> clazz, Column column, Field field) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, field.getName());
-        this.type = field.getType();
+        this.type = field.getGenericType();
         field.setAccessible(true);
         this.accessor = field::get;
         this.mutator = field::set;
@@ -53,7 +54,7 @@ class JpaMember {
     JpaMember(Class<?> clazz, Column column, PropertyDescriptor property) {
         this.clazz = requireNonNull(clazz);
         this.columnName = nameOf(column, property.getName());
-        this.type = property.getPropertyType();
+        this.type = property.getReadMethod().getGenericReturnType();
 
         Method getter = property.getReadMethod();
         Method setter = property.getWriteMethod();
@@ -67,7 +68,7 @@ class JpaMember {
         return columnName;
     }
 
-    public Class<?> getType() {
+    public Type getType() {
         return type;
     }
 

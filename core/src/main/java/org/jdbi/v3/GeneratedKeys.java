@@ -23,16 +23,15 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 /**
  * Wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
  *
- * @param <Type> the key type returned
+ * @param <T> the key type returned
  */
-public class GeneratedKeys<Type> implements ResultBearing<Type>
+public class GeneratedKeys<T> implements ResultBearing<T>
 {
-    private final ResultSetMapper<Type>    mapper;
+    private final ResultSetMapper<T>       mapper;
     private final SQLStatement<?>          jdbiStatement;
     private final Statement                stmt;
     private final ResultSet                results;
     private final StatementContext         context;
-    private final CollectorFactoryRegistry collectorFactoryRegistry;
 
     /**
      * Creates a new wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
@@ -43,11 +42,10 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      * @param stmt          The corresponding sql statement
      * @param context       The statement context
      */
-    GeneratedKeys(ResultSetMapper<Type> mapper,
+    GeneratedKeys(ResultSetMapper<T> mapper,
                   SQLStatement<?> jdbiStatement,
                   Statement stmt,
-                  StatementContext context,
-                  CollectorFactoryRegistry collectorFactoryRegistry)
+                  StatementContext context)
     {
         this.mapper = mapper;
         this.jdbiStatement = jdbiStatement;
@@ -64,7 +62,6 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
         }
         this.context = context;
         this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
-        this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
     }
 
     /**
@@ -73,16 +70,12 @@ public class GeneratedKeys<Type> implements ResultBearing<Type>
      * @return The key iterator
      */
     @Override
-    public ResultIterator<Type> iterator()
+    public ResultIterator<T> iterator()
     {
         if (results == null) {
-            return new EmptyResultIterator<Type>();
+            return new EmptyResultIterator<T>();
         }
-        return new ResultSetResultIterator<Type>(mapper, jdbiStatement, stmt, results, context);
+        return new ResultSetResultIterator<T>(mapper, jdbiStatement, stmt, results, context);
     }
 
-    @Override
-    public <ContainerType> ContainerType collectInto(Class<ContainerType> containerType) {
-        return collect(collectorFactoryRegistry.createCollectorFor(containerType));
-    }
 }

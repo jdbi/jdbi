@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -34,7 +35,7 @@ class Foreman
         this.factories.addAll(factories);
     }
 
-    Argument waffle(Class<?> expectedType, Object it, StatementContext ctx)
+    Argument waffle(Type expectedType, Object it, StatementContext ctx)
     {
         ArgumentFactory<Object> candidate = null;
 

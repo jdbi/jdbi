@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.Entity;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -67,7 +68,7 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
             String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
             JpaMember member = jpaClass.lookupMember(columnLabel);
             if (member != null) {
-                Class<?> memberType = member.getType();
+                Type memberType = member.getType();
                 ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
                 if (columnMapper == null) {
                     throw new NoSuchColumnMapperException("No column mapper for " + memberType);

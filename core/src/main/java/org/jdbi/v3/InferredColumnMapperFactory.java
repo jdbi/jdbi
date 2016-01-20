@@ -13,42 +13,36 @@
  */
 package org.jdbi.v3;
 
-import java.util.List;
+import static org.jdbi.v3.Types.findGenericParameter;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
+import java.lang.reflect.Type;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 class InferredColumnMapperFactory<X> implements ResultColumnMapperFactory
 {
-    private static final TypeResolver tr = new TypeResolver();
-    private final Class<X> maps;
+    private final Type maps;
     private final ResultColumnMapper<X> mapper;
 
-    @SuppressWarnings("unchecked")
     InferredColumnMapperFactory(ResultColumnMapper<X> mapper)
     {
+        this.maps = findGenericParameter(mapper.getClass(), ResultColumnMapper.class)
+                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here"));
         this.mapper = mapper;
-        ResolvedType rt = tr.resolve(mapper.getClass());
-        List<ResolvedType> rs = rt.typeParametersFor(ResultColumnMapper.class);
-        if (rs.isEmpty() || rs.get(0).getErasedType().equals(Object.class)) {
-            throw new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here");
-        }
-
-        maps = (Class<X>) rs.get(0).getErasedType();
     }
 
     @Override
-    public boolean accepts(Class<?> type, StatementContext ctx)
+    public boolean accepts(Type type, StatementContext ctx)
     {
         return maps.equals(type);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx)
+    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx)
     {
-        return (ResultColumnMapper<? extends T>) mapper;
+        if (!type.equals(maps)) {
+            throw new IllegalArgumentException("Expected to map " + type + " but I only map " + maps);
+        }
+        return mapper;
     }
 }

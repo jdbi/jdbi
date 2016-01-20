@@ -11,22 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jpa;
+package org.jdbi.v3;
 
-import org.jdbi.v3.exceptions.DBIException;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class EntityMemberAccessException extends DBIException {
-    private static final long serialVersionUID = 1L;
+import org.junit.Test;
 
-    public EntityMemberAccessException(String string, Throwable throwable) {
-        super(string, throwable);
+public class GenericTypeTest {
+
+    @Test
+    public void generic() {
+        assertThat(new GenericType<String>() {}.getType(), equalTo(String.class));
     }
 
-    public EntityMemberAccessException(Throwable cause) {
-        super(cause);
+    @SuppressWarnings("rawtypes")
+    @Test(expected = UnsupportedOperationException.class)
+    public void raw() {
+        new GenericType() {};
     }
 
-    public EntityMemberAccessException(String message) {
-        super(message);
-    }
 }

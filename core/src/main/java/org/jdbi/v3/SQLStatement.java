@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Blob;
@@ -90,7 +91,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         this.timingCollector = timingCollector;
         this.params = params;
         this.locator = locator;
-        this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
+        this.collectorFactoryRegistry = collectorFactoryRegistry;
 
         ctx.setConnection(handle.getConnection());
         ctx.setRawSql(sql);
@@ -103,7 +104,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     @SuppressWarnings("unchecked")
-    public SelfType registerCollectorFactory(CollectorFactory<?, ?> collectorFactory) {
+    public SelfType registerCollectorFactory(CollectorFactory collectorFactory) {
         this.collectorFactoryRegistry.register(collectorFactory);
         return (SelfType) this;
     }
@@ -1045,7 +1046,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Object value)
     {
-        return bind(position, getForeman().waffle(value != null ? value.getClass() : Object.class, value, getContext()));
+        return bind(position, getForeman().waffle(value == null ? Object.class : value.getClass(), value, getContext()));
     }
 
     /**
@@ -1058,7 +1059,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Object value)
     {
-        return bind(name, getForeman().waffle(value != null ? value.getClass() : Object.class, value, getContext()));
+        return bind(name, getForeman().waffle(value == null ? Object.class : value.getClass(), value, getContext()));
     }
 
     /**
@@ -1140,16 +1141,59 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     /**
-     * Bind an argument dynamically by the class passed in.
+     * Bind an argument dynamically by the type passed in.
      *
-     * @param name  token name to bind the paramater to
+     * @param argumentType type for value argument
+     * @param position position to bind the parameter at, starting at 0
      * @param value to bind
      *
      * @return the same Query instance
      */
-    public final SelfType dynamicBind(Class<?> argumentClass, String name, Object value)
+    public final SelfType dynamicBind(Type argumentType, int position, Object value)
     {
-        return bind(name, getForeman().waffle(argumentClass, value, getContext()));
+        return bind(position, getForeman().waffle(argumentType, value, getContext()));
+    }
+
+    /**
+     * Bind an argument dynamically by the generic type passed in.
+     *
+     * @param argumentType type token for value argument
+     * @param position position to bind the parameter at, starting at 0
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType dynamicBind(GenericType<?> argumentType, int position, Object value)
+    {
+        return dynamicBind(argumentType.getType(), position, value);
+    }
+
+    /**
+     * Bind an argument dynamically by the type passed in.
+     *
+     * @param argumentType type for value argument
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType dynamicBind(Type argumentType, String name, Object value)
+    {
+        return bind(name, getForeman().waffle(argumentType, value, getContext()));
+    }
+
+    /**
+     * Bind an argument dynamically by the generic type passed in.
+     *
+     * @param argumentType type token for value argument
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     *
+     * @return the same Query instance
+     */
+    public final SelfType dynamicBind(GenericType<?> argumentType, String name, Object value)
+    {
+        return dynamicBind(argumentType.getType(), name, value);
     }
 
     /**

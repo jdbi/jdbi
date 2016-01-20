@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -64,19 +67,18 @@ public class TestRegisterMapperFactory
     {
 
         @Override
-        public boolean accepts(Class<?> type, StatementContext ctx)
+        public boolean accepts(Type type, StatementContext ctx)
         {
-            return type.isAnnotationPresent(MapWith.class);
+            return getErasedType(type).isAnnotationPresent(MapWith.class);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx)
+        public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx)
         {
 
-            MapWith rm = type.getAnnotation(MapWith.class);
+            MapWith rm = getErasedType(type).getAnnotation(MapWith.class);
             try {
-                return (ResultSetMapper<? extends T>) rm.value().newInstance();
+                return rm.value().newInstance();
             }
             catch (Exception e) {
                 throw new RuntimeException(e);

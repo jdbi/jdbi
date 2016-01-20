@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.tweak;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
+
 import org.jdbi.v3.BeanMapper;
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
@@ -20,14 +24,14 @@ import org.jdbi.v3.StatementContext;
 public class BeanMapperFactory implements ResultSetMapperFactory
 {
     @Override
-    public boolean accepts(Class<?> type, StatementContext ctx)
+    public boolean accepts(Type type, StatementContext ctx)
     {
         return ctx.columnMapperFor(type) == null;
     }
 
     @Override
-    public <T> ResultSetMapper<? extends T> mapperFor(Class<T> type, StatementContext ctx)
+    public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx)
     {
-        return new BeanMapper<T>(type);
+        return new BeanMapper<>(getErasedType(type));
     }
 }

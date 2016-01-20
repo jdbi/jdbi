@@ -58,7 +58,6 @@ class SqlObjectBuilderBridge {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T attach(Handle handle, Class<T> sqlObjectType) {
         try {
             check(ATTACH);
@@ -70,7 +69,6 @@ class SqlObjectBuilderBridge {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T open(DBI dbi, Class<T> sqlObjectType) {
         try {
             check(OPEN);
@@ -82,7 +80,6 @@ class SqlObjectBuilderBridge {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T onDemand(DBI dbi, Class<T> sqlObjectType) {
         try {
             check(ON_DEMAND);

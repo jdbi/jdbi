@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -27,7 +28,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
-
 
 /**
  * A result set mapper which maps the fields in a statement into an object. This uses
@@ -54,7 +54,7 @@ public class FieldMapper<T> implements ResultSetMapper<T>
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"rawtypes"})
     public T map(int row, ResultSet rs, StatementContext ctx)
             throws SQLException
     {
@@ -79,7 +79,7 @@ public class FieldMapper<T> implements ResultSetMapper<T>
             }
 
             final Field field = maybeField.get();
-            final Class type = field.getType();
+            final Type type = field.getGenericType();
             final Object value;
             final ResultColumnMapper mapper = ctx.columnMapperFor(type);
 

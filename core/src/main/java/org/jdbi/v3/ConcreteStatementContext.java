@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
@@ -22,14 +23,18 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
 
+import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public final class ConcreteStatementContext implements StatementContext
 {
-    private final Set<Cleanable> cleanables = new LinkedHashSet<Cleanable>();
-    private final Map<String, Object>        attributes = new HashMap<String, Object>();
+    private final Set<Cleanable> cleanables = new LinkedHashSet<>();
+    private final Map<String, Object>        attributes = new HashMap<>();
     private final MappingRegistry mappingRegistry;
+    private final Foreman foreman;
+    private final CollectorFactoryRegistry collectors;
 
     private String            rawSql;
     private String            rewrittenSql;
@@ -43,10 +48,17 @@ public final class ConcreteStatementContext implements StatementContext
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
 
-    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry)
+    /* visible for testing */
+    ConcreteStatementContext() {
+        this(new HashMap<>(), new MappingRegistry(), new Foreman(), new CollectorFactoryRegistry());
+    }
+
+    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry, Foreman foreman, CollectorFactoryRegistry collectors)
     {
         attributes.putAll(globalAttributes);
         this.mappingRegistry = mappingRegistry;
+        this.foreman = foreman;
+        this.collectors = collectors;
     }
 
     /**
@@ -89,9 +101,19 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public <T> ResultColumnMapper<T> columnMapperFor(Class<T> type)
+    public ResultColumnMapper<?> columnMapperFor(Type type)
     {
         return mappingRegistry.columnMapperFor(type, this);
+    }
+
+    @Override
+    public Argument argumentFor(Type type, Object value) {
+        return foreman.waffle(type, value, this);
+    }
+
+    @Override
+    public Collector<?, ?, ?> collectorFor(Type type) {
+        return collectors.createCollectorFor(type);
     }
 
     void setRawSql(String rawSql)

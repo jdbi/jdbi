@@ -299,5 +299,5 @@ public interface Handle extends Closeable
 
     void registerArgumentFactory(ArgumentFactory<?> argumentFactory);
 
-    void registerCollectorFactory(CollectorFactory<?, ?> factory);
+    void registerCollectorFactory(CollectorFactory factory);
 }

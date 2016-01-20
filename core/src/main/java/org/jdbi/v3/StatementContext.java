@@ -14,10 +14,13 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
+import java.util.stream.Collector;
 
+import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 /**
@@ -61,7 +64,22 @@ public interface StatementContext
      * @param type the target type to map to
      * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
-    <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type);
+    ResultColumnMapper<?> columnMapperFor(Type type);
+
+    /**
+     * Obtain an argument for given value in this context
+     * @param type the type of the argument.
+     * @param value the argument value.
+     * @return an Argument for the given value.
+     */
+    Argument argumentFor(Type type, Object value);
+
+    /**
+     * Obtain a collector for the given type in this context
+     * @param type the result type of the collector
+     * @return a Collector for the given result type, or null if no collector factory is registered for this type.
+     */
+    Collector<?, ?, ?> collectorFor(Type type);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

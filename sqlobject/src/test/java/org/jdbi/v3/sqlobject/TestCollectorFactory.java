@@ -17,7 +17,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.util.SortedSet;
-import java.util.stream.Collector;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -26,9 +25,9 @@ import com.google.common.collect.ImmutableSortedSet;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
-import org.jdbi.v3.tweak.CollectorFactory;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -41,13 +40,11 @@ public class TestCollectorFactory {
     public void testExists() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
 
-        @SuppressWarnings("unchecked")
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 1)
                 .mapTo(String.class)
-                .collectInto(Optional.class);
+                .collect(GuavaCollectors.toOptional());
 
         assertThat(rs.isPresent(), equalTo(true));
         assertThat(rs.get(), equalTo("Coda"));
@@ -57,13 +54,11 @@ public class TestCollectorFactory {
     public void testDoesNotExist() throws Exception {
         Handle h = h2.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
-        h.registerCollectorFactory(new GuavaOptionalCollectorFactory<>());
 
-        @SuppressWarnings("unchecked")
         Optional<String> rs = h.createQuery("select name from something where id = :id")
                 .bind("id", 2)
                 .mapTo(String.class)
-                .collectInto(Optional.class);
+                .collect(GuavaCollectors.toOptional());
 
         assertThat(rs.isPresent(), equalTo(false));
     }
@@ -71,15 +66,13 @@ public class TestCollectorFactory {
     @Test
     public void testOnList() throws Exception {
         Handle h = h2.getSharedHandle();
-        h.registerCollectorFactory(new ImmutableListCollectorFactory<>());
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
 
-        @SuppressWarnings("unchecked")
         ImmutableList<String> rs = h.createQuery("select name from something order by id")
                 .mapTo(String.class)
-                .collectInto(ImmutableList.class);
+                .collect(GuavaCollectors.toImmutableList());
 
         assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));
     }
@@ -120,8 +113,7 @@ public class TestCollectorFactory {
         assertThat(rs, equalTo(ImmutableSortedSet.of("Brian", "Coda")));
     }
 
-
-    @RegisterCollectorFactory({ImmutableListCollectorFactory.class, GuavaOptionalCollectorFactory.class})
+    @RegisterCollectorFactory(GuavaCollectors.Factory.class)
     public interface Dao extends Base<String> {
         @SqlQuery("select name from something order by id")
         ImmutableList<String> findAll();
@@ -145,49 +137,6 @@ public class TestCollectorFactory {
         @SqlQuery("select name from something where id = :id")
         @SingleValueResult
         Optional<T> inheritedGenericFindNameById(@Bind("id") int id);
-    }
-
-    public static class ImmutableListCollectorFactory<T> implements CollectorFactory<T, ImmutableList<T>> {
-
-        @Override
-        public boolean accepts(Class<?> type) {
-            return ImmutableList.class.equals(type);
-        }
-
-        @Override
-        public Collector<T, ImmutableList.Builder<T>, ImmutableList<T>> newCollector(Class<ImmutableList<T>> type) {
-            return Collector.of(ImmutableList.Builder::new, ImmutableList.Builder::add, (first, second) -> {
-                throw new UnsupportedOperationException("Parallel collecting is not supported");
-            }, ImmutableList.Builder<T>::build);
-        }
-    }
-
-    public static class GuavaOptionalCollectorFactory<T> implements CollectorFactory<T, Optional<T>> {
-
-        @Override
-        public boolean accepts(Class<?> type) {
-            return type.equals(Optional.class);
-        }
-
-        @Override
-        public Collector<T, GuavaOptionalBuilder<T>, Optional<T>> newCollector(Class<Optional<T>> type) {
-            return Collector.of(GuavaOptionalBuilder::new, GuavaOptionalBuilder::set, (first, second) -> {
-                throw new UnsupportedOperationException("Parallel collecting is not supported");
-            }, GuavaOptionalBuilder::build);
-        }
-    }
-
-    private static class GuavaOptionalBuilder<T> {
-
-        private Optional<T> optional = Optional.absent();
-
-        public void set(T value) {
-            optional = Optional.of(value);
-        }
-
-        public Optional<T> build() {
-            return optional;
-        }
     }
 
 }

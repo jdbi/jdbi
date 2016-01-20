@@ -15,7 +15,6 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
@@ -39,7 +38,7 @@ public class TestColonStatementRewriter
     {
         return rw.rewrite(sql,
                 new Binding(),
-                new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
+                new ConcreteStatementContext());
     }
 
     @Test

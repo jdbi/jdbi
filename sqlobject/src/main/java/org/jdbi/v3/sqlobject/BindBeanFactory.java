@@ -38,7 +38,10 @@ class BindBeanFactory implements BinderFactory<BindBean, Object>
                 for (PropertyDescriptor prop : props) {
                     Method readMethod = prop.getReadMethod();
                     if (readMethod != null) {
-                        q.dynamicBind(readMethod.getReturnType(), prefix + prop.getName(), readMethod.invoke(arg));
+                        q.dynamicBind(
+                                readMethod.getGenericReturnType(),
+                                prefix + prop.getName(),
+                                readMethod.invoke(arg));
                     }
                 }
             }

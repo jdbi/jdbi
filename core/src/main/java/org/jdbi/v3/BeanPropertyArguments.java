@@ -59,9 +59,10 @@ class BeanPropertyArguments implements NamedArgumentFinder
             {
                 try
                 {
-                    return foreman.waffle(descriptor.getReadMethod().getReturnType(),
-                                   descriptor.getReadMethod().invoke(bean),
-                                   ctx);
+                    return foreman.waffle(
+                            descriptor.getReadMethod().getGenericReturnType(),
+                            descriptor.getReadMethod().invoke(bean),
+                            ctx);
                 }
                 catch (IllegalAccessException e)
                 {

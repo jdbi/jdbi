@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.unstable;
 
+import static org.jdbi.v3.Types.findGenericParameter;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -74,9 +77,12 @@ public @interface BindIn
 
             return (q, param, bind, arg) -> {
                 Iterable<?> coll = (Iterable<?>) arg;
+                Type parameterType = param.getParameterizedType();
+                Type elementType = findGenericParameter(parameterType, Iterable.class)
+                        .orElse(Object.class);
                 int idx = 0;
                 for (Object s : coll) {
-                    q.bind("__" + key + "_" + idx++, s);
+                    q.dynamicBind(elementType, "__" + key + "_" + idx++, s);
                 }
             };
         }

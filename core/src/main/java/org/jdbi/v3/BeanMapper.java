@@ -18,6 +18,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -98,7 +99,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
             }
 
             final PropertyDescriptor descriptor = maybeDescriptor.get();
-            final Class<?> type = descriptor.getPropertyType();
+            final Type type = descriptor.getReadMethod().getGenericReturnType();
             final Object value;
             final ResultColumnMapper<?> mapper = ctx.columnMapperFor(type);
 

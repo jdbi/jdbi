@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3;
 
+import java.lang.reflect.Type;
+
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 /**
@@ -25,10 +27,10 @@ public interface ResultColumnMapperFactory
      * @param type the target type to map to
      * @return true if it can, false if it cannot
      */
-    boolean accepts(Class<?> type, StatementContext ctx);
+    boolean accepts(Type type, StatementContext ctx);
 
     /**
      * Supplies a column mapper which will map result set columns to type
      */
-    <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx);
+    ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx);
 }

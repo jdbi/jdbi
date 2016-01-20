@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import com.fasterxml.classmate.ResolvedType;
@@ -133,7 +134,8 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
-                return q.collectInto(containerType);
+                Collector collector = ((Query)q).getContext().collectorFor(containerType);
+                return q.collect(collector);
             }
             return q.findFirst().orElse(null);
         }
@@ -262,24 +264,23 @@ abstract class ResultReturnThing
 
     static class IterableReturningThing extends ResultReturnThing
     {
-        private final ResolvedType resolvedType;
-        private final Class<?> erased_type;
+        private final Class<?> iterableType;
+        private final Class<?> elementType;
 
         IterableReturningThing(ResolvedMethod method)
         {
             // extract T from List<T>
-            ResolvedType query_type = method.getReturnType();
-            List<ResolvedType> query_return_types = query_type.typeParametersFor(Iterable.class);
-            this.resolvedType = query_return_types.get(0);
-            erased_type = method.getReturnType().getErasedType();
+            ResolvedType returnType = method.getReturnType();
+            this.iterableType = returnType.getErasedType();
+            this.elementType = returnType.typeParametersFor(Iterable.class).get(0).getErasedType();
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {
-                return ((Query<?>) q).collectInto(erased_type);
+                Collector collector = ((Query) q).getContext().collectorFor(iterableType);
+                return q.collect(collector);
             } else {
                 throw new UnsupportedOperationException("Collect is not supported for " + q);
             }
@@ -288,7 +289,7 @@ abstract class ResultReturnThing
         @Override
         protected Class<?> mapTo(ResolvedMethod method)
         {
-            return resolvedType.getErasedType();
+            return elementType;
         }
     }
 }

@@ -20,23 +20,23 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public interface ResultBearing<ResultType> extends Iterable<ResultType>
+public interface ResultBearing<T> extends Iterable<T>
 {
     @Override
-    ResultIterator<ResultType> iterator();
+    ResultIterator<T> iterator();
 
     /**
      * Get the only row in the result set.
      * @throws IllegalStateException if zero or multiple rows are returned
      * @return the object mapped from the singular row in the results
      */
-    default ResultType findOnly() {
-        try (ResultIterator<ResultType> iter = iterator()) {
+    default T findOnly() {
+        try (ResultIterator<T> iter = iterator()) {
             if (!iter.hasNext()) {
                 throw new IllegalStateException("No element found in 'only'");
             }
 
-            final ResultType r = iter.next();
+            final T r = iter.next();
 
             if (iter.hasNext()) {
                 throw new IllegalStateException("Multiple elements found in 'only'");
@@ -49,17 +49,17 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
     /**
      * Get the first row in the result set, if present.
      */
-    default Optional<ResultType> findFirst() {
-        try (ResultIterator<ResultType> iter = iterator()) {
+    default Optional<T> findFirst() {
+        try (ResultIterator<T> iter = iterator()) {
             return iter.hasNext() ? Optional.of(iter.next()) : Optional.empty();
         }
     }
 
-    default Stream<ResultType> stream() {
+    default Stream<T> stream() {
         return StreamSupport.stream(spliterator(), false);
     }
 
-    default List<ResultType> list() {
+    default List<T> list() {
         return collect(Collectors.toList());
     }
 
@@ -67,25 +67,13 @@ public interface ResultBearing<ResultType> extends Iterable<ResultType>
      * Collect the query results into a container specified by a collector.
      *
      * @param collector       the collector
-     * @param <ContainerType> the generic type of the container
-     * @param <A>             the generic type of the container builder
+     * @param <R>             the generic type of the container
      * @return the container with the query result
      */
-    default <ContainerType, A> ContainerType collect(Collector<ResultType, A, ContainerType> collector) {
-        try (Stream<ResultType> stream = stream()) {
+    default <R> R collect(Collector<T, ?, R> collector) {
+        try (Stream<T> stream = stream()) {
             return stream.collect(collector);
         }
     }
-
-    /**
-     * Collect the query result into a container of the type specified by the given class.
-     * A factory for building the container should be registered in the query's
-     * collector factory registry.
-     *
-     * @param containerType   the class that represents the container
-     * @param <ContainerType> the generic type of the container
-     * @return the container with the query result
-     */
-    <ContainerType> ContainerType collectInto(Class<ContainerType> containerType);
 
 }

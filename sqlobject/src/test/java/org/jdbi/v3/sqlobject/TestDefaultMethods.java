@@ -22,7 +22,6 @@ import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Rule;
 import org.junit.Test;
 
-@SuppressWarnings("resource")
 public class TestDefaultMethods
 {
     @Rule

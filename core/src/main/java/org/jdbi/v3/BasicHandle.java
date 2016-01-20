@@ -81,19 +81,22 @@ class BasicHandle implements Handle
     public Query<Map<String, Object>> createQuery(String sql)
     {
         MappingRegistry queryRegistry = MappingRegistry.copyOf(this.mappingRegistry);
-        return new Query<Map<String, Object>>(new Binding(),
-                                              new DefaultMapper(),
-                                              statementLocator,
-                                              statementRewriter,
-                                              this,
-                                              statementBuilder,
-                                              sql,
-                                              new ConcreteStatementContext(globalStatementAttributes, queryRegistry),
-                                              timingCollector,
-                                              Collections.<StatementCustomizer>emptyList(),
-                                              queryRegistry,
-                                              foreman.createChild(),
-                                              collectorFactoryRegistry.createChild());
+        Foreman queryForeman = foreman.createChild();
+        CollectorFactoryRegistry queryCollectors = collectorFactoryRegistry.createChild();
+        return new Query<>(
+                new Binding(),
+                new DefaultMapper(),
+                statementLocator,
+                statementRewriter,
+                this,
+                statementBuilder,
+                sql,
+                new ConcreteStatementContext(globalStatementAttributes, queryRegistry, queryForeman, queryCollectors),
+                timingCollector,
+                Collections.<StatementCustomizer>emptyList(),
+                queryRegistry,
+                queryForeman,
+                queryCollectors);
     }
 
     /**
@@ -242,30 +245,34 @@ class BasicHandle implements Handle
     @Override
     public Update createStatement(String sql)
     {
+        Foreman updateForeman = foreman.createChild();
+        CollectorFactoryRegistry updateCollectors = collectorFactoryRegistry.createChild();
         return new Update(this,
                           statementLocator,
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
+                          new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), updateForeman, updateCollectors),
                           timingCollector,
-                          foreman,
-                          collectorFactoryRegistry);
+                          updateForeman,
+                          updateCollectors);
     }
 
     @Override
     public Call createCall(String sql)
     {
+        Foreman callForeman = foreman.createChild();
+        CollectorFactoryRegistry callCollectors = collectorFactoryRegistry.createChild();
         return new Call(this,
                         statementLocator,
                         statementRewriter,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
+                        new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), callForeman, callCollectors),
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
-                        foreman,
-                collectorFactoryRegistry);
+                        callForeman,
+                        callCollectors);
     }
 
     @Override
@@ -288,26 +295,29 @@ class BasicHandle implements Handle
     @Override
     public PreparedBatch prepareBatch(String sql)
     {
+        Foreman batchForeman = foreman.createChild();
+        CollectorFactoryRegistry batchCollectors = collectorFactoryRegistry.createChild();
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
+                                 new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), batchForeman, batchCollectors),
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
-                                 foreman,
-                collectorFactoryRegistry);
+                                 batchForeman,
+                                 batchCollectors);
     }
 
     @Override
     public Batch createBatch()
     {
+        Foreman batchForeman = foreman.createChild();
         return new Batch(this.statementRewriter,
                          this.connection,
-                         new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)),
+                         new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), batchForeman, collectorFactoryRegistry.createChild()),
                          timingCollector,
-                         foreman.createChild());
+                         batchForeman);
     }
 
     @Override
@@ -388,7 +398,12 @@ class BasicHandle implements Handle
     @Override
     public Script createScript(String name)
     {
-        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry)));
+        return new Script(this, statementLocator, name,
+                new ConcreteStatementContext(
+                        globalStatementAttributes,
+                        MappingRegistry.copyOf(mappingRegistry),
+                        foreman.createChild(),
+                        collectorFactoryRegistry.createChild()));
     }
 
     @Override
@@ -464,7 +479,7 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerCollectorFactory(CollectorFactory<?, ?> factory) {
+    public void registerCollectorFactory(CollectorFactory factory) {
         this.collectorFactoryRegistry.register(factory);
     }
 }

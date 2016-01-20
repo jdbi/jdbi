@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URL;
@@ -75,16 +78,19 @@ public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory 
     }
 
     @Override
-    public boolean accepts(Class<?> type, StatementContext ctx) {
-        return type.isEnum() || mappers.containsKey(type);
+    public boolean accepts(Type type, StatementContext ctx) {
+        Class<?> rawType = getErasedType(type);
+        return rawType.isEnum() || mappers.containsKey(rawType);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx) {
-        if (type.isEnum()) {
-            return (ResultColumnMapper<? extends T>) EnumColumnMapper.byName(type.asSubclass(Enum.class));
+    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+        Class<?> rawType = getErasedType(type);
+        if (rawType.isEnum()) {
+            return EnumColumnMapper.byName(
+                    (Class<? extends Enum>) rawType.asSubclass(Enum.class));
         }
-        return (ResultColumnMapper<? extends T>) mappers.get(type);
+        return mappers.get(rawType);
     }
 }

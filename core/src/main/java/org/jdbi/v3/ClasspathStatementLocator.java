@@ -69,7 +69,7 @@ public class ClasspathStatementLocator implements StatementLocator
      *          if an IOException occurs reading a found resource
      */
     @Override
-    @SuppressWarnings({ "PMD.EmptyCatchBlock", "resource" })
+    @SuppressWarnings({ "PMD.EmptyCatchBlock" })
     @SuppressFBWarnings("DM_STRING_CTOR")
     public String locate(String name, StatementContext ctx)
     {

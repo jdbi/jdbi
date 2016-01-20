@@ -14,17 +14,22 @@
 package org.jdbi.v3;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collector;
 
+import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 public class TestingStatementContext implements StatementContext
 {
     private final Map<String, Object> attributes;
-    private final MappingRegistry registry = new MappingRegistry();
+    private final MappingRegistry mappers = new MappingRegistry();
+    private final Foreman foreman = new Foreman();
+    private final CollectorFactoryRegistry collectors = new CollectorFactoryRegistry();
 
     public TestingStatementContext(final Map<String, Object> globalAttributes)
     {
@@ -50,8 +55,18 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type) {
-        return registry.columnMapperFor(type, this);
+    public ResultColumnMapper<?> columnMapperFor(Type type) {
+        return mappers.columnMapperFor(type, this);
+    }
+
+    @Override
+    public Argument argumentFor(Type type, Object value) {
+        return foreman.waffle(type, value, this);
+    }
+
+    @Override
+    public Collector<?, ?, ?> collectorFor(Type type) {
+        return collectors.createCollectorFor(type);
     }
 
     @Override
@@ -125,7 +140,7 @@ public class TestingStatementContext implements StatementContext
     }
 
     public void registerColumnMapper(ResultColumnMapper<?> m) {
-        registry.addColumnMapper(m);
+        mappers.addColumnMapper(m);
     }
 
 }

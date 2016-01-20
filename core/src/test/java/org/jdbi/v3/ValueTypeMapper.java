@@ -14,6 +14,9 @@
 
 package org.jdbi.v3;
 
+import static org.jdbi.v3.Types.getErasedType;
+
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -34,14 +37,13 @@ public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
 
     public static class Factory implements ResultColumnMapperFactory {
         @Override
-        public boolean accepts(Class<?> type, StatementContext ctx) {
-            return ValueType.class.isAssignableFrom(type);
+        public boolean accepts(Type type, StatementContext ctx) {
+            return ValueType.class.isAssignableFrom(getErasedType(type));
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public <T> ResultColumnMapper<? extends T> columnMapperFor(Class<T> type, StatementContext ctx) {
-            return (ResultColumnMapper<? extends T>) new ValueTypeMapper();
+        public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+            return new ValueTypeMapper();
         }
     }
 }

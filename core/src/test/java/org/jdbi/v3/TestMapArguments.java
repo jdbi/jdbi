@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Rule;
@@ -38,7 +37,7 @@ public class TestMapArguments
 
     Foreman foreman = new Foreman();
 
-    StatementContext ctx = new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry());
+    StatementContext ctx = new ConcreteStatementContext();
 
     @Test
     public void testBind() throws Exception

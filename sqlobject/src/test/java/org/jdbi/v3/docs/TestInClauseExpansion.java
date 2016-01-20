@@ -17,7 +17,6 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-import java.util.stream.Collector;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -25,9 +24,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.unstable.BindIn;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,7 +33,7 @@ import org.junit.Test;
 public class TestInClauseExpansion
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugins(); // Guava
     private Handle handle;
 
     @Before
@@ -56,25 +53,10 @@ public class TestInClauseExpansion
     }
 
     @UseStringTemplate3StatementLocator
-    @RegisterCollectorFactory(ImmutableSetCollectorFactory.class)
     public interface DAO
     {
         @SqlQuery
         ImmutableSet<String> findIdsForNames(@BindIn("names") List<Integer> names);
     }
 
-    public static class ImmutableSetCollectorFactory<T> implements CollectorFactory<T, ImmutableSet<T>> {
-
-        @Override
-        public boolean accepts(Class<?> type) {
-            return ImmutableSet.class.isAssignableFrom(type);
-        }
-
-        @Override
-        public Collector<T, ImmutableSet.Builder<T>, ImmutableSet<T>> newCollector(Class<ImmutableSet<T>> type) {
-            return Collector.of(ImmutableSet.Builder::new, ImmutableSet.Builder::add, (first, second) -> {
-                throw new UnsupportedOperationException("Parallel collecting is not supported");
-            }, ImmutableSet.Builder::build, Collector.Characteristics.UNORDERED);
-        }
-    }
 }
