@@ -13,55 +13,44 @@
  */
 package org.jdbi.v3;
 
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.junit.Test;
+import org.mockito.InOrder;
 
 public class TestTransactionsAutoCommit
 {
+
+    public static final String SAMPLE_SQL = "insert into something (id, name) values (?, ?)";
+
     @Test
     public void restoreAutoCommitInitialStateOnUnexpectedError() throws Exception
     {
 
-        final Connection connection = createNiceMock(Connection.class);
-        final PreparedStatement statement = createNiceMock(PreparedStatement.class);
+        final Connection connection = mock(Connection.class);
+        final PreparedStatement statement = mock(PreparedStatement.class);
+        InOrder inOrder = inOrder(connection, statement);
 
         Handle h = DBI.create(() -> connection).open();
 
-        // expected behaviour chain:
-        // 1. store initial auto-commit state
-        expect(connection.getAutoCommit()).andReturn(true);
-
-        // 2. turn off auto-commit
-        connection.setAutoCommit(false);
-        expectLastCall().once();
-
-        // 3. execute statement (without commit)
-        expect(connection.prepareStatement("insert into something (id, name) values (?, ?)")).andReturn(statement);
-        expect(statement.execute()).andReturn(true);
-        expect(statement.getUpdateCount()).andReturn(1);
-
-        // 4. commit transaction (throw e.g some underlying database error)
-        connection.commit();
-        expectLastCall().andThrow(new SQLException("infrastructure error"));
-
-        // 5. set auto-commit back to initial state
-        connection.setAutoCommit(true);
-        expectLastCall().once();
-
-        replay(connection, statement);
+        when(connection.getAutoCommit()).thenReturn(true);
+        when(connection.prepareStatement(anyString())).thenReturn(statement);
+        when(statement.execute()).thenReturn(true);
+        when(statement.getUpdateCount()).thenReturn(1);
+        // throw e.g some underlying database error
+        doThrow(new SQLException("infrastructure error")).when(connection).commit();
 
         h.begin();
         try {
-            h.insert("insert into something (id, name) values (?, ?)", 1L, "Tom");
+            h.insert(SAMPLE_SQL, 1L, "Tom");
 
             // throws exception on commit
             h.commit();
@@ -69,7 +58,23 @@ public class TestTransactionsAutoCommit
             // ignore
         }
 
-        verify(connection);
+        // expected behaviour chain:
+        // 1. store initial auto-commit state
+        inOrder.verify(connection).getAutoCommit();
+
+        // 2. turn off auto-commit
+        inOrder.verify(connection).setAutoCommit(false);
+
+        // 3. execute statement (without commit)
+        inOrder.verify(connection).prepareStatement("insert into something (id, name) values (?, ?)");
+        inOrder.verify(statement).execute();
+        inOrder.verify(statement).getUpdateCount();
+
+        // 4. commit transaction
+        inOrder.verify(connection).commit();
+
+        // 5. set auto-commit back to initial state
+        inOrder.verify(connection).setAutoCommit(true);
     }
 
 }

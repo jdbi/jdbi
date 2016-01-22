@@ -18,6 +18,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.easymock.EasyMock;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
@@ -133,14 +136,9 @@ public class TestOnDemandSqlObject
         JdbiPlugin plugin = new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
-                Handle h = EasyMock.createMock(Handle.class);
-                h.createStatement(EasyMock.anyObject(String.class));
-                EasyMock.expectLastCall()
-                    .andThrow(new TransactionException("connection reset"));
-                h.close();
-                EasyMock.expectLastCall()
-                    .andThrow(new UnableToCloseResourceException("already closed", null));
-                EasyMock.replay(h);
+                Handle h = mock(Handle.class);
+                when(h.createStatement(anyString())).thenThrow(new TransactionException("connection reset"));
+                doThrow(new UnableToCloseResourceException("already closed", null)).when(h).close();
                 return h;
             }
         };
