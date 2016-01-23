@@ -14,10 +14,10 @@
 package org.jdbi.v3;
 
 import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
 import java.sql.Connection;
 
-import org.easymock.EasyMock;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,8 +28,7 @@ public class TestPlugins {
 
     @Test
     public void testCustomizeHandle() throws Exception {
-        Handle h = EasyMock.createNiceMock(Handle.class);
-        EasyMock.replay(h);
+        Handle h = mock(Handle.class);
 
         db.getDbi().installPlugin(new JdbiPlugin() {
             @Override
@@ -43,8 +42,7 @@ public class TestPlugins {
 
     @Test
     public void testCustomizeConnection() throws Exception {
-        Connection c = EasyMock.createNiceMock(Connection.class);
-        EasyMock.replay(c);
+        Connection c = mock(Connection.class);
 
         db.getDbi().installPlugin(new JdbiPlugin() {
             @Override

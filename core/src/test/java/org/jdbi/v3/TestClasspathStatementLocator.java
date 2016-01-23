@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.easymock.cglib.transform.AbstractClassLoader;
 import org.jdbi.v3.exceptions.StatementException;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -103,7 +102,7 @@ public class TestClasspathStatementLocator
     {
         ClassLoader ctx_loader = Thread.currentThread().getContextClassLoader();
         final AtomicInteger load_count = new AtomicInteger(0);
-        Thread.currentThread().setContextClassLoader(new AbstractClassLoader(ctx_loader, ctx_loader, null)
+        Thread.currentThread().setContextClassLoader(new ClassLoader(ctx_loader)
         {
             @Override
             public InputStream getResourceAsStream(String s)

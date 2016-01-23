@@ -14,24 +14,28 @@
 
 package org.jdbi.v3;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.Collections;
 
-import org.easymock.EasyMockRunner;
-import org.easymock.Mock;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
-@RunWith(EasyMockRunner.class)
 public class BeanMapperTest {
+    
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Mock
     ResultSet resultSet;
@@ -41,19 +45,21 @@ public class BeanMapperTest {
 
     TestingStatementContext ctx = new TestingStatementContext(Collections.emptyMap());
 
-    BeanMapper<SampleBean> mapper = new BeanMapper<SampleBean>(SampleBean.class);
+    BeanMapper<SampleBean> mapper = new BeanMapper<>(SampleBean.class);
+    
+    @Before
+    public void setUpMocks() throws SQLException {
+        when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
+    }
 
     @Test
     public void shouldSetValueOnPublicSetter() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
-        expect(resultSet.getLong(1)).andReturn(aLongVal);
-        expect(resultSet.wasNull()).andReturn(false);
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(aLongVal);
+        when(resultSet.wasNull()).thenReturn(false);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
@@ -62,15 +68,12 @@ public class BeanMapperTest {
 
     @Test
     public void shouldHandleColumNameWithUnderscores() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("LONG_FIELD");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("LONG_FIELD");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
-        expect(resultSet.getLong(1)).andReturn(aLongVal);
-        expect(resultSet.wasNull()).andReturn(false);
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(aLongVal);
+        when(resultSet.wasNull()).thenReturn(false);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
@@ -79,15 +82,12 @@ public class BeanMapperTest {
 
     @Test
     public void shouldBeCaseInSensitiveOfColumnWithUnderscoresAndPropertyNames() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("LoNg_FiElD");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNg_FiElD");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
-        expect(resultSet.getLong(1)).andReturn(aLongVal);
-        expect(resultSet.wasNull()).andReturn(false);
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(aLongVal);
+        when(resultSet.wasNull()).thenReturn(false);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
@@ -96,11 +96,7 @@ public class BeanMapperTest {
 
     @Test
     public void shouldHandleEmptyResult() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(0);
-        replay(resultSetMetaData);
-
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
-        replay(resultSet);
+        when(resultSetMetaData.getColumnCount()).thenReturn(0);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
@@ -109,15 +105,12 @@ public class BeanMapperTest {
 
     @Test
     public void shouldBeCaseInSensitiveOfColumnAndPropertyNames() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("LoNgfielD");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
-        expect(resultSet.getLong(1)).andReturn(aLongVal);
-        expect(resultSet.wasNull()).andReturn(false);
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(aLongVal);
+        when(resultSet.wasNull()).thenReturn(false);
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
         assertEquals(aLongVal, sampleBean.getLongField());
@@ -126,14 +119,11 @@ public class BeanMapperTest {
 
     @Test
     public void shouldHandleNullValue() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("LoNgfielD");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
-        expect(resultSet.getLong(1)).andReturn(0l);
-        expect(resultSet.wasNull()).andReturn(true);
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(0l);
+        when(resultSet.wasNull()).thenReturn(true);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
@@ -143,15 +133,12 @@ public class BeanMapperTest {
 
     @Test
     public void shouldSetValuesOnPublicSetter() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long expected = 1L;
-        expect(resultSet.getLong(1)).andReturn(expected);
-        expect(resultSet.wasNull()).andReturn(false).anyTimes();
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(expected);
+        when(resultSet.wasNull()).thenReturn(false);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
@@ -160,64 +147,52 @@ public class BeanMapperTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnProtectedSetter() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("protectedStringField");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("protectedStringField");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         String expected = "string";
-        expect(resultSet.getString(1)).andReturn(expected);
-        expect(resultSet.wasNull()).andReturn(false).anyTimes();
-        replay(resultSet);
+        when(resultSet.getString(1)).thenReturn(expected);
+        when(resultSet.wasNull()).thenReturn(false);
 
         mapper.map(0, resultSet, ctx);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnPackagePrivateSetter() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("packagePrivateIntField");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("packagePrivateIntField");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         int expected = 200;
-        expect(resultSet.getInt(1)).andReturn(expected);
-        expect(resultSet.wasNull()).andReturn(false).anyTimes();
-        replay(resultSet);
+        when(resultSet.getInt(1)).thenReturn(expected);
+        when(resultSet.wasNull()).thenReturn(false);
 
         mapper.map(0, resultSet, ctx);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnPrivateSetter() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("privateBigDecimalField");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("privateBigDecimalField");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         BigDecimal expected = BigDecimal.ONE;
-        expect(resultSet.getBigDecimal(1)).andReturn(expected);
-        expect(resultSet.wasNull()).andReturn(false).anyTimes();
-        replay(resultSet);
+        when(resultSet.getBigDecimal(1)).thenReturn(expected);
+        when(resultSet.wasNull()).thenReturn(false);
 
         mapper.map(0, resultSet, ctx);
     }
 
     @Test
     public void shouldSetValuesInSuperClassProperties() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
-        expect(resultSetMetaData.getColumnLabel(2)).andReturn("blongField");
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(2);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
+        when(resultSetMetaData.getColumnLabel(2)).thenReturn("blongField");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
         Long bLongVal = 200l;
 
-        expect(resultSet.getLong(1)).andReturn(aLongVal);
-        expect(resultSet.getLong(2)).andReturn(bLongVal);
-        expect(resultSet.wasNull()).andReturn(false).anyTimes();
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(aLongVal);
+        when(resultSet.getLong(2)).thenReturn(bLongVal);
+        when(resultSet.wasNull()).thenReturn(false);
 
         BeanMapper<DerivedBean> mapper = new BeanMapper<DerivedBean>(DerivedBean.class);
 
@@ -231,16 +206,13 @@ public class BeanMapperTest {
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
         ctx.registerColumnMapper(new ValueTypeMapper());
 
-        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
-        expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(2);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
+        when(resultSetMetaData.getColumnLabel(2)).thenReturn("valueTypeField");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
-        expect(resultSet.getLong(1)).andReturn(123L);
-        expect(resultSet.getString(2)).andReturn("foo");
-        expect(resultSet.wasNull()).andReturn(false).anyTimes();
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(123L);
+        when(resultSet.getString(2)).thenReturn("foo");
+        when(resultSet.wasNull()).thenReturn(false);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
@@ -251,16 +223,13 @@ public class BeanMapperTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnPropertyTypeWithoutRegisteredMapper() throws Exception {
-        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
-        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
-        expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
-        replay(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(2);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
+        when(resultSetMetaData.getColumnLabel(2)).thenReturn("valueTypeField");
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
-        expect(resultSet.getLong(1)).andReturn(123L);
-        expect(resultSet.getObject(2)).andReturn(new Object());
-        expect(resultSet.wasNull()).andReturn(false).anyTimes();
-        replay(resultSet);
+        when(resultSet.getLong(1)).thenReturn(123L);
+        when(resultSet.getObject(2)).thenReturn(new Object());
+        when(resultSet.wasNull()).thenReturn(false);
 
         mapper.map(0, resultSet, ctx);
     }
