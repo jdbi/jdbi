@@ -16,6 +16,7 @@ package org.jdbi.v3.util;
 import static org.jdbi.v3.Types.getErasedType;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 import org.jdbi.v3.ResultColumnMapperFactory;
 import org.jdbi.v3.StatementContext;
@@ -27,13 +28,10 @@ import org.jdbi.v3.tweak.ResultColumnMapper;
 public class EnumByOrdinalColumnMapperFactory implements ResultColumnMapperFactory {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
-        return EnumColumnMapper.byOrdinal(
-                (Class<? extends Enum>) getErasedType(type).asSubclass(Enum.class));
-    }
-
-    @Override
-    public boolean accepts(Type type, StatementContext ctx) {
-        return getErasedType(type).isEnum();
+    public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
+        Class<?> clazz = getErasedType(type);
+        return clazz.isEnum()
+                ? Optional.of(EnumColumnMapper.byOrdinal((Class<? extends Enum>) clazz))
+                : Optional.empty();
     }
 }

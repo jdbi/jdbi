@@ -22,6 +22,7 @@ import java.net.URL;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.util.BigDecimalColumnMapper;
@@ -78,19 +79,12 @@ public class PrimitivesColumnMapperFactory implements ResultColumnMapperFactory 
     }
 
     @Override
-    public boolean accepts(Type type, StatementContext ctx) {
-        Class<?> rawType = getErasedType(type);
-        return rawType.isEnum() || mappers.containsKey(rawType);
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+    public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
         Class<?> rawType = getErasedType(type);
         if (rawType.isEnum()) {
-            return EnumColumnMapper.byName(
-                    (Class<? extends Enum>) rawType.asSubclass(Enum.class));
+            return Optional.of(EnumColumnMapper.byName((Class<? extends Enum>) rawType));
         }
-        return mappers.get(rawType);
+
+        return Optional.ofNullable(mappers.get(type));
     }
 }

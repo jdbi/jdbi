@@ -59,12 +59,12 @@ class MappingRegistry
 
     public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx) {
         return rowCache.computeIfAbsent(type, t -> {
-            Optional<ResultSetMapper<?>> factoryMapper = rowFactories.stream()
+            Optional<ResultSetMapper<?>> mapper = rowFactories.stream()
                     .map(factory -> factory.build(type, ctx))
                     .flatMap(JdbiStreams::toStream)
                     .findFirst();
-            if (factoryMapper.isPresent()) {
-                return factoryMapper.get();
+            if (mapper.isPresent()) {
+                return mapper.get();
             }
 
             ResultColumnMapper<?> columnMapper = columnMapperFor(type, ctx);
@@ -87,25 +87,16 @@ class MappingRegistry
     }
 
     public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
-        ResultColumnMapper<?> mapper = columnCache.get(type);
-        if (mapper != null) {
-            return mapper;
-        }
-
-        for (ResultColumnMapperFactory factory : columnFactories) {
-            if (factory.accepts(type, ctx)) {
-                mapper = factory.columnMapperFor(type, ctx);
-                columnCache.put(type, mapper);
-                return mapper;
+        return columnCache.computeIfAbsent(type, t -> {
+            Optional<ResultColumnMapper<?>> mapper = columnFactories.stream()
+                    .map(factory -> factory.build(t, ctx))
+                    .flatMap(JdbiStreams::toStream)
+                    .findFirst();
+            if (mapper.isPresent()) {
+                return mapper.get();
             }
-        }
 
-        if (BUILT_INS.accepts(type, ctx)) {
-            mapper = BUILT_INS.columnMapperFor(type, ctx);
-            columnCache.put(type, mapper);
-            return mapper;
-        }
-
-        return null;
+            return BUILT_INS.build(type, ctx).orElse(null);
+        });
     }
 }
