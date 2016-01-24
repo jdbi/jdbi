@@ -15,9 +15,11 @@ package org.jdbi.v3;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.SingleColumnMapper;
@@ -56,27 +58,22 @@ class MappingRegistry
     }
 
     public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx) {
-        ResultSetMapper<?> mapper = rowCache.get(type);
-        if (mapper != null) {
-            return mapper;
-        }
-
-        for (ResultSetMapperFactory factory : rowFactories) {
-            if (factory.accepts(type, ctx)) {
-                mapper = factory.mapperFor(type, ctx);
-                rowCache.put(type, mapper);
-                return mapper;
+        return rowCache.computeIfAbsent(type, t -> {
+            Optional<ResultSetMapper<?>> factoryMapper = rowFactories.stream()
+                    .map(factory -> factory.build(type, ctx))
+                    .flatMap(JdbiStreams::toStream)
+                    .findFirst();
+            if (factoryMapper.isPresent()) {
+                return factoryMapper.get();
             }
-        }
 
-        ResultColumnMapper<?> columnMapper = columnMapperFor(type, ctx);
-        if (columnMapper != null) {
-            mapper = new SingleColumnMapper<>(columnMapper);
-            rowCache.put(type, mapper);
-            return mapper;
-        }
+            ResultColumnMapper<?> columnMapper = columnMapperFor(type, ctx);
+            if (columnMapper != null) {
+                return new SingleColumnMapper<>(columnMapper);
+            }
 
-        throw new UnsupportedOperationException("No mapper registered for " + type);
+            throw new UnsupportedOperationException("No mapper registered for " + type);
+        });
     }
 
     public void addColumnMapper(ResultColumnMapper<?> mapper)

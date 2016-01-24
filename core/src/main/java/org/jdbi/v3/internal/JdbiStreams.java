@@ -11,17 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.internal;
 
-import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
-
-/**
- * Factory interface used to produce result set mappers.
- */
-public interface ResultSetMapperFactory
-{
-    Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx);
+public class JdbiStreams {
+    public static <T> Stream<T> toStream(Optional<T> optional) {
+        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
+    }
 }

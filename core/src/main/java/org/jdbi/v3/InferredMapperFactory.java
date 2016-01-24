@@ -16,6 +16,7 @@ package org.jdbi.v3;
 import static org.jdbi.v3.Types.findGenericParameter;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
 
@@ -32,17 +33,9 @@ class InferredMapperFactory<X> implements ResultSetMapperFactory
     }
 
     @Override
-    public boolean accepts(Type type, StatementContext ctx)
-    {
-        return maps.equals(type);
-    }
-
-    @Override
-    public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx)
-    {
-        if (!type.equals(maps)) {
-            throw new IllegalArgumentException("Expected to map " + type + " but I only map " + maps);
-        }
-        return mapper;
+    public Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx) {
+        return maps.equals(type)
+                ? Optional.of(mapper)
+                : Optional.empty();
     }
 }

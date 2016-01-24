@@ -15,10 +15,10 @@ package org.jdbi.v3;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
@@ -42,19 +42,14 @@ class Foreman
         return Stream.concat(
                 factories.stream()
                         .map(factory -> factory.build(expectedType, it, ctx))
-                        .flatMap(this::toStream),
+                        .flatMap(JdbiStreams::toStream),
                 // Fall back to any factory accepting Object if necessary but
                 // prefer any more specific factory first.
                 factories.stream()
                         .map(factory -> factory.build(Object.class, it, ctx))
-                        .flatMap(this::toStream))
+                        .flatMap(JdbiStreams::toStream))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Unbindable argument passed: " + it));
-    }
-
-    private <T> Stream<T> toStream(Optional<T> optional)
-    {
-        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
     }
 
     void register(ArgumentFactory argumentFactory)
