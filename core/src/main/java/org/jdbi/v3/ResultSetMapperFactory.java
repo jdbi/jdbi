@@ -23,5 +23,12 @@ import org.jdbi.v3.tweak.ResultSetMapper;
  */
 public interface ResultSetMapperFactory
 {
+    /**
+     * Supplies a result set mapper which will map result sets to type if the factory supports it; empty otherwise.
+     *
+     * @param type the target type to map to
+     * @param ctx the statement context.
+     * @see StatementContext#columnMapperFor(Type)
+     */
     Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx);
 }
