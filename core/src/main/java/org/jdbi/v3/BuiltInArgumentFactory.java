@@ -41,23 +41,14 @@ import org.jdbi.v3.tweak.ArgumentFactory;
  * class directly, but instead should bind your object with the
  * {@link SQLStatement} convenience methods.
  */
-public class BuiltInArgumentFactory implements ArgumentFactory<Object> {
+public class BuiltInArgumentFactory implements ArgumentFactory {
     // Care for the initialization order here, there's a fair number of statics.  Create the builders before the factory instance.
 
     private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
     private static final ArgBuilder<Object> OBJ_BUILDER = v -> new BuiltInArgument<>(Object.class, Types.NULL, PreparedStatement::setObject, v);
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
 
-    public static final ArgumentFactory<?> INSTANCE = new BuiltInArgumentFactory();
-
-    /**
-     * Create an Argument for a built in type.  If the type is not recognized,
-     * the result will delegate to {@link PreparedStatement#setObject(int, Object)}.
-     */
-    @SuppressWarnings("unchecked")
-    public static Argument build(Object arg) {
-        return ((ArgumentFactory<Object>)INSTANCE).build(Object.class, arg, null);
-    }
+    public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
 
     private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
         register(map, klass, v -> new BuiltInArgument<T>(klass, type, binder, v));
@@ -105,17 +96,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory<Object> {
     }
 
     @Override
-    public boolean accepts(Type expectedType, Object value, StatementContext ctx)
-    {
-        return BUILDERS.containsKey(expectedType)
-                || value == null
-                || value.getClass().isEnum()
-                || value instanceof Optional;
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    public Argument build(Type expectedType, Object value, StatementContext ctx)
+    public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx)
     {
         Class<?> expectedClass = getErasedType(expectedType);
 
@@ -125,22 +106,26 @@ public class BuiltInArgumentFactory implements ArgumentFactory<Object> {
 
         ArgBuilder v = BUILDERS.get(expectedClass);
         if (v != null) {
-            return v.build(value);
+            return Optional.of(v.build(value));
         }
 
         // Enums must be bound as VARCHAR.
         if (value instanceof Enum) {
-            return STR_BUILDER.build((((Enum<?>)value).name()));
+            Enum<?> enumValue = (Enum<?>) value;
+            return Optional.of(STR_BUILDER.build(enumValue.name()));
         }
 
         if (value instanceof Optional) {
             Object nestedValue = ((Optional<?>)value).orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
-            return ctx.argumentFor(nestedType, nestedValue);
+            return Optional.ofNullable(ctx.argumentFor(nestedType, nestedValue));
         }
 
-        // Fallback to generic ObjectArgument
-        return OBJ_BUILDER.build(value);
+        if (expectedType == Object.class) {
+            return Optional.of(OBJ_BUILDER.build(value));
+        }
+
+        return Optional.empty();
     }
 
     private Type findOptionalType(Type wrapperType, Object nestedValue) {

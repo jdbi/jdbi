@@ -110,7 +110,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     @SuppressWarnings("unchecked")
-    public SelfType registerArgumentFactory(ArgumentFactory<?> argumentFactory)
+    public SelfType registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         getForeman().register(argumentFactory);
         return (SelfType) this;

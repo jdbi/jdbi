@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -92,18 +93,15 @@ public class TestArgumentFactory
         assertThat(rs.get(1), equalTo("Henning S"));
     }
 
-    public static class NameAF implements ArgumentFactory<Name>
+    public static class NameAF implements ArgumentFactory
     {
         @Override
-        public boolean accepts(Type expectedType, Object value, StatementContext ctx)
-        {
-            return getErasedType(expectedType) == Object.class && value instanceof Name;
-        }
-
-        @Override
-        public Argument build(Type expectedType, Name value, StatementContext ctx)
-        {
-            return BuiltInArgumentFactory.build(value.getFullName());
+        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+            if (getErasedType(expectedType) == Object.class && value instanceof Name) {
+                Name nameValue = (Name) value;
+                return Optional.of(ctx.argumentFor(String.class, nameValue.getFullName()));
+            }
+            return Optional.empty();
         }
     }
 

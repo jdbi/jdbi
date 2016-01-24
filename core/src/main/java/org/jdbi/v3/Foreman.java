@@ -15,7 +15,9 @@ package org.jdbi.v3;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -23,45 +25,41 @@ import org.jdbi.v3.tweak.ArgumentFactory;
 class Foreman
 {
 
-    private final List<ArgumentFactory<?>> factories = new CopyOnWriteArrayList<>();
+    private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<>();
 
     Foreman()
     {
         factories.add(BuiltInArgumentFactory.INSTANCE);
     }
 
-    Foreman(List<ArgumentFactory<?>> factories)
+    Foreman(List<ArgumentFactory> factories)
     {
         this.factories.addAll(factories);
     }
 
     Argument waffle(Type expectedType, Object it, StatementContext ctx)
     {
-        ArgumentFactory<Object> candidate = null;
-
-        for (int i = factories.size() - 1; i >= 0; i--) {
-            @SuppressWarnings("unchecked")
-            ArgumentFactory<Object> factory = (ArgumentFactory<Object>) factories.get(i);
-
-            if (factory.accepts(expectedType, it, ctx)) {
-                return factory.build(expectedType, it, ctx);
-            }
-            // Fall back to any factory accepting Object if necessary but
-            // prefer any more specific factory first.
-            if (candidate == null && factory.accepts(Object.class, it, ctx)) {
-                candidate = factory;
-            }
-        }
-        if (candidate != null) {
-            return candidate.build(Object.class, it, ctx);
-        }
-
-        throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(it));
+        return Stream.concat(
+                factories.stream()
+                        .map(factory -> factory.build(expectedType, it, ctx))
+                        .flatMap(this::toStream),
+                // Fall back to any factory accepting Object if necessary but
+                // prefer any more specific factory first.
+                factories.stream()
+                        .map(factory -> factory.build(Object.class, it, ctx))
+                        .flatMap(this::toStream))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Unbindable argument passed: " + it));
     }
 
-    void register(ArgumentFactory<?> argumentFactory)
+    private <T> Stream<T> toStream(Optional<T> optional)
     {
-        factories.add(argumentFactory);
+        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
+    }
+
+    void register(ArgumentFactory argumentFactory)
+    {
+        factories.add(0, argumentFactory);
     }
 
     Foreman createChild()

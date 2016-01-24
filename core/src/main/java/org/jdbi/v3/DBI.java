@@ -508,7 +508,7 @@ public class DBI
         return this.timingCollector.get();
     }
 
-    public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
+    public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         foreman.register(argumentFactory);
     }

@@ -473,7 +473,7 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerArgumentFactory(ArgumentFactory<?> argumentFactory)
+    public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         this.foreman.register(argumentFactory);
     }

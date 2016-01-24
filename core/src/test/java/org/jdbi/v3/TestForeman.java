@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -136,33 +137,23 @@ public class TestForeman
     {
     }
 
-    private static class WeirdClassArgumentFactory implements ArgumentFactory<Weird>
+    private static class WeirdClassArgumentFactory implements ArgumentFactory
     {
         @Override
-        public boolean accepts(Type expectedType, Object value, StatementContext ctx)
-        {
-            return getErasedType(expectedType) == Weird.class;
-        }
-
-        @Override
-        public Argument build(Type expectedType, Weird value, StatementContext ctx)
-        {
-            return new WeirdArgument();
+        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+            return getErasedType(expectedType) == Weird.class
+                    ? Optional.of(new WeirdArgument())
+                    : Optional.empty();
         }
     }
 
-    private static class WeirdValueArgumentFactory implements ArgumentFactory<Weird>
+    private static class WeirdValueArgumentFactory implements ArgumentFactory
     {
         @Override
-        public boolean accepts(Type expectedType, Object value, StatementContext ctx)
-        {
-            return value instanceof Weird;
-        }
-
-        @Override
-        public Argument build(Type expectedType, Weird value, StatementContext ctx)
-        {
-            return new WeirdArgument();
+        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+            return value instanceof Weird
+                    ? Optional.of(new WeirdArgument())
+                    : Optional.empty();
         }
     }
 
