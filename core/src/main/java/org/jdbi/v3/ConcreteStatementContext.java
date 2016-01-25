@@ -113,7 +113,7 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public Collector<?, ?, ?> collectorFor(Type type) {
+    public Optional<Collector<?, ?, ?>> collectorFor(Type type) {
         return collectors.createCollectorFor(type);
     }
 

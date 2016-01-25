@@ -80,7 +80,7 @@ public interface StatementContext
      * @param type the result type of the collector
      * @return a Collector for the given result type, or null if no collector factory is registered for this type.
      */
-    Collector<?, ?, ?> collectorFor(Type type);
+    Optional<Collector<?, ?, ?>> collectorFor(Type type);
 
     /**
      * Obtain the initial sql for the statement used to create the statement

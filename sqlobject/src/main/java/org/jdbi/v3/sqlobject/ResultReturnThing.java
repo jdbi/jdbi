@@ -134,7 +134,8 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
-                Collector collector = ((Query)q).getContext().collectorFor(containerType);
+                Collector collector = ((Query)q).getContext().collectorFor(containerType)
+                        .orElseThrow(() -> new IllegalStateException("No collector available for " + containerType));
                 return q.collect(collector);
             }
             return q.findFirst().orElse(null);
@@ -279,7 +280,8 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {
-                Collector collector = ((Query) q).getContext().collectorFor(iterableType);
+                Collector collector = ((Query) q).getContext().collectorFor(iterableType)
+                        .orElseThrow(() -> new IllegalStateException("No collector available for " + iterableType));
                 return q.collect(collector);
             } else {
                 throw new UnsupportedOperationException("Collect is not supported for " + q);

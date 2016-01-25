@@ -50,12 +50,11 @@ class CollectorFactoryRegistry {
         factories.add(factory);
     }
 
-    Collector<?, ?, ?> createCollectorFor(Type type) {
+    Optional<Collector<?, ?, ?>> createCollectorFor(Type type) {
         return factories.stream()
                 .map(factory -> factory.build(type))
                 .flatMap(JdbiStreams::toStream)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No collector builder available for " + type));
+                .findFirst();
     }
 
     static CollectorFactoryRegistry copyOf(CollectorFactoryRegistry registry) {
