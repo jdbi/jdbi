@@ -26,13 +26,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.stream.Stream;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.rewriter.hash.HashStatementLexer;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementRewriter;
@@ -126,10 +129,10 @@ public class HashPrefixStatementRewriter implements StatementRewriter
                 // no named params, is easy
                 boolean finished = false;
                 for (int i = 0; !finished; ++i) {
-                    final Argument a = params.forPosition(i);
-                    if (a != null) {
+                    final Optional<Argument> a = params.findForPosition(i);
+                    if (a.isPresent()) {
                         try {
-                            a.apply(i + 1, statement, this.context);
+                            a.get().apply(i + 1, statement, this.context);
                         }
                         catch (SQLException e) {
                             throw new UnableToExecuteStatementException(
@@ -149,18 +152,18 @@ public class HashPrefixStatementRewriter implements StatementRewriter
                     if ("*".equals(named_param)) {
                         continue;
                     }
-                    Argument a = params.forName(named_param);
-                    if (a == null) {
-                        a = params.forPosition(i);
-                    }
-
-                    if (a == null) {
-                        String msg = String.format("Unable to execute, no named parameter matches " +
-                                                   "\"%s\" and no positional param for place %d (which is %d in " +
-                                                   "the JDBC 'start at 1' scheme) has been set.",
-                                                   named_param, i, i + 1);
-                        throw new UnableToExecuteStatementException(msg, context);
-                    }
+                    final int index = i;
+                    Argument a = Stream.concat(
+                            JdbiStreams.toStream(params.findForName(named_param)),
+                            JdbiStreams.toStream(params.findForPosition(i)))
+                            .findFirst()
+                            .orElseThrow(() -> {
+                                String msg = String.format("Unable to execute, no named parameter matches " +
+                                                "\"%s\" and no positional param for place %d (which is %d in " +
+                                                "the JDBC 'start at 1' scheme) has been set.",
+                                        named_param, index, index + 1);
+                                return new UnableToExecuteStatementException(msg, context);
+                            });
 
                     try {
                         a.apply(i + 1, statement, this.context);

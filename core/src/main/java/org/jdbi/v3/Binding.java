@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.Argument;
@@ -42,16 +43,15 @@ public class Binding
      *
      * @return the bound Argument
      */
-    public Argument forName(String name) {
+    public Optional<Argument> findForName(String name) {
         if (named.containsKey(name)) {
-            return named.get(name);
+            return Optional.of(named.get(name));
         }
 
         return namedArgumentFinder.stream()
                 .map(arguments -> arguments.find(name))
                 .flatMap(JdbiStreams::toStream)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     /**
@@ -61,8 +61,8 @@ public class Binding
      *
      * @return argument bound to that position
      */
-    public Argument forPosition(int position) {
-        return positionals.get(position);
+    public Optional<Argument> findForPosition(int position) {
+        return Optional.ofNullable(positionals.get(position));
     }
 
     void addNamed(String name, Argument argument) {
