@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
@@ -36,19 +37,16 @@ class MapArguments implements NamedArgumentFinder
     }
 
     @Override
-    public Argument find(String name)
+    public Optional<Argument> find(String name)
     {
         if (args.containsKey(name))
         {
             final Object argument = args.get(name);
             final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();
-            return argumentRegistry.findArgumentFor(argumentClass, argument, ctx).orElse(null);
+            return argumentRegistry.findArgumentFor(argumentClass, argument, ctx);
         }
-        else
-        {
-            return null;
-        }
+        return Optional.empty();
     }
 
     @Override

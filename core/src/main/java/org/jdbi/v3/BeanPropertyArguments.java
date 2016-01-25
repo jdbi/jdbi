@@ -18,6 +18,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.Argument;
@@ -51,7 +52,7 @@ class BeanPropertyArguments implements NamedArgumentFinder
     }
 
     @Override
-    public Argument find(String name)
+    public Optional<Argument> find(String name)
     {
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors())
         {
@@ -62,7 +63,7 @@ class BeanPropertyArguments implements NamedArgumentFinder
                     return argumentRegistry.findArgumentFor(
                             descriptor.getReadMethod().getGenericReturnType(),
                             descriptor.getReadMethod().invoke(bean),
-                            ctx).orElse(null);
+                            ctx);
                 }
                 catch (IllegalAccessException e)
                 {
@@ -78,7 +79,7 @@ class BeanPropertyArguments implements NamedArgumentFinder
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override

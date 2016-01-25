@@ -13,11 +13,12 @@
  */
 package org.jdbi.v3.tweak;
 
+import java.util.Optional;
 
 /**
  * Returns an Argument based on a name. Used to lookup multiple properties e.g. in a Bean or a Map.
  */
 public interface NamedArgumentFinder
 {
-    Argument find(String name);
+    Optional<Argument> find(String name);
 }

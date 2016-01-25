@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 
@@ -45,15 +46,12 @@ public class Binding
         if (named.containsKey(name)) {
             return named.get(name);
         }
-        else {
-            for (NamedArgumentFinder arguments : namedArgumentFinder) {
-                Argument arg = arguments.find(name);
-                if (arg != null) {
-                    return arg;
-                }
-            }
-        }
-        return null;
+
+        return namedArgumentFinder.stream()
+                .map(arguments -> arguments.find(name))
+                .flatMap(JdbiStreams::toStream)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
