@@ -17,6 +17,7 @@ import static org.jdbi.v3.Types.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
@@ -49,13 +51,11 @@ class CollectorFactoryRegistry {
     }
 
     Collector<?, ?, ?> createCollectorFor(Type type) {
-        for (CollectorFactory factory : factories) {
-            if (factory.accepts(type)) {
-                return factory.newCollector(type);
-            }
-        }
-
-        throw new IllegalStateException("No collector builder available for " + type);
+        return factories.stream()
+                .map(factory -> factory.build(type))
+                .flatMap(JdbiStreams::toStream)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No collector builder available for " + type));
     }
 
     static CollectorFactoryRegistry copyOf(CollectorFactoryRegistry registry) {
@@ -65,41 +65,29 @@ class CollectorFactoryRegistry {
     }
 
     private static class SortedSetCollectorFactory<T> implements CollectorFactory {
-
         @Override
-        public boolean accepts(Type type) {
-            return getErasedType(type).equals(SortedSet.class);
-        }
-
-        @Override
-        public Collector<T, ?, SortedSet<T>> newCollector(Type type) {
-            return Collectors.toCollection(TreeSet::new);
+        public Optional<Collector<?, ?, ?>> build(Type type) {
+            return getErasedType(type) == SortedSet.class
+                    ? Optional.of(Collectors.toCollection(TreeSet::new))
+                    : Optional.empty();
         }
     }
 
     private static class ListCollectorFactory<T> implements CollectorFactory {
-
         @Override
-        public boolean accepts(Type type) {
-            return getErasedType(type).equals(List.class);
-        }
-
-        @Override
-        public Collector<T, ?, List<T>> newCollector(Type type) {
-            return Collectors.toList();
+        public Optional<Collector<?, ?, ?>> build(Type type) {
+            return getErasedType(type) == List.class
+                    ? Optional.of(Collectors.toList())
+                    : Optional.empty();
         }
     }
 
     private static class SetCollectorFactory<T> implements CollectorFactory {
-
         @Override
-        public boolean accepts(Type type) {
-            return getErasedType(type).equals(Set.class);
-        }
-
-        @Override
-        public Collector<T, ?, Set<T>> newCollector(Type type) {
-            return Collectors.toSet();
+        public Optional<Collector<?, ?, ?>> build(Type type) {
+            return getErasedType(type) == Set.class
+                    ? Optional.of(Collectors.toSet())
+                    : Optional.empty();
         }
     }
 }
