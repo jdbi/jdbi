@@ -13,32 +13,17 @@
  */
 package org.jdbi.v3.util;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum URIColumnMapper implements ResultColumnMapper<URI> {
+public enum ByteArrayMapper implements ResultColumnMapper<byte[]> {
     INSTANCE;
 
     @Override
-    public URI mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return uriFromString(r.getString(columnNumber));
-    }
-
-    @Override
-    public URI mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return uriFromString(r.getString(columnLabel));
-    }
-
-    public static URI uriFromString(String s) throws SQLException {
-        try {
-            return (s != null) ? (new URI(s)) : null;
-        } catch(URISyntaxException e) {
-            throw new SQLException("Failed to convert data to URI", e);
-        }
+    public byte[] mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        return r.getBytes(columnNumber);
     }
 }

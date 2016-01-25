@@ -73,7 +73,7 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
                 if (columnMapper == null) {
                     throw new NoSuchColumnMapperException("No column mapper for " + memberType);
                 }
-                Object value = columnMapper.mapColumn(rs, columnLabel, ctx);
+                Object value = columnMapper.mapColumn(rs, rs.findColumn(columnLabel), ctx);
                 member.write(obj, value);
             }
         }

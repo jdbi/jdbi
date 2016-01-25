@@ -36,6 +36,6 @@ class FigureItOutResultSetMapper implements ResultSetMapper<Object> {
             return columnMapper.mapColumn(r, 1, ctx);
         }
 
-        return columnMapper.mapColumn(r, keyColumn, ctx);
+        return columnMapper.mapColumn(r, r.findColumn(keyColumn), ctx);
     }
 }

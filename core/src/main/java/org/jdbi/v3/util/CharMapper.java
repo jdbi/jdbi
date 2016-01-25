@@ -22,7 +22,7 @@ import org.jdbi.v3.tweak.ResultColumnMapper;
 /**
  * Map JDBC column value to a Java <code>char</code> or <code>Character</code>.
  */
-public enum CharColumnMapper implements ResultColumnMapper<Character> {
+public enum CharMapper implements ResultColumnMapper<Character> {
     /**
      * Map to <code>char</code>.  Nulls and empty strings are silently replaced with a null char <code>'\0'</code>.
      */
@@ -34,18 +34,13 @@ public enum CharColumnMapper implements ResultColumnMapper<Character> {
 
     private final boolean nullable;
 
-    CharColumnMapper(boolean nullable) {
+    CharMapper(boolean nullable) {
         this.nullable = nullable;
     }
 
     @Override
     public Character mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         return charFromString(r.getString(columnNumber));
-    }
-
-    @Override
-    public Character mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return charFromString(r.getString(columnLabel));
     }
 
     public Character charFromString(String s) {

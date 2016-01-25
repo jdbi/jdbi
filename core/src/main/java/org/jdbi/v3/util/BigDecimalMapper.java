@@ -13,22 +13,18 @@
  */
 package org.jdbi.v3.util;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum ByteArrayColumnMapper implements ResultColumnMapper<byte[]> {
+public enum BigDecimalMapper implements ResultColumnMapper<BigDecimal> {
     INSTANCE;
 
     @Override
-    public byte[] mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return r.getBytes(columnNumber);
-    }
-
-    @Override
-    public byte[] mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return r.getBytes(columnLabel);
+    public BigDecimal mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        return r.getBigDecimal(columnNumber);
     }
 }

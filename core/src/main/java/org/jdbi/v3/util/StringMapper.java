@@ -19,25 +19,11 @@ import java.sql.SQLException;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum LongColumnMapper implements ResultColumnMapper<Long> {
-    PRIMITIVE(false),
-    WRAPPER(true);
-
-    private final boolean nullable;
-
-    LongColumnMapper(boolean nullable) {
-        this.nullable = nullable;
-    }
+public enum StringMapper implements ResultColumnMapper<String> {
+    INSTANCE;
 
     @Override
-    public Long mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        long value = r.getLong(columnNumber);
-        return nullable && r.wasNull() ? null : value;
-    }
-
-    @Override
-    public Long mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        long value = r.getLong(columnLabel);
-        return nullable && r.wasNull() ? null : value;
+    public String mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        return r.getString(columnNumber);
     }
 }

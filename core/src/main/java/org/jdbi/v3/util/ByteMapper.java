@@ -19,25 +19,19 @@ import java.sql.SQLException;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum ByteColumnMapper implements ResultColumnMapper<Byte> {
+public enum ByteMapper implements ResultColumnMapper<Byte> {
     PRIMITIVE(false),
     WRAPPER(true);
 
     private final boolean nullable;
 
-    ByteColumnMapper(boolean nullable) {
+    ByteMapper(boolean nullable) {
         this.nullable = nullable;
     }
 
     @Override
     public Byte mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         byte value = r.getByte(columnNumber);
-        return nullable && r.wasNull() ? null : value;
-    }
-
-    @Override
-    public Byte mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        byte value = r.getByte(columnLabel);
         return nullable && r.wasNull() ? null : value;
     }
 }

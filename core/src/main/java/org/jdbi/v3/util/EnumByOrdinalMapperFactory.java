@@ -22,13 +22,13 @@ import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
 /**
- * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
+ * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
  */
-public class EnumByNameColumnMapperFactory implements ResultColumnMapperFactory {
+public class EnumByOrdinalMapperFactory implements ResultColumnMapperFactory {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
-        return EnumColumnMapper.byName(
+        return EnumMapper.byOrdinal(
                 (Class<? extends Enum>) getErasedType(type).asSubclass(Enum.class));
     }
 

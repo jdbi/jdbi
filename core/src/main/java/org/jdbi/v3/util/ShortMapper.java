@@ -19,25 +19,19 @@ import java.sql.SQLException;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum ShortColumnMapper implements ResultColumnMapper<Short> {
+public enum ShortMapper implements ResultColumnMapper<Short> {
     PRIMITIVE(false),
     WRAPPER(true);
 
     private final boolean nullable;
 
-    ShortColumnMapper(boolean nullable) {
+    ShortMapper(boolean nullable) {
         this.nullable = nullable;
     }
 
     @Override
     public Short mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         short value = r.getShort(columnNumber);
-        return nullable && r.wasNull() ? null : value;
-    }
-
-    @Override
-    public Short mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        short value = r.getShort(columnLabel);
         return nullable && r.wasNull() ? null : value;
     }
 }

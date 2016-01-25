@@ -13,23 +13,25 @@
  */
 package org.jdbi.v3.util;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum BigDecimalColumnMapper implements ResultColumnMapper<BigDecimal> {
-    INSTANCE;
+public enum LongMapper implements ResultColumnMapper<Long> {
+    PRIMITIVE(false),
+    WRAPPER(true);
 
-    @Override
-    public BigDecimal mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return r.getBigDecimal(columnNumber);
+    private final boolean nullable;
+
+    LongMapper(boolean nullable) {
+        this.nullable = nullable;
     }
 
     @Override
-    public BigDecimal mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return r.getBigDecimal(columnLabel);
+    public Long mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        long value = r.getLong(columnNumber);
+        return nullable && r.wasNull() ? null : value;
     }
 }

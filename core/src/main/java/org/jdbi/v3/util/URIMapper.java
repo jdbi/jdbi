@@ -13,31 +13,27 @@
  */
 package org.jdbi.v3.util;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum FloatColumnMapper implements ResultColumnMapper<Float> {
-    PRIMITIVE(false),
-    WRAPPER(true);
-
-    private final boolean nullable;
-
-    FloatColumnMapper(boolean nullable) {
-        this.nullable = nullable;
-    }
+public enum URIMapper implements ResultColumnMapper<URI> {
+    INSTANCE;
 
     @Override
-    public Float mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        float value = r.getFloat(columnNumber);
-        return nullable && r.wasNull() ? null : value;
+    public URI mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        return uriFromString(r.getString(columnNumber));
     }
 
-    @Override
-    public Float mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        float value = r.getFloat(columnLabel);
-        return nullable && r.wasNull() ? null : value;
+    public static URI uriFromString(String s) throws SQLException {
+        try {
+            return (s != null) ? (new URI(s)) : null;
+        } catch(URISyntaxException e) {
+            throw new SQLException("Failed to convert data to URI", e);
+        }
     }
 }

@@ -22,6 +22,7 @@ import org.jdbi.v3.StatementContext;
  * Maps result set columns to objects.
  * @see StatementContext#columnMapperFor(java.lang.reflect.Type)
  */
+@FunctionalInterface
 public interface ResultColumnMapper<T>
 {
     /**
@@ -34,15 +35,4 @@ public interface ResultColumnMapper<T>
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */
     T mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException;
-
-    /**
-     * Map the given column of the current row of the result set to an Object. This method should not cause the result
-     * set to advance, allow jDBI to do that, please.
-     *
-     * @param r the result set being iterated
-     * @param columnLabel the column label to map
-     * @return the value to return for this column
-     * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
-     */
-    T mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException;
 }

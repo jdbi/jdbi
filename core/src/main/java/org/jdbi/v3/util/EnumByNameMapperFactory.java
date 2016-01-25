@@ -13,31 +13,27 @@
  */
 package org.jdbi.v3.util;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import static org.jdbi.v3.Types.getErasedType;
 
+import java.lang.reflect.Type;
+
+import org.jdbi.v3.ResultColumnMapperFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum IntegerColumnMapper implements ResultColumnMapper<Integer> {
-    PRIMITIVE(false),
-    WRAPPER(true);
-
-    private final boolean nullable;
-
-    IntegerColumnMapper(boolean nullable) {
-        this.nullable = nullable;
+/**
+ * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
+ */
+public class EnumByNameMapperFactory implements ResultColumnMapperFactory {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+        return EnumMapper.byName(
+                (Class<? extends Enum>) getErasedType(type).asSubclass(Enum.class));
     }
 
     @Override
-    public Integer mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        int value = r.getInt(columnNumber);
-        return nullable && r.wasNull() ? null : value;
-    }
-
-    @Override
-    public Integer mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        int value = r.getInt(columnLabel);
-        return nullable && r.wasNull() ? null : value;
+    public boolean accepts(Type type, StatementContext ctx) {
+        return getErasedType(type).isEnum();
     }
 }

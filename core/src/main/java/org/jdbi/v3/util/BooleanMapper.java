@@ -19,25 +19,19 @@ import java.sql.SQLException;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum DoubleColumnMapper implements ResultColumnMapper<Double> {
+public enum BooleanMapper implements ResultColumnMapper<Boolean> {
     PRIMITIVE(false),
     WRAPPER(true);
 
     private final boolean nullable;
 
-    DoubleColumnMapper(boolean nullable) {
+    BooleanMapper(boolean nullable) {
         this.nullable = nullable;
     }
 
     @Override
-    public Double mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        double value = r.getDouble(columnNumber);
-        return nullable && r.wasNull() ? null : value;
-    }
-
-    @Override
-    public Double mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        double value = r.getDouble(columnLabel);
+    public Boolean mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        boolean value = r.getBoolean(columnNumber);
         return nullable && r.wasNull() ? null : value;
     }
 }

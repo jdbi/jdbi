@@ -24,66 +24,29 @@ import org.jdbi.v3.tweak.ResultSetMapper;
  * Adapts a {@link ResultColumnMapper} into a {@link ResultSetMapper} by mapping a single column.
  */
 public class SingleColumnMapper<T> implements ResultSetMapper<T> {
-    private final ResultSetMapper<T> delegate;
+    private final ResultColumnMapper<T> mapper;
+    private final int number;
 
     /**
      * Constructs a result set mapper which maps the first column.
-     * @param columnMapper the column mapper to delegate to for mapping.
+     * @param mapper the column mapper to delegate to for mapping.
      */
-    public SingleColumnMapper(ResultColumnMapper<T> columnMapper) {
-        this(columnMapper, 1);
+    public SingleColumnMapper(ResultColumnMapper<T> mapper) {
+        this(mapper, 1);
     }
 
     /**
      * Constructs a result set mapper which maps the given column number.
-     * @param columnMapper the column mapper to delegate to for mapping
-     * @param columnNumber the column number (1-based) to map
+     * @param mapper the column mapper to delegate to for mapping
+     * @param number the column number (1-based) to map
      */
-    public SingleColumnMapper(ResultColumnMapper<T> columnMapper, int columnNumber) {
-        this.delegate = new ByNumber<T>(columnMapper, columnNumber);
-    }
-
-    /**
-     * Constructs a result set mapper which maps the column with the given label.
-     * @param columnMapper the column mapper to delegate to for mapping
-     * @param columnLabel the column label to map
-     */
-    public SingleColumnMapper(ResultColumnMapper<T> columnMapper, String columnLabel) {
-        this.delegate = new ByLabel<T>(columnMapper, columnLabel);
+    public SingleColumnMapper(ResultColumnMapper<T> mapper, int number) {
+        this.mapper = mapper;
+        this.number = number;
     }
 
     @Override
     public T map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-        return delegate.map(index, r, ctx);
-    }
-
-    private static class ByLabel<T> implements ResultSetMapper<T> {
-        private final ResultColumnMapper<T> mapper;
-        private final String label;
-
-        ByLabel(ResultColumnMapper<T> mapper, String label) {
-            this.mapper = mapper;
-            this.label = label;
-        }
-
-        @Override
-        public T map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-            return mapper.mapColumn(r, label, ctx);
-        }
-    }
-
-    private static class ByNumber<T> implements ResultSetMapper<T> {
-        private final ResultColumnMapper<T> mapper;
-        private final int number;
-
-        ByNumber(ResultColumnMapper<T> mapper, int number) {
-            this.mapper = mapper;
-            this.number = number;
-        }
-
-        @Override
-        public T map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-            return mapper.mapColumn(r, number, ctx);
-        }
+        return mapper.mapColumn(r, number, ctx);
     }
 }

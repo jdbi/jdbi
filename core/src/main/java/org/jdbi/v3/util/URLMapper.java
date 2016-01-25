@@ -20,16 +20,11 @@ import java.sql.SQLException;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum URLColumnMapper implements ResultColumnMapper<URL> {
+public enum URLMapper implements ResultColumnMapper<URL> {
     INSTANCE;
 
     @Override
     public URL mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         return r.getURL(columnNumber);
-    }
-
-    @Override
-    public URL mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return r.getURL(columnLabel);
     }
 }

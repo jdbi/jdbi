@@ -15,29 +15,16 @@ package org.jdbi.v3.util;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum BooleanColumnMapper implements ResultColumnMapper<Boolean> {
-    PRIMITIVE(false),
-    WRAPPER(true);
-
-    private final boolean nullable;
-
-    BooleanColumnMapper(boolean nullable) {
-        this.nullable = nullable;
-    }
+public enum TimestampMapper implements ResultColumnMapper<Timestamp> {
+    INSTANCE;
 
     @Override
-    public Boolean mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        boolean value = r.getBoolean(columnNumber);
-        return nullable && r.wasNull() ? null : value;
-    }
-
-    @Override
-    public Boolean mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        boolean value = r.getBoolean(columnLabel);
-        return nullable && r.wasNull() ? null : value;
+    public Timestamp mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        return r.getTimestamp(columnNumber);
     }
 }

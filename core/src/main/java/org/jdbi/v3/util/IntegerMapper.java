@@ -15,21 +15,23 @@ package org.jdbi.v3.util;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum TimestampColumnMapper implements ResultColumnMapper<Timestamp> {
-    INSTANCE;
+public enum IntegerMapper implements ResultColumnMapper<Integer> {
+    PRIMITIVE(false),
+    WRAPPER(true);
 
-    @Override
-    public Timestamp mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return r.getTimestamp(columnNumber);
+    private final boolean nullable;
+
+    IntegerMapper(boolean nullable) {
+        this.nullable = nullable;
     }
 
     @Override
-    public Timestamp mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return r.getTimestamp(columnLabel);
+    public Integer mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        int value = r.getInt(columnNumber);
+        return nullable && r.wasNull() ? null : value;
     }
 }
