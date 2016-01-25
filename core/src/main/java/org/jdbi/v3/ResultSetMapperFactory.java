@@ -21,6 +21,7 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 /**
  * Factory interface used to produce result set mappers.
  */
+@FunctionalInterface
 public interface ResultSetMapperFactory
 {
     /**

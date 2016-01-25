@@ -18,6 +18,7 @@ import java.util.Optional;
 /**
  * Returns an Argument based on a name. Used to lookup multiple properties e.g. in a Bean or a Map.
  */
+@FunctionalInterface
 public interface NamedArgumentFinder
 {
     Optional<Argument> find(String name);

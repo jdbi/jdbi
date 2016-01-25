@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
 
+@FunctionalInterface
 public interface ArgumentFactory
 {
     /**

@@ -22,6 +22,7 @@ import org.jdbi.v3.StatementContext;
  * Represents an argument to a prepared statement. It will be called right before the
  * statement is executed to bind the parameter.
  */
+@FunctionalInterface
 public interface Argument
 {
     /**

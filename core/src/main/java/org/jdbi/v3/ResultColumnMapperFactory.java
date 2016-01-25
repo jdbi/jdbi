@@ -21,6 +21,7 @@ import org.jdbi.v3.tweak.ResultColumnMapper;
 /**
  * Factory interface used to produce column mappers.
  */
+@FunctionalInterface
 public interface ResultColumnMapperFactory
 {
     /**

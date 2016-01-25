@@ -21,6 +21,7 @@ import java.util.stream.Collector;
  * Factory for building containers of elements.
  * The collector produces only objects of the type of the container elements.
  */
+@FunctionalInterface
 public interface CollectorFactory {
     /**
      * Supplies a {@link Collector} for the given container type if the factory supports it; empty otherwise.
