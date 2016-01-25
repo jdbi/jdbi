@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.tweak.Argument;
@@ -60,7 +61,7 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public Argument argumentFor(Type type, Object value) {
+    public Optional<Argument> argumentFor(Type type, Object value) {
         return foreman.waffle(type, value, this);
     }
 

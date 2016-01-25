@@ -99,7 +99,7 @@ public class TestArgumentFactory
         public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
             if (getErasedType(expectedType) == Object.class && value instanceof Name) {
                 Name nameValue = (Name) value;
-                return Optional.of(ctx.argumentFor(String.class, nameValue.getFullName()));
+                return ctx.argumentFor(String.class, nameValue.getFullName());
             }
             return Optional.empty();
         }

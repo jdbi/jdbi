@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
@@ -37,7 +38,7 @@ class Foreman
         this.factories.addAll(factories);
     }
 
-    Argument waffle(Type expectedType, Object it, StatementContext ctx)
+    Optional<Argument> waffle(Type expectedType, Object it, StatementContext ctx)
     {
         return Stream.concat(
                 factories.stream()
@@ -48,8 +49,7 @@ class Foreman
                 factories.stream()
                         .map(factory -> factory.build(Object.class, it, ctx))
                         .flatMap(JdbiStreams::toStream))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Unbindable argument passed: " + it));
+                .findFirst();
     }
 
     void register(ArgumentFactory argumentFactory)

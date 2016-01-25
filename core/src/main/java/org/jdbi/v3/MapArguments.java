@@ -43,7 +43,7 @@ class MapArguments implements NamedArgumentFinder
             final Object argument = args.get(name);
             final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();
-            return foreman.waffle(argumentClass, argument, ctx);
+            return foreman.waffle(argumentClass, argument, ctx).orElse(null);
         }
         else
         {

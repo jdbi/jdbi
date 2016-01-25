@@ -18,6 +18,7 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.tweak.Argument;
@@ -72,7 +73,7 @@ public interface StatementContext
      * @param value the argument value.
      * @return an Argument for the given value.
      */
-    Argument argumentFor(Type type, Object value);
+    Optional<Argument> argumentFor(Type type, Object value);
 
     /**
      * Obtain a collector for the given type in this context

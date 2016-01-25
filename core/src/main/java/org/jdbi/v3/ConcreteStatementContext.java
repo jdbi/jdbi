@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 
@@ -107,7 +108,7 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public Argument argumentFor(Type type, Object value) {
+    public Optional<Argument> argumentFor(Type type, Object value) {
         return foreman.waffle(type, value, this);
     }
 

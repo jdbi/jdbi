@@ -46,38 +46,38 @@ public class TestForeman
     @Test
     public void testWaffleLong() throws Exception
     {
-        foreman.waffle(Object.class, new Long(3L), null).apply(1, stmt, null);
+        foreman.waffle(Object.class, new Long(3L), null).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 
     @Test
     public void testWaffleShort() throws Exception
     {
-        foreman.waffle(Object.class, (short) 2000, null).apply(2, stmt, null);
+        foreman.waffle(Object.class, (short) 2000, null).get().apply(2, stmt, null);
         verify(stmt).setShort(2, (short) 2000);
     }
 
     @Test
     public void testWaffleString() throws Exception {
-        foreman.waffle(Object.class, I_AM_A_STRING, null).apply(3, stmt, null);
+        foreman.waffle(Object.class, I_AM_A_STRING, null).get().apply(3, stmt, null);
         verify(stmt).setString(3, I_AM_A_STRING);
     }
 
     @Test
     public void testExplicitWaffleLong() throws Exception {
-        foreman.waffle(Long.class, new Long(3L), null).apply(1, stmt, null);
+        foreman.waffle(Long.class, new Long(3L), null).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 
     @Test
     public void testExplicitWaffleShort() throws Exception {
-        foreman.waffle(short.class, (short) 2000, null).apply(2, stmt, null);
+        foreman.waffle(short.class, (short) 2000, null).get().apply(2, stmt, null);
         verify(stmt).setShort(2, (short) 2000);
     }
 
     @Test
     public void testExplicitWaffleString() throws Exception {
-        foreman.waffle(String.class, I_AM_A_STRING, null).apply(3, stmt, null);
+        foreman.waffle(String.class, I_AM_A_STRING, null).get().apply(3, stmt, null);
         verify(stmt).setString(3, I_AM_A_STRING);
     }
 
@@ -90,9 +90,9 @@ public class TestForeman
         // Pull Request #88 changes the outcome of this waffle call from ObjectArgument to WeirdArgument
         // when using SqlStatement#bind(..., Object) and the Object is != null
         final Weird weird = new Weird();
-        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, weird, null).getClass());
+        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, weird, null).get().getClass());
 
-        foreman.waffle(Object.class, weird, null).apply(2, stmt, null);
+        foreman.waffle(Object.class, weird, null).get().apply(2, stmt, null);
         verify(stmt).setObject(2, weird);
     }
 
@@ -102,9 +102,9 @@ public class TestForeman
         final Foreman foreman = new Foreman();
         foreman.register(new WeirdClassArgumentFactory());
 
-        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, null, null).getClass());
+        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, null, null).get().getClass());
 
-        foreman.waffle(Object.class, null, null).apply(3, stmt, null);
+        foreman.waffle(Object.class, null, null).get().apply(3, stmt, null);
         verify(stmt).setNull(3, Types.NULL);
     }
 
@@ -116,8 +116,8 @@ public class TestForeman
 
         // Pull Request #88 changes the outcome of this waffle call from ObjectArgument to WeirdArgument
         // when using SqlStatement#bind(..., Object) and the Object is != null
-        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, new Weird(), null).getClass());
-        assertEquals(WeirdArgument.class, foreman.waffle(Object.class, new Weird(), null).getClass());
+        assertEquals(WeirdArgument.class, foreman.waffle(Weird.class, new Weird(), null).get().getClass());
+        assertEquals(WeirdArgument.class, foreman.waffle(Object.class, new Weird(), null).get().getClass());
     }
 
     @Test
@@ -126,10 +126,10 @@ public class TestForeman
         final Foreman foreman = new Foreman();
         foreman.register(new WeirdValueArgumentFactory());
 
-        foreman.waffle(Weird.class, null, null).apply(3, stmt, null);
+        foreman.waffle(Weird.class, null, null).get().apply(3, stmt, null);
         verify(stmt).setNull(3, Types.NULL);
 
-        foreman.waffle(Object.class, null, null).apply(5, stmt, null);
+        foreman.waffle(Object.class, null, null).get().apply(5, stmt, null);
         verify(stmt).setNull(5, Types.NULL);
     }
 
