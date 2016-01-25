@@ -352,7 +352,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -378,7 +378,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -391,7 +391,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -404,7 +404,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -417,7 +417,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -430,7 +430,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  name to bind the paramater to
+     * @param name  name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -443,7 +443,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  name to bind the paramater to
+     * @param name  name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -456,7 +456,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -469,7 +469,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  name to bind the paramater to
+     * @param name  name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -482,7 +482,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      * @param length   how long is the stream being bound?
      *
@@ -496,7 +496,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bind the paramater to
+     * @param name   token name to bind the parameter to
      * @param value  to bind
      * @param length bytes to read from value
      *
@@ -510,7 +510,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -523,7 +523,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -536,7 +536,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -549,7 +549,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bind the paramater to
+     * @param name   token name to bind the parameter to
      * @param value  to bind
      * @param length bytes to read from value
      *
@@ -563,7 +563,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -576,7 +576,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -589,7 +589,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -602,7 +602,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -615,7 +615,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -628,7 +628,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -641,7 +641,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -654,7 +654,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -667,7 +667,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -680,7 +680,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -693,7 +693,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -706,7 +706,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -719,7 +719,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      * @param length   number of characters to read
      *
@@ -734,7 +734,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name   token name to bind the paramater to
+     * @param name   token name to bind the parameter to
      * @param value  to bind
      * @param length number of characters to read
      *
@@ -748,7 +748,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -761,7 +761,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -774,7 +774,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -787,7 +787,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -800,7 +800,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -813,7 +813,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -826,7 +826,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -839,7 +839,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -852,7 +852,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -865,7 +865,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -878,7 +878,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -891,7 +891,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -904,7 +904,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -917,7 +917,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -930,7 +930,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -943,7 +943,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -961,7 +961,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -974,7 +974,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -987,7 +987,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -1000,7 +1000,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -1013,7 +1013,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -1026,7 +1026,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -1039,7 +1039,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -1052,7 +1052,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -1065,7 +1065,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -1078,7 +1078,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -1091,7 +1091,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -1104,7 +1104,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
@@ -1117,7 +1117,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument positionally
      *
-     * @param position position to bind the paramater at, starting at 0
+     * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
      *
      * @return the same Query instance
@@ -1130,7 +1130,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument by name
      *
-     * @param name  token name to bind the paramater to
+     * @param name  token name to bind the parameter to
      * @param value to bind
      *
      * @return the same Query instance
