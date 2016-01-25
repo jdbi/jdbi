@@ -67,12 +67,9 @@ class MappingRegistry
                 return mapper.get();
             }
 
-            ResultColumnMapper<?> columnMapper = columnMapperFor(type, ctx);
-            if (columnMapper != null) {
-                return new SingleColumnMapper<>(columnMapper);
-            }
-
-            throw new UnsupportedOperationException("No mapper registered for " + type);
+            return columnMapperFor(type, ctx)
+                    .map(SingleColumnMapper::new)
+                    .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
         });
     }
 
@@ -86,8 +83,8 @@ class MappingRegistry
         columnCache.clear();
     }
 
-    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
-        return columnCache.computeIfAbsent(type, t -> {
+    public Optional<ResultColumnMapper<?>> columnMapperFor(Type type, StatementContext ctx) {
+        return Optional.ofNullable(columnCache.computeIfAbsent(type, t -> {
             Optional<ResultColumnMapper<?>> mapper = columnFactories.stream()
                     .map(factory -> factory.build(t, ctx))
                     .flatMap(JdbiStreams::toStream)
@@ -97,6 +94,6 @@ class MappingRegistry
             }
 
             return BUILT_INS.build(type, ctx).orElse(null);
-        });
+        }));
     }
 }

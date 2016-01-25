@@ -56,7 +56,7 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public ResultColumnMapper<?> columnMapperFor(Type type) {
+    public Optional<ResultColumnMapper<?>> columnMapperFor(Type type) {
         return mappers.columnMapperFor(type, this);
     }
 

@@ -65,7 +65,7 @@ public interface StatementContext
      * @param type the target type to map to
      * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
-    ResultColumnMapper<?> columnMapperFor(Type type);
+    Optional<ResultColumnMapper<?>> columnMapperFor(Type type);
 
     /**
      * Obtain an argument for given value in this context

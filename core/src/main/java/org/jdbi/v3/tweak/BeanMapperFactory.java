@@ -26,8 +26,8 @@ public class BeanMapperFactory implements ResultSetMapperFactory
 {
     @Override
     public Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx) {
-        return ctx.columnMapperFor(type) == null
-                ? Optional.of(new BeanMapper<>(getErasedType(type)))
-                : Optional.empty();
+        return ctx.columnMapperFor(type).isPresent()
+                ? Optional.empty()
+                : Optional.of(new BeanMapper<>(getErasedType(type)));
     }
 }

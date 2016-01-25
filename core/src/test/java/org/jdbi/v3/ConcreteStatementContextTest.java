@@ -67,6 +67,6 @@ public class ConcreteStatementContextTest {
         final ConcreteStatementContext context =
                 new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry, new Foreman(), new CollectorFactoryRegistry());
 
-        assertThat(context.columnMapperFor(Foo.class), equalTo(mapper));
+        assertThat(context.columnMapperFor(Foo.class).get(), equalTo(mapper));
     }
 }

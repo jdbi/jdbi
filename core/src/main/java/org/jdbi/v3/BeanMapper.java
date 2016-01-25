@@ -101,10 +101,10 @@ public class BeanMapper<T> implements ResultSetMapper<T>
             final PropertyDescriptor descriptor = maybeDescriptor.get();
             final Type type = descriptor.getReadMethod().getGenericReturnType();
             final Object value;
-            final ResultColumnMapper<?> mapper = ctx.columnMapperFor(type);
+            final Optional<ResultColumnMapper<?>> mapper = ctx.columnMapperFor(type);
 
-            if (mapper != null) {
-                value = mapper.mapColumn(rs, i, ctx);
+            if (mapper.isPresent()) {
+                value = mapper.get().mapColumn(rs, i, ctx);
             }
             else {
                 value = rs.getObject(i);
