@@ -57,8 +57,8 @@ class MappingRegistry
         rowCache.clear();
     }
 
-    public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx) {
-        return rowCache.computeIfAbsent(type, t -> {
+    public Optional<ResultSetMapper<?>> mapperFor(Type type, StatementContext ctx) {
+        return Optional.ofNullable(rowCache.computeIfAbsent(type, t -> {
             Optional<ResultSetMapper<?>> mapper = rowFactories.stream()
                     .map(factory -> factory.build(type, ctx))
                     .flatMap(JdbiStreams::toStream)
@@ -69,8 +69,8 @@ class MappingRegistry
 
             return columnMapperFor(type, ctx)
                     .map(SingleColumnMapper::new)
-                    .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
-        });
+                    .orElse(null);
+        }));
     }
 
     public void addColumnMapper(ResultColumnMapper<?> mapper)
