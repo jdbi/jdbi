@@ -30,7 +30,7 @@ class FigureItOutResultSetMapper implements ResultSetMapper<Object> {
         GetGeneratedKeys ggk = m.getAnnotation(GetGeneratedKeys.class);
         String keyColumn = ggk.columnName();
 
-        ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(type)
+        ResultColumnMapper<?> columnMapper = ctx.findColumnMapperFor(type)
                 .orElseThrow(() -> new IllegalStateException("No column mapper for " + type));
 
         return "".equals(keyColumn)

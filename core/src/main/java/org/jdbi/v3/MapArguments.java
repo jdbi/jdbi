@@ -24,13 +24,13 @@ import org.jdbi.v3.tweak.NamedArgumentFinder;
  */
 class MapArguments implements NamedArgumentFinder
 {
-    private final Foreman foreman;
+    private final ArgumentRegistry argumentRegistry;
     private final StatementContext ctx;
     private final Map<String, ?> args;
 
-    MapArguments(Foreman foreman, StatementContext ctx, Map<String, ?> args)
+    MapArguments(ArgumentRegistry argumentRegistry, StatementContext ctx, Map<String, ?> args)
     {
-        this.foreman = foreman;
+        this.argumentRegistry = argumentRegistry;
         this.ctx = ctx;
         this.args = args;
     }
@@ -43,7 +43,7 @@ class MapArguments implements NamedArgumentFinder
             final Object argument = args.get(name);
             final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();
-            return foreman.waffle(argumentClass, argument, ctx).orElse(null);
+            return argumentRegistry.findArgumentFor(argumentClass, argument, ctx).orElse(null);
         }
         else
         {

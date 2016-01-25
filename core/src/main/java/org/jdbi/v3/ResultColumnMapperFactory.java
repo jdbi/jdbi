@@ -28,7 +28,7 @@ public interface ResultColumnMapperFactory
      *
      * @param type the target type to map to
      * @param ctx the statement context.
-     * @see StatementContext#columnMapperFor(Type)
+     * @see StatementContext#findColumnMapperFor(Type)
      */
     Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx);
 }

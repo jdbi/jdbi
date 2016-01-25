@@ -55,7 +55,7 @@ public class DBI
     private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
     private final MappingRegistry mappingRegistry = new MappingRegistry();
     private final CollectorFactoryRegistry collectorFactoryRegistry = new CollectorFactoryRegistry();
-    private final Foreman foreman = new Foreman();
+    private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
 
     private final ConnectionFactory connectionFactory;
 
@@ -243,7 +243,7 @@ public class DBI
                                        globalStatementAttributes,
                                        timingCollector.get(),
                                        MappingRegistry.copyOf(mappingRegistry),
-                                       foreman.createChild(),
+                                       argumentRegistry.createChild(),
                                        collectorFactoryRegistry.createChild());
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
@@ -510,6 +510,6 @@ public class DBI
 
     public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
-        foreman.register(argumentFactory);
+        argumentRegistry.register(argumentFactory);
     }
 }

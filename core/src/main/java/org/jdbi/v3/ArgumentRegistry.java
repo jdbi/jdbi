@@ -23,22 +23,22 @@ import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
-class Foreman
+class ArgumentRegistry
 {
 
     private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<>();
 
-    Foreman()
+    ArgumentRegistry()
     {
         factories.add(BuiltInArgumentFactory.INSTANCE);
     }
 
-    Foreman(List<ArgumentFactory> factories)
+    ArgumentRegistry(List<ArgumentFactory> factories)
     {
         this.factories.addAll(factories);
     }
 
-    Optional<Argument> waffle(Type expectedType, Object it, StatementContext ctx)
+    Optional<Argument> findArgumentFor(Type expectedType, Object it, StatementContext ctx)
     {
         return Stream.concat(
                 factories.stream()
@@ -57,8 +57,8 @@ class Foreman
         factories.add(0, argumentFactory);
     }
 
-    Foreman createChild()
+    ArgumentRegistry createChild()
     {
-        return new Foreman(factories);
+        return new ArgumentRegistry(factories);
     }
 }

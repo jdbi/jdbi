@@ -30,14 +30,14 @@ class BeanPropertyArguments implements NamedArgumentFinder
 {
     private final Object bean;
     private final StatementContext ctx;
-    private final Foreman foreman;
+    private final ArgumentRegistry argumentRegistry;
     private BeanInfo info;
 
-    BeanPropertyArguments(Object bean, StatementContext ctx, Foreman foreman)
+    BeanPropertyArguments(Object bean, StatementContext ctx, ArgumentRegistry argumentRegistry)
     {
         this.bean = bean;
         this.ctx = ctx;
-        this.foreman = foreman;
+        this.argumentRegistry = argumentRegistry;
         try
         {
             this.info = Introspector.getBeanInfo(bean.getClass());
@@ -59,7 +59,7 @@ class BeanPropertyArguments implements NamedArgumentFinder
             {
                 try
                 {
-                    return foreman.waffle(
+                    return argumentRegistry.findArgumentFor(
                             descriptor.getReadMethod().getGenericReturnType(),
                             descriptor.getReadMethod().invoke(bean),
                             ctx).orElse(null);

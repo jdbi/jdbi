@@ -26,7 +26,7 @@ public interface CollectorFactory {
      * Supplies a {@link Collector} for the given container type if the factory supports it; empty otherwise.
      *
      * @param type the type of the container
-     * @see org.jdbi.v3.StatementContext#collectorFor(Type)
+     * @see org.jdbi.v3.StatementContext#findCollectorFor(Type)
      */
     Optional<Collector<?, ?, ?>> build(Type type);
 }

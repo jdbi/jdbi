@@ -56,11 +56,11 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                   ConcreteStatementContext ctx,
                   TimingCollector timingCollector,
                   Collection<StatementCustomizer> statementCustomizers,
-                  Foreman foreman,
+                  ArgumentRegistry argumentRegistry,
                   CollectorFactoryRegistry collectorFactoryRegistry)
     {
         super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, timingCollector,
-                statementCustomizers, foreman, collectorFactoryRegistry);
+                statementCustomizers, argumentRegistry, collectorFactoryRegistry);
         this.currentBinding = new Binding();
     }
 
@@ -205,7 +205,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                                                        getSql(),
                                                        getConcreteContext(),
                                                        getTimingCollector(),
-                                                       getForeman(),
+                                                       getArgumentRegistry(),
                                                        getCollectorFactoryRegistry());
         parts.add(part);
         this.currentBinding = new Binding();

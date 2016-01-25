@@ -41,9 +41,9 @@ public class Batch extends BaseStatement
           Connection connection,
           ConcreteStatementContext statementContext,
           TimingCollector timingCollector,
-          Foreman foreman)
+          ArgumentRegistry argumentRegistry)
     {
-        super(statementContext, foreman);
+        super(statementContext, argumentRegistry);
         this.rewriter = rewriter;
         this.connection = connection;
         this.timingCollector = timingCollector;

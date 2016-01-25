@@ -57,7 +57,7 @@ class MappingRegistry
         rowCache.clear();
     }
 
-    public Optional<ResultSetMapper<?>> mapperFor(Type type, StatementContext ctx) {
+    public Optional<ResultSetMapper<?>> findMapperFor(Type type, StatementContext ctx) {
         return Optional.ofNullable(rowCache.computeIfAbsent(type, t -> {
             Optional<ResultSetMapper<?>> mapper = rowFactories.stream()
                     .map(factory -> factory.build(type, ctx))
@@ -67,7 +67,7 @@ class MappingRegistry
                 return mapper.get();
             }
 
-            return columnMapperFor(type, ctx)
+            return findColumnMapperFor(type, ctx)
                     .map(SingleColumnMapper::new)
                     .orElse(null);
         }));
@@ -83,7 +83,7 @@ class MappingRegistry
         columnCache.clear();
     }
 
-    public Optional<ResultColumnMapper<?>> columnMapperFor(Type type, StatementContext ctx) {
+    public Optional<ResultColumnMapper<?>> findColumnMapperFor(Type type, StatementContext ctx) {
         return Optional.ofNullable(columnCache.computeIfAbsent(type, t -> {
             Optional<ResultColumnMapper<?>> mapper = columnFactories.stream()
                     .map(factory -> factory.build(t, ctx))

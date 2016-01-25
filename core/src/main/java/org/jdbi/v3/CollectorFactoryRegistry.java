@@ -50,7 +50,7 @@ class CollectorFactoryRegistry {
         factories.add(factory);
     }
 
-    Optional<Collector<?, ?, ?>> createCollectorFor(Type type) {
+    Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
         return factories.stream()
                 .map(factory -> factory.build(type))
                 .flatMap(JdbiStreams::toStream)

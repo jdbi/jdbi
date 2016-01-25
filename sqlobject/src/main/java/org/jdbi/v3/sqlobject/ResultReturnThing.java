@@ -134,7 +134,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
-                Collector collector = ((Query)q).getContext().collectorFor(containerType)
+                Collector collector = ((Query)q).getContext().findCollectorFor(containerType)
                         .orElseThrow(() -> new IllegalStateException("No collector available for " + containerType));
                 return q.collect(collector);
             }
@@ -280,7 +280,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {
-                Collector collector = ((Query) q).getContext().collectorFor(iterableType)
+                Collector collector = ((Query) q).getContext().findCollectorFor(iterableType)
                         .orElseThrow(() -> new IllegalStateException("No collector available for " + iterableType));
                 return q.collect(collector);
             } else {

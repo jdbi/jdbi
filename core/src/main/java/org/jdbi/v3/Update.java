@@ -40,11 +40,11 @@ public class Update extends SQLStatement<Update>
            String sql,
            ConcreteStatementContext ctx,
            TimingCollector timingCollector,
-           Foreman foreman,
+           ArgumentRegistry argumentRegistry,
            CollectorFactoryRegistry collectorFactoryRegistry)
     {
         super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, timingCollector,
-                Collections.<StatementCustomizer>emptyList(), foreman, collectorFactoryRegistry);
+                Collections.<StatementCustomizer>emptyList(), argumentRegistry, collectorFactoryRegistry);
     }
 
     /**

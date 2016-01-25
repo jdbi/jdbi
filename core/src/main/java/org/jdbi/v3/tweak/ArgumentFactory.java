@@ -28,7 +28,7 @@ public interface ArgumentFactory
      *              is known.
      * @param value the value to convert into an {@link Argument}
      * @param ctx   the statement context.
-     * @see StatementContext#argumentFor(Type, Object) for composeable argument types.
+     * @see StatementContext#findArgumentFor(Type, Object) for composeable argument types.
      */
     Optional<Argument> build(Type type, Object value, StatementContext ctx);
 }

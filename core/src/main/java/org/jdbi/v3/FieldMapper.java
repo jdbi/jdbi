@@ -81,7 +81,7 @@ public class FieldMapper<T> implements ResultSetMapper<T>
             final Field field = maybeField.get();
             final Type type = field.getGenericType();
             final Object value;
-            final Optional<ResultColumnMapper<?>> mapper = ctx.columnMapperFor(type);
+            final Optional<ResultColumnMapper<?>> mapper = ctx.findColumnMapperFor(type);
 
             if (mapper.isPresent()) {
                 value = mapper.get().mapColumn(rs, i, ctx);

@@ -38,11 +38,11 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       String sql,
                       ConcreteStatementContext context,
                       TimingCollector timingCollector,
-                      Foreman foreman,
+                      ArgumentRegistry argumentRegistry,
                       CollectorFactoryRegistry collectorFactoryRegistry)
     {
         super(binding, locator, rewriter, handle, cache, sql, context, timingCollector,
-                Collections.<StatementCustomizer>emptyList(), foreman, collectorFactoryRegistry);
+                Collections.<StatementCustomizer>emptyList(), argumentRegistry, collectorFactoryRegistry);
         this.batch = batch;
     }
 

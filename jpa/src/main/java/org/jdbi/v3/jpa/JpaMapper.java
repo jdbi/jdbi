@@ -59,7 +59,7 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
             JpaMember member = jpaClass.lookupMember(columnLabel);
             if (member != null) {
                 Type memberType = member.getType();
-                ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType)
+                ResultColumnMapper<?> columnMapper = ctx.findColumnMapperFor(memberType)
                         .orElseThrow(() -> new NoSuchColumnMapperException("No column mapper for " + memberType));
                 Object value = columnMapper.mapColumn(rs, columnLabel, ctx);
                 member.write(obj, value);

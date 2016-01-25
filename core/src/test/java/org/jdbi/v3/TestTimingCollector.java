@@ -49,7 +49,7 @@ public class TestTimingCollector
                                         new HashMap<String, Object>(),
                                         tc,
                                         new MappingRegistry(),
-                                        new Foreman(),
+                                        new ArgumentRegistry(),
                                         new CollectorFactoryRegistry());
         return h;
     }
