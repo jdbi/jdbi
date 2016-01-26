@@ -950,12 +950,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Long value)
     {
-        if (value != null) {
-            return bind(position, toArgument(Long.class, value));
-        }
-        else {
-            return bind(position, new NullArgument(Types.BIGINT));
-        }
+        return bind(position, toArgument(Long.class, value));
     }
 
     /**
