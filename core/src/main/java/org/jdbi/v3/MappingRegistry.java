@@ -24,7 +24,7 @@ import org.jdbi.v3.util.SingleColumnMapper;
 
 class MappingRegistry
 {
-    private static final PrimitivesColumnMapperFactory BUILT_INS = new PrimitivesColumnMapperFactory();
+    private static final PrimitivesMapperFactory BUILT_INS = new PrimitivesMapperFactory();
 
     private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();

@@ -246,15 +246,17 @@ class BasicHandle implements Handle
     public Update createStatement(String sql)
     {
         Foreman updateForeman = foreman.createChild();
+        MappingRegistry updateMappingRegistry = MappingRegistry.copyOf(this.mappingRegistry);
         CollectorFactoryRegistry updateCollectors = collectorFactoryRegistry.createChild();
         return new Update(this,
                           statementLocator,
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), updateForeman, updateCollectors),
+                          new ConcreteStatementContext(globalStatementAttributes, updateMappingRegistry, updateForeman, updateCollectors),
                           timingCollector,
                           updateForeman,
+                          updateMappingRegistry,
                           updateCollectors);
     }
 
@@ -296,16 +298,18 @@ class BasicHandle implements Handle
     public PreparedBatch prepareBatch(String sql)
     {
         Foreman batchForeman = foreman.createChild();
+        MappingRegistry batchMappingRegistry = MappingRegistry.copyOf(mappingRegistry);
         CollectorFactoryRegistry batchCollectors = collectorFactoryRegistry.createChild();
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), batchForeman, batchCollectors),
+                                 new ConcreteStatementContext(globalStatementAttributes, batchMappingRegistry, batchForeman, batchCollectors),
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
                                  batchForeman,
+                                 batchMappingRegistry,
                                  batchCollectors);
     }
 

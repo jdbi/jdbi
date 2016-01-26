@@ -30,11 +30,6 @@ public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
         return ValueType.valueOf(r.getString(columnNumber));
     }
 
-    @Override
-    public ValueType mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return ValueType.valueOf(r.getString(columnLabel));
-    }
-
     public static class Factory implements ResultColumnMapperFactory {
         @Override
         public boolean accepts(Type type, StatementContext ctx) {

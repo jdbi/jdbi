@@ -13,31 +13,27 @@
  */
 package org.jdbi.v3.util;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import static org.jdbi.v3.Types.getErasedType;
 
+import java.lang.reflect.Type;
+
+import org.jdbi.v3.ResultColumnMapperFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum ByteColumnMapper implements ResultColumnMapper<Byte> {
-    PRIMITIVE(false),
-    WRAPPER(true);
-
-    private final boolean nullable;
-
-    ByteColumnMapper(boolean nullable) {
-        this.nullable = nullable;
+/**
+ * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
+ */
+public class EnumByOrdinalMapperFactory implements ResultColumnMapperFactory {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+        return EnumMapper.byOrdinal(
+                (Class<? extends Enum>) getErasedType(type).asSubclass(Enum.class));
     }
 
     @Override
-    public Byte mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        byte value = r.getByte(columnNumber);
-        return nullable && r.wasNull() ? null : value;
-    }
-
-    @Override
-    public Byte mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        byte value = r.getByte(columnLabel);
-        return nullable && r.wasNull() ? null : value;
+    public boolean accepts(Type type, StatementContext ctx) {
+        return getErasedType(type).isEnum();
     }
 }
