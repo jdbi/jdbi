@@ -18,27 +18,16 @@ import static org.jdbi.v3.Types.getErasedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.util.BigDecimalMapper;
-import org.jdbi.v3.util.BooleanMapper;
-import org.jdbi.v3.util.ByteArrayMapper;
-import org.jdbi.v3.util.ByteMapper;
-import org.jdbi.v3.util.CharMapper;
-import org.jdbi.v3.util.DoubleMapper;
 import org.jdbi.v3.util.EnumMapper;
-import org.jdbi.v3.util.FloatMapper;
-import org.jdbi.v3.util.IntegerMapper;
-import org.jdbi.v3.util.LongMapper;
-import org.jdbi.v3.util.ShortMapper;
-import org.jdbi.v3.util.StringMapper;
-import org.jdbi.v3.util.TimestampMapper;
-import org.jdbi.v3.util.URIMapper;
-import org.jdbi.v3.util.URLMapper;
 
 /**
  * Result column mapper factory which knows how to map standard JDBC-recognized types.
@@ -47,34 +36,34 @@ public class PrimitivesMapperFactory implements ResultColumnMapperFactory {
     private static final Map<Class<?>, ResultColumnMapper<?>> mappers = new HashMap<>();
 
     static {
-        mappers.put(boolean.class, BooleanMapper.PRIMITIVE);
-        mappers.put(byte.class, ByteMapper.PRIMITIVE);
-        mappers.put(char.class, CharMapper.PRIMITIVE);
-        mappers.put(short.class, ShortMapper.PRIMITIVE);
-        mappers.put(int.class, IntegerMapper.PRIMITIVE);
-        mappers.put(long.class, LongMapper.PRIMITIVE);
-        mappers.put(float.class, FloatMapper.PRIMITIVE);
-        mappers.put(double.class, DoubleMapper.PRIMITIVE);
+        mappers.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
+        mappers.put(byte.class, primitiveMapper(ResultSet::getByte));
+        mappers.put(char.class, primitiveMapper(PrimitivesMapperFactory::getChar));
+        mappers.put(short.class, primitiveMapper(ResultSet::getShort));
+        mappers.put(int.class, primitiveMapper(ResultSet::getInt));
+        mappers.put(long.class, primitiveMapper(ResultSet::getLong));
+        mappers.put(float.class, primitiveMapper(ResultSet::getFloat));
+        mappers.put(double.class, primitiveMapper(ResultSet::getDouble));
 
-        mappers.put(Boolean.class, BooleanMapper.WRAPPER);
-        mappers.put(Byte.class, ByteMapper.WRAPPER);
-        mappers.put(Character.class, CharMapper.WRAPPER);
-        mappers.put(Short.class, ShortMapper.WRAPPER);
-        mappers.put(Integer.class, IntegerMapper.WRAPPER);
-        mappers.put(Long.class, LongMapper.WRAPPER);
-        mappers.put(Float.class, FloatMapper.WRAPPER);
-        mappers.put(Double.class, DoubleMapper.WRAPPER);
+        mappers.put(Boolean.class, referenceMapper(ResultSet::getBoolean));
+        mappers.put(Byte.class, referenceMapper(ResultSet::getByte));
+        mappers.put(Character.class, referenceMapper(PrimitivesMapperFactory::getCharacter));
+        mappers.put(Short.class, referenceMapper(ResultSet::getShort));
+        mappers.put(Integer.class, referenceMapper(ResultSet::getInt));
+        mappers.put(Long.class, referenceMapper(ResultSet::getLong));
+        mappers.put(Float.class, referenceMapper(ResultSet::getFloat));
+        mappers.put(Double.class, referenceMapper(ResultSet::getDouble));
 
-        mappers.put(BigDecimal.class, BigDecimalMapper.INSTANCE);
+        mappers.put(BigDecimal.class, referenceMapper(ResultSet::getBigDecimal));
 
-        mappers.put(String.class, StringMapper.INSTANCE);
+        mappers.put(String.class, referenceMapper(ResultSet::getString));
 
-        mappers.put(byte[].class, ByteArrayMapper.INSTANCE);
+        mappers.put(byte[].class, referenceMapper(ResultSet::getBytes));
 
-        mappers.put(Timestamp.class, TimestampMapper.INSTANCE);
+        mappers.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
 
-        mappers.put(URL.class, URLMapper.INSTANCE);
-        mappers.put(URI.class, URIMapper.INSTANCE);
+        mappers.put(URL.class, referenceMapper(ResultSet::getURL));
+        mappers.put(URI.class, referenceMapper(PrimitivesMapperFactory::getURI));
     }
 
     @Override
@@ -92,5 +81,43 @@ public class PrimitivesMapperFactory implements ResultColumnMapperFactory {
                     (Class<? extends Enum>) rawType.asSubclass(Enum.class));
         }
         return mappers.get(rawType);
+    }
+
+    @FunctionalInterface
+    interface ColumnGetter<T> {
+        T get(ResultSet rs, int i) throws SQLException;
+    }
+
+    private static <T> ResultColumnMapper<T> primitiveMapper(ColumnGetter<T> getter) {
+        return (r, i, ctx) -> getter.get(r, i);
+    }
+
+    private static <T> ResultColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
+        return (r, i, ctx) -> {
+            T value = getter.get(r, i);
+            return r.wasNull() ? null : value;
+        };
+    }
+
+    private static char getChar(ResultSet r, int i) throws SQLException {
+        Character character = getCharacter(r, i);
+        return character == null ? '\000' : character.charValue();
+    }
+
+    private static Character getCharacter(ResultSet r, int i) throws SQLException {
+        String s = r.getString(i);
+        if (s != null && !s.isEmpty()) {
+            return s.charAt(0);
+        }
+        return null;
+    }
+
+    private static URI getURI(ResultSet r, int i) throws SQLException {
+        String s = r.getString(i);
+        try {
+            return (s != null) ? (new URI(s)) : null;
+        } catch(URISyntaxException e) {
+            throw new SQLException("Failed to convert data to URI", e);
+        }
     }
 }
