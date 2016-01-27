@@ -24,7 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.Collection;
 import java.util.Map;
 
@@ -193,13 +192,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
     private boolean verifyOurNastyDowncastIsOkay()
     {
-        if (this.getClass().getTypeParameters().length == 0) {
-            return true;
-        }
-        else {
-            Class<?> parameterized_type = this.getClass().getTypeParameters()[0].getGenericDeclaration();
-            return parameterized_type.isAssignableFrom(this.getClass());
-        }
+        // Prevent bogus signatures like Update extends SQLStatement<Query>
+        // SQLStatement's generic parameter must be supertype of getClass()
+        return Types.findGenericParameter(getClass(), SQLStatement.class)
+                .map(Types::getErasedType)
+                .map(type -> type.isAssignableFrom(getClass()))
+                .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯
     }
 
     protected StatementBuilder getStatementBuilder()
