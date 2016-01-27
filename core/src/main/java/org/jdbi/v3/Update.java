@@ -33,6 +33,8 @@ import org.jdbi.v3.util.SingleColumnMapper;
  */
 public class Update extends SQLStatement<Update>
 {
+    private final MappingRegistry mappingRegistry;
+
     Update(Handle handle,
            StatementLocator locator,
            StatementRewriter statementRewriter,
@@ -41,10 +43,12 @@ public class Update extends SQLStatement<Update>
            ConcreteStatementContext ctx,
            TimingCollector timingCollector,
            ArgumentRegistry argumentRegistry,
+           MappingRegistry mappingRegistry,
            CollectorFactoryRegistry collectorFactoryRegistry)
     {
         super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, timingCollector,
                 Collections.<StatementCustomizer>emptyList(), argumentRegistry, collectorFactoryRegistry);
+        this.mappingRegistry = mappingRegistry;
     }
 
     /**
@@ -88,6 +92,14 @@ public class Update extends SQLStatement<Update>
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
         return executeAndReturnGeneratedKeys(new SingleColumnMapper<GeneratedKeyType>(mapper), null);
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(GenericType<GeneratedKeyType> generatedKeyType) {
+        return executeAndReturnGeneratedKeys(new RegisteredMapper<GeneratedKeyType>(generatedKeyType.getType(), mappingRegistry), null);
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(Class<GeneratedKeyType> generatedKeyType) {
+        return executeAndReturnGeneratedKeys(new RegisteredMapper<GeneratedKeyType>(generatedKeyType, mappingRegistry), null);
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

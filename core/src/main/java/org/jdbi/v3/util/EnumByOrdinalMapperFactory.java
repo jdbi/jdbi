@@ -13,23 +13,25 @@
  */
 package org.jdbi.v3.util;
 
-import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import static org.jdbi.v3.Types.getErasedType;
 
+import java.lang.reflect.Type;
+import java.util.Optional;
+
+import org.jdbi.v3.ResultColumnMapperFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum URLColumnMapper implements ResultColumnMapper<URL> {
-    INSTANCE;
-
+/**
+ * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
+ */
+public class EnumByOrdinalMapperFactory implements ResultColumnMapperFactory {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public URL mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return r.getURL(columnNumber);
-    }
-
-    @Override
-    public URL mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return r.getURL(columnLabel);
+    public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
+        Class<?> clazz = getErasedType(type);
+        return clazz.isEnum()
+                ? Optional.of(EnumMapper.byOrdinal((Class<? extends Enum>) clazz))
+                : Optional.empty();
     }
 }

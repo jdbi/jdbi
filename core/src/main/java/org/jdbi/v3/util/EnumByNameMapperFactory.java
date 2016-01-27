@@ -13,23 +13,25 @@
  */
 package org.jdbi.v3.util;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import static org.jdbi.v3.Types.getErasedType;
 
+import java.lang.reflect.Type;
+import java.util.Optional;
+
+import org.jdbi.v3.ResultColumnMapperFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public enum TimestampColumnMapper implements ResultColumnMapper<Timestamp> {
-    INSTANCE;
-
+/**
+ * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
+ */
+public class EnumByNameMapperFactory implements ResultColumnMapperFactory {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public Timestamp mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return r.getTimestamp(columnNumber);
-    }
-
-    @Override
-    public Timestamp mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return r.getTimestamp(columnLabel);
+    public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
+        Class<?> clazz = getErasedType(type);
+        return clazz.isEnum()
+                ? Optional.of(EnumMapper.byName((Class<? extends Enum>) clazz))
+                : Optional.empty();
     }
 }

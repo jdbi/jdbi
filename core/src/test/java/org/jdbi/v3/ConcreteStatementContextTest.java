@@ -50,11 +50,6 @@ public class ConcreteStatementContextTest {
         public Foo mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             return null;
         }
-
-        @Override
-        public Foo mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-            return null;
-        }
     }
 
     @Test

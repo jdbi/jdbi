@@ -19,8 +19,8 @@ import java.sql.SQLException;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
-public abstract class EnumColumnMapper<E extends Enum<E>> implements ResultColumnMapper<E> {
-    EnumColumnMapper() {}
+public abstract class EnumMapper<E extends Enum<E>> implements ResultColumnMapper<E> {
+    EnumMapper() {}
 
     public static <E extends Enum<E>> ResultColumnMapper<E> byName(Class<E> type) {
         return new ByName<E>(type);
@@ -30,7 +30,7 @@ public abstract class EnumColumnMapper<E extends Enum<E>> implements ResultColum
         return new ByOrdinal<E>(type);
     }
 
-    private static class ByName<E extends Enum<E>> extends EnumColumnMapper<E> {
+    private static class ByName<E extends Enum<E>> extends EnumMapper<E> {
         private final Class<E> type;
 
         private ByName(Class<E> type) {
@@ -42,15 +42,9 @@ public abstract class EnumColumnMapper<E extends Enum<E>> implements ResultColum
             String name = r.getString(columnNumber);
             return name == null ? null : Enum.valueOf(type, name);
         }
-
-        @Override
-        public E mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-            String name = r.getString(columnLabel);
-            return name == null ? null : Enum.valueOf(type, name);
-        }
     }
 
-    private static class ByOrdinal<E extends Enum<E>> extends EnumColumnMapper<E> {
+    private static class ByOrdinal<E extends Enum<E>> extends EnumMapper<E> {
         private final E[] constants;
 
         private ByOrdinal(Class<E> type) {
@@ -60,12 +54,6 @@ public abstract class EnumColumnMapper<E extends Enum<E>> implements ResultColum
         @Override
         public E mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             int ordinal = r.getInt(columnNumber);
-            return r.wasNull() ? null : constants[ordinal];
-        }
-
-        @Override
-        public E mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-            int ordinal = r.getInt(columnLabel);
             return r.wasNull() ? null : constants[ordinal];
         }
     }

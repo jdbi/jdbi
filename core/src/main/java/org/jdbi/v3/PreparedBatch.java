@@ -45,6 +45,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
 {
     private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
 
+    private final MappingRegistry mappingRegistry;
     private final List<PreparedBatchPart> parts = new ArrayList<PreparedBatchPart>();
     private Binding currentBinding;
 
@@ -57,10 +58,12 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                   TimingCollector timingCollector,
                   Collection<StatementCustomizer> statementCustomizers,
                   ArgumentRegistry argumentRegistry,
+                  MappingRegistry mappingRegistry,
                   CollectorFactoryRegistry collectorFactoryRegistry)
     {
         super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, timingCollector,
                 statementCustomizers, argumentRegistry, collectorFactoryRegistry);
+        this.mappingRegistry = mappingRegistry;
         this.currentBinding = new Binding();
     }
 
@@ -115,6 +118,14 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
         return executeAndGenerateKeys(new SingleColumnMapper<GeneratedKeyType>(mapper));
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(GenericType<GeneratedKeyType> generatedKeyType) {
+        return executeAndGenerateKeys(new RegisteredMapper<GeneratedKeyType>(generatedKeyType.getType(), mappingRegistry));
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType) {
+        return executeAndGenerateKeys(new RegisteredMapper<GeneratedKeyType>(generatedKeyType, mappingRegistry));
     }
 
     private <Result> Object internalBatchExecute(Function<PreparedStatement, Result> munger) {

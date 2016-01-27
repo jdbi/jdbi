@@ -246,15 +246,17 @@ class BasicHandle implements Handle
     public Update createStatement(String sql)
     {
         ArgumentRegistry updateArgumentRegistry = argumentRegistry.createChild();
+        MappingRegistry updateMappingRegistry = MappingRegistry.copyOf(this.mappingRegistry);
         CollectorFactoryRegistry updateCollectors = collectorFactoryRegistry.createChild();
         return new Update(this,
                           statementLocator,
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), updateArgumentRegistry, updateCollectors),
+                          new ConcreteStatementContext(globalStatementAttributes, updateMappingRegistry, updateArgumentRegistry, updateCollectors),
                           timingCollector,
                           updateArgumentRegistry,
+                          updateMappingRegistry,
                           updateCollectors);
     }
 
@@ -296,16 +298,18 @@ class BasicHandle implements Handle
     public PreparedBatch prepareBatch(String sql)
     {
         ArgumentRegistry batchArgumentRegistry = argumentRegistry.createChild();
+        MappingRegistry batchMappingRegistry = MappingRegistry.copyOf(mappingRegistry);
         CollectorFactoryRegistry batchCollectors = collectorFactoryRegistry.createChild();
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), batchArgumentRegistry, batchCollectors),
+                                 new ConcreteStatementContext(globalStatementAttributes, batchMappingRegistry, batchArgumentRegistry, batchCollectors),
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
                                  batchArgumentRegistry,
+                                 batchMappingRegistry,
                                  batchCollectors);
     }
 
