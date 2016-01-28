@@ -13,13 +13,14 @@
  */
 package org.jdbi.v3;
 
+import static org.jdbi.v3.internal.JdbiStreams.toStream;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 
@@ -49,8 +50,7 @@ public class Binding
         }
 
         return namedArgumentFinder.stream()
-                .map(arguments -> arguments.find(name))
-                .flatMap(JdbiStreams::toStream)
+                .flatMap(arguments -> toStream(arguments.find(name)))
                 .findFirst();
     }
 

@@ -163,8 +163,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getTimingCollector(),
                             getStatementCustomizers(),
                             MappingRegistry.copyOf(mappingRegistry),
-                            getArgumentRegistry().createChild(),
-                            getCollectorFactoryRegistry().createChild());
+                            ArgumentRegistry.copyOf(getArgumentRegistry()),
+                            CollectorFactoryRegistry.copyOf(getCollectorFactoryRegistry()));
     }
 
     /**

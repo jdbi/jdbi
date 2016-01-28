@@ -243,8 +243,8 @@ public class DBI
                                        globalStatementAttributes,
                                        timingCollector.get(),
                                        MappingRegistry.copyOf(mappingRegistry),
-                                       argumentRegistry.createChild(),
-                                       collectorFactoryRegistry.createChild());
+                                       ArgumentRegistry.copyOf(argumentRegistry),
+                                       CollectorFactoryRegistry.copyOf(collectorFactoryRegistry));
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }

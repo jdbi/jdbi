@@ -13,13 +13,14 @@
  */
 package org.jdbi.v3;
 
+import static org.jdbi.v3.internal.JdbiStreams.toStream;
+
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.util.SingleColumnMapper;
@@ -34,14 +35,14 @@ class MappingRegistry
     private final List<ResultColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
 
-    static MappingRegistry copyOf(MappingRegistry parent) {
+    static MappingRegistry copyOf(MappingRegistry registry) {
         MappingRegistry mr = new MappingRegistry();
 
-        mr.rowFactories.addAll(parent.rowFactories);
-        mr.rowCache.putAll(parent.rowCache);
+        mr.rowFactories.addAll(registry.rowFactories);
+        mr.rowCache.putAll(registry.rowCache);
 
-        mr.columnFactories.addAll(parent.columnFactories);
-        mr.columnCache.putAll(parent.columnCache);
+        mr.columnFactories.addAll(registry.columnFactories);
+        mr.columnCache.putAll(registry.columnCache);
 
         return mr;
     }
@@ -60,8 +61,7 @@ class MappingRegistry
     public Optional<ResultSetMapper<?>> findMapperFor(Type type, StatementContext ctx) {
         return Optional.ofNullable(rowCache.computeIfAbsent(type, t -> {
             Optional<ResultSetMapper<?>> mapper = rowFactories.stream()
-                    .map(factory -> factory.build(type, ctx))
-                    .flatMap(JdbiStreams::toStream)
+                    .flatMap(factory -> toStream(factory.build(type, ctx)))
                     .findFirst();
             if (mapper.isPresent()) {
                 return mapper.get();
@@ -86,8 +86,7 @@ class MappingRegistry
     public Optional<ResultColumnMapper<?>> findColumnMapperFor(Type type, StatementContext ctx) {
         return Optional.ofNullable(columnCache.computeIfAbsent(type, t -> {
             Optional<ResultColumnMapper<?>> mapper = columnFactories.stream()
-                    .map(factory -> factory.build(t, ctx))
-                    .flatMap(JdbiStreams::toStream)
+                    .flatMap(factory -> toStream(factory.build(t, ctx)))
                     .findFirst();
             if (mapper.isPresent()) {
                 return mapper.get();

@@ -74,15 +74,15 @@ class BasicHandle implements Handle
         this.argumentRegistry = argumentRegistry;
         this.globalStatementAttributes = new HashMap<String, Object>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
-        this.collectorFactoryRegistry = collectorFactoryRegistry.createChild();
+        this.collectorFactoryRegistry = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
     }
 
     @Override
     public Query<Map<String, Object>> createQuery(String sql)
     {
         MappingRegistry queryRegistry = MappingRegistry.copyOf(this.mappingRegistry);
-        ArgumentRegistry queryArgumentRegistry = argumentRegistry.createChild();
-        CollectorFactoryRegistry queryCollectors = collectorFactoryRegistry.createChild();
+        ArgumentRegistry queryArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
+        CollectorFactoryRegistry queryCollectors = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
         return new Query<>(
                 new Binding(),
                 new DefaultMapper(),
@@ -245,9 +245,9 @@ class BasicHandle implements Handle
     @Override
     public Update createStatement(String sql)
     {
-        ArgumentRegistry updateArgumentRegistry = argumentRegistry.createChild();
+        ArgumentRegistry updateArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
         MappingRegistry updateMappingRegistry = MappingRegistry.copyOf(this.mappingRegistry);
-        CollectorFactoryRegistry updateCollectors = collectorFactoryRegistry.createChild();
+        CollectorFactoryRegistry updateCollectors = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
         return new Update(this,
                           statementLocator,
                           statementRewriter,
@@ -263,8 +263,8 @@ class BasicHandle implements Handle
     @Override
     public Call createCall(String sql)
     {
-        ArgumentRegistry callArgumentRegistry = argumentRegistry.createChild();
-        CollectorFactoryRegistry callCollectors = collectorFactoryRegistry.createChild();
+        ArgumentRegistry callArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
+        CollectorFactoryRegistry callCollectors = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
         return new Call(this,
                         statementLocator,
                         statementRewriter,
@@ -297,9 +297,9 @@ class BasicHandle implements Handle
     @Override
     public PreparedBatch prepareBatch(String sql)
     {
-        ArgumentRegistry batchArgumentRegistry = argumentRegistry.createChild();
+        ArgumentRegistry batchArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
         MappingRegistry batchMappingRegistry = MappingRegistry.copyOf(mappingRegistry);
-        CollectorFactoryRegistry batchCollectors = collectorFactoryRegistry.createChild();
+        CollectorFactoryRegistry batchCollectors = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
         return new PreparedBatch(statementLocator,
                                  statementRewriter,
                                  this,
@@ -316,10 +316,10 @@ class BasicHandle implements Handle
     @Override
     public Batch createBatch()
     {
-        ArgumentRegistry batchArgumentRegistry = argumentRegistry.createChild();
+        ArgumentRegistry batchArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
         return new Batch(this.statementRewriter,
                          this.connection,
-                         new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), batchArgumentRegistry, collectorFactoryRegistry.createChild()),
+                         new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), batchArgumentRegistry, CollectorFactoryRegistry.copyOf(collectorFactoryRegistry)),
                          timingCollector,
                          batchArgumentRegistry);
     }
@@ -406,8 +406,8 @@ class BasicHandle implements Handle
                 new ConcreteStatementContext(
                         globalStatementAttributes,
                         MappingRegistry.copyOf(mappingRegistry),
-                        argumentRegistry.createChild(),
-                        collectorFactoryRegistry.createChild()));
+                        ArgumentRegistry.copyOf(argumentRegistry),
+                        CollectorFactoryRegistry.copyOf(collectorFactoryRegistry)));
     }
 
     @Override

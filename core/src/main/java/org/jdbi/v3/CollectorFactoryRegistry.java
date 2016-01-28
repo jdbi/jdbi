@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 import static org.jdbi.v3.Types.getErasedType;
+import static org.jdbi.v3.internal.JdbiStreams.toStream;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
@@ -42,18 +42,13 @@ class CollectorFactoryRegistry {
         factories.add(new SetCollectorFactory<>());
     }
 
-    CollectorFactoryRegistry createChild() {
-        return copyOf(this);
-    }
-
     void register(CollectorFactory factory) {
         factories.add(factory);
     }
 
     Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
         return factories.stream()
-                .map(factory -> factory.build(type))
-                .flatMap(JdbiStreams::toStream)
+                .flatMap(factory -> toStream(factory.build(type)))
                 .findFirst();
     }
 
