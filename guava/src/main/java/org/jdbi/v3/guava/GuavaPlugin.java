@@ -21,6 +21,7 @@ import org.jdbi.v3.spi.JdbiPlugin;
 public class GuavaPlugin implements JdbiPlugin {
     @Override
     public Handle customizeHandle(Handle handle) {
+        handle.registerArgumentFactory(GuavaArguments.factory());
         handle.registerCollectorFactory(GuavaCollectors.factory());
         return handle;
     }
