@@ -21,13 +21,14 @@ import javax.sql.DataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
+
+import javax.annotation.PostConstruct;
 
 /**
- * Utility class which constructs an IDBI instance which can conveniently participate
+ * Utility class which constructs an {@link DBI} instance which can conveniently participate
  * in Spring's transaction management system.
  */
-public class DBIFactoryBean implements FactoryBean, InitializingBean
+public class DBIFactoryBean implements FactoryBean<DBI>
 {
     private DataSource dataSource;
     private StatementLocator statementLocator;
@@ -46,10 +47,10 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     }
 
     /**
-     * See org.springframework.beans.factory.FactoryBean#getObject
+     * See {@link org.springframework.beans.factory.FactoryBean#getObject}
      */
     @Override
-    public Object getObject() throws Exception
+    public DBI getObject() throws Exception
     {
         final DBI dbi = DBI.create(new SpringDataSourceConnectionFactory(dataSource));
         if (statementLocator != null) {
@@ -64,7 +65,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     }
 
     /**
-     * See org.springframework.beans.factory.FactoryBean#getObjectType
+     * See {@link org.springframework.beans.factory.FactoryBean#getObjectType}
      */
     @Override
     public Class<?> getObjectType()
@@ -73,7 +74,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     }
 
     /**
-     * See org.springframework.beans.factory.FactoryBean#isSingleton
+     * See {@link org.springframework.beans.factory.FactoryBean#isSingleton}
      *
      * @return false
      */
@@ -85,7 +86,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
 
     /**
      * The datasource, which should be managed by spring's transaction system, from which
-     * the IDBI will obtain connections
+     * the {@link DBI} will obtain connections
      */
     public void setDataSource(DataSource dataSource)
     {
@@ -104,8 +105,8 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
     /**
      * Verifies that a dataSource has been set
      */
-    @Override
-    public void afterPropertiesSet() throws Exception
+    @PostConstruct
+    private void afterPropertiesSet()
     {
         if (dataSource == null) {
             throw new IllegalStateException("'dataSource' property must be set");
