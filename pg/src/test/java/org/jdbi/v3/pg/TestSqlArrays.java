@@ -15,48 +15,82 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class TestSqlArrays {
-    private static final String SELECT = "SELECT u FROM uuids";
-    private static final String INSERT = "INSERT INTO uuids VALUES(:uuids)";
+    private static final String U_SELECT = "SELECT u FROM uuids";
+    private static final String U_INSERT = "INSERT INTO uuids VALUES(:uuids, NULL)";
+    private static final String I_SELECT = "SELECT i FROM uuids";
+    private static final String I_INSERT = "INSERT INTO uuids VALUES(NULL, :ints)";
 
     @Rule
     public PostgresDbRule db = new PostgresDbRule();
     private Handle h;
-    private UuidObject uo;
+    private ArrayObject ao;
 
     @Before
     public void setUp() {
         h = db.getSharedHandle();
-        h.execute("CREATE TABLE uuids (u UUID[])");
-        uo = h.attach(UuidObject.class);
+        h.execute("CREATE TABLE uuids (u UUID[], i INT[])");
+        ao = h.attach(ArrayObject.class);
     }
 
     private final UUID[] testUuids = new UUID[] {
         UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()
     };
 
+    private final int[] testInts = new int[] {
+        5, 4, -6, 1, 9, Integer.MAX_VALUE, Integer.MIN_VALUE
+    };
+
     @Test
-    public void testArray() throws Exception {
-        uo.insertArray(testUuids);
-        assertArrayEquals(testUuids, uo.fetchArray());
+    public void testUuidArray() throws Exception {
+        ao.insertUuidArray(testUuids);
+        assertArrayEquals(testUuids, ao.fetchUuidArray());
     }
 
     @Test
-    public void testList() throws Exception {
-        uo.insertList(Arrays.asList(testUuids));
-        assertEquals(testUuids, uo.fetchList());
+    public void testUuidList() throws Exception {
+        ao.insertUuidList(Arrays.asList(testUuids));
+        assertEquals(Arrays.asList(testUuids), ao.fetchUuidList());
     }
 
-    interface UuidObject {
-        @SqlQuery(SELECT)
-        UUID[] fetchArray();
+    @Test
+    public void testIntArray() throws Exception {
+        ao.insertIntArray(testInts);
+        assertArrayEquals(testInts, ao.fetchIntArray());
+    }
 
-        @SqlUpdate(INSERT)
-        void insertArray(UUID[] u);
+    @Test
+    public void testIntList() throws Exception {
+        ao.insertIntList(Arrays.asList(testInts));
+        assertEquals(, ao.fetchIntList());
+    }
 
-        @SqlQuery(SELECT)
-        List<UUID> fetchList();
+    interface ArrayObject {
+        @SqlQuery(U_SELECT)
+        UUID[] fetchUuidArray();
 
-        @SqlUpdate(INSERT)
-        void insertList(List<UUID> u);
+        @SqlUpdate(U_INSERT)
+        void insertUuidArray(UUID[] u);
+
+        @SqlQuery(U_SELECT)
+        List<UUID> fetchUuidList();
+
+        @SqlUpdate(U_INSERT)
+        void insertUuidList(List<UUID> u);
+
+
+        @SqlQuery(I_SELECT)
+        int[] fetchIntArray();
+
+        @SqlQuery(I_SELECT)
+        Integer[] fetchBoxedIntArray();
+
+        @SqlUpdate(I_INSERT)
+        void insertIntArray(int[] u);
+
+        @SqlQuery(I_SELECT)
+        List<Integer> fetchIntList();
+
+        @SqlUpdate(I_INSERT)
+        void insertIntList(List<Integer> u);
     }
 }
