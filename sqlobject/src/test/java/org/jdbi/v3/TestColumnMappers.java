@@ -22,7 +22,7 @@ import java.util.List;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapperFactory;
-import org.jdbi.v3.sqlobject.helpers.MapResultAsBean;
+import org.jdbi.v3.sqlobject.helpers.RegisterBeanMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -102,12 +102,12 @@ public class TestColumnMappers
 
     public interface SomeBeanDao
     {
-        @MapResultAsBean
+        @RegisterBeanMapper(SomeBean.class)
         @RegisterColumnMapper(ValueTypeMapper.class)
         @SqlQuery("select * from someBean")
         List<SomeBean> listBeans();
 
-        @MapResultAsBean
+        @RegisterBeanMapper(SomeBean.class)
         @RegisterColumnMapperFactory(ValueTypeMapper.Factory.class)
         @SqlQuery("select * from someBean")
         List<SomeBean> listBeansFactoryMapped();
