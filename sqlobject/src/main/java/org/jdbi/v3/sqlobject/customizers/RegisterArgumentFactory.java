@@ -39,7 +39,7 @@ public @interface RegisterArgumentFactory
     /**
      * The key for the attribute to set. The value will be the value passed to the annotated argument
      */
-    Class<? extends ArgumentFactory<?>>[] value();
+    Class<? extends ArgumentFactory>[] value();
 
     class Factory implements SqlStatementCustomizerFactory
     {
@@ -58,8 +58,8 @@ public @interface RegisterArgumentFactory
         private SqlStatementCustomizer create(Annotation annotation)
         {
             final RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;
-            final List<ArgumentFactory<?>> ary = new ArrayList<>(raf.value().length);
-            for (Class<? extends ArgumentFactory<?>> aClass : raf.value()) {
+            final List<ArgumentFactory> ary = new ArrayList<>(raf.value().length);
+            for (Class<? extends ArgumentFactory> aClass : raf.value()) {
                 try {
                     ary.add(aClass.newInstance());
                 }
@@ -67,11 +67,7 @@ public @interface RegisterArgumentFactory
                     throw new IllegalStateException("unable to instantiate specified argument factory", e);
                 }
             }
-            return q -> {
-                for (ArgumentFactory<?> argumentFactory : ary) {
-                    q.registerArgumentFactory(argumentFactory);
-                }
-            };
+            return q -> ary.forEach(q::registerArgumentFactory);
         }
     }
 }

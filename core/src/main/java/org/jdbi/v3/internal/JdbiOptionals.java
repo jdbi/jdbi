@@ -11,15 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
+package org.jdbi.v3.internal;
+
+import static org.jdbi.v3.internal.JdbiStreams.toStream;
 
 import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-/**
- * Returns an Argument based on a name. Used to lookup multiple properties e.g. in a Bean or a Map.
- */
-@FunctionalInterface
-public interface NamedArgumentFinder
-{
-    Optional<Argument> find(String name);
+public class JdbiOptionals {
+    public static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {
+        return Stream.of(suppliers)
+                .flatMap(supplier -> toStream(supplier.get()))
+                .findFirst();
+    }
 }

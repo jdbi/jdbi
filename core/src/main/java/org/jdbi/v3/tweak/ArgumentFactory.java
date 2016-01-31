@@ -14,12 +14,22 @@
 package org.jdbi.v3.tweak;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
 
-public interface ArgumentFactory<T>
+@FunctionalInterface
+public interface ArgumentFactory
 {
-    boolean accepts(Type expectedType, Object value, StatementContext ctx);
-
-    Argument build(Type expectedType, T value, StatementContext ctx);
+    /**
+     * Returns an {@link Argument} for the given value if the factory supports it; empty otherwise.
+     *
+     * @param type  the known type of value. Depending on the situation this may be a full generic signature e.g.
+     *              {@link java.lang.reflect.ParameterizedType}, a {@link Class}, or Object.class if no type information
+     *              is known.
+     * @param value the value to convert into an {@link Argument}
+     * @param ctx   the statement context.
+     * @see StatementContext#findArgumentFor(Type, Object) for composeable argument types.
+     */
+    Optional<Argument> build(Type type, Object value, StatementContext ctx);
 }

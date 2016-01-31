@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.RewrittenStatement;
@@ -48,9 +49,13 @@ public class NoOpStatementRewriter implements StatementRewriter
         public void bind(Binding params, PreparedStatement statement) throws SQLException
         {
             for (int i = 0; ; i++) {
-                final Argument s = params.forPosition(i);
-                if (s == null) { break; }
-                s.apply(i + 1, statement, this.context);
+                final Optional<Argument> s = params.findForPosition(i);
+                if (s.isPresent()) {
+                    s.get().apply(i + 1, statement, this.context);
+                }
+                else {
+                    break;
+                }
             }
         }
 

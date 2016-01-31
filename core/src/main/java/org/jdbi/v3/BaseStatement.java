@@ -28,17 +28,17 @@ abstract class BaseStatement
 {
     private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
     private final ConcreteStatementContext context;
-    private final Foreman                  foreman;
+    private final ArgumentRegistry argumentRegistry;
 
-    protected BaseStatement(final ConcreteStatementContext context, Foreman foreman)
+    protected BaseStatement(final ConcreteStatementContext context, ArgumentRegistry argumentRegistry)
     {
         this.context = context;
-        this.foreman = foreman;
+        this.argumentRegistry = argumentRegistry;
         addCustomizer(new StatementCleaningCustomizer());
     }
 
-    protected final Foreman getForeman() {
-        return foreman;
+    protected final ArgumentRegistry getArgumentRegistry() {
+        return argumentRegistry;
     }
 
     protected final ConcreteStatementContext getConcreteContext()

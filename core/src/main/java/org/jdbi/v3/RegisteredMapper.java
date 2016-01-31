@@ -34,6 +34,8 @@ class RegisteredMapper<T> implements ResultSetMapper<T>
     @SuppressWarnings("unchecked")
     public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
     {
-        return (T) registry.mapperFor(type, ctx).map(index, r, ctx);
+        ResultSetMapper<?> mapper = registry.findMapperFor(type, ctx)
+                .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
+        return (T) mapper.map(index, r, ctx);
     }
 }

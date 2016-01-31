@@ -16,7 +16,6 @@ package org.jdbi.v3.guava;
 import static org.jdbi.v3.Types.getErasedType;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collector;
@@ -127,14 +126,8 @@ public class GuavaCollectors {
                 .build();
 
         @Override
-        public boolean accepts(Type type) {
-            return collectors.containsKey(getErasedType(type));
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public Collector<?, ?, ?> newCollector(Type type) {
-            return collectors.get(getErasedType(type));
+        public java.util.Optional<Collector<?, ?, ?>> build(Type type) {
+            return java.util.Optional.ofNullable(collectors.get(getErasedType(type)));
         }
     }
 }

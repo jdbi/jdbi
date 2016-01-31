@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.ResultSetMapperFactory;
@@ -65,22 +66,15 @@ public class TestRegisterMapperFactory
 
     public static class MyFactory implements ResultSetMapperFactory
     {
-
         @Override
-        public boolean accepts(Type type, StatementContext ctx)
-        {
-            return getErasedType(type).isAnnotationPresent(MapWith.class);
-        }
-
-        @Override
-        public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx)
-        {
-
-            MapWith rm = getErasedType(type).getAnnotation(MapWith.class);
+        public Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx) {
+            Class<?> erasedType = getErasedType(type);
             try {
-                return rm.value().newInstance();
-            }
-            catch (Exception e) {
+                MapWith mapWith = erasedType.getAnnotation(MapWith.class);
+                return mapWith == null
+                        ? Optional.empty()
+                        : Optional.of(mapWith.value().newInstance());
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }

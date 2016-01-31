@@ -11,25 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.internal;
 
-import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
-
-/**
- * Factory interface used to produce column mappers.
- */
-@FunctionalInterface
-public interface ResultColumnMapperFactory
-{
-    /**
-     * Supplies a result column mapper which will map columns to type if the factory supports it; empty otherwise.
-     *
-     * @param type the target type to map to
-     * @param ctx the statement context.
-     * @see StatementContext#findColumnMapperFor(Type)
-     */
-    Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx);
+public class JdbiStreams {
+    public static <T> Stream<T> toStream(Optional<T> optional) {
+        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
+    }
 }

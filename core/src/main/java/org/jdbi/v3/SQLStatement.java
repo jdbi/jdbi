@@ -24,7 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.Collection;
 import java.util.Map;
 
@@ -76,10 +75,10 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
                  ConcreteStatementContext ctx,
                  TimingCollector timingCollector,
                  Collection<StatementCustomizer> statementCustomizers,
-                 Foreman foreman,
+                 ArgumentRegistry argumentRegistry,
                  CollectorFactoryRegistry collectorFactoryRegistry)
     {
-        super(ctx, foreman);
+        super(ctx, argumentRegistry);
         assert verifyOurNastyDowncastIsOkay();
 
         addCustomizers(statementCustomizers);
@@ -110,9 +109,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     }
 
     @SuppressWarnings("unchecked")
-    public SelfType registerArgumentFactory(ArgumentFactory<?> argumentFactory)
+    public SelfType registerArgumentFactory(ArgumentFactory argumentFactory)
     {
-        getForeman().register(argumentFactory);
+        getArgumentRegistry().register(argumentFactory);
         return (SelfType) this;
     }
 
@@ -193,13 +192,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
     private boolean verifyOurNastyDowncastIsOkay()
     {
-        if (this.getClass().getTypeParameters().length == 0) {
-            return true;
-        }
-        else {
-            Class<?> parameterized_type = this.getClass().getTypeParameters()[0].getGenericDeclaration();
-            return parameterized_type.isAssignableFrom(this.getClass());
-        }
+        // Prevent bogus signatures like Update extends SQLStatement<Query>
+        // SQLStatement's generic parameter must be supertype of getClass()
+        return Types.findGenericParameter(getClass(), SQLStatement.class)
+                .map(Types::getErasedType)
+                .map(type -> type.isAssignableFrom(getClass()))
+                .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯
     }
 
     protected StatementBuilder getStatementBuilder()
@@ -312,7 +310,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public SelfType bindFromProperties(Object o)
     {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(o, getContext(), getForeman()));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(o, getContext(), getArgumentRegistry()));
     }
 
     /**
@@ -327,7 +325,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     public SelfType bindFromMap(Map<String, ?> args)
     {
         if (args != null) {
-            return bindNamedArgumentFinder(new MapArguments(getForeman(), getContext(), args));
+            return bindNamedArgumentFinder(new MapArguments(getArgumentRegistry(), getContext(), args));
         }
         else {
             return (SelfType) this;
@@ -359,7 +357,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Character value)
     {
-        return bind(position, getForeman().waffle(Character.class, value, getContext()));
+        return bind(position, toArgument(Character.class, value));
     }
 
     /**
@@ -372,7 +370,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Character value)
     {
-        return bind(name, getForeman().waffle(Character.class, value, getContext()));
+        return bind(name, toArgument(Character.class, value));
     }
 
     /**
@@ -385,7 +383,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, String value)
     {
-        return bind(position, getForeman().waffle(String.class, value, getContext()));
+        return bind(position, toArgument(String.class, value));
     }
 
     /**
@@ -398,7 +396,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, String value)
     {
-        return bind(name, getForeman().waffle(String.class, value, getContext()));
+        return bind(name, toArgument(String.class, value));
     }
 
     /**
@@ -411,7 +409,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, int value)
     {
-        return bind(position, getForeman().waffle(int.class, value, getContext()));
+        return bind(position, toArgument(int.class, value));
     }
 
     /**
@@ -424,7 +422,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Integer value)
     {
-        return bind(position, getForeman().waffle(Integer.class, value, getContext()));
+        return bind(position, toArgument(Integer.class, value));
     }
 
     /**
@@ -437,7 +435,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, int value)
     {
-        return bind(name, getForeman().waffle(int.class, value, getContext()));
+        return bind(name, toArgument(int.class, value));
     }
 
     /**
@@ -450,7 +448,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Integer value)
     {
-        return bind(name, getForeman().waffle(Integer.class, value, getContext()));
+        return bind(name, toArgument(Integer.class, value));
     }
 
     /**
@@ -463,7 +461,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, char value)
     {
-        return bind(position, getForeman().waffle(char.class, value, getContext()));
+        return bind(position, toArgument(char.class, value));
     }
 
     /**
@@ -476,7 +474,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, char value)
     {
-        return bind(name, getForeman().waffle(char.class, value, getContext()));
+        return bind(name, toArgument(char.class, value));
     }
 
     /**
@@ -517,7 +515,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, BigDecimal value)
     {
-        return bind(position, getForeman().waffle(BigDecimal.class, value, getContext()));
+        return bind(position, toArgument(BigDecimal.class, value));
     }
 
     /**
@@ -530,7 +528,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, BigDecimal value)
     {
-        return bind(name, getForeman().waffle(BigDecimal.class, value, getContext()));
+        return bind(name, toArgument(BigDecimal.class, value));
     }
 
     /**
@@ -570,7 +568,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Blob value)
     {
-        return bind(position, getForeman().waffle(Blob.class, value, getContext()));
+        return bind(position, toArgument(Blob.class, value));
     }
 
     /**
@@ -583,7 +581,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Blob value)
     {
-        return bind(name, getForeman().waffle(Blob.class, value, getContext()));
+        return bind(name, toArgument(Blob.class, value));
     }
 
     /**
@@ -596,7 +594,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, boolean value)
     {
-        return bind(position, getForeman().waffle(boolean.class, value, getContext()));
+        return bind(position, toArgument(boolean.class, value));
     }
 
     /**
@@ -609,7 +607,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Boolean value)
     {
-        return bind(position, getForeman().waffle(Boolean.class, value, getContext()));
+        return bind(position, toArgument(Boolean.class, value));
     }
 
     /**
@@ -622,7 +620,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, boolean value)
     {
-        return bind(name, getForeman().waffle(boolean.class, value, getContext()));
+        return bind(name, toArgument(boolean.class, value));
     }
 
     /**
@@ -635,7 +633,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Boolean value)
     {
-        return bind(name, getForeman().waffle(Boolean.class, value, getContext()));
+        return bind(name, toArgument(Boolean.class, value));
     }
 
     /**
@@ -648,7 +646,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, byte value)
     {
-        return bind(position, getForeman().waffle(byte.class, value, getContext()));
+        return bind(position, toArgument(byte.class, value));
     }
 
     /**
@@ -661,7 +659,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Byte value)
     {
-        return bind(position, getForeman().waffle(Byte.class, value, getContext()));
+        return bind(position, toArgument(Byte.class, value));
     }
 
     /**
@@ -674,7 +672,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, byte value)
     {
-        return bind(name, getForeman().waffle(byte.class, value, getContext()));
+        return bind(name, toArgument(byte.class, value));
     }
 
     /**
@@ -687,7 +685,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Byte value)
     {
-        return bind(name, getForeman().waffle(Byte.class, value, getContext()));
+        return bind(name, toArgument(Byte.class, value));
     }
 
     /**
@@ -700,7 +698,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, byte[] value)
     {
-        return bind(position, getForeman().waffle(byte[].class, value, getContext()));
+        return bind(position, toArgument(byte[].class, value));
     }
 
     /**
@@ -713,7 +711,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, byte[] value)
     {
-        return bind(name, getForeman().waffle(byte[].class, value, getContext()));
+        return bind(name, toArgument(byte[].class, value));
     }
 
     /**
@@ -755,7 +753,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Clob value)
     {
-        return bind(position, getForeman().waffle(Clob.class, value, getContext()));
+        return bind(position, toArgument(Clob.class, value));
     }
 
     /**
@@ -768,7 +766,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Clob value)
     {
-        return bind(name, getForeman().waffle(Clob.class, value, getContext()));
+        return bind(name, toArgument(Clob.class, value));
     }
 
     /**
@@ -781,7 +779,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, java.sql.Date value)
     {
-        return bind(position, getForeman().waffle(java.sql.Date.class, value, getContext()));
+        return bind(position, toArgument(java.sql.Date.class, value));
     }
 
     /**
@@ -794,7 +792,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, java.sql.Date value)
     {
-        return bind(name, getForeman().waffle(java.sql.Date.class, value, getContext()));
+        return bind(name, toArgument(java.sql.Date.class, value));
     }
 
     /**
@@ -807,7 +805,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, java.util.Date value)
     {
-        return bind(position, getForeman().waffle(java.util.Date.class, value, getContext()));
+        return bind(position, toArgument(java.util.Date.class, value));
     }
 
     /**
@@ -820,7 +818,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, java.util.Date value)
     {
-        return bind(name, getForeman().waffle(java.util.Date.class, value, getContext()));
+        return bind(name, toArgument(java.util.Date.class, value));
     }
 
     /**
@@ -833,7 +831,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, double value)
     {
-        return bind(position, getForeman().waffle(double.class, value, getContext()));
+        return bind(position, toArgument(double.class, value));
     }
 
     /**
@@ -846,7 +844,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Double value)
     {
-        return bind(position, getForeman().waffle(Double.class, value, getContext()));
+        return bind(position, toArgument(Double.class, value));
     }
 
     /**
@@ -859,7 +857,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, double value)
     {
-        return bind(name, getForeman().waffle(double.class, value, getContext()));
+        return bind(name, toArgument(double.class, value));
     }
 
     /**
@@ -872,7 +870,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Double value)
     {
-        return bind(name, getForeman().waffle(Double.class, value, getContext()));
+        return bind(name, toArgument(Double.class, value));
     }
 
     /**
@@ -885,7 +883,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, float value)
     {
-        return bind(position, getForeman().waffle(float.class, value, getContext()));
+        return bind(position, toArgument(float.class, value));
     }
 
     /**
@@ -898,7 +896,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Float value)
     {
-        return bind(position, getForeman().waffle(Float.class, value, getContext()));
+        return bind(position, toArgument(Float.class, value));
     }
 
     /**
@@ -911,7 +909,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, float value)
     {
-        return bind(name, getForeman().waffle(float.class, value, getContext()));
+        return bind(name, toArgument(float.class, value));
     }
 
     /**
@@ -924,7 +922,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Float value)
     {
-        return bind(name, getForeman().waffle(Float.class, value, getContext()));
+        return bind(name, toArgument(Float.class, value));
     }
 
     /**
@@ -937,7 +935,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, long value)
     {
-        return bind(position, getForeman().waffle(long.class, value, getContext()));
+        return bind(position, toArgument(long.class, value));
     }
 
     /**
@@ -950,12 +948,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Long value)
     {
-        if (value != null) {
-            return bind(position, getForeman().waffle(Long.class, value, getContext()));
-        }
-        else {
-            return bind(position, new NullArgument(Types.BIGINT));
-        }
+        return bind(position, toArgument(Long.class, value));
     }
 
     /**
@@ -968,7 +961,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, long value)
     {
-        return bind(name, getForeman().waffle(long.class, value, getContext()));
+        return bind(name, toArgument(long.class, value));
     }
 
     /**
@@ -981,7 +974,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Long value)
     {
-        return bind(name, getForeman().waffle(Long.class, value, getContext()));
+        return bind(name, toArgument(Long.class, value));
     }
 
     /**
@@ -994,7 +987,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Short value)
     {
-        return bind(position, getForeman().waffle(Short.class, value, getContext()));
+        return bind(position, toArgument(Short.class, value));
     }
 
     /**
@@ -1007,7 +1000,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, short value)
     {
-        return bind(position, getForeman().waffle(short.class, value, getContext()));
+        return bind(position, toArgument(short.class, value));
     }
 
     /**
@@ -1020,7 +1013,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, short value)
     {
-        return bind(name, getForeman().waffle(short.class, value, getContext()));
+        return bind(name, toArgument(short.class, value));
     }
 
     /**
@@ -1033,7 +1026,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Short value)
     {
-        return bind(name, getForeman().waffle(short.class, value, getContext()));
+        return bind(name, toArgument(short.class, value));
     }
 
     /**
@@ -1046,7 +1039,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Object value)
     {
-        return bind(position, getForeman().waffle(value == null ? Object.class : value.getClass(), value, getContext()));
+        return bind(position, toArgument(value));
     }
 
     /**
@@ -1059,7 +1052,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Object value)
     {
-        return bind(name, getForeman().waffle(value == null ? Object.class : value.getClass(), value, getContext()));
+        return bind(name, toArgument(value));
     }
 
     /**
@@ -1072,7 +1065,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Time value)
     {
-        return bind(position, getForeman().waffle(Time.class, value, getContext()));
+        return bind(position, toArgument(Time.class, value));
     }
 
     /**
@@ -1085,7 +1078,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Time value)
     {
-        return bind(name, getForeman().waffle(Time.class, value, getContext()));
+        return bind(name, toArgument(Time.class, value));
     }
 
     /**
@@ -1098,7 +1091,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, Timestamp value)
     {
-        return bind(position, getForeman().waffle(Timestamp.class, value, getContext()));
+        return bind(position, toArgument(Timestamp.class, value));
     }
 
     /**
@@ -1111,7 +1104,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, Timestamp value)
     {
-        return bind(name, getForeman().waffle(Timestamp.class, value, getContext()));
+        return bind(name, toArgument(Timestamp.class, value));
     }
 
     /**
@@ -1124,7 +1117,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(int position, URL value)
     {
-        return bind(position, getForeman().waffle(URL.class, value, getContext()));
+        return bind(position, toArgument(URL.class, value));
     }
 
     /**
@@ -1137,7 +1130,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType bind(String name, URL value)
     {
-        return bind(name, getForeman().waffle(URL.class, value, getContext()));
+        return bind(name, toArgument(URL.class, value));
     }
 
     /**
@@ -1151,7 +1144,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(Type argumentType, int position, Object value)
     {
-        return bind(position, getForeman().waffle(argumentType, value, getContext()));
+        return bind(position, toArgument(argumentType, value));
     }
 
     /**
@@ -1179,7 +1172,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     public final SelfType dynamicBind(Type argumentType, String name, Object value)
     {
-        return bind(name, getForeman().waffle(argumentType, value, getContext()));
+        return bind(name, toArgument(argumentType, value));
     }
 
     /**
@@ -1194,6 +1187,15 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     public final SelfType dynamicBind(GenericType<?> argumentType, String name, Object value)
     {
         return dynamicBind(argumentType.getType(), name, value);
+    }
+
+    private Argument toArgument(Object value) {
+        return toArgument(value == null ? Object.class : value.getClass(), value);
+    }
+
+    private Argument toArgument(Type expectedType, Object value) {
+        return getArgumentRegistry().findArgumentFor(expectedType, value, getContext())
+                .orElseThrow(() -> new IllegalStateException("Unbindable argument passed: " + value));
     }
 
     /**

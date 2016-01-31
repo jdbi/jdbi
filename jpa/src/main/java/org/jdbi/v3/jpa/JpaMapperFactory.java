@@ -16,19 +16,20 @@ package org.jdbi.v3.jpa;
 import static org.jdbi.v3.Types.getErasedType;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
+
+import javax.persistence.Entity;
 
 import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.tweak.ResultSetMapper;
 
 public class JpaMapperFactory implements ResultSetMapperFactory {
-
     @Override
-    public boolean accepts(Type type, StatementContext ctx) {
-        return JpaMapper.accept(getErasedType(type));
-    }
-
-    @Override
-    public JpaMapper<?> mapperFor(Type type, StatementContext ctx) {
-        return JpaMapper.get(getErasedType(type));
+    public Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx) {
+        Class<?> clazz = getErasedType(type);
+        return clazz.isAnnotationPresent(Entity.class)
+                ? Optional.of(new JpaMapper<>(clazz))
+                : Optional.empty();
     }
 }

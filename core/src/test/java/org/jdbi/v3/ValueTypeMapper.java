@@ -19,6 +19,7 @@ import static org.jdbi.v3.Types.getErasedType;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 
@@ -32,13 +33,10 @@ public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
 
     public static class Factory implements ResultColumnMapperFactory {
         @Override
-        public boolean accepts(Type type, StatementContext ctx) {
-            return ValueType.class.isAssignableFrom(getErasedType(type));
-        }
-
-        @Override
-        public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
-            return new ValueTypeMapper();
+        public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
+            return ValueType.class.isAssignableFrom(getErasedType(type))
+                    ? Optional.of(new ValueTypeMapper())
+                    : Optional.empty();
         }
     }
 }

@@ -297,7 +297,7 @@ public interface Handle extends Closeable
      */
     TransactionIsolationLevel getTransactionIsolationLevel();
 
-    void registerArgumentFactory(ArgumentFactory<?> argumentFactory);
+    void registerArgumentFactory(ArgumentFactory argumentFactory);
 
     void registerCollectorFactory(CollectorFactory factory);
 }
