@@ -29,7 +29,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.sqlobject.helpers.MapResultAsBean;
+import org.jdbi.v3.sqlobject.helpers.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.Rule;
@@ -88,7 +88,7 @@ public class TestRegisteredMappersWork
         void insertBean(@BindBean Bean bean);
 
         @SqlQuery("select name, color from beans where name = :name")
-        @MapResultAsBean
+        @RegisterBeanMapper(Bean.class)
         Bean findByName(@Bind("name") String name);
     }
 

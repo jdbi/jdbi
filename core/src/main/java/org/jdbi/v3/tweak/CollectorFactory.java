@@ -14,27 +14,20 @@
 package org.jdbi.v3.tweak;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 import java.util.stream.Collector;
 
 /**
  * Factory for building containers of elements.
  * The collector produces only objects of the type of the container elements.
  */
+@FunctionalInterface
 public interface CollectorFactory {
-
     /**
-     * Whether the corresponding collector produces results of the given type.
+     * Supplies a {@link Collector} for the given container type if the factory supports it; empty otherwise.
      *
-     * @param type the object type
-     * @return {@code true}, if accepts, otherwise {@code false}
+     * @param type the type of the container
+     * @see org.jdbi.v3.StatementContext#findCollectorFor(Type)
      */
-    boolean accepts(Type type);
-
-    /**
-     * Builds a new {@link Collector}.
-     *
-     * @param type the actual type of the container
-     * @return the {@link Collector}
-     */
-    Collector<?, ?, ?> newCollector(Type type);
+    Optional<Collector<?, ?, ?>> build(Type type);
 }

@@ -27,7 +27,6 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertEquals;
 
 public class TestOptional {
@@ -162,15 +161,14 @@ public class TestOptional {
         }
     }
 
-    class NameArgumentFactory implements ArgumentFactory<Name> {
+    class NameArgumentFactory implements ArgumentFactory {
         @Override
-        public boolean accepts(Type expectedType, Object value, StatementContext ctx) {
-            return getErasedType(expectedType) == Name.class;
-        }
-
-        @Override
-        public Argument build(Type expectedType, Name value, StatementContext ctx) {
-            return (pos, stmt, c) -> stmt.setString(pos, value.value);
+        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+            if (expectedType == Name.class) {
+                Name nameValue = (Name) value;
+                return Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));
+            }
+            return Optional.empty();
         }
     }
 

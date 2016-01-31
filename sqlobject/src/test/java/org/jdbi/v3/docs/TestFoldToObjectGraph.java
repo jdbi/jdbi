@@ -28,7 +28,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.helpers.MapResultAsBean;
+import org.jdbi.v3.sqlobject.helpers.RegisterBeanMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -95,7 +95,7 @@ public class TestFoldToObjectGraph
                   "       p.name as personName, " +
                   "       p.role as role " +
                   "from team t inner join person p on (t.name = p.team)")
-        @MapResultAsBean
+        @RegisterBeanMapper(TeamPersonJoinRow.class)
         public abstract Iterator<TeamPersonJoinRow> findAllTeamsAndPeople();
 
         public Map<String, Team> findAllTeams()

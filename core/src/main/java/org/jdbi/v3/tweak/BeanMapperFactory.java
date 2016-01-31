@@ -16,6 +16,10 @@ package org.jdbi.v3.tweak;
 import static org.jdbi.v3.Types.getErasedType;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import org.jdbi.v3.BeanMapper;
 import org.jdbi.v3.ResultSetMapperFactory;
@@ -23,15 +27,20 @@ import org.jdbi.v3.StatementContext;
 
 public class BeanMapperFactory implements ResultSetMapperFactory
 {
-    @Override
-    public boolean accepts(Type type, StatementContext ctx)
-    {
-        return ctx.columnMapperFor(type) == null;
+    private final List<Class<?>> beanClasses;
+
+    public BeanMapperFactory(Class<?>... beanClasses) {
+        this(Arrays.asList(beanClasses));
+    }
+
+    public BeanMapperFactory(List<Class<?>> beanClasses) {
+        this.beanClasses = new ArrayList<>(beanClasses);
     }
 
     @Override
-    public ResultSetMapper<?> mapperFor(Type type, StatementContext ctx)
-    {
-        return new BeanMapper<>(getErasedType(type));
+    public Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx) {
+        return Optional.of(getErasedType(type))
+                .filter(beanClasses::contains)
+                .map(BeanMapper::new);
     }
 }

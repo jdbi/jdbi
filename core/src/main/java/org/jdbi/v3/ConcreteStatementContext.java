@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 
@@ -33,7 +34,7 @@ public final class ConcreteStatementContext implements StatementContext
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
     private final Map<String, Object>        attributes = new HashMap<>();
     private final MappingRegistry mappingRegistry;
-    private final Foreman foreman;
+    private final ArgumentRegistry argumentRegistry;
     private final CollectorFactoryRegistry collectors;
 
     private String            rawSql;
@@ -50,14 +51,14 @@ public final class ConcreteStatementContext implements StatementContext
 
     /* visible for testing */
     ConcreteStatementContext() {
-        this(new HashMap<>(), new MappingRegistry(), new Foreman(), new CollectorFactoryRegistry());
+        this(new HashMap<>(), new MappingRegistry(), new ArgumentRegistry(), new CollectorFactoryRegistry());
     }
 
-    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry, Foreman foreman, CollectorFactoryRegistry collectors)
+    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry, ArgumentRegistry argumentRegistry, CollectorFactoryRegistry collectors)
     {
         attributes.putAll(globalAttributes);
         this.mappingRegistry = mappingRegistry;
-        this.foreman = foreman;
+        this.argumentRegistry = argumentRegistry;
         this.collectors = collectors;
     }
 
@@ -101,19 +102,19 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public ResultColumnMapper<?> columnMapperFor(Type type)
+    public Optional<ResultColumnMapper<?>> findColumnMapperFor(Type type)
     {
-        return mappingRegistry.columnMapperFor(type, this);
+        return mappingRegistry.findColumnMapperFor(type, this);
     }
 
     @Override
-    public Argument argumentFor(Type type, Object value) {
-        return foreman.waffle(type, value, this);
+    public Optional<Argument> findArgumentFor(Type type, Object value) {
+        return argumentRegistry.findArgumentFor(type, value, this);
     }
 
     @Override
-    public Collector<?, ?, ?> collectorFor(Type type) {
-        return collectors.createCollectorFor(type);
+    public Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
+        return collectors.findCollectorFor(type);
     }
 
     void setRawSql(String rawSql)

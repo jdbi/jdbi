@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.tweak.Argument;
@@ -28,7 +29,7 @@ public class TestingStatementContext implements StatementContext
 {
     private final Map<String, Object> attributes;
     private final MappingRegistry mappers = new MappingRegistry();
-    private final Foreman foreman = new Foreman();
+    private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
     private final CollectorFactoryRegistry collectors = new CollectorFactoryRegistry();
 
     public TestingStatementContext(final Map<String, Object> globalAttributes)
@@ -55,18 +56,18 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public ResultColumnMapper<?> columnMapperFor(Type type) {
-        return mappers.columnMapperFor(type, this);
+    public Optional<ResultColumnMapper<?>> findColumnMapperFor(Type type) {
+        return mappers.findColumnMapperFor(type, this);
     }
 
     @Override
-    public Argument argumentFor(Type type, Object value) {
-        return foreman.waffle(type, value, this);
+    public Optional<Argument> findArgumentFor(Type type, Object value) {
+        return argumentRegistry.findArgumentFor(type, value, this);
     }
 
     @Override
-    public Collector<?, ?, ?> collectorFor(Type type) {
-        return collectors.createCollectorFor(type);
+    public Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
+        return collectors.findCollectorFor(type);
     }
 
     @Override

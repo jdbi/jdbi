@@ -24,7 +24,5 @@ This file describes the changes expected in some eventual 3.0 release.
 * Remove ArgumentFactory<T> generic parameter T.
 * StatementContext: overload columnMapperFor, argumentFor, and/or collectorFor with variants that take Class<T> and GenericType<T>?
   * Not much to be gained by overloading argumentFor, other than to help out folks who don't know that Class IS_A Type.
-* Rename Foreman to ArgumentRegistry?
-* Coalesce MappingRegistry, Foreman, and CollectorFactoryRegistry into a single type? They tend to get passed around together everywhere.
-* Coalesce `accepts` and `build/mapperFor/columnMapperFor/newCollector` methods in factory classes into a single method that returns an Optional? Would make factories more lambda-friendly. 
+* Coalesce MappingRegistry, ArgumentRegistry, and CollectorFactoryRegistry into a single type? They tend to get passed around together everywhere.
 * Migrate sqlobject from Classmate ResolvedType to Guava TypeToken?

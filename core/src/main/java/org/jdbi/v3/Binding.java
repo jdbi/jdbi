@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3;
 
+import static org.jdbi.v3.internal.JdbiStreams.toStream;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
@@ -41,19 +44,14 @@ public class Binding
      *
      * @return the bound Argument
      */
-    public Argument forName(String name) {
+    public Optional<Argument> findForName(String name) {
         if (named.containsKey(name)) {
-            return named.get(name);
+            return Optional.of(named.get(name));
         }
-        else {
-            for (NamedArgumentFinder arguments : namedArgumentFinder) {
-                Argument arg = arguments.find(name);
-                if (arg != null) {
-                    return arg;
-                }
-            }
-        }
-        return null;
+
+        return namedArgumentFinder.stream()
+                .flatMap(arguments -> toStream(arguments.find(name)))
+                .findFirst();
     }
 
     /**
@@ -63,8 +61,8 @@ public class Binding
      *
      * @return argument bound to that position
      */
-    public Argument forPosition(int position) {
-        return positionals.get(position);
+    public Optional<Argument> findForPosition(int position) {
+        return Optional.ofNullable(positionals.get(position));
     }
 
     void addNamed(String name, Argument argument) {

@@ -25,20 +25,22 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.util.EnumMapper;
 
 /**
- * Result column mapper factory which knows how to map standard JDBC-recognized types.
+ * Result column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
+ * from the JDK.
  */
-public class PrimitivesMapperFactory implements ResultColumnMapperFactory {
+public class BuiltInMapperFactory implements ResultColumnMapperFactory {
     private static final Map<Class<?>, ResultColumnMapper<?>> mappers = new HashMap<>();
 
     static {
         mappers.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
         mappers.put(byte.class, primitiveMapper(ResultSet::getByte));
-        mappers.put(char.class, primitiveMapper(PrimitivesMapperFactory::getChar));
+        mappers.put(char.class, primitiveMapper(BuiltInMapperFactory::getChar));
         mappers.put(short.class, primitiveMapper(ResultSet::getShort));
         mappers.put(int.class, primitiveMapper(ResultSet::getInt));
         mappers.put(long.class, primitiveMapper(ResultSet::getLong));
@@ -47,7 +49,7 @@ public class PrimitivesMapperFactory implements ResultColumnMapperFactory {
 
         mappers.put(Boolean.class, referenceMapper(ResultSet::getBoolean));
         mappers.put(Byte.class, referenceMapper(ResultSet::getByte));
-        mappers.put(Character.class, referenceMapper(PrimitivesMapperFactory::getCharacter));
+        mappers.put(Character.class, referenceMapper(BuiltInMapperFactory::getCharacter));
         mappers.put(Short.class, referenceMapper(ResultSet::getShort));
         mappers.put(Integer.class, referenceMapper(ResultSet::getInt));
         mappers.put(Long.class, referenceMapper(ResultSet::getLong));
@@ -63,24 +65,17 @@ public class PrimitivesMapperFactory implements ResultColumnMapperFactory {
         mappers.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
 
         mappers.put(URL.class, referenceMapper(ResultSet::getURL));
-        mappers.put(URI.class, referenceMapper(PrimitivesMapperFactory::getURI));
+        mappers.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
     }
 
     @Override
-    public boolean accepts(Type type, StatementContext ctx) {
-        Class<?> rawType = getErasedType(type);
-        return rawType.isEnum() || mappers.containsKey(rawType);
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    public ResultColumnMapper<?> columnMapperFor(Type type, StatementContext ctx) {
+    public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
         Class<?> rawType = getErasedType(type);
         if (rawType.isEnum()) {
-            return EnumMapper.byName(
-                    (Class<? extends Enum>) rawType.asSubclass(Enum.class));
+            return Optional.of(EnumMapper.byName((Class<? extends Enum>) rawType));
         }
-        return mappers.get(rawType);
+
+        return Optional.ofNullable(mappers.get(type));
     }
 
     @FunctionalInterface

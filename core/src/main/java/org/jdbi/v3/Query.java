@@ -54,10 +54,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           TimingCollector timingCollector,
           Collection<StatementCustomizer> customizers,
           MappingRegistry mappingRegistry,
-          Foreman foreman,
+          ArgumentRegistry argumentRegistry,
           CollectorFactoryRegistry collectorFactoryRegistry)
     {
-        super(params, locator, statementRewriter, handle, cache, sql, ctx, timingCollector, customizers, foreman,
+        super(params, locator, statementRewriter, handle, cache, sql, ctx, timingCollector, customizers, argumentRegistry,
                 collectorFactoryRegistry);
         this.mapper = mapper;
         this.mappingRegistry = mappingRegistry;
@@ -163,8 +163,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getTimingCollector(),
                             getStatementCustomizers(),
                             MappingRegistry.copyOf(mappingRegistry),
-                            getForeman().createChild(),
-                            getCollectorFactoryRegistry().createChild());
+                            ArgumentRegistry.copyOf(getArgumentRegistry()),
+                            CollectorFactoryRegistry.copyOf(getCollectorFactoryRegistry()));
     }
 
     /**

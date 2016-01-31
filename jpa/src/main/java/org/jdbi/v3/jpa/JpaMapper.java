@@ -19,7 +19,6 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.Entity;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -31,16 +30,7 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
     private final Class<C> clazz;
     private final JpaClass<C> jpaClass;
 
-    public static boolean accept(Class<?> clazz) {
-        logger.debug("accept {}", clazz);
-        return clazz.getAnnotation(Entity.class) != null;
-    }
-
-    public static <C> JpaMapper<C> get(Class<C> clazz) {
-        return new JpaMapper<C>(clazz);
-    }
-
-    private JpaMapper(Class<C> clazz) {
+    JpaMapper(Class<C> clazz) {
         logger.debug("init {}", clazz);
         this.clazz = clazz;
         this.jpaClass = JpaClass.get(clazz);
@@ -69,10 +59,8 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
             JpaMember member = jpaClass.lookupMember(columnLabel);
             if (member != null) {
                 Type memberType = member.getType();
-                ResultColumnMapper<?> columnMapper = ctx.columnMapperFor(memberType);
-                if (columnMapper == null) {
-                    throw new NoSuchColumnMapperException("No column mapper for " + memberType);
-                }
+                ResultColumnMapper<?> columnMapper = ctx.findColumnMapperFor(memberType)
+                        .orElseThrow(() -> new NoSuchColumnMapperException("No column mapper for " + memberType));
                 Object value = columnMapper.mapColumn(rs, columnLabel, ctx);
                 member.write(obj, value);
             }

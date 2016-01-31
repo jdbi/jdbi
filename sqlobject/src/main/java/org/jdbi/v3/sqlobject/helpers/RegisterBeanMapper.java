@@ -19,6 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import org.jdbi.v3.Query;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
@@ -27,20 +28,33 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.tweak.BeanMapperFactory;
 
 @Retention(RetentionPolicy.RUNTIME)
-@SqlStatementCustomizingAnnotation(MapResultAsBean.MapAsBeanFactory.class)
-@Target(ElementType.METHOD)
-public @interface MapResultAsBean
+@SqlStatementCustomizingAnnotation(RegisterBeanMapper.Factory.class)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface RegisterBeanMapper
 {
+    /**
+     * The bean classes to map with BeanMapper.
+     */
+    Class<?>[] value();
 
-    class MapAsBeanFactory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
+            return create((RegisterBeanMapper) annotation);
+        }
 
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return s -> {
-                Query<?> q = (Query<?>) s;
-                q.registerMapper(new BeanMapperFactory());
+            return create((RegisterBeanMapper) annotation);
+        }
+
+        private SqlStatementCustomizer create(RegisterBeanMapper annotation) {
+            RegisterBeanMapper registerBeanMapper = annotation;
+            return statement -> {
+                Query<?> query = (Query<?>) statement;
+                query.registerMapper(new BeanMapperFactory(registerBeanMapper.value()));
             };
         }
     }

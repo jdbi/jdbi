@@ -21,6 +21,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -84,7 +85,9 @@ public class TestBindExpression
                 return q -> q.bindNamedArgumentFinder(name -> {
                     Expression e = engine.createExpression(name);
                     final Object it = e.evaluate(new MapContext(ImmutableMap.of(root_name, root)));
-                    return it == null ? null : (position, statement, ctx) -> statement.setObject(position, it);
+                    return it == null
+                            ? Optional.empty()
+                            : Optional.of((position, statement, ctx) -> statement.setObject(position, it));
                 });
             }
         }

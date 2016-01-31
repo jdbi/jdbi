@@ -63,12 +63,12 @@ public class TestBindBeanFactory
             StatementContext context = testStatement.getContext();
             Binding binding = context.getBinding();
 
-            binding.forName("ALong").apply(1, stmt, null);
-            binding.forName("ARealBoolean").apply(2, stmt, null);
-            binding.forName("ANullBoolean").apply(3, stmt, null);
-            binding.forName("AString").apply(4, stmt, null);
-            binding.forName("AFoo").apply(5, stmt, null);
-            binding.forName("AShort").apply(6, stmt, null);
+            binding.findForName("ALong").get().apply(1, stmt, null);
+            binding.findForName("ARealBoolean").get().apply(2, stmt, null);
+            binding.findForName("ANullBoolean").get().apply(3, stmt, null);
+            binding.findForName("AString").get().apply(4, stmt, null);
+            binding.findForName("AFoo").get().apply(5, stmt, null);
+            binding.findForName("AShort").get().apply(6, stmt, null);
         }
 
         verify(stmt).setLong(1, testBean.getALong());

@@ -19,6 +19,7 @@ import static org.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
 import static org.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
 import static org.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
 import static org.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
+import static org.jdbi.v3.internal.JdbiOptionals.findFirstPresent;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.WeakHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
@@ -127,10 +129,10 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                 // no named params, is easy
                 boolean finished = false;
                 for (int i = 0; !finished; ++i) {
-                    final Argument a = params.forPosition(i);
-                    if (a != null) {
+                    final Optional<Argument> a = params.findForPosition(i);
+                    if (a.isPresent()) {
                         try {
-                        a.apply(i + 1, statement, this.context);
+                        a.get().apply(i + 1, statement, this.context);
                         }
                         catch (SQLException e) {
                             throw new UnableToExecuteStatementException(
@@ -150,18 +152,17 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                     if ("*".equals(named_param)) {
                         continue;
                     }
-                    Argument a = params.forName(named_param);
-                    if (a == null) {
-                        a = params.forPosition(i);
-                    }
-
-                    if (a == null) {
-                        String msg = String.format("Unable to execute, no named parameter matches " +
-                                                   "\"%s\" and no positional param for place %d (which is %d in " +
-                                                   "the JDBC 'start at 1' scheme) has been set.",
-                                                   named_param, i, i + 1);
-                        throw new UnableToExecuteStatementException(msg, context);
-                    }
+                    final int index = i;
+                    Argument a = findFirstPresent(
+                            () -> params.findForName(named_param),
+                            () -> params.findForPosition(index))
+                            .orElseThrow(() -> {
+                                String msg = String.format("Unable to execute, no named parameter matches " +
+                                                "\"%s\" and no positional param for place %d (which is %d in " +
+                                                "the JDBC 'start at 1' scheme) has been set.",
+                                        named_param, index, index + 1);
+                                return new UnableToExecuteStatementException(msg, context);
+                            });
 
                     try {
                         a.apply(i + 1, statement, this.context);
