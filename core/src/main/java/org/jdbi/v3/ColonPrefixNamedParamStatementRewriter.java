@@ -19,6 +19,7 @@ import static org.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
 import static org.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
 import static org.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
 import static org.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
+import static org.jdbi.v3.internal.JdbiOptionals.findFirstPresent;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -28,14 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
-import java.util.stream.Stream;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.rewriter.colon.ColonStatementLexer;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.internal.JdbiStreams;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementRewriter;
@@ -154,10 +153,9 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
                         continue;
                     }
                     final int index = i;
-                    Argument a = Stream.concat(
-                            JdbiStreams.toStream(params.findForName(named_param)),
-                            JdbiStreams.toStream(params.findForPosition(i)))
-                            .findFirst()
+                    Argument a = findFirstPresent(
+                            () -> params.findForName(named_param),
+                            () -> params.findForPosition(index))
                             .orElseThrow(() -> {
                                 String msg = String.format("Unable to execute, no named parameter matches " +
                                                 "\"%s\" and no positional param for place %d (which is %d in " +

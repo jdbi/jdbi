@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -34,7 +34,7 @@ import org.jdbi.v3.tweak.CollectorFactory;
  */
 class CollectorFactoryRegistry {
 
-    private final Set<CollectorFactory> factories = new CopyOnWriteArraySet<>();
+    private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
 
     CollectorFactoryRegistry() {
         factories.add(new ListCollectorFactory<>());
@@ -42,8 +42,12 @@ class CollectorFactoryRegistry {
         factories.add(new SetCollectorFactory<>());
     }
 
+    private CollectorFactoryRegistry(CollectorFactoryRegistry that) {
+        factories.addAll(that.factories);
+    }
+
     void register(CollectorFactory factory) {
-        factories.add(factory);
+        factories.add(0, factory);
     }
 
     Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
@@ -53,9 +57,7 @@ class CollectorFactoryRegistry {
     }
 
     static CollectorFactoryRegistry copyOf(CollectorFactoryRegistry registry) {
-        CollectorFactoryRegistry newRegistry = new CollectorFactoryRegistry();
-        newRegistry.factories.addAll(registry.factories);
-        return newRegistry;
+        return new CollectorFactoryRegistry(registry);
     }
 
     private static class SortedSetCollectorFactory<T> implements CollectorFactory {
