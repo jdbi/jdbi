@@ -82,7 +82,7 @@
         <project.build.targetJdk>1.8</project.build.targetJdk>
         <basepom.maven.version>2.0.9</basepom.maven.version>
         <dep.antlr.version>3.4</dep.antlr.version>
-        <dep.spring.version>2.0.1</dep.spring.version>
+        <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
         <basepom.test.fork-count>8</basepom.test.fork-count>
@@ -177,7 +177,28 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${dep.spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${dep.spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${dep.spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
                 <version>${dep.spring.version}</version>
                 <optional>true</optional>
             </dependency>
@@ -197,7 +218,7 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-mock</artifactId>
+                <artifactId>spring-test</artifactId>
                 <version>${dep.spring.version}</version>
             </dependency>
 
@@ -227,7 +248,7 @@
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
+                <version>1.2</version>
             </dependency>
 
             <dependency>

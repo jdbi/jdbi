@@ -13,41 +13,50 @@
  */
 package org.jdbi.v3.spring;
 
-import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContextTests
-{
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-    protected Service service;
-    protected DataSource ds;
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/org/jdbi/v3/spring/test-context.xml")
+@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class})
+public class TestDBIFactoryBean {
 
+    private Service service;
+    private DataSource ds;
+
+    @Autowired
     public void setService(Service service)
     {
         this.service = service;
     }
 
-    public void setDataSource(DataSource ds) throws SQLException
+    @Autowired
+    public void setDataSource(DataSource ds)
     {
         this.ds = ds;
     }
 
-    @Override
-    protected String[] getConfigLocations()
-    {
-        return new String[]{"org/jdbi/v3/spring/test-context.xml"};
-    }
-
+    @Test
     public void testServiceIsActuallySet() throws Exception
     {
         assertNotNull(service);
     }
 
+    @Test
     public void testFailsViaException() throws Exception
     {
         try {
@@ -76,6 +85,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
         }
     }
 
+    @Test
     public void testNested() throws Exception
     {
         try {
@@ -114,6 +124,7 @@ public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContext
         });
     }
 
+    @Test
     public void testRequiresNew() throws Exception
     {
         service.inPropagationRequired(outer -> {
