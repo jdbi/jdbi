@@ -49,12 +49,6 @@ public class TestVariousOddities
     }
 
     @Test
-    public void testRegisteredMappersWork() throws Exception
-    {
-
-    }
-
-    @Test
     public void testEquals()
     {
         Spiffy s1 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);

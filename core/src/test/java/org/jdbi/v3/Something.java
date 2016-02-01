@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3;
 
+import java.util.Objects;
+
 /**
  *
  */
@@ -92,9 +94,7 @@ public class Something
         if (intValue != something.intValue) return false;
         if (integerValue != null ? !integerValue.equals(something.integerValue) : something.integerValue != null)
             return false;
-        if (name != null ? !name.equals(something.name) : something.name != null) return false;
-
-        return true;
+        return Objects.equals(name, something.name);
     }
 
     @Override

@@ -32,7 +32,7 @@ public class Batch extends BaseStatement
 {
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
-    private final List<String> parts = new ArrayList<String>();
+    private final List<String> parts = new ArrayList<>();
     private final StatementRewriter rewriter;
     private final Connection connection;
     private final TimingCollector timingCollector;
@@ -84,7 +84,7 @@ public class Batch extends BaseStatement
         }
 
         Binding empty = new Binding();
-        Statement stmt = null;
+        Statement stmt;
         try
         {
             try

@@ -121,7 +121,7 @@ public class TestCreateSqlObjectAnnotation
         db.getDbi().open(BogusSqlUpdateDao.class);
     }
 
-    public static interface BogusSqlUpdateDao {
+    public interface BogusSqlUpdateDao {
         @SqlUpdate("select name from something")
         List<String> getNames();
     }
@@ -135,8 +135,8 @@ public class TestCreateSqlObjectAnnotation
         db.getDbi().open(BogusSqlBatchDao.class);
     }
 
-    public static interface BogusSqlBatchDao {
+    public interface BogusSqlBatchDao {
         @SqlBatch("insert into table (a) values (:a)")
-        public int getNames(@Bind("a") String a);
+        int getNames(@Bind("a") String a);
     }
 }

@@ -260,7 +260,7 @@ public class TestOnDemandSqlObject
 
     static class HandleTracker implements JdbiPlugin
     {
-        final List<Handle> openedHandle = new ArrayList<Handle>();
+        final List<Handle> openedHandle = new ArrayList<>();
 
         @Override
         public Handle customizeHandle(Handle handle) {

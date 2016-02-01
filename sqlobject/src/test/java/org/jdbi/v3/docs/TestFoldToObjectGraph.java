@@ -119,7 +119,7 @@ public class TestFoldToObjectGraph
     {
         private final String name;
         private final String mascot;
-        private final Set<Person> people = new LinkedHashSet<Person>();
+        private final Set<Person> people = new LinkedHashSet<>();
 
         public Team(String name, String mascot)
         {

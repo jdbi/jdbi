@@ -26,7 +26,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class DBIUtil
 {
-    private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<Handle>();
+    private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<>();
 
     /**
      * Obtain a Handle instance, either the transactionally bound one if we are in a transaction,

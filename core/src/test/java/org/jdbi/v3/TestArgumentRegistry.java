@@ -46,7 +46,7 @@ public class TestArgumentRegistry
     @Test
     public void testWaffleLong() throws Exception
     {
-        argumentRegistry.findArgumentFor(Object.class, new Long(3L), null).get().apply(1, stmt, null);
+        argumentRegistry.findArgumentFor(Object.class, 3L, null).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 
@@ -65,7 +65,7 @@ public class TestArgumentRegistry
 
     @Test
     public void testExplicitWaffleLong() throws Exception {
-        argumentRegistry.findArgumentFor(Long.class, new Long(3L), null).get().apply(1, stmt, null);
+        argumentRegistry.findArgumentFor(Long.class, 3L, null).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 

@@ -25,11 +25,6 @@ import org.jdbi.v3.sqlobject.TestBeanBinder;
 public class PrivateImplementationFactory
 {
     public static TestBeanBinder.PublicInterface create() {
-        return new TestBeanBinder.PublicInterface(){
-            @Override
-            public String getValue() {
-                return "IShouldBind";
-            }
-        };
+        return () -> "IShouldBind";
     }
 }

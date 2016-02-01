@@ -52,18 +52,18 @@ public class DBI
 {
     private static final Logger LOG = LoggerFactory.getLogger(DBI.class);
 
-    private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<String, Object>();
+    private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<>();
     private final MappingRegistry mappingRegistry = new MappingRegistry();
     private final CollectorFactoryRegistry collectorFactoryRegistry = new CollectorFactoryRegistry();
     private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
 
     private final ConnectionFactory connectionFactory;
 
-    private final AtomicReference<StatementRewriter> statementRewriter = new AtomicReference<StatementRewriter>(new ColonPrefixNamedParamStatementRewriter());
-    private final AtomicReference<StatementLocator> statementLocator = new AtomicReference<StatementLocator>(new ClasspathStatementLocator());
-    private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<TransactionHandler>(new LocalTransactionHandler());
-    private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<StatementBuilderFactory>(new DefaultStatementBuilderFactory());
-    private final AtomicReference<TimingCollector> timingCollector = new AtomicReference<TimingCollector>(TimingCollector.NOP_TIMING_COLLECTOR);
+    private final AtomicReference<StatementRewriter> statementRewriter = new AtomicReference<>(new ColonPrefixNamedParamStatementRewriter());
+    private final AtomicReference<StatementLocator> statementLocator = new AtomicReference<>(new ClasspathStatementLocator());
+    private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(new LocalTransactionHandler());
+    private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(new DefaultStatementBuilderFactory());
+    private final AtomicReference<TimingCollector> timingCollector = new AtomicReference<>(TimingCollector.NOP_TIMING_COLLECTOR);
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
@@ -330,9 +330,6 @@ public class DBI
      * for use by clients.
      *
      * @param callback A callback which will receive an open Handle
-     *
-     * @return the value returned by callback
-     *
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */

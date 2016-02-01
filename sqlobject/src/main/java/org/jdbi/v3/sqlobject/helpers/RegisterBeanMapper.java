@@ -19,7 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import org.jdbi.v3.Query;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
@@ -51,10 +50,9 @@ public @interface RegisterBeanMapper
         }
 
         private SqlStatementCustomizer create(RegisterBeanMapper annotation) {
-            RegisterBeanMapper registerBeanMapper = annotation;
             return statement -> {
                 Query<?> query = (Query<?>) statement;
-                query.registerMapper(new BeanMapperFactory(registerBeanMapper.value()));
+                query.registerMapper(new BeanMapperFactory(annotation.value()));
             };
         }
     }

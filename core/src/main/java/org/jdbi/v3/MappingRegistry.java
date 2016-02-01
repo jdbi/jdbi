@@ -60,6 +60,7 @@ class MappingRegistry
         rowCache.clear();
     }
 
+    @SuppressWarnings("unchecked")
     public Optional<ResultSetMapper<?>> findMapperFor(Type type, StatementContext ctx) {
         return Optional.ofNullable(rowCache.computeIfAbsent(type, t ->
                 findFirstPresent(

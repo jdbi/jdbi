@@ -57,7 +57,7 @@ public class BeanMapperTest {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
 
-        Long aLongVal = 100l;
+        Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
@@ -71,7 +71,7 @@ public class BeanMapperTest {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("LONG_FIELD");
 
-        Long aLongVal = 100l;
+        Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
@@ -85,7 +85,7 @@ public class BeanMapperTest {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNg_FiElD");
 
-        Long aLongVal = 100l;
+        Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
@@ -108,7 +108,7 @@ public class BeanMapperTest {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
 
-        Long aLongVal = 100l;
+        Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
@@ -122,7 +122,7 @@ public class BeanMapperTest {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
 
-        when(resultSet.getLong(1)).thenReturn(0l);
+        when(resultSet.getLong(1)).thenReturn(0L);
         when(resultSet.wasNull()).thenReturn(true);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
@@ -187,14 +187,14 @@ public class BeanMapperTest {
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
         when(resultSetMetaData.getColumnLabel(2)).thenReturn("blongField");
 
-        Long aLongVal = 100l;
-        Long bLongVal = 200l;
+        Long aLongVal = 100L;
+        Long bLongVal = 200L;
 
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.getLong(2)).thenReturn(bLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        BeanMapper<DerivedBean> mapper = new BeanMapper<DerivedBean>(DerivedBean.class);
+        BeanMapper<DerivedBean> mapper = new BeanMapper<>(DerivedBean.class);
 
         DerivedBean derivedBean = mapper.map(0, resultSet, ctx);
 

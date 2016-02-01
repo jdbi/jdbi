@@ -72,9 +72,7 @@ public @interface RegisterCollectorFactory {
         public void apply(SQLStatement<?> q) throws SQLException {
             if (q instanceof Query) {
                 Query<?> query = (Query<?>) q;
-                for (CollectorFactory collectorFactory : factories) {
-                    query.registerCollectorFactory(collectorFactory);
-                }
+                factories.forEach(query::registerCollectorFactory);
             }
         }
     }

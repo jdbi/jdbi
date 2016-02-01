@@ -41,9 +41,9 @@ import org.jdbi.v3.sqlobject.mixins.CloseMe;
 class SqlObject
 {
     private static final TypeResolver                                  typeResolver  = new TypeResolver();
-    private static final Map<Method, Handler>                          mixinHandlers = new HashMap<Method, Handler>();
-    private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<Class<?>, Map<Method, Handler>>();
-    private static final ConcurrentMap<Class<?>, Factory>              factories     = new ConcurrentHashMap<Class<?>, Factory>();
+    private static final Map<Method, Handler>                          mixinHandlers = new HashMap<>();
+    private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Class<?>, Factory>              factories     = new ConcurrentHashMap<>();
 
     static {
         mixinHandlers.putAll(TransactionalHelper.handlers());
@@ -104,7 +104,7 @@ class SqlObject
 
         final ResolvedTypeWithMembers d = mr.resolve(sql_object_type, null, null);
 
-        final Map<Method, Handler> handlers = new HashMap<Method, Handler>();
+        final Map<Method, Handler> handlers = new HashMap<>();
         for (final ResolvedMethod method : d.getMemberMethods()) {
             final Method raw_method = method.getRawMember();
 

@@ -123,7 +123,7 @@ class BatchHandler extends CustomizingStatementHandler
         }
 
         int processed = 0;
-        List<int[]> rs_parts = new ArrayList<int[]>();
+        List<int[]> rs_parts = new ArrayList<>();
 
         PreparedBatch batch = handle.prepareBatch(sql);
         populateSqlObjectData((ConcreteStatementContext) batch.getContext());
@@ -177,7 +177,7 @@ class BatchHandler extends CustomizingStatementHandler
 
     private static Object[] next(List<Iterator<?>> args)
     {
-        List<Object> rs = new ArrayList<Object>();
+        List<Object> rs = new ArrayList<>();
         for (Iterator<?> arg : args) {
             if (arg.hasNext()) {
                 rs.add(arg.next());
@@ -225,11 +225,9 @@ class BatchHandler extends CustomizingStatementHandler
     }
 
     private static boolean returnTypeIsValid(Class<?> type) {
-        if (type.equals(Void.TYPE) || type.isArray() && type.getComponentType().equals(Integer.TYPE)) {
-            return true;
-        }
+        return type.equals(Void.TYPE)
+                || type.isArray() && type.getComponentType().equals(Integer.TYPE);
 
-        return false;
     }
 
     private static String invalidReturnTypeMessage(ResolvedMethod method) {

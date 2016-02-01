@@ -23,11 +23,11 @@ public abstract class EnumMapper<E extends Enum<E>> implements ResultColumnMappe
     EnumMapper() {}
 
     public static <E extends Enum<E>> ResultColumnMapper<E> byName(Class<E> type) {
-        return new ByName<E>(type);
+        return new ByName<>(type);
     }
 
     public static <E extends Enum<E>> ResultColumnMapper<E> byOrdinal(Class<E> type) {
-        return new ByOrdinal<E>(type);
+        return new ByOrdinal<>(type);
     }
 
     private static class ByName<E extends Enum<E>> extends EnumMapper<E> {

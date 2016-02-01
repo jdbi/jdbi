@@ -46,7 +46,7 @@ import org.jdbi.v3.tweak.StatementRewriter;
  */
 public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
 {
-    private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<String, ParsedStatement>());
+    private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
     /**
      * Munge up the SQL as desired. Responsible for figuring out ow to bind any
@@ -123,6 +123,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void bind(Binding params, PreparedStatement statement) throws SQLException
         {
             if (stmt.positionalOnly) {
@@ -187,7 +188,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
     {
         private String sql;
         private boolean positionalOnly = true;
-        private final List<String> params = new ArrayList<String>();
+        private final List<String> params = new ArrayList<>();
 
         public void addNamedParamAt(String name)
         {

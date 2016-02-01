@@ -121,7 +121,6 @@ class JpaClass<C> {
                     });
         } catch (IntrospectionException e) {
             logger.warn("Unable to introspect " + clazz, e);
-            return;
         }
     }
 

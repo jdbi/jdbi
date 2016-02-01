@@ -44,33 +44,16 @@ public @interface RegisterColumnMapper
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final RegisterColumnMapper ma = (RegisterColumnMapper) annotation;
-            final ResultColumnMapper<?>[] m = new ResultColumnMapper[ma.value().length];
-            try {
-                Class<? extends ResultColumnMapper<?>>[] mcs = ma.value();
-                for (int i = 0; i < mcs.length; i++) {
-                    m[i] = mcs[i].newInstance();
-                }
-
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified result column mapper", e);
-            }
-            return statement -> {
-                if (statement instanceof Query) {
-                    Query<?> q = (Query<?>) statement;
-                    for (ResultColumnMapper<?> mapper : m) {
-                        q.registerColumnMapper(mapper);
-                    }
-
-                }
-            };
+            return create((RegisterColumnMapper) annotation);
         }
 
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            final RegisterColumnMapper ma = (RegisterColumnMapper) annotation;
+            return create((RegisterColumnMapper) annotation);
+        }
+
+        private SqlStatementCustomizer create(RegisterColumnMapper ma) {
             final ResultColumnMapper<?>[] m = new ResultColumnMapper[ma.value().length];
             try {
                 Class<? extends ResultColumnMapper<?>>[] mcs = ma.value();
