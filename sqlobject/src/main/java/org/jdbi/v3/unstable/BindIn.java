@@ -82,7 +82,10 @@ public @interface BindIn
                         .orElse(Object.class);
                 int idx = 0;
                 for (Object s : coll) {
-                    q.dynamicBind(elementType, "__" + key + "_" + idx++, s);
+                    q.bindByType(
+                            "__" + key + "_" + idx++,
+                            s,
+                            elementType);
                 }
             };
         }
