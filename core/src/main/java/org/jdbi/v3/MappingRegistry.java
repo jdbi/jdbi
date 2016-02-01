@@ -51,7 +51,7 @@ class MappingRegistry
 
     public void addMapper(ResultSetMapper<?> mapper)
     {
-        this.addMapper(new InferredMapperFactory<>(mapper));
+        this.addMapper(new InferredMapperFactory(mapper));
     }
 
     public void addMapper(ResultSetMapperFactory factory)
@@ -74,7 +74,7 @@ class MappingRegistry
 
     public void addColumnMapper(ResultColumnMapper<?> mapper)
     {
-        this.addColumnMapper(new InferredColumnMapperFactory<>(mapper));
+        this.addColumnMapper(new InferredColumnMapperFactory(mapper));
     }
 
     public void addColumnMapper(ResultColumnMapperFactory factory) {

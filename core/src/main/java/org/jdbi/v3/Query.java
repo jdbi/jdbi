@@ -250,7 +250,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     public void registerMapper(ResultSetMapper<?> m)
     {
-        this.mappingRegistry.addMapper(new InferredMapperFactory<>(m));
+        this.mappingRegistry.addMapper(new InferredMapperFactory(m));
     }
 
     public void registerMapper(ResultSetMapperFactory m)

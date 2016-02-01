@@ -20,12 +20,12 @@ import java.util.Optional;
 
 import org.jdbi.v3.tweak.ResultSetMapper;
 
-class InferredMapperFactory<X> implements ResultSetMapperFactory
+class InferredMapperFactory implements ResultSetMapperFactory
 {
     private final Type maps;
-    private final ResultSetMapper<X> mapper;
+    private final ResultSetMapper<?> mapper;
 
-    InferredMapperFactory(ResultSetMapper<X> mapper)
+    InferredMapperFactory(ResultSetMapper<?> mapper)
     {
         this.maps = findGenericParameter(mapper.getClass(), ResultSetMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here"));
