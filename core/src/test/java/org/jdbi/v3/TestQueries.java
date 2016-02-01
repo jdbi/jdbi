@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.Maps;
 
@@ -306,8 +307,17 @@ public class TestQueries
          .add(3, "Eric")
          .execute();
 
-        assertEquals(1, h.createQuery("select id, name from something").mapToBean(Something.class).stream().limit(1).collect(Collectors.toList()).size());
-        assertEquals(2, h.createQuery("select id, name from something").mapToBean(Something.class).stream().limit(2).collect(Collectors.toList()).size());
+        try (Stream<Something> stream = h.createQuery("select id, name from something")
+                .mapToBean(Something.class)
+                .stream()) {
+            assertEquals(1, stream.limit(1).collect(Collectors.toList()).size());
+        }
+
+        try (Stream<Something> stream = h.createQuery("select id, name from something")
+                .mapToBean(Something.class)
+                .stream()) {
+            assertEquals(2, stream.limit(2).collect(Collectors.toList()).size());
+        }
     }
 
     @Test
@@ -318,13 +328,15 @@ public class TestQueries
          .add(2, "Keith")
          .execute();
 
-        Map<String, Integer> rs = h.createQuery("select id, name from something")
-                                   .<Entry<String, Integer>>map((i, r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
-                                   .stream()
-                                   .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-        assertEquals(2, rs.size());
-        assertEquals(Integer.valueOf(1), rs.get("Brian"));
-        assertEquals(Integer.valueOf(2), rs.get("Keith"));
+        try (Stream<Entry<String, Integer>> stream = h.createQuery("select id, name from something")
+                .<Entry<String, Integer>>map((i, r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
+                .stream()) {
+            Map<String, Integer> rs = stream
+                    .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+            assertEquals(2, rs.size());
+            assertEquals(Integer.valueOf(1), rs.get("Brian"));
+            assertEquals(Integer.valueOf(2), rs.get("Keith"));
+        }
     }
 
     @Test
@@ -335,12 +347,14 @@ public class TestQueries
          .add(2, "Keith")
          .execute();
 
-        List<String> rs = h.createQuery("select name from something order by id")
-                           .mapTo(String.class)
-                           .stream()
-                           .collect(Collectors.toList());
-        assertEquals(2, rs.size());
-        assertEquals(Arrays.asList("Brian", "Keith"), rs);
+        try (Stream<String> stream = h.createQuery("select name from something order by id")
+                .mapTo(String.class)
+                .stream()) {
+            List<String> rs = stream
+                    .collect(Collectors.toList());
+            assertEquals(2, rs.size());
+            assertEquals(Arrays.asList("Brian", "Keith"), rs);
+        }
     }
 
     @Test
