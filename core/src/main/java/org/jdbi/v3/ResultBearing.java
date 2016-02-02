@@ -17,6 +17,7 @@ import static java.util.Spliterators.spliteratorUnknownSize;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Spliterator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -73,8 +74,9 @@ public interface ResultBearing<T> extends Iterable<T>
      */
     default Stream<T> stream() {
         ResultIterator<T> iterator = iterator();
-        return StreamSupport.stream(spliteratorUnknownSize(iterator, 0), false)
+        Stream<T> stream = StreamSupport.stream(spliteratorUnknownSize(iterator, 0), false)
                 .onClose(iterator::close);
+        return new SelfClosingStream<>(stream);
     }
 
     default List<T> list() {
