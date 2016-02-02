@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3;
 
+import static java.util.Spliterators.spliteratorUnknownSize;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collector;
@@ -55,8 +57,24 @@ public interface ResultBearing<T> extends Iterable<T>
         }
     }
 
+    /**
+     * Executes the SQL statement and returns the stream of results.
+     *
+     * <p>
+     * Note: the returned stream owns database resources, and must be closed via a call to {@link Stream#close()}, or
+     * by using the stream in a try-with-resources block:
+     * </p>
+     *
+     * <pre>
+     * try (Stream&lt;T> stream = query.stream()) {
+     *   // do stuff with stream
+     * }
+     * </pre>
+     */
     default Stream<T> stream() {
-        return StreamSupport.stream(spliterator(), false);
+        ResultIterator<T> iterator = iterator();
+        return StreamSupport.stream(spliteratorUnknownSize(iterator, 0), false)
+                .onClose(iterator::close);
     }
 
     default List<T> list() {
