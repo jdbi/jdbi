@@ -74,8 +74,7 @@ public interface ResultBearing<T> extends Iterable<T>
      */
     default Stream<T> stream() {
         ResultIterator<T> iterator = iterator();
-        Spliterator<T> spliterator = spliteratorUnknownSize(iterator, 0);
-        Stream<T> stream = StreamSupport.stream(spliterator, false)
+        Stream<T> stream = StreamSupport.stream(spliteratorUnknownSize(iterator, 0), false)
                 .onClose(iterator::close);
         return new SelfClosingStream<>(stream);
     }
