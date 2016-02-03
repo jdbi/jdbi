@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
-import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.tweak.HandleConsumer;
+import org.jdbi.v3.HandleCallback;
+import org.jdbi.v3.HandleConsumer;
 
 class GetHandleHelper
 {

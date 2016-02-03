@@ -23,8 +23,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.jdbi.v3.exceptions.CallbackFailedException;
-import org.jdbi.v3.tweak.StreamCallback;
-import org.jdbi.v3.tweak.StreamConsumer;
 
 public interface ResultBearing<T> extends Iterable<T>
 {

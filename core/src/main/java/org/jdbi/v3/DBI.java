@@ -31,8 +31,6 @@ import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ConnectionFactory;
-import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.tweak.HandleConsumer;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
