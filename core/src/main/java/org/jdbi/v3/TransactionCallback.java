@@ -17,6 +17,7 @@ package org.jdbi.v3;
  * Used as a callback which guarantees that the inTransaction method is invoked in
  * a transaction, and will be committed or rolled back as specified.
  */
+@FunctionalInterface
 public interface TransactionCallback<ReturnType>
 {
     ReturnType inTransaction(Handle conn, TransactionStatus status) throws Exception;

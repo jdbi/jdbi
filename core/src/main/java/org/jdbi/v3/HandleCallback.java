@@ -11,24 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
-
-import org.jdbi.v3.Handle;
+package org.jdbi.v3;
 
 /**
- * Callback for use with {@link org.skife.jdbi.v2.DBI#useHandle(HandleConsumer)}
+ * Callback for use with {@link org.jdbi.v3.DBI#withHandle(HandleCallback)}
  */
 @FunctionalInterface
-public interface HandleConsumer
+public interface HandleCallback<T>
 {
     /**
      * Will be invoked with an open Handle. The handle will be closed when this
      * callback returns. Any exception thrown will be wrapped in a
-     * {@link org.skife.jdbi.v2.exceptions.CallbackFailedException}
+     * {@link org.jdbi.v3.exceptions.CallbackFailedException}
      *
      * @param handle Handle to be used only within scope of this callback
-     * @throws Exception will result in a {@link org.skife.jdbi.v2.exceptions.CallbackFailedException} wrapping
+     * @return The return value of the callback
+     * @throws Exception will result in a {@link org.jdbi.v3.exceptions.CallbackFailedException} wrapping
      *                   the exception being thrown
      */
-    void useHandle(Handle handle) throws Exception;
+    T withHandle(Handle handle) throws Exception;
 }

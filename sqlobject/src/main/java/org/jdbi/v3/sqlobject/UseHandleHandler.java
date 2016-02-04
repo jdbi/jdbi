@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 import net.sf.cglib.proxy.MethodProxy;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.CallbackFailedException;
-import org.jdbi.v3.tweak.HandleConsumer;
+import org.jdbi.v3.HandleConsumer;
 
 class UseHandleHandler implements Handler
 {

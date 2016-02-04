@@ -11,14 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
-
-import org.jdbi.v3.Handle;
+package org.jdbi.v3;
 
 /**
- * Callback for use with {@link org.jdbi.v3.DBI#withHandle(HandleCallback)}
+ * Callback for use with {@link org.jdbi.v3.DBI#useHandle(HandleConsumer)}
  */
-public interface HandleCallback<T>
+@FunctionalInterface
+public interface HandleConsumer
 {
     /**
      * Will be invoked with an open Handle. The handle will be closed when this
@@ -26,9 +25,8 @@ public interface HandleCallback<T>
      * {@link org.jdbi.v3.exceptions.CallbackFailedException}
      *
      * @param handle Handle to be used only within scope of this callback
-     * @return The return value of the callback
      * @throws Exception will result in a {@link org.jdbi.v3.exceptions.CallbackFailedException} wrapping
      *                   the exception being thrown
      */
-    T withHandle(Handle handle) throws Exception;
+    void useHandle(Handle handle) throws Exception;
 }
