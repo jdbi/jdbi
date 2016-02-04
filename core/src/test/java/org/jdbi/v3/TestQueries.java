@@ -13,7 +13,13 @@
  */
 package org.jdbi.v3;
 
-import static org.junit.Assert.*;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -306,8 +312,16 @@ public class TestQueries
          .add(3, "Eric")
          .execute();
 
-        assertEquals(1, h.createQuery("select id, name from something").mapToBean(Something.class).stream().limit(1).collect(Collectors.toList()).size());
-        assertEquals(2, h.createQuery("select id, name from something").mapToBean(Something.class).stream().limit(2).collect(Collectors.toList()).size());
+
+        assertEquals(1, h.createQuery("select id, name from something")
+                .mapToBean(Something.class)
+                .withStream(stream -> stream.limit(1).count())
+                .longValue());
+
+        assertEquals(2, h.createQuery("select id, name from something")
+                .mapToBean(Something.class)
+                .withStream(stream -> stream.limit(2).count())
+                .longValue());
     }
 
     @Test
@@ -319,9 +333,9 @@ public class TestQueries
          .execute();
 
         Map<String, Integer> rs = h.createQuery("select id, name from something")
-                                   .<Entry<String, Integer>>map((i, r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
-                                   .stream()
-                                   .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+                .<Entry<String, Integer>>map((i, r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
+                .collect(toMap(Entry::getKey, Entry::getValue));
+
         assertEquals(2, rs.size());
         assertEquals(Integer.valueOf(1), rs.get("Brian"));
         assertEquals(Integer.valueOf(2), rs.get("Keith"));
@@ -336,9 +350,8 @@ public class TestQueries
          .execute();
 
         List<String> rs = h.createQuery("select name from something order by id")
-                           .mapTo(String.class)
-                           .stream()
-                           .collect(Collectors.toList());
+                .mapTo(String.class)
+                .collect(toList());
         assertEquals(2, rs.size());
         assertEquals(Arrays.asList("Brian", "Keith"), rs);
     }

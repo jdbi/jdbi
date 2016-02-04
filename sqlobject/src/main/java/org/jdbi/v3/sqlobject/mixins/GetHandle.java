@@ -15,8 +15,8 @@ package org.jdbi.v3.sqlobject.mixins;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.CallbackFailedException;
-import org.jdbi.v3.tweak.HandleCallback;
-import org.jdbi.v3.tweak.HandleConsumer;
+import org.jdbi.v3.HandleCallback;
+import org.jdbi.v3.HandleConsumer;
 
 /**
  * A mixin interface to define a method for obtaining the Handle attached to a sql object

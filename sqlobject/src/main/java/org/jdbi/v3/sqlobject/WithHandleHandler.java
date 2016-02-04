@@ -17,7 +17,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.CallbackFailedException;
-import org.jdbi.v3.tweak.HandleCallback;
+import org.jdbi.v3.HandleCallback;
 
 class WithHandleHandler implements Handler
 {
