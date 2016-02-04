@@ -23,8 +23,7 @@ import org.jdbi.v3.StatementContext;
 
 /**
  * Used to convert translated SQL into a prepared statement. The default implementation
- * created by {@link org.skife.jdbi.v2.CachingStatementBuilderFactory} caches all prepared
- * statements created against a given handle.
+ * created by {@link org.jdbi.v3.DefaultStatementBuilderFactory} creates a new statement on every call.
  *
  * A StatementBuilder is always associated with exactly one Handle instance
  *

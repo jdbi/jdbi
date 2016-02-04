@@ -58,7 +58,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
     }
 
     /**
-     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     * Use {@link StringTemplate3StatementLocator#builder(Class)} and {@link StringTemplate3StatementLocator.Builder}.
      */
     @Deprecated
     public StringTemplate3StatementLocator(Class<?> baseClass)
@@ -72,7 +72,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
     }
 
     /**
-     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     * Use {@link StringTemplate3StatementLocator#builder(Class)} and {@link StringTemplate3StatementLocator.Builder}.
      */
     @Deprecated
     public StringTemplate3StatementLocator(Class<?> baseClass,
@@ -88,7 +88,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
     }
 
     /**
-     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     * Use {@link StringTemplate3StatementLocator#builder(String)} and {@link StringTemplate3StatementLocator.Builder}.
      */
     @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath)
@@ -102,7 +102,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
     }
 
     /**
-     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     * Use {@link StringTemplate3StatementLocator#builder(String)} and {@link StringTemplate3StatementLocator.Builder}.
      */
     @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
@@ -118,7 +118,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
     }
 
     /**
-     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     * Use {@link StringTemplate3StatementLocator#builder(Class)} and {@link StringTemplate3StatementLocator.Builder}.
      */
     @Deprecated
     public StringTemplate3StatementLocator(Class<?> baseClass,
@@ -135,7 +135,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
     }
 
     /**
-     * Use {@link StringTemplate3StatementLocator#builder()} and {@link StringTemplate3StatementLocator.Builder}.
+     * Use {@link StringTemplate3StatementLocator#builder(String)} and {@link StringTemplate3StatementLocator.Builder}.
      */
     @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
