@@ -66,7 +66,7 @@ public class TestBeanBinder
         Something findByEqualsOnBothFields(@BindBean("s") Something s);
 
         @SqlQuery("select :pi.value")
-        String selectPublicInterfaceValue(@BindBean(value = "pi", type = PublicInterface.class) PublicInterface pi);
+        String selectPublicInterfaceValue(@BindBean("pi") PublicInterface pi);
     }
 
     @Test
