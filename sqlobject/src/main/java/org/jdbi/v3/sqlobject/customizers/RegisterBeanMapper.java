@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.helpers;
+package org.jdbi.v3.sqlobject.customizers;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
