@@ -19,7 +19,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Stream;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -45,11 +44,8 @@ class ArgumentRegistry
 
     Optional<Argument> findArgumentFor(Type expectedType, Object it, StatementContext ctx)
     {
-        return Stream.concat(
-                // Search first for factories accepting specific argument type
-                factories.stream().flatMap(factory -> toStream(factory.build(expectedType, it, ctx))),
-                // Fall back to any factory accepting Object if necessary
-                factories.stream().flatMap(factory -> toStream(factory.build(Object.class, it, ctx))))
+        return factories.stream()
+                .flatMap(factory -> toStream(factory.build(expectedType, it, ctx)))
                 .findFirst();
     }
 
