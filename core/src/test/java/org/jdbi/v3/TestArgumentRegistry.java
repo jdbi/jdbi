@@ -13,8 +13,11 @@
  */
 package org.jdbi.v3;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.verify;
 
 import java.lang.reflect.Type;
@@ -23,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.junit.Rule;
@@ -84,53 +88,33 @@ public class TestArgumentRegistry
     @Test
     public void testPull88WeirdClassArgumentFactory() throws Exception
     {
-        final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
         argumentRegistry.register(new WeirdClassArgumentFactory());
 
-        // Pull Request #88 changes the outcome of this findArgumentFor call from ObjectArgument to WeirdArgument
-        // when using SqlStatement#bind(..., Object) and the Object is != null
-        final Weird weird = new Weird();
-        assertEquals(WeirdArgument.class, argumentRegistry.findArgumentFor(Weird.class, weird, null).get().getClass());
+        assertThat(argumentRegistry.findArgumentFor(Weird.class, new Weird(), null))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
+        assertThat(argumentRegistry.findArgumentFor(Weird.class, null, null))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
 
-        argumentRegistry.findArgumentFor(Object.class, weird, null).get().apply(2, stmt, null);
-        verify(stmt).setObject(2, weird);
-    }
-
-    @Test
-    public void testPull88NullClassArgumentFactory() throws Exception
-    {
-        final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
-        argumentRegistry.register(new WeirdClassArgumentFactory());
-
-        assertEquals(WeirdArgument.class, argumentRegistry.findArgumentFor(Weird.class, null, null).get().getClass());
-
-        argumentRegistry.findArgumentFor(Object.class, null, null).get().apply(3, stmt, null);
-        verify(stmt).setNull(3, Types.NULL);
+        assertThat(argumentRegistry.findArgumentFor(Object.class, new Weird(), null))
+                .isEmpty();
+        assertThat(argumentRegistry.findArgumentFor(Object.class, null, null))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 
     @Test
     public void testPull88WeirdValueArgumentFactory()
     {
-        final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
         argumentRegistry.register(new WeirdValueArgumentFactory());
 
-        // Pull Request #88 changes the outcome of this findArgumentFor call from ObjectArgument to WeirdArgument
-        // when using SqlStatement#bind(..., Object) and the Object is != null
-        assertEquals(WeirdArgument.class, argumentRegistry.findArgumentFor(Weird.class, new Weird(), null).get().getClass());
-        assertEquals(WeirdArgument.class, argumentRegistry.findArgumentFor(Object.class, new Weird(), null).get().getClass());
-    }
+        assertThat(argumentRegistry.findArgumentFor(Weird.class, new Weird(), null))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
+        assertThat(argumentRegistry.findArgumentFor(Object.class, new Weird(), null))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
 
-    @Test
-    public void testPull88NullValueArgumentFactory() throws Exception
-    {
-        final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
-        argumentRegistry.register(new WeirdValueArgumentFactory());
-
-        argumentRegistry.findArgumentFor(Weird.class, null, null).get().apply(3, stmt, null);
-        verify(stmt).setNull(3, Types.NULL);
-
-        argumentRegistry.findArgumentFor(Object.class, null, null).get().apply(5, stmt, null);
-        verify(stmt).setNull(5, Types.NULL);
+        assertThat(argumentRegistry.findArgumentFor(Weird.class, null, null))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
+        assertThat(argumentRegistry.findArgumentFor(Object.class, null, null))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 
     private static class Weird

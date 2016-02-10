@@ -17,6 +17,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 class BindBeanFactory implements BinderFactory<BindBean, Object>
 {
@@ -36,6 +37,9 @@ class BindBeanFactory implements BinderFactory<BindBean, Object>
                 BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
                 PropertyDescriptor[] props = infos.getPropertyDescriptors();
                 for (PropertyDescriptor prop : props) {
+                    if (Objects.equals("class", prop.getName())) {
+                        continue;
+                    }
                     Method readMethod = prop.getReadMethod();
                     if (readMethod != null) {
                         q.dynamicBind(
