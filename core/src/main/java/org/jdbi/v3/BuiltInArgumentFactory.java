@@ -50,7 +50,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
 
     private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        register(map, klass, v -> new BuiltInArgument<T>(klass, type, binder, v));
+        register(map, klass, v -> new BuiltInArgument<>(klass, type, binder, v));
     }
 
     private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, ArgBuilder<T> builder) {
@@ -94,6 +94,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx)
     {
         Class<?> expectedClass = getErasedType(expectedType);

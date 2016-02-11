@@ -76,7 +76,7 @@ public class TestNamedParams
     {
         Handle h = db.openHandle();
         Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
         args.put("name", "Keith");
         s.bindFromMap(args);
@@ -89,7 +89,7 @@ public class TestNamedParams
     {
         Handle h = db.openHandle();
         Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
         s.bindFromMap(args);
         s.bindFromProperties(new Object()

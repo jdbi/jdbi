@@ -114,7 +114,7 @@ public class TestDoublyTransactional
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
         {
             if (CHECKED_METHODS.contains(method) && inTransaction.get()) {
-                throw new SQLException(String.format("PostgreSQL would not let you set the transaction isolation here"));
+                throw new SQLException("PostgreSQL would not let you set the transaction isolation here");
             }
             return method.invoke(real, args);
         }

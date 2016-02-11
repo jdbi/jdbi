@@ -64,7 +64,7 @@ class DefaultObjectBinder implements Binder<Bind, Object>
             }
         }
 
-        q.dynamicBind(type, paramIndex, arg);
-        q.dynamicBind(type, bindName, arg);
+        q.bindByType(paramIndex, arg, type);
+        q.bindByType(bindName, arg, type);
     }
 }

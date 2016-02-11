@@ -68,7 +68,7 @@ public class TestMapBinder
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
         s.insert(allMap(4, "woo", 1, "too"));
-        Map<String, Object> update = new HashMap<String, Object>();
+        Map<String, Object> update = new HashMap<>();
 
         update.put("a", "goo");
         update.put("b", 2);
@@ -87,7 +87,7 @@ public class TestMapBinder
     {
         Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
         s.insert(allMap(4, "woo", 1, "too"));
-        Map<Object, Object> update = new HashMap<Object, Object>();
+        Map<Object, Object> update = new HashMap<>();
 
         update.put("b", 2);
         update.put(new A(), "goo");
@@ -102,7 +102,7 @@ public class TestMapBinder
 
     private Map<String, Object> allMap(int id, Object a, int b, Object c)
     {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("id", id);
         map.put("a", a);
         map.put("b", b);

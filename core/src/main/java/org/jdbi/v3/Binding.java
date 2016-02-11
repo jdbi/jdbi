@@ -29,9 +29,9 @@ import org.jdbi.v3.tweak.NamedArgumentFinder;
  */
 public class Binding
 {
-    private Map<Integer, Argument> positionals = new HashMap<Integer, Argument>();
-    private Map<String, Argument> named = new HashMap<String, Argument>();
-    private List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<NamedArgumentFinder>();
+    private final Map<Integer, Argument> positionals = new HashMap<>();
+    private final Map<String, Argument> named = new HashMap<>();
+    private final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
 
     void addPositional(int position, Argument parameter) {
         positionals.put(position, parameter);

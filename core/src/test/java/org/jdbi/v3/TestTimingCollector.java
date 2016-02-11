@@ -41,17 +41,16 @@ public class TestTimingCollector
         tc = new TTC();
 
         Connection conn = db.openHandle().getConnection();
-        BasicHandle h = new BasicHandle(new LocalTransactionHandler(),
-                                        new ClasspathStatementLocator(),
-                                        new DefaultStatementBuilder(),
-                                        new ColonPrefixNamedParamStatementRewriter(),
-                                        conn,
-                                        new HashMap<String, Object>(),
-                                        tc,
-                                        new MappingRegistry(),
-                                        new ArgumentRegistry(),
-                                        new CollectorFactoryRegistry());
-        return h;
+        return new BasicHandle(new LocalTransactionHandler(),
+                               new ClasspathStatementLocator(),
+                               new DefaultStatementBuilder(),
+                               new ColonPrefixNamedParamStatementRewriter(),
+                               conn,
+                               new HashMap<>(),
+                               tc,
+                               new MappingRegistry(),
+                               new ArgumentRegistry(),
+                               new CollectorFactoryRegistry());
     }
 
 
@@ -126,7 +125,7 @@ public class TestTimingCollector
 
     private static class TTC implements TimingCollector
     {
-        private final List<String> statements = new ArrayList<String>();
+        private final List<String> statements = new ArrayList<>();
 
         @Override
         public synchronized void collect(final long elapsedTime, final StatementContext ctx)

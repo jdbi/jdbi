@@ -18,7 +18,7 @@ import static org.jdbi.v3.Types.findGenericParameter;
 import java.lang.reflect.Type;
 
 public abstract class GenericType<T> {
-    private Type type;
+    private final Type type;
 
     protected GenericType() {
         this.type = findGenericParameter(getClass(), GenericType.class)

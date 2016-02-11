@@ -60,8 +60,8 @@ class JpaMember {
         Method setter = property.getWriteMethod();
         getter.setAccessible(true);
         setter.setAccessible(true);
-        this.accessor = obj -> getter.invoke(obj);
-        this.mutator = (obj, value) -> setter.invoke(obj, value);
+        this.accessor = getter::invoke;
+        this.mutator = setter::invoke;
     }
 
     public String getColumnName() {
@@ -89,5 +89,5 @@ class JpaMember {
                 .orElse(memberName);
     }
 
-    private static Logger logger = LoggerFactory.getLogger(JpaMember.class);
+    private static final Logger logger = LoggerFactory.getLogger(JpaMember.class);
 }

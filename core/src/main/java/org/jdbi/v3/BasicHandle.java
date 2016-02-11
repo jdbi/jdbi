@@ -72,7 +72,7 @@ class BasicHandle implements Handle
         this.timingCollector = timingCollector;
         this.mappingRegistry = mappingRegistry;
         this.argumentRegistry = argumentRegistry;
-        this.globalStatementAttributes = new HashMap<String, Object>();
+        this.globalStatementAttributes = new HashMap<>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
         this.collectorFactoryRegistry = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
     }

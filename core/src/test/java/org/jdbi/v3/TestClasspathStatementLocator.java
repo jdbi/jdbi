@@ -128,7 +128,7 @@ public class TestClasspathStatementLocator
     public void testCachesOriginalQueryWhenNotFound() throws Exception
     {
         StatementLocator statementLocator = new ClasspathStatementLocator();
-        StatementContext statementContext = new TestingStatementContext(new HashMap<String, Object>()) {
+        StatementContext statementContext = new TestingStatementContext(new HashMap<>()) {
 
             @Override
             public Class<?> getSqlObjectType() {

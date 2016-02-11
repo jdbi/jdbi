@@ -50,7 +50,7 @@ public @interface BindIn
             Collection<?> coll = (Collection<?>) arg;
             BindIn in = (BindIn) annotation;
             final String key = in.value();
-            final List<String> ids = new ArrayList<String>();
+            final List<String> ids = new ArrayList<>();
             for (int idx = 0; idx < coll.size(); idx++) {
                 ids.add("__" + key + "_" + idx);
             }
@@ -82,7 +82,10 @@ public @interface BindIn
                         .orElse(Object.class);
                 int idx = 0;
                 for (Object s : coll) {
-                    q.dynamicBind(elementType, "__" + key + "_" + idx++, s);
+                    q.bindByType(
+                            "__" + key + "_" + idx++,
+                            s,
+                            elementType);
                 }
             };
         }

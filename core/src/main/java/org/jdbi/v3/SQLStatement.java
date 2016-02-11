@@ -1136,13 +1136,13 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument dynamically by the type passed in.
      *
+     * @param position     position to bind the parameter at, starting at 0
+     * @param value        to bind
      * @param argumentType type for value argument
-     * @param position position to bind the parameter at, starting at 0
-     * @param value to bind
      *
      * @return the same Query instance
      */
-    public final SelfType dynamicBind(Type argumentType, int position, Object value)
+    public final SelfType bindByType(int position, Object value, Type argumentType)
     {
         return bind(position, toArgument(argumentType, value));
     }
@@ -1150,27 +1150,27 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument dynamically by the generic type passed in.
      *
+     * @param position     position to bind the parameter at, starting at 0
+     * @param value        to bind
      * @param argumentType type token for value argument
-     * @param position position to bind the parameter at, starting at 0
-     * @param value to bind
      *
      * @return the same Query instance
      */
-    public final SelfType dynamicBind(GenericType<?> argumentType, int position, Object value)
+    public final SelfType bindByType(int position, Object value, GenericType<?> argumentType)
     {
-        return dynamicBind(argumentType.getType(), position, value);
+        return bindByType(position, value, argumentType.getType());
     }
 
     /**
      * Bind an argument dynamically by the type passed in.
      *
+     * @param name         token name to bind the parameter to
+     * @param value        to bind
      * @param argumentType type for value argument
-     * @param name  token name to bind the parameter to
-     * @param value to bind
      *
      * @return the same Query instance
      */
-    public final SelfType dynamicBind(Type argumentType, String name, Object value)
+    public final SelfType bindByType(String name, Object value, Type argumentType)
     {
         return bind(name, toArgument(argumentType, value));
     }
@@ -1178,15 +1178,15 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     /**
      * Bind an argument dynamically by the generic type passed in.
      *
+     * @param name         token name to bind the parameter to
+     * @param value        to bind
      * @param argumentType type token for value argument
-     * @param name  token name to bind the parameter to
-     * @param value to bind
      *
      * @return the same Query instance
      */
-    public final SelfType dynamicBind(GenericType<?> argumentType, String name, Object value)
+    public final SelfType bindByType(String name, Object value, GenericType<?> argumentType)
     {
-        return dynamicBind(argumentType.getType(), name, value);
+        return bindByType(name, value, argumentType.getType());
     }
 
     private Argument toArgument(Object value) {

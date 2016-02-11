@@ -29,7 +29,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.sqlobject.helpers.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.Rule;

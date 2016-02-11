@@ -65,7 +65,7 @@ public class TestReturningQueryResults
 
 
         Iterator<Something> itty = spiffy.findByIdRange(2, 10);
-        Set<Something> all = new HashSet<Something>();
+        Set<Something> all = new HashSet<>();
         while (itty.hasNext()) {
             all.add(itty.next());
         }

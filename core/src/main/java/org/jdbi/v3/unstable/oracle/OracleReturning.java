@@ -60,8 +60,8 @@ import org.jdbi.v3.tweak.StatementCustomizer;
 @Deprecated
 public class OracleReturning<ResultType> extends BaseStatementCustomizer implements StatementCustomizer
 {
-    private ResultSetMapper<ResultType> mapper;
-    private final List<int[]> binds = new ArrayList<int[]>();
+    private final ResultSetMapper<ResultType> mapper;
+    private final List<int[]> binds = new ArrayList<>();
     private StatementContext context;
     private List<ResultType> results;
     private Class<?> oraclePS ;
@@ -135,7 +135,7 @@ public class OracleReturning<ResultType> extends BaseStatementCustomizer impleme
         catch (Exception e) {
             throw new ResultSetException("Unable to retrieve return result set", e, ctx);
         }
-        this.results = new ArrayList<ResultType>();
+        this.results = new ArrayList<>();
         try {
             int i = 0;
             while (rs.next()) {

@@ -45,32 +45,16 @@ public @interface RegisterColumnMapperFactory
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final RegisterColumnMapperFactory ma = (RegisterColumnMapperFactory) annotation;
-            final ResultColumnMapperFactory[] m = new ResultColumnMapperFactory[ma.value().length];
-            try {
-                Class<? extends ResultColumnMapperFactory>[] mcs = ma.value();
-                for (int i = 0; i < mcs.length; i++) {
-                    m[i] = mcs[i].newInstance();
-                }
-
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified result column mapper", e);
-            }
-            return statement -> {
-                if (statement instanceof Query) {
-                    Query<?> q = (Query<?>) statement;
-                    for (ResultColumnMapperFactory factory : m) {
-                        q.registerColumnMapper(factory);
-                    }
-                }
-            };
+            return create((RegisterColumnMapperFactory) annotation);
         }
 
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            final RegisterColumnMapperFactory ma = (RegisterColumnMapperFactory) annotation;
+            return create((RegisterColumnMapperFactory) annotation);
+        }
+
+        private SqlStatementCustomizer create(RegisterColumnMapperFactory ma) {
             final ResultColumnMapperFactory[] m = new ResultColumnMapperFactory[ma.value().length];
             try {
                 Class<? extends ResultColumnMapperFactory>[] mcs = ma.value();

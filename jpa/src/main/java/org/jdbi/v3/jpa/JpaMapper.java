@@ -68,5 +68,5 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
         return obj;
     }
 
-    private static Logger logger = LoggerFactory.getLogger(JpaMapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(JpaMapper.class);
 }

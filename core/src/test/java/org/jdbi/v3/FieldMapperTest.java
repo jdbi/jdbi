@@ -57,7 +57,7 @@ public class FieldMapperTest {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
 
-        Long aLongVal = 100l;
+        Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
@@ -80,7 +80,7 @@ public class FieldMapperTest {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
 
-        Long aLongVal = 100l;
+        Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
@@ -95,7 +95,7 @@ public class FieldMapperTest {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
 
-        when(resultSet.getLong(1)).thenReturn(0l);
+        when(resultSet.getLong(1)).thenReturn(0L);
         when(resultSet.wasNull()).thenReturn(true);
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
@@ -112,7 +112,7 @@ public class FieldMapperTest {
         when(resultSetMetaData.getColumnLabel(3)).thenReturn("packagePrivateIntField");
         when(resultSetMetaData.getColumnLabel(4)).thenReturn("privateBigDecimalField");
 
-        Long aLongVal = 100l;
+        Long aLongVal = 100L;
         String aStringVal = "something";
         int aIntVal = 1;
         BigDecimal aBigDecimal = BigDecimal.TEN;
@@ -136,14 +136,14 @@ public class FieldMapperTest {
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
         when(resultSetMetaData.getColumnLabel(2)).thenReturn("blongField");
 
-        Long aLongVal = 100l;
-        Long bLongVal = 200l;
+        Long aLongVal = 100L;
+        Long bLongVal = 200L;
 
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.getLong(2)).thenReturn(bLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        FieldMapper<DerivedBean> mapper = new FieldMapper<DerivedBean>(DerivedBean.class);
+        FieldMapper<DerivedBean> mapper = new FieldMapper<>(DerivedBean.class);
 
         DerivedBean derivedBean = mapper.map(0, resultSet, ctx);
 

@@ -33,7 +33,7 @@ import org.jdbi.v3.tweak.StatementRewriter;
  */
 public class Call extends SQLStatement<Call>
 {
-    private final List<OutParamArgument> params = new ArrayList<OutParamArgument>();
+    private final List<OutParamArgument> params = new ArrayList<>();
 
     Call(Handle handle,
          StatementLocator locator,

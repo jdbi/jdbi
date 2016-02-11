@@ -47,9 +47,7 @@ public class Script
     public int[] execute() {
         final List<String> statements = getStatements();
         Batch b = handle.createBatch();
-        for (String s : statements) {
-            b.add(s);
-        }
+        statements.forEach(b::add);
         return b.execute();
     }
 
@@ -75,7 +73,7 @@ public class Script
     }
 
     private List<String> splitToStatements(String script) {
-        final List<String> statements = new ArrayList<String>();
+        final List<String> statements = new ArrayList<>();
         String lastStatement = new SqlScriptParser((t, sb) -> {
             addStatement(sb.toString(), statements);
             sb.setLength(0);

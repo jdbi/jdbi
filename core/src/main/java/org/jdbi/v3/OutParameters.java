@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class OutParameters
 {
-    private final Map<Object, Object> map = new HashMap<Object, Object>();
+    private final Map<Object, Object> map = new HashMap<>();
 
     /**
      * Type-casting convenience method which obtains an object from the map, the

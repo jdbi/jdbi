@@ -34,7 +34,7 @@ public class TestingStatementContext implements StatementContext
 
     public TestingStatementContext(final Map<String, Object> globalAttributes)
     {
-        attributes = new HashMap<String, Object>(globalAttributes);
+        attributes = new HashMap<>(globalAttributes);
     }
 
     @Override

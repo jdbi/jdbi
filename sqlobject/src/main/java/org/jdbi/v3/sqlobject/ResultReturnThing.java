@@ -131,6 +131,7 @@ abstract class ResultReturnThing
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (containerType != null) {
@@ -277,6 +278,7 @@ abstract class ResultReturnThing
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         protected Object result(ResultBearing<?> q, HandleDing baton)
         {
             if (q instanceof Query) {

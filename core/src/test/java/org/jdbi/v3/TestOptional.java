@@ -51,7 +51,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalPresent() throws Exception {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .dynamicBind(new GenericType<Optional<String>>() {}, "name", Optional.of("eric"))
+                .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .findOnly();
 
@@ -62,7 +62,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalEmpty() throws Exception {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .dynamicBind(new GenericType<Optional<String>>() {}, "name", Optional.empty())
+                .bindByType("name", Optional.empty(), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .list();
 
@@ -79,7 +79,7 @@ public class TestOptional {
     public void testDynamicBindOptionalOfCustomType() throws Exception {
         handle.registerArgumentFactory(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
-                .dynamicBind(new GenericType<Optional<Name>>() {}, "name", Optional.of(new Name("eric")))
+                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
                 .list();
     }
@@ -88,7 +88,7 @@ public class TestOptional {
     public void testDynamicBindOptionalOfUnregisteredCustomType() throws Exception {
         exception.expect(UnsupportedOperationException.class);
         handle.createQuery(SELECT_BY_NAME)
-                .dynamicBind(new GenericType<Optional<Name>>() {}, "name", Optional.of(new Name("eric")))
+                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
                 .list();
     }

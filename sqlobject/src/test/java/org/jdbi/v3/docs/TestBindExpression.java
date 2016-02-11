@@ -122,7 +122,7 @@ public class TestBindExpression
         Object topping = engine.createExpression("breakfast.waffle.topping")
                                .evaluate(new MapContext(ImmutableMap.<String, Object>of("breakfast", new Breakfast())));
         assertThat(topping, instanceOf(String.class));
-        assertThat((String) topping, equalTo("syrup"));
+        assertThat(topping, equalTo("syrup"));
     }
 
 
