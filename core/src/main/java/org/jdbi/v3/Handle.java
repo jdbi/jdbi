@@ -174,7 +174,6 @@ public interface Handle extends Closeable
      * This form accepts a transaction isolation level which will be applied to the connection
      * for the scope of this transaction, after which the original isolation level will be restored.
      * </p>
-     * @return value returned from the callback
      * @throws TransactionFailedException if the transaction failed in the callback
      */
     void useTransaction(TransactionIsolationLevel level, TransactionConsumer callback) throws TransactionFailedException;

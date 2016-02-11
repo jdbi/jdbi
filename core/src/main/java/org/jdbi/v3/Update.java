@@ -80,10 +80,10 @@ public class Update extends SQLStatement<Update>
         if (columnName != null && !columnName.isEmpty()) {
             getConcreteContext().setGeneratedKeysColumnNames(new String[] { columnName } );
         }
-        return new GeneratedKeys<GeneratedKeyType>(mapper,
-                                                   Update.this,
-                                                   internalExecute(),
-                                                   getContext());
+        return new GeneratedKeys<>(mapper,
+                Update.this,
+                internalExecute(),
+                getContext());
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {
@@ -91,15 +91,15 @@ public class Update extends SQLStatement<Update>
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
-        return executeAndReturnGeneratedKeys(new SingleColumnMapper<GeneratedKeyType>(mapper), null);
+        return executeAndReturnGeneratedKeys(new SingleColumnMapper<>(mapper), null);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(GenericType<GeneratedKeyType> generatedKeyType) {
-        return executeAndReturnGeneratedKeys(new RegisteredMapper<GeneratedKeyType>(generatedKeyType.getType(), mappingRegistry), null);
+        return executeAndReturnGeneratedKeys(new RegisteredMapper<>(generatedKeyType.getType(), mappingRegistry), null);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(Class<GeneratedKeyType> generatedKeyType) {
-        return executeAndReturnGeneratedKeys(new RegisteredMapper<GeneratedKeyType>(generatedKeyType, mappingRegistry), null);
+        return executeAndReturnGeneratedKeys(new RegisteredMapper<>(generatedKeyType, mappingRegistry), null);
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

@@ -31,7 +31,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<String, String>());
+    private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<>());
 
     /**
      * Very basic sanity test to see if a string looks like it might be sql

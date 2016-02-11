@@ -32,7 +32,7 @@ class EqualsHandler implements Handler
     {
         try
         {
-            Map<Method, Handler> handler = new HashMap<Method, Handler>();
+            Map<Method, Handler> handler = new HashMap<>();
             handler.put(Object.class.getMethod("equals", Object.class), new EqualsHandler());
             return handler;
         }

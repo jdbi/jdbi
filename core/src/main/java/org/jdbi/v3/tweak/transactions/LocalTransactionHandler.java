@@ -37,7 +37,7 @@ import org.jdbi.v3.tweak.TransactionHandler;
  */
 public class LocalTransactionHandler implements TransactionHandler
 {
-    private final ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<Handle, LocalStuff>();
+    private final ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<>();
 
     /**
      * Called when a transaction is started
@@ -229,7 +229,7 @@ public class LocalTransactionHandler implements TransactionHandler
 
     private static class LocalStuff
     {
-        private final Map<String, Savepoint> checkpoints = new HashMap<String, Savepoint>();
+        private final Map<String, Savepoint> checkpoints = new HashMap<>();
         private final boolean initialAutocommit;
 
         LocalStuff(boolean initial)

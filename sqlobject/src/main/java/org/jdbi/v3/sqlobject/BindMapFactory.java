@@ -33,10 +33,9 @@ class BindMapFactory implements BinderFactory<BindMap, Map<String, Object>>
                 prefix = bind.prefix() + ".";
             }
 
-            final Set<String> allowedKeys = new HashSet<String>(Arrays.asList(bind.value()));
-            final Map<String, Object> map = arg;
+            final Set<String> allowedKeys = new HashSet<>(Arrays.asList(bind.value()));
 
-            for (Entry<String, Object> e : map.entrySet()) {
+            for (Entry<String, Object> e : arg.entrySet()) {
                 final Object keyObj = e.getKey();
                 final String key;
                 if (bind.implicitKeyStringConversion() || (keyObj instanceof String)) {
@@ -52,7 +51,7 @@ class BindMapFactory implements BinderFactory<BindMap, Map<String, Object>>
 
             // Any leftover keys were specified but not found in the map, so bind as null
             for (String key : allowedKeys) {
-                final Object val = map.get(key);
+                final Object val = arg.get(key);
                 if (val != null) {
                     throw new IllegalStateException("Internal error: map iteration missed key " + key);
                 }

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
@@ -28,7 +29,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.helpers.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -119,7 +120,7 @@ public class TestFoldToObjectGraph
     {
         private final String name;
         private final String mascot;
-        private final Set<Person> people = new LinkedHashSet<Person>();
+        private final Set<Person> people = new LinkedHashSet<>();
 
         public Team(String name, String mascot)
         {
@@ -148,21 +149,17 @@ public class TestFoldToObjectGraph
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            Team team = (Team) o;
+            Team that = (Team) o;
 
-            if (mascot != null ? !mascot.equals(team.mascot) : team.mascot != null) return false;
-            return !(name != null ? !name.equals(team.name) : team.name != null) &&
-                   !(people != null ? !people.equals(team.people) : team.people != null);
-
+            return Objects.equals(this.mascot, that.mascot)
+                    && Objects.equals(this.name, that.name)
+                    && Objects.equals(this.people, that.people);
         }
 
         @Override
         public int hashCode()
         {
-            int result = name != null ? name.hashCode() : 0;
-            result = 31 * result + (mascot != null ? mascot.hashCode() : 0);
-            result = 31 * result + (people != null ? people.hashCode() : 0);
-            return result;
+            return Objects.hash(name, mascot, people);
         }
     }
 

@@ -45,7 +45,7 @@ import org.jdbi.v3.tweak.StatementRewriter;
  */
 public class HashPrefixStatementRewriter implements StatementRewriter
 {
-    private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<String, ParsedStatement>());
+    private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
     /**
      * Munge up the SQL as desired. Responsible for figuring out ow to bind any
@@ -188,7 +188,7 @@ public class HashPrefixStatementRewriter implements StatementRewriter
     {
         private String sql;
         private boolean positionalOnly = true;
-        private final List<String> params = new ArrayList<String>();
+        private final List<String> params = new ArrayList<>();
 
         public void addNamedParamAt(String name)
         {

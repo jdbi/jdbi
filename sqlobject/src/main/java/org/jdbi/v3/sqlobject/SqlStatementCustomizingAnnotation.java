@@ -13,14 +13,17 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Annotation used to build customizing annotations. Use this to annotate an annotation. See examples
  * in the org.jdbi.v3.sqlobject.customizers package.
  */
 @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.ANNOTATION_TYPE)
 public @interface SqlStatementCustomizingAnnotation
 {
     /**

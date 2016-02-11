@@ -110,7 +110,7 @@ public class TestBindBeanFactory
 
         public Short getAShort()
         {
-            return Short.valueOf((short) 12345);
+            return (short) 12345;
         }
     }
 

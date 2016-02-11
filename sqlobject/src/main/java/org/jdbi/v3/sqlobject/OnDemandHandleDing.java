@@ -22,7 +22,7 @@ import org.jdbi.v3.Handle;
 class OnDemandHandleDing implements HandleDing
 {
     private final DBI dbi;
-    private final ThreadLocal<LocalDing> threadDing = new ThreadLocal<LocalDing>();
+    private final ThreadLocal<LocalDing> threadDing = new ThreadLocal<>();
 
     OnDemandHandleDing(DBI dbi)
     {
@@ -58,7 +58,7 @@ class OnDemandHandleDing implements HandleDing
 
     class LocalDing implements HandleDing {
 
-        private final Set<String> retentions = new HashSet<String>();
+        private final Set<String> retentions = new HashSet<>();
         private final Handle handle;
 
         LocalDing(Handle handle)

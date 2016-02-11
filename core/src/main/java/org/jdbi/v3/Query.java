@@ -72,11 +72,11 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         final PreparedStatement stmt = internalExecute();
         try {
-            return new ResultSetResultIterator<ResultType>(mapper,
-                                                           Query.this,
-                                                           stmt,
-                                                           stmt.getResultSet(),
-                                                           getContext());
+            return new ResultSetResultIterator<>(mapper,
+                    Query.this,
+                    stmt,
+                    stmt.getResultSet(),
+                    getContext());
         } catch (SQLException e) {
             try {
                 stmt.close();
@@ -97,7 +97,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapToBean(Class<T> resultType)
     {
-        return this.map(new BeanMapper<T>(resultType));
+        return this.map(new BeanMapper<>(resultType));
     }
 
     /**
@@ -147,24 +147,24 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
      */
     private <T> Query<T> mapTo(Type resultType) {
-        return this.map(new RegisteredMapper<T>(resultType, mappingRegistry));
+        return this.map(new RegisteredMapper<>(resultType, mappingRegistry));
     }
 
     public <T> Query<T> map(ResultSetMapper<T> mapper)
     {
-        return new Query<T>(getParameters(),
-                            mapper,
-                            getStatementLocator(),
-                            getRewriter(),
-                            getHandle(),
-                            getStatementBuilder(),
-                            getSql(),
-                            getConcreteContext(),
-                            getTimingCollector(),
-                            getStatementCustomizers(),
-                            MappingRegistry.copyOf(mappingRegistry),
-                            ArgumentRegistry.copyOf(getArgumentRegistry()),
-                            CollectorFactoryRegistry.copyOf(getCollectorFactoryRegistry()));
+        return new Query<>(getParameters(),
+                mapper,
+                getStatementLocator(),
+                getRewriter(),
+                getHandle(),
+                getStatementBuilder(),
+                getSql(),
+                getConcreteContext(),
+                getTimingCollector(),
+                getStatementCustomizers(),
+                MappingRegistry.copyOf(mappingRegistry),
+                ArgumentRegistry.copyOf(getArgumentRegistry()),
+                CollectorFactoryRegistry.copyOf(getCollectorFactoryRegistry()));
     }
 
     /**
@@ -250,7 +250,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     public void registerMapper(ResultSetMapper<?> m)
     {
-        this.mappingRegistry.addMapper(new InferredMapperFactory<>(m));
+        this.mappingRegistry.addMapper(new InferredMapperFactory(m));
     }
 
     public void registerMapper(ResultSetMapperFactory m)

@@ -32,7 +32,7 @@ public class DBIFactoryBean implements FactoryBean<DBI>
 {
     private DataSource dataSource;
     private StatementLocator statementLocator;
-    private final Map<String, Object> globalDefines = new HashMap<String, Object>();
+    private final Map<String, Object> globalDefines = new HashMap<>();
 
     public DBIFactoryBean() {
     }

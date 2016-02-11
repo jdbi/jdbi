@@ -69,13 +69,14 @@ public class BuiltInMapperFactory implements ResultColumnMapperFactory {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
         Class<?> rawType = getErasedType(type);
         if (rawType.isEnum()) {
             return Optional.of(EnumMapper.byName((Class<? extends Enum>) rawType));
         }
 
-        return Optional.ofNullable(mappers.get(type));
+        return Optional.ofNullable(mappers.get(rawType));
     }
 
     @FunctionalInterface
@@ -96,7 +97,7 @@ public class BuiltInMapperFactory implements ResultColumnMapperFactory {
 
     private static char getChar(ResultSet r, int i) throws SQLException {
         Character character = getCharacter(r, i);
-        return character == null ? '\000' : character.charValue();
+        return character == null ? '\000' : character;
     }
 
     private static Character getCharacter(ResultSet r, int i) throws SQLException {

@@ -63,7 +63,7 @@ class ParsedStatement
             // we have no quotes, just replace tokens if there are any and exit
             this.replaced = token_matcher.replaceAll("?");
             token_matcher.reset();
-            final List<String> tokens = new ArrayList<String>();
+            final List<String> tokens = new ArrayList<>();
             while (token_matcher.find())
             {
                 tokens.add(token_matcher.group().substring(token_matcher.group().indexOf(":") + 1));
@@ -73,7 +73,7 @@ class ParsedStatement
         else if (last_token = token_matcher.find())
         {
             // we have quotes and tokens, juggling time
-            final List<String> tokens = new ArrayList<String>();
+            final List<String> tokens = new ArrayList<>();
             final StringBuilder replaced = new StringBuilder();
 
             // copy everything up to beginning of first match into buffer

@@ -25,7 +25,7 @@ import org.jdbi.v3.ValueTypeMapper;
 import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
-import org.jdbi.v3.sqlobject.helpers.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

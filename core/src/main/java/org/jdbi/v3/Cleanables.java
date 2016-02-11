@@ -189,7 +189,7 @@ class Cleanables
 
     /**
      * In the {@link SQLStatement} derived classes, the {@link Statement} is not managed directly but through the
-     * {@link StatementBuilder}, which allows the {@link CachingStatementBuilder} to hook in and provide {@link java.sql.PreparedStatement} caching.
+     * {@link StatementBuilder}.
      */
     static class StatementBuilderCleanable implements Cleanable
     {

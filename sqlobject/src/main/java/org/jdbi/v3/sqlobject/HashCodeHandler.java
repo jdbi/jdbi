@@ -25,7 +25,7 @@ class HashCodeHandler implements Handler
     {
         try
         {
-            Map<Method, Handler> handler = new HashMap<Method, Handler>();
+            Map<Method, Handler> handler = new HashMap<>();
             handler.put(Object.class.getMethod("hashCode"), new HashCodeHandler());
             return handler;
         }

@@ -46,7 +46,7 @@ public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
                 String key = m.getColumnName(i);
                 String alias = m.getColumnLabel(i);
                 Object value = r.getObject(i);
-                row.put((alias != null ? alias : key).toLowerCase(Locale.ROOT), value);
+                row.put((alias == null ? key : alias).toLowerCase(Locale.ROOT), value);
             }
         }
         catch (SQLException e)

@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class JdbiOptionals {
+    @SafeVarargs
     public static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {
         return Stream.of(suppliers)
                 .flatMap(supplier -> toStream(supplier.get()))

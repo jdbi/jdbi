@@ -26,7 +26,7 @@ class TransactionalHelper
     static Map<Method, Handler> handlers()
     {
         try {
-            Map<Method, Handler> h = new HashMap<Method, Handler>();
+            Map<Method, Handler> h = new HashMap<>();
             h.put(Transactional.class.getMethod("begin"), new BeginHandler());
             h.put(Transactional.class.getMethod("commit"), new CommitHandler());
             h.put(Transactional.class.getMethod("rollback"), new RollbackHandler());

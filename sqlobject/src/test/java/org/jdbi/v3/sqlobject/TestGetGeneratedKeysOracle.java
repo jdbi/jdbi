@@ -58,7 +58,7 @@ public class TestGetGeneratedKeysOracle {
 
     /**
      * Oracle needs to be queried by index and not id (like
-     * {@link org.skife.jdbi.v2.sqlobject.FigureItOutResultSetMapper} does).
+     * {@link FigureItOutResultSetMapper} does).
      */
     public static class OracleGeneratedKeyMapper implements ResultSetMapper<Long> {
 

@@ -26,7 +26,7 @@ import org.jdbi.v3.tweak.StatementCustomizer;
 
 abstract class BaseStatement
 {
-    private final Collection<StatementCustomizer> customizers = new ArrayList<StatementCustomizer>();
+    private final Collection<StatementCustomizer> customizers = new ArrayList<>();
     private final ConcreteStatementContext context;
     private final ArgumentRegistry argumentRegistry;
 
@@ -116,9 +116,9 @@ abstract class BaseStatement
         public final void cleanup(final StatementContext ctx)
             throws SQLException
         {
-            final List<SQLException> exceptions = new ArrayList<SQLException>();
+            final List<SQLException> exceptions = new ArrayList<>();
             try {
-                List<Cleanable> cleanables = new ArrayList<Cleanable>(context.getCleanables());
+                List<Cleanable> cleanables = new ArrayList<>(context.getCleanables());
                 Collections.reverse(cleanables);
                 for (Cleanable cleanable : cleanables) {
                     try {

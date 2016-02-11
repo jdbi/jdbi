@@ -106,8 +106,8 @@ public class TestDocumentation
             assertThat(rs.size(), equalTo(1));
 
             Map<String, Object> row = rs.get(0);
-            assertThat((Long) row.get("id"), equalTo(3L));
-            assertThat((String) row.get("name"), equalTo("Patrick"));
+            assertThat(row.get("id"), equalTo(3L));
+            assertThat(row.get("name"), equalTo("Patrick"));
         }
     }
 

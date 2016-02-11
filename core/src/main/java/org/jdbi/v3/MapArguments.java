@@ -51,6 +51,6 @@ class MapArguments implements NamedArgumentFinder
 
     @Override
     public String toString() {
-        return new LinkedHashMap<String, Object>(args).toString();
+        return new LinkedHashMap<>(args).toString();
     }
 }

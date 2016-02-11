@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3;
 
+import java.util.Objects;
+
 /**
  *
  */
@@ -86,25 +88,18 @@ public class Something
         if (this == o) return true;
         if (!(o instanceof Something)) return false;
 
-        Something something = (Something) o;
+        Something that = (Something) o;
 
-        if (id != something.id) return false;
-        if (intValue != something.intValue) return false;
-        if (integerValue != null ? !integerValue.equals(something.integerValue) : something.integerValue != null)
-            return false;
-        if (name != null ? !name.equals(something.name) : something.name != null) return false;
-
-        return true;
+        return this.id == that.id
+                && this.intValue == that.intValue
+                && Objects.equals(this.integerValue, that.integerValue)
+                && Objects.equals(this.name, that.name);
     }
 
     @Override
     public int hashCode()
     {
-        int result = id;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (integerValue != null ? integerValue.hashCode() : 0);
-        result = 31 * result + intValue;
-        return result;
+        return Objects.hash(id, name, integerValue, intValue);
     }
 
     @Override
