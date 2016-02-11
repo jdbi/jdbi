@@ -28,8 +28,7 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
 /**
- * Used to set attributes on the StatementContext for the statement generated for this method.
- * These values will be available to other customizers, such as the statement locator or rewriter.
+ * Used to register an argument factory with either a sql object type or for a specific method.
  */
 @SqlStatementCustomizingAnnotation(RegisterArgumentFactory.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})

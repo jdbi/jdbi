@@ -21,6 +21,7 @@ import java.sql.Types;
 import org.jdbi.v3.Binding;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.ObjectArgumentFactory;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Update;
 import org.junit.Rule;
@@ -55,6 +56,7 @@ public class TestBindBeanFactory
         Binder<BindBean, Object> beanBinder = factory.build(bindBeanImpl);
 
         try (final Handle handle = db.openHandle()) {
+            handle.registerArgumentFactory(ObjectArgumentFactory.create(Foo.class));
             final Update testStatement = handle.createStatement("does not matter");
 
 

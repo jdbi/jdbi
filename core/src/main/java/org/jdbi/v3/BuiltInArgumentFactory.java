@@ -45,7 +45,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
     // Care for the initialization order here, there's a fair number of statics.  Create the builders before the factory instance.
 
     private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
-    private static final ArgBuilder<Object> OBJ_BUILDER = v -> new BuiltInArgument<>(Object.class, Types.NULL, PreparedStatement::setObject, v);
     private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
@@ -84,7 +83,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
         register(map, Long.class, Types.INTEGER, PreparedStatement::setLong);
         register(map, long.class, Types.INTEGER, PreparedStatement::setLong);
-        register(map, Object.class, OBJ_BUILDER);
         register(map, Short.class, Types.SMALLINT, PreparedStatement::setShort);
         register(map, short.class, Types.SMALLINT, PreparedStatement::setShort);
         register(map, java.sql.Date.class, Types.DATE, PreparedStatement::setDate);
@@ -122,11 +120,9 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
             return ctx.findArgumentFor(nestedType, nestedValue);
         }
 
-        if (expectedType == Object.class) {
-            return Optional.of(OBJ_BUILDER.build(value));
-        }
-
-        return Optional.empty();
+        return value == null
+                ? Optional.of(new NullArgument(Types.NULL))
+                : Optional.empty();
     }
 
     private Type findOptionalType(Type wrapperType, Object nestedValue) {

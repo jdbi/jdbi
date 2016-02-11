@@ -264,6 +264,13 @@
             </dependency>
 
             <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.3.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.auto.service</groupId>
                 <artifactId>auto-service</artifactId>
                 <version>1.0-rc2</version>

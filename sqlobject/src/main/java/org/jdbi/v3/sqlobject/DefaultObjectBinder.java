@@ -15,8 +15,11 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Iterator;
 
+import org.jdbi.v3.PreparedBatchPart;
 import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.Types;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
 {
@@ -49,6 +52,17 @@ class DefaultObjectBinder implements Binder<Bind, Object>
         }
 
         Type type = param.getParameterizedType();
+
+        if (q instanceof PreparedBatchPart) {
+            // FIXME BatchHandler should extract the iterable/iterator element type and pass it to the binder
+            Class<?> erasedType = Types.getErasedType(type);
+            if (Iterable.class.isAssignableFrom(erasedType)) {
+                type = Types.findGenericParameter(type, Iterable.class).get();
+            }
+            else if (Iterator.class.isAssignableFrom(erasedType)) {
+                type = Types.findGenericParameter(type, Iterator.class).get();
+            }
+        }
 
         q.bindByType(paramIndex, arg, type);
         q.bindByType(bindName, arg, type);

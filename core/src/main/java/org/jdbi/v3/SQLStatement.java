@@ -1193,9 +1193,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return toArgument(value == null ? Object.class : value.getClass(), value);
     }
 
-    private Argument toArgument(Type expectedType, Object value) {
-        return getArgumentRegistry().findArgumentFor(expectedType, value, getContext())
-                .orElseThrow(() -> new IllegalStateException("Unbindable argument passed: " + value));
+    private Argument toArgument(Type type, Object value) {
+        return getArgumentRegistry().findArgumentFor(type, value, getContext())
+                .orElseThrow(() -> new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type));
     }
 
     /**

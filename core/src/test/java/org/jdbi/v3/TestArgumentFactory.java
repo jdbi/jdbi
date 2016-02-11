@@ -14,7 +14,6 @@
 package org.jdbi.v3;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.jdbi.v3.Types.getErasedType;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
@@ -97,7 +96,7 @@ public class TestArgumentFactory
     {
         @Override
         public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
-            if (getErasedType(expectedType) == Object.class && value instanceof Name) {
+            if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
                 return ctx.findArgumentFor(String.class, nameValue.getFullName());
             }

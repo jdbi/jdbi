@@ -69,7 +69,7 @@ public class TestRegisterArgumentFactory
     {
         @Override
         public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
-            if (expectedType == Object.class && value instanceof Name) {
+            if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
                 return Optional.of((position, statement, ctx1) -> statement.setString(position, nameValue.getFullName()));
             }
