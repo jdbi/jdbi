@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -103,7 +104,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
      * @return the number of rows modified or inserted per batch part.
      */
     public int[] execute() {
-        return (int[]) internalBatchExecute(null);
+        return (int[]) internalBatchExecute(null, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -112,8 +113,17 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                 new GeneratedKeys<>(mapper,
                                     PreparedBatch.this,
                                     results,
-                                    getContext()));
+                                    getContext()), null);
+    }
 
+    @SuppressWarnings("unchecked")
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultSetMapper<GeneratedKeyType> mapper,
+                                                                                     String... columnNames) {
+        return (GeneratedKeys<GeneratedKeyType>) internalBatchExecute(results ->
+                new GeneratedKeys<GeneratedKeyType>(mapper,
+                        PreparedBatch.this,
+                        results,
+                        getContext()), columnNames);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
@@ -128,7 +138,12 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
         return executeAndGenerateKeys(new RegisteredMapper<>(generatedKeyType, mappingRegistry));
     }
 
-    private <Result> Object internalBatchExecute(Function<PreparedStatement, Result> munger) {
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(ResultColumnMapper<GeneratedKeyType> mapper,
+                                                                                     String... columnNames) {
+        return executeAndGenerateKeys(new SingleColumnMapper<GeneratedKeyType>(mapper), columnNames);
+    }
+
+    private <Result> Object internalBatchExecute(Function<PreparedStatement, Result> munger, String[] columnNames) {
         boolean generateKeys = munger != null;
         // short circuit empty batch
         if (parts.size() == 0) {
@@ -151,8 +166,16 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
         PreparedStatement stmt;
         try {
             try {
-                stmt = getHandle().getConnection().prepareStatement(rewritten.getSql(),
-                        generateKeys ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
+                Connection connection = getHandle().getConnection();
+                if (generateKeys) {
+                    if (columnNames != null) {
+                        stmt = connection.prepareStatement(rewritten.getSql(), columnNames);
+                    } else  {
+                        stmt = connection.prepareStatement(rewritten.getSql(), Statement.RETURN_GENERATED_KEYS);
+                    }
+                } else {
+                    stmt = connection.prepareStatement(rewritten.getSql(), Statement.NO_GENERATED_KEYS);
+                }
                 addCleanable(Cleanables.forStatement(stmt));
             }
             catch (SQLException e) {
