@@ -81,9 +81,9 @@ public class JpaTest {
 
         List<EntityThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     @Entity
@@ -121,9 +121,9 @@ public class JpaTest {
 
         List<FieldThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     @Entity
@@ -161,9 +161,9 @@ public class JpaTest {
 
         List<NamedFieldThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     @Entity
@@ -201,9 +201,9 @@ public class JpaTest {
 
         List<GetterThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     @Entity
@@ -241,9 +241,9 @@ public class JpaTest {
 
         List<NamedGetterThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     @Entity
@@ -281,9 +281,9 @@ public class JpaTest {
 
         List<SetterThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     @Entity
@@ -321,9 +321,9 @@ public class JpaTest {
 
         List<NamedSetterThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     @MappedSuperclass
@@ -363,9 +363,9 @@ public class JpaTest {
 
         List<ExtendsMappedSuperclassThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     @Entity
@@ -404,9 +404,9 @@ public class JpaTest {
 
         List<AnnotationPriorityThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     interface SuperfluousColumnDao {
@@ -429,9 +429,9 @@ public class JpaTest {
 
         List<FieldThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     interface MissingColumnDao {
@@ -454,9 +454,9 @@ public class JpaTest {
 
         List<FieldThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), new FieldThing(1, null));
-        assertThingEquals(rs.get(1), new FieldThing(2, null));
+        assertEquals(2, rs.size());
+        assertThingEquals(new FieldThing(1, null), rs.get(0));
+        assertThingEquals(new FieldThing(2, null), rs.get(1));
     }
 
     @MappedSuperclass
@@ -502,9 +502,9 @@ public class JpaTest {
 
         List<OverridingSubclassThing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     public static void assertThingEquals(Thing one, Thing two) {
