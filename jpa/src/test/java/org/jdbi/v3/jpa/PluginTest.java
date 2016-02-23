@@ -63,9 +63,9 @@ public class PluginTest {
 
         List<Thing> rs = dao.list();
 
-        assertEquals(rs.size(), 2);
-        assertThingEquals(rs.get(0), brian);
-        assertThingEquals(rs.get(1), keith);
+        assertEquals(2, rs.size());
+        assertThingEquals(brian, rs.get(0));
+        assertThingEquals(keith, rs.get(1));
     }
 
     public static void assertThingEquals(Thing one, Thing two) {
