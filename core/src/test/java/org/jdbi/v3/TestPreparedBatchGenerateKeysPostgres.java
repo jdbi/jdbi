@@ -64,7 +64,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
         assertEquals(Arrays.asList(1, 2), ids);
 
         List<Something> somethings = h.createQuery("select id, name from something")
-                .mapTo(Something.class)
+                .mapToBean(Something.class)
                 .list();
         assertEquals(Arrays.asList(new Something(1, "Brian"), new Something(2, "Thom")), somethings);
     }
