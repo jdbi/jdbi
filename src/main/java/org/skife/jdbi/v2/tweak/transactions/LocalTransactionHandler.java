@@ -22,6 +22,7 @@ import org.skife.jdbi.v2.exceptions.TransactionFailedException;
 import org.skife.jdbi.v2.exceptions.UnableToRestoreAutoCommitStateException;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
@@ -185,11 +186,19 @@ public class LocalTransactionHandler implements TransactionHandler
             }
         }
         catch (RuntimeException e) {
-            handle.rollback();
+            try {
+                handle.rollback();
+            } catch (Exception rollback) {
+                suppressOrLog(e, rollback);
+            }
             throw e;
         }
         catch (Exception e) {
-            handle.rollback();
+            try {
+                handle.rollback();
+            } catch (Exception rollback) {
+                suppressOrLog(e, rollback);
+            }
             throw new TransactionFailedException("Transaction failed do to exception being thrown " +
                                                  "from within the callback. See cause " +
                                                  "for the original exception.", e);
@@ -253,5 +262,22 @@ public class LocalTransactionHandler implements TransactionHandler
         {
             return initialAutocommit;
         }
+    }
+
+    /** Java 7 or up: add inner exception as suppressed.  Java 6 just log
+     * and move on with life. */ // TODO: jdbi3 fixup
+    private void suppressOrLog(Throwable outer, Throwable suppressed) {
+        try {
+            Throwable.class.getMethod("addSuppressed", Throwable.class).invoke(outer, suppressed);
+            return;
+        } catch (SecurityException e) {
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException e) {
+        }
+        System.err.println("Exception caught while attempting connection rollback in LocalTransactionHandler;"
+                + "in Java 7 or later we would 'suppress' it but since we can't we'll log it here:");
+        suppressed.printStackTrace();
     }
 }
