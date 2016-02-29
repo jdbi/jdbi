@@ -287,8 +287,8 @@
                     <configuration>
                         <toolchains>
                             <jdk>
-                                <version>1.7</version>
-                                <vendor>oracle</vendor>
+                                <version>${project.build.targetJdk}</version>
+                                <vendor>sun</vendor>
                             </jdk>
                         </toolchains>
                     </configuration>
