@@ -190,6 +190,22 @@ class SqlObject
         return handlers;
     }
 
+    /**
+     * Register a binder factory that can decide for a given method parameter which Binder to use.  The factory
+     * is added to the front of the chain, giving it higher precedence over previously registered factories.  The
+     * default binder factory will always be last in the chain.
+     */
+    public static void registerBinderFactory(ParameterBinderFactory factory) {
+        binderRegistry.addFactoryAsFirst(factory);
+    }
+
+    /**
+     * Clear all registered binder factories.  The default binder factory will still be used, and is implied at the
+     * end of the factory chain.
+     */
+    public static void resetBinderFactories() {
+        binderRegistry.reset();
+    }
 
     private final Map<Method, Handler> handlers;
     private final HandleDing           ding;
