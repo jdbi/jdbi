@@ -44,7 +44,6 @@ class SqlObject
     private static final Map<Method, Handler>                          mixinHandlers = new HashMap<>();
     private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<>();
     private static final ConcurrentMap<Class<?>, Factory>              factories     = new ConcurrentHashMap<>();
-    private static final ParameterBinderRegistry                       binderRegistry = new ParameterBinderRegistry();
 
     static {
         mixinHandlers.putAll(TransactionalHelper.handlers());
@@ -54,7 +53,7 @@ class SqlObject
     @SuppressWarnings("unchecked")
     static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)
     {
-        final ParameterBinderRegistry clonedBinderRegistry = new ParameterBinderRegistry(binderRegistry);
+        final ParameterBinderRegistry clonedBinderRegistry = new ParameterBinderRegistry(SqlObjectBuilder.binderRegistry);
 
         Factory f;
         if (factories.containsKey(sqlObjectType)) {
@@ -145,23 +144,6 @@ class SqlObject
         handlersCache.put(sqlObjectType, handlers);
 
         return handlers;
-    }
-
-    /**
-     * Register a binder factory that can decide for a given method parameter which Binder to use.  The factory
-     * is added to the front of the chain, giving it higher precedence over previously registered factories.  The
-     * default binder factory will always be last in the chain.
-     */
-    public static void registerBinderFactory(ParameterBinderFactory factory) {
-        binderRegistry.addFactoryAsFirst(factory);
-    }
-
-    /**
-     * Clear all registered binder factories.  The default binder factory will still be used, and is implied at the
-     * end of the factory chain.
-     */
-    public static void resetBinderFactories() {
-        binderRegistry.reset();
     }
 
     @SafeVarargs
