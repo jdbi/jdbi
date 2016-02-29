@@ -41,6 +41,7 @@ class SqlObject
     private static final Map<Method, Handler>                          mixinHandlers = new HashMap<Method, Handler>();
     private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<Class<?>, Map<Method, Handler>>();
     private static final ConcurrentMap<Class<?>, Factory>              factories     = new ConcurrentHashMap<Class<?>, Factory>();
+    private static final ParameterBinderRegistry                       binderRegistry = new ParameterBinderRegistry();
 
     private static Method jdk8DefaultMethod = null;
 
@@ -60,6 +61,8 @@ class SqlObject
     @SuppressWarnings("unchecked")
     static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)
     {
+        final ParameterBinderRegistry clonedBinderRegistry = new ParameterBinderRegistry(binderRegistry);
+
         Factory f;
         if (factories.containsKey(sqlObjectType)) {
             f = factories.get(sqlObjectType);
@@ -77,7 +80,7 @@ class SqlObject
                 e.setSuperclass(sqlObjectType);
             }
             e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
-            final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
+            final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType, clonedBinderRegistry), handle);
 
             e.setCallbackFilter(new CallbackFilter() {
 
@@ -119,7 +122,7 @@ class SqlObject
             f = (Factory) actual;
         }
 
-        final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
+        final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType, clonedBinderRegistry), handle);
         return (T) f.newInstance(new Callback[] {
                 new MethodInterceptor() {
                     @Override
@@ -131,7 +134,7 @@ class SqlObject
         });
     }
 
-    private static Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType)
+    private static Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType, ParameterBinderRegistry clonedBinderRegistry)
     {
         if (handlersCache.containsKey(sqlObjectType)) {
             return handlersCache.get(sqlObjectType);
@@ -147,16 +150,16 @@ class SqlObject
             final Method raw_method = method.getRawMember();
 
             if (raw_method.isAnnotationPresent(SqlQuery.class)) {
-                handlers.put(raw_method, new QueryHandler(sqlObjectType, method, ResultReturnThing.forType(method)));
+                handlers.put(raw_method, new QueryHandler(sqlObjectType, method, ResultReturnThing.forType(method), clonedBinderRegistry));
             }
             else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
-                handlers.put(raw_method, new UpdateHandler(sqlObjectType, method));
+                handlers.put(raw_method, new UpdateHandler(sqlObjectType, method, clonedBinderRegistry));
             }
             else if (raw_method.isAnnotationPresent(SqlBatch.class)) {
-                handlers.put(raw_method, new BatchHandler(sqlObjectType, method));
+                handlers.put(raw_method, new BatchHandler(sqlObjectType, method, clonedBinderRegistry));
             }
             else if (raw_method.isAnnotationPresent(SqlCall.class)) {
-                handlers.put(raw_method, new CallHandler(sqlObjectType, method));
+                handlers.put(raw_method, new CallHandler(sqlObjectType, method, clonedBinderRegistry));
             }
             else if(raw_method.isAnnotationPresent(CreateSqlObject.class)) {
                 handlers.put(raw_method, new CreateSqlObjectHandler(raw_method.getReturnType()));
@@ -187,9 +190,26 @@ class SqlObject
         return handlers;
     }
 
+    /**
+     * Register a binder factory that can decide for a given method parameter which Binder to use.  The factory
+     * is added to the front of the chain, giving it higher precedence over previously registered factories.  The
+     * default binder factory will always be last in the chain.
+     */
+    public static void registerBinderFactory(ParameterBinderFactory factory) {
+        binderRegistry.addFactoryAsFirst(factory);
+    }
+
+    /**
+     * Clear all registered binder factories.  The default binder factory will still be used, and is implied at the
+     * end of the factory chain.
+     */
+    public static void resetBinderFactories() {
+        binderRegistry.reset();
+    }
 
     private final Map<Method, Handler> handlers;
     private final HandleDing           ding;
+
 
     SqlObject(Map<Method, Handler> handlers, HandleDing ding)
     {
