@@ -27,9 +27,9 @@ class CallHandler extends CustomizingStatementHandler
     private final String sql;
     private final boolean returnOutParams;
 
-    CallHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    CallHandler(Class<?> sqlObjectType, ResolvedMethod method, ParameterBinderRegistry binderRegistry)
     {
-        super(sqlObjectType, method);
+        super(sqlObjectType, method, binderRegistry);
 
         if (null != method.getReturnType() ) {
             if (method.getReturnType().isInstanceOf(OutParameters.class)){
