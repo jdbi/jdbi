@@ -32,13 +32,11 @@ abstract class CustomizingStatementHandler implements Handler
     private final List<FactoryAnnotationIndexTriple> paramBasedCustomizerFactories  = new ArrayList<FactoryAnnotationIndexTriple>();
     private final Class<?> sqlObjectType;
     private final Method method;
-    private final ParameterBinderRegistry binderRegistry;
 
     CustomizingStatementHandler(Class<?> sqlObjectType, ResolvedMethod method, ParameterBinderRegistry binderRegistry)
     {
         this.sqlObjectType = sqlObjectType;
         this.method = method.getRawMember();
-        this.binderRegistry = binderRegistry;
 
         for (final Annotation annotation : sqlObjectType.getAnnotations()) {
             if (annotation.annotationType().isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
