@@ -22,7 +22,8 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.ValueType;
 import org.jdbi.v3.ValueTypeMapper;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
+import org.jdbi.v3.sqlobject.SqlObjectExtension;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
@@ -78,7 +79,7 @@ public class TestBeanMapperFactory
     public void createTable() throws Exception {
         h = db.openHandle();
         h.createStatement("create table testBean (valueType varchar(50))").execute();
-        dao = SqlObjectBuilder.attach(h, TestDao.class);
+        dao = SqlObjects.attach(h, TestDao.class);
     }
 
     @After

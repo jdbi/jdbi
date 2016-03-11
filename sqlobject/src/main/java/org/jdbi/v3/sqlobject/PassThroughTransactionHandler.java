@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.exceptions.TransactionException;
 
@@ -41,36 +42,25 @@ class PassThroughTransactionHandler implements Handler
                 throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
             }
 
+            TransactionCallback<Object> callback = (conn, status) -> {
+                try {
+                    return mp.invokeSuper(target, args);
+                }
+                catch (Throwable throwable) {
+                    if (throwable instanceof Exception) {
+                        throw (Exception) throwable;
+                    }
+                    else {
+                        throw new RuntimeException(throwable);
+                    }
+                }
+            };
+
             if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
-                return h.inTransaction((conn, status) -> {
-                    try {
-                        return mp.invokeSuper(target, args);
-                    }
-                    catch (Throwable throwable) {
-                        if (throwable instanceof Exception) {
-                            throw (Exception) throwable;
-                        }
-                        else {
-                            throw new RuntimeException(throwable);
-                        }
-                    }
-                });
+                return h.inTransaction(callback);
             }
             else {
-                return h.inTransaction(isolation, (conn, status) -> {
-                    try {
-                        return mp.invokeSuper(target, args);
-                    }
-                    catch (Throwable throwable) {
-                        if (throwable instanceof Exception) {
-                            throw (Exception) throwable;
-                        }
-                        else {
-                            throw new RuntimeException(throwable);
-                        }
-                    }
-                });
-
+                return h.inTransaction(isolation, callback);
             }
         }
 

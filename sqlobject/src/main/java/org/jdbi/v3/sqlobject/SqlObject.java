@@ -168,7 +168,7 @@ class SqlObject
         this.ding = ding;
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args, MethodProxy mp) throws Throwable
+    Object invoke(Object proxy, Method method, Object[] args, MethodProxy mp) throws Throwable
     {
         final Handler handler = handlers.get(method);
 
@@ -196,14 +196,6 @@ class SqlObject
                 }
             }
         }
-    }
-
-    public static void close(Object sqlObject)
-    {
-        if (!(sqlObject instanceof CloseMe)) {
-            throw new IllegalArgumentException(sqlObject + " is not a sql object");
-        }
-        ((CloseMe) sqlObject).close();
     }
 
     static String getSql(SqlCall q, Method m)

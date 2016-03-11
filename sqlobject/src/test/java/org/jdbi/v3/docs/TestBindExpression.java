@@ -33,7 +33,7 @@ import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -60,7 +60,7 @@ public class TestBindExpression
     @Test
     public void testExpression() throws Exception
     {
-        DB db = SqlObjectBuilder.attach(dbRule.getSharedHandle(), DB.class);
+        DB db = SqlObjects.attach(dbRule.getSharedHandle(), DB.class);
         db.insert(new Something(1, "syrup"), new Something(2, "whipped cream"));
         Something with_syrup = db.findByBreakfast(new Breakfast());
         assertThat(with_syrup, equalTo(new Something(1, "syrup")));

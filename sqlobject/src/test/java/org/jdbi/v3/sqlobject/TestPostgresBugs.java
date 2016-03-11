@@ -53,7 +53,7 @@ public class TestPostgresBugs
     @Test
     public void testTransactions() throws Exception
     {
-        Dao dao = SqlObjectBuilder.onDemand(db.getDbi(), Dao.class);
+        Dao dao = SqlObjects.onDemand(db.getDbi(), Dao.class);
 
         Something s = dao.insertAndFetch(1, "Brian");
         assertThat(s, equalTo(new Something(1, "Brian")));
@@ -62,7 +62,7 @@ public class TestPostgresBugs
     @Test
     public void testExplicitTransaction() throws Exception
     {
-        Dao dao = SqlObjectBuilder.onDemand(db.getDbi(), Dao.class);
+        Dao dao = SqlObjects.onDemand(db.getDbi(), Dao.class);
 
         Something s = dao.inTransaction((transactional, status) -> {
             transactional.insert(1, "Brian");

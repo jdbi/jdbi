@@ -28,7 +28,7 @@ public class TestEnumMapping
     @Test
     public void testEnums() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy spiffy = SqlObjects.attach(db.getSharedHandle(), Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);
         int joeId = spiffy.addCoolName(CoolName.JOE);

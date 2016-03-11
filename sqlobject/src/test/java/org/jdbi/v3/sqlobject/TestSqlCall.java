@@ -52,7 +52,7 @@ public class TestSqlCall
     @Test
     public void testFoo() throws Exception
     {
-        Dao dao = SqlObjectBuilder.attach(handle, Dao.class);
+        Dao dao = SqlObjects.attach(handle, Dao.class);
 //        OutParameters out = handle.createCall(":num = call stored_insert(:id, :name)")
 //                                  .bind("id", 1)
 //                                  .bind("name", "Jeff")
@@ -60,7 +60,7 @@ public class TestSqlCall
 //                                  .invoke();
         dao.insert(1, "Jeff");
 
-        assertThat(SqlObjectBuilder.attach(handle, Dao.class).findById(1), equalTo(new Something(1, "Jeff")));
+        assertThat(SqlObjects.attach(handle, Dao.class).findById(1), equalTo(new Something(1, "Jeff")));
     }
 
     public interface Dao

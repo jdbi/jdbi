@@ -34,7 +34,7 @@ public class TestOptionalParameters {
 
     @Before
     public void setUp() throws Exception {
-        dao = db.getSharedHandle().attach(DAO.class);
+        dao = SqlObjects.attach(db.getSharedHandle(), DAO.class);
         dao.insert(1, "brian");
         dao.insert(2, "eric");
     }

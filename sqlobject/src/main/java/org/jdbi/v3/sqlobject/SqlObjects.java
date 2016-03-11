@@ -13,19 +13,20 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.sqlobject.mixins.CloseMe;
 
 /**
- * This duplicates the API on {@link DBI} and {@link Handle} for creating sql objects. While it is fine to use these
- * methods to create sql objects, there is no real difference between them and the oones on DBI and Handle.
+ * Factory class for sql objects.
  */
-public class SqlObjectBuilder
-{
-
+public class SqlObjects {
     /**
-     * Create a a sql object of the specified type bound to this handle. Any state changes to the handle, or the
-     * sql object, such as transaction status, closing it, etc, will apply to both the object and the handle.
+     * Create a sql object of the specified type bound to this handle. Any state changes to the handle, or the sql
+     * object, such as transaction status, closing it, etc, will apply to both the object and the handle.
      *
      * @param handle the Handle instance to attach ths sql object to
      * @param sqlObjectType the type of sql object to create
@@ -38,7 +39,7 @@ public class SqlObjectBuilder
 
     /**
      * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
-     * sql object (via a close() method, or calling {@link DBI#close(Object)}
+     * sql object (via a close() method, or calling {@link SqlObjects#close(Object)}
      *
      * @param dbi             the dbi to be used for opening the underlying handle
      * @param sqlObjectType   an interface with annotations declaring desired behavior
@@ -59,17 +60,38 @@ public class SqlObjectBuilder
      *
      * @return a new sql object of the specified type, with a dedicated handle
      */
-    public static <T> T onDemand(final DBI dbi, final Class<T> sqlObjectType)
+    public static <T> T onDemand(DBI dbi, Class<T> sqlObjectType)
     {
         return SqlObject.buildSqlObject(sqlObjectType, new OnDemandHandleDing(dbi));
     }
 
+    public static <T, R> R with(DBI dbi, Class<T> sqlObjectType, Function<T, R> handler)
+    {
+        T sqlObject = open(dbi, sqlObjectType);
+        try {
+            return handler.apply(sqlObject);
+        }
+        finally {
+            close(sqlObject);
+        }
+    }
+
+    public static <T> void use(DBI dbi, Class<T> sqlObjectType, Consumer<T> handler)
+    {
+        with(dbi, sqlObjectType, sqlObject -> {
+            handler.accept(sqlObject);
+            return null;
+        });
+    }
     /**
-     * Used to close a sql object which lacks a close() method.
+     * Close a sql object which lacks a close() method.
      * @param sqlObject the sql object to close
      */
     public static void close(Object sqlObject)
     {
-        SqlObject.close(sqlObject);
+        if (!(sqlObject instanceof CloseMe)) {
+            throw new IllegalArgumentException(sqlObject + " is not a sql object");
+        }
+        ((CloseMe) sqlObject).close();
     }
 }

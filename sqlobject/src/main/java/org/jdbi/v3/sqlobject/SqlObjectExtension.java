@@ -13,30 +13,21 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.Optional;
+
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.extension.ExtensionFactory;
 
-class ConstantHandleDing implements HandleDing
-{
+public enum SqlObjectExtension implements ExtensionFactory<SqlObjectConfig> {
+    INSTANCE;
 
-    private final Handle handle;
-
-    ConstantHandleDing(Handle handle) {
-        this.handle = handle;
+    @Override
+    public SqlObjectConfig createConfig() {
+        return new SqlObjectConfig();
     }
 
     @Override
-    public Handle getHandle()
-    {
-        return handle;
-    }
-
-    @Override
-    public void release(String name)
-    {
-    }
-
-    @Override
-    public void retain(String name)
-    {
+    public <T> Optional<T> attach(Class<T> extensionType, SqlObjectConfig config, Handle handle) {
+        return Optional.of(SqlObjects.attach(handle, extensionType));
     }
 }

@@ -44,7 +44,7 @@ public class TestReentrancy
     @Test
     public void testGetHandleProvidesSeperateHandle() throws Exception
     {
-        final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
+        final TheBasics dao = SqlObjects.onDemand(dbi, TheBasics.class);
         Handle h = dao.getHandle();
 
         try {
@@ -59,7 +59,7 @@ public class TestReentrancy
     @Test
     public void testHandleReentrant() throws Exception
     {
-        final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
+        final TheBasics dao = SqlObjects.onDemand(dbi, TheBasics.class);
 
         dao.withHandle(handle1 -> {
             dao.insert(new Something(7, "Martin"));
@@ -73,7 +73,7 @@ public class TestReentrancy
     @Test
     public void testTxnReentrant() throws Exception
     {
-        final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
+        final TheBasics dao = SqlObjects.onDemand(dbi, TheBasics.class);
 
         dao.withHandle(handle1 -> {
             handle1.useTransaction((conn, status) -> {

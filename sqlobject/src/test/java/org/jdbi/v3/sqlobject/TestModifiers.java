@@ -52,7 +52,7 @@ public class TestModifiers
     @Test
     public void testFetchSizeAsArgOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -64,7 +64,7 @@ public class TestModifiers
     @Test
     public void testFetchSizeOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -76,7 +76,7 @@ public class TestModifiers
     @Test
     public void testMaxSizeOnMethod() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -88,7 +88,7 @@ public class TestModifiers
     @Test
     public void testMaxSizeOnParam() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -100,7 +100,7 @@ public class TestModifiers
     @Test
     public void testQueryTimeOutOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -112,7 +112,7 @@ public class TestModifiers
     @Test
     public void testQueryTimeOutOnParamOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -125,8 +125,8 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnMethod() throws Exception
     {
-        try (Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
-             IsoLevels iso = SqlObjectBuilder.open(db.getDbi(), IsoLevels.class)) {
+        try (Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
+             IsoLevels iso = SqlObjects.open(db.getDbi(), IsoLevels.class)) {
 
             spiffy.begin();
             spiffy.insert(1, "Tom");
@@ -144,8 +144,8 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnParam() throws Exception
     {
-        try (Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
-             IsoLevels iso = SqlObjectBuilder.open(db.getDbi(), IsoLevels.class)) {
+        try (Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
+             IsoLevels iso = SqlObjects.open(db.getDbi(), IsoLevels.class)) {
 
             spiffy.begin();
             spiffy.insert(1, "Tom");

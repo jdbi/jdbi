@@ -77,7 +77,7 @@ public class TestOnDemandSqlObject
     @Test
     public void testAPIWorks() throws Exception
     {
-        Spiffy s = dbi.onDemand(Spiffy.class);
+        Spiffy s = SqlObjects.onDemand(dbi, Spiffy.class);
 
         s.insert(7, "Bill");
 
@@ -89,8 +89,8 @@ public class TestOnDemandSqlObject
     @Test
     public void testTransactionBindsTheHandle() throws Exception
     {
-        TransactionStuff txl = dbi.onDemand(TransactionStuff.class);
-        TransactionStuff tx2 = dbi.onDemand(TransactionStuff.class);
+        TransactionStuff txl = SqlObjects.onDemand(dbi, TransactionStuff.class);
+        TransactionStuff tx2 = SqlObjects.onDemand(dbi, TransactionStuff.class);
 
         txl.insert(8, "Mike");
 
@@ -112,7 +112,7 @@ public class TestOnDemandSqlObject
     @Test
     public void testIteratorBindsTheHandle() throws Exception
     {
-        Spiffy s = dbi.onDemand(Spiffy.class);
+        Spiffy s = SqlObjects.onDemand(dbi, Spiffy.class);
 
         s.insert(1, "Tom");
         s.insert(2, "Sam");
@@ -144,13 +144,13 @@ public class TestOnDemandSqlObject
         };
         dbi.installPlugin(plugin);
 
-        Spiffy s = dbi.onDemand(Spiffy.class);
+        Spiffy s = SqlObjects.onDemand(dbi, Spiffy.class);
         s.insert(1, "Tom");
     }
 
     @Test
     public void testIteratorCloseHandleOnError() throws Exception {
-        Spiffy s = dbi.onDemand(Spiffy.class);
+        Spiffy s = SqlObjects.onDemand(dbi, Spiffy.class);
         try {
             s.crashNow();
             fail();
@@ -162,7 +162,7 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorClosedOnReadError() throws Exception {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
+        Spiffy spiffy = SqlObjects.onDemand(dbi, Spiffy.class);
         spiffy.insert(1, "Tom");
 
         Iterator<Something> i = spiffy.crashOnFirstRead();
@@ -177,7 +177,7 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorClosedIfEmpty() throws Exception {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
+        Spiffy spiffy = SqlObjects.onDemand(dbi, Spiffy.class);
 
         spiffy.findAll();
 
@@ -186,7 +186,7 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorPrepatureClose() throws Exception {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
+        Spiffy spiffy = SqlObjects.onDemand(dbi, Spiffy.class);
         spiffy.insert(1, "Tom");
 
         try (ResultIterator<Something> all = spiffy.findAll()) {}
@@ -197,8 +197,8 @@ public class TestOnDemandSqlObject
     @Test
     public void testSqlFromExternalFileWorks() throws Exception
     {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
-        ExternalSql external = dbi.onDemand(ExternalSql.class);
+        Spiffy spiffy = SqlObjects.onDemand(dbi, Spiffy.class);
+        ExternalSql external = SqlObjects.onDemand(dbi, ExternalSql.class);
 
         spiffy.insert(1, "Tom");
         spiffy.insert(2, "Sam");

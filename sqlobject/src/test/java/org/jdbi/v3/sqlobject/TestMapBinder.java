@@ -55,7 +55,7 @@ public class TestMapBinder
     @Test
     public void testInsert() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(allMap(5, "woo", 3, "too"));
 
         Result elem = s.load(5);
@@ -66,7 +66,7 @@ public class TestMapBinder
     @Test
     public void testUpdate() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(allMap(4, "woo", 1, "too"));
         Map<String, Object> update = new HashMap<>();
 
@@ -85,7 +85,7 @@ public class TestMapBinder
     @Test
     public void testUpdatePrefix() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(allMap(4, "woo", 1, "too"));
         Map<Object, Object> update = new HashMap<>();
 

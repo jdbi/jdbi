@@ -48,7 +48,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testSimpleCreate() throws Exception
     {
-        Foo foo = SqlObjectBuilder.attach(handle, Foo.class);
+        Foo foo = SqlObjects.attach(handle, Foo.class);
         foo.insert(1, "Stephane");
         Something s = foo.createBar().findById(1);
         assertThat(s, equalTo(new Something(1, "Stephane")));
@@ -57,7 +57,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testInsertAndFind() throws Exception
     {
-        Foo foo = SqlObjectBuilder.attach(handle, Foo.class);
+        Foo foo = SqlObjects.attach(handle, Foo.class);
         Something s = foo.insertAndFind(1, "Stephane");
         assertThat(s, equalTo(new Something(1, "Stephane")));
     }
@@ -65,7 +65,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testTransactionPropagates() throws Exception
     {
-        Foo foo = SqlObjectBuilder.onDemand(db.getDbi(), Foo.class);
+        Foo foo = SqlObjects.onDemand(db.getDbi(), Foo.class);
 
         try {
             foo.insertAndFail(1, "Jeff");
@@ -118,7 +118,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate " +
                 "so should return void or Number but is returning: java.util.List<java.lang.String>");
 
-        db.getDbi().open(BogusSqlUpdateDao.class);
+        SqlObjects.open(db.getDbi(), BogusSqlUpdateDao.class);
     }
 
     public interface BogusSqlUpdateDao {
@@ -132,7 +132,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch " +
                 "so should return void or int[] but is returning: int");
 
-        db.getDbi().open(BogusSqlBatchDao.class);
+        SqlObjects.open(db.getDbi(), BogusSqlBatchDao.class);
     }
 
     public interface BogusSqlBatchDao {

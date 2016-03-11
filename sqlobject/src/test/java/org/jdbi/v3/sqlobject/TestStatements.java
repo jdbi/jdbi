@@ -29,7 +29,7 @@ public class TestStatements
     @Test
     public void testInsert() throws Exception
     {
-        try (Inserter i = db.getDbi().open(Inserter.class)) {
+        try (Inserter i = SqlObjects.open(db.getDbi(), Inserter.class)) {
             // this is what is under test here
             int rows_affected = i.insert(2, "Diego");
 
@@ -43,7 +43,7 @@ public class TestStatements
     @Test
     public void testInsertWithVoidReturn() throws Exception
     {
-        try (Inserter i = db.getDbi().open(Inserter.class)) {
+        try (Inserter i = SqlObjects.open(db.getDbi(), Inserter.class)) {
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
 
@@ -56,7 +56,7 @@ public class TestStatements
     @Test
     public void testDoubleArgumentBind() throws Exception
     {
-        Doubler d = db.getDbi().open(Doubler.class);
+        Doubler d = SqlObjects.open(db.getDbi(), Doubler.class);
         assertTrue(d.doubleTest("wooooot"));
     }
 

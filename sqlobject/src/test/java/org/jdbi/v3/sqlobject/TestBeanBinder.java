@@ -40,7 +40,7 @@ public class TestBeanBinder
     @Test
     public void testInsert() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         s.insert(new Something(2, "Bean"));
 
         String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
@@ -50,7 +50,7 @@ public class TestBeanBinder
     @Test
     public void testRead() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         handle.insert("insert into something (id, name) values (17, 'Phil')");
         Something phil = s.findByEqualsOnBothFields(new Something(17, "Phil"));
         assertEquals("Phil", phil.getName());
@@ -72,7 +72,7 @@ public class TestBeanBinder
     @Test
     public void testBindingPrivateTypeUsingPublicInterface() throws Exception
     {
-        Spiffy s = handle.attach(Spiffy.class);
+        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
         assertEquals("IShouldBind", s.selectPublicInterfaceValue(PrivateImplementationFactory.create()));
     }
 

@@ -14,7 +14,7 @@
 package org.jdbi.v3.jpa;
 
 import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.junit.Rule;
@@ -57,7 +57,7 @@ public class PluginTest {
         Thing brian = new Thing(1, "Brian");
         Thing keith = new Thing(2, "Keith");
 
-        ThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), ThingDao.class);
+        ThingDao dao = SqlObjects.attach(db.getSharedHandle(), ThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 

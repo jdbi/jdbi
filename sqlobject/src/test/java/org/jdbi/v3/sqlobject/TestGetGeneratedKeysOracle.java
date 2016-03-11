@@ -80,7 +80,7 @@ public class TestGetGeneratedKeysOracle {
     @Ignore
     @Test
     public void testGetGeneratedKeys() throws Exception {
-        DAO dao = SqlObjectBuilder.open(dbi, DAO.class);
+        DAO dao = SqlObjects.open(dbi, DAO.class);
 
         Long fooId = dao.insert("Foo");
         long barId = dao.insert("Bar");

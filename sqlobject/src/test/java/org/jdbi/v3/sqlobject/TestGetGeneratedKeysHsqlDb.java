@@ -44,7 +44,7 @@ public class TestGetGeneratedKeysHsqlDb {
 
     @Test
     public void testFoo() throws Exception {
-        try (DAO dao = SqlObjectBuilder.open(dbi, DAO.class)) {
+        try (DAO dao = SqlObjects.open(dbi, DAO.class)) {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 

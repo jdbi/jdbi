@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import java.net.URI;
 import java.util.List;
 
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapperFactory;
@@ -134,7 +135,7 @@ public class TestColumnMappers
             "  string varchar(50), valueType varchar(50), " +
             "  uri varchar(50) " +
             " )").execute();
-        dao = h.attach(SomeBeanDao.class);
+        dao = SqlObjects.attach(h, SomeBeanDao.class);
     }
 
     @After

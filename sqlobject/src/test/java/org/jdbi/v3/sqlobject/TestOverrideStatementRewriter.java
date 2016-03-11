@@ -50,7 +50,7 @@ public class TestOverrideStatementRewriter
     {
         // test will raise exceptions if SQL is bogus -- if it uses the colon prefix form
 
-        Hashed h = SqlObjectBuilder.attach(handle, Hashed.class);
+        Hashed h = SqlObjects.attach(handle, Hashed.class);
         h.insert(new Something(1, "Joy"));
         Something s = h.findById(1);
         assertThat(s.getName(), equalTo("Joy"));

@@ -31,7 +31,7 @@ public class TestCustomBinder
     public void testFoo() throws Exception
     {
         db.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
-        try (Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class)) {
+        try (Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class)) {
             Something s = spiffy.findSame(new Something(2, "Unknown"));
             assertEquals("Martin", s.getName());
         }
@@ -40,7 +40,7 @@ public class TestCustomBinder
     @Test
     public void testCustomBindingAnnotation() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s = SqlObjects.attach(db.getSharedHandle(), Spiffy.class);
 
         s.insert(new Something(2, "Keith"));
 

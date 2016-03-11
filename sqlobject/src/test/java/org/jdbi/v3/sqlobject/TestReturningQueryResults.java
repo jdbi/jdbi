@@ -48,7 +48,7 @@ public class TestReturningQueryResults
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class);
+        Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
 
 
         Something s = spiffy.findById(7);
@@ -61,7 +61,7 @@ public class TestReturningQueryResults
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        Spiffy spiffy = db.getDbi().open(Spiffy.class);
+        Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
 
 
         Iterator<Something> itty = spiffy.findByIdRange(2, 10);
@@ -74,7 +74,7 @@ public class TestReturningQueryResults
         assertTrue(all.contains(new Something(7, "Tim")));
         assertTrue(all.contains(new Something(3, "Diego")));
 
-        db.getDbi().close(spiffy);
+        SqlObjects.close(spiffy);
     }
 
 
@@ -84,7 +84,7 @@ public class TestReturningQueryResults
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        Spiffy spiffy = db.getDbi().open(Spiffy.class);
+        Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
 
 
         List<Something> all = spiffy.findTwoByIds(3, 7);
@@ -93,7 +93,7 @@ public class TestReturningQueryResults
         assertTrue(all.contains(new Something(7, "Tim")));
         assertTrue(all.contains(new Something(3, "Diego")));
 
-        db.getDbi().close(spiffy);
+        SqlObjects.close(spiffy);
     }
 
     public interface Spiffy extends CloseMe

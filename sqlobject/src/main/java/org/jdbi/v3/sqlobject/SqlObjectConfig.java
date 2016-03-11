@@ -13,30 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.extension.ExtensionConfig;
 
-class ConstantHandleDing implements HandleDing
-{
-
-    private final Handle handle;
-
-    ConstantHandleDing(Handle handle) {
-        this.handle = handle;
-    }
-
+public class SqlObjectConfig implements ExtensionConfig<SqlObjectConfig> {
     @Override
-    public Handle getHandle()
-    {
-        return handle;
-    }
-
-    @Override
-    public void release(String name)
-    {
-    }
-
-    @Override
-    public void retain(String name)
-    {
+    public SqlObjectConfig createCopy() {
+        return new SqlObjectConfig();
     }
 }

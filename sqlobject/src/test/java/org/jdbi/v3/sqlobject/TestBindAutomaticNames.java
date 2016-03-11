@@ -39,7 +39,7 @@ public class TestBindAutomaticNames
     @Test
     public void testAnnotationNoValue() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy spiffy = SqlObjects.attach(handle, Spiffy.class);
         Something s = spiffy.findById(7);
         assertEquals("Tim", s.getName());
     }
@@ -47,7 +47,7 @@ public class TestBindAutomaticNames
     @Test
     public void testNoAnnotation() throws Exception
     {
-        Spiffy spiffy = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy spiffy = SqlObjects.attach(db.getSharedHandle(), Spiffy.class);
         Something s = spiffy.findByIdNoAnnotation(7);
         assertEquals("Tim", s.getName());
     }

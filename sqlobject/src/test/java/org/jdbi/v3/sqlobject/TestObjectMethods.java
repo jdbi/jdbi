@@ -41,37 +41,37 @@ public class TestObjectMethods
     @Test
     public void testToString() throws Exception
     {
-        DAO dao = SqlObjectBuilder.attach(handle, DAO.class);
+        DAO dao = SqlObjects.attach(handle, DAO.class);
         assertThat(dao.toString(), containsString(DAO.class.getName()));
     }
 
     @Test
     public void testEquals() throws Exception
     {
-        DAO dao = SqlObjectBuilder.attach(handle, DAO.class);
+        DAO dao = SqlObjects.attach(handle, DAO.class);
         assertThat(dao, equalTo(dao));
     }
 
     @Test
     public void testNotEquals() throws Exception
     {
-        DAO dao = SqlObjectBuilder.attach(handle, DAO.class);
-        DAO oad = SqlObjectBuilder.attach(handle, DAO.class);
+        DAO dao = SqlObjects.attach(handle, DAO.class);
+        DAO oad = SqlObjects.attach(handle, DAO.class);
         assertThat(dao, not(equalTo(oad)));
     }
 
     @Test
     public void testHashCodeDiff() throws Exception
     {
-        DAO dao = SqlObjectBuilder.attach(handle, DAO.class);
-        DAO oad = SqlObjectBuilder.attach(handle, DAO.class);
+        DAO dao = SqlObjects.attach(handle, DAO.class);
+        DAO oad = SqlObjects.attach(handle, DAO.class);
         assertThat(dao.hashCode(), not(equalTo(oad.hashCode())));
     }
 
     @Test
     public void testHashCodeMatch() throws Exception
     {
-        DAO dao = SqlObjectBuilder.attach(handle, DAO.class);
+        DAO dao = SqlObjects.attach(handle, DAO.class);
         assertThat(dao.hashCode(), equalTo(dao.hashCode()));
     }
 

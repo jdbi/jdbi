@@ -51,7 +51,7 @@ public class TestDoublyTransactional
     @Test
     public void testDoublyTransactional() throws Exception
     {
-        final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
+        final TheBasics dao = SqlObjects.onDemand(dbi, TheBasics.class);
         dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (transactional, status) -> {
             transactional.insert(new Something(1, "2"));
             inTransaction.set(true);

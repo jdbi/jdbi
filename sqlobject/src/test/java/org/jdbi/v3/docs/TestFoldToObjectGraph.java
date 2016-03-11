@@ -27,7 +27,7 @@ import com.google.common.collect.Maps;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
 import org.junit.Before;
@@ -85,7 +85,7 @@ public class TestFoldToObjectGraph
     @Test
     public void testSqlObjectApi() throws Exception
     {
-        Dao dao = SqlObjectBuilder.attach(handle, Dao.class);
+        Dao dao = SqlObjects.attach(handle, Dao.class);
         assertThat(dao.findAllTeams(), equalTo(expected));
     }
 

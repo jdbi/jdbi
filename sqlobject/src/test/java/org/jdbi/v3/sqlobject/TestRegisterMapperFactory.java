@@ -39,7 +39,7 @@ public class TestRegisterMapperFactory
     @Test
     public void testSimple() throws Exception
     {
-        FooDao fooDao = SqlObjectBuilder.onDemand(db.getDbi(), FooDao.class);
+        FooDao fooDao = SqlObjects.onDemand(db.getDbi(), FooDao.class);
 
         List<Foo> foos = fooDao.select();
         Assert.assertNotNull(foos);

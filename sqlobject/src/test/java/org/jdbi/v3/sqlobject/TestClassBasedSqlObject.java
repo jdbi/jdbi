@@ -42,7 +42,7 @@ public class TestClassBasedSqlObject
     @Test
     public void testPassThroughMethod() throws Exception
     {
-        Dao dao = SqlObjectBuilder.attach(handle, Dao.class);
+        Dao dao = SqlObjects.attach(handle, Dao.class);
         dao.insert(3, "Cora");
 
         Something c = dao.findByIdHeeHee(3);
@@ -52,14 +52,14 @@ public class TestClassBasedSqlObject
     @Test(expected = AbstractMethodError.class)
     public void testUnimplementedMethod() throws Exception
     {
-        Dao dao = SqlObjectBuilder.attach(handle, Dao.class);
+        Dao dao = SqlObjects.attach(handle, Dao.class);
         dao.totallyBroken();
     }
 
     @Test
     public void testPassThroughMethodWithDaoInAnotherPackage() throws Exception
     {
-        SomethingDao dao = SqlObjectBuilder.attach(handle, SomethingDao.class);
+        SomethingDao dao = SqlObjects.attach(handle, SomethingDao.class);
         dao.insert(3, "Cora");
 
         Something c = dao.findByIdHeeHee(3);
@@ -69,14 +69,14 @@ public class TestClassBasedSqlObject
     @Test(expected = AbstractMethodError.class)
     public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception
     {
-        SomethingDao dao = SqlObjectBuilder.attach(handle, SomethingDao.class);
+        SomethingDao dao = SqlObjects.attach(handle, SomethingDao.class);
         dao.totallyBroken();
     }
 
     @Test
     public void testSimpleTransactionsSucceed() throws Exception
     {
-        final SomethingDao dao = SqlObjectBuilder.onDemand(db.getDbi(), SomethingDao.class);
+        final SomethingDao dao = SqlObjects.onDemand(db.getDbi(), SomethingDao.class);
 
         dao.insertInSingleTransaction(10, "Linda");
     }
@@ -91,7 +91,7 @@ public class TestClassBasedSqlObject
     @Test(expected = TransactionException.class)
     public void testNestedTransactionsThrowException()
     {
-        final SomethingDao dao = SqlObjectBuilder.onDemand(db.getDbi(), SomethingDao.class);
+        final SomethingDao dao = SqlObjects.onDemand(db.getDbi(), SomethingDao.class);
         dao.insertInNestedTransaction(11, "Angelina");
     }
 

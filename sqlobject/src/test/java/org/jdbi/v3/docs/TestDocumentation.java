@@ -34,6 +34,7 @@ import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
@@ -73,7 +74,7 @@ public class TestDocumentation
     @Test
     public void testFiveMinuteSqlObjectExample() throws Exception
     {
-        try (MyDAO dao = db.getDbi().open(MyDAO.class)) {
+        try (MyDAO dao = SqlObjects.open(db.getDbi(), MyDAO.class)) {
             dao.insert(2, "Aaron");
 
             String name = dao.findNameById(2);
@@ -156,7 +157,7 @@ public class TestDocumentation
     public void testAttachToObject() throws Exception
     {
         try (Handle h = db.openHandle();
-             MyDAO dao = h.attach(MyDAO.class)) {
+             MyDAO dao = SqlObjects.attach(h, MyDAO.class)) {
             dao.insert(1, "test");
         }
     }
@@ -164,7 +165,7 @@ public class TestDocumentation
     @Test
     public void testOnDemandDao() throws Exception
     {
-        try (MyDAO dao = db.getDbi().onDemand(MyDAO.class)) {
+        try (MyDAO dao = SqlObjects.onDemand(db.getDbi(), MyDAO.class)) {
             dao.insert(2, "test");
         }
     }
@@ -192,7 +193,7 @@ public class TestDocumentation
                 .next().bind("id", 4).bind("name", "Maniax")
                 .submit().execute();
 
-            SomeQueries sq = h.attach(SomeQueries.class);
+            SomeQueries sq = SqlObjects.attach(h, SomeQueries.class);
             assertThat(sq.findName(2), equalTo("Robert"));
             assertThat(sq.findNamesBetween(1, 4), equalTo(Arrays.asList("Robert", "Patrick")));
 
@@ -229,12 +230,12 @@ public class TestDocumentation
     public void testAnotherCoupleInterfaces() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
+            SqlObjects.attach(h, BatchInserter.class).insert(new Something(1, "Brian"),
                     new Something(3, "Patrick"),
                     new Something(2, "Robert"));
 
-            AnotherQuery aq = h.attach(AnotherQuery.class);
-            YetAnotherQuery yaq = h.attach(YetAnotherQuery.class);
+            AnotherQuery aq = SqlObjects.attach(h, AnotherQuery.class);
+            YetAnotherQuery yaq = SqlObjects.attach(h, YetAnotherQuery.class);
 
             assertThat(yaq.findById(3), equalTo(new Something(3, "Patrick")));
             assertThat(aq.findById(2), equalTo(new Something(2, "Robert")));
@@ -251,11 +252,11 @@ public class TestDocumentation
     public void testFoo() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
+            SqlObjects.attach(h, BatchInserter.class).insert(new Something(1, "Brian"),
                                                  new Something(3, "Patrick"),
                                                  new Something(2, "Robert"));
 
-            QueryReturningQuery qrq = h.attach(QueryReturningQuery.class);
+            QueryReturningQuery qrq = SqlObjects.attach(h, QueryReturningQuery.class);
 
             Query<String> q = qrq.findById(1);
             q.setMaxFieldSize(100);
@@ -276,7 +277,7 @@ public class TestDocumentation
     public void testUpdateAPI() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            Update u = h.attach(Update.class);
+            Update u = SqlObjects.attach(h, Update.class);
             u.insert(17, "David");
             u.update(new Something(17, "David P."));
 
@@ -303,7 +304,7 @@ public class TestDocumentation
     public void testBatchExample() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            BatchExample b = h.attach(BatchExample.class);
+            BatchExample b = SqlObjects.attach(h, BatchExample.class);
 
             List<Integer> ids = asList(1, 2, 3, 4, 5);
             Iterator<String> first_names = asList("Tip", "Jane", "Brian", "Keith", "Eric").iterator();

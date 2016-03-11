@@ -39,7 +39,7 @@ public class TestStream
         Something two = new Something(4, "bar");
         Something thr = new Something(5, "baz");
 
-        Spiffy dao = SqlObjectBuilder.onDemand(db.getDbi(), Spiffy.class);
+        Spiffy dao = SqlObjects.onDemand(db.getDbi(), Spiffy.class);
         dao.insert(one);
         dao.insert(thr);
         dao.insert(two);

@@ -47,7 +47,7 @@ public class TestBatching
     @Test
     public void testInsertSingleIterable() throws Exception
     {
-        UsesBatching b = SqlObjectBuilder.attach(handle, UsesBatching.class);
+        UsesBatching b = SqlObjects.attach(handle, UsesBatching.class);
         List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeans(to_insert);
 
@@ -61,7 +61,7 @@ public class TestBatching
     @Test
     public void testInsertSingleIteratorNoTx() throws Exception
     {
-        UsesBatching b = SqlObjectBuilder.attach(handle, UsesBatching.class);
+        UsesBatching b = SqlObjects.attach(handle, UsesBatching.class);
         List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeansNoTx(to_insert.iterator());
 
@@ -75,7 +75,7 @@ public class TestBatching
     @Test
     public void testBindConstantValue() throws Exception
     {
-        UsesBatching b = SqlObjectBuilder.attach(handle, UsesBatching.class);
+        UsesBatching b = SqlObjects.attach(handle, UsesBatching.class);
         List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
 
         b.withConstantValue(ids, "Johan");
@@ -91,7 +91,7 @@ public class TestBatching
     @Test
     public void testZipping() throws Exception
     {
-        UsesBatching b = SqlObjectBuilder.attach(handle, UsesBatching.class);
+        UsesBatching b = SqlObjects.attach(handle, UsesBatching.class);
         List<Integer> ids = Arrays.asList(1, 2, 3, 4, 5);
         List<String> names = Arrays.asList("David", "Tim", "Mike");
 
@@ -108,7 +108,7 @@ public class TestBatching
     @Test
     public void testChunkedBatching() throws Exception
     {
-        UsesBatching b = SqlObjectBuilder.attach(handle, UsesBatching.class);
+        UsesBatching b = SqlObjects.attach(handle, UsesBatching.class);
         List<Something> things = Arrays.asList(new Something(1, "Brian"),
                                                new Something(2, "Henri"),
                                                new Something(3, "Patrick"),
@@ -124,7 +124,7 @@ public class TestBatching
     @Test
     public void testChunkedBatchingOnParam() throws Exception
     {
-        UsesBatching b = SqlObjectBuilder.attach(handle, UsesBatching.class);
+        UsesBatching b = SqlObjects.attach(handle, UsesBatching.class);
         List<Something> things = Arrays.asList(new Something(1, "Brian"),
                                                new Something(2, "Henri"),
                                                new Something(3, "Patrick"),
@@ -140,14 +140,14 @@ public class TestBatching
     @Test(expected = UnableToCreateStatementException.class, timeout=5000)
     public void testNoIterable() throws Exception
     {
-        BadBatch b = SqlObjectBuilder.attach(handle, BadBatch.class);
+        BadBatch b = SqlObjects.attach(handle, BadBatch.class);
         b.insertBeans(new Something(1, "x"));
     }
 
     @Test(expected = UnableToCreateStatementException.class, timeout=5000)
     public void testNoParameterAtAll() throws Exception
     {
-        BadBatch b = SqlObjectBuilder.attach(handle, BadBatch.class);
+        BadBatch b = SqlObjects.attach(handle, BadBatch.class);
         b.insertBeans();
     }
 

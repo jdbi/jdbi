@@ -47,7 +47,7 @@ public class TestRegisterArgumentFactory
     @Test
     public void testFoo() throws Exception
     {
-        Waffle w = SqlObjectBuilder.open(db.getDbi(), Waffle.class);
+        Waffle w = SqlObjects.open(db.getDbi(), Waffle.class);
 
         w.insert(1, new Name("Brian", "McCallister"));
 

@@ -11,32 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.extension;
 
-import org.jdbi.v3.Handle;
-
-class ConstantHandleDing implements HandleDing
-{
-
-    private final Handle handle;
-
-    ConstantHandleDing(Handle handle) {
-        this.handle = handle;
-    }
-
-    @Override
-    public Handle getHandle()
-    {
-        return handle;
-    }
-
-    @Override
-    public void release(String name)
-    {
-    }
-
-    @Override
-    public void retain(String name)
-    {
-    }
+/**
+ * A configuration object for an extension.
+ *
+ * @param <C> A "This" type. Should always be the configuration class.
+ */
+public interface ExtensionConfig<C extends ExtensionConfig<C>> {
+    /**
+     * Returns a copy of this configuration object. Changes to the copy should not modify the original.
+     */
+    C createCopy();
 }

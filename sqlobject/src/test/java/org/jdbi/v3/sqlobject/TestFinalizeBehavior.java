@@ -39,7 +39,7 @@ public class TestFinalizeBehavior
     @Test
     public void testFinalizeDoesntConnect() throws Exception
     {
-        final UselessDao dao = SqlObjectBuilder.onDemand(dbi, UselessDao.class);
+        final UselessDao dao = SqlObjects.onDemand(dbi, UselessDao.class);
         dao.finalize(); // Normally GC would do this, but just fake it
     }
 

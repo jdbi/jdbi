@@ -39,7 +39,7 @@ public class TestGetGeneratedKeys
     @Test
     public void testFoo() throws Exception
     {
-        try (DAO dao = SqlObjectBuilder.open(db.getDbi(), DAO.class)) {
+        try (DAO dao = SqlObjects.open(db.getDbi(), DAO.class)) {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 

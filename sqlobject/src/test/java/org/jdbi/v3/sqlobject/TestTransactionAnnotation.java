@@ -50,7 +50,7 @@ public class TestTransactionAnnotation
     @Test
     public void testTx() throws Exception
     {
-        Dao dao = SqlObjectBuilder.attach(handle, Dao.class);
+        Dao dao = SqlObjects.attach(handle, Dao.class);
         Something s = dao.insertAndFetch(1, "Ian");
         assertThat(s, equalTo(new Something(1, "Ian")));
     }
@@ -58,7 +58,7 @@ public class TestTransactionAnnotation
     @Test
     public void testTxFail() throws Exception
     {
-        Dao dao = SqlObjectBuilder.attach(handle, Dao.class);
+        Dao dao = SqlObjects.attach(handle, Dao.class);
 
         try {
             dao.failed(1, "Ian");
@@ -74,8 +74,8 @@ public class TestTransactionAnnotation
     public void testTxActuallyCommits() throws Exception
     {
         Handle h2 = db.openHandle();
-        Dao one = SqlObjectBuilder.attach(handle, Dao.class);
-        Dao two = SqlObjectBuilder.attach(h2, Dao.class);
+        Dao one = SqlObjects.attach(handle, Dao.class);
+        Dao two = SqlObjects.attach(h2, Dao.class);
 
         // insert in @Transaction method
         Something inserted = one.insertAndFetch(1, "Brian");
@@ -93,7 +93,7 @@ public class TestTransactionAnnotation
         final CountDownLatch inserted = new CountDownLatch(1);
         final CountDownLatch committed = new CountDownLatch(1);
 
-        final Other o = SqlObjectBuilder.onDemand(db.getDbi(), Other.class);
+        final Other o = SqlObjects.onDemand(db.getDbi(), Other.class);
         Future<Void> rf = es.submit(() -> {
             try {
                 o.insert(inserted, 1, "diwaker");

@@ -29,7 +29,7 @@ import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
@@ -53,7 +53,7 @@ public class TestPaging
     @Test
     public void pagingExample() throws Exception
     {
-        Sql sql = SqlObjectBuilder.attach(handle, Sql.class);
+        Sql sql = SqlObjects.attach(handle, Sql.class);
 
         int[] rs = sql.insert(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
                               asList("Ami", "Brian", "Cora", "David", "Eric",

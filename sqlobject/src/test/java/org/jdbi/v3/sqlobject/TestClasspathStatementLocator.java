@@ -39,7 +39,7 @@ public class TestClasspathStatementLocator {
     public void testBam() throws Exception {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
-        Something s = SqlObjectBuilder.attach(handle, Cromulence.class).findById(6L);
+        Something s = SqlObjects.attach(handle, Cromulence.class).findById(6L);
         assertThat(s.getName(), equalTo("Martin"));
     }
 
