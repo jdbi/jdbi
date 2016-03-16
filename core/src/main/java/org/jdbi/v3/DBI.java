@@ -156,13 +156,14 @@ public class DBI
 
     public DBI installPlugins()
     {
-        ServiceLoader.load(JdbiPlugin.class).forEach(plugins::add);
+        ServiceLoader.load(JdbiPlugin.class).forEach(this::installPlugin);
         LOG.debug("Automatically installed plugins {}", plugins);
         return this;
     }
 
     public DBI installPlugin(JdbiPlugin plugin)
     {
+        plugin.customizeDbi(this);
         plugins.add(plugin);
         return this;
     }
@@ -398,6 +399,17 @@ public class DBI
         try (Handle handle = open()) {
             return callback.withExtension(handle.attach(extensionType));
         }
+    }
+
+    public <E> E onDemand(Class<E> extensionType) throws NoSuchExtensionException {
+        if (!extensionType.isInterface()) {
+            throw new IllegalArgumentException("extensionType must be an interface, not a class.");
+        }
+        if (!extensionRegistry.hasExtensionFor(extensionType)) {
+            throw new NoSuchExtensionException("No extension found for type " + extensionType);
+        }
+
+        return OnDemandExtensions.create(this, extensionType);
     }
 
     /**

@@ -15,9 +15,11 @@ package org.jdbi.v3.spi;
 
 import java.sql.Connection;
 
+import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 
 public interface JdbiPlugin {
+    default void customizeDbi(DBI dbi) {}
     default Handle customizeHandle(Handle handle) { return handle; }
     default Connection customizeConnection(Connection conn) { return conn; }
 }

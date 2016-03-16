@@ -28,12 +28,10 @@ import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
 
-import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.cglib.proxy.NoOp;
 
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
@@ -53,11 +51,7 @@ class SqlObject
     @SuppressWarnings("unchecked")
     static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)
     {
-        Factory f;
-        if (factories.containsKey(sqlObjectType)) {
-            f = factories.get(sqlObjectType);
-        }
-        else {
+        Factory f = factories.computeIfAbsent(sqlObjectType, type -> {
             Enhancer e = new Enhancer();
             e.setClassLoader(sqlObjectType.getClassLoader());
 
@@ -71,26 +65,14 @@ class SqlObject
             }
             e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
             final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
-            e.setCallbackFilter(m -> m.isDefault() ? 1 : 0);
-            e.setCallbacks(new Callback[] {
-                (MethodInterceptor) so::invoke,
-                NoOp.INSTANCE
-            });
+            e.setCallback((MethodInterceptor) so::invoke);
 
-            T t = (T) e.create();
-            T actual = (T) factories.putIfAbsent(sqlObjectType, (Factory) t);
-            if (actual == null) {
-                return t;
-            }
-            f = (Factory) actual;
-        }
+            return (Factory) e.create();
+        });
 
         // TODO 3: this is duplicated from the above setCallbacks, can we clean that up?
         final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
-        return (T) f.newInstance(new Callback[] {
-            (MethodInterceptor) so::invoke,
-            NoOp.INSTANCE
-        });
+        return (T) f.newInstance((MethodInterceptor) so::invoke);
     }
 
     private static Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType)

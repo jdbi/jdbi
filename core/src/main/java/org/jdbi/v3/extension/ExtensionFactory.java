@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.extension;
 
-import java.util.Optional;
-
 import org.jdbi.v3.Handle;
 
 /**
@@ -29,12 +27,20 @@ public interface ExtensionFactory<C extends ExtensionConfig<C>> {
     C createConfig();
 
     /**
-     * Returns an instance of the given extension type, if the factory supports it; empty otherwise.
+     * Returns true if the factory can produce an extension of the given type; false otherwise.
+     *
+     * @param extensionType the extension type
+     */
+    boolean accepts(Class<?> extensionType);
+
+    /**
+     * Returns an extension of the given type, attached to the given handle.
      *
      * @param extensionType the type of the extension. Depending on the situation this may be a generic type such as
      *                      {@link java.lang.reflect.ParameterizedType} or {@link Class}.
      * @param config        the extension configuration.
      * @param handle        the database handle.
+     * @throws IllegalArgumentException if the extension type is not supported by this factory.
      */
-    <T> Optional<T> attach(Class<T> extensionType, C config, Handle handle);
+    <E> E attach(Class<E> extensionType, C config, Handle handle);
 }

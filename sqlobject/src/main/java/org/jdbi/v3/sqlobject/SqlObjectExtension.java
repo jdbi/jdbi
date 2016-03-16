@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.Optional;
-
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.extension.ExtensionFactory;
 
@@ -27,7 +25,12 @@ public enum SqlObjectExtension implements ExtensionFactory<SqlObjectConfig> {
     }
 
     @Override
-    public <T> Optional<T> attach(Class<T> extensionType, SqlObjectConfig config, Handle handle) {
-        return Optional.of(SqlObjects.attach(handle, extensionType));
+    public boolean accepts(Class<?> extensionType) {
+        return true;
+    }
+
+    @Override
+    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Handle handle) {
+        return SqlObjects.attach(handle, extensionType);
     }
 }

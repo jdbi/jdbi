@@ -25,10 +25,12 @@ import org.jdbi.v3.exceptions.TransactionException;
 class PassThroughTransactionHandler implements Handler
 {
     private final TransactionIsolationLevel isolation;
+    private final PassThroughHandler delegate;
 
-    PassThroughTransactionHandler(Method m, Transaction tx)
+    PassThroughTransactionHandler(Method method, Transaction tx)
     {
         this.isolation = tx.value();
+        this.delegate = new PassThroughHandler(method);
     }
 
     @Override
@@ -42,19 +44,7 @@ class PassThroughTransactionHandler implements Handler
                 throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
             }
 
-            TransactionCallback<Object> callback = (conn, status) -> {
-                try {
-                    return mp.invokeSuper(target, args);
-                }
-                catch (Throwable throwable) {
-                    if (throwable instanceof Exception) {
-                        throw (Exception) throwable;
-                    }
-                    else {
-                        throw new RuntimeException(throwable);
-                    }
-                }
-            };
+            TransactionCallback<Object> callback = (conn, status) -> delegate.invoke(ding, target, args, mp);
 
             if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
                 return h.inTransaction(callback);

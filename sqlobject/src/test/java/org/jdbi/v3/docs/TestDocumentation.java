@@ -34,6 +34,7 @@ import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
@@ -46,7 +47,7 @@ import org.junit.Test;
 public class TestDocumentation
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testFiveMinuteFluentApi() throws Exception
@@ -165,9 +166,8 @@ public class TestDocumentation
     @Test
     public void testOnDemandDao() throws Exception
     {
-        try (MyDAO dao = SqlObjects.onDemand(db.getDbi(), MyDAO.class)) {
-            dao.insert(2, "test");
-        }
+        MyDAO dao = db.getDbi().onDemand(MyDAO.class);
+        dao.insert(2, "test");
     }
 
     public interface SomeQueries

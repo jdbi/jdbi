@@ -15,7 +15,6 @@ package org.jdbi.v3;
 
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
-import static org.jdbi.v3.internal.JdbiStreams.toStream;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,9 +60,15 @@ class ExtensionRegistry {
         factories.add(0, new Entry(factory, factory.createConfig()));
     }
 
-    <T> Optional<T> findExtensionFor(Class<T> extensionType, Handle handle) {
+    boolean hasExtensionFor(Class<?> extensionType) {
         return factories.stream()
-                .flatMap(entry -> toStream(entry.factory.attach(extensionType, entry.config, handle)))
+                .anyMatch(entry -> entry.factory.accepts(extensionType));
+    }
+
+    <E> Optional<E> findExtensionFor(Class<E> extensionType, Handle handle) {
+        return factories.stream()
+                .filter(entry -> entry.factory.accepts(extensionType))
+                .map(entry -> entry.factory.attach(extensionType, entry.config, handle))
                 .map(extensionType::cast)
                 .findFirst();
     }
