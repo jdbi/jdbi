@@ -16,6 +16,9 @@
         <Class name="org.jdbi.rewriter.colon.ColonStatementLexer" />
     </Match>
     <Match>
+        <Class name="org.jdbi.rewriter.emoji.EmojiStatementLexer" />
+    </Match>
+    <Match>
         <Class name="org.jdbi.rewriter.hash.HashStatementLexer" />
     </Match>
     <Match>
