@@ -28,7 +28,6 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.junit.Before;
 import org.junit.Rule;
