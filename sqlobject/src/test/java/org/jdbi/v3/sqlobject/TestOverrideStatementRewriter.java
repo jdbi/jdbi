@@ -31,7 +31,7 @@ import org.junit.Test;
 public class TestOverrideStatementRewriter
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
@@ -50,7 +50,7 @@ public class TestOverrideStatementRewriter
     {
         // test will raise exceptions if SQL is bogus -- if it uses the colon prefix form
 
-        Hashed h = SqlObjects.attach(handle, Hashed.class);
+        Hashed h = handle.attach(Hashed.class);
         h.insert(new Something(1, "Joy"));
         Something s = h.findById(1);
         assertThat(s.getName(), equalTo("Joy"));

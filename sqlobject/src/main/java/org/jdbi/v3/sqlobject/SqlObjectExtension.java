@@ -29,8 +29,16 @@ public enum SqlObjectExtension implements ExtensionFactory<SqlObjectConfig> {
         return true;
     }
 
+    /**
+     * Create a sql object of the specified type bound to this handle. Any state changes to the handle, or the sql
+     * object, such as transaction status, closing it, etc, will apply to both the object and the handle.
+     *
+     * @param extensionType the type of sql object to create
+     * @param handle the Handle instance to attach ths sql object to
+     * @return the new sql object bound to this handle
+     */
     @Override
     public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Handle handle) {
-        return SqlObjects.attach(handle, extensionType);
+        return SqlObject.buildSqlObject(extensionType, new ConstantHandleDing(handle));
     }
 }

@@ -32,7 +32,7 @@ import org.junit.rules.ExpectedException;
 public class TestCreateSqlObjectAnnotation
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
@@ -48,7 +48,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testSimpleCreate() throws Exception
     {
-        Foo foo = SqlObjects.attach(handle, Foo.class);
+        Foo foo = handle.attach(Foo.class);
         foo.insert(1, "Stephane");
         Something s = foo.createBar().findById(1);
         assertThat(s, equalTo(new Something(1, "Stephane")));
@@ -57,7 +57,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testInsertAndFind() throws Exception
     {
-        Foo foo = SqlObjects.attach(handle, Foo.class);
+        Foo foo = handle.attach(Foo.class);
         Something s = foo.insertAndFind(1, "Stephane");
         assertThat(s, equalTo(new Something(1, "Stephane")));
     }
@@ -65,7 +65,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testTransactionPropagates() throws Exception
     {
-        Foo foo = SqlObjects.onDemand(db.getDbi(), Foo.class);
+        Foo foo = db.getDbi().open().attach(Foo.class);
 
         try {
             foo.insertAndFail(1, "Jeff");
@@ -76,22 +76,22 @@ public class TestCreateSqlObjectAnnotation
         assertThat(n, nullValue());
     }
 
-    public static abstract class Foo
+    public interface Foo
     {
         @CreateSqlObject
-        public abstract Bar createBar();
+        Bar createBar();
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public abstract int insert(@Bind("id") int id, @Bind("name") String name);
+        int insert(@Bind("id") int id, @Bind("name") String name);
 
         @Transaction
-        public Something insertAndFind(int id, String name) {
+        default Something insertAndFind(int id, String name) {
             insert(id, name);
             return createBar().findById(id);
         }
 
         @Transaction
-        public Something insertAndFail(int id, String name) {
+        default Something insertAndFail(int id, String name) {
             insert(id, name);
             return createBar().explode();
         }
@@ -118,7 +118,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate " +
                 "so should return void or Number but is returning: java.util.List<java.lang.String>");
 
-        SqlObjects.open(db.getDbi(), BogusSqlUpdateDao.class);
+        db.getDbi().open().attach(BogusSqlUpdateDao.class);
     }
 
     public interface BogusSqlUpdateDao {
@@ -132,7 +132,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch " +
                 "so should return void or int[] but is returning: int");
 
-        SqlObjects.open(db.getDbi(), BogusSqlBatchDao.class);
+        db.getDbi().open().attach(BogusSqlBatchDao.class);
     }
 
     public interface BogusSqlBatchDao {

@@ -26,7 +26,7 @@ import org.junit.Test;
 public class TestBindAutomaticNames
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
@@ -39,7 +39,7 @@ public class TestBindAutomaticNames
     @Test
     public void testAnnotationNoValue() throws Exception
     {
-        Spiffy spiffy = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy spiffy = handle.attach(Spiffy.class);
         Something s = spiffy.findById(7);
         assertEquals("Tim", s.getName());
     }
@@ -47,7 +47,7 @@ public class TestBindAutomaticNames
     @Test
     public void testNoAnnotation() throws Exception
     {
-        Spiffy spiffy = SqlObjects.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy spiffy = db.getSharedHandle().attach(Spiffy.class);
         Something s = spiffy.findByIdNoAnnotation(7);
         assertEquals("Tim", s.getName());
     }

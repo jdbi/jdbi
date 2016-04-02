@@ -41,7 +41,7 @@ public class TestDoublyTransactional
     private Handle handle;
     private final AtomicBoolean inTransaction = new AtomicBoolean();
 
-    interface TheBasics extends Transactional<TheBasics>
+    public interface TheBasics extends Transactional<TheBasics>
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         @TransactionIsolation(TransactionIsolationLevel.SERIALIZABLE)
@@ -51,7 +51,7 @@ public class TestDoublyTransactional
     @Test
     public void testDoublyTransactional() throws Exception
     {
-        final TheBasics dao = SqlObjects.onDemand(dbi, TheBasics.class);
+        final TheBasics dao = dbi.onDemand(TheBasics.class);
         dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (transactional, status) -> {
             transactional.insert(new Something(1, "2"));
             inTransaction.set(true);
@@ -77,7 +77,7 @@ public class TestDoublyTransactional
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = DBI.create(ds);
-
+        dbi.installPlugin(new SqlObjectPlugin());
         dbi.registerMapper(new SomethingMapper());
 
         handle = dbi.open();

@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -21,26 +25,47 @@ import org.jdbi.v3.DBI;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Sometimes the GC will call {@link #finalize()} on a SqlObject from
- * extremely sensitive places from within the GC machinery.  JDBI should not
- * open a {@link Connection} just to satisfy a (no-op) finalizer.
- * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
- */
-public class TestFinalizeBehavior
+public class TestObjectMethodBehavior
 {
     private DBI    dbi;
+    private UselessDao dao;
 
-    interface UselessDao
+    public interface UselessDao extends Cloneable
     {
         void finalize();
+        Object clone();
     }
 
+    /**
+     * Sometimes the GC will call {@link #finalize()} on a SqlObject from
+     * extremely sensitive places from within the GC machinery.  JDBI should not
+     * open a {@link Connection} just to satisfy a (no-op) finalizer.
+     * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
+     */
     @Test
     public void testFinalizeDoesntConnect() throws Exception
     {
-        final UselessDao dao = SqlObjects.onDemand(dbi, UselessDao.class);
         dao.finalize(); // Normally GC would do this, but just fake it
+    }
+
+    @Test
+    public void testCloneWorksKinda() throws Exception
+    {
+        assertNotSame(dao, dao.clone());
+    }
+
+    @Test
+    public void testEquals() throws Exception
+    {
+        assertEquals(dao, dao);
+        assertNotEquals(dao, dao.clone());
+    }
+
+    @Test
+    public void testHashCode() throws Exception
+    {
+        assertEquals(dao.hashCode(), dao.hashCode());
+        assertNotEquals(dao.hashCode(), dao.clone().hashCode());
     }
 
     @Before
@@ -56,5 +81,7 @@ public class TestFinalizeBehavior
             }
         };
         dbi = DBI.create(ds);
+        dbi.installPlugin(new SqlObjectPlugin());
+        dao = dbi.onDemand(UselessDao.class);
     }
 }

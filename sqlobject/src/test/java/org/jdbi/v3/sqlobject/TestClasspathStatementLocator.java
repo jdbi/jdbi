@@ -26,7 +26,7 @@ import org.junit.Test;
 
 public class TestClasspathStatementLocator {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
@@ -39,7 +39,7 @@ public class TestClasspathStatementLocator {
     public void testBam() throws Exception {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
-        Something s = SqlObjects.attach(handle, Cromulence.class).findById(6L);
+        Something s = handle.attach(Cromulence.class).findById(6L);
         assertThat(s.getName(), equalTo("Martin"));
     }
 

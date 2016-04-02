@@ -27,7 +27,7 @@ import com.google.common.collect.Maps;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.sqlobject.SqlObjects;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
 import org.junit.Before;
@@ -37,7 +37,7 @@ import org.junit.Test;
 public class TestFoldToObjectGraph
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private Map<String, Team> expected;
@@ -85,7 +85,7 @@ public class TestFoldToObjectGraph
     @Test
     public void testSqlObjectApi() throws Exception
     {
-        Dao dao = SqlObjects.attach(handle, Dao.class);
+        Dao dao = handle.attach(Dao.class);
         assertThat(dao.findAllTeams(), equalTo(expected));
     }
 

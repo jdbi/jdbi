@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 
+import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -403,7 +404,10 @@ public class DBI
 
     public <E> E onDemand(Class<E> extensionType) throws NoSuchExtensionException {
         if (!extensionType.isInterface()) {
-            throw new IllegalArgumentException("extensionType must be an interface, not a class.");
+            throw new IllegalArgumentException("On-demand extensions are only supported for interfaces.");
+        }
+        if (!Modifier.isPublic(extensionType.getModifiers())) {
+            throw new IllegalArgumentException("On-demand extensions types must be public.");
         }
         if (!extensionRegistry.hasExtensionFor(extensionType)) {
             throw new NoSuchExtensionException("No extension found for type " + extensionType);

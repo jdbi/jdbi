@@ -33,7 +33,7 @@ import org.junit.Test;
 public class TestRegisterArgumentFactory
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void setUp() throws Exception
@@ -47,11 +47,11 @@ public class TestRegisterArgumentFactory
     @Test
     public void testFoo() throws Exception
     {
-        Waffle w = SqlObjects.open(db.getDbi(), Waffle.class);
+        db.getDbi().useExtension(Waffle.class, w -> {
+            w.insert(1, new Name("Brian", "McCallister"));
 
-        w.insert(1, new Name("Brian", "McCallister"));
-
-        assertThat(w.findName(1), equalTo("Brian McCallister"));
+            assertThat(w.findName(1), equalTo("Brian McCallister"));
+        });
     }
 
 

@@ -24,12 +24,12 @@ import org.junit.Test;
 public class TestStatements
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testInsert() throws Exception
     {
-        try (Inserter i = SqlObjects.open(db.getDbi(), Inserter.class)) {
+        db.getDbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             int rows_affected = i.insert(2, "Diego");
 
@@ -37,27 +37,26 @@ public class TestStatements
 
             assertEquals(1, rows_affected);
             assertEquals("Diego", name);
-        }
+        });
     }
 
     @Test
     public void testInsertWithVoidReturn() throws Exception
     {
-        try (Inserter i = SqlObjects.open(db.getDbi(), Inserter.class)) {
+        db.getDbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
 
             String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
 
             assertEquals("Diego", name);
-        }
+        });
     }
 
     @Test
     public void testDoubleArgumentBind() throws Exception
     {
-        Doubler d = SqlObjects.open(db.getDbi(), Doubler.class);
-        assertTrue(d.doubleTest("wooooot"));
+        db.getDbi().useExtension(Doubler.class, d -> assertTrue(d.doubleTest("wooooot")));
     }
 
     public interface Inserter extends CloseMe

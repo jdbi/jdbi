@@ -25,11 +25,11 @@ import org.junit.Test;
 public class TestDefaultMethods
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testDefaultMethod() throws Exception {
-        Spiffy dao = SqlObjects.onDemand(db.getDbi(), Spiffy.class);
+        Spiffy dao = db.getDbi().onDemand(Spiffy.class);
         Something test = dao.insertAndReturn(3, "test");
         assertEquals(3, test.getId());
         assertEquals("test", test.getName());
@@ -37,13 +37,13 @@ public class TestDefaultMethods
 
     @Test
     public void testOverride() throws Exception {
-        SpiffyOverride dao = SqlObjects.onDemand(db.getDbi(), SpiffyOverride.class);
+        SpiffyOverride dao = db.getDbi().onDemand(SpiffyOverride.class);
         assertEquals(null, dao.insertAndReturn(123, "fake"));
     }
 
     @Test
     public void testOverrideWithDefault() throws Exception {
-        SpiffyOverrideWithDefault dao = SqlObjects.onDemand(db.getDbi(), SpiffyOverrideWithDefault.class);
+        SpiffyOverrideWithDefault dao = db.getDbi().onDemand(SpiffyOverrideWithDefault.class);
         assertEquals(-6, dao.insertAndReturn(123, "fake").getId());
     }
 

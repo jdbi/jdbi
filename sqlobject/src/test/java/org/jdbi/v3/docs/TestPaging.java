@@ -29,7 +29,7 @@ import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjects;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
@@ -40,7 +40,7 @@ import org.junit.Test;
 public class TestPaging
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
@@ -53,7 +53,7 @@ public class TestPaging
     @Test
     public void pagingExample() throws Exception
     {
-        Sql sql = SqlObjects.attach(handle, Sql.class);
+        Sql sql = handle.attach(Sql.class);
 
         int[] rs = sql.insert(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
                               asList("Ami", "Brian", "Cora", "David", "Eric",

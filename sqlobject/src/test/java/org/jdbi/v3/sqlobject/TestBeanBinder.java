@@ -27,7 +27,7 @@ import org.junit.Test;
 public class TestBeanBinder
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
@@ -40,7 +40,7 @@ public class TestBeanBinder
     @Test
     public void testInsert() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(new Something(2, "Bean"));
 
         String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
@@ -50,7 +50,7 @@ public class TestBeanBinder
     @Test
     public void testRead() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         handle.insert("insert into something (id, name) values (17, 'Phil')");
         Something phil = s.findByEqualsOnBothFields(new Something(17, "Phil"));
         assertEquals("Phil", phil.getName());
@@ -72,7 +72,7 @@ public class TestBeanBinder
     @Test
     public void testBindingPrivateTypeUsingPublicInterface() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         assertEquals("IShouldBind", s.selectPublicInterfaceValue(PrivateImplementationFactory.create()));
     }
 

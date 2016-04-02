@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TestPostgresBugs
 {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule();
+    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void setUp() throws Exception
@@ -53,7 +53,7 @@ public class TestPostgresBugs
     @Test
     public void testTransactions() throws Exception
     {
-        Dao dao = SqlObjects.onDemand(db.getDbi(), Dao.class);
+        Dao dao = db.getDbi().onDemand(Dao.class);
 
         Something s = dao.insertAndFetch(1, "Brian");
         assertThat(s, equalTo(new Something(1, "Brian")));
@@ -62,7 +62,7 @@ public class TestPostgresBugs
     @Test
     public void testExplicitTransaction() throws Exception
     {
-        Dao dao = SqlObjects.onDemand(db.getDbi(), Dao.class);
+        Dao dao = db.getDbi().onDemand(Dao.class);
 
         Something s = dao.inTransaction((transactional, status) -> {
             transactional.insert(1, "Brian");
@@ -74,23 +74,23 @@ public class TestPostgresBugs
 
 
     @RegisterMapper(SomethingMapper.class)
-    public static abstract class Dao implements Transactional<Dao>
+    public interface Dao extends Transactional<Dao>
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        public abstract void insert(@Bind("id") int id, @Bind("name") String name);
+        void insert(@Bind("id") int id, @Bind("name") String name);
 
         @SqlQuery("select id, name from something where id = :id")
-        public abstract Something findById(@Bind("id") int id);
+        Something findById(@Bind("id") int id);
 
         @Transaction(TransactionIsolationLevel.READ_COMMITTED)
-        public Something insertAndFetch(int id, String name)
+        default Something insertAndFetch(int id, String name)
         {
             insert(id, name);
             return findById(id);
         }
 
         @Transaction
-        public Something failed(int id, String name) throws IOException
+        default Something failed(int id, String name) throws IOException
         {
             insert(id, name);
             throw new IOException("woof");

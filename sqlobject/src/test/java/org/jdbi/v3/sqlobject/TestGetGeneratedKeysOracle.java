@@ -80,12 +80,12 @@ public class TestGetGeneratedKeysOracle {
     @Ignore
     @Test
     public void testGetGeneratedKeys() throws Exception {
-        DAO dao = SqlObjects.open(dbi, DAO.class);
+        dbi.useExtension(DAO.class, dao -> {
+            Long fooId = dao.insert("Foo");
+            long barId = dao.insert("Bar");
 
-        Long fooId = dao.insert("Foo");
-        long barId = dao.insert("Bar");
-
-        assertThat(dao.findNameById(fooId), equalTo("Foo"));
-        assertThat(dao.findNameById(barId), equalTo("Bar"));
+            assertThat(dao.findNameById(fooId), equalTo("Foo"));
+            assertThat(dao.findNameById(barId), equalTo("Bar"));
+        });
     }
 }

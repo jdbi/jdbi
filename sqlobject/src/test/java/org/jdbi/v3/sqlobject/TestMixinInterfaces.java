@@ -43,6 +43,7 @@ public class TestMixinInterfaces
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = DBI.create(ds);
+        dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
@@ -58,7 +59,7 @@ public class TestMixinInterfaces
     @Test
     public void testGetHandle() throws Exception
     {
-        WithGetHandle g = SqlObjects.attach(handle, WithGetHandle.class);
+        WithGetHandle g = handle.attach(WithGetHandle.class);
         Handle h = g.getHandle();
 
         assertSame(handle, h);
@@ -67,7 +68,7 @@ public class TestMixinInterfaces
     @Test
     public void testWithHandle() throws Exception
     {
-        WithGetHandle g = SqlObjects.attach(handle, WithGetHandle.class);
+        WithGetHandle g = handle.attach(WithGetHandle.class);
         String name = g.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (8, 'Mike')");
 
@@ -80,7 +81,7 @@ public class TestMixinInterfaces
     @Test
     public void testUseHandle() throws Exception
     {
-        WithGetHandle g = SqlObjects.attach(handle, WithGetHandle.class);
+        WithGetHandle g = handle.attach(WithGetHandle.class);
         g.useHandle(handle -> handle.execute("insert into something(id, name) values (9, 'James')"));
 
         assertEquals("James", handle.createQuery("select name from something where id = 9").mapTo(String.class).findOnly());
@@ -89,7 +90,7 @@ public class TestMixinInterfaces
     @Test
     public void testBeginAndCommitTransaction() throws Exception
     {
-        TransactionStuff txl = SqlObjects.attach(handle, TransactionStuff.class);
+        TransactionStuff txl = handle.attach(TransactionStuff.class);
 
         txl.insert(8, "Mike");
 
@@ -105,7 +106,7 @@ public class TestMixinInterfaces
     @Test
     public void testInTransaction() throws Exception
     {
-        TransactionStuff txl = SqlObjects.attach(handle, TransactionStuff.class);
+        TransactionStuff txl = handle.attach(TransactionStuff.class);
         txl.insert(7, "Keith");
 
         Something s = txl.inTransaction((conn, status) -> conn.byId(7));
@@ -116,7 +117,7 @@ public class TestMixinInterfaces
     @Test
     public void testInTransactionWithLevel() throws Exception
     {
-        TransactionStuff txl = SqlObjects.attach(handle, TransactionStuff.class);
+        TransactionStuff txl = handle.attach(TransactionStuff.class);
         txl.insert(7, "Keith");
 
         Something s = txl.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (conn, status) -> {
@@ -130,8 +131,8 @@ public class TestMixinInterfaces
     @Test
     public void testTransactionIsolationActuallyHappens() throws Exception
     {
-        TransactionStuff txl = SqlObjects.attach(handle, TransactionStuff.class);
-        try (TransactionStuff tx2 = SqlObjects.open(dbi, TransactionStuff.class)) {
+        TransactionStuff txl = handle.attach(TransactionStuff.class);
+        dbi.useExtension(TransactionStuff.class, tx2 -> {
             txl.insert(8, "Mike");
 
             txl.begin();
@@ -143,7 +144,7 @@ public class TestMixinInterfaces
             txl.commit();
 
             assertEquals("Miker", tx2.byId(8).getName());
-        }
+        });
     }
 
     @Test

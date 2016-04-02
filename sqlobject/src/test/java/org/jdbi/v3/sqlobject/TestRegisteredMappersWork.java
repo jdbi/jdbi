@@ -38,7 +38,7 @@ import org.junit.Test;
 public class TestRegisteredMappersWork
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
 
     public interface BooleanDao {
@@ -49,7 +49,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testFoo() throws Exception
     {
-        boolean world_is_right = SqlObjects.attach(db.getSharedHandle(), BooleanDao.class).fetchABoolean();
+        boolean world_is_right = db.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
         assertThat(world_is_right, equalTo(true));
     }
 
@@ -95,7 +95,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testBeanMapperFactory() throws Exception
     {
-        BeanMappingDao bdb = SqlObjects.attach(db.getSharedHandle(), BeanMappingDao.class);
+        BeanMappingDao bdb = db.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
         Bean lima = new Bean();
@@ -114,7 +114,7 @@ public class TestRegisteredMappersWork
     {
         db.getSharedHandle().registerMapper(new SomethingMapper());
 
-        Spiffy s = SqlObjects.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -126,7 +126,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testBuiltIn() throws Exception
     {
-        Spiffy s = SqlObjects.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -136,7 +136,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegisterMapperAnnotationWorks() throws Exception
     {
-        Kabob bob = SqlObjects.onDemand(db.getDbi(), Kabob.class);
+        Kabob bob = db.getDbi().onDemand(Kabob.class);
 
         bob.insert(1, "Henning");
         Something henning = bob.find(1);
@@ -159,7 +159,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testNoErrorOnNoData() throws Exception
     {
-        Kabob bob = SqlObjects.onDemand(db.getDbi(), Kabob.class);
+        Kabob bob = db.getDbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
         assertThat(henning, nullValue());

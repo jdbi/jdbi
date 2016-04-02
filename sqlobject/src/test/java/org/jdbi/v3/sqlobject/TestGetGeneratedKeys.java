@@ -24,7 +24,7 @@ import org.junit.Test;
 public class TestGetGeneratedKeys
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     public interface DAO extends CloseMe
     {
@@ -39,12 +39,12 @@ public class TestGetGeneratedKeys
     @Test
     public void testFoo() throws Exception
     {
-        try (DAO dao = SqlObjects.open(db.getDbi(), DAO.class)) {
+        db.getDbi().useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
             assertThat(dao.findNameById(brian_id), equalTo("Brian"));
             assertThat(dao.findNameById(keith_id), equalTo("Keith"));
-        }
+        });
     }
 }

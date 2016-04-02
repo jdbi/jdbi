@@ -28,13 +28,13 @@ import static org.junit.Assert.assertThat;
 
 public class TestOptionalParameters {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private DAO dao;
 
     @Before
     public void setUp() throws Exception {
-        dao = SqlObjects.attach(db.getSharedHandle(), DAO.class);
+        dao = db.getSharedHandle().attach(DAO.class);
         dao.insert(1, "brian");
         dao.insert(2, "eric");
     }

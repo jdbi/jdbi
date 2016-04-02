@@ -39,7 +39,7 @@ import org.junit.Test;
 public class TestModifiers
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
@@ -52,7 +52,7 @@ public class TestModifiers
     @Test
     public void testFetchSizeAsArgOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -64,7 +64,7 @@ public class TestModifiers
     @Test
     public void testFetchSizeOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -76,7 +76,7 @@ public class TestModifiers
     @Test
     public void testMaxSizeOnMethod() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -88,7 +88,7 @@ public class TestModifiers
     @Test
     public void testMaxSizeOnParam() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -100,7 +100,7 @@ public class TestModifiers
     @Test
     public void testQueryTimeOutOnMethodOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -112,7 +112,7 @@ public class TestModifiers
     @Test
     public void testQueryTimeOutOnParamOnlyUsefulWhenSteppingThroughDebuggerSadly() throws Exception
     {
-        Spiffy s = SqlObjects.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(14, "Tom");
         s.insert(15, "JFA");
         s.insert(16, "Sunny");
@@ -125,39 +125,39 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnMethod() throws Exception
     {
-        try (Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
-             IsoLevels iso = SqlObjects.open(db.getDbi(), IsoLevels.class)) {
+        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+            db.getDbi().useExtension(IsoLevels.class, iso -> {
+                spiffy.begin();
+                spiffy.insert(1, "Tom");
 
-            spiffy.begin();
-            spiffy.insert(1, "Tom");
+                Something tom = iso.findById(1);
+                assertThat(tom, notNullValue());
 
-            Something tom = iso.findById(1);
-            assertThat(tom, notNullValue());
+                spiffy.rollback();
 
-            spiffy.rollback();
-
-            Something not_tom = iso.findById(1);
-            assertThat(not_tom, nullValue());
-        }
+                Something not_tom = iso.findById(1);
+                assertThat(not_tom, nullValue());
+            });
+        });
     }
 
     @Test
     public void testIsolationLevelOnParam() throws Exception
     {
-        try (Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
-             IsoLevels iso = SqlObjects.open(db.getDbi(), IsoLevels.class)) {
+        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+            db.getDbi().useExtension(IsoLevels.class, iso -> {
+                spiffy.begin();
+                spiffy.insert(1, "Tom");
 
-            spiffy.begin();
-            spiffy.insert(1, "Tom");
+                Something tom = iso.findById(1, READ_UNCOMMITTED);
+                assertThat(tom, notNullValue());
 
-            Something tom = iso.findById(1, READ_UNCOMMITTED);
-            assertThat(tom, notNullValue());
+                spiffy.rollback();
 
-            spiffy.rollback();
-
-            Something not_tom = iso.findById(1);
-            assertThat(not_tom, nullValue());
-        }
+                Something not_tom = iso.findById(1);
+                assertThat(not_tom, nullValue());
+            });
+        });
     }
 
     @RegisterMapper(SomethingMapper.class)

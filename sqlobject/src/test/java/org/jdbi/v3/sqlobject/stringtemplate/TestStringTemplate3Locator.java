@@ -23,7 +23,7 @@ import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjects;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.Define;
@@ -35,7 +35,7 @@ import org.junit.Test;
 public class TestStringTemplate3Locator
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
@@ -48,7 +48,7 @@ public class TestStringTemplate3Locator
     @Test
     public void testBaz() throws Exception
     {
-        Wombat wombat = SqlObjects.attach(handle, Wombat.class);
+        Wombat wombat = handle.attach(Wombat.class);
         wombat.insert(new Something(7, "Henning"));
 
         String name = handle.createQuery("select name from something where id = 7")
@@ -63,7 +63,7 @@ public class TestStringTemplate3Locator
     {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
-        Something s = SqlObjects.attach(handle, Wombat.class).findById(6L);
+        Something s = handle.attach(Wombat.class).findById(6L);
         assertThat(s.getName(), equalTo("Martin"));
     }
 
@@ -71,15 +71,15 @@ public class TestStringTemplate3Locator
     public void testBap() throws Exception
     {
         handle.execute("insert into something (id, name) values (2, 'Bean')");
-        Wombat w = SqlObjects.attach(handle, Wombat.class);
+        Wombat w = handle.attach(Wombat.class);
         assertThat(w.findNameFor(2), equalTo("Bean"));
     }
 
     @Test
     public void testDefines() throws Exception
     {
-        SqlObjects.attach(handle, Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
-        SqlObjects.attach(handle, Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
+        handle.attach(Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
+        handle.attach(Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
         String name = handle.createQuery("select name from something where id = 5")
                             .mapTo(String.class)
                             .findOnly();
@@ -91,7 +91,7 @@ public class TestStringTemplate3Locator
     @Test
     public void testBatching() throws Exception
     {
-        Wombat roo = SqlObjects.attach(handle, Wombat.class);
+        Wombat roo = handle.attach(Wombat.class);
         roo.insertBunches(new Something(1, "Jeff"), new Something(2, "Brian"));
 
         assertThat(roo.findById(1L), equalTo(new Something(1, "Jeff")));
@@ -101,7 +101,7 @@ public class TestStringTemplate3Locator
     @Test
     public void testNoTemplateDefined() throws Exception
     {
-        HoneyBadger badass = SqlObjects.attach(handle, HoneyBadger.class);
+        HoneyBadger badass = handle.attach(HoneyBadger.class);
 
         badass.insert("something", new Something(1, "Ted"));
         badass.insert("something", new Something(2, "Fred"));

@@ -29,7 +29,7 @@ import org.junit.Test;
 public class TestReturningQuery
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
@@ -44,13 +44,11 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
+        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+            Something s = spiffy.findById(7).findOnly();
 
-        Something s = spiffy.findById(7).findOnly();
-
-        assertEquals("Tim", s.getName());
-
-        SqlObjects.close(spiffy);
+            assertEquals("Tim", s.getName());
+        });
     }
 
     @Test
@@ -58,13 +56,11 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy2 spiffy = SqlObjects.open(db.getDbi(), Spiffy2.class);
+        db.getDbi().useExtension(Spiffy2.class, spiffy -> {
+            Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
 
-        Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
-
-        assertEquals("Tim", s.getName());
-
-        SqlObjects.close(spiffy);
+            assertEquals("Tim", s.getName());
+        });
     }
 
     @RegisterMapper(SomethingMapper.class)

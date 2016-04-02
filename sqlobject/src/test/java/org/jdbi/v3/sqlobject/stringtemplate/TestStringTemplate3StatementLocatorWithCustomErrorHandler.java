@@ -22,7 +22,7 @@ import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.sqlobject.SqlObjects;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.unstable.BindIn;
 import org.junit.After;
@@ -38,11 +38,12 @@ public class TestStringTemplate3StatementLocatorWithCustomErrorHandler {
     @Before
     public void setUp() {
         dbi = DBI.create("jdbc:h2:mem:" + UUID.randomUUID());
+        dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
         handle.createStatement(
                 "create table foo (id int, bar varchar(100) default null);")
                 .execute();
-        dao = SqlObjects.onDemand(dbi, MyDAO.class);
+        dao = dbi.onDemand(MyDAO.class);
     }
 
     @After

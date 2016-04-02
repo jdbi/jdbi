@@ -33,7 +33,7 @@ import org.junit.Test;
 public class TestReturningQueryResults
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
@@ -48,11 +48,10 @@ public class TestReturningQueryResults
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
-
-
-        Something s = spiffy.findById(7);
-        assertEquals("Tim", s.getName());
+        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+            Something s = spiffy.findById(7);
+            assertEquals("Tim", s.getName());
+        });
     }
 
     @Test
@@ -61,20 +60,17 @@ public class TestReturningQueryResults
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
+        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+            Iterator<Something> itty = spiffy.findByIdRange(2, 10);
+            Set<Something> all = new HashSet<>();
+            while (itty.hasNext()) {
+                all.add(itty.next());
+            }
 
-
-        Iterator<Something> itty = spiffy.findByIdRange(2, 10);
-        Set<Something> all = new HashSet<>();
-        while (itty.hasNext()) {
-            all.add(itty.next());
-        }
-
-        assertEquals(2, all.size());
-        assertTrue(all.contains(new Something(7, "Tim")));
-        assertTrue(all.contains(new Something(3, "Diego")));
-
-        SqlObjects.close(spiffy);
+            assertEquals(2, all.size());
+            assertTrue(all.contains(new Something(7, "Tim")));
+            assertTrue(all.contains(new Something(3, "Diego")));
+        });
     }
 
 
@@ -84,16 +80,13 @@ public class TestReturningQueryResults
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        Spiffy spiffy = SqlObjects.open(db.getDbi(), Spiffy.class);
+        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+            List<Something> all = spiffy.findTwoByIds(3, 7);
 
-
-        List<Something> all = spiffy.findTwoByIds(3, 7);
-
-        assertEquals(2, all.size());
-        assertTrue(all.contains(new Something(7, "Tim")));
-        assertTrue(all.contains(new Something(3, "Diego")));
-
-        SqlObjects.close(spiffy);
+            assertEquals(2, all.size());
+            assertTrue(all.contains(new Something(7, "Tim")));
+            assertTrue(all.contains(new Something(3, "Diego")));
+        });
     }
 
     public interface Spiffy extends CloseMe

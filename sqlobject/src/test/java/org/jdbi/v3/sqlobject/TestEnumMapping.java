@@ -23,12 +23,12 @@ import org.junit.Test;
 public class TestEnumMapping
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testEnums() throws Exception
     {
-        Spiffy spiffy = SqlObjects.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy spiffy = db.getSharedHandle().attach(Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);
         int joeId = spiffy.addCoolName(CoolName.JOE);
