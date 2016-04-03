@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 import net.sf.cglib.proxy.MethodProxy;
 
@@ -34,28 +35,20 @@ class PassThroughTransactionHandler implements Handler
     }
 
     @Override
-    public Object invoke(HandleDing ding, final Object target, final Object[] args, final MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, final Object target, final Object[] args, final MethodProxy mp)
     {
-        ding.retain("pass-through-transaction");
-        try {
-            Handle h = ding.getHandle();
-
-            if (h.isInTransaction()) {
-                throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
-            }
-
-            TransactionCallback<Object> callback = (conn, status) -> delegate.invoke(ding, target, args, mp);
-
-            if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
-                return h.inTransaction(callback);
-            }
-            else {
-                return h.inTransaction(isolation, callback);
-            }
+        Handle h = handle.get();
+        if (h.isInTransaction()) {
+            throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
         }
 
-        finally {
-            ding.release("pass-through-transaction");
+        TransactionCallback<Object> callback = (conn, status) -> delegate.invoke(handle, target, args, mp);
+
+        if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
+            return h.inTransaction(callback);
+        }
+        else {
+            return h.inTransaction(isolation, callback);
         }
     }
 }

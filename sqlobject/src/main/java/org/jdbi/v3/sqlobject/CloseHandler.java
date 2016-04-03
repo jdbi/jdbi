@@ -13,14 +13,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import net.sf.cglib.proxy.MethodProxy;
 
-class CloseHandler implements Handler
-{
+import org.jdbi.v3.Handle;
+
+class CloseHandler implements Handler {
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
-    {
-        h.getHandle().close();
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp) {
+        handle.get().close();
         return null;
     }
 }

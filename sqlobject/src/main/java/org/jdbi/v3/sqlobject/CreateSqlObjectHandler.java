@@ -13,7 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import net.sf.cglib.proxy.MethodProxy;
+
+import org.jdbi.v3.Handle;
 
 class CreateSqlObjectHandler implements Handler
 {
@@ -25,8 +29,8 @@ class CreateSqlObjectHandler implements Handler
     }
 
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
     {
-        return SqlObject.buildSqlObject(sqlObjectTypeToCreate, h);
+        return SqlObject.buildSqlObject(sqlObjectTypeToCreate, handle);
     }
 }

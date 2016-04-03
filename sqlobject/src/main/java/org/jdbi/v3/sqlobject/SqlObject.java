@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Supplier;
 
 import com.fasterxml.classmate.MemberResolver;
 import com.fasterxml.classmate.ResolvedType;
@@ -33,6 +34,7 @@ import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 import org.jdbi.v3.sqlobject.mixins.CloseMe;
 
@@ -49,7 +51,7 @@ class SqlObject
     }
 
     @SuppressWarnings("unchecked")
-    static <T> T buildSqlObject(final Class<T> sqlObjectType, final HandleDing handle)
+    static <T> T buildSqlObject(final Class<T> sqlObjectType, Supplier<Handle> handle)
     {
         Factory f = factories.computeIfAbsent(sqlObjectType, type -> {
             Enhancer e = new Enhancer();
@@ -142,12 +144,12 @@ class SqlObject
 
 
     private final Map<Method, Handler> handlers;
-    private final HandleDing           ding;
+    private final Supplier<Handle> handle;
 
-    SqlObject(Map<Method, Handler> handlers, HandleDing ding)
+    SqlObject(Map<Method, Handler> handlers, Supplier<Handle> handle)
     {
         this.handlers = handlers;
-        this.ding = ding;
+        this.handle = handle;
     }
 
     Object invoke(Object proxy, Method method, Object[] args, MethodProxy mp) throws Throwable
@@ -159,25 +161,7 @@ class SqlObject
             return mp.invokeSuper(proxy, args);
         }
 
-        Throwable doNotMask = null;
-        try {
-            ding.retain(method.toString());
-            return handler.invoke(ding, proxy, args, mp);
-        }
-        catch (Throwable e) {
-            doNotMask = e;
-            throw e;
-        }
-        finally {
-            try {
-                ding.release(method.toString());
-            }
-            catch (Throwable e) {
-                if (doNotMask==null) {
-                    throw e;
-                }
-            }
-        }
+        return handler.invoke(handle, proxy, args, mp);
     }
 
     static String getSql(SqlCall q, Method m)

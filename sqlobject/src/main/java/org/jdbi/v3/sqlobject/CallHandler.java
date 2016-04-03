@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import com.fasterxml.classmate.members.ResolvedMethod;
 
 import net.sf.cglib.proxy.MethodProxy;
@@ -47,10 +49,9 @@ class CallHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(HandleDing ding, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
     {
-        Handle h = ding.getHandle();
-        Call call = h.createCall(sql);
+        Call call = handle.get().createCall(sql);
         populateSqlObjectData((ConcreteStatementContext)call.getContext());
         applyCustomizers(call, args);
         applyBinders(call, args);

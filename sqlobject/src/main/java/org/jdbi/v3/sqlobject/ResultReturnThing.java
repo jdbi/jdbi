@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -22,6 +23,7 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
 import com.fasterxml.classmate.members.ResolvedMethod;
 
+import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.ResultBearing;
 import org.jdbi.v3.ResultIterator;
@@ -32,7 +34,7 @@ import org.jdbi.v3.tweak.ResultSetMapper;
 
 abstract class ResultReturnThing
 {
-    public Object map(ResolvedMethod method, Query<?> q, HandleDing h)
+    public Object map(ResolvedMethod method, Query<?> q, Supplier<Handle> handle)
     {
         if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
             final ResultSetMapper<?> mapper;
@@ -42,10 +44,10 @@ abstract class ResultReturnThing
             catch (Exception e) {
                 throw new UnableToCreateStatementException("unable to access mapper", e, null);
             }
-            return result(q.map(mapper), h);
+            return result(q.map(mapper), handle);
         }
         else {
-            return result(q.mapTo(mapTo(method)), h);
+            return result(q.mapTo(mapTo(method)), handle);
         }
     }
 
@@ -75,7 +77,7 @@ abstract class ResultReturnThing
         }
     }
 
-    protected abstract Object result(ResultBearing<?> q, HandleDing baton);
+    protected abstract Object result(ResultBearing<?> q, Supplier<Handle> handle);
 
     protected abstract Class<?> mapTo(ResolvedMethod method);
 
@@ -89,9 +91,8 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, HandleDing baton) {
-            baton.retain("sqlobject-stream");
-            return q.stream().onClose(() -> baton.release("sqlobject-stream"));
+        protected Object result(ResultBearing<?> q, Supplier<Handle> handle) {
+            return q.stream();
         }
 
         @Override
@@ -132,7 +133,7 @@ abstract class ResultReturnThing
 
         @Override
         @SuppressWarnings("unchecked")
-        protected Object result(ResultBearing<?> q, HandleDing baton)
+        protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
         {
             if (containerType != null) {
                 Collector collector = ((Query)q).getContext().findCollectorFor(containerType)
@@ -163,7 +164,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, HandleDing baton)
+        protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
         {
             return q;
         }
@@ -188,15 +189,13 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, final HandleDing baton)
+        protected Object result(ResultBearing<?> q, final Supplier<Handle> handle)
         {
             final ResultIterator<?> itty = q.iterator();
 
             final boolean isEmpty = !itty.hasNext();
             if (isEmpty) {
                 itty.close();
-            } else {
-                baton.retain("iterator");
             }
 
             return new ResultIterator<Object>()
@@ -209,12 +208,7 @@ abstract class ResultReturnThing
                 {
                     if (!closed) {
                         closed = true;
-                        try {
-                            itty.close();
-                        }
-                        finally {
-                            baton.release("iterator");
-                        }
+                        itty.close();
                     }
                 }
 
@@ -279,7 +273,7 @@ abstract class ResultReturnThing
 
         @Override
         @SuppressWarnings("unchecked")
-        protected Object result(ResultBearing<?> q, HandleDing baton)
+        protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
         {
             if (q instanceof Query) {
                 Collector collector = ((Query) q).getContext().findCollectorFor(iterableType)

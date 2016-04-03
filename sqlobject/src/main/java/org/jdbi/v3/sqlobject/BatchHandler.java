@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
@@ -93,10 +94,10 @@ class BatchHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> h, Object target, Object[] args, MethodProxy mp)
     {
         boolean foundIterator = false;
-        Handle handle = h.getHandle();
+        Handle handle = h.get();
 
         List<Iterator<?>> extras = new ArrayList<>();
         for (final Object arg : args) {

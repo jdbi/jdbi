@@ -41,6 +41,6 @@ public enum SqlObjectExtension implements ExtensionFactory<SqlObjectConfig> {
      */
     @Override
     public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Supplier<Handle> handle) {
-        return SqlObject.buildSqlObject(extensionType, new ConstantHandleDing(handle));
+        return SqlObject.buildSqlObject(extensionType, handle);
     }
 }
