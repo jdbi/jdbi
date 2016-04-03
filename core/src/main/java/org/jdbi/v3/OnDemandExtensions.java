@@ -48,15 +48,6 @@ public class OnDemandExtensions {
                 return extensionType + "@" + Integer.toHexString(System.identityHashCode(proxy));
             }
 
-            if ("clone".equals(method.getName()) && method.getParameterCount() == 0) {
-                // why not
-                return create(dbi, extensionType);
-            }
-
-            if ("finalize".equals(method.getName()) && method.getParameterCount() == 0) {
-                return null;
-            }
-
             try {
                 return dbi.withExtension(extensionType, extension -> method.invoke(extension, args));
             }

@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
@@ -397,8 +398,44 @@ public class DBI
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws NoSuchExtensionException, X
     {
-        try (Handle handle = open()) {
-            return callback.withExtension(handle.attach(extensionType));
+        LazyHandle handle = new LazyHandle();
+
+        E extension = extensionRegistry.findExtensionFor(extensionType, handle)
+                .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
+
+        try {
+            return callback.withExtension(extension);
+        }
+        finally {
+            handle.close();
+        }
+    }
+
+    private class LazyHandle implements Supplier<Handle> {
+        private volatile Handle handle;
+        private volatile boolean closed = false;
+
+        public Handle get() {
+            if (handle == null) {
+                initHandle();
+            }
+            return handle;
+        }
+
+        private synchronized void initHandle() {
+            if (handle == null) {
+                if (closed) {
+                    throw new IllegalStateException("Handle is closed");
+                }
+                handle = open();
+            }
+        }
+
+        public synchronized void close() {
+            closed = true;
+            if (handle != null) {
+                handle.close();
+            }
         }
     }
 

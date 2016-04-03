@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.extension.ExtensionFactory;
 
@@ -38,7 +40,7 @@ public enum SqlObjectExtension implements ExtensionFactory<SqlObjectConfig> {
      * @return the new sql object bound to this handle
      */
     @Override
-    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Handle handle) {
+    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Supplier<Handle> handle) {
         return SqlObject.buildSqlObject(extensionType, new ConstantHandleDing(handle));
     }
 }

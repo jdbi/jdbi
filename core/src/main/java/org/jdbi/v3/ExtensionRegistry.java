@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
@@ -65,7 +66,7 @@ class ExtensionRegistry {
                 .anyMatch(entry -> entry.factory.accepts(extensionType));
     }
 
-    <E> Optional<E> findExtensionFor(Class<E> extensionType, Handle handle) {
+    <E> Optional<E> findExtensionFor(Class<E> extensionType, Supplier<Handle> handle) {
         return factories.stream()
                 .filter(entry -> entry.factory.accepts(extensionType))
                 .map(entry -> entry.factory.attach(extensionType, entry.config, handle))

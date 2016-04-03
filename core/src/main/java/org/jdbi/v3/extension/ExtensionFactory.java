@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.extension;
 
+import java.util.function.Supplier;
+
 import org.jdbi.v3.Handle;
 
 /**
@@ -39,8 +41,11 @@ public interface ExtensionFactory<C extends ExtensionConfig<C>> {
      * @param extensionType the type of the extension. Depending on the situation this may be a generic type such as
      *                      {@link java.lang.reflect.ParameterizedType} or {@link Class}.
      * @param config        the extension configuration.
-     * @param handle        the database handle.
+     * @param handle        Supplies the database handle. This supplier may lazily open a Handle on the first
+     *                      invocation. Extension implementors should take care not to fetch the handle before it is
+     *                      needed, to avoid opening handles unnecessarily.
      * @throws IllegalArgumentException if the extension type is not supported by this factory.
+     * @see org.jdbi.v3.DBI#onDemand(Class)
      */
-    <E> E attach(Class<E> extensionType, C config, Handle handle);
+    <E> E attach(Class<E> extensionType, C config, Supplier<Handle> handle);
 }

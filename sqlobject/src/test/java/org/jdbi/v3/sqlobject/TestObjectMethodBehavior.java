@@ -49,7 +49,7 @@ public class TestObjectMethodBehavior
     }
 
     @Test
-    public void testCloneWorksKinda() throws Exception
+    public void testClone() throws Exception
     {
         assertNotSame(dao, dao.clone());
     }
@@ -66,6 +66,12 @@ public class TestObjectMethodBehavior
     {
         assertEquals(dao.hashCode(), dao.hashCode());
         assertNotEquals(dao.hashCode(), dao.clone().hashCode());
+    }
+
+    @Test
+    public void testToStringDoesntConnect() throws Exception
+    {
+        dao.toString();
     }
 
     @Before

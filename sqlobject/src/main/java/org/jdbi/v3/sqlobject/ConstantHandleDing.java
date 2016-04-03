@@ -13,21 +13,23 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import org.jdbi.v3.Handle;
 
 class ConstantHandleDing implements HandleDing
 {
 
-    private final Handle handle;
+    private final Supplier<Handle> handle;
 
-    ConstantHandleDing(Handle handle) {
+    ConstantHandleDing(Supplier<Handle> handle) {
         this.handle = handle;
     }
 
     @Override
     public Handle getHandle()
     {
-        return handle;
+        return handle.get();
     }
 
     @Override

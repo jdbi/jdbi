@@ -448,7 +448,7 @@ class BasicHandle implements Handle
     @Override
     public <T> T attach(Class<T> extensionType)
     {
-        return (T) extensionRegistry.findExtensionFor(extensionType, this)
+        return (T) extensionRegistry.findExtensionFor(extensionType, () -> this)
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
