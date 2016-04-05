@@ -16,7 +16,6 @@ package org.jdbi.v3.sqlobject;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.Closeable;
 import java.sql.Connection;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -119,7 +118,7 @@ public class TestNewApiOnDbiAndHandle
                 .attach(Spiffy.class);
     }
 
-    public interface Spiffy extends GetHandle, Closeable
+    public interface Spiffy extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
         void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something s);

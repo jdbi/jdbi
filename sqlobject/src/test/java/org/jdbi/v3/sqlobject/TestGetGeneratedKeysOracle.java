@@ -21,7 +21,6 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -68,7 +67,7 @@ public class TestGetGeneratedKeysOracle {
         }
     }
 
-    public interface DAO extends CloseMe {
+    public interface DAO {
         @SqlUpdate("insert into something (name, id) values (:name, something_id_sequence.nextval)")
         @GetGeneratedKeys(columnName = "id", value = OracleGeneratedKeyMapper.class)
         long insert(@Bind("name") String name);

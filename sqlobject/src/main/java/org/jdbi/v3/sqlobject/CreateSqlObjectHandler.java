@@ -22,15 +22,17 @@ import org.jdbi.v3.Handle;
 class CreateSqlObjectHandler implements Handler
 {
     private final Class<?> sqlObjectTypeToCreate;
+    private final SqlObject config;
 
-    CreateSqlObjectHandler(Class<?> sqlObjectTypeToCreate)
+    CreateSqlObjectHandler(Class<?> sqlObjectTypeToCreate, SqlObject config)
     {
         this.sqlObjectTypeToCreate = sqlObjectTypeToCreate;
+        this.config = config;
     }
 
     @Override
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
     {
-        return SqlObject.buildSqlObject(sqlObjectTypeToCreate, handle);
+        return SqlObjectFactory.INSTANCE.attach(sqlObjectTypeToCreate, config, handle);
     }
 }

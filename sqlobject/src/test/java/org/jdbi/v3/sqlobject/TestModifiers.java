@@ -30,7 +30,6 @@ import org.jdbi.v3.sqlobject.customizers.MaxRows;
 import org.jdbi.v3.sqlobject.customizers.QueryTimeOut;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -161,7 +160,7 @@ public class TestModifiers
     }
 
     @RegisterMapper(SomethingMapper.class)
-    public interface Spiffy extends CloseMe, Transactional<Spiffy>
+    public interface Spiffy extends Transactional<Spiffy>
     {
         @SqlQuery("select id, name from something where id = :id")
         Something byId(@Bind("id") long id);
@@ -193,7 +192,7 @@ public class TestModifiers
     }
 
     @RegisterMapper(SomethingMapper.class)
-    public interface IsoLevels extends CloseMe
+    public interface IsoLevels
     {
         @TransactionIsolation(READ_UNCOMMITTED)
         @SqlQuery("select id, name from something where id = :id")

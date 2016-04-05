@@ -45,7 +45,7 @@ class CallHandler extends CustomizingStatementHandler
             returnOutParams = false;
         }
 
-        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlCall.class), method.getRawMember());
+        this.sql = SqlAnnotations.getSql(method.getRawMember().getAnnotation(SqlCall.class), method.getRawMember());
     }
 
     @Override

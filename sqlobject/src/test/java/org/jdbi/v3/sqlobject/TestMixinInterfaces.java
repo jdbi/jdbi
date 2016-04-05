@@ -24,7 +24,6 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.junit.After;
@@ -162,12 +161,12 @@ public class TestMixinInterfaces
         }
     }
 
-    public interface WithGetHandle extends CloseMe, GetHandle
+    public interface WithGetHandle extends GetHandle
     {
 
     }
 
-    public interface TransactionStuff extends CloseMe, Transactional<TransactionStuff>, GetHandle
+    public interface TransactionStuff extends Transactional<TransactionStuff>, GetHandle
     {
 
         @SqlQuery("select id, name from something where id = :id")

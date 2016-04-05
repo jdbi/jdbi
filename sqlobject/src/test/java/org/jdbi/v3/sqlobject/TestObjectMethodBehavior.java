@@ -22,6 +22,7 @@ import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
+import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class TestObjectMethodBehavior
     private DBI    dbi;
     private UselessDao dao;
 
-    public interface UselessDao extends Cloneable
+    public interface UselessDao extends Cloneable, GetHandle
     {
         void finalize();
         Object clone();

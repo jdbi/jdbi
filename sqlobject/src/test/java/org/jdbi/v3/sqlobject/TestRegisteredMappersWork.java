@@ -30,7 +30,6 @@ import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.Rule;
 import org.junit.Test;
@@ -171,7 +170,7 @@ public class TestRegisteredMappersWork
         assertThat(itty.hasNext(), equalTo(false));
     }
 
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
 
         @SqlQuery("select id, name from something where id = :id")

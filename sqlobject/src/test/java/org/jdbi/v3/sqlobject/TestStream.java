@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -52,7 +51,7 @@ public class TestStream
         assertEquals(ImmutableList.of(thr, two, one), results);
     }
 
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something order by id desc")
         @Mapper(SomethingMapper.class)

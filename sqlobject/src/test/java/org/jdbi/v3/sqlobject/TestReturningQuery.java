@@ -21,7 +21,6 @@ import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,13 +63,13 @@ public class TestReturningQuery
     }
 
     @RegisterMapper(SomethingMapper.class)
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
         Query<Something> findById(@Bind("id") int id);
     }
 
-    public interface Spiffy2 extends CloseMe
+    public interface Spiffy2
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)

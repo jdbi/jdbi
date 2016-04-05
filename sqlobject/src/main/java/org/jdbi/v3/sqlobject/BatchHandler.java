@@ -48,7 +48,7 @@ class BatchHandler extends CustomizingStatementHandler
         }
         Method raw_method = method.getRawMember();
         SqlBatch anno = raw_method.getAnnotation(SqlBatch.class);
-        this.sql = SqlObject.getSql(anno, raw_method);
+        this.sql = SqlAnnotations.getSql(anno, raw_method);
         this.transactional = anno.transactional();
         this.batchChunkSize = determineBatchChunkSize(sqlObjectType, raw_method);
     }

@@ -29,7 +29,7 @@ import java.util.concurrent.Future;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
+import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -107,7 +107,7 @@ public class TestVariousOddities
         fail();
     }
 
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
@@ -118,7 +118,7 @@ public class TestVariousOddities
 
     }
 
-    public interface SpiffyBoom extends CloseMe
+    public interface SpiffyBoom
     {
         @SqlQuery("SELECT 1")
         void returnNothing();
@@ -127,7 +127,7 @@ public class TestVariousOddities
     /**
      * This interface should not be loaded by any test other than {@link TestVariousOddities#testConcurrentHashCode()}.
      */
-    public interface SpiffyConcurrent
+    public interface SpiffyConcurrent extends GetHandle
     {
 
     }

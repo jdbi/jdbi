@@ -34,7 +34,7 @@ class QueryHandler extends CustomizingStatementHandler
         super(sqlObjectType, method);
         this.method = method;
         this.magic = magic;
-        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlQuery.class), method.getRawMember());
+        this.sql = SqlAnnotations.getSql(method.getRawMember().getAnnotation(SqlQuery.class), method.getRawMember());
     }
 
     @Override

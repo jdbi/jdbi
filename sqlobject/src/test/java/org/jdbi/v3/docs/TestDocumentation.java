@@ -18,7 +18,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jdbi.v3.ExtraMatchers.equalsOneOf;
 import static org.junit.Assert.assertThat;
 
-import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +61,7 @@ public class TestDocumentation
         }
     }
 
-    public interface MyDAO extends Closeable
+    public interface MyDAO
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
@@ -156,8 +155,8 @@ public class TestDocumentation
     @Test
     public void testAttachToObject() throws Exception
     {
-        try (Handle h = db.openHandle();
-             MyDAO dao = h.attach(MyDAO.class)) {
+        try (Handle h = db.openHandle()) {
+            MyDAO dao = h.attach(MyDAO.class);
             dao.insert(1, "test");
         }
     }

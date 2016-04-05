@@ -17,7 +17,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.jdbi.v3.PGDatabaseRule;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,7 +43,7 @@ public class TestGetGeneratedKeysPostgres
         });
     }
 
-    public interface DAO extends CloseMe {
+    public interface DAO {
         @SqlUpdate("insert into something (name, id) values (:name, nextval('id_sequence'))")
         @GetGeneratedKeys(columnName = "id")
         long insert(@Bind("name") String name);

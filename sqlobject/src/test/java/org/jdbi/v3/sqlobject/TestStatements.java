@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -59,7 +58,7 @@ public class TestStatements
         db.getDbi().useExtension(Doubler.class, d -> assertTrue(d.doubleTest("wooooot")));
     }
 
-    public interface Inserter extends CloseMe
+    public interface Inserter
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@Bind("id") long id, @Bind("name") String name);

@@ -39,7 +39,7 @@ class UpdateHandler extends CustomizingStatementHandler
         if(returnTypeIsInvalid(method.getRawMember().getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
         }
-        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
+        this.sql = SqlAnnotations.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
         if (method.getRawMember().isAnnotationPresent(GetGeneratedKeys.class)) {
 
             final ResultReturnThing magic = ResultReturnThing.forType(method);

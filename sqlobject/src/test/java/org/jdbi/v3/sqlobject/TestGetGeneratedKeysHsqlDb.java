@@ -19,7 +19,6 @@ import static org.junit.Assert.assertThat;
 import java.util.UUID;
 
 import org.jdbi.v3.DBI;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,7 +33,7 @@ public class TestGetGeneratedKeysHsqlDb {
         dbi.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
     }
 
-    public interface DAO extends CloseMe {
+    public interface DAO {
         @SqlUpdate("insert into something (name) values (:name)")
         @GetGeneratedKeys
         long insert(@Bind String name);
