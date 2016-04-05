@@ -19,9 +19,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Use this annotation on a sql object method to create a new sql object
- * with the same underlying handle source (onDemand, attached, etc) as the
- * sql object the method is invoked on.
+ * Use this annotation on a sql object method to create a new sql object with the same underlying handle as the sql
+ * object the method is invoked on. Not supported with on-demand SQL objects.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
