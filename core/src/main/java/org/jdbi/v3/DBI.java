@@ -383,7 +383,7 @@ public class DBI
 
     /**
      * A convenience method which opens an extension of the given type, yields it to a callback, and returns the result
-     * of the callback. A handle is opened before, and closed after the call to the callback.
+     * of the callback. A handle is opened if needed by the extension, and closed before returning to the caller.
      *
      * @param extensionType the type of extension.
      * @param callback      a callback which will receive the extension.
@@ -398,20 +398,34 @@ public class DBI
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws NoSuchExtensionException, X
     {
-        LazyHandle handle = new LazyHandle();
+        try (LazyHandle handle = new LazyHandle()) {
+            E extension = extensionRegistry.findExtensionFor(extensionType, handle)
+                    .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
 
-        E extension = extensionRegistry.findExtensionFor(extensionType, handle)
-                .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
-
-        try {
             return callback.withExtension(extension);
-        }
-        finally {
-            handle.close();
         }
     }
 
-    private class LazyHandle implements Supplier<Handle> {
+    /**
+     * A convenience method which opens an extension of the given type, and yields it to a callback. A handle is opened
+     * if needed by the extention, and closed before returning to the caller.
+     *
+     * @param extensionType the type of extension
+     * @param callback      a callback which will receive the extension
+     * @param <E>           the extension type
+     * @param <X>           the exception type optionally thrown by the callback
+     * @throws NoSuchExtensionException if no {@link ExtensionFactory} is registered which supports the given extension type.
+     * @throws X                        if thrown by the callback.
+     */
+    public <E, X extends Exception> void useExtension(Class<E> extensionType, ExtensionConsumer<E, X> callback)
+            throws NoSuchExtensionException, X {
+        withExtension(extensionType, extension -> {
+            callback.useExtension(extension);
+            return null;
+        });
+    }
+
+    private class LazyHandle implements Supplier<Handle>, AutoCloseable {
         private volatile Handle handle;
         private volatile boolean closed = false;
 
@@ -439,6 +453,13 @@ public class DBI
         }
     }
 
+    /**
+     * Returns an extension which opens and closes handles (as needed) for individual method calls. Only public
+     * interface types may be used as on-demand extensions.
+     *
+     * @param extensionType the type of extension. Must be a public interface type.
+     * @param <E> the extension type
+     */
     public <E> E onDemand(Class<E> extensionType) throws NoSuchExtensionException {
         if (!extensionType.isInterface()) {
             throw new IllegalArgumentException("On-demand extensions are only supported for interfaces.");
@@ -447,29 +468,10 @@ public class DBI
             throw new IllegalArgumentException("On-demand extensions types must be public.");
         }
         if (!extensionRegistry.hasExtensionFor(extensionType)) {
-            throw new NoSuchExtensionException("No extension found for type " + extensionType);
+            throw new NoSuchExtensionException("Extension not found: " + extensionType);
         }
 
         return OnDemandExtensions.create(this, extensionType);
-    }
-
-    /**
-     * A convenience method which opens an extension of the given type, and yields it to a callback. A handle is opened
-     * before, and closed after the call to the callback.
-     *
-     * @param extensionType the type of extension
-     * @param callback      a callback which will receive the extension
-     * @param <E>           the extension type
-     * @param <X>           the exception type optionally thrown by the callback
-     * @throws NoSuchExtensionException if no {@link ExtensionFactory} is registered which supports the given extension type.
-     * @throws X                        if thrown by the callback.
-     */
-    public <E, X extends Exception> void useExtension(Class<E> extensionType, ExtensionConsumer<E, X> callback)
-            throws NoSuchExtensionException, X
-    {
-        try (Handle handle = open()) {
-            callback.useExtension(handle.attach(extensionType));
-        }
     }
 
     /**

@@ -85,7 +85,7 @@ public class TestOnDemandSqlObject
         assertEquals("Bill", bill);
     }
 
-    @Test(expected=UnableToCloseResourceException.class)
+    @Test(expected=TransactionException.class)
     public void testExceptionOnClose() throws Exception {
         JdbiPlugin plugin = new JdbiPlugin() {
             @Override
