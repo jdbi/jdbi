@@ -20,5 +20,5 @@ package org.jdbi.v3;
 @FunctionalInterface
 public interface TransactionCallback<R, X extends Exception>
 {
-    R inTransaction(Handle conn, TransactionStatus status) throws X;
+    R inTransaction(Handle handle, TransactionStatus status) throws X;
 }

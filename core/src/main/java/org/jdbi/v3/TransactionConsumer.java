@@ -20,5 +20,5 @@ package org.jdbi.v3;
 @FunctionalInterface
 public interface TransactionConsumer<X extends Exception>
 {
-    void useTransaction(Handle conn, TransactionStatus status) throws X;
+    void useTransaction(Handle handle, TransactionStatus status) throws X;
 }
