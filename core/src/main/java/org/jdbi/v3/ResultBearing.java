@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.jdbi.v3.exceptions.CallbackFailedException;
-
 public interface ResultBearing<T> extends Iterable<T>
 {
     @Override
@@ -86,8 +84,9 @@ public interface ResultBearing<T> extends Iterable<T>
      * released before this method returns.
      *
      * @param consumer a consumer which receives the stream of results.
+     * @throws X any exception thrown by the callback
      */
-    default void useStream(StreamConsumer<T> consumer) {
+    default <X extends Exception> void useStream(StreamConsumer<T, X> consumer) throws X {
         withStream(stream -> {
             consumer.useStream(stream);
             return null;
@@ -101,13 +100,11 @@ public interface ResultBearing<T> extends Iterable<T>
      * @param callback a callback which receives the stream of results, and returns some result.
      * @param <R>      the type returned by the callback
      * @return the value returned by the callback.
+     * @throws X any exception thrown by the callback
      */
-    default <R> R withStream(StreamCallback<T, R> callback) {
+    default <R, X extends Exception> R withStream(StreamCallback<T, R, X> callback) throws X {
         try (Stream<T> stream = stream()) {
             return callback.withStream(stream);
-        }
-        catch (Exception e) {
-            throw new CallbackFailedException(e);
         }
     }
 

@@ -19,14 +19,12 @@ import java.util.stream.Stream;
  * Callback for use with {@link org.jdbi.v3.ResultBearing#useStream(StreamConsumer)}
  */
 @FunctionalInterface
-public interface StreamConsumer<T> {
+public interface StreamConsumer<T, X extends Exception> {
     /**
-     * Will be invoked with result stream. The stream will be closed when this callback returns. Any exception thrown
-     * will be wrapped in a {@link org.jdbi.v3.exceptions.CallbackFailedException}
+     * Will be invoked with result stream. The stream will be closed when this callback returns.
      *
      * @param stream stream to be used only within scope of this callback
-     * @throws Exception will result in a {@link org.jdbi.v3.exceptions.CallbackFailedException} wrapping the exception
-     *                   being thrown
+     * @throws X optional exception thrown by the callback
      */
-    void useStream(Stream<T> stream) throws Exception;
+    void useStream(Stream<T> stream) throws X;
 }
