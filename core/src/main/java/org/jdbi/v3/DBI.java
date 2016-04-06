@@ -310,16 +310,12 @@ public class DBI
      *
      * @return the value returned by callback
      *
-     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
-     *                                 wrap the exception thrown by the callback.
+     * @throws X any exception thrown by the callback
      */
-    public <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException
+    public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X
     {
         try (Handle h = this.open()) {
             return callback.withHandle(h);
-        }
-        catch (Exception e) {
-            throw new CallbackFailedException(e);
         }
     }
 
@@ -328,10 +324,9 @@ public class DBI
      * for use by clients.
      *
      * @param callback A callback which will receive an open Handle
-     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
-     *                                 wrap the exception thrown by the callback.
+     * @throws X any exception thrown by the callback
      */
-    public void useHandle(final HandleConsumer callback) throws CallbackFailedException
+    public <X extends Exception> void useHandle(final HandleConsumer<X> callback) throws X
     {
         withHandle(h -> { callback.useHandle(h); return null; });
     }

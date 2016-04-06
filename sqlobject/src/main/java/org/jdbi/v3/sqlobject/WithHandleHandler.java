@@ -16,21 +16,15 @@ package org.jdbi.v3.sqlobject;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.HandleCallback;
 
 class WithHandleHandler implements Handler
 {
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp) throws Exception
     {
-        final Handle handle = h.getHandle();
-        final HandleCallback<?> callback = (HandleCallback<?>) args[0];
-        try {
-            return callback.withHandle(handle);
-        }
-        catch (Exception e) {
-            throw new CallbackFailedException(e);
-        }
+        Handle handle = h.getHandle();
+        HandleCallback<?,?> callback = (HandleCallback) args[0];
+        return callback.withHandle(handle);
     }
 }
