@@ -31,7 +31,7 @@ class PassThroughTransactionHandler implements Handler
     }
 
     @Override
-    public Object invoke(HandleDing ding, final Object target, final Object[] args, final MethodProxy mp)
+    public Object invoke(HandleDing ding, final Object target, final Object[] args, final MethodProxy mp) throws Exception
     {
         ding.retain("pass-through-transaction");
         try {

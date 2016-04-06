@@ -28,7 +28,6 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,8 +63,8 @@ public class TestTransactionAnnotation
             dao.failed(1, "Ian");
             fail("should have raised exception");
         }
-        catch (TransactionFailedException e) {
-            assertThat(e.getCause().getMessage(), equalTo("woof"));
+        catch (IOException e) {
+            assertThat(e.getMessage(), equalTo("woof"));
         }
         assertThat(dao.findById(1), nullValue());
     }

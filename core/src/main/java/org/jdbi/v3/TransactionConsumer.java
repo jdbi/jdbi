@@ -18,7 +18,7 @@ package org.jdbi.v3;
  * a transaction, and will be committed or rolled back as specified.
  */
 @FunctionalInterface
-public interface TransactionConsumer
+public interface TransactionConsumer<X extends Exception>
 {
-    void useTransaction(Handle conn, TransactionStatus status) throws Exception;
+    void useTransaction(Handle conn, TransactionStatus status) throws X;
 }

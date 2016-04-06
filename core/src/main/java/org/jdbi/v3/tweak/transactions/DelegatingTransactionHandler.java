@@ -75,13 +75,16 @@ public class DelegatingTransactionHandler implements TransactionHandler
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionCallback<R, X> callback) throws X
     {
         return delegate.inTransaction(handle, callback);
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level, TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionIsolationLevel level,
+                                                    TransactionCallback<R, X> callback) throws X
     {
         return delegate.inTransaction(handle, level, callback);
     }

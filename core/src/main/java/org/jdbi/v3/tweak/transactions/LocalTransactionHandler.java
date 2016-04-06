@@ -165,11 +165,12 @@ public class LocalTransactionHandler implements TransactionHandler
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionCallback<R, X> callback) throws X
     {
         final AtomicBoolean failed = new AtomicBoolean(false);
         TransactionStatus status = () -> failed.set(true);
-        final ReturnType returnValue;
+        final R returnValue;
         try {
             handle.begin();
             returnValue = callback.inTransaction(handle, status);
@@ -177,24 +178,15 @@ public class LocalTransactionHandler implements TransactionHandler
                 handle.commit();
             }
         }
-        catch (RuntimeException e) {
-            try {
-                handle.rollback();
-            } catch (Exception rollback) {
-                e.addSuppressed(rollback);
-            }
-            throw e;
-        }
         catch (Exception e) {
             try {
                 handle.rollback();
             } catch (Exception rollback) {
                 e.addSuppressed(rollback);
             }
-            throw new TransactionFailedException("Transaction failed do to exception being thrown " +
-                                                 "from within the callback. See cause " +
-                                                 "for the original exception.", e);
+            throw (X) e;
         }
+
         if (failed.get()) {
             handle.rollback();
             throw new TransactionFailedException("Transaction failed due to transaction status being set " +
@@ -206,8 +198,9 @@ public class LocalTransactionHandler implements TransactionHandler
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
-            TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionIsolationLevel level,
+                                                    TransactionCallback<R, X> callback) throws X
     {
         final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
         try {

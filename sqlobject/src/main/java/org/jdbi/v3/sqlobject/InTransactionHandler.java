@@ -20,12 +20,12 @@ import org.jdbi.v3.Transaction;
 class InTransactionHandler implements Handler
 {
     @Override
-    public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp)
+    public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp) throws Exception
     {
         h.retain("transaction#implicit");
         try {
             @SuppressWarnings("unchecked")
-            final Transaction<Object, Object> t = (Transaction<Object, Object>) args[0];
+            final Transaction<Object, Object, Exception> t = (Transaction) args[0];
             return h.getHandle().inTransaction((conn, status) -> t.inTransaction(target, status));
         }
         finally {

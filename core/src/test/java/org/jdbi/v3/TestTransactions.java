@@ -78,9 +78,7 @@ public class TestTransactions
             });
             fail("Should have thrown exception");
         }
-        catch (TransactionFailedException e)
-        {
-            assertTrue(true);
+        catch (IOException expected) {
         }
 
         List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
@@ -101,9 +99,8 @@ public class TestTransactions
             });
             fail("Should have thrown exception");
         }
-        catch (TransactionFailedException e)
+        catch (TransactionFailedException expected)
         {
-            assertTrue(true);
         }
 
         List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();

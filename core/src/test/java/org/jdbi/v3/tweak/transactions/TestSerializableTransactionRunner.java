@@ -20,7 +20,6 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,9 +50,9 @@ public class TestSerializableTransactionRunner
                 tries.decrementAndGet();
                 throw new SQLException("serialization", "40001");
             });
-        } catch (TransactionFailedException e)
+        } catch (SQLException e)
         {
-            Assert.assertEquals("40001", ((SQLException) e.getCause()).getSQLState());
+            Assert.assertEquals("40001", e.getSQLState());
         }
         Assert.assertEquals(0, tries.get());
     }

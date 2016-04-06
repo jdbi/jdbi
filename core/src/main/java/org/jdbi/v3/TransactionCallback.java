@@ -18,7 +18,7 @@ package org.jdbi.v3;
  * a transaction, and will be committed or rolled back as specified.
  */
 @FunctionalInterface
-public interface TransactionCallback<ReturnType>
+public interface TransactionCallback<R, X extends Exception>
 {
-    ReturnType inTransaction(Handle conn, TransactionStatus status) throws Exception;
+    R inTransaction(Handle conn, TransactionStatus status) throws X;
 }

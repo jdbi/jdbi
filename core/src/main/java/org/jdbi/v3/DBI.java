@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
-import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -341,25 +340,24 @@ public class DBI
      *
      * @return the value returned by callback
      *
-     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
-     *                                 wrap the exception thrown by the callback.
+     * @throws X any exception thrown by the callback
      */
-    public <ReturnType> ReturnType inTransaction(final TransactionCallback<ReturnType> callback) throws CallbackFailedException
+    public <R, X extends Exception> R inTransaction(final TransactionCallback<R, X> callback) throws X
     {
-        return withHandle(handle -> handle.inTransaction(callback));
+        return withHandle(handle -> handle.<R, X>inTransaction(callback));
     }
 
-    public void useTransaction(final TransactionConsumer callback) throws CallbackFailedException
+    public <X extends Exception> void useTransaction(final TransactionConsumer<X> callback) throws X
     {
         useHandle(handle -> handle.useTransaction(callback));
     }
 
-    public <ReturnType> ReturnType inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<ReturnType> callback) throws CallbackFailedException
+    public <R, X extends Exception> R inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<R, X> callback) throws X
     {
-        return withHandle(handle -> handle.inTransaction(isolation, callback));
+        return withHandle(handle -> handle.<R, X>inTransaction(isolation, callback));
     }
 
-    public void useTransaction(final TransactionIsolationLevel isolation, final TransactionConsumer callback) throws CallbackFailedException
+    public <X extends Exception> void useTransaction(final TransactionIsolationLevel isolation, final TransactionConsumer<X> callback) throws X
     {
         useHandle(handle -> handle.useTransaction(isolation, callback));
     }

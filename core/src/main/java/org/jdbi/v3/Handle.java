@@ -18,7 +18,6 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -134,49 +133,44 @@ public interface Handle extends Closeable
     Batch createBatch();
 
     /**
-     * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
-     * result of the callback will be returned. If it fails a {@link TransactionFailedException}
-     * will be thrown.
+     * Executes <code>callback</code> in a transaction, and returns the result of the callback.
      *
      * @return value returned from the callback
-     * @throws TransactionFailedException if the transaction failed in the callback
+     * @throws X any exception thrown by the callback
      */
-    <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback) throws TransactionFailedException;
+    <R, X extends Exception> R inTransaction(TransactionCallback<R, X> callback) throws X;
 
     /**
-     * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
-     * result of the callback will be returned. If it fails a {@link TransactionFailedException}
-     * will be thrown.
+     * Executes <code>callback</code> in a transaction.
      *
-     * @throws TransactionFailedException if the transaction failed in the callback
+     * @throws X any exception thrown by the callback
      */
-    void useTransaction(TransactionConsumer callback) throws TransactionFailedException;
+    <X extends Exception> void useTransaction(TransactionConsumer<X> callback) throws X;
 
     /**
-     * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
-     * result of the callback will be returned. If it fails a {@link TransactionFailedException}
-     * will be thrown.
+     * Executes <code>callback</code> in a transaction, and returns the result of the callback.
+     *
      * <p>
      * This form accepts a transaction isolation level which will be applied to the connection
      * for the scope of this transaction, after which the original isolation level will be restored.
      * </p>
      * @return value returned from the callback
-     * @throws TransactionFailedException if the transaction failed in the callback
+     * @throws X any exception thrown by the callback
      */
-    <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
-                                          TransactionCallback<ReturnType> callback) throws TransactionFailedException;
+    <R, X extends Exception> R inTransaction(TransactionIsolationLevel level,
+                                             TransactionCallback<R, X> callback) throws X;
 
     /**
-     * Executes <code>callback</code> in a transaction. If the transaction succeeds, the
-     * result of the callback will be returned. If it fails a {@link TransactionFailedException}
-     * will be thrown.
+     * Executes <code>callback</code> in a transaction.
+     *
      * <p>
      * This form accepts a transaction isolation level which will be applied to the connection
      * for the scope of this transaction, after which the original isolation level will be restored.
      * </p>
-     * @throws TransactionFailedException if the transaction failed in the callback
+     * @throws X any exception thrown by the callback
      */
-    void useTransaction(TransactionIsolationLevel level, TransactionConsumer callback) throws TransactionFailedException;
+    <X extends Exception> void useTransaction(TransactionIsolationLevel level,
+                                              TransactionConsumer<X> callback) throws X;
 
     /**
      * Convenience method which executes a select with purely positional arguments

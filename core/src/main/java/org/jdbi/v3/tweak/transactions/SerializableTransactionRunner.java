@@ -45,7 +45,8 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionCallback<R, X> callback) throws X
     {
         int retriesRemaining = configuration.maxRetries;
 
@@ -53,7 +54,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
             try
             {
                 return getDelegate().inTransaction(handle, callback);
-            } catch (RuntimeException e)
+            } catch (Exception e)
             {
                 if (!isSqlState(configuration.serializationFailureSqlState, e) || --retriesRemaining <= 0)
                 {
@@ -64,8 +65,9 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
-            TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionIsolationLevel level,
+                                                    TransactionCallback<R, X> callback) throws X
     {
         final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
         try

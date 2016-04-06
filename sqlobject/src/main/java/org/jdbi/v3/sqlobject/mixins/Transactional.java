@@ -35,7 +35,8 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
 
     void rollback(String name);
 
-    <ReturnType> ReturnType inTransaction(Transaction<ReturnType, SelfType> func);
+    <R, X extends Exception> R inTransaction(Transaction<R, SelfType, X> func) throws X;
 
-    <ReturnType> ReturnType inTransaction(TransactionIsolationLevel isolation, Transaction<ReturnType, SelfType> func);
+    <R, X extends Exception> R inTransaction(TransactionIsolationLevel isolation,
+                                             Transaction<R, SelfType, X> func) throws X;
 }

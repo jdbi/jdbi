@@ -13,19 +13,15 @@
  */
 package org.jdbi.v3;
 
-public interface Transaction<ReturnType, ConnectionType>
+public interface Transaction<R, ConnectionType, X extends Exception>
 {
     /**
-     * Execute in a transaction. Will be committed afterwards, or rolled back if a transaction
-     * is thrown.
-     * <p>
-     * If the transaction fails a {@link org.jdbi.v3.exceptions.TransactionFailedException}
-     * will be thrown from the {@link Handle#inTransaction(TransactionCallback)}
+     * Execute in a transaction. Will be committed afterwards, or rolled back if an exception is thrown.
      *
      * @param transactional The object communicating with the database.
      * @param status a handle on the transaction, kind of
-     * @return Something to return from {@link Handle#inTransaction(TransactionCallback)}
-     * @throws Exception will cause the transaction be aborted
+     * @return the transaction result
+     * @throws X any exception thrown will cause the transaction to be rolled back
      */
-    ReturnType inTransaction(ConnectionType transactional, TransactionStatus status) throws Exception;
+    R inTransaction(ConnectionType transactional, TransactionStatus status) throws X;
 }
