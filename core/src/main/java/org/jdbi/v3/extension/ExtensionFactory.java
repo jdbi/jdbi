@@ -38,8 +38,7 @@ public interface ExtensionFactory<C extends ExtensionConfig<C>> {
     /**
      * Returns an extension of the given type, attached to the given handle.
      *
-     * @param extensionType the type of the extension. Depending on the situation this may be a generic type such as
-     *                      {@link java.lang.reflect.ParameterizedType} or {@link Class}.
+     * @param extensionType the type of the extension.
      * @param config        the extension configuration.
      * @param handle        Supplies the database handle. This supplier may lazily open a Handle on the first
      *                      invocation. Extension implementors should take care not to fetch the handle before it is
