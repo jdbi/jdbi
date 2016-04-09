@@ -34,6 +34,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
+@SqlMethodAnnotation
 public @interface SqlBatch
 {
     /**

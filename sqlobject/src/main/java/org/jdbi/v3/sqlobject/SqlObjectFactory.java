@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import com.fasterxml.classmate.MemberResolver;
 import com.fasterxml.classmate.ResolvedType;
@@ -67,19 +68,10 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
         MemberResolver mr = new MemberResolver(typeResolver);
         ResolvedType extension_type = typeResolver.resolve(extensionType);
         ResolvedTypeWithMembers d = mr.resolve(extension_type, null, null);
-        for (ResolvedMethod method : d.getMemberMethods()) {
-            Method rawMethod = method.getRawMember();
-            if (rawMethod.isAnnotationPresent(SqlQuery.class)
-                    || rawMethod.isAnnotationPresent(SqlUpdate.class)
-                    || rawMethod.isAnnotationPresent(SqlBatch.class)
-                    || rawMethod.isAnnotationPresent(SqlCall.class)
-                    || rawMethod.isAnnotationPresent(CreateSqlObject.class)
-                    || rawMethod.isAnnotationPresent(Transaction.class)) {
-                return true;
-            }
-        }
 
-        return false;
+        return Stream.of(d.getMemberMethods())
+                .flatMap(m -> Stream.of(m.getRawMember().getAnnotations()))
+                .anyMatch(a -> a.annotationType().isAnnotationPresent(SqlMethodAnnotation.class));
     }
 
     /**

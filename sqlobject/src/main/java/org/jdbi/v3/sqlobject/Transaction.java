@@ -22,6 +22,7 @@ import org.jdbi.v3.TransactionIsolationLevel;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
+@SqlMethodAnnotation
 public @interface Transaction
 {
     TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;

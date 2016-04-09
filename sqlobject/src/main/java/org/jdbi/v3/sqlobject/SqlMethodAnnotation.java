@@ -19,19 +19,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to indicate that a method should execute a query.
+ * Annotation used to identify SQL method annotations. Use this to annotate an annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-@SqlMethodAnnotation
-public @interface SqlQuery
-{
-    String DEFAULT_VALUE = "  $#@!!@#%  ";
-
-    /**
-     * The query (or query name if using a statement locator) to be executed. The default value will use
-     * the method name of the method being annotated. This default behavior is only useful in conjunction
-     * with a statement locator.
-     */
-    String value() default DEFAULT_VALUE;
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface SqlMethodAnnotation {
 }
