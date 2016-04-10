@@ -11,10 +11,12 @@ lexer grammar ColonStatementLexer;
   }
 }
 
+fragment DOUBLE_COLON: {input.LA(2) == ':'}?=> '::';
+fragment COLON: {input.LA(2) != ':'}?=> ':';
+
 LITERAL: ('a'..'z' | 'A'..'Z' | ' ' | '\t' | '\n' | '\r' | '0'..'9' | ',' | '*' | '#' | '.' | '@' | '_' | '!'
           | '=' | ';' | '(' | ')' | '[' | ']' | '+' | '-' | '/' | '>' | '<' | '%' | '&' | '^' | '|'
-          | '$' | '~' | '{' | '}' | '`')+ ;
-COLON: ':';
+          | '$' | '~' | '{' | '}' | '`' | DOUBLE_COLON)+ ;
 NAMED_PARAM: COLON ('a'..'z' | 'A'..'Z' | '0'..'9' | '_' | '.' | '#')+;
 POSITIONAL_PARAM: '?';
 QUOTED_TEXT: ('\'' ( ESCAPE_SEQUENCE | ~'\'')* '\'');

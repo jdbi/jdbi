@@ -83,6 +83,14 @@ public class TestColonStatementRewriter
         assertEquals("select * from `v$session", rws.getSql());
     }
 
+    @Test
+    public void testDoubleColon() throws Exception
+    {
+        final String doubleColon = "select 1::int";
+        RewrittenStatement rws = rewrite(doubleColon);
+        assertEquals(doubleColon, rws.getSql());
+    }
+
     @Test(expected = UnableToCreateStatementException.class)
     public void testBailsOutOnInvalidInput() throws Exception
     {
