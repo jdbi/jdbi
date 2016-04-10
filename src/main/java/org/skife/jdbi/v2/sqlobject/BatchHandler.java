@@ -26,9 +26,11 @@ import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.PreparedBatchPart;
+import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.UnableToCreateSqlObjectException;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
@@ -97,18 +99,22 @@ class BatchHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
+        boolean foundIterator = false;
         Handle handle = h.getHandle();
 
         List<Iterator> extras = new ArrayList<Iterator>();
         for (final Object arg : args) {
             if (arg instanceof Iterable) {
                 extras.add(((Iterable) arg).iterator());
+                foundIterator = true;
             }
             else if (arg instanceof Iterator) {
                 extras.add((Iterator) arg);
+                foundIterator = true;
             }
             else if (arg.getClass().isArray()) {
                 extras.add(Arrays.asList((Object[])arg).iterator());
+                foundIterator = true;
             }
             else {
                 extras.add(new Iterator()
@@ -134,6 +140,10 @@ class BatchHandler extends CustomizingStatementHandler
                 }
                 );
             }
+        }
+
+        if (!foundIterator) {
+            throw new UnableToExecuteStatementException("@SqlBatch must have at least one iterable parameter", (StatementContext)null);
         }
 
         int processed = 0;
