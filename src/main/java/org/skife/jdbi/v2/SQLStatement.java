@@ -1278,6 +1278,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return bind(position, new SqlTypeArgument(value, sqlType));
     }
 
+    public SelfType clearBindings()
+    {
+        params.clear();
+        return (SelfType) this;
+    }
+
     private String wrapLookup(String sql)
     {
         try {
