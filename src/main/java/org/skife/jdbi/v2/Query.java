@@ -314,7 +314,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     public <T> Query<T> map(ResultSetMapper<T> mapper)
     {
-        return new Query<T>(getParameters(),
+        return new Query<T>(getParams(),
                             mapper,
                             getStatementLocator(),
                             getRewriter(),

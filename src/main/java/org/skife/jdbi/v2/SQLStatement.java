@@ -245,11 +245,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return sql;
     }
 
-    protected Binding getParameters()
-    {
-        return params;
-    }
-
     /**
      * Set the query timeout, in seconds, on the prepared statement
      *
@@ -1294,7 +1289,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     {
         final String located_sql = wrapLookup(sql);
         getConcreteContext().setLocatedSql(located_sql);
-        rewritten = rewriter.rewrite(located_sql, getParameters(), getContext());
+        rewritten = rewriter.rewrite(located_sql, getParams(), getContext());
         getConcreteContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
@@ -1315,7 +1310,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         getConcreteContext().setStatement(stmt);
 
         try {
-            rewritten.bind(getParameters(), stmt);
+            rewritten.bind(getParams(), stmt);
         }
         catch (SQLException e) {
             throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, getContext());
