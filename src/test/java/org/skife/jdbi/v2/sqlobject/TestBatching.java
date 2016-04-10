@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 
@@ -149,6 +150,22 @@ public class TestBatching
         }
     }
 
+    @Test(timeout=5000, expected=UnableToExecuteStatementException.class)
+    public void testForgotIterableInt() throws Exception
+    {
+        handle.execute("CREATE TABLE test (id int)");
+        UsesBatching b = handle.attach(UsesBatching.class);
+        b.invalidInsertInt(1);
+    }
+
+    @Test(timeout=5000, expected=UnableToExecuteStatementException.class)
+    public void testForgotIterableString() throws Exception
+    {
+        handle.execute("CREATE TABLE test (id varchar)");
+        UsesBatching b = handle.attach(UsesBatching.class);
+        b.invalidInsertString("bob");
+    }
+
     @BatchChunkSize(4)
     @UseStringTemplate3StatementLocator
     public static interface UsesBatching
@@ -174,5 +191,11 @@ public class TestBatching
 
         @SqlQuery("select count(*) from something")
         public int size();
+
+        @SqlBatch("insert into test (id) values (:id)")
+        void invalidInsertInt(@Bind("id") int id);
+
+        @SqlBatch("insert into test (id) values (:id)")
+        void invalidInsertString(@Bind("id") String id);
     }
 }
