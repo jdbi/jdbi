@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +18,7 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
+import org.skife.jdbi.v2.exceptions.TransactionException;
 
 import java.lang.reflect.Method;
 
@@ -38,6 +37,11 @@ class PassThroughTransactionHandler implements Handler
         ding.retain("pass-through-transaction");
         try {
             Handle h = ding.getHandle();
+
+            if (h.isInTransaction()) {
+                throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
+            }
+
             if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
                 return h.inTransaction(new TransactionCallback<Object>()
                 {

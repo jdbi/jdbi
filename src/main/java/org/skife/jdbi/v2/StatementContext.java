@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +12,8 @@
  * limitations under the License.
  */
 package org.skife.jdbi.v2;
+
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -55,6 +55,13 @@ public interface StatementContext
      */
     Map<String, Object> getAttributes();
 
+    /**
+     * Obtain a column mapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
+     */
+    ResultColumnMapper columnMapperFor(Class type);
 
     /**
      * Obtain the initial sql for the statement used to create the statement
@@ -108,6 +115,19 @@ public interface StatementContext
      */
     boolean isReturningGeneratedKeys();
 
+    String[] getGeneratedKeysColumnNames();
+
     void addCleanable(Cleanable cleanable);
+
+    /**
+     * Return if the statement should be concurrent updatable.
+     *
+     * If this returns true, the concurrency level of the created ResultSet will be
+     * {@link java.sql.ResultSet#CONCUR_UPDATABLE}, otherwise the result set is not updatable,
+     * and will have concurrency level {@link java.sql.ResultSet#CONCUR_READ_ONLY}.
+     *
+     * @return if the statement generated should be concurrent updatable.
+     */
+    boolean isConcurrentUpdatable();
 
 }

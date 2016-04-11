@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -81,16 +79,6 @@ public class TestTransactionAnnotation
             assertThat(e.getCause().getMessage(), equalTo("woof"));
         }
         assertThat(dao.findById(1), nullValue());
-    }
-
-    @Test
-    public void testNestedTransactions() throws Exception
-    {
-        Dao dao = handle.attach(Dao.class);
-
-        Something s = dao.insertAndFetchWithNestedTransaction(1, "Ian");
-        assertThat(s, equalTo(new Something(1, "Ian")));
-
     }
 
     @Test
@@ -194,12 +182,6 @@ public class TestTransactionAnnotation
         {
             insert(id, name);
             return findById(id);
-        }
-
-        @Transaction
-        public Something insertAndFetchWithNestedTransaction(int id, String name)
-        {
-            return insertAndFetch(id, name);
         }
 
         @Transaction

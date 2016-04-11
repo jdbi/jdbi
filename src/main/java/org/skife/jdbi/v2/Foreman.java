@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,12 +33,12 @@ class Foreman
 
     private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<ArgumentFactory>();
 
-    public Foreman()
+    Foreman()
     {
         factories.add(BUILT_INS);
     }
 
-    public Foreman(List<ArgumentFactory> factories)
+    Foreman(List<ArgumentFactory> factories)
     {
         this.factories.addAll(factories);
     }

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +25,7 @@ public class TestEscapedCharacters
 
     private String parseString(final String src)
     {
-        return rewriter.parseString(src, new ColonPrefixNamedParamStatementRewriter.ParsedStatement());
+        return rewriter.parseString(src).getParsedSql();
     }
 
     @Test

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-~   Copyright (C) 2004 - 2014 Brian McCallister
-~
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
 ~   You may obtain a copy of the License at
@@ -19,14 +17,14 @@
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-standard-oss</artifactId>
-        <version>11</version>
+        <version>14</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi</artifactId>
     <name>jDBI</name>
-    <version>2.61-SNAPSHOT</version>
+    <version>2.73-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>
         jDBI is designed to provide convenient tabular data access in
@@ -81,7 +79,6 @@
     </developers>
 
     <properties>
-        <project.jdk6.home>${env.JAVA6_HOME}</project.jdk6.home>
         <project.build.targetJdk>1.6</project.build.targetJdk>
         <basepom.maven.version>2.0.9</basepom.maven.version>
         <dep.antlr.version>3.4</dep.antlr.version>
@@ -142,6 +139,9 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
+            <!-- needs to be a JDK 6 compatible version, otherwise
+                 the Java 6 compiler will fail to build the jar -->
+            <version>2.0.3</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -211,6 +211,13 @@
             <version>9.1-901-1.jdbc4</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.3.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -272,9 +279,34 @@
                         </excludes>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-toolchains-plugin</artifactId>
+                    <version>1.1</version>
+                    <configuration>
+                        <toolchains>
+                            <jdk>
+                                <version>${project.build.targetJdk}</version>
+                                <vendor>sun</vendor>
+                            </jdk>
+                        </toolchains>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>toolchain</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr3-maven-plugin</artifactId>
@@ -303,7 +335,8 @@
                                 <includes>
                                     <include>org.antlr:antlr-runtime</include>
                                     <include>com.fasterxml:classmate</include>
-                                    <include>cglib:cglib-nodep</include>
+                                    <include>cglib:cglib</include>
+                                    <include>org.ow2.asm:asm</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
@@ -318,6 +351,11 @@
                                 </relocation>
 
                                 <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>org.skife.jdbi.asm</shadedPattern>
+                                </relocation>
+
+                                <relocation>
                                     <pattern>com.fasterxml.classmate</pattern>
                                     <shadedPattern>org.skife.jdbi.com.fasterxml.classmate</shadedPattern>
                                 </relocation>
@@ -328,90 +366,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>travis</id>
-            <activation>
-                <property>
-                    <name>env.TRAVIS</name>
-                </property>
-            </activation>
-            <properties>
-                <project.jdk6.home>${env.JAVA_HOME}</project.jdk6.home>
-            </properties>
-        </profile>
-        <profile>
-            <id>cross-compile</id>
-            <activation>
-                 <jdk>(1.6,]</jdk>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <configuration>
-                                <compilerArguments children.combine="append">
-                                    <bootclasspath>${project.jdk6.home}/jre/lib/rt.jar:${project.jdk6.home}/jre/lib/jce.jar:${project.jdk6.home}/../classes/classes.jar</bootclasspath>
-                                </compilerArguments>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>compat-jdk6</id>
-            <activation>
-                <jdk>[,1.7)</jdk>
-            </activation>
-            <properties>
-                <!-- findbugs 3.x.x is java 7+ -->
-                <dep.findbugs.version>2.0.3</dep.findbugs.version>
-                <dep.plugin.findbugs.version>2.5.5</dep.plugin.findbugs.version>
-
-                <!-- checkstyle post 6.1 is java 7+ -->
-                <dep.checkstyle.version>6.1</dep.checkstyle.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>javadoc</id>
-            <!-- The javadoc profile is only required for 1.7; 1.6 and 1.8+ work just fine with their normal class path. -->
-            <activation>
-                <jdk>1.7</jdk>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <artifactId>maven-javadoc-plugin</artifactId>
-                            <configuration>
-                                <bootclasspath>${project.jdk6.home}/jre/lib/rt.jar:${project.jdk6.home}/jre/lib/jce.jar:${project.jdk6.home}/../classes/classes.jar</bootclasspath>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>doclint</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-javadoc-plugin</artifactId>
-                            <configuration>
-                                <additionalparam>-Xdoclint:none</additionalparam>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-    </profiles>
 </project>

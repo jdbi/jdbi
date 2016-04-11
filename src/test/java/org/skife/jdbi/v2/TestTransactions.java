@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +17,6 @@ import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.DBIException;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.TransactionFailedException;
-import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.io.IOException;
 import java.util.List;
@@ -135,11 +132,11 @@ public class TestTransactions extends DBITestCase
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
         h.checkpoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Martin");
-        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
         h.rollback("first");
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
         h.commit();
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").map(new IntegerMapper()).first());
+        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).first());
     }
 
     @Test

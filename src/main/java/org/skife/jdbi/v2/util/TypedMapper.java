@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,7 +22,10 @@ import java.sql.SQLException;
 /**
  * Convenience base class for implementing typed result set mappers. Provides
  * frequently used functionality.
+ *
+ * @deprecated Implement and register {@link org.skife.jdbi.v2.tweak.ResultColumnMapper} instead.
  */
+@Deprecated
 public abstract class TypedMapper<T> implements ResultSetMapper<T>
 {
     private final ResultSetMapper<T> internal;

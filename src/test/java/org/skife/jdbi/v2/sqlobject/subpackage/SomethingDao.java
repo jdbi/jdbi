@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +18,7 @@ import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.Transaction;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
 @RegisterMapper(SomethingMapper.class)
@@ -36,5 +35,19 @@ public abstract class SomethingDao
     }
 
     public abstract void totallyBroken();
+
+
+    @Transaction
+    public void insertInSingleTransaction(final int id, final String name)
+    {
+        insert(id, name);
+    }
+
+    @Transaction
+    public void insertInNestedTransaction(final int id, final String name)
+    {
+        insertInSingleTransaction(id, name);
+    }
+
 
 }

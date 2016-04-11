@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,12 +27,10 @@ class BindMapFactory implements BinderFactory
     @Override
     public Binder build(Annotation annotation)
     {
-        return new Binder<BindMap, Object>()
+        return new Binder<BindMap, Map<String, Object>>()
         {
-            @SuppressWarnings("unchecked")
             @Override
-            public void bind(SQLStatement q, BindMap bind, Object arg)
-            {
+            public void bind(SQLStatement<?> q, BindMap bind, Map<String, Object> map) {
                 final String prefix;
                 if (BindBean.BARE_BINDING.equals(bind.prefix())) {
                     prefix = "";
@@ -44,7 +40,6 @@ class BindMapFactory implements BinderFactory
                 }
 
                 final Set<String> allowedKeys = new HashSet<String>(Arrays.asList(bind.value()));
-                final Map<String, Object> map = (Map<String, Object>) arg;
 
                 for (Entry e : map.entrySet()) {
                     final Object keyObj = e.getKey();

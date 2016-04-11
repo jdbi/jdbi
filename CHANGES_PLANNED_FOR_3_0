@@ -14,3 +14,4 @@ This file describes the changes expected in some eventual 3.0 release.
 * Clean up folding a LOT
 * Clean up naming on sql object api elements
 * Get rid of @Transmogrify
+* Use Type instead of Class to support more robust generics in mappers.

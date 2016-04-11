@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,7 +31,19 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
 {
     private DataSource dataSource;
     private StatementLocator statementLocator;
-    private Map<String, Object> globalDefines = new HashMap<String, Object>();
+    private final Map<String, Object> globalDefines = new HashMap<String, Object>();
+
+    public DBIFactoryBean() {
+    }
+
+    public DBIFactoryBean(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public DBIFactoryBean(DataSource dataSource, StatementLocator statementLocator) {
+        this.dataSource = dataSource;
+        this.statementLocator = statementLocator;
+    }
 
     /**
      * See org.springframework.beans.factory.FactoryBean#getObject

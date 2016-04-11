@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +21,10 @@ import java.sql.Timestamp;
  * Convenience ResultSetMapper for extracting a single value result
  * from a query.
  */
+/**
+ * @deprecated Use {@link TimestampColumnMapper} instead.
+ */
+@Deprecated
 public class TimestampMapper extends TypedMapper<Timestamp>
 {
     /**

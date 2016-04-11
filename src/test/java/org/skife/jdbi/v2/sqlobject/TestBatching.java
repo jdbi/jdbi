@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,9 +20,9 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -98,7 +96,7 @@ public class TestBatching
         assertThat(b.size(), equalTo(5));
 
         List<String> names = handle.createQuery("select distinct name from something")
-                                   .map(StringMapper.FIRST)
+                                   .mapTo(String.class)
                                    .list();
         assertThat(names, equalTo(Arrays.asList("Johan")));
     }
@@ -115,7 +113,7 @@ public class TestBatching
         assertThat(b.size(), equalTo(3));
 
         List<String> ins_names = handle.createQuery("select distinct name from something order by name")
-                                       .map(StringMapper.FIRST)
+                                       .mapTo(String.class)
                                        .list();
         assertThat(ins_names, equalTo(Arrays.asList("David", "Mike", "Tim")));
     }
@@ -152,6 +150,22 @@ public class TestBatching
         }
     }
 
+    @Test(timeout=5000, expected=UnableToExecuteStatementException.class)
+    public void testForgotIterableInt() throws Exception
+    {
+        handle.execute("CREATE TABLE test (id int)");
+        UsesBatching b = handle.attach(UsesBatching.class);
+        b.invalidInsertInt(1);
+    }
+
+    @Test(timeout=5000, expected=UnableToExecuteStatementException.class)
+    public void testForgotIterableString() throws Exception
+    {
+        handle.execute("CREATE TABLE test (id varchar)");
+        UsesBatching b = handle.attach(UsesBatching.class);
+        b.invalidInsertString("bob");
+    }
+
     @BatchChunkSize(4)
     @UseStringTemplate3StatementLocator
     public static interface UsesBatching
@@ -177,5 +191,11 @@ public class TestBatching
 
         @SqlQuery("select count(*) from something")
         public int size();
+
+        @SqlBatch("insert into test (id) values (:id)")
+        void invalidInsertInt(@Bind("id") int id);
+
+        @SqlBatch("insert into test (id) values (:id)")
+        void invalidInsertString(@Bind("id") String id);
     }
 }

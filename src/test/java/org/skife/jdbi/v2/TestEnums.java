@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +18,9 @@ import org.junit.Test;
 import java.sql.SQLException;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class TestEnums extends DBITestCase
@@ -68,6 +68,20 @@ public class TestEnums extends DBITestCase
                                    .list();
         assertEquals(SomethingElse.Name.eric, results.get(0).name);
         assertEquals(SomethingElse.Name.brian, results.get(1).name);
+    }
+
+    @Test
+    public void testMapToEnum() throws Exception
+    {
+        Handle h = openHandle();
+        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+
+        List<SomethingElse.Name> results = h.createQuery("select name from something order by id")
+                                   .mapTo(SomethingElse.Name.class)
+                                   .list();
+        assertEquals(SomethingElse.Name.eric, results.get(0));
+        assertEquals(SomethingElse.Name.brian, results.get(1));
     }
 
     @Test

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +21,8 @@ import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
+import org.skife.jdbi.v2.tweak.HandleConsumer;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -30,6 +30,7 @@ import org.skife.jdbi.v2.tweak.StatementBuilderFactory;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
+import org.skife.jdbi.v2.tweak.VoidHandleCallback;
 import org.skife.jdbi.v2.tweak.transactions.LocalTransactionHandler;
 
 import javax.sql.DataSource;
@@ -235,16 +236,34 @@ public class DBI implements IDBI
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerMapper(ResultSetMapper mapper) {
-        mappingRegistry.add(mapper);
+        mappingRegistry.addMapper(mapper);
     }
 
     /**
      * Register a result set mapper factory.
      *
-     * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerMapper(ResultSetMapperFactory factory) {
-        mappingRegistry.add(factory);
+        mappingRegistry.addMapper(factory);
+    }
+
+    /**
+     * Register a result column mapper which will have its parameterized type inspected to determine what it maps to
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    public void registerColumnMapper(ResultColumnMapper mapper) {
+        mappingRegistry.addColumnMapper(mapper);
+    }
+
+    /**
+     * Register a result column mapper factory.
+     *
+     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     */
+    public void registerColumnMapper(ResultColumnMapperFactory factory) {
+        mappingRegistry.addColumnMapper(factory);
     }
 
     /**
@@ -288,6 +307,28 @@ public class DBI implements IDBI
 
     /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients.
+     *
+     * @param callback A callback which will receive an open Handle
+     *
+     * @return the value returned by callback
+     *
+     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
+     *                                 wrap the exception thrown by the callback.
+     */
+    @Override
+    public void useHandle(final HandleConsumer callback) throws CallbackFailedException
+    {
+        withHandle(new VoidHandleCallback() {
+            @Override
+            protected void execute(Handle handle) throws Exception {
+                callback.useHandle(handle);
+            }
+        });
+    }
+
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients. The handle will be in a transaction when the callback is invoked, and
      * that transaction will be committed if the callback finishes normally, or rolled back if the
      * callback raises an exception.
@@ -312,6 +353,18 @@ public class DBI implements IDBI
     }
 
     @Override
+    public void useTransaction(final TransactionConsumer callback) throws CallbackFailedException
+    {
+        useHandle(new HandleConsumer() {
+            @Override
+            public void useHandle(Handle handle) throws Exception
+            {
+                handle.useTransaction(callback);
+            }
+        });
+    }
+
+    @Override
     public <ReturnType> ReturnType inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<ReturnType> callback) throws CallbackFailedException
     {
         return withHandle(new HandleCallback<ReturnType>() {
@@ -319,6 +372,18 @@ public class DBI implements IDBI
             public ReturnType withHandle(Handle handle) throws Exception
             {
                 return handle.inTransaction(isolation, callback);
+            }
+        });
+    }
+
+    @Override
+    public void useTransaction(final TransactionIsolationLevel isolation, final TransactionConsumer callback) throws CallbackFailedException
+    {
+        useHandle(new HandleConsumer() {
+            @Override
+            public void useHandle(Handle handle) throws Exception
+            {
+                handle.useTransaction(isolation, callback);
             }
         });
     }

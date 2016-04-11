@@ -1,4 +1,45 @@
-2.60
+2.73
+  - (finally!) parse Postgres CAST syntax 'value::type' properly in colon
+    prefix statements
+  - fix @SqlBatch hanging if you forget to include an Iterable-like param
+  - fix @SqlUpdate @GetGeneratedKeys to allow non-number return types
+
+2.72
+  - Support for the ability to provide a list of the column names returned
+    in a prepared batch #254
+
+2.71
+  - fix @BindBean of private subtypes, #242
+
+2.70 *** MAJOR CHANGES ***
+  - allow JDK8 default methods in SQLObject interfaces. Backport of #190.
+  - switch to standard Maven toolchains.xml for cross-compilation, #169.
+    See https://maven.apache.org/guides/mini/guide-using-toolchains.html
+    for instructions on how to use it.
+  - Correctly handle semicolons and inline comments in SQL statements.
+    Existing SQL statements may break due to lexer changes, ensure you have
+    test coverage.
+  - Introduce "column mappers" which dramatically improve type handling
+    for BeanMapper-style automatic mapping
+      see https://github.com/jdbi/jdbi/pull/164
+  - Disallow "nested" transactions explicitly.  They almost certainly don't
+    work the way you expect.  Use savepoints instead.
+  - Eagerly check return type of @SqlUpdate annotated SqlObject methods
+  - Allow getting generated keys by name for Oracle
+  - Allow getting generated keys from prepared Batch statements
+  - Cache StatementRewriter parsing of statements
+  - Support mapping of URI, char, Character types
+
+2.63
+  - Include lambda-friendly callback methods on Handle and DBI, #156
+
+2.62
+  - Also include asm in shade, fixes build.  Sorry about the broken releases...
+
+2.61 *** DO NOT USE ***
+  - Fix shading broken in 2.60, fixes #152
+
+2.60 *** DO NOT USE ***
   - Fix Javadoc generation for JDK6 and JDK8
   - Add support for /* */ style comments in statements
   - Add @BindMap annotation which allows parameters passed in a Map<String, Object>
@@ -31,7 +72,7 @@
 
 
 2.53
-  - Tests now run in parallel 
+  - Tests now run in parallel
   - Added Template supergroup loading to StringTemplate3StatementLocator
   - add a global cache for templates loaded from an annotation.
   - fix a handler cache bug.

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +19,7 @@ import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.subpackage.SomethingDao;
 
@@ -85,6 +84,28 @@ public class TestClassBasedSqlObject
         dao.totallyBroken();
     }
 
+    @Test
+    public void testSimpleTransactionsSucceed() throws Exception
+    {
+        final SomethingDao dao = dbi.onDemand(SomethingDao.class);
+
+        dao.insertInSingleTransaction(10, "Linda");
+    }
+
+    /**
+     * Currently, nested transactions are not supported. Make sure an appropriate exception is
+     * thrown in that case.
+     * <p>
+     *
+     * Side note: H2 does not have a problem with nested transactions - but MySQL has.
+     */
+    @Test(expected = TransactionException.class)
+    public void testNestedTransactionsThrowException()
+    {
+        final SomethingDao dao = dbi.onDemand(SomethingDao.class);
+        dao.insertInNestedTransaction(11, "Angelina");
+    }
+
     @RegisterMapper(SomethingMapper.class)
     public static abstract class Dao
     {
@@ -101,4 +122,5 @@ public class TestClassBasedSqlObject
         public abstract void totallyBroken();
 
     }
+
 }

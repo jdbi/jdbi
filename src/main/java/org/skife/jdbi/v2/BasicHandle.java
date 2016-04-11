@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +18,7 @@ import org.skife.jdbi.v2.exceptions.UnableToManipulateTransactionIsolationLevelE
 import org.skife.jdbi.v2.sqlobject.SqlObjectBuilder;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 import org.skife.jdbi.v2.tweak.ContainerFactory;
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
@@ -83,6 +82,7 @@ class BasicHandle implements Handle
     @Override
     public Query<Map<String, Object>> createQuery(String sql)
     {
+        MappingRegistry queryRegistry = new MappingRegistry(this.mappingRegistry);
         return new Query<Map<String, Object>>(new Binding(),
                                               new DefaultMapper(),
                                               statementLocator,
@@ -90,11 +90,11 @@ class BasicHandle implements Handle
                                               this,
                                               statementBuilder,
                                               sql,
-                                              new ConcreteStatementContext(globalStatementAttributes),
+                                              new ConcreteStatementContext(globalStatementAttributes, queryRegistry),
                                               log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
-                                              new MappingRegistry(mappingRegistry),
+                                              queryRegistry,
                                               foreman.createChild(),
                                               containerFactoryRegistry.createChild());
     }
@@ -114,16 +114,19 @@ class BasicHandle implements Handle
     public void close()
     {
         if (!closed) {
-            statementBuilder.close(getConnection());
             try {
-                connection.close();
-            }
-            catch (SQLException e) {
-                throw new UnableToCloseResourceException("Unable to close Connection", e);
-            }
-            finally {
-                log.logReleaseHandle(this);
-                closed = true;
+                statementBuilder.close(getConnection());
+            } finally {
+                try {
+                    connection.close();
+                }
+                catch (SQLException e) {
+                    throw new UnableToCloseResourceException("Unable to close Connection", e);
+                }
+                finally {
+                    log.logReleaseHandle(this);
+                    closed = true;
+                }
             }
         }
     }
@@ -254,7 +257,7 @@ class BasicHandle implements Handle
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes),
+                          new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                           log,
                           timingCollector,
                           foreman,
@@ -269,7 +272,7 @@ class BasicHandle implements Handle
                         statementRewriter,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(globalStatementAttributes),
+                        new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                         log,
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
@@ -302,7 +305,7 @@ class BasicHandle implements Handle
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(this.globalStatementAttributes),
+                                 new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                                  log,
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
@@ -315,7 +318,7 @@ class BasicHandle implements Handle
     {
         return new Batch(this.statementRewriter,
                          this.connection,
-                         globalStatementAttributes,
+                         new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)),
                          log,
                          timingCollector,
                          foreman.createChild());
@@ -325,6 +328,17 @@ class BasicHandle implements Handle
     public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
     {
         return transactions.inTransaction(this, callback);
+    }
+
+    @Override
+    public void useTransaction(final TransactionConsumer callback)
+    {
+        transactions.inTransaction(this, new VoidTransactionCallback() {
+            @Override
+            protected void execute(Handle handle, TransactionStatus status) throws Exception {
+                callback.useTransaction(handle, status);
+            }
+        });
     }
 
     @Override
@@ -356,6 +370,17 @@ class BasicHandle implements Handle
     }
 
     @Override
+    public void useTransaction(TransactionIsolationLevel level, final TransactionConsumer callback)
+    {
+        inTransaction(level, new VoidTransactionCallback() {
+            @Override
+            protected void execute(Handle handle, TransactionStatus status) throws Exception {
+                callback.useTransaction(handle, status);
+            }
+        });
+    }
+
+    @Override
     public List<Map<String, Object>> select(String sql, Object... args)
     {
         Query<Map<String, Object>> query = this.createQuery(sql);
@@ -381,7 +406,7 @@ class BasicHandle implements Handle
     @Override
     public Script createScript(String name)
     {
-        return new Script(this, statementLocator, name, globalStatementAttributes);
+        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry)));
     }
 
     @Override
@@ -393,13 +418,23 @@ class BasicHandle implements Handle
     @Override
     public void registerMapper(ResultSetMapper mapper)
     {
-        mappingRegistry.add(mapper);
+        mappingRegistry.addMapper(mapper);
     }
 
     @Override
     public void registerMapper(ResultSetMapperFactory factory)
     {
-        mappingRegistry.add(factory);
+        mappingRegistry.addMapper(factory);
+    }
+
+    @Override
+    public void registerColumnMapper(ResultColumnMapper mapper) {
+        mappingRegistry.addColumnMapper(mapper);
+    }
+
+    @Override
+    public void registerColumnMapper(ResultColumnMapperFactory factory) {
+        mappingRegistry.addColumnMapper(factory);
     }
 
     @Override

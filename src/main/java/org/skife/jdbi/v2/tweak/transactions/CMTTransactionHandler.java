@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +24,7 @@ import java.sql.SQLException;
 
 /**
  * Handler designed to behave properly in a J2EE CMT environment. It will never
- * explicitely begin or commit a transaction, and will throw a runtime exception
+ * explicitly begin or commit a transaction, and will throw a runtime exception
  * when rollback is called to force rollback.
  */
 public class CMTTransactionHandler implements TransactionHandler

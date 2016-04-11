@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +16,6 @@ package org.skife.jdbi.v2;
 import org.junit.Test;
 import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -152,7 +149,7 @@ public class TestPreparedBatch extends DBITestCase
 
         b.execute();
 
-        assertEquals(h.createQuery("select name from something order by id").map(StringMapper.FIRST).list(),
+        assertEquals(h.createQuery("select name from something order by id").mapTo(String.class).list(),
                      Arrays.asList("Jeff", "Tom"));
 
     }
@@ -171,7 +168,7 @@ public class TestPreparedBatch extends DBITestCase
 
         b.execute();
 
-        assertEquals(h.createQuery("select name from something order by id").map(StringMapper.FIRST).list(),
+        assertEquals(h.createQuery("select name from something order by id").mapTo(String.class).list(),
                      Arrays.asList("Jeff", "Tom"));
     }
 }

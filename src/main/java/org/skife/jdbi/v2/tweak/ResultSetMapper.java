@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,7 +32,7 @@ public interface ResultSetMapper<T>
      * @param r the result set being iterated
      * @param ctx
      * @return the value to return for this row
-     * @throws SQLException if anythign goes wrong go ahead and let this percolate, jDBI will handle it
+     * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */
     T map(int index, ResultSet r, StatementContext ctx) throws SQLException;
 }

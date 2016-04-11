@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,7 +34,6 @@ import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.tweak.HandleCallback;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -74,7 +71,7 @@ public class TestDocumentation
 
         String name = h.createQuery("select name from something where id = :id")
             .bind("id", 1)
-            .map(StringMapper.FIRST)
+            .mapTo(String.class)
             .first();
         assertThat(name, equalTo("Brian"));
 
@@ -188,7 +185,7 @@ public class TestDocumentation
 
 
         StringBuilder rs = h.createQuery("select name from something order by id")
-            .map(StringMapper.FIRST)
+            .mapTo(String.class)
             .fold(new StringBuilder(), new Folder2<StringBuilder>()
             {
                 @Override
@@ -215,7 +212,7 @@ public class TestDocumentation
 
 
         Iterator<String> rs = h.createQuery("select name from something order by id")
-            .map(StringMapper.FIRST)
+            .mapTo(String.class)
             .iterator();
 
         assertThat(rs.next(), equalTo("Brian"));
@@ -234,7 +231,7 @@ public class TestDocumentation
         h.execute("insert into something (id, name) values (1, 'Brian')");
         h.execute("insert into something (id, name) values (2, 'Keith')");
 
-        for (String name : h.createQuery("select name from something order by id").map(StringMapper.FIRST)) {
+        for (String name : h.createQuery("select name from something order by id").mapTo(String.class)) {
             assertThat(name, equalsOneOf("Brian", "Keith"));
         }
 
@@ -388,7 +385,7 @@ public class TestDocumentation
         u.update(new Something(17, "David P."));
 
         String name = h.createQuery("select name from something where id = 17")
-            .map(StringMapper.FIRST)
+            .mapTo(String.class)
             .first();
         assertThat(name, equalTo("David P."));
 

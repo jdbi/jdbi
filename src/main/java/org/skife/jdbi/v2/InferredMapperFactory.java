@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +25,7 @@ class InferredMapperFactory implements ResultSetMapperFactory
     private final Class maps;
     private final ResultSetMapper mapper;
 
-    public InferredMapperFactory(ResultSetMapper mapper)
+    InferredMapperFactory(ResultSetMapper mapper)
     {
         this.mapper = mapper;
         ResolvedType rt = tr.resolve(mapper.getClass());

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -66,6 +64,10 @@ public class TestGetGeneratedKeys
 
         @SqlQuery("select name from something where id = :it")
         public String findNameById(@Bind long id);
+
+        @SqlUpdate("insert into something (name) values (:it)")
+        @GetGeneratedKeys
+        public String generatedKeyReturnType(@Bind String name);
     }
 
     @Test

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,7 +41,7 @@ public class TestHashPrefixStatementRewriter
     public void testNewlinesOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from something\n where id = #id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("select * from something\n where id = ?", rws.getSql());
     }
 
@@ -51,7 +49,7 @@ public class TestHashPrefixStatementRewriter
     public void testOddCharacters() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("~* #boo '#nope' _%&^& *@ #id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("~* ? '#nope' _%&^& *@ ?", rws.getSql());
     }
 
@@ -59,7 +57,7 @@ public class TestHashPrefixStatementRewriter
     public void testNumbers() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("#bo0 '#nope' _%&^& *@ #id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("? '#nope' _%&^& *@ ?", rws.getSql());
     }
 
@@ -67,7 +65,7 @@ public class TestHashPrefixStatementRewriter
     public void testDollarSignOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from v$session", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("select * from v$session", rws.getSql());
     }
 
@@ -75,7 +73,7 @@ public class TestHashPrefixStatementRewriter
     public void testColonIsLiteral() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from foo where id = :id", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("select * from foo where id = :id", rws.getSql());
     }
 
@@ -83,7 +81,7 @@ public class TestHashPrefixStatementRewriter
     public void testBacktickOkay() throws Exception
     {
         RewrittenStatement rws = rw.rewrite("select * from `v$session", new Binding(),
-                                            new ConcreteStatementContext(new HashMap<String, Object>()));
+                                            new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
         assertEquals("select * from `v$session", rws.getSql());
     }
 
@@ -92,7 +90,7 @@ public class TestHashPrefixStatementRewriter
     {
         try {
             rw.rewrite("select * from something\n where id = #\u0087\u008e\u0092\u0097\u009c", new Binding(),
-                       new ConcreteStatementContext(new HashMap<String, Object>()));
+                       new ConcreteStatementContext(new HashMap<String, Object>(), new MappingRegistry()));
 
             Assert.fail("Expected 'UnableToCreateStatementException' but got none");
         }

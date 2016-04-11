@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +16,10 @@ package org.skife.jdbi.v2.util;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * @deprecated Use {@link FloatColumnMapper} instead.
+ */
+@Deprecated
 public class FloatMapper extends TypedMapper<Float>
 {
 

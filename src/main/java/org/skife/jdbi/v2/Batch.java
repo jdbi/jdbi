@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +23,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
@@ -40,12 +37,12 @@ public class Batch extends BaseStatement
 
     Batch(StatementRewriter rewriter,
           Connection connection,
-          Map<String, Object> globalStatementAttributes,
+          ConcreteStatementContext statementContext,
           SQLLog log,
           TimingCollector timingCollector,
           Foreman foreman)
     {
-        super(new ConcreteStatementContext(globalStatementAttributes), foreman);
+        super(statementContext, foreman);
         this.rewriter = rewriter;
         this.connection = connection;
         this.log = log;

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1326,6 +1324,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             timingCollector.collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace(); // TODO: we have nowhere to log this, and suppressed exceptions were added in Java 7...
+            }
             throw new UnableToExecuteStatementException(e, getContext());
         }
 
@@ -1335,6 +1338,11 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             return munger.munge(stmt);
         }
         catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace(); // TODO: ditto above
+            }
             throw new ResultSetException("Exception thrown while attempting to traverse the result set", e, getContext());
         }
     }

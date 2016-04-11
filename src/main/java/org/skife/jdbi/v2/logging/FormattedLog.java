@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -64,14 +62,14 @@ public abstract class FormattedLog implements SQLLog
                 private boolean added = false;
 
                 @Override
-                public final void add(String sql)
+                public void add(String sql)
                 {
                     added = true;
                     builder.append("[").append(sql).append("], ");
                 }
 
                 @Override
-                public final void log(long time)
+                public void log(long time)
                 {
                     if (added) {
                         builder.delete(builder.length() - 2, builder.length());

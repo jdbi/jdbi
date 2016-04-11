@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +27,7 @@ public interface CloseInternalDoNotUseThisClass
 {
     void ___jdbi_close___();
 
-    static class CloseHandler implements Handler
+    class CloseHandler implements Handler
     {
         @Override
         public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
@@ -39,7 +37,7 @@ public interface CloseInternalDoNotUseThisClass
         }
     }
 
-    static class Helper
+    class Helper
     {
         static Map<Method, Handler> handlers()
         {

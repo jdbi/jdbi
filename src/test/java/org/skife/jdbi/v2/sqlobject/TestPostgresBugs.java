@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +23,6 @@ import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.mixins.Transactional;
 import org.skife.jdbi.v2.tweak.HandleCallback;
-import org.skife.jdbi.v2.util.IntegerMapper;
 
 import java.io.IOException;
 
@@ -74,7 +71,7 @@ public class TestPostgresBugs
             @Override
             public Integer withHandle(Handle handle) throws Exception
             {
-                return handle.createQuery("select 2 + 2").map(IntegerMapper.FIRST).first();
+                return handle.createQuery("select 2 + 2").mapTo(Integer.class).first();
             }
         });
 

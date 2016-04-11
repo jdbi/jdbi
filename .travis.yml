@@ -1,7 +1,20 @@
 language: java
+
 jdk:
-  - openjdk6
   - oraclejdk7
   - oraclejdk8
+
+sudo: false
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+
+before_install:
+    - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
+
 install: mvn -DskipTests=true -Dbasepom.check.skip-all=true -B install
 script: mvn -B verify
+
+before_script:
+  - "psql -c 'create database jdbi_test;' -U postgres"

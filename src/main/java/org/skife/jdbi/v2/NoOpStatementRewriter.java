@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +38,7 @@ public class NoOpStatementRewriter implements StatementRewriter
         private final String sql;
         private final StatementContext context;
 
-        public NoOpRewrittenStatement(String sql, StatementContext ctx)
+        NoOpRewrittenStatement(String sql, StatementContext ctx)
         {
             this.context = ctx;
             this.sql = sql;

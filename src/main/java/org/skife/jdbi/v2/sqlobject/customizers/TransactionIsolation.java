@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -46,7 +44,7 @@ public @interface TransactionIsolation
 
     TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
 
-    static class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
 
         @Override
@@ -69,12 +67,12 @@ public @interface TransactionIsolation
         }
     }
 
-    static class MyCustomizer implements SqlStatementCustomizer
+    class MyCustomizer implements SqlStatementCustomizer
     {
 
         private final TransactionIsolationLevel level;
 
-        public MyCustomizer(TransactionIsolationLevel level) {this.level = level;}
+        MyCustomizer(TransactionIsolationLevel level) {this.level = level;}
 
         @Override
         public void apply(SQLStatement q) throws SQLException

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +25,10 @@ import org.skife.jdbi.v2.tweak.StatementRewriter;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.DOUBLE_QUOTED_TEXT;
 import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.ESCAPED_TEXT;
@@ -43,6 +44,8 @@ import static org.skife.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
  */
 public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
 {
+    private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<String, ParsedStatement>());
+
     /**
      * Munge up the SQL as desired. Responsible for figuring out ow to bind any
      * arguments in to the resultant prepared statement.
@@ -50,25 +53,28 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
      * @param sql The SQL to rewrite
      * @param params contains the arguments which have been bound to this statement.
      * @param ctx The statement context for the statement being executed
-     * @return somethign which can provde the actual SQL to prepare a statement from
+     * @return something which can provide the actual SQL to prepare a statement from
      *         and which can bind the correct arguments to that prepared statement
      */
     @Override
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
-        final ParsedStatement stmt = new ParsedStatement();
-        try {
-            final String parsedSql = parseString(sql, stmt);
-            return new MyRewrittenStatement(parsedSql, stmt, ctx);
+        ParsedStatement stmt = cache.get(sql);
+        if (stmt == null) {
+            try {
+                stmt = parseString(sql);
+                cache.put(sql, stmt);
+            }
+            catch (IllegalArgumentException e) {
+                throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
+            }
         }
-        catch (IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
-        }
-
+        return new MyRewrittenStatement(stmt, ctx);
     }
 
-    String parseString(final String sql, final ParsedStatement stmt) throws IllegalArgumentException
+    ParsedStatement parseString(final String sql) throws IllegalArgumentException
     {
+        ParsedStatement stmt = new ParsedStatement();
         StringBuilder b = new StringBuilder();
         ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
@@ -99,19 +105,18 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
             }
             t = lexer.nextToken();
         }
-        return b.toString();
+        stmt.sql = b.toString();
+        return stmt;
     }
 
     private static class MyRewrittenStatement implements RewrittenStatement
     {
-        private final String sql;
         private final ParsedStatement stmt;
         private final StatementContext context;
 
-        public MyRewrittenStatement(String sql, ParsedStatement stmt, StatementContext ctx)
+        MyRewrittenStatement(ParsedStatement stmt, StatementContext ctx)
         {
             this.context = ctx;
-            this.sql = sql;
             this.stmt = stmt;
         }
 
@@ -173,12 +178,13 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
         @Override
         public String getSql()
         {
-            return sql;
+            return stmt.getParsedSql();
         }
     }
 
     static class ParsedStatement
     {
+        private String sql;
         private boolean positionalOnly = true;
         private List<String> params = new ArrayList<String>();
 
@@ -191,6 +197,11 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
         public void addPositionalParamAt()
         {
             params.add("*");
+        }
+
+        public String getParsedSql()
+        {
+            return sql;
         }
     }
 }

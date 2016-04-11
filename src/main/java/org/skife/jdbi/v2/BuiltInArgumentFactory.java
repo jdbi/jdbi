@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,7 +97,7 @@ public final class BuiltInArgumentFactory implements ArgumentFactory
     {
         private final Constructor<?> ctor;
 
-        public P(Class<? extends Argument> argType)
+        P(Class<? extends Argument> argType)
         {
             this.ctor = argType.getDeclaredConstructors()[0];
         }

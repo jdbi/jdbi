@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +38,7 @@ public @interface BindIn
 {
     String value();
 
-    public static final class CustomizerFactory implements SqlStatementCustomizerFactory
+    final class CustomizerFactory implements SqlStatementCustomizerFactory
     {
 
         @Override
@@ -89,21 +87,18 @@ public @interface BindIn
         }
     }
 
-    public static class BindingFactory implements BinderFactory
+    class BindingFactory implements BinderFactory<BindIn>
     {
         @Override
-        public Binder build(Annotation annotation)
+        public Binder build(BindIn in)
         {
-            final BindIn in = (BindIn) annotation;
             final String key = in.value();
 
-            return new Binder()
+            return new Binder<Annotation, Iterable>()
             {
-
                 @Override
-                public void bind(SQLStatement q, Annotation bind, Object arg)
+                public void bind(SQLStatement q, Annotation bind, Iterable coll)
                 {
-                    Iterable<?> coll = (Iterable<?>) arg;
                     int idx = 0;
                     for (Object s : coll) {
                         q.bind("__" + key + "_" + idx++, s);

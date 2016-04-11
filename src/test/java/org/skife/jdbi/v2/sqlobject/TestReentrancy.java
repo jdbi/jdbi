@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +25,6 @@ import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;
 import org.skife.jdbi.v2.tweak.HandleCallback;
-import org.skife.jdbi.v2.util.StringMapper;
 
 import java.util.List;
 import java.util.UUID;
@@ -99,7 +96,7 @@ public class TestReentrancy
                         dao.insert(new Something(1, "x"));
 
                         List<String> rs = conn.createQuery("select name from something where id = 1")
-                                              .map(StringMapper.FIRST)
+                                              .mapTo(String.class)
                                               .list();
                         assertThat(rs.size(), equalTo(1));
 

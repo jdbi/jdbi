@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +17,7 @@ import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.UnableToObtainConnectionException;
 import org.skife.jdbi.v2.tweak.ConnectionFactory;
 import org.skife.jdbi.v2.tweak.HandleCallback;
+import org.skife.jdbi.v2.tweak.HandleConsumer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -99,12 +98,25 @@ public class TestDBI extends DBITestCase
         DBI dbi = new DBI(DERBY_HELPER.getDataSource());
         String value = dbi.withHandle(new HandleCallback<String>() {
             @Override
-            public String withHandle(Handle handle) throws Exception
-            {
+            public String withHandle(Handle handle) throws Exception {
                 handle.insert("insert into something (id, name) values (1, 'Brian')");
                 return handle.createQuery("select name from something where id = 1").map(Something.class).first().getName();
             }
         });
         assertEquals("Brian", value);
+    }
+
+    @Test
+    public void testUseHandle() throws Exception
+    {
+        DBI dbi = new DBI(DERBY_HELPER.getDataSource());
+        dbi.useHandle(new HandleConsumer() {
+            @Override
+            public void useHandle(Handle handle) throws Exception {
+                handle.insert("insert into something (id, name) values (1, 'Brian')");
+                String value = handle.createQuery("select name from something where id = 1").map(Something.class).first().getName();
+                assertEquals("Brian", value);
+            }
+        });
     }
 }

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,13 +22,13 @@ import org.skife.jdbi.v2.StatementContext;
 public interface StatementRewriter
 {
     /**
-     * Munge up the SQL as desired. Responsible for figuring out ow to bind any
+     * Munge up the SQL as desired. Responsible for figuring out how to bind any
      * arguments in to the resultant prepared statement.
      *
      * @param sql The SQL to rewrite
      * @param params contains the arguments which have been bound to this statement.
      * @param ctx The statement context for the statement being executed
-     * @return somethign which can provde the actual SQL to prepare a statement from
+     * @return something which can provide the actual SQL to prepare a statement from
      *         and which can bind the correct arguments to that prepared statement
      */
     RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx);

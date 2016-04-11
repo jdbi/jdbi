@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,13 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.skife.jdbi.v2;
 
 import org.easymock.EasyMockRunner;
 import org.easymock.Mock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.skife.jdbi.v2.util.BigDecimalColumnMapper;
+import org.skife.jdbi.v2.util.IntegerColumnMapper;
+import org.skife.jdbi.v2.util.LongColumnMapper;
+import org.skife.jdbi.v2.util.StringColumnMapper;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -46,10 +47,12 @@ public class ReflectionBeanMapperTest {
 
     @Test
     public void shouldSetValueOnPrivateField() throws Exception {
-
         expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
         replay(resultSetMetaData);
+
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
@@ -59,13 +62,14 @@ public class ReflectionBeanMapperTest {
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(aLongVal, sampleBean.getLongField());
+        assertEquals(aLongVal, sampleBean.getLongField());
     }
 
     @Test
     public void shouldHandleEmptyResult() throws Exception {
         expect(resultSetMetaData.getColumnCount()).andReturn(0);
         replay(resultSetMetaData);
+
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         replay(resultSet);
 
@@ -80,14 +84,18 @@ public class ReflectionBeanMapperTest {
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("LoNgfielD");
         replay(resultSetMetaData);
 
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        replay(ctx);
+
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
         expect(resultSet.getLong(1)).andReturn(aLongVal);
         expect(resultSet.wasNull()).andReturn(false);
         replay(resultSet);
+
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(aLongVal, sampleBean.getLongField());
+        assertEquals(aLongVal, sampleBean.getLongField());
 
     }
 
@@ -96,6 +104,9 @@ public class ReflectionBeanMapperTest {
         expect(resultSetMetaData.getColumnCount()).andReturn(1).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("LoNgfielD");
         replay(resultSetMetaData);
+
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         expect(resultSet.getLong(1)).andReturn(0l);
@@ -110,20 +121,24 @@ public class ReflectionBeanMapperTest {
 
     @Test
     public void shouldSetValuesOnAllFieldAccessTypes() throws Exception {
-
         expect(resultSetMetaData.getColumnCount()).andReturn(4).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
-        expect(resultSetMetaData.getColumnLabel(2)).andReturn("stringField");
-        expect(resultSetMetaData.getColumnLabel(3)).andReturn("intField");
-        expect(resultSetMetaData.getColumnLabel(4)).andReturn("bigDecimalField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("protectedStringField");
+        expect(resultSetMetaData.getColumnLabel(3)).andReturn("packagePrivateIntField");
+        expect(resultSetMetaData.getColumnLabel(4)).andReturn("privateBigDecimalField");
         replay(resultSetMetaData);
 
-        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        expect(ctx.columnMapperFor(String.class)).andReturn(StringColumnMapper.INSTANCE);
+        expect(ctx.columnMapperFor(int.class)).andReturn(IntegerColumnMapper.PRIMITIVE);
+        expect(ctx.columnMapperFor(BigDecimal.class)).andReturn(BigDecimalColumnMapper.INSTANCE);
+        replay(ctx);
+
         Long aLongVal = 100l;
         String aStringVal = "something";
         int aIntVal = 1;
         BigDecimal aBigDecimal = BigDecimal.TEN;
-
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         expect(resultSet.getLong(1)).andReturn(aLongVal);
         expect(resultSet.getString(2)).andReturn(aStringVal);
         expect(resultSet.getInt(3)).andReturn(aIntVal);
@@ -133,19 +148,21 @@ public class ReflectionBeanMapperTest {
 
         SampleBean sampleBean = mapper.map(0, resultSet, ctx);
 
-        assertSame(aLongVal, sampleBean.getLongField());
-        assertSame(aBigDecimal, sampleBean.getBigDecimalField());
-        assertSame(aIntVal, sampleBean.getIntField());
-        assertSame(aStringVal, sampleBean.getStringField());
+        assertEquals(aLongVal, sampleBean.getLongField());
+        assertEquals(aBigDecimal, sampleBean.getPrivateBigDecimalField());
+        assertEquals(aIntVal, sampleBean.getPackagePrivateIntField());
+        assertEquals(aStringVal, sampleBean.getProtectedStringField());
     }
 
     @Test
     public void shouldSetValuesInSuperClassFields() throws Exception {
-
         expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
         expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
         expect(resultSetMetaData.getColumnLabel(2)).andReturn("blongField");
         replay(resultSetMetaData);
+
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER).anyTimes();
+        replay(ctx);
 
         expect(resultSet.getMetaData()).andReturn(resultSetMetaData);
         Long aLongVal = 100l;
@@ -163,36 +180,48 @@ public class ReflectionBeanMapperTest {
         assertEquals(aLongVal, derivedBean.getLongField());
         assertEquals(bLongVal, derivedBean.getBlongField());
     }
-}
 
+    @Test
+    public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
+        replay(resultSetMetaData);
 
-class SampleBean {
-    private Long longField;
-    protected String stringField;
-    public int intField;
-    BigDecimal bigDecimalField;
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        expect(ctx.columnMapperFor(ValueType.class)).andReturn(new ValueTypeMapper());
+        replay(ctx);
 
-    public Long getLongField() {
-        return longField;
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
+        expect(resultSet.getLong(1)).andReturn(123L);
+        expect(resultSet.getString(2)).andReturn("foo");
+        expect(resultSet.wasNull()).andReturn(false).anyTimes();
+        replay(resultSet);
+
+        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+
+        Long expected = 123L;
+        assertEquals(expected, sampleBean.getLongField());
+        assertEquals(ValueType.valueOf("foo"), sampleBean.getValueTypeField());
     }
 
-    public String getStringField() {
-        return stringField;
-    }
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnPropertyTypeWithoutRegisteredMapper() throws Exception {
+        expect(resultSetMetaData.getColumnCount()).andReturn(2).anyTimes();
+        expect(resultSetMetaData.getColumnLabel(1)).andReturn("longField");
+        expect(resultSetMetaData.getColumnLabel(2)).andReturn("valueTypeField").anyTimes();
+        replay(resultSetMetaData);
 
-    public int getIntField() {
-        return intField;
-    }
+        expect(ctx.columnMapperFor(Long.class)).andReturn(LongColumnMapper.WRAPPER);
+        expect(ctx.columnMapperFor(ValueType.class)).andReturn(null);
+        replay(ctx);
 
-    public BigDecimal getBigDecimalField() {
-        return bigDecimalField;
-    }
-}
+        expect(resultSet.getMetaData()).andReturn(resultSetMetaData).anyTimes();
+        expect(resultSet.getLong(1)).andReturn(123L);
+        expect(resultSet.getObject(2)).andReturn(new Object());
+        expect(resultSet.wasNull()).andReturn(false).anyTimes();
+        replay(resultSet);
 
-class DerivedBean extends SampleBean {
-    private Long blongField;
-
-    public Long getBlongField() {
-        return blongField;
+        mapper.map(0, resultSet, ctx);
     }
 }

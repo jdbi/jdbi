@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,8 +26,11 @@ import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.PreparedBatchPart;
+import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionStatus;
+import org.skife.jdbi.v2.exceptions.UnableToCreateSqlObjectException;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
@@ -42,9 +43,12 @@ class BatchHandler extends CustomizingStatementHandler
     private final boolean transactional;
     private final ChunkSizeFunction batchChunkSize;
 
-    public BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
         super(sqlObjectType, method);
+        if(!returnTypeIsValid(method.getRawMember().getReturnType()) ) {
+            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
+        }
         Method raw_method = method.getRawMember();
         SqlBatch anno = raw_method.getAnnotation(SqlBatch.class);
         this.sql = SqlObject.getSql(anno, raw_method);
@@ -95,18 +99,22 @@ class BatchHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
+        boolean foundIterator = false;
         Handle handle = h.getHandle();
 
         List<Iterator> extras = new ArrayList<Iterator>();
         for (final Object arg : args) {
             if (arg instanceof Iterable) {
                 extras.add(((Iterable) arg).iterator());
+                foundIterator = true;
             }
             else if (arg instanceof Iterator) {
                 extras.add((Iterator) arg);
+                foundIterator = true;
             }
             else if (arg.getClass().isArray()) {
                 extras.add(Arrays.asList((Object[])arg).iterator());
+                foundIterator = true;
             }
             else {
                 extras.add(new Iterator()
@@ -132,6 +140,10 @@ class BatchHandler extends CustomizingStatementHandler
                 }
                 );
             }
+        }
+
+        if (!foundIterator) {
+            throw new UnableToExecuteStatementException("@SqlBatch must have at least one iterable parameter", (StatementContext)null);
         }
 
         int processed = 0;
@@ -241,5 +253,19 @@ class BatchHandler extends CustomizingStatementHandler
         {
             return (Integer)args[index];
         }
+    }
+
+    private static boolean returnTypeIsValid(Class<?> type) {
+        if (type.equals(Void.TYPE) || type.isArray() && type.getComponentType().equals(Integer.TYPE)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static String invalidReturnTypeMessage(ResolvedMethod method) {
+        return method.getDeclaringType() + "." + method +
+                " method is annotated with @SqlBatch so should return void or int[] but is returning: " +
+                method.getReturnType();
     }
 }

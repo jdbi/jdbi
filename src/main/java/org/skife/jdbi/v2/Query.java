@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,12 +13,14 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.util.SingleColumnMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,7 +55,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     {
         super(params, locator, statementRewriter, handle, cache, sql, ctx, log, timingCollector, customizers, foreman, containerFactoryRegistry);
         this.mapper = mapper;
-        this.mappingRegistry = new MappingRegistry(mappingRegistry);
+        this.mappingRegistry = mappingRegistry;
     }
 
     /**
@@ -312,6 +312,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this.map(new RegisteredMapper(resultType, mappingRegistry));
     }
 
+    public <T> Query<T> map(ResultColumnMapper<T> mapper) {
+        return this.map(new SingleColumnMapper(mapper));
+    }
+
     public <T> Query<T> map(ResultSetMapper<T> mapper)
     {
         return new Query<T>(getParams(),
@@ -325,7 +329,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                             getLog(),
                             getTimingCollector(),
                             getStatementCustomizers(),
-                            new MappingRegistry(mappingRegistry),
+                            mappingRegistry,
                             getForeman().createChild(),
                             getContainerMapperRegistry().createChild());
     }
@@ -398,13 +402,35 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this;
     }
 
+    /**
+     * Specify that the result set should be concurrent updatable.
+     *
+     * This will allow the update methods to be called on the result set produced by this
+     * Query.
+     *
+     * @return the modified query
+     */
+    public Query<ResultType> concurrentUpdatable() {
+        getConcreteContext().setConcurrentUpdatable(true);
+        return this;
+    }
+
     public void registerMapper(ResultSetMapper m)
     {
-        this.mappingRegistry.add(new InferredMapperFactory(m));
+        this.mappingRegistry.addMapper(new InferredMapperFactory(m));
     }
 
     public void registerMapper(ResultSetMapperFactory m)
     {
-        this.mappingRegistry.add(m);
+        this.mappingRegistry.addMapper(m);
+    }
+
+    public void registerColumnMapper(ResultColumnMapper m)
+    {
+        this.mappingRegistry.addColumnMapper(m);
+    }
+
+    public void registerColumnMapper(ResultColumnMapperFactory m) {
+        this.mappingRegistry.addColumnMapper(m);
     }
 }

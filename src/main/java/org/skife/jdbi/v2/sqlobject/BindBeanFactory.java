@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,7 +40,11 @@ class BindBeanFactory implements BinderFactory
                 }
 
                 try {
-                    BeanInfo infos = Introspector.getBeanInfo(arg.getClass());
+                    Class<?> beanType = bind.type().equals(BindBean.Default.class)
+                        ? arg.getClass()
+                        : bind.type();
+
+                    BeanInfo infos = Introspector.getBeanInfo(beanType);
                     PropertyDescriptor[] props = infos.getPropertyDescriptors();
                     for (PropertyDescriptor prop : props) {
                         Method readMethod = prop.getReadMethod();

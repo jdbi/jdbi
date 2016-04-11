@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,12 +13,14 @@
  */
 package org.skife.jdbi.v2;
 
+import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import org.skife.jdbi.v2.tweak.SQLLog;
 import org.skife.jdbi.v2.tweak.StatementBuilder;
 import org.skife.jdbi.v2.tweak.StatementCustomizer;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
+import org.skife.jdbi.v2.util.SingleColumnMapper;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -70,11 +70,15 @@ public class Update extends SQLStatement<Update>
      * Execute the statement and returns any auto-generated keys. This requires the JDBC driver to support
      * the {@link Statement#getGeneratedKeys()} method.
      * @param mapper the mapper to generate the resulting key object
+     * @param columnName name of the column that generates the key
      * @return the generated key or null if none was returned
      */
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper)
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper, String columnName)
     {
         getConcreteContext().setReturningGeneratedKeys(true);
+        if (columnName != null && !columnName.isEmpty()) {
+            getConcreteContext().setGeneratedKeysColumnNames(new String[] { columnName } );
+        }
         return this.internalExecute(new QueryResultMunger<GeneratedKeys<GeneratedKeyType>>() {
             @Override
             public GeneratedKeys<GeneratedKeyType> munge(Statement results) throws SQLException
@@ -86,6 +90,14 @@ public class Update extends SQLStatement<Update>
                                                            getContainerMapperRegistry());
             }
         });
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {
+        return executeAndReturnGeneratedKeys(mapper, null);
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
+        return executeAndReturnGeneratedKeys(new SingleColumnMapper<GeneratedKeyType>(mapper), null);
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

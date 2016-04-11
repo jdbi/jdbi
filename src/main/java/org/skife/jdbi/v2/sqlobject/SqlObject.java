@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 - 2014 Brian McCallister
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,11 +18,15 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedMethod;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.NoOp;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,10 +42,19 @@ class SqlObject
     private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<Class<?>, Map<Method, Handler>>();
     private static final ConcurrentMap<Class<?>, Factory>              factories     = new ConcurrentHashMap<Class<?>, Factory>();
 
+    private static Method jdk8DefaultMethod = null;
+
     static {
         mixinHandlers.putAll(TransactionalHelper.handlers());
         mixinHandlers.putAll(GetHandleHelper.handlers());
         mixinHandlers.putAll(TransmogrifierHelper.handlers());
+
+        try {
+            SqlObject.jdk8DefaultMethod = Method.class.getMethod("isDefault");
+        }
+        catch (NoSuchMethodException e) {
+            // fallthrough, expected on e.g. JDK7
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -67,13 +78,38 @@ class SqlObject
             }
             e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
             final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
-            e.setCallback(new MethodInterceptor()
-            {
+
+            e.setCallbackFilter(new CallbackFilter() {
+
                 @Override
-                public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable
-                {
-                    return so.invoke(o, method, objects, methodProxy);
+                public int accept(Method method) {
+                    if (jdk8DefaultMethod == null) {
+                        return 0;
+                    }
+                    else {
+                        try {
+                            Boolean result = (Boolean) jdk8DefaultMethod.invoke(method);
+                            return Boolean.TRUE.equals(result) ? 1 : 0;
+                        } catch (IllegalArgumentException e) {
+                            return 0;
+                        } catch (IllegalAccessException e) {
+                            return 0;
+                        } catch (InvocationTargetException e) {
+                            return 0;
+                        }
+                    }
                 }
+
+            });
+
+            e.setCallbacks(new Callback[] {
+                    new MethodInterceptor() {
+                        @Override
+                        public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+                            return so.invoke(o, method, objects, methodProxy);
+                        }
+                    },
+                    NoOp.INSTANCE
             });
             T t = (T) e.create();
             T actual = (T) factories.putIfAbsent(sqlObjectType, (Factory) t);
@@ -84,13 +120,14 @@ class SqlObject
         }
 
         final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
-        return (T) f.newInstance(new MethodInterceptor()
-        {
-            @Override
-            public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable
-            {
-                return so.invoke(o, method, objects, methodProxy);
-            }
+        return (T) f.newInstance(new Callback[] {
+                new MethodInterceptor() {
+                    @Override
+                    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+                        return so.invoke(o, method, objects, methodProxy);
+                    }
+                },
+                NoOp.INSTANCE
         });
     }
 
@@ -154,7 +191,7 @@ class SqlObject
     private final Map<Method, Handler> handlers;
     private final HandleDing           ding;
 
-    public SqlObject(Map<Method, Handler> handlers, HandleDing ding)
+    SqlObject(Map<Method, Handler> handlers, HandleDing ding)
     {
         this.handlers = handlers;
         this.ding = ding;
