@@ -1,4 +1,5 @@
 2.73
+  - Allow clearing of bindings in SQLStatement
   - (finally!) parse Postgres CAST syntax 'value::type' properly in colon
     prefix statements
   - fix @SqlBatch hanging if you forget to include an Iterable-like param
