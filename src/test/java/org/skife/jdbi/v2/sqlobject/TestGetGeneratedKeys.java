@@ -64,6 +64,10 @@ public class TestGetGeneratedKeys
 
         @SqlQuery("select name from something where id = :it")
         public String findNameById(@Bind long id);
+
+        @SqlUpdate("insert into something (name) values (:it)")
+        @GetGeneratedKeys
+        public String generatedKeyReturnType(@Bind String name);
     }
 
     @Test
