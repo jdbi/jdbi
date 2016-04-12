@@ -17,15 +17,19 @@ import java.io.Closeable;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.jdbi.v3.exceptions.TransactionFailedException;
+import org.jdbi.v3.extension.ExtensionConfig;
+import org.jdbi.v3.extension.ExtensionFactory;
+import org.jdbi.v3.extension.NoSuchExtensionException;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
-import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
  * This represents a connection to the database system. It usually is a wrapper around
@@ -266,14 +270,14 @@ public interface Handle extends Closeable
     void registerColumnMapper(ResultColumnMapperFactory factory);
 
     /**
-     * Create an sql object of the specified type bound to this handle. Any state changes to the handle, or the
-     * sql object, such as transaction status, closing it, etc, will apply to both the object and the handle.
+     * Create a JDBI extension object of the specified type bound to this handle. The returned extension's lifecycle is
+     * coupled to the lifecycle of this handle. Closing the handle will render the extension unusable.
      *
-     * @param sqlObjectType
-     * @param <SqlObjectType>
-     * @return the new sql object bound to this handle
+     * @param extensionType the extension class
+     * @param <T> the extension type
+     * @return the new extension object bound to this handle
      */
-    <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType);
+    <T> T attach(Class<T> extensionType) throws NoSuchExtensionException;
 
     /**
      * Set the transaction isolation level on the underlying connection
@@ -299,4 +303,8 @@ public interface Handle extends Closeable
     void registerArgumentFactory(ArgumentFactory argumentFactory);
 
     void registerCollectorFactory(CollectorFactory factory);
+
+    void registerExtension(ExtensionFactory factory);
+
+    <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer);
 }

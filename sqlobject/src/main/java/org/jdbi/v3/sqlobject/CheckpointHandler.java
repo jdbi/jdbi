@@ -13,14 +13,18 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import net.sf.cglib.proxy.MethodProxy;
+
+import org.jdbi.v3.Handle;
 
 class CheckpointHandler implements Handler
 {
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
     {
-        h.getHandle().checkpoint(String.valueOf(args[0]));
+        handle.get().checkpoint(String.valueOf(args[0]));
         return null;
     }
 }

@@ -40,7 +40,7 @@ public class TestMapBinder
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:test");
-        dbi = DBI.create(ds);
+        dbi = DBI.create(ds).installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100), a varchar(100), b int, c varchar(100))");
@@ -55,7 +55,7 @@ public class TestMapBinder
     @Test
     public void testInsert() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(allMap(5, "woo", 3, "too"));
 
         Result elem = s.load(5);
@@ -66,7 +66,7 @@ public class TestMapBinder
     @Test
     public void testUpdate() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(allMap(4, "woo", 1, "too"));
         Map<String, Object> update = new HashMap<>();
 
@@ -85,7 +85,7 @@ public class TestMapBinder
     @Test
     public void testUpdatePrefix() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(handle, Spiffy.class);
+        Spiffy s = handle.attach(Spiffy.class);
         s.insert(allMap(4, "woo", 1, "too"));
         Map<Object, Object> update = new HashMap<>();
 

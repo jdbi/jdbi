@@ -33,7 +33,7 @@ import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -45,7 +45,7 @@ import org.junit.Test;
 public class TestBindExpression
 {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @RegisterMapper(SomethingMapper.class)
     public interface DB
@@ -60,7 +60,7 @@ public class TestBindExpression
     @Test
     public void testExpression() throws Exception
     {
-        DB db = SqlObjectBuilder.attach(dbRule.getSharedHandle(), DB.class);
+        DB db = dbRule.getSharedHandle().attach(DB.class);
         db.insert(new Something(1, "syrup"), new Something(2, "whipped cream"));
         Something with_syrup = db.findByBreakfast(new Breakfast());
         assertThat(with_syrup, equalTo(new Something(1, "syrup")));

@@ -17,7 +17,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.jdbi.v3.PGDatabaseRule;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,7 +25,7 @@ import org.junit.Test;
 public class TestGetGeneratedKeysPostgres
 {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule();
+    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void setUp() throws Exception {
@@ -44,7 +43,7 @@ public class TestGetGeneratedKeysPostgres
         });
     }
 
-    public interface DAO extends CloseMe {
+    public interface DAO {
         @SqlUpdate("insert into something (name, id) values (:name, nextval('id_sequence'))")
         @GetGeneratedKeys(columnName = "id")
         long insert(@Bind("name") String name);
@@ -55,12 +54,12 @@ public class TestGetGeneratedKeysPostgres
 
     @Test
     public void testFoo() throws Exception {
-        try (DAO dao = SqlObjectBuilder.open(db.getDbi(), DAO.class)) {
+        db.getDbi().useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
             assertThat(dao.findNameById(brian_id), equalTo("Brian"));
             assertThat(dao.findNameById(keith_id), equalTo("Keith"));
-        }
+        });
     }
 }

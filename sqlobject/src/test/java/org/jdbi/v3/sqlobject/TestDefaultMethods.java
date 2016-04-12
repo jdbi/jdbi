@@ -18,18 +18,17 @@ import static org.junit.Assert.assertEquals;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestDefaultMethods
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testDefaultMethod() throws Exception {
-        Spiffy dao = SqlObjectBuilder.onDemand(db.getDbi(), Spiffy.class);
+        Spiffy dao = db.getDbi().onDemand(Spiffy.class);
         Something test = dao.insertAndReturn(3, "test");
         assertEquals(3, test.getId());
         assertEquals("test", test.getName());
@@ -37,17 +36,17 @@ public class TestDefaultMethods
 
     @Test
     public void testOverride() throws Exception {
-        SpiffyOverride dao = SqlObjectBuilder.onDemand(db.getDbi(), SpiffyOverride.class);
+        SpiffyOverride dao = db.getDbi().onDemand(SpiffyOverride.class);
         assertEquals(null, dao.insertAndReturn(123, "fake"));
     }
 
     @Test
     public void testOverrideWithDefault() throws Exception {
-        SpiffyOverrideWithDefault dao = SqlObjectBuilder.onDemand(db.getDbi(), SpiffyOverrideWithDefault.class);
+        SpiffyOverrideWithDefault dao = db.getDbi().onDemand(SpiffyOverrideWithDefault.class);
         assertEquals(-6, dao.insertAndReturn(123, "fake").getId());
     }
 
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)

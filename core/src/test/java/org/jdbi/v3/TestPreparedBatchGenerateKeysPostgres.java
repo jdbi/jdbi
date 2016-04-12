@@ -43,6 +43,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
     @Before
     public void setUp() throws Exception {
         h = DBI.open("jdbc:postgresql:jdbi_test", "postgres", "");
+        h.execute("drop table if exists something");
         h.execute("create table something (id serial, name varchar(50), create_time timestamp default now())");
     }
 

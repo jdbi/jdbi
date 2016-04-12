@@ -18,12 +18,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.fasterxml.classmate.members.ResolvedMethod;
+
 /**
  * Support for stored proc invocation. Return value must be either null or OutParameters at present.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
+@SqlMethodAnnotation(SqlCall.Factory.class)
 public @interface SqlCall
 {
     String value() default SqlQuery.DEFAULT_VALUE;
+
+    class Factory implements HandlerFactory {
+        @Override
+        public Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config) {
+            return new CallHandler(sqlObjectType, method);
+        }
+    }
 }

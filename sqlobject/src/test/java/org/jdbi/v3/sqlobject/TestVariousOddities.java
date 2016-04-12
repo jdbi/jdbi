@@ -29,19 +29,19 @@ import java.util.concurrent.Future;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
+import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestVariousOddities
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testAttach() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
         s.insert(new Something(14, "Tom"));
 
         Something tom = s.byId(14);
@@ -51,8 +51,8 @@ public class TestVariousOddities
     @Test
     public void testEquals()
     {
-        Spiffy s1 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
-        Spiffy s2 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
         assertEquals(s1, s1);
         assertNotSame(s1, s2);
         assertFalse(s1.equals(s2));
@@ -61,8 +61,8 @@ public class TestVariousOddities
     @Test
     public void testToString()
     {
-        Spiffy s1 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
-        Spiffy s2 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
         assertNotNull(s1.toString());
         assertNotNull(s2.toString());
         assertTrue(s1.toString() != s2.toString());
@@ -71,8 +71,8 @@ public class TestVariousOddities
     @Test
     public void testHashCode()
     {
-        Spiffy s1 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
-        Spiffy s2 = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
         assertFalse(0 == s1.hashCode());
         assertFalse(0 == s2.hashCode());
         assertTrue(s1.hashCode() != s2.hashCode());
@@ -82,7 +82,7 @@ public class TestVariousOddities
     public void testConcurrentHashCode() throws ExecutionException, InterruptedException
     {
         Callable<SpiffyConcurrent> callable = () ->
-                SqlObjectBuilder.attach(db.getSharedHandle(), SpiffyConcurrent.class);
+                db.getSharedHandle().attach(SpiffyConcurrent.class);
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
         Future<SpiffyConcurrent> f1 = pool.submit(callable);
@@ -98,7 +98,7 @@ public class TestVariousOddities
     public void testNullQueryReturn()
     {
         try {
-            SqlObjectBuilder.attach(db.getSharedHandle(), SpiffyBoom.class);
+            db.getSharedHandle().attach(SpiffyBoom.class);
         } catch (IllegalStateException e) {
             assertEquals("Method org.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
                     "is annotated as if it should return a value, but the method is void.", e.getMessage());
@@ -107,7 +107,7 @@ public class TestVariousOddities
         fail();
     }
 
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)
@@ -118,7 +118,7 @@ public class TestVariousOddities
 
     }
 
-    public interface SpiffyBoom extends CloseMe
+    public interface SpiffyBoom
     {
         @SqlQuery("SELECT 1")
         void returnNothing();
@@ -127,7 +127,7 @@ public class TestVariousOddities
     /**
      * This interface should not be loaded by any test other than {@link TestVariousOddities#testConcurrentHashCode()}.
      */
-    public interface SpiffyConcurrent
+    public interface SpiffyConcurrent extends GetHandle
     {
 
     }

@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableSet;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.jdbi.v3.unstable.BindIn;
@@ -47,7 +46,7 @@ public class TestInClauseExpansion
     {
         handle.execute("insert into something (name, id) values ('Brian', 1), ('Jeff', 2), ('Tom', 3)");
 
-        DAO dao = SqlObjectBuilder.attach(handle, DAO.class);
+        DAO dao = handle.attach(DAO.class);
 
         assertEquals(ImmutableSet.of("Brian", "Jeff"), dao.findIdsForNames(asList(1, 2)));
     }

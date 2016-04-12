@@ -41,7 +41,14 @@ public interface GetHandle
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException;
+    default <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException {
+        try {
+            return callback.withHandle(getHandle());
+        }
+        catch (Exception e) {
+            throw new CallbackFailedException(e);
+        }
+    }
 
     /**
      * A convenience function which manages the lifecycle of the handle associated to this sql object,
@@ -52,5 +59,10 @@ public interface GetHandle
      * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
      *                                 wrap the exception thrown by the callback.
      */
-    void useHandle(HandleConsumer consumer) throws CallbackFailedException;
+    default void useHandle(HandleConsumer consumer) throws CallbackFailedException {
+        withHandle(handle -> {
+            consumer.useHandle(handle);
+            return null;
+        });
+    }
 }

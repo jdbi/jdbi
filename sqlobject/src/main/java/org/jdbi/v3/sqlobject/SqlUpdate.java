@@ -18,11 +18,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.fasterxml.classmate.members.ResolvedMethod;
+
 /**
  * Used to indicate that a method should execute a non-query sql statement
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
+@SqlMethodAnnotation(SqlUpdate.Factory.class)
 public @interface SqlUpdate
 {
     /**
@@ -31,4 +34,11 @@ public @interface SqlUpdate
      * with a statement locator.
      */
     String value() default SqlQuery.DEFAULT_VALUE;
+
+    class Factory implements HandlerFactory {
+        @Override
+        public Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config) {
+            return new UpdateHandler(sqlObjectType, method);
+        }
+    }
 }

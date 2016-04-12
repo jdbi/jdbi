@@ -34,7 +34,7 @@ import org.junit.Test;
 public class TestCollectorFactory {
 
     @Rule
-    public H2DatabaseRule h2 = new H2DatabaseRule();
+    public H2DatabaseRule h2 = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testExists() throws Exception {
@@ -79,7 +79,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObject() throws Exception {
-        Dao dao = SqlObjectBuilder.onDemand(h2.getDbi(), Dao.class);
+        Dao dao = h2.getDbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
@@ -89,7 +89,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObjectSingleValue() throws Exception {
-        Dao dao = SqlObjectBuilder.onDemand(h2.getDbi(), Dao.class);
+        Dao dao = h2.getDbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
@@ -105,7 +105,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObjectSetReturnValue() throws Exception {
-        Dao dao = SqlObjectBuilder.onDemand(h2.getDbi(), Dao.class);
+        Dao dao = h2.getDbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 

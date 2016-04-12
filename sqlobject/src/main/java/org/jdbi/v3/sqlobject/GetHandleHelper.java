@@ -28,8 +28,6 @@ class GetHandleHelper
         try {
             Map<Method, Handler> h = new HashMap<>();
             h.put(GetHandle.class.getMethod("getHandle"), new GetHandleHandler());
-            h.put(GetHandle.class.getMethod("withHandle", HandleCallback.class), new WithHandleHandler());
-            h.put(GetHandle.class.getMethod("useHandle", HandleConsumer.class), new UseHandleHandler());
             return h;
         }
         catch (NoSuchMethodException e) {

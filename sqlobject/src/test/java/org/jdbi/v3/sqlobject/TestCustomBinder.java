@@ -18,36 +18,35 @@ import static org.junit.Assert.assertEquals;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestCustomBinder
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testFoo() throws Exception
     {
         db.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
-        try (Spiffy spiffy = SqlObjectBuilder.open(db.getDbi(), Spiffy.class)) {
+        db.getDbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findSame(new Something(2, "Unknown"));
             assertEquals("Martin", s.getName());
-        }
+        });
     }
 
     @Test
     public void testCustomBindingAnnotation() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
 
         s.insert(new Something(2, "Keith"));
 
         assertEquals("Keith", s.findNameById(2));
     }
 
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :it.id")
         @Mapper(SomethingMapper.class)

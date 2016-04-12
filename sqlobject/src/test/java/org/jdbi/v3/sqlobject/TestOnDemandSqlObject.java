@@ -15,12 +15,10 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
@@ -62,6 +60,7 @@ public class TestOnDemandSqlObject
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = DBI.create(ds);
+        dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
         handle.execute("create table something (id int primary key, name varchar(100))");
 
@@ -86,57 +85,12 @@ public class TestOnDemandSqlObject
         assertEquals("Bill", bill);
     }
 
-    @Test
-    public void testTransactionBindsTheHandle() throws Exception
-    {
-        TransactionStuff txl = dbi.onDemand(TransactionStuff.class);
-        TransactionStuff tx2 = dbi.onDemand(TransactionStuff.class);
-
-        txl.insert(8, "Mike");
-
-        txl.begin();
-
-        assertSame(txl.getHandle(), txl.getHandle());
-
-        txl.updateName(8, "Miker");
-        assertEquals("Miker", txl.byId(8).getName());
-        assertEquals("Mike", tx2.byId(8).getName());
-
-        txl.commit();
-
-        assertNotSame(txl.getHandle(), txl.getHandle());
-
-        assertEquals("Miker", tx2.byId(8).getName());
-    }
-
-    @Test
-    public void testIteratorBindsTheHandle() throws Exception
-    {
-        Spiffy s = dbi.onDemand(Spiffy.class);
-
-        s.insert(1, "Tom");
-        s.insert(2, "Sam");
-
-        assertNotSame(s.getHandle(), s.getHandle());
-
-        Iterator<Something> all = s.findAll();
-        assertSame(s.getHandle(), s.getHandle());
-
-        all.next();
-        assertSame(s.getHandle(), s.getHandle());
-        all.next();
-        assertFalse(all.hasNext());
-
-        assertNotSame(s.getHandle(), s.getHandle());
-
-    }
-
     @Test(expected=TransactionException.class)
     public void testExceptionOnClose() throws Exception {
         JdbiPlugin plugin = new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
-                Handle h = mock(Handle.class);
+                Handle h = spy(handle);
                 when(h.createStatement(anyString())).thenThrow(new TransactionException("connection reset"));
                 doThrow(new UnableToCloseResourceException("already closed", null)).when(h).close();
                 return h;
@@ -203,11 +157,9 @@ public class TestOnDemandSqlObject
         spiffy.insert(1, "Tom");
         spiffy.insert(2, "Sam");
 
-        Iterator<Something> all = external.findAll();
+        List<Something> all = external.findAll();
 
-        all.next();
-        all.next();
-        assertFalse(all.hasNext());
+        assertEquals(2, all.size());
     }
 
     public interface Spiffy extends GetHandle
@@ -246,7 +198,7 @@ public class TestOnDemandSqlObject
     {
         @SqlQuery("all-something")
         @Mapper(SomethingMapper.class)
-        Iterator<Something> findAll();
+        List<Something> findAll();
     }
 
     static class CrashingMapper implements ResultSetMapper<Something>

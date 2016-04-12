@@ -16,8 +16,11 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import net.sf.cglib.proxy.MethodProxy;
+
+import org.jdbi.v3.Handle;
 
 class HashCodeHandler implements Handler
 {
@@ -36,7 +39,7 @@ class HashCodeHandler implements Handler
     }
 
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
     {
         return System.identityHashCode(target);
     }
