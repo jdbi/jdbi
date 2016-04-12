@@ -13,8 +13,9 @@
  */
 package org.jdbi.v3.sqlobject.mixins;
 
-import org.jdbi.v3.Transaction;
+import org.jdbi.v3.sqlobject.TransactionalCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
+import org.jdbi.v3.sqlobject.TransactionalConsumer;
 
 /**
  * A mixin interface to expose transaction methods on the sql object.
@@ -35,8 +36,23 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
 
     void rollback(String name);
 
-    <R, X extends Exception> R inTransaction(Transaction<R, SelfType, X> func) throws X;
+    <R, X extends Exception> R inTransaction(TransactionalCallback<R, SelfType, X> callback) throws X;
 
     <R, X extends Exception> R inTransaction(TransactionIsolationLevel isolation,
-                                             Transaction<R, SelfType, X> func) throws X;
+                                             TransactionalCallback<R, SelfType, X> callback) throws X;
+
+    default <X extends Exception> void useTransaction(TransactionalConsumer<SelfType, X> callback) throws X {
+        inTransaction((transactional, status) -> {
+            callback.useTransaction(transactional, status);
+            return null;
+        });
+    }
+
+    default <X extends Exception> void useTransaction(TransactionIsolationLevel isolation,
+                                                      TransactionalConsumer<SelfType, X> callback) throws X {
+        inTransaction(isolation, (transactional, status) -> {
+            callback.useTransaction(transactional, status);
+            return null;
+        });
+    }
 }

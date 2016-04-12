@@ -11,17 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.sqlobject;
 
-public interface Transaction<R, ConnectionType, X extends Exception>
+import org.jdbi.v3.TransactionStatus;
+import org.jdbi.v3.sqlobject.mixins.Transactional;
+
+public interface TransactionalConsumer<T extends Transactional<T>, X extends Exception>
 {
     /**
      * Execute in a transaction. Will be committed afterwards, or rolled back if an exception is thrown.
      *
      * @param transactional The object communicating with the database.
      * @param status a handle on the transaction, kind of
-     * @return the transaction result
      * @throws X any exception thrown will cause the transaction to be rolled back
      */
-    R inTransaction(ConnectionType transactional, TransactionStatus status) throws X;
+    void useTransaction(T transactional, TransactionStatus status) throws X;
 }
