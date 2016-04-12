@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TestOverrideStatementLocatorWith
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
@@ -43,7 +43,7 @@ public class TestOverrideStatementLocatorWith
     @Test
     public void testBaz() throws Exception
     {
-        Kangaroo wombat = SqlObjectBuilder.attach(handle, Kangaroo.class);
+        Kangaroo wombat = handle.attach(Kangaroo.class);
         wombat.insert(new Something(7, "Henning"));
 
         String name = handle.createQuery("select name from something where id = 7")
@@ -58,7 +58,7 @@ public class TestOverrideStatementLocatorWith
     {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
-        Something s = SqlObjectBuilder.attach(handle, Kangaroo.class).findById(6L);
+        Something s = handle.attach(Kangaroo.class).findById(6L);
         assertThat(s.getName(), equalTo("Martin"));
     }
 
@@ -66,14 +66,14 @@ public class TestOverrideStatementLocatorWith
     public void testBap() throws Exception
     {
         handle.execute("insert into something (id, name) values (2, 'Bean')");
-        Kangaroo w = SqlObjectBuilder.attach(handle, Kangaroo.class);
+        Kangaroo w = handle.attach(Kangaroo.class);
         assertThat(w.findNameFor(2), equalTo("Bean"));
     }
 
     @Test
     public void testDefines() throws Exception
     {
-        SqlObjectBuilder.attach(handle, Kangaroo.class).weirdInsert("something", "id", "name", 5, "Bouncer");
+        handle.attach(Kangaroo.class).weirdInsert("something", "id", "name", 5, "Bouncer");
         String name = handle.createQuery("select name from something where id = 5")
                             .mapTo(String.class)
                             .findOnly();

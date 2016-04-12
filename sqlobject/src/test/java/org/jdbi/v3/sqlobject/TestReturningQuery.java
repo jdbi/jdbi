@@ -21,7 +21,6 @@ import org.jdbi.v3.Query;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import org.junit.Test;
 public class TestReturningQuery
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
@@ -44,13 +43,11 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy spiffy = db.getDbi().open(Spiffy.class);
+        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+            Something s = spiffy.findById(7).findOnly();
 
-        Something s = spiffy.findById(7).findOnly();
-
-        assertEquals("Tim", s.getName());
-
-        db.getDbi().close(spiffy);
+            assertEquals("Tim", s.getName());
+        });
     }
 
     @Test
@@ -58,23 +55,21 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        Spiffy2 spiffy = db.getDbi().open(Spiffy2.class);
+        db.getDbi().useExtension(Spiffy2.class, spiffy -> {
+            Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
 
-        Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
-
-        assertEquals("Tim", s.getName());
-
-        db.getDbi().close(spiffy);
+            assertEquals("Tim", s.getName());
+        });
     }
 
     @RegisterMapper(SomethingMapper.class)
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
         Query<Something> findById(@Bind("id") int id);
     }
 
-    public interface Spiffy2 extends CloseMe
+    public interface Spiffy2
     {
         @SqlQuery("select id, name from something where id = :id")
         @Mapper(SomethingMapper.class)

@@ -30,7 +30,6 @@ import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.jdbi.v3.tweak.ResultSetMapper;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +37,7 @@ import org.junit.Test;
 public class TestRegisteredMappersWork
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
 
     public interface BooleanDao {
@@ -49,7 +48,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testFoo() throws Exception
     {
-        boolean world_is_right = SqlObjectBuilder.attach(db.getSharedHandle(), BooleanDao.class).fetchABoolean();
+        boolean world_is_right = db.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
         assertThat(world_is_right, equalTo(true));
     }
 
@@ -95,7 +94,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testBeanMapperFactory() throws Exception
     {
-        BeanMappingDao bdb = SqlObjectBuilder.attach(db.getSharedHandle(), BeanMappingDao.class);
+        BeanMappingDao bdb = db.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
         Bean lima = new Bean();
@@ -114,7 +113,7 @@ public class TestRegisteredMappersWork
     {
         db.getSharedHandle().registerMapper(new SomethingMapper());
 
-        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -126,7 +125,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testBuiltIn() throws Exception
     {
-        Spiffy s = SqlObjectBuilder.attach(db.getSharedHandle(), Spiffy.class);
+        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -136,7 +135,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegisterMapperAnnotationWorks() throws Exception
     {
-        Kabob bob = SqlObjectBuilder.onDemand(db.getDbi(), Kabob.class);
+        Kabob bob = db.getDbi().onDemand(Kabob.class);
 
         bob.insert(1, "Henning");
         Something henning = bob.find(1);
@@ -159,7 +158,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testNoErrorOnNoData() throws Exception
     {
-        Kabob bob = SqlObjectBuilder.onDemand(db.getDbi(), Kabob.class);
+        Kabob bob = db.getDbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
         assertThat(henning, nullValue());
@@ -171,7 +170,7 @@ public class TestRegisteredMappersWork
         assertThat(itty.hasNext(), equalTo(false));
     }
 
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
 
         @SqlQuery("select id, name from something where id = :id")

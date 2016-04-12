@@ -13,14 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import net.sf.cglib.proxy.MethodProxy;
+import com.fasterxml.classmate.members.ResolvedMethod;
 
-class CloseHandler implements Handler
-{
-    @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
-    {
-        h.getHandle().close();
-        return null;
-    }
+interface HandlerFactory {
+    Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config);
 }

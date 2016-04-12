@@ -13,13 +13,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.Handle;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-interface HandleDing
-{
-    Handle getHandle();
-
-    void release(String name);
-
-    void retain(String name);
+/**
+ * Annotation used to identify SQL method annotations. Use this to annotate an annotation.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.ANNOTATION_TYPE)
+@interface SqlMethodAnnotation {
+    Class<? extends HandlerFactory> value();
 }

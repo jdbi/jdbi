@@ -13,26 +13,23 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import net.sf.cglib.proxy.MethodProxy;
 
+import org.jdbi.v3.Handle;
 import org.jdbi.v3.Transaction;
 import org.jdbi.v3.TransactionIsolationLevel;
 
 class InTransactionWithIsolationLevelHandler implements Handler
 {
     @Override
-    public Object invoke(HandleDing h, final Object target, Object[] args, MethodProxy mp) throws Exception
+    public Object invoke(Supplier<Handle> handle, final Object target, Object[] args, MethodProxy mp) throws Exception
     {
-        h.retain("transaction#withlevel");
-        try {
-            @SuppressWarnings("unchecked")
-            final Transaction<Object, Object, Exception> t = (Transaction) args[1];
-            final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];
+        @SuppressWarnings("unchecked")
+        final Transaction<Object, Object, Exception> t = (Transaction) args[1];
+        final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];
 
-            return h.getHandle().inTransaction(level, (conn, status) -> t.inTransaction(target, status));
-        }
-        finally {
-            h.release("transaction#withlevel");
-        }
+        return handle.get().inTransaction(level, (conn, status) -> t.inTransaction(target, status));
     }
 }

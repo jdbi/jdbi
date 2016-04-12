@@ -50,7 +50,8 @@ public class TestTimingCollector
                                tc,
                                new MappingRegistry(),
                                new ArgumentRegistry(),
-                               new CollectorFactoryRegistry());
+                               new CollectorFactoryRegistry(),
+                               new ExtensionRegistry());
     }
 
 

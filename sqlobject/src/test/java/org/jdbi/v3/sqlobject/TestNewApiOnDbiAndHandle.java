@@ -16,9 +16,9 @@ package org.jdbi.v3.sqlobject;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.Closeable;
 import java.sql.Connection;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
@@ -42,6 +42,7 @@ public class TestNewApiOnDbiAndHandle
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         dbi = DBI.create(ds);
+        dbi.installPlugin(new SqlObjectPlugin());
         dbi.registerMapper(new SomethingMapper());
         handle = dbi.open();
 
@@ -58,21 +59,23 @@ public class TestNewApiOnDbiAndHandle
     @Test
     public void testOpenNewSpiffy() throws Exception
     {
-        final Connection c;
-        try (Spiffy spiffy = dbi.open(Spiffy.class)) {
+        final AtomicReference<Connection> c = new AtomicReference<>();
+
+        dbi.useExtension(Spiffy.class, spiffy -> {
             spiffy.insert(new Something(1, "Tim"));
             spiffy.insert(new Something(2, "Diego"));
 
             assertEquals("Diego", spiffy.findNameById(2));
-            c = spiffy.getHandle().getConnection();
-        }
-        assertTrue(c.isClosed());
+            c.set(spiffy.getHandle().getConnection());
+        });
+
+        assertTrue(c.get().isClosed());
     }
 
     @Test
     public void testOnDemandSpiffy() throws Exception
     {
-        Spiffy spiffy = handle.attach(Spiffy.class);
+        Spiffy spiffy = dbi.onDemand(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
         spiffy.insert(new Something(2, "Diego"));
@@ -94,6 +97,7 @@ public class TestNewApiOnDbiAndHandle
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnDemand(){
         DBI.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+                .installPlugin(new SqlObjectPlugin())
                 .onDemand(Spiffy.class)
                 .findNameById(1);
     }
@@ -101,16 +105,20 @@ public class TestNewApiOnDbiAndHandle
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnOpen(){
         DBI.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
-                .open(Spiffy.class);
+                .installPlugin(new SqlObjectPlugin())
+                .open()
+                .attach(Spiffy.class);
     }
 
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnAttach(){
-        DBI.open("jdbc:mysql://invalid.invalid/test", "john", "scott")
+        DBI.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+                .installPlugin(new SqlObjectPlugin())
+                .open()
                 .attach(Spiffy.class);
     }
 
-    interface Spiffy extends GetHandle, Closeable
+    public interface Spiffy extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
         void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something s);

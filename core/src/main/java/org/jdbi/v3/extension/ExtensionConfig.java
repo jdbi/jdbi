@@ -11,19 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.extension;
 
-import net.sf.cglib.proxy.MethodProxy;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.HandleConsumer;
-
-class UseHandleHandler implements Handler
-{
-    @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp) throws Exception {
-        Handle handle = h.getHandle();
-        HandleConsumer<?> consumer = (HandleConsumer) args[0];
-        consumer.useHandle(handle);
-        return null;
-    }
+/**
+ * A configuration object for an extension.
+ *
+ * @param <C> A "This" type. Should always be the configuration class.
+ */
+public interface ExtensionConfig<C extends ExtensionConfig<C>> {
+    /**
+     * Returns a copy of this configuration object. Changes to the copy should not modify the original.
+     */
+    C createCopy();
 }

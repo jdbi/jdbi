@@ -24,14 +24,13 @@ import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestStream
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testReturnStream() throws Exception {
@@ -39,7 +38,7 @@ public class TestStream
         Something two = new Something(4, "bar");
         Something thr = new Something(5, "baz");
 
-        Spiffy dao = SqlObjectBuilder.onDemand(db.getDbi(), Spiffy.class);
+        Spiffy dao = db.getDbi().open().attach(Spiffy.class);
         dao.insert(one);
         dao.insert(thr);
         dao.insert(two);
@@ -52,7 +51,7 @@ public class TestStream
         assertEquals(ImmutableList.of(thr, two, one), results);
     }
 
-    public interface Spiffy extends CloseMe
+    public interface Spiffy
     {
         @SqlQuery("select id, name from something order by id desc")
         @Mapper(SomethingMapper.class)

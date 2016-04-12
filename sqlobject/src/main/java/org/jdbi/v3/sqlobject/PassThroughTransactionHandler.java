@@ -14,68 +14,41 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.exceptions.TransactionException;
 
 class PassThroughTransactionHandler implements Handler
 {
     private final TransactionIsolationLevel isolation;
+    private final PassThroughHandler delegate;
 
-    PassThroughTransactionHandler(Method m, Transaction tx)
+    PassThroughTransactionHandler(Method method, Transaction tx)
     {
         this.isolation = tx.value();
+        this.delegate = new PassThroughHandler(method);
     }
 
     @Override
-    public Object invoke(HandleDing ding, final Object target, final Object[] args, final MethodProxy mp) throws Exception
+    public Object invoke(Supplier<Handle> handle, final Object target, final Object[] args, final MethodProxy mp) throws Exception
     {
-        ding.retain("pass-through-transaction");
-        try {
-            Handle h = ding.getHandle();
-
-            if (h.isInTransaction()) {
-                throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
-            }
-
-            if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
-                return h.inTransaction((conn, status) -> {
-                    try {
-                        return mp.invokeSuper(target, args);
-                    }
-                    catch (Throwable throwable) {
-                        if (throwable instanceof Exception) {
-                            throw (Exception) throwable;
-                        }
-                        else {
-                            throw new RuntimeException(throwable);
-                        }
-                    }
-                });
-            }
-            else {
-                return h.inTransaction(isolation, (conn, status) -> {
-                    try {
-                        return mp.invokeSuper(target, args);
-                    }
-                    catch (Throwable throwable) {
-                        if (throwable instanceof Exception) {
-                            throw (Exception) throwable;
-                        }
-                        else {
-                            throw new RuntimeException(throwable);
-                        }
-                    }
-                });
-
-            }
+        Handle h = handle.get();
+        if (h.isInTransaction()) {
+            throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
         }
 
-        finally {
-            ding.release("pass-through-transaction");
+        TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(handle, target, args, mp);
+
+        if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
+            return h.inTransaction(callback);
+        }
+        else {
+            return h.inTransaction(isolation, callback);
         }
     }
 }

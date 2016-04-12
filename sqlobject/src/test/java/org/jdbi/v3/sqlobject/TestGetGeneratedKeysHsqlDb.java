@@ -19,7 +19,6 @@ import static org.junit.Assert.assertThat;
 import java.util.UUID;
 
 import org.jdbi.v3.DBI;
-import org.jdbi.v3.sqlobject.mixins.CloseMe;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,11 +28,12 @@ public class TestGetGeneratedKeysHsqlDb {
 
     @Before
     public void setUp() throws Exception {
-        dbi = DBI.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password");
+        dbi = DBI.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
+                .installPlugin(new SqlObjectPlugin());
         dbi.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
     }
 
-    public interface DAO extends CloseMe {
+    public interface DAO {
         @SqlUpdate("insert into something (name) values (:name)")
         @GetGeneratedKeys
         long insert(@Bind String name);
@@ -44,13 +44,13 @@ public class TestGetGeneratedKeysHsqlDb {
 
     @Test
     public void testFoo() throws Exception {
-        try (DAO dao = SqlObjectBuilder.open(dbi, DAO.class)) {
+        dbi.useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
             assertThat(dao.findNameById(brian_id), equalTo("Brian"));
             assertThat(dao.findNameById(keith_id), equalTo("Keith"));
-        }
+        });
     }
 
 }

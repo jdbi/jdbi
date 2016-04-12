@@ -18,7 +18,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jdbi.v3.ExtraMatchers.equalsOneOf;
 import static org.junit.Assert.assertThat;
 
-import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +33,7 @@ import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
@@ -45,7 +45,7 @@ import org.junit.Test;
 public class TestDocumentation
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testFiveMinuteFluentApi() throws Exception
@@ -61,7 +61,7 @@ public class TestDocumentation
         }
     }
 
-    public interface MyDAO extends Closeable
+    public interface MyDAO
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
@@ -73,13 +73,13 @@ public class TestDocumentation
     @Test
     public void testFiveMinuteSqlObjectExample() throws Exception
     {
-        try (MyDAO dao = db.getDbi().open(MyDAO.class)) {
+        db.getDbi().useExtension(MyDAO.class, dao -> {
             dao.insert(2, "Aaron");
 
             String name = dao.findNameById(2);
 
             assertThat(name, equalTo("Aaron"));
-        }
+        });
     }
 
 
@@ -155,8 +155,8 @@ public class TestDocumentation
     @Test
     public void testAttachToObject() throws Exception
     {
-        try (Handle h = db.openHandle();
-             MyDAO dao = h.attach(MyDAO.class)) {
+        try (Handle h = db.openHandle()) {
+            MyDAO dao = h.attach(MyDAO.class);
             dao.insert(1, "test");
         }
     }
@@ -164,9 +164,8 @@ public class TestDocumentation
     @Test
     public void testOnDemandDao() throws Exception
     {
-        try (MyDAO dao = db.getDbi().onDemand(MyDAO.class)) {
-            dao.insert(2, "test");
-        }
+        MyDAO dao = db.getDbi().onDemand(MyDAO.class);
+        dao.insert(2, "test");
     }
 
     public interface SomeQueries

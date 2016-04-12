@@ -13,18 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import net.sf.cglib.proxy.MethodProxy;
+import org.jdbi.v3.DBI;
+import org.jdbi.v3.spi.JdbiPlugin;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.HandleCallback;
-
-class WithHandleHandler implements Handler
-{
+public class SqlObjectPlugin implements JdbiPlugin {
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp) throws Exception
-    {
-        Handle handle = h.getHandle();
-        HandleCallback<?,?> callback = (HandleCallback) args[0];
-        return callback.withHandle(handle);
+    public void customizeDbi(DBI dbi) {
+        dbi.registerExtensionFactory(SqlObjectFactory.INSTANCE);
     }
 }

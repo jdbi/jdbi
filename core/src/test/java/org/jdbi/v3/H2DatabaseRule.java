@@ -17,8 +17,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.junit.rules.ExternalResource;
 
@@ -29,6 +32,7 @@ public class H2DatabaseRule extends ExternalResource
     private DBI dbi;
     private Handle sharedHandle;
     private boolean installPlugins = false;
+    private List<JdbiPlugin> plugins = new ArrayList<>(); 
 
     @Override
     protected void before() throws Throwable
@@ -37,6 +41,7 @@ public class H2DatabaseRule extends ExternalResource
         if (installPlugins) {
             dbi.installPlugins();
         }
+        plugins.forEach(dbi::installPlugin);
         sharedHandle = dbi.open();
         con = sharedHandle.getConnection();
         try (Statement s = con.createStatement()) {
@@ -60,6 +65,12 @@ public class H2DatabaseRule extends ExternalResource
         return this;
     }
 
+    public H2DatabaseRule withPlugin(JdbiPlugin plugin)
+    {
+        plugins.add(plugin);
+        return this;
+    }
+    
     public String getConnectionString()
     {
         return uri;

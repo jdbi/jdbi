@@ -34,12 +34,12 @@ import org.junit.Test;
 public class TestRegisterMapperFactory
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testSimple() throws Exception
     {
-        FooDao fooDao = SqlObjectBuilder.onDemand(db.getDbi(), FooDao.class);
+        FooDao fooDao = db.getDbi().onDemand(FooDao.class);
 
         List<Foo> foos = fooDao.select();
         Assert.assertNotNull(foos);

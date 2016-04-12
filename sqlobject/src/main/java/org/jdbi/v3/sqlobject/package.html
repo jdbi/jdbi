@@ -49,13 +49,6 @@
         It is important to ensure you close the underlying handle on a sql object if it was opened via the DBI#open in
         particular.
     </p>
-    <p>
-        If the sql object defines a close() method, or includes it via another interface (such as the
-        included CloseMe, or java.lang.AutoCloseable) calling that method will close the handle.
-    </p>
-    <p>
-        On-demand sql objects should not be explicitly closed.
-    </p>
 
     <h1>Mixin Interfaces</h1>
     <p>

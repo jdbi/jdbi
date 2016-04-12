@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 
 public class TestOptionalParameters {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private DAO dao;
 

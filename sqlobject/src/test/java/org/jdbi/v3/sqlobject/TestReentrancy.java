@@ -35,7 +35,7 @@ public class TestReentrancy
     private DBI    dbi;
     private Handle handle;
 
-    interface TheBasics extends GetHandle
+    public interface TheBasics extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@BindBean Something something);
@@ -44,7 +44,7 @@ public class TestReentrancy
     @Test
     public void testGetHandleProvidesSeperateHandle() throws Exception
     {
-        final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
+        final TheBasics dao = dbi.onDemand(TheBasics.class);
         Handle h = dao.getHandle();
 
         try {
@@ -59,7 +59,7 @@ public class TestReentrancy
     @Test
     public void testHandleReentrant() throws Exception
     {
-        final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
+        final TheBasics dao = dbi.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
             dao.insert(new Something(7, "Martin"));
@@ -73,7 +73,7 @@ public class TestReentrancy
     @Test
     public void testTxnReentrant() throws Exception
     {
-        final TheBasics dao = SqlObjectBuilder.onDemand(dbi, TheBasics.class);
+        final TheBasics dao = dbi.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
             handle1.useTransaction((conn, status) -> {
@@ -100,7 +100,7 @@ public class TestReentrancy
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
 
         dbi = DBI.create(ds);
-
+        dbi.installPlugin(new SqlObjectPlugin());
         dbi.registerMapper(new SomethingMapper());
 
         handle = dbi.open();

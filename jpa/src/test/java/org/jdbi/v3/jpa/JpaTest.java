@@ -16,7 +16,7 @@ package org.jdbi.v3.jpa;
 import java.util.List;
 
 import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.SqlObjectBuilder;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapperFactory;
@@ -39,7 +39,7 @@ public class JpaTest {
     public static final String NAME_ANNOTATION_NAME = "bar";
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     
     interface Thing {
         int getId();
@@ -75,7 +75,7 @@ public class JpaTest {
         EntityThing brian = new EntityThing(1, "Brian");
         EntityThing keith = new EntityThing(2, "Keith");
 
-        EntityThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), EntityThingDao.class);
+        EntityThingDao dao = db.getSharedHandle().attach(EntityThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -115,7 +115,7 @@ public class JpaTest {
         FieldThing brian = new FieldThing(1, "Brian");
         FieldThing keith = new FieldThing(2, "Keith");
 
-        FieldThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), FieldThingDao.class);
+        FieldThingDao dao = db.getSharedHandle().attach(FieldThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -155,7 +155,7 @@ public class JpaTest {
         NamedFieldThing brian = new NamedFieldThing(1, "Brian");
         NamedFieldThing keith = new NamedFieldThing(2, "Keith");
 
-        NamedFieldThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), NamedFieldThingDao.class);
+        NamedFieldThingDao dao = db.getSharedHandle().attach(NamedFieldThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -195,7 +195,7 @@ public class JpaTest {
         GetterThing brian = new GetterThing(1, "Brian");
         GetterThing keith = new GetterThing(2, "Keith");
 
-        GetterThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), GetterThingDao.class);
+        GetterThingDao dao = db.getSharedHandle().attach(GetterThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -235,7 +235,7 @@ public class JpaTest {
         NamedGetterThing brian = new NamedGetterThing(1, "Brian");
         NamedGetterThing keith = new NamedGetterThing(2, "Keith");
 
-        NamedGetterThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), NamedGetterThingDao.class);
+        NamedGetterThingDao dao = db.getSharedHandle().attach(NamedGetterThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -275,7 +275,7 @@ public class JpaTest {
         SetterThing brian = new SetterThing(1, "Brian");
         SetterThing keith = new SetterThing(2, "Keith");
 
-        SetterThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), SetterThingDao.class);
+        SetterThingDao dao = db.getSharedHandle().attach(SetterThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -315,7 +315,7 @@ public class JpaTest {
         NamedSetterThing brian = new NamedSetterThing(1, "Brian");
         NamedSetterThing keith = new NamedSetterThing(2, "Keith");
 
-        NamedSetterThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), NamedSetterThingDao.class);
+        NamedSetterThingDao dao = db.getSharedHandle().attach(NamedSetterThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -357,7 +357,7 @@ public class JpaTest {
         ExtendsMappedSuperclassThing brian = new ExtendsMappedSuperclassThing(1, "Brian");
         ExtendsMappedSuperclassThing keith = new ExtendsMappedSuperclassThing(2, "Keith");
 
-        MappedSuperclassThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), MappedSuperclassThingDao.class);
+        MappedSuperclassThingDao dao = db.getSharedHandle().attach(MappedSuperclassThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -398,7 +398,7 @@ public class JpaTest {
         AnnotationPriorityThing brian = new AnnotationPriorityThing(1, "Brian");
         AnnotationPriorityThing keith = new AnnotationPriorityThing(2, "Keith");
 
-        AnnotationPriorityThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), AnnotationPriorityThingDao.class);
+        AnnotationPriorityThingDao dao = db.getSharedHandle().attach(AnnotationPriorityThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -423,7 +423,7 @@ public class JpaTest {
         FieldThing brian = new FieldThing(1, "Brian");
         FieldThing keith = new FieldThing(2, "Keith");
 
-        SuperfluousColumnDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), SuperfluousColumnDao.class);
+        SuperfluousColumnDao dao = db.getSharedHandle().attach(SuperfluousColumnDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -448,7 +448,7 @@ public class JpaTest {
         FieldThing brian = new FieldThing(1, "Brian");
         FieldThing keith = new FieldThing(2, "Keith");
 
-        MissingColumnDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), MissingColumnDao.class);
+        MissingColumnDao dao = db.getSharedHandle().attach(MissingColumnDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -496,7 +496,7 @@ public class JpaTest {
         OverridingSubclassThing brian = new OverridingSubclassThing(1, "Brian");
         OverridingSubclassThing keith = new OverridingSubclassThing(2, "Keith");
 
-        OverridingSubclassThingDao dao = SqlObjectBuilder.attach(db.getSharedHandle(), OverridingSubclassThingDao.class);
+        OverridingSubclassThingDao dao = db.getSharedHandle().attach(OverridingSubclassThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 

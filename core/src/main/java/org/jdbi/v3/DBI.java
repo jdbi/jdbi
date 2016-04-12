@@ -14,6 +14,7 @@
 package org.jdbi.v3;
 
 
+import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -23,12 +24,19 @@ import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
+import org.jdbi.v3.extension.ExtensionCallback;
+import org.jdbi.v3.extension.ExtensionConfig;
+import org.jdbi.v3.extension.ExtensionConsumer;
+import org.jdbi.v3.extension.ExtensionFactory;
+import org.jdbi.v3.extension.NoSuchExtensionException;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -53,6 +61,7 @@ public class DBI
     private final MappingRegistry mappingRegistry = new MappingRegistry();
     private final CollectorFactoryRegistry collectorFactoryRegistry = new CollectorFactoryRegistry();
     private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
+    private final ExtensionRegistry extensionRegistry = new ExtensionRegistry();
 
     private final ConnectionFactory connectionFactory;
 
@@ -147,13 +156,14 @@ public class DBI
 
     public DBI installPlugins()
     {
-        ServiceLoader.load(JdbiPlugin.class).forEach(plugins::add);
+        ServiceLoader.load(JdbiPlugin.class).forEach(this::installPlugin);
         LOG.debug("Automatically installed plugins {}", plugins);
         return this;
     }
 
     public DBI installPlugin(JdbiPlugin plugin)
     {
+        plugin.customizeDbi(this);
         plugins.add(plugin);
         return this;
     }
@@ -241,7 +251,8 @@ public class DBI
                                        timingCollector.get(),
                                        MappingRegistry.copyOf(mappingRegistry),
                                        ArgumentRegistry.copyOf(argumentRegistry),
-                                       CollectorFactoryRegistry.copyOf(collectorFactoryRegistry));
+                                       CollectorFactoryRegistry.copyOf(collectorFactoryRegistry),
+                                       ExtensionRegistry.copyOf(extensionRegistry));
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
@@ -363,41 +374,72 @@ public class DBI
     }
 
     /**
-     * Open a handle and attach a new sql object of the specified type to that handle. Be sure to close the
-     * sql object (via a close() method, or calling {@link DBI#close(Object)}
-     * @param sqlObjectType an interface with annotations declaring desired behavior
-     * @param <SqlObjectType>
-     * @return a new sql object of the specified type, with a dedicated handle
-     */
-    public <SqlObjectType> SqlObjectType open(Class<SqlObjectType> sqlObjectType)
-    {
-       return SqlObjectBuilderBridge.open(this, sqlObjectType);
-    }
-
-    /**
-     * Create a new sql object which will obtain and release connections from this dbi instance, as it needs to,
-     * and can, respectively. You should not explicitely close this sql object
+     * A convenience method which opens an extension of the given type, yields it to a callback, and returns the result
+     * of the callback. A handle is opened if needed by the extension, and closed before returning to the caller.
      *
-     * @param sqlObjectType an interface with annotations declaring desired behavior
-     * @param <SqlObjectType>
-     * @return a new sql object of the specified type, with a dedicated handle
+     * @param extensionType the type of extension.
+     * @param callback      a callback which will receive the extension.
+     * @param <R> the return type
+     * @param <E> the extension type
+     * @param <X> the exception type optionally thrown by the callback
+     * @return the value returned by the callback.
+     * @throws NoSuchExtensionException if no {@link ExtensionFactory} is registered which supports the given extension
+     *                                  type.
+     * @throws X                        if thrown by the callback.
      */
-    public <SqlObjectType> SqlObjectType onDemand(Class<SqlObjectType> sqlObjectType)
+    public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
+            throws NoSuchExtensionException, X
     {
-        return SqlObjectBuilderBridge.onDemand(this, sqlObjectType);
+        try (LazyHandle handle = new LazyHandle(this)) {
+            E extension = extensionRegistry.findExtensionFor(extensionType, handle)
+                    .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
+
+            return callback.withExtension(extension);
+        }
     }
 
     /**
-     * Used to close a sql object which lacks a close() method.
-     * @param sqlObject the sql object to close
+     * A convenience method which opens an extension of the given type, and yields it to a callback. A handle is opened
+     * if needed by the extention, and closed before returning to the caller.
+     *
+     * @param extensionType the type of extension
+     * @param callback      a callback which will receive the extension
+     * @param <E>           the extension type
+     * @param <X>           the exception type optionally thrown by the callback
+     * @throws NoSuchExtensionException if no {@link ExtensionFactory} is registered which supports the given extension type.
+     * @throws X                        if thrown by the callback.
      */
-    public void close(Object sqlObject)
-    {
-        SqlObjectBuilderBridge.close(sqlObject);
+    public <E, X extends Exception> void useExtension(Class<E> extensionType, ExtensionConsumer<E, X> callback)
+            throws NoSuchExtensionException, X {
+        withExtension(extensionType, extension -> {
+            callback.useExtension(extension);
+            return null;
+        });
     }
 
     /**
-     * Convenience methd used to obtain a handle from a specific data source
+     * Returns an extension which opens and closes handles (as needed) for individual method calls. Only public
+     * interface types may be used as on-demand extensions.
+     *
+     * @param extensionType the type of extension. Must be a public interface type.
+     * @param <E> the extension type
+     */
+    public <E> E onDemand(Class<E> extensionType) throws NoSuchExtensionException {
+        if (!extensionType.isInterface()) {
+            throw new IllegalArgumentException("On-demand extensions are only supported for interfaces.");
+        }
+        if (!Modifier.isPublic(extensionType.getModifiers())) {
+            throw new IllegalArgumentException("On-demand extensions types must be public.");
+        }
+        if (!extensionRegistry.hasExtensionFor(extensionType)) {
+            throw new NoSuchExtensionException("Extension not found: " + extensionType);
+        }
+
+        return OnDemandExtensions.create(this, extensionType);
+    }
+
+    /**
+     * Convenience method used to obtain a handle from a specific data source
      *
      * @param dataSource
      *
@@ -499,5 +541,19 @@ public class DBI
     public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         argumentRegistry.register(argumentFactory);
+    }
+
+    public void registerCollectorFactory(CollectorFactory collectorFactory)
+    {
+        collectorFactoryRegistry.register(collectorFactory);
+    }
+
+    public void registerExtensionFactory(ExtensionFactory extensionFactory)
+    {
+        extensionRegistry.register(extensionFactory);
+    }
+
+    public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
+        extensionRegistry.configure(configClass, consumer);
     }
 }

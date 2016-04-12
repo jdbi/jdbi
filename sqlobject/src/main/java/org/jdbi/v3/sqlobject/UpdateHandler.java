@@ -13,12 +13,15 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import com.fasterxml.classmate.members.ResolvedMethod;
 
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.GeneratedKeys;
+import org.jdbi.v3.Handle;
 import org.jdbi.v3.Update;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
@@ -36,7 +39,7 @@ class UpdateHandler extends CustomizingStatementHandler
         if(returnTypeIsInvalid(method.getRawMember().getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
         }
-        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
+        this.sql = SqlAnnotations.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
         if (method.getRawMember().isAnnotationPresent(GetGeneratedKeys.class)) {
 
             final ResultReturnThing magic = ResultReturnThing.forType(method);
@@ -48,30 +51,30 @@ class UpdateHandler extends CustomizingStatementHandler
             catch (Exception e) {
                 throw new UnableToCreateStatementException("Unable to instantiate result set mapper for statement", e, null);
             }
-            this.returner = (update, baton) -> {
+            this.returner = (update, handle) -> {
                 GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
-                return magic.result(o, baton);
+                return magic.result(o, handle);
             };
         }
         else {
-            this.returner = (update, baton) -> update.execute();
+            this.returner = (update, handle) -> update.execute();
         }
     }
 
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
     {
-        Update q = h.getHandle().createStatement(sql);
+        Update q = handle.get().createStatement(sql);
         populateSqlObjectData((ConcreteStatementContext)q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
-        return this.returner.value(q, h);
+        return this.returner.value(q, handle);
     }
 
 
     private interface Returner
     {
-        Object value(Update update, HandleDing baton);
+        Object value(Update update, Supplier<Handle> handle);
     }
 
     private boolean returnTypeIsInvalid(Class<?> type) {

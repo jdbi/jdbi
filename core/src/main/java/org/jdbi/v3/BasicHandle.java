@@ -19,9 +19,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.extension.ExtensionConfig;
+import org.jdbi.v3.extension.ExtensionFactory;
+import org.jdbi.v3.extension.NoSuchExtensionException;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.ResultColumnMapper;
 import org.jdbi.v3.tweak.ResultSetMapper;
@@ -48,7 +52,8 @@ class BasicHandle implements Handle
     private final Map<String, Object>      globalStatementAttributes;
     private final MappingRegistry          mappingRegistry;
     private final CollectorFactoryRegistry collectorFactoryRegistry;
-    private final ArgumentRegistry argumentRegistry;
+    private final ArgumentRegistry         argumentRegistry;
+    private final ExtensionRegistry        extensionRegistry;
     private final TransactionHandler       transactions;
     private final Connection               connection;
 
@@ -62,7 +67,8 @@ class BasicHandle implements Handle
                 TimingCollector timingCollector,
                 MappingRegistry mappingRegistry,
                 ArgumentRegistry argumentRegistry,
-                CollectorFactoryRegistry collectorFactoryRegistry)
+                CollectorFactoryRegistry collectorFactoryRegistry,
+                ExtensionRegistry extensionRegistry)
     {
         this.statementBuilder = preparedStatementCache;
         this.statementRewriter = statementRewriter;
@@ -74,7 +80,8 @@ class BasicHandle implements Handle
         this.argumentRegistry = argumentRegistry;
         this.globalStatementAttributes = new HashMap<>();
         this.globalStatementAttributes.putAll(globalStatementAttributes);
-        this.collectorFactoryRegistry = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
+        this.collectorFactoryRegistry = collectorFactoryRegistry;
+        this.extensionRegistry = extensionRegistry;
     }
 
     @Override
@@ -440,9 +447,10 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public <SqlObjectType> SqlObjectType attach(Class<SqlObjectType> sqlObjectType)
+    public <T> T attach(Class<T> extensionType)
     {
-        return SqlObjectBuilderBridge.attach(this, sqlObjectType);
+        return (T) extensionRegistry.findExtensionFor(extensionType, () -> this)
+                .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
     @Override
@@ -486,5 +494,15 @@ class BasicHandle implements Handle
     @Override
     public void registerCollectorFactory(CollectorFactory factory) {
         this.collectorFactoryRegistry.register(factory);
+    }
+
+    @Override
+    public void registerExtension(ExtensionFactory factory) {
+        this.extensionRegistry.register(factory);
+    }
+
+    @Override
+    public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
+        this.extensionRegistry.configure(configClass, consumer);
     }
 }

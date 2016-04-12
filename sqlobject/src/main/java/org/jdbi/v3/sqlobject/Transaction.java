@@ -17,12 +17,24 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
+
+import com.fasterxml.classmate.members.ResolvedMethod;
 
 import org.jdbi.v3.TransactionIsolationLevel;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
+@SqlMethodAnnotation(Transaction.Factory.class)
 public @interface Transaction
 {
     TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
+
+    class Factory implements HandlerFactory {
+        @Override
+        public Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config) {
+            Method rawMethod = method.getRawMember();
+            return new PassThroughTransactionHandler(rawMethod, rawMethod.getAnnotation(Transaction.class));
+        }
+    }
 }

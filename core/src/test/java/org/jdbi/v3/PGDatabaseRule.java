@@ -15,17 +15,23 @@ package org.jdbi.v3;
 
 import static org.junit.Assume.assumeTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jdbi.v3.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
 
 public class PGDatabaseRule extends ExternalResource
 {
     private DBI dbi;
+    private List<JdbiPlugin> plugins = new ArrayList<>();
 
     @Override
     protected void before() throws Throwable
     {
         assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
         dbi = DBI.create("jdbc:postgresql:jdbi_test", "postgres", "");
+        plugins.forEach(dbi::installPlugin);
     }
 
     @Override
@@ -42,5 +48,10 @@ public class PGDatabaseRule extends ExternalResource
     public Handle openHandle()
     {
         return getDbi().open();
+    }
+
+    public PGDatabaseRule withPlugin(JdbiPlugin plugin) {
+        plugins.add(plugin);
+        return this;
     }
 }

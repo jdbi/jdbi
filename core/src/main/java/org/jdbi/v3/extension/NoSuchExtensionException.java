@@ -11,37 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.extension;
 
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.exceptions.DBIException;
 
-class ConstantHandleDing implements HandleDing
-{
-
-    private final Handle handle;
-
-    ConstantHandleDing(Handle handle) {
-        this.handle = handle;
+public class NoSuchExtensionException extends DBIException {
+    public NoSuchExtensionException(String string, Throwable throwable) {
+        super(string, throwable);
     }
 
-    @Override
-    public Handle getHandle()
-    {
-        return handle;
+    public NoSuchExtensionException(Throwable cause) {
+        super(cause);
     }
 
-    @Override
-    public void release(String name)
-    {
-    }
-
-    @Override
-    public void retain(String name)
-    {
-    }
-
-    public boolean isRetained()
-    {
-        return false;
+    public NoSuchExtensionException(String message) {
+        super(message);
     }
 }

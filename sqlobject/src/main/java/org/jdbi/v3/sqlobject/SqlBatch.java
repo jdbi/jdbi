@@ -18,6 +18,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.fasterxml.classmate.members.ResolvedMethod;
+
 /**
  * Annotate a method to indicate that it will create and execute a SQL batch. At least one
  * bound argument must be an Iterator or Iterable, values from this will be taken and applied
@@ -34,6 +36,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
+@SqlMethodAnnotation(SqlBatch.Factory.class)
 public @interface SqlBatch
 {
     /**
@@ -46,4 +49,11 @@ public @interface SqlBatch
      * true (and it will be strange if you want otherwise).
      */
     boolean transactional() default true;
+
+    class Factory implements HandlerFactory {
+        @Override
+        public Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config) {
+            return new BatchHandler(sqlObjectType, method);
+        }
+    }
 }

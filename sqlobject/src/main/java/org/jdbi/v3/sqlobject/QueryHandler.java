@@ -13,11 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.function.Supplier;
+
 import com.fasterxml.classmate.members.ResolvedMethod;
 
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.ConcreteStatementContext;
+import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
 
 class QueryHandler extends CustomizingStatementHandler
@@ -31,17 +34,17 @@ class QueryHandler extends CustomizingStatementHandler
         super(sqlObjectType, method);
         this.method = method;
         this.magic = magic;
-        this.sql = SqlObject.getSql(method.getRawMember().getAnnotation(SqlQuery.class), method.getRawMember());
+        this.sql = SqlAnnotations.getSql(method.getRawMember().getAnnotation(SqlQuery.class), method.getRawMember());
     }
 
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
     {
-        Query<?> q = h.getHandle().createQuery(sql);
+        Query<?> q = handle.get().createQuery(sql);
         populateSqlObjectData((ConcreteStatementContext) q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
 
-        return magic.map(method, q, h);
+        return magic.map(method, q, handle);
     }
 }

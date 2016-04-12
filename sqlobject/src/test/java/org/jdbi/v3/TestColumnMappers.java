@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import java.net.URI;
 import java.util.List;
 
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapperFactory;
@@ -31,7 +32,7 @@ import org.junit.Test;
 public class TestColumnMappers
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     public static class SomeBean
     {

@@ -24,7 +24,6 @@ import java.beans.Introspector;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -100,7 +100,7 @@ class JpaClass<C> {
                                           Map<String, JpaMember> members,
                                           boolean hasColumnAnnotation) {
         try {
-            Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
+            Stream.of(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                     .filter(property -> !members.containsKey(property.getName()))
                     .filter(property -> !(property instanceof IndexedPropertyDescriptor))
                     .filter(property -> !"class".equals(property.getName()))
@@ -108,8 +108,7 @@ class JpaClass<C> {
                         Method getter = property.getReadMethod();
                         Method setter = property.getWriteMethod();
 
-                        Column column = Arrays
-                                .stream(new Method[]{getter, setter})
+                        Column column = Stream.of(getter, setter)
                                 .filter(Objects::nonNull)
                                 .map(method -> method.getAnnotation(Column.class))
                                 .filter(Objects::nonNull)

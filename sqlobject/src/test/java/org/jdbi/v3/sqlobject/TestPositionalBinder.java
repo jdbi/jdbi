@@ -27,7 +27,7 @@ import org.junit.Test;
 public class TestPositionalBinder {
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private SomethingDao somethingDao;
@@ -35,7 +35,7 @@ public class TestPositionalBinder {
     @Before
     public void setUp() throws Exception {
         handle = db.getSharedHandle();
-        somethingDao = SqlObjectBuilder.attach(handle, SomethingDao.class);
+        somethingDao = handle.attach(SomethingDao.class);
 
         handle.execute("drop table something");
         handle.execute("create table something (something_id int primary key, name varchar(100), code int)");

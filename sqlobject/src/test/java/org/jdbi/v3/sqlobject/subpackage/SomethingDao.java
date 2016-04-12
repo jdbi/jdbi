@@ -22,29 +22,29 @@ import org.jdbi.v3.sqlobject.Transaction;
 import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
 
 @RegisterMapper(SomethingMapper.class)
-public abstract class SomethingDao
+public interface SomethingDao
 {
     @SqlUpdate("insert into something (id, name) values (:id, :name)")
-    public abstract void insert(@Bind("id") int id, @Bind("name") String name);
+    void insert(@Bind("id") int id, @Bind("name") String name);
 
     @SqlQuery("select id, name from something where id = :id")
-    public abstract Something findById(@Bind("id") int id);
+    Something findById(@Bind("id") int id);
 
-    public Something findByIdHeeHee(int id) {
+    default Something findByIdHeeHee(int id) {
         return findById(id);
     }
 
-    public abstract void totallyBroken();
+    void totallyBroken();
 
 
     @Transaction
-    public void insertInSingleTransaction(final int id, final String name)
+    default void insertInSingleTransaction(final int id, final String name)
     {
         insert(id, name);
     }
 
     @Transaction
-    public void insertInNestedTransaction(final int id, final String name)
+    default void insertInNestedTransaction(final int id, final String name)
     {
         insertInSingleTransaction(id, name);
     }

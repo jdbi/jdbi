@@ -11,18 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.mixins;
-
-import java.io.Closeable;
+package org.jdbi.v3.extension;
 
 /**
- * A convenience mixin interface which defines the close() method.
+ * Callback for use with {@link org.jdbi.v3.DBI#withExtension}.
+ *
+ * @param <E> extension type
+ * @param <X> optional exception type thrown by the callback
  */
-public interface CloseMe extends Closeable
-{
+@FunctionalInterface
+public interface ExtensionConsumer<E, X extends Exception> {
     /**
-     * Close the underlying handle on the sql object
+     * Will be invoked with a live extension. The associated handle will be closed when this callback returns.
+     *
+     * @param extension extension to be used only within the scope of this callback.
+     * @throws X optional exception thrown by this callback.
      */
-    @Override
-    void close();
+    void useExtension(E extension) throws X;
 }
