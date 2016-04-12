@@ -18,14 +18,21 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.fasterxml.classmate.members.ResolvedMethod;
+
 /**
  * Use this annotation on a sql object method to create a new sql object with the same underlying handle as the sql
  * object the method is invoked on. Not supported with on-demand SQL objects.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@SqlMethodAnnotation
+@SqlMethodAnnotation(CreateSqlObject.Factory.class)
 public @interface CreateSqlObject
 {
-
+    class Factory implements HandlerFactory {
+        @Override
+        public Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config) {
+            return new CreateSqlObjectHandler(method.getRawMember().getReturnType(), config);
+        }
+    }
 }

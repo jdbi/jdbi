@@ -13,16 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.fasterxml.classmate.members.ResolvedMethod;
 
-/**
- * Annotation used to identify SQL method annotations. Use this to annotate an annotation.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
-@interface SqlMethodAnnotation {
-    Class<? extends HandlerFactory> value();
+interface HandlerFactory {
+    Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config);
 }

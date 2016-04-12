@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
@@ -115,31 +117,24 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
 
             final Map<Method, Handler> handlers = new HashMap<>();
             for (final ResolvedMethod method : d.getMemberMethods()) {
-                final Method raw_method = method.getRawMember();
+                final Method rawMethod = method.getRawMember();
 
-                if (raw_method.isAnnotationPresent(SqlQuery.class)) {
-                    handlers.put(raw_method, new QueryHandler(sqlObjectType, method, ResultReturnThing.forType(method)));
+                Optional<? extends Class<? extends HandlerFactory>> factoryClass = Stream.of(rawMethod.getAnnotations())
+                        .map(a -> a.annotationType().getAnnotation(SqlMethodAnnotation.class))
+                        .filter(Objects::nonNull)
+                        .map(a -> a.value())
+                        .findFirst();
+
+                if (factoryClass.isPresent()) {
+                    HandlerFactory factory = buildFactory(factoryClass.get());
+                    Handler handler = factory.buildHandler(sqlObjectType, method, config);
+                    handlers.put(rawMethod, handler);
                 }
-                else if (raw_method.isAnnotationPresent(SqlUpdate.class)) {
-                    handlers.put(raw_method, new UpdateHandler(sqlObjectType, method));
-                }
-                else if (raw_method.isAnnotationPresent(SqlBatch.class)) {
-                    handlers.put(raw_method, new BatchHandler(sqlObjectType, method));
-                }
-                else if (raw_method.isAnnotationPresent(SqlCall.class)) {
-                    handlers.put(raw_method, new CallHandler(sqlObjectType, method));
-                }
-                else if (raw_method.isAnnotationPresent(CreateSqlObject.class)) {
-                    handlers.put(raw_method, new CreateSqlObjectHandler(raw_method.getReturnType(), config));
-                }
-                else if (raw_method.isAnnotationPresent(Transaction.class)) {
-                    handlers.put(raw_method, new PassThroughTransactionHandler(raw_method, raw_method.getAnnotation(Transaction.class)));
-                }
-                else if (mixinHandlers.containsKey(raw_method)) {
-                    handlers.put(raw_method, mixinHandlers.get(raw_method));
+                else if (mixinHandlers.containsKey(rawMethod)) {
+                    handlers.put(rawMethod, mixinHandlers.get(rawMethod));
                 }
                 else {
-                    handlers.put(raw_method, new PassThroughHandler(raw_method));
+                    handlers.put(rawMethod, new PassThroughHandler(rawMethod));
                 }
             }
 
@@ -149,6 +144,16 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
 
             return handlers;
         });
+    }
+
+    private HandlerFactory buildFactory(Class<? extends HandlerFactory> factoryClazz) {
+        HandlerFactory factory;
+        try {
+            factory = factoryClazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new IllegalStateException("Factory class " + factoryClazz + "cannot be instantiated", e);
+        }
+        return factory;
     }
 
     private MethodInterceptor createMethodInterceptor(Map<Method, Handler> handlers, Supplier<Handle> handle) {
