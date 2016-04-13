@@ -59,7 +59,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
         batch.add("Brian");
         batch.add("Thom");
 
-        ResultColumnMapper<Integer> intMapper = (ResultColumnMapper<Integer>) new BuiltInMapperFactory().build(Integer.class, batch.getContext()).get();
+        ResultColumnMapper<Integer> intMapper = new BuiltInMapperFactory().build(Integer.class, batch.getContext()).get();
 
         List<Integer> ids = batch.executeAndGenerateKeys(intMapper, "id").list();
         assertEquals(Arrays.asList(1, 2), ids);

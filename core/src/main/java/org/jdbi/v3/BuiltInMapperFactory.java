@@ -68,6 +68,11 @@ public class BuiltInMapperFactory implements ResultColumnMapperFactory {
         mappers.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> Optional<ResultColumnMapper<T>> build(Class<T> type, StatementContext ctx) {
+        return (Optional<ResultColumnMapper<T>>) (Optional<?>) build((Type) type, ctx);
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
