@@ -332,13 +332,13 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(TransactionCallback<R, X> callback) throws X
     {
         return transactions.inTransaction(this, callback);
     }
 
     @Override
-    public void useTransaction(final TransactionConsumer callback)
+    public <X extends Exception> void useTransaction(final TransactionConsumer<X> callback) throws X
     {
         transactions.inTransaction(this, (handle, status) -> {
             callback.useTransaction(handle, status);
@@ -347,15 +347,15 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(TransactionIsolationLevel level,
-                                                 TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level,
+                                                    TransactionCallback<R, X> callback) throws X
     {
         final TransactionIsolationLevel initial = getTransactionIsolationLevel();
         boolean failed = true;
         try {
             setTransactionIsolation(level);
 
-            ReturnType result = transactions.inTransaction(this, level, callback);
+            R result = transactions.inTransaction(this, level, callback);
             failed = false;
 
             return result;
@@ -375,7 +375,8 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void useTransaction(TransactionIsolationLevel level, final TransactionConsumer callback)
+    public <X extends Exception> void useTransaction(TransactionIsolationLevel level,
+                                                     TransactionConsumer<X> callback) throws X
     {
         inTransaction(level, (handle, status) -> {
             callback.useTransaction(handle, status);

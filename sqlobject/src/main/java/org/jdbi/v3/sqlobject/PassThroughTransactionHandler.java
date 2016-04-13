@@ -35,14 +35,14 @@ class PassThroughTransactionHandler implements Handler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, final Object target, final Object[] args, final MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, final Object target, final Object[] args, final MethodProxy mp) throws Exception
     {
         Handle h = handle.get();
         if (h.isInTransaction()) {
             throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
         }
 
-        TransactionCallback<Object> callback = (conn, status) -> delegate.invoke(handle, target, args, mp);
+        TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(handle, target, args, mp);
 
         if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
             return h.inTransaction(callback);

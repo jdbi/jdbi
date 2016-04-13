@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject.mixins;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.exceptions.CallbackFailedException;
 import org.jdbi.v3.HandleCallback;
 import org.jdbi.v3.HandleConsumer;
 
@@ -38,16 +37,10 @@ public interface GetHandle
      *
      * @return the value returned by callback
      *
-     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
-     *                                 wrap the exception thrown by the callback.
+     * @throws X any exception thrown by the callback
      */
-    default <ReturnType> ReturnType withHandle(HandleCallback<ReturnType> callback) throws CallbackFailedException {
-        try {
-            return callback.withHandle(getHandle());
-        }
-        catch (Exception e) {
-            throw new CallbackFailedException(e);
-        }
+    default <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
+        return callback.withHandle(getHandle());
     }
 
     /**
@@ -56,13 +49,9 @@ public interface GetHandle
      *
      * @param consumer A consumer which will receive the handle associated to this sql object
      *
-     * @throws CallbackFailedException Will be thrown if callback raises an exception. This exception will
-     *                                 wrap the exception thrown by the callback.
+     * @throws X any exception thrown by the callback
      */
-    default void useHandle(HandleConsumer consumer) throws CallbackFailedException {
-        withHandle(handle -> {
-            consumer.useHandle(handle);
-            return null;
-        });
+    default <X extends Exception> void useHandle(HandleConsumer<X> consumer) throws X {
+        consumer.useHandle(getHandle());
     }
 }

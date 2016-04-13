@@ -21,5 +21,5 @@ import org.jdbi.v3.Handle;
 
 interface Handler
 {
-    Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp);
+    Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp) throws Exception;
 }

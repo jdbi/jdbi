@@ -74,12 +74,15 @@ public interface TransactionHandler
      * Run a transaction.
      * @see Handle#inTransaction(TransactionCallback)
      */
-    <ReturnType> ReturnType inTransaction(Handle handle, TransactionCallback<ReturnType> callback);
+    <R, X extends Exception> R inTransaction(Handle handle,
+                                             TransactionCallback<R, X> callback) throws X;
 
     /**
      * Run a transaction.
      * @see Handle#inTransaction(TransactionIsolationLevel, TransactionCallback)
      */
-    <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level, TransactionCallback<ReturnType> callback);
+    <R, X extends Exception> R inTransaction(Handle handle,
+                                             TransactionIsolationLevel level,
+                                             TransactionCallback<R, X> callback) throws X;
 
 }

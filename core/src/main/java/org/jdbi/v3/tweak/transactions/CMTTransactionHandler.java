@@ -126,24 +126,16 @@ public class CMTTransactionHandler implements TransactionHandler
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(final Handle handle, TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionCallback<R, X> callback) throws X
     {
-        try
-        {
-            return callback.inTransaction(handle, new ExplodingTransactionStatus(handle));
-        } catch (Exception e)
-        {
-            if (e instanceof RuntimeException)
-            {
-                throw (RuntimeException) e;
-            }
-            throw new TransactionException(e);
-        }
+        return callback.inTransaction(handle, new ExplodingTransactionStatus(handle));
     }
 
     @Override
-    public <ReturnType> ReturnType inTransaction(Handle handle, TransactionIsolationLevel level,
-            TransactionCallback<ReturnType> callback)
+    public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionIsolationLevel level,
+                                                    TransactionCallback<R, X> callback) throws X
     {
         return inTransaction(handle, callback);
     }

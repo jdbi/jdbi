@@ -18,18 +18,18 @@ import java.util.function.Supplier;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.Transaction;
 import org.jdbi.v3.TransactionIsolationLevel;
+import org.jdbi.v3.sqlobject.mixins.Transactional;
 
 class InTransactionWithIsolationLevelHandler implements Handler
 {
     @Override
-    public Object invoke(Supplier<Handle> handle, final Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, final Object target, Object[] args, MethodProxy mp) throws Exception
     {
         @SuppressWarnings("unchecked")
-        final Transaction<Object, Object> t = (Transaction<Object, Object>) args[1];
+        final TransactionalCallback callback = (TransactionalCallback) args[1];
         final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];
 
-        return handle.get().inTransaction(level, (conn, status) -> t.inTransaction(target, status));
+        return handle.get().inTransaction(level, (conn, status) -> callback.inTransaction((Transactional) target, status));
     }
 }
