@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 
 public class TestingStatementContext implements StatementContext
 {
@@ -56,7 +56,7 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
-    public Optional<ResultColumnMapper<?>> findColumnMapperFor(Type type) {
+    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
         return mappers.findColumnMapperFor(type, this);
     }
 
@@ -145,7 +145,7 @@ public class TestingStatementContext implements StatementContext
         throw new UnsupportedOperationException();
     }
 
-    public void registerColumnMapper(ResultColumnMapper<?> m) {
+    public void registerColumnMapper(ColumnMapper<?> m) {
         mappers.addColumnMapper(m);
     }
 

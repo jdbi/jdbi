@@ -23,7 +23,7 @@ import org.jdbi.v3.StatementContext;
  * @see StatementContext#findColumnMapperFor(java.lang.reflect.Type)
  */
 @FunctionalInterface
-public interface ResultColumnMapper<T>
+public interface ColumnMapper<T>
 {
     /**
      * Map the given column of the current row of the result set to an Object. This method should not cause the result
@@ -34,7 +34,7 @@ public interface ResultColumnMapper<T>
      * @return the value to return for this column
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */
-    T mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException;
+    T map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException;
 
     /**
      * Map the given column of the current row of the result set to an Object. This method should not cause the result
@@ -45,7 +45,7 @@ public interface ResultColumnMapper<T>
      * @return the value to return for this column
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */
-    default T mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return mapColumn(r, r.findColumn(columnLabel), ctx);
+    default T map(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
+        return map(r, r.findColumn(columnLabel), ctx);
     }
 }

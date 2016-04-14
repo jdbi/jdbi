@@ -18,12 +18,12 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
-public class SomethingMapper implements ResultSetMapper<Something>
+public class SomethingMapper implements RowMapper<Something>
 {
     @Override
-    public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
+    public Something map(ResultSet r, StatementContext ctx) throws SQLException
     {
         return new Something(r.getInt("id"), r.getString("name"));
     }

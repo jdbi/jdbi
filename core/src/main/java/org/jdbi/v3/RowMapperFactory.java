@@ -16,20 +16,20 @@ package org.jdbi.v3;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
 /**
- * Factory interface used to produce column mappers.
+ * Factory interface used to produce row mappers.
  */
 @FunctionalInterface
-public interface ResultColumnMapperFactory
+public interface RowMapperFactory
 {
     /**
-     * Supplies a result column mapper which will map columns to type if the factory supports it; empty otherwise.
+     * Supplies a row mapper which will map result set rows to type if the factory supports it; empty otherwise.
      *
      * @param type the target type to map to
      * @param ctx the statement context.
      * @see StatementContext#findColumnMapperFor(Type)
      */
-    Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx);
+    Optional<RowMapper<?>> build(Type type, StatementContext ctx);
 }

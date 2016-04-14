@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 
 public final class ConcreteStatementContext implements StatementContext
 {
@@ -102,7 +102,7 @@ public final class ConcreteStatementContext implements StatementContext
     }
 
     @Override
-    public Optional<ResultColumnMapper<?>> findColumnMapperFor(Type type)
+    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type)
     {
         return mappingRegistry.findColumnMapperFor(type, this);
     }

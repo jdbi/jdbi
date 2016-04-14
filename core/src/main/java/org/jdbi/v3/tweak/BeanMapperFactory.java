@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.BeanMapper;
-import org.jdbi.v3.ResultSetMapperFactory;
+import org.jdbi.v3.RowMapperFactory;
 import org.jdbi.v3.StatementContext;
 
-public class BeanMapperFactory implements ResultSetMapperFactory
+public class BeanMapperFactory implements RowMapperFactory
 {
     private final List<Class<?>> beanClasses;
 
@@ -38,7 +38,7 @@ public class BeanMapperFactory implements ResultSetMapperFactory
     }
 
     @Override
-    public Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
         return Optional.of(getErasedType(type))
                 .filter(beanClasses::contains)
                 .map(BeanMapper::new);

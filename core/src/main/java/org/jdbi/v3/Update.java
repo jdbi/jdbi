@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -74,7 +74,7 @@ public class Update extends SQLStatement<Update>
      * @param columnName name of the column that generates the key
      * @return the generated key or null if none was returned
      */
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper, String columnName)
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final RowMapper<GeneratedKeyType> mapper, String columnName)
     {
         getConcreteContext().setReturningGeneratedKeys(true);
         if (columnName != null && !columnName.isEmpty()) {
@@ -86,20 +86,20 @@ public class Update extends SQLStatement<Update>
                 getContext());
     }
 
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultSetMapper<GeneratedKeyType> mapper) {
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final RowMapper<GeneratedKeyType> mapper) {
         return executeAndReturnGeneratedKeys(mapper, null);
     }
 
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final ColumnMapper<GeneratedKeyType> mapper) {
         return executeAndReturnGeneratedKeys(new SingleColumnMapper<>(mapper), null);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(GenericType<GeneratedKeyType> generatedKeyType) {
-        return executeAndReturnGeneratedKeys(new RegisteredMapper<>(generatedKeyType.getType(), mappingRegistry), null);
+        return executeAndReturnGeneratedKeys(new RegisteredRowMapper<>(generatedKeyType.getType(), mappingRegistry), null);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(Class<GeneratedKeyType> generatedKeyType) {
-        return executeAndReturnGeneratedKeys(new RegisteredMapper<>(generatedKeyType, mappingRegistry), null);
+        return executeAndReturnGeneratedKeys(new RegisteredRowMapper<>(generatedKeyType, mappingRegistry), null);
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

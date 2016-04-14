@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
@@ -110,7 +110,7 @@ public class TestVariousOddities
     public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Something byId(@Bind("id") long id);
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")

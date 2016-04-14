@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class TestCustomBinder
     public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :it.id")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Something findSame(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something something);
 
         @SqlUpdate("insert into something (id, name) values (:s.id, :s.name)")

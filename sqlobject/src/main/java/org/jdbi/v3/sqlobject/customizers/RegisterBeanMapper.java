@@ -52,7 +52,7 @@ public @interface RegisterBeanMapper
         private SqlStatementCustomizer create(RegisterBeanMapper annotation) {
             return statement -> {
                 Query<?> query = (Query<?>) statement;
-                query.registerMapper(new BeanMapperFactory(annotation.value()));
+                query.registerRowMapper(new BeanMapperFactory(annotation.value()));
             };
         }
     }

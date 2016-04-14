@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class TestClasspathStatementLocator {
         assertThat(s.getName(), equalTo("Martin"));
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     interface Cromulence {
         @SqlQuery
         Something findById(@Bind("id") Long id);

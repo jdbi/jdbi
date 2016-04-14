@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 import org.junit.Test;
 
 public class ConcreteStatementContextTest {
@@ -45,16 +45,16 @@ public class ConcreteStatementContextTest {
     private static class Foo {
     }
 
-    private static class FooMapper implements ResultColumnMapper<Foo> {
+    private static class FooMapper implements ColumnMapper<Foo> {
         @Override
-        public Foo mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        public Foo map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             return null;
         }
     }
 
     @Test
     public void testMapperForDelegatesToRegistry() {
-        ResultColumnMapper<?> mapper = new FooMapper();
+        ColumnMapper<?> mapper = new FooMapper();
 
         MappingRegistry registry = new MappingRegistry();
         registry.addColumnMapper(mapper);

@@ -28,18 +28,18 @@ import org.jdbi.v3.Query;
 import org.jdbi.v3.ResultBearing;
 import org.jdbi.v3.ResultIterator;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
 abstract class ResultReturnThing
 {
     public Object map(ResolvedMethod method, Query<?> q, Supplier<Handle> handle)
     {
-        if (method.getRawMember().isAnnotationPresent(Mapper.class)) {
-            final ResultSetMapper<?> mapper;
+        if (method.getRawMember().isAnnotationPresent(UseRowMapper.class)) {
+            final RowMapper<?> mapper;
             try {
-                mapper = method.getRawMember().getAnnotation(Mapper.class).value().newInstance();
+                mapper = method.getRawMember().getAnnotation(UseRowMapper.class).value().newInstance();
             }
             catch (Exception e) {
                 throw new UnableToCreateStatementException("unable to access mapper", e, null);

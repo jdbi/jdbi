@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.Locale;
 
 import org.jdbi.v3.exceptions.ResultSetException;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -40,11 +40,11 @@ import org.jdbi.v3.tweak.StatementRewriter;
  */
 public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements ResultBearing<ResultType>
 {
-    private final ResultSetMapper<ResultType> mapper;
+    private final RowMapper<ResultType> mapper;
     private final MappingRegistry             mappingRegistry;
 
     Query(Binding params,
-          ResultSetMapper<ResultType> mapper,
+          RowMapper<ResultType> mapper,
           StatementLocator locator,
           StatementRewriter statementRewriter,
           Handle handle,
@@ -107,10 +107,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see DBI#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
-     * @see DBI#registerMapper(ResultSetMapperFactory)
-     * @see Handle#registerMapper(ResultSetMapperFactory)
-     * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     * @see DBI#registerRowMapper(RowMapper)
+     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Handle#registerRowMapper(RowMapperFactory)
+     * @see Handle#registerRowMapper(RowMapper)
      */
     public <T> Query<T> mapTo(Class<T> resultType)
     {
@@ -124,10 +124,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see DBI#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
-     * @see DBI#registerMapper(ResultSetMapperFactory)
-     * @see Handle#registerMapper(ResultSetMapperFactory)
-     * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     * @see DBI#registerRowMapper(RowMapper)
+     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Handle#registerRowMapper(RowMapperFactory)
+     * @see Handle#registerRowMapper(RowMapper)
      */
     public <T> Query<T> mapTo(GenericType<T> resultType)
     {
@@ -141,16 +141,16 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see DBI#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
-     * @see DBI#registerMapper(ResultSetMapperFactory)
-     * @see Handle#registerMapper(ResultSetMapperFactory)
-     * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
+     * @see DBI#registerRowMapper(RowMapper)
+     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Handle#registerRowMapper(RowMapperFactory)
+     * @see Handle#registerRowMapper(RowMapper)
      */
     public Query mapTo(Type resultType) {
-        return this.map(new RegisteredMapper(resultType, mappingRegistry));
+        return this.map(new RegisteredRowMapper(resultType, mappingRegistry));
     }
 
-    public <T> Query<T> map(ResultSetMapper<T> mapper)
+    public <T> Query<T> map(RowMapper<T> mapper)
     {
         return new Query<>(getParameters(),
                 mapper,
@@ -184,7 +184,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     /**
-     * Specify the maimum number of rows the query is to return. This uses the underlying JDBC
+     * Specify the maximum number of rows the query is to return. This uses the underlying JDBC
      * {@link Statement#setMaxRows(int)}}.
      *
      * @param maxRows maximum number of rows to return
@@ -198,7 +198,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     /**
-     * Specify the maimum field size in the result set. This uses the underlying JDBC
+     * Specify the maximum field size in the result set. This uses the underlying JDBC
      * {@link Statement#setMaxFieldSize(int)}
      *
      * @param maxFields maximum field size
@@ -248,22 +248,22 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
         return this;
     }
 
-    public void registerMapper(ResultSetMapper<?> m)
+    public void registerRowMapper(RowMapper<?> m)
     {
-        this.mappingRegistry.addMapper(new InferredMapperFactory(m));
+        this.mappingRegistry.addRowMapper(new InferredMapperFactory(m));
     }
 
-    public void registerMapper(ResultSetMapperFactory m)
+    public void registerRowMapper(RowMapperFactory m)
     {
-        this.mappingRegistry.addMapper(m);
+        this.mappingRegistry.addRowMapper(m);
     }
 
-    public void registerColumnMapper(ResultColumnMapper<?> m)
+    public void registerColumnMapper(ColumnMapper<?> m)
     {
         this.mappingRegistry.addColumnMapper(m);
     }
 
-    public void registerColumnMapper(ResultColumnMapperFactory m)
+    public void registerColumnMapper(ColumnMapperFactory m)
     {
         this.mappingRegistry.addColumnMapper(m);
     }

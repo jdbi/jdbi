@@ -37,8 +37,8 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -204,7 +204,7 @@ public class TestDocumentation
         }
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface AnotherQuery
     {
         @SqlQuery("select id, name from something where id = :id")
@@ -214,7 +214,7 @@ public class TestDocumentation
     public interface YetAnotherQuery
     {
         @SqlQuery("select id, name from something where id = :id")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Something findById(@Bind("id") int id);
     }
 

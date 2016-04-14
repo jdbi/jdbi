@@ -15,7 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class TestOptionalParameters {
         assertThat(dao.findIds(Optional.empty()), equalTo(ImmutableList.of(1, 2)));
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface DAO {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") long id, @Bind("name") String name);

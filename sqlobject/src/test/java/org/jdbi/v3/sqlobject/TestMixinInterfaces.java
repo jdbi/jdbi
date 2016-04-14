@@ -23,7 +23,7 @@ import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.junit.After;
@@ -170,7 +170,7 @@ public class TestMixinInterfaces
     {
 
         @SqlQuery("select id, name from something where id = :id")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Something byId(@Bind("id") long id);
 
         @SqlUpdate("update something set name = :name where id = :id")

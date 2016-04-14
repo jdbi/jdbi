@@ -18,22 +18,22 @@ import static org.jdbi.v3.Types.findGenericParameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
-class InferredMapperFactory implements ResultSetMapperFactory
+class InferredMapperFactory implements RowMapperFactory
 {
     private final Type maps;
-    private final ResultSetMapper<?> mapper;
+    private final RowMapper<?> mapper;
 
-    InferredMapperFactory(ResultSetMapper<?> mapper)
+    InferredMapperFactory(RowMapper<?> mapper)
     {
-        this.maps = findGenericParameter(mapper.getClass(), ResultSetMapper.class)
-                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ResultColumnMapper here"));
+        this.maps = findGenericParameter(mapper.getClass(), RowMapper.class)
+                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed RowMapper here"));
         this.mapper = mapper;
     }
 
     @Override
-    public Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
         return maps.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.Maps;
 
@@ -117,7 +116,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        Query<String> query = h.createQuery("select name from something order by id").map((index, r, ctx) -> r.getString(1));
+        Query<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
 
         String name = query.list().get(0);
         assertEquals("eric", name);
@@ -333,7 +332,7 @@ public class TestQueries
          .execute();
 
         Map<String, Integer> rs = h.createQuery("select id, name from something")
-                .<Entry<String, Integer>>map((i, r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
+                .<Entry<String, Integer>>map((r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
                 .collect(toMap(Entry::getKey, Entry::getValue));
 
         assertEquals(2, rs.size());

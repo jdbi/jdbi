@@ -61,7 +61,7 @@ public class BeanMapperTest {
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertEquals(aLongVal, sampleBean.getLongField());
     }
@@ -75,7 +75,7 @@ public class BeanMapperTest {
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertEquals(aLongVal, sampleBean.getLongField());
     }
@@ -89,7 +89,7 @@ public class BeanMapperTest {
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertEquals(aLongVal, sampleBean.getLongField());
     }
@@ -98,7 +98,7 @@ public class BeanMapperTest {
     public void shouldHandleEmptyResult() throws Exception {
         when(resultSetMetaData.getColumnCount()).thenReturn(0);
 
-        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertNotNull(sampleBean);
     }
@@ -111,7 +111,7 @@ public class BeanMapperTest {
         Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
-        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertEquals(aLongVal, sampleBean.getLongField());
 
@@ -125,7 +125,7 @@ public class BeanMapperTest {
         when(resultSet.getLong(1)).thenReturn(0L);
         when(resultSet.wasNull()).thenReturn(true);
 
-        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertNull(sampleBean.getLongField());
 
@@ -140,7 +140,7 @@ public class BeanMapperTest {
         when(resultSet.getLong(1)).thenReturn(expected);
         when(resultSet.wasNull()).thenReturn(false);
 
-        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertEquals(expected, sampleBean.getLongField());
     }
@@ -154,7 +154,7 @@ public class BeanMapperTest {
         when(resultSet.getString(1)).thenReturn(expected);
         when(resultSet.wasNull()).thenReturn(false);
 
-        mapper.map(0, resultSet, ctx);
+        mapper.map(resultSet, ctx);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -166,7 +166,7 @@ public class BeanMapperTest {
         when(resultSet.getInt(1)).thenReturn(expected);
         when(resultSet.wasNull()).thenReturn(false);
 
-        mapper.map(0, resultSet, ctx);
+        mapper.map(resultSet, ctx);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -178,7 +178,7 @@ public class BeanMapperTest {
         when(resultSet.getBigDecimal(1)).thenReturn(expected);
         when(resultSet.wasNull()).thenReturn(false);
 
-        mapper.map(0, resultSet, ctx);
+        mapper.map(resultSet, ctx);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class BeanMapperTest {
 
         BeanMapper<DerivedBean> mapper = new BeanMapper<>(DerivedBean.class);
 
-        DerivedBean derivedBean = mapper.map(0, resultSet, ctx);
+        DerivedBean derivedBean = mapper.map(resultSet, ctx);
 
         assertEquals(aLongVal, derivedBean.getLongField());
         assertEquals(bLongVal, derivedBean.getBlongField());
@@ -214,7 +214,7 @@ public class BeanMapperTest {
         when(resultSet.getString(2)).thenReturn("foo");
         when(resultSet.wasNull()).thenReturn(false);
 
-        SampleBean sampleBean = mapper.map(0, resultSet, ctx);
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         Long expected = 123L;
         assertEquals(expected, sampleBean.getLongField());
@@ -231,6 +231,6 @@ public class BeanMapperTest {
         when(resultSet.getObject(2)).thenReturn(new Object());
         when(resultSet.wasNull()).thenReturn(false);
 
-        mapper.map(0, resultSet, ctx);
+        mapper.map(resultSet, ctx);
     }
 }

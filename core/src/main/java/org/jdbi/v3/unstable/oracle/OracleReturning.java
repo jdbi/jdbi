@@ -23,7 +23,7 @@ import java.util.List;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.BaseStatementCustomizer;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementCustomizer;
 
 /**
@@ -36,7 +36,7 @@ import org.jdbi.v3.tweak.StatementCustomizer;
  * {
  *     Handle h = dbi.open();
  * <p/>
- *     OracleReturning&lt;Integer&gt; or = new OracleReturning&lt;Integer&gt;(new ResultSetMapper&lt;Integer&gt;() {
+ *     OracleReturning&lt;Integer&gt; or = new OracleReturning&lt;Integer&gt;(new RowMapper&lt;Integer&gt;() {
  *         public Integer map(int index, ResultSet r) throws SQLException
  *         {
  *             return r.getInt(1);
@@ -60,7 +60,7 @@ import org.jdbi.v3.tweak.StatementCustomizer;
 @Deprecated
 public class OracleReturning<ResultType> extends BaseStatementCustomizer implements StatementCustomizer
 {
-    private final ResultSetMapper<ResultType> mapper;
+    private final RowMapper<ResultType> mapper;
     private final List<int[]> binds = new ArrayList<>();
     private StatementContext context;
     private List<ResultType> results;
@@ -75,7 +75,7 @@ public class OracleReturning<ResultType> extends BaseStatementCustomizer impleme
      *
      * @param mapper Must use only positional access to the result set
      */
-    public OracleReturning(ResultSetMapper<ResultType> mapper)
+    public OracleReturning(RowMapper<ResultType> mapper)
     {
         this.mapper = mapper;
         try {
@@ -139,7 +139,7 @@ public class OracleReturning<ResultType> extends BaseStatementCustomizer impleme
         try {
             int i = 0;
             while (rs.next()) {
-                results.add(mapper.map(i++, rs, context));
+                results.add(mapper.map(rs, context));
             }
         }
         catch (SQLException e) {

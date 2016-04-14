@@ -22,17 +22,17 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.util.SingleColumnMapper;
 
 class MappingRegistry
 {
-    private final List<ResultSetMapperFactory> rowFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<Type, ResultSetMapper<?>> rowCache = new ConcurrentHashMap<>();
+    private final List<RowMapperFactory> rowFactories = new CopyOnWriteArrayList<>();
+    private final ConcurrentHashMap<Type, RowMapper<?>> rowCache = new ConcurrentHashMap<>();
 
-    private final List<ResultColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<Type, ResultColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
+    private final List<ColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
+    private final ConcurrentHashMap<Type, ColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
 
     MappingRegistry() {
         columnFactories.add(new BuiltInMapperFactory());
@@ -49,19 +49,19 @@ class MappingRegistry
         return new MappingRegistry(registry);
     }
 
-    public void addMapper(ResultSetMapper<?> mapper)
+    public void addRowMapper(RowMapper<?> mapper)
     {
-        this.addMapper(new InferredMapperFactory(mapper));
+        this.addRowMapper(new InferredMapperFactory(mapper));
     }
 
-    public void addMapper(ResultSetMapperFactory factory)
+    public void addRowMapper(RowMapperFactory factory)
     {
         rowFactories.add(0, factory);
         rowCache.clear();
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<ResultSetMapper<?>> findMapperFor(Type type, StatementContext ctx) {
+    public Optional<RowMapper<?>> findRowMapperFor(Type type, StatementContext ctx) {
         return Optional.ofNullable(rowCache.computeIfAbsent(type, t ->
                 findFirstPresent(
                         () -> rowFactories.stream()
@@ -72,17 +72,17 @@ class MappingRegistry
                         .orElse(null)));
     }
 
-    public void addColumnMapper(ResultColumnMapper<?> mapper)
+    public void addColumnMapper(ColumnMapper<?> mapper)
     {
         this.addColumnMapper(new InferredColumnMapperFactory(mapper));
     }
 
-    public void addColumnMapper(ResultColumnMapperFactory factory) {
+    public void addColumnMapper(ColumnMapperFactory factory) {
         columnFactories.add(0, factory);
         columnCache.clear();
     }
 
-    public Optional<ResultColumnMapper<?>> findColumnMapperFor(Type type, StatementContext ctx) {
+    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type, StatementContext ctx) {
         return Optional.ofNullable(columnCache.computeIfAbsent(type, t ->
                 columnFactories.stream()
                         .flatMap(factory -> toStream(factory.build(t, ctx)))

@@ -25,9 +25,9 @@ import java.util.function.Function;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RewrittenStatement;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -108,7 +108,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     }
 
     @SuppressWarnings("unchecked")
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultSetMapper<GeneratedKeyType> mapper) {
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final RowMapper<GeneratedKeyType> mapper) {
         return (GeneratedKeys<GeneratedKeyType>) internalBatchExecute(results ->
                 new GeneratedKeys<>(mapper,
                                     PreparedBatch.this,
@@ -117,30 +117,35 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     }
 
     @SuppressWarnings("unchecked")
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultSetMapper<GeneratedKeyType> mapper,
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final RowMapper<GeneratedKeyType> mapper,
                                                                                      String... columnNames) {
         return (GeneratedKeys<GeneratedKeyType>) internalBatchExecute(results ->
-                new GeneratedKeys<GeneratedKeyType>(mapper,
+                new GeneratedKeys<>(mapper,
                         PreparedBatch.this,
                         results,
                         getContext()), columnNames);
     }
 
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ResultColumnMapper<GeneratedKeyType> mapper) {
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ColumnMapper<GeneratedKeyType> mapper) {
         return executeAndGenerateKeys(new SingleColumnMapper<>(mapper));
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(GenericType<GeneratedKeyType> generatedKeyType) {
-        return executeAndGenerateKeys(new RegisteredMapper<>(generatedKeyType.getType(), mappingRegistry));
+        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType.getType(), mappingRegistry));
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType) {
-        return executeAndGenerateKeys(new RegisteredMapper<>(generatedKeyType, mappingRegistry));
+        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType, mappingRegistry));
     }
 
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(ResultColumnMapper<GeneratedKeyType> mapper,
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType,
                                                                                      String... columnNames) {
-        return executeAndGenerateKeys(new SingleColumnMapper<GeneratedKeyType>(mapper), columnNames);
+        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType, mappingRegistry), columnNames);
+    }
+
+    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(ColumnMapper<GeneratedKeyType> mapper,
+                                                                                     String columnName) {
+        return executeAndGenerateKeys(new SingleColumnMapper<>(mapper, columnName), new String[] { columnName });
     }
 
     private <Result> Object internalBatchExecute(Function<PreparedStatement, Result> munger, String[] columnNames) {

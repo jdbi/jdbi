@@ -19,22 +19,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
-class FigureItOutResultSetMapper implements ResultSetMapper<Object> {
+class FigureItOutRowMapper implements RowMapper<Object> {
     @Override
-    public Object map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    public Object map(ResultSet r, StatementContext ctx) throws SQLException {
         Method m = ctx.getSqlObjectMethod();
         Type type = m.getGenericReturnType();
         GetGeneratedKeys ggk = m.getAnnotation(GetGeneratedKeys.class);
         String keyColumn = ggk.columnName();
 
-        ResultColumnMapper<?> columnMapper = ctx.findColumnMapperFor(type)
+        ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(type)
                 .orElseThrow(() -> new IllegalStateException("No column mapper for " + type));
 
         return "".equals(keyColumn)
-                ? columnMapper.mapColumn(r, 1, ctx)
-                : columnMapper.mapColumn(r, keyColumn, ctx);
+                ? columnMapper.map(r, 1, ctx)
+                : columnMapper.map(r, keyColumn, ctx);
     }
 }

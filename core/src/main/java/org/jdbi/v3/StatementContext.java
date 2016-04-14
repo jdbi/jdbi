@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -63,9 +63,9 @@ public interface StatementContext
      * Obtain a column mapper for the given type in this context.
      *
      * @param type the target type to map to
-     * @return a ResultColumnMapper for the given type, or null if no column mapper is registered for the given type.
+     * @return a ColumnMapper for the given type, or null if no column mapper is registered for the given type.
      */
-    Optional<ResultColumnMapper<?>> findColumnMapperFor(Type type);
+    Optional<ColumnMapper<?>> findColumnMapperFor(Type type);
 
     /**
      * Obtain an argument for given value in this context

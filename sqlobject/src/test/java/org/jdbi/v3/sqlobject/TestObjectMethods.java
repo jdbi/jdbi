@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -76,7 +76,7 @@ public class TestObjectMethods
     }
 
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface DAO
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

@@ -20,21 +20,20 @@ import java.util.NoSuchElementException;
 
 import org.jdbi.v3.exceptions.NoResultsException;
 import org.jdbi.v3.exceptions.ResultSetException;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
 class ResultSetResultIterator<Type> implements ResultIterator<Type>
 {
-    private final ResultSetMapper<Type> mapper;
+    private final RowMapper<Type> mapper;
     private final SQLStatement<?> jdbiStatement;
     private final ResultSet results;
     private final StatementContext context;
 
     private volatile boolean alreadyAdvanced = false;
-    private volatile int count = 0;
     private volatile boolean hasNext = false;
     private volatile boolean closed = false;
 
-    ResultSetResultIterator(ResultSetMapper<Type> mapper,
+    ResultSetResultIterator(RowMapper<Type> mapper,
                             SQLStatement<?> jdbiStatement,
                             Statement stmt,
                             ResultSet results,
@@ -98,7 +97,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
         }
 
         try {
-            return mapper.map(count++, results, context);
+            return mapper.map(results, context);
         }
         catch (SQLException e) {
             throw new ResultSetException("Error thrown mapping result set into return type", e, context);
