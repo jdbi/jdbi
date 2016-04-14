@@ -38,10 +38,10 @@ import org.jdbi.v3.exceptions.DBIException;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.spi.JdbiPlugin;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -168,15 +168,15 @@ public class TestOnDemandSqlObject
         void insert(@Bind("id") long id, @Bind("name") String name);
 
         @SqlQuery("select name, id from something")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         ResultIterator<Something> findAll();
 
         @SqlQuery("select * from crash now")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Iterator<Something> crashNow();
 
         @SqlQuery("select name, id from something")
-        @Mapper(CrashingMapper.class)
+        @UseRowMapper(CrashingMapper.class)
         Iterator<Something> crashOnFirstRead();
 
     }
@@ -184,7 +184,7 @@ public class TestOnDemandSqlObject
     public interface TransactionStuff extends GetHandle, Transactional<TransactionStuff>
     {
         @SqlQuery("select id, name from something where id = :id")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Something byId(@Bind("id") long id);
 
         @SqlUpdate("update something set name = :name where id = :id")
@@ -197,14 +197,14 @@ public class TestOnDemandSqlObject
     public interface ExternalSql extends GetHandle
     {
         @SqlQuery("all-something")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         List<Something> findAll();
     }
 
-    static class CrashingMapper implements ResultSetMapper<Something>
+    static class CrashingMapper implements RowMapper<Something>
     {
         @Override
-        public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        public Something map(ResultSet r, StatementContext ctx) throws SQLException
         {
             throw new SQLException("protocol error");
         }

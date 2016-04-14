@@ -24,8 +24,8 @@ import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.CollectorFactory;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
@@ -236,32 +236,32 @@ public interface Handle extends Closeable
     void setTimingCollector(TimingCollector timingCollector);
 
     /**
-     * Register a result set mapper which will have its parameterized type inspected to determine what it maps to
+     * Register a row mapper which will have its parameterized type inspected to determine what it maps to
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
-    void registerMapper(ResultSetMapper<?> mapper);
+    void registerRowMapper(RowMapper<?> mapper);
 
     /**
-     * Register a result set mapper factory.
+     * Register a row mapper factory.
      *
      * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
      */
-    void registerMapper(ResultSetMapperFactory factory);
+    void registerRowMapper(RowMapperFactory factory);
 
     /**
-     * Register a result column mapper which will have its parameterized type inspected to determine what it maps to
+     * Register a column mapper which will have its parameterized type inspected to determine what it maps to
      *
-     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
      */
-    void registerColumnMapper(ResultColumnMapper<?> mapper);
+    void registerColumnMapper(ColumnMapper<?> mapper);
 
     /**
-     * Register a result column mapper factory.
+     * Register a column mapper factory.
      *
-     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
      */
-    void registerColumnMapper(ResultColumnMapperFactory factory);
+    void registerColumnMapper(ColumnMapperFactory factory);
 
     /**
      * Create a JDBI extension object of the specified type bound to this handle. The returned extension's lifecycle is

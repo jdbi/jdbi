@@ -28,7 +28,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -132,7 +132,7 @@ public class TestTransactionAnnotation
         es.shutdown();
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface Other
     {
         @Transaction
@@ -149,7 +149,7 @@ public class TestTransactionAnnotation
         Something find(@Bind("id") int id);
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface Dao
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

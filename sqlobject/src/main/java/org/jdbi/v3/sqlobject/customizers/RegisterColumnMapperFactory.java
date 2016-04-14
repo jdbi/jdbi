@@ -21,13 +21,13 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.Query;
-import org.jdbi.v3.ResultColumnMapperFactory;
+import org.jdbi.v3.ColumnMapperFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
 /**
- * Used to register a result column mapper with either a sql object type or for a specific method.
+ * Used to register a column mapper with either a sql object type or for a specific method.
  */
 @SqlStatementCustomizingAnnotation(RegisterColumnMapperFactory.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -35,9 +35,9 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 public @interface RegisterColumnMapperFactory
 {
     /**
-     * The result column mapper factory class to register
+     * The column mapper factory class to register
      */
-    Class<? extends ResultColumnMapperFactory>[] value();
+    Class<? extends ColumnMapperFactory>[] value();
 
     class Factory implements SqlStatementCustomizerFactory
     {
@@ -55,21 +55,21 @@ public @interface RegisterColumnMapperFactory
         }
 
         private SqlStatementCustomizer create(RegisterColumnMapperFactory ma) {
-            final ResultColumnMapperFactory[] m = new ResultColumnMapperFactory[ma.value().length];
+            final ColumnMapperFactory[] m = new ColumnMapperFactory[ma.value().length];
             try {
-                Class<? extends ResultColumnMapperFactory>[] mcs = ma.value();
+                Class<? extends ColumnMapperFactory>[] mcs = ma.value();
                 for (int i = 0; i < mcs.length; i++) {
                     m[i] = mcs[i].newInstance();
                 }
 
             }
             catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified result column mapper", e);
+                throw new IllegalStateException("unable to create a specified column mapper factory", e);
             }
             return statement -> {
                 if (statement instanceof Query) {
                     Query<?> q = (Query<?>) statement;
-                    for (ResultColumnMapperFactory factory : m) {
+                    for (ColumnMapperFactory factory : m) {
                         q.registerColumnMapper(factory);
                     }
 

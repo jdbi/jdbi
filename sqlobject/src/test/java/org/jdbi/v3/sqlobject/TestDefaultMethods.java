@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class TestDefaultMethods
     public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Something byId(@Bind("id") int id);
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")

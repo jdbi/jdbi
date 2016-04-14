@@ -21,19 +21,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 
-public class ValueTypeMapper implements ResultColumnMapper<ValueType> {
+public class ValueTypeMapper implements ColumnMapper<ValueType> {
     public ValueTypeMapper() {}
 
     @Override
-    public ValueType mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+    public ValueType map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         return ValueType.valueOf(r.getString(columnNumber));
     }
 
-    public static class Factory implements ResultColumnMapperFactory {
+    public static class Factory implements ColumnMapperFactory {
         @Override
-        public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
+        public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
             return ValueType.class.isAssignableFrom(getErasedType(type))
                     ? Optional.of(new ValueTypeMapper())
                     : Optional.empty();

@@ -25,7 +25,7 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Update;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
 class UpdateHandler extends CustomizingStatementHandler
 {
@@ -44,12 +44,12 @@ class UpdateHandler extends CustomizingStatementHandler
 
             final ResultReturnThing magic = ResultReturnThing.forType(method);
             final GetGeneratedKeys ggk = method.getRawMember().getAnnotation(GetGeneratedKeys.class);
-            final ResultSetMapper<?> mapper;
+            final RowMapper<?> mapper;
             try {
                 mapper = ggk.value().newInstance();
             }
             catch (Exception e) {
-                throw new UnableToCreateStatementException("Unable to instantiate result set mapper for statement", e, null);
+                throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
             }
             this.returner = (update, handle) -> {
                 GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());

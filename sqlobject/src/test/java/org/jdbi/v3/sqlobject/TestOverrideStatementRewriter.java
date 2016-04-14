@@ -23,7 +23,7 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.HashPrefixStatementRewriter;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.OverrideStatementRewriterWith;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class TestOverrideStatementRewriter
 
 
     @OverrideStatementRewriterWith(HashPrefixStatementRewriter.class)
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     interface Hashed
     {
         @SqlUpdate("insert into something (id, name) values (#id, #name)")

@@ -24,10 +24,10 @@ import org.jdbi.v3.Query;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 
 /**
- * Used to register a result column mapper with either a sql object type or for a specific method.
+ * Used to register a column mapper with either a sql object type or for a specific method.
  */
 @SqlStatementCustomizingAnnotation(RegisterColumnMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -35,9 +35,9 @@ import org.jdbi.v3.tweak.ResultColumnMapper;
 public @interface RegisterColumnMapper
 {
     /**
-     * The result column mapper class to register
+     * The column mapper class to register
      */
-    Class<? extends ResultColumnMapper<?>>[] value();
+    Class<? extends ColumnMapper<?>>[] value();
 
     class Factory implements SqlStatementCustomizerFactory
     {
@@ -54,20 +54,20 @@ public @interface RegisterColumnMapper
         }
 
         private SqlStatementCustomizer create(RegisterColumnMapper ma) {
-            final ResultColumnMapper<?>[] m = new ResultColumnMapper[ma.value().length];
+            final ColumnMapper<?>[] m = new ColumnMapper[ma.value().length];
             try {
-                Class<? extends ResultColumnMapper<?>>[] mcs = ma.value();
+                Class<? extends ColumnMapper<?>>[] mcs = ma.value();
                 for (int i = 0; i < mcs.length; i++) {
                     m[i] = mcs[i].newInstance();
                 }
             }
             catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified result column mapper", e);
+                throw new IllegalStateException("unable to create a specified column mapper", e);
             }
             return statement -> {
                 if (statement instanceof Query) {
                     Query<?> q = (Query<?>) statement;
-                    for (ResultColumnMapper<?> mapper : m) {
+                    for (ColumnMapper<?> mapper : m) {
                         q.registerColumnMapper(mapper);
                     }
                 }

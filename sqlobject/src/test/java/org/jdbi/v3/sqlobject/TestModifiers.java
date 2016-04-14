@@ -28,7 +28,7 @@ import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizers.FetchSize;
 import org.jdbi.v3.sqlobject.customizers.MaxRows;
 import org.jdbi.v3.sqlobject.customizers.QueryTimeOut;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class TestModifiers
     public void setUp() throws Exception
     {
         handle = db.getSharedHandle();
-        handle.registerMapper(new SomethingMapper());
+        handle.registerRowMapper(new SomethingMapper());
     }
 
     @Test
@@ -159,7 +159,7 @@ public class TestModifiers
         });
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface Spiffy extends Transactional<Spiffy>
     {
         @SqlQuery("select id, name from something where id = :id")
@@ -191,7 +191,7 @@ public class TestModifiers
         void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface IsoLevels
     {
         @TransactionIsolation(READ_UNCOMMITTED)

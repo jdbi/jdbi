@@ -21,12 +21,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.jdbi.v3.exceptions.ResultSetException;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
-public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
+public class DefaultMapper implements RowMapper<Map<String, Object>>
 {
     @Override
-    public Map<String, Object> map(int index, ResultSet r, StatementContext ctx)
+    public Map<String, Object> map(ResultSet r, StatementContext ctx)
     {
         Map<String, Object> row = new HashMap<>();
         ResultSetMetaData m;

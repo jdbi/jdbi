@@ -18,17 +18,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
 /**
- * Used to specify specific result set mapper on a query method.
+ * Used to specify specific row mapper on a query method.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-public @interface Mapper
+public @interface UseRowMapper
 {
     /**
-     * The class implementing {@link ResultSetMapper}. It must have a no-arg constructor.
+     * The class implementing {@link RowMapper}. It must have a no-arg constructor.
      */
-    Class<? extends ResultSetMapper<?>> value();
+    Class<? extends RowMapper<?>> value();
 }

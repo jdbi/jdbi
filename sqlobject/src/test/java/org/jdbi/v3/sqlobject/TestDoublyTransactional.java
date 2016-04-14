@@ -78,7 +78,7 @@ public class TestDoublyTransactional
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = DBI.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
-        dbi.registerMapper(new SomethingMapper());
+        dbi.registerRowMapper(new SomethingMapper());
 
         handle = dbi.open();
 

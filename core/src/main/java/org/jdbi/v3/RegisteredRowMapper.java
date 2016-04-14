@@ -17,25 +17,25 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
-class RegisteredMapper<T> implements ResultSetMapper<T>
+class RegisteredRowMapper<T> implements RowMapper<T>
 {
 
     private final Type type;
     private final MappingRegistry registry;
 
-    RegisteredMapper(Type type, MappingRegistry registry) {
+    RegisteredRowMapper(Type type, MappingRegistry registry) {
         this.type = type;
         this.registry = registry;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public T map(int index, ResultSet r, StatementContext ctx) throws SQLException
+    public T map(ResultSet r, StatementContext ctx) throws SQLException
     {
-        ResultSetMapper<?> mapper = registry.findMapperFor(type, ctx)
+        RowMapper<?> mapper = registry.findRowMapperFor(type, ctx)
                 .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
-        return (T) mapper.map(index, r, ctx);
+        return (T) mapper.map(r, ctx);
     }
 }

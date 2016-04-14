@@ -17,16 +17,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 
-public abstract class EnumMapper<E extends Enum<E>> implements ResultColumnMapper<E> {
+public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     EnumMapper() {}
 
-    public static <E extends Enum<E>> ResultColumnMapper<E> byName(Class<E> type) {
+    public static <E extends Enum<E>> ColumnMapper<E> byName(Class<E> type) {
         return new ByName<>(type);
     }
 
-    public static <E extends Enum<E>> ResultColumnMapper<E> byOrdinal(Class<E> type) {
+    public static <E extends Enum<E>> ColumnMapper<E> byOrdinal(Class<E> type) {
         return new ByOrdinal<>(type);
     }
 
@@ -38,7 +38,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ResultColumnMappe
         }
 
         @Override
-        public E mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        public E map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             String name = r.getString(columnNumber);
             return name == null ? null : Enum.valueOf(type, name);
         }
@@ -52,7 +52,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ResultColumnMappe
         }
 
         @Override
-        public E mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        public E map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
             int ordinal = r.getInt(columnNumber);
             return r.wasNull() ? null : constants[ordinal];
         }

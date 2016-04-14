@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class TestStream
     public interface Spiffy
     {
         @SqlQuery("select id, name from something order by id desc")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Stream<Something> stream();
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

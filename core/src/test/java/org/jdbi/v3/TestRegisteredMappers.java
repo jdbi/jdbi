@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class TestRegisteredMappers
     @Test
     public void testRegisterInferredOnDBI() throws Exception
     {
-        dbi.registerMapper(new SomethingMapper());
+        dbi.registerRowMapper(new SomethingMapper());
         Something sam = dbi.withHandle(handle1 -> {
             handle1.insert("insert into something (id, name) values (18, 'Sam')");
 
@@ -52,10 +52,10 @@ public class TestRegisteredMappers
     }
 }
 
-class SomethingMapper implements ResultSetMapper<Something>
+class SomethingMapper implements RowMapper<Something>
 {
     @Override
-    public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
+    public Something map(ResultSet r, StatementContext ctx) throws SQLException
     {
         return new Something(r.getInt("id"), r.getString("name"));
     }

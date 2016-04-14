@@ -21,7 +21,7 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.Define;
 import org.jdbi.v3.sqlobject.customizers.OverrideStatementLocatorWith;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.stringtemplate.StringTemplate3StatementLocator;
 import org.junit.Before;
 import org.junit.Rule;
@@ -83,7 +83,7 @@ public class TestOverrideStatementLocatorWith
 
 
     @OverrideStatementLocatorWith(StringTemplate3StatementLocator.class)
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     interface Kangaroo
     {
         @SqlUpdate

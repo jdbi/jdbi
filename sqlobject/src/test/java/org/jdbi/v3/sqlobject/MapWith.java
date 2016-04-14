@@ -16,10 +16,10 @@ package org.jdbi.v3.sqlobject;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MapWith
 {
-    Class<? extends ResultSetMapper<?>> value();
+    Class<? extends RowMapper<?>> value();
 }

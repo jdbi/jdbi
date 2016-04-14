@@ -25,18 +25,18 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
 
 /**
- * A result set mapper which maps the fields in a statement into an object. This uses
+ * A row mapper which maps the fields in a statement into an object. This uses
  * the reflection to set the fields on the object including its super class fields,
  * it does not support nested properties.
  *
  * The class must have a default constructor.
  */
-public class FieldMapper<T> implements ResultSetMapper<T>
+public class FieldMapper<T> implements RowMapper<T>
 {
     private final Class<T> type;
     private final ConcurrentMap<String, Optional<Field>> fieldByNameCache = new ConcurrentHashMap<>();
@@ -55,7 +55,7 @@ public class FieldMapper<T> implements ResultSetMapper<T>
 
     @Override
     @SuppressWarnings({"rawtypes"})
-    public T map(int row, ResultSet rs, StatementContext ctx)
+    public T map(ResultSet rs, StatementContext ctx)
             throws SQLException
     {
         T bean;
@@ -81,10 +81,10 @@ public class FieldMapper<T> implements ResultSetMapper<T>
             final Field field = maybeField.get();
             final Type type = field.getGenericType();
             final Object value;
-            final Optional<ResultColumnMapper<?>> mapper = ctx.findColumnMapperFor(type);
+            final Optional<ColumnMapper<?>> mapper = ctx.findColumnMapperFor(type);
 
             if (mapper.isPresent()) {
-                value = mapper.get().mapColumn(rs, i, ctx);
+                value = mapper.get().map(rs, i, ctx);
             }
             else {
                 value = rs.getObject(i);

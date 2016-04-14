@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.jdbi.v3.PGDatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -73,7 +73,7 @@ public class TestPostgresBugs
     }
 
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface Dao extends Transactional<Dao>
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

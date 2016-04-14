@@ -25,7 +25,7 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.junit.Before;
 import org.junit.Rule;
@@ -151,7 +151,7 @@ public class TestBatching
         b.insertBeans();
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     @BatchChunkSize(4)
     @UseStringTemplate3StatementLocator
     public interface UsesBatching

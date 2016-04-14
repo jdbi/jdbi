@@ -14,8 +14,8 @@
 package org.jdbi.v3.jpa;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class JpaMapper<C> implements ResultSetMapper<C> {
+public class JpaMapper<C> implements RowMapper<C> {
 
     private final Class<C> clazz;
     private final JpaClass<C> jpaClass;
@@ -37,7 +37,7 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
     }
 
     @Override
-    public C map(int i, ResultSet rs, StatementContext ctx) throws SQLException {
+    public C map(ResultSet rs, StatementContext ctx) throws SQLException {
         logger.debug("map {}", clazz);
         try {
             return tryMap(rs, ctx);
@@ -59,9 +59,9 @@ public class JpaMapper<C> implements ResultSetMapper<C> {
             JpaMember member = jpaClass.lookupMember(columnLabel);
             if (member != null) {
                 Type memberType = member.getType();
-                ResultColumnMapper<?> columnMapper = ctx.findColumnMapperFor(memberType)
+                ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(memberType)
                         .orElseThrow(() -> new NoSuchColumnMapperException("No column mapper for " + memberType));
-                Object value = columnMapper.mapColumn(rs, columnLabel, ctx);
+                Object value = columnMapper.map(rs, columnLabel, ctx);
                 member.write(obj, value);
             }
         }

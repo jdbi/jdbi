@@ -18,14 +18,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -59,9 +56,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
         batch.add("Brian");
         batch.add("Thom");
 
-        ResultColumnMapper<Integer> intMapper = (ResultColumnMapper<Integer>) new BuiltInMapperFactory().build(Integer.class, batch.getContext()).get();
-
-        List<Integer> ids = batch.executeAndGenerateKeys(intMapper, "id").list();
+        List<Integer> ids = batch.executeAndGenerateKeys(Integer.class, "id").list();
         assertEquals(Arrays.asList(1, 2), ids);
 
         List<Something> somethings = h.createQuery("select id, name from something")
@@ -76,11 +71,8 @@ public class TestPreparedBatchGenerateKeysPostgres {
         batch.add("Brian");
         batch.add("Thom");
 
-        List<IdCreateTime> ids = batch.executeAndGenerateKeys(new ResultSetMapper<IdCreateTime>() {
-            @Override
-            public IdCreateTime map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-                return new IdCreateTime(r.getInt("id"), r.getDate("create_time"));
-            }
+        List<IdCreateTime> ids = batch.executeAndGenerateKeys((r, ctx) -> {
+            return new IdCreateTime(r.getInt("id"), r.getDate("create_time"));
         }, "id", "create_time").list();
 
         assertEquals(ids.size(), 2);

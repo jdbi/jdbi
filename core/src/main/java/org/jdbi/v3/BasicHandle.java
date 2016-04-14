@@ -27,8 +27,8 @@ import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
 import org.jdbi.v3.tweak.ArgumentFactory;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -425,24 +425,24 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerMapper(ResultSetMapper<?> mapper)
+    public void registerRowMapper(RowMapper<?> mapper)
     {
-        mappingRegistry.addMapper(mapper);
+        mappingRegistry.addRowMapper(mapper);
     }
 
     @Override
-    public void registerMapper(ResultSetMapperFactory factory)
+    public void registerRowMapper(RowMapperFactory factory)
     {
-        mappingRegistry.addMapper(factory);
+        mappingRegistry.addRowMapper(factory);
     }
 
     @Override
-    public void registerColumnMapper(ResultColumnMapper<?> mapper) {
+    public void registerColumnMapper(ColumnMapper<?> mapper) {
         mappingRegistry.addColumnMapper(mapper);
     }
 
     @Override
-    public void registerColumnMapper(ResultColumnMapperFactory factory) {
+    public void registerColumnMapper(ColumnMapperFactory factory) {
         mappingRegistry.addColumnMapper(factory);
     }
 
