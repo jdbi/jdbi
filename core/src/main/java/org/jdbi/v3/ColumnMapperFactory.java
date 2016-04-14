@@ -16,20 +16,20 @@ package org.jdbi.v3;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 
 /**
- * Factory interface used to produce result set mappers.
+ * Factory interface used to produce column mappers.
  */
 @FunctionalInterface
-public interface ResultSetMapperFactory
+public interface ColumnMapperFactory
 {
     /**
-     * Supplies a result set mapper which will map result sets to type if the factory supports it; empty otherwise.
+     * Supplies a column mapper which will map columns to type if the factory supports it; empty otherwise.
      *
      * @param type the target type to map to
      * @param ctx the statement context.
      * @see StatementContext#findColumnMapperFor(Type)
      */
-    Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx);
+    Optional<ColumnMapper<?>> build(Type type, StatementContext ctx);
 }

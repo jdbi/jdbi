@@ -24,8 +24,8 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,14 +122,14 @@ public class TestMapBinder
         int updatePrefix(@Bind("id") int id, @BindMap(prefix="asdf", value={"a","c"}, implicitKeyStringConversion=true) Map<Object, Object> updates);
 
         @SqlQuery("select * from something where id = :id")
-        @Mapper(ResultMapper.class)
+        @UseRowMapper(ResultMapper.class)
         Result load(@Bind("id") int id);
     }
 
-    static class ResultMapper implements ResultSetMapper<Result>
+    static class ResultMapper implements RowMapper<Result>
     {
         @Override
-        public Result map(int index, ResultSet r, StatementContext ctx)
+        public Result map(ResultSet r, StatementContext ctx)
         throws SQLException
         {
             Result ret = new Result();

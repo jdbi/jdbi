@@ -30,19 +30,19 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
 import org.jdbi.v3.util.bean.CaseInsensitiveColumnNameStrategy;
 import org.jdbi.v3.util.bean.SnakeCaseColumnNameStrategy;
 
 /**
- * A result set mapper which maps the fields in a statement into a JavaBean. The default implementation will perform a
+ * A row mapper which maps the fields in a statement into a JavaBean. The default implementation will perform a
  * case insensitive mapping between the bean property names and the column labels, also considering camel-case to
  * underscores conversion. This uses the JDK's built in bean mapping facilities, so it does not support nested
  * properties.
  */
-public class BeanMapper<T> implements ResultSetMapper<T>
+public class BeanMapper<T> implements RowMapper<T>
 {
     static final Collection<ColumnNameMappingStrategy> DEFAULT_STRATEGIES =
             Collections.unmodifiableList(Arrays.asList(
@@ -74,7 +74,7 @@ public class BeanMapper<T> implements ResultSetMapper<T>
     }
 
     @Override
-    public T map(int row, ResultSet rs, StatementContext ctx)
+    public T map(ResultSet rs, StatementContext ctx)
         throws SQLException
     {
         T bean;
@@ -101,10 +101,10 @@ public class BeanMapper<T> implements ResultSetMapper<T>
             final PropertyDescriptor descriptor = maybeDescriptor.get();
             final Type type = descriptor.getReadMethod().getGenericReturnType();
             final Object value;
-            final Optional<ResultColumnMapper<?>> mapper = ctx.findColumnMapperFor(type);
+            final Optional<ColumnMapper<?>> mapper = ctx.findColumnMapperFor(type);
 
             if (mapper.isPresent()) {
-                value = mapper.get().mapColumn(rs, i, ctx);
+                value = mapper.get().map(rs, i, ctx);
             }
             else {
                 value = rs.getObject(i);

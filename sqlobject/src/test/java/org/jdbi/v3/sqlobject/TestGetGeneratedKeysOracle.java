@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -57,12 +57,12 @@ public class TestGetGeneratedKeysOracle {
 
     /**
      * Oracle needs to be queried by index and not id (like
-     * {@link FigureItOutResultSetMapper} does).
+     * {@link FigureItOutRowMapper} does).
      */
-    public static class OracleGeneratedKeyMapper implements ResultSetMapper<Long> {
+    public static class OracleGeneratedKeyMapper implements RowMapper<Long> {
 
         @Override
-        public Long map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        public Long map(ResultSet r, StatementContext ctx) throws SQLException {
             return r.getLong(1);
         }
     }

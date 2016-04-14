@@ -28,9 +28,9 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -111,7 +111,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegistered() throws Exception
     {
-        db.getSharedHandle().registerMapper(new SomethingMapper());
+        db.getSharedHandle().registerRowMapper(new SomethingMapper());
 
         Spiffy s = db.getSharedHandle().attach(Spiffy.class);
 
@@ -133,7 +133,7 @@ public class TestRegisteredMappersWork
     }
 
     @Test
-    public void testRegisterMapperAnnotationWorks() throws Exception
+    public void testRegisterRowMapperAnnotationWorks() throws Exception
     {
         Kabob bob = db.getDbi().onDemand(Kabob.class);
 
@@ -184,7 +184,7 @@ public class TestRegisteredMappersWork
     }
 
 
-    @RegisterMapper(MySomethingMapper.class)
+    @RegisterRowMapper(MySomethingMapper.class)
     public interface Kabob
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
@@ -200,10 +200,10 @@ public class TestRegisteredMappersWork
         Iterator<Something> iterateAll();
     }
 
-    public static class MySomethingMapper implements ResultSetMapper<Something>
+    public static class MySomethingMapper implements RowMapper<Something>
     {
         @Override
-        public Something map(int index, ResultSet r, StatementContext ctx) throws SQLException
+        public Something map(ResultSet r, StatementContext ctx) throws SQLException
         {
             return new Something(r.getInt("id"), r.getString("name"));
         }

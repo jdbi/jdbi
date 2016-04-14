@@ -27,7 +27,7 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.customizers.Define;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -108,7 +108,7 @@ public class TestStringTemplate3Locator
     }
 
     @UseStringTemplate3StatementLocator
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     interface HoneyBadger
     {
         @SqlUpdate("insert into <table> (id, name) values (:id, :name)")
@@ -119,7 +119,7 @@ public class TestStringTemplate3Locator
     }
 
     @UseStringTemplate3StatementLocator
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     interface Wombat
     {
         @SqlUpdate

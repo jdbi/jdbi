@@ -21,7 +21,7 @@ import org.jdbi.v3.spi.JdbiPlugin;
 public class JpaPlugin implements JdbiPlugin {
     @Override
     public Handle customizeHandle(Handle handle) {
-        handle.registerMapper(new JpaMapperFactory());
+        handle.registerRowMapper(new JpaMapperFactory());
         return handle;
     }
 }

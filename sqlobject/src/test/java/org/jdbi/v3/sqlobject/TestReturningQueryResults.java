@@ -24,7 +24,7 @@ import java.util.Set;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.Mapper;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,15 +91,15 @@ public class TestReturningQueryResults
     public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Something findById(@Bind("id") int id);
 
         @SqlQuery("select id, name from something where id >= :from and id <= :to")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         Iterator<Something> findByIdRange(@Bind("from") int from, @Bind("to") int to);
 
         @SqlQuery("select id, name from something where id = :first or id = :second")
-        @Mapper(SomethingMapper.class)
+        @UseRowMapper(SomethingMapper.class)
         List<Something> findTwoByIds(@Bind("first") int from, @Bind("second") int to);
 
     }

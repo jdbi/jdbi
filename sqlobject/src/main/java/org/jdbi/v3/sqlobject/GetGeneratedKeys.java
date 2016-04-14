@@ -18,12 +18,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface GetGeneratedKeys
 {
-    Class<? extends ResultSetMapper<?>> value() default FigureItOutResultSetMapper.class;
+    Class<? extends RowMapper<?>> value() default FigureItOutRowMapper.class;
     String columnName() default "";
 }

@@ -18,7 +18,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.jdbi.v3.exceptions.ResultSetException;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.RowMapper;
 
 /**
  * Wrapper object for generated keys as returned by the {@link Statement#getGeneratedKeys()}
@@ -27,7 +27,7 @@ import org.jdbi.v3.tweak.ResultSetMapper;
  */
 public class GeneratedKeys<T> implements ResultBearing<T>
 {
-    private final ResultSetMapper<T>       mapper;
+    private final RowMapper<T>             mapper;
     private final SQLStatement<?>          jdbiStatement;
     private final Statement                stmt;
     private final ResultSet                results;
@@ -42,7 +42,7 @@ public class GeneratedKeys<T> implements ResultBearing<T>
      * @param stmt          The corresponding sql statement
      * @param context       The statement context
      */
-    GeneratedKeys(ResultSetMapper<T> mapper,
+    GeneratedKeys(RowMapper<T> mapper,
                   SQLStatement<?> jdbiStatement,
                   Statement stmt,
                   StatementContext context)

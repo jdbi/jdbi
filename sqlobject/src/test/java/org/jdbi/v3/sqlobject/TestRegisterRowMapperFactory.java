@@ -22,16 +22,16 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.ResultSetMapperFactory;
+import org.jdbi.v3.RowMapperFactory;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.sqlobject.TestRegisterMapperFactory.Foo.FooMapper;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapperFactory;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.sqlobject.TestRegisterRowMapperFactory.Foo.FooMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapperFactory;
+import org.jdbi.v3.tweak.RowMapper;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestRegisterMapperFactory
+public class TestRegisterRowMapperFactory
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -53,7 +53,7 @@ public class TestRegisterMapperFactory
 
     }
 
-    @RegisterMapperFactory(MyFactory.class)
+    @RegisterRowMapperFactory(MyFactory.class)
     public interface FooDao
     {
         @SqlQuery("select * from something")
@@ -64,10 +64,10 @@ public class TestRegisterMapperFactory
     }
 
 
-    public static class MyFactory implements ResultSetMapperFactory
+    public static class MyFactory implements RowMapperFactory
     {
         @Override
-        public Optional<ResultSetMapper<?>> build(Type type, StatementContext ctx) {
+        public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
             Class<?> erasedType = getErasedType(type);
             try {
                 MapWith mapWith = erasedType.getAnnotation(MapWith.class);
@@ -102,10 +102,10 @@ public class TestRegisterMapperFactory
             return name;
         }
 
-        public static class FooMapper implements ResultSetMapper<Foo>
+        public static class FooMapper implements RowMapper<Foo>
         {
             @Override
-            public Foo map(final int index, final ResultSet r, final StatementContext ctx) throws SQLException
+            public Foo map(final ResultSet r, final StatementContext ctx) throws SQLException
             {
                 return new Foo(r.getInt("id"), r.getString("name"));
             }

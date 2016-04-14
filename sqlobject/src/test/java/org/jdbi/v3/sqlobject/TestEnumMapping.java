@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 import static org.junit.Assert.assertSame;
 
 import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class TestEnumMapping
         assertSame(CoolName.JOE, spiffy.findById(joeId));
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface Spiffy
     {
         @SqlUpdate("insert into something(name) values(:name)")

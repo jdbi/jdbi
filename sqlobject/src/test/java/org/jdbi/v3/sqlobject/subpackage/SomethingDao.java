@@ -19,9 +19,9 @@ import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.Transaction;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 
-@RegisterMapper(SomethingMapper.class)
+@RegisterRowMapper(SomethingMapper.class)
 public interface SomethingDao
 {
     @SqlUpdate("insert into something (id, name) values (:id, :name)")

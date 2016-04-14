@@ -38,8 +38,8 @@ import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ConnectionFactory;
-import org.jdbi.v3.tweak.ResultColumnMapper;
-import org.jdbi.v3.tweak.ResultSetMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementBuilderFactory;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -265,38 +265,38 @@ public class DBI
     }
 
     /**
-     * Register a result set mapper which will have its parameterized type inspected to determine what it maps to
+     * Register a row mapper which will have its parameterized type inspected to determine what it maps to
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
-    public void registerMapper(ResultSetMapper<?> mapper) {
-        mappingRegistry.addMapper(mapper);
+    public void registerRowMapper(RowMapper<?> mapper) {
+        mappingRegistry.addRowMapper(mapper);
     }
 
     /**
-     * Register a result set mapper factory.
+     * Register a row mapper factory.
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
-    public void registerMapper(ResultSetMapperFactory factory) {
-        mappingRegistry.addMapper(factory);
+    public void registerRowMapper(RowMapperFactory factory) {
+        mappingRegistry.addRowMapper(factory);
     }
 
     /**
-     * Register a result column mapper which will have its parameterized type inspected to determine what it maps to
+     * Register a column mapper which will have its parameterized type inspected to determine what it maps to
      *
-     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
      */
-    public void registerColumnMapper(ResultColumnMapper<?> mapper) {
+    public void registerColumnMapper(ColumnMapper<?> mapper) {
         mappingRegistry.addColumnMapper(mapper);
     }
 
     /**
-     * Register a result column mapper factory.
+     * Register a column mapper factory.
      *
-     * Column mappers may be reused by {@link ResultSetMapper} to map individual columns.
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
      */
-    public void registerColumnMapper(ResultColumnMapperFactory factory) {
+    public void registerColumnMapper(ColumnMapperFactory factory) {
         mappingRegistry.addColumnMapper(factory);
     }
 

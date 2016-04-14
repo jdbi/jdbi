@@ -41,7 +41,7 @@ public class TestConcurrentUpdatingQuery
         handle.createQuery("select id, name from something where id = :id")
                 .bind("id", 7)
                 .concurrentUpdatable()
-                .map((index, r, ctx) -> {
+                .map((r, ctx) -> {
                     r.updateString("name", "Tom");
                     r.updateRow();
                     return null;

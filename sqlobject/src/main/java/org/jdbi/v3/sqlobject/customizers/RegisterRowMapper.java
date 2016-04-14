@@ -21,55 +21,55 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.Query;
-import org.jdbi.v3.ResultSetMapperFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.tweak.RowMapper;
 
 /**
- * Used to register a result set mapper with either a sql object type or for a specific method.
+ * Used to register a row mapper with either a sql object type or for a specific method.
  */
-@SqlStatementCustomizingAnnotation(RegisterMapperFactory.Factory.class)
+@SqlStatementCustomizingAnnotation(RegisterRowMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterMapperFactory
+public @interface RegisterRowMapper
 {
-    Class<? extends ResultSetMapperFactory>[] value();
+    /**
+     * The row mapper class to register
+     */
+    Class<? extends RowMapper<?>>[] value();
 
     class Factory implements SqlStatementCustomizerFactory
     {
-
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return create((RegisterMapperFactory) annotation);
+            return create((RegisterRowMapper) annotation);
         }
 
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            return create((RegisterMapperFactory) annotation);
+            return create((RegisterRowMapper) annotation);
         }
 
-        private SqlStatementCustomizer create(RegisterMapperFactory ma) {
-            final ResultSetMapperFactory[] m = new ResultSetMapperFactory[ma.value().length];
+        private SqlStatementCustomizer create(RegisterRowMapper ma) {
+            final RowMapper<?>[] m = new RowMapper[ma.value().length];
             try {
-                Class<? extends ResultSetMapperFactory>[] mcs = ma.value();
+                Class<? extends RowMapper<?>>[] mcs = ma.value();
                 for (int i = 0; i < mcs.length; i++) {
                     m[i] = mcs[i].newInstance();
                 }
-
             }
             catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified result set mapper", e);
+                throw new IllegalStateException("unable to create a specified row mapper", e);
             }
             return statement -> {
                 if (statement instanceof Query) {
                     Query<?> q = (Query<?>) statement;
-                    for (ResultSetMapperFactory factory : m) {
-                        q.registerMapper(factory);
+                    for (RowMapper<?> mapper : m) {
+                        q.registerRowMapper(mapper);
                     }
-
                 }
             };
         }

@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.subpackage.PrivateImplementationFactory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,7 +56,7 @@ public class TestBeanBinder
         assertEquals("Phil", phil.getName());
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     interface Spiffy {
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

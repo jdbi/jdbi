@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,7 +69,7 @@ public class TestSqlCall
         void insert(@Bind("id") int id, @Bind("name") String name);
 
         @SqlQuery("select id, name from something where id = :id")
-        @RegisterMapper(SomethingMapper.class)
+        @RegisterRowMapper(SomethingMapper.class)
         Something findById(@Bind("id") int id);
     }
 

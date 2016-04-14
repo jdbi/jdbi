@@ -27,15 +27,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.util.EnumMapper;
 
 /**
- * Result column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
+ * Column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
  * from the JDK.
  */
-public class BuiltInMapperFactory implements ResultColumnMapperFactory {
-    private static final Map<Class<?>, ResultColumnMapper<?>> mappers = new HashMap<>();
+public class BuiltInMapperFactory implements ColumnMapperFactory {
+    private static final Map<Class<?>, ColumnMapper<?>> mappers = new HashMap<>();
 
     static {
         mappers.put(boolean.class, primitiveMapper(ResultSet::getBoolean));
@@ -70,7 +70,7 @@ public class BuiltInMapperFactory implements ResultColumnMapperFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<ResultColumnMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
         Class<?> rawType = getErasedType(type);
         if (rawType.isEnum()) {
             return Optional.of(EnumMapper.byName((Class<? extends Enum>) rawType));
@@ -84,11 +84,11 @@ public class BuiltInMapperFactory implements ResultColumnMapperFactory {
         T get(ResultSet rs, int i) throws SQLException;
     }
 
-    private static <T> ResultColumnMapper<T> primitiveMapper(ColumnGetter<T> getter) {
+    private static <T> ColumnMapper<T> primitiveMapper(ColumnGetter<T> getter) {
         return (r, i, ctx) -> getter.get(r, i);
     }
 
-    private static <T> ResultColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
+    private static <T> ColumnMapper<T> referenceMapper(ColumnGetter<T> getter) {
         return (r, i, ctx) -> {
             T value = getter.get(r, i);
             return r.wasNull() ? null : value;

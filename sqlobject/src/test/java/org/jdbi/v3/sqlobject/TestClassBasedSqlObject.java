@@ -21,7 +21,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.exceptions.TransactionException;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
 import org.junit.Before;
@@ -104,7 +104,7 @@ public class TestClassBasedSqlObject
         dao.insertInNestedTransaction(11, "Angelina");
     }
 
-    @RegisterMapper(SomethingMapper.class)
+    @RegisterRowMapper(SomethingMapper.class)
     public interface Dao extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")

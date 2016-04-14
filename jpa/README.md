@@ -25,16 +25,16 @@ public class Something {
 
 #### Map
 
-Use `JpaMapper` to create `ResultSetMapper`:
+Use `JpaMapper` to create `RowMapper`:
 
 ```java
-ResultSetMapper<Something> mapper = JpaMapper.get(Something.class);
+RowMapper<Something> mapper = JpaMapper.get(Something.class);
 ```
 
-Or register `JpaMapperFactory` as a `ResultSetMapperFactory`:
+Or register `JpaMapperFactory` as a `RowMapperFactory`:
 
 ```java
-@RegisterMapperFactory(JpaMapperFactory.class)
+@RegisterRowMapperFactory(JpaMapperFactory.class)
 public interface SomethingDAO {
 
     @SqlQuery("select * from Something where id = :id")

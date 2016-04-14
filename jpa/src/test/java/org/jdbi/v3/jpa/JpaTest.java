@@ -19,7 +19,7 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapperFactory;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapperFactory;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -66,7 +66,7 @@ public class JpaTest {
         void insert(@BindJpa EntityThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<EntityThing> list();
     }
 
@@ -106,7 +106,7 @@ public class JpaTest {
         void insert(@BindJpa FieldThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<FieldThing> list();
     }
 
@@ -146,7 +146,7 @@ public class JpaTest {
         void insert(@BindJpa NamedFieldThing thing);
 
         @SqlQuery(SELECT_BY_ANNOTATION_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<NamedFieldThing> list();
     }
 
@@ -186,7 +186,7 @@ public class JpaTest {
         void insert(@BindJpa GetterThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<GetterThing> list();
     }
 
@@ -226,7 +226,7 @@ public class JpaTest {
         void insert(@BindJpa NamedGetterThing thing);
 
         @SqlQuery(SELECT_BY_ANNOTATION_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<NamedGetterThing> list();
     }
 
@@ -266,7 +266,7 @@ public class JpaTest {
         void insert(@BindJpa SetterThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<SetterThing> list();
     }
 
@@ -306,7 +306,7 @@ public class JpaTest {
         void insert(@BindJpa NamedSetterThing thing);
 
         @SqlQuery(SELECT_BY_ANNOTATION_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<NamedSetterThing> list();
     }
 
@@ -348,7 +348,7 @@ public class JpaTest {
         void insert(@BindJpa ExtendsMappedSuperclassThing thing);
 
         @SqlQuery(SELECT_BY_PROPERTY_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<ExtendsMappedSuperclassThing> list();
     }
 
@@ -388,7 +388,7 @@ public class JpaTest {
         void insert(@BindJpa AnnotationPriorityThing thing);
 
         @SqlQuery(SELECT_BY_ANNOTATION_NAME)
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<AnnotationPriorityThing> list();
     }
 
@@ -414,7 +414,7 @@ public class JpaTest {
         void insert(@BindJpa FieldThing thing);
 
         @SqlQuery("select id, name, 'Rob Schneider' as extra from something")
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<FieldThing> list();
     }
     
@@ -439,7 +439,7 @@ public class JpaTest {
         void insert(@BindJpa FieldThing thing);
 
         @SqlQuery("select id from something")
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<FieldThing> list();
     }
 
@@ -484,7 +484,7 @@ public class JpaTest {
         void insert(@BindJpa OverridingSubclassThing thing);
 
         @SqlQuery("select id as meow, name as bar from something")
-        @RegisterMapperFactory(JpaMapperFactory.class)
+        @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<OverridingSubclassThing> list();
     }
 
