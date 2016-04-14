@@ -42,6 +42,7 @@ public final class ConcreteStatementContext implements StatementContext
     private boolean           returningGeneratedKeys;
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
+    private Foreman           foreman;
 
     ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry)
     {
@@ -253,6 +254,11 @@ public final class ConcreteStatementContext implements StatementContext
         return concurrentUpdatable;
     }
 
+    @Override
+    public Foreman getForeman() {
+        return foreman;
+    }
+
     /**
      * Set the context to create a concurrent updatable result set.
      *
@@ -273,5 +279,9 @@ public final class ConcreteStatementContext implements StatementContext
     public Collection<Cleanable> getCleanables()
     {
         return cleanables;
+    }
+
+    void setForeman(Foreman foreman) {
+        this.foreman = foreman;
     }
 }

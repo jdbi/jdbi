@@ -118,7 +118,7 @@ public class TestBindExpression
                 return new SqlStatementCustomizer()
                 {
                     @Override
-                    public void apply(SQLStatement q) throws SQLException
+                    public void apply(final SQLStatement q) throws SQLException
                     {
                         q.bindNamedArgumentFinder(new NamedArgumentFinder()
                         {
@@ -128,14 +128,7 @@ public class TestBindExpression
                                 Expression e = engine.createExpression(name);
                                 final Object it = e.evaluate(new MapContext(ImmutableMap.of(root_name, root)));
                                 if (it != null) {
-                                    return new Argument()
-                                    {
-                                        @Override
-                                        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-                                        {
-                                            statement.setObject(position, it);
-                                        }
-                                    };
+                                    return q.getContext().getForeman().createArgument(it.getClass(), it, q.getContext());
                                 }
                                 else {
                                     return null;

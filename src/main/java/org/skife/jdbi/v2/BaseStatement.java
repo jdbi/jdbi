@@ -35,6 +35,7 @@ abstract class BaseStatement
         this.context = context;
         this.foreman = foreman.createChild();
         addCustomizer(new StatementCleaningCustomizer());
+        context.setForeman(foreman);
     }
 
     protected final Foreman getForeman() {

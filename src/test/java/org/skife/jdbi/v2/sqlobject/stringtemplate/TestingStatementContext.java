@@ -15,6 +15,7 @@ package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
 import org.skife.jdbi.v2.Binding;
 import org.skife.jdbi.v2.Cleanable;
+import org.skife.jdbi.v2.Foreman;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultColumnMapper;
 
@@ -124,6 +125,11 @@ public class TestingStatementContext implements StatementContext
     @Override
     public boolean isConcurrentUpdatable() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Foreman getForeman() {
+        throw new UnsupportedOperationException("Not Yet Implemented!");
     }
 
 }
