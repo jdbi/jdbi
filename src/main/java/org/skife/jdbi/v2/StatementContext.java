@@ -130,4 +130,10 @@ public interface StatementContext
      */
     boolean isConcurrentUpdatable();
 
+    /**
+     * Obtain the Foreman that can be used to create dynamically determined Argument
+     * instances given the registered ArgumentFactory instances.
+     */
+    Foreman getForeman();
+
 }

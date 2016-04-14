@@ -16,21 +16,16 @@ package org.skife.jdbi.v2;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 
-import java.lang.reflect.Constructor;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-class Foreman
+/**
+ * Foreman will select best ArgumentFactory to use from all the registered
+ * ArgumentFactory instances and return an Argument created from that
+ * ArgumentFactory.
+ */
+public class Foreman
 {
-
     private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<ArgumentFactory>();
 
     Foreman()
@@ -43,36 +38,43 @@ class Foreman
         this.factories.addAll(factories);
     }
 
-    Argument waffle(Class expectedType, Object it, StatementContext ctx)
+    /**
+     *
+     * @param expectedType The type to use for matching against bound ArgumentFactory instances
+     * @param boundValue The value to be bound by the created Argument
+     * @param ctx the relevant StatementContext
+     * @return
+     */
+    public Argument createArgument(Class<?> expectedType, Object boundValue, StatementContext ctx)
     {
         ArgumentFactory candidate = null;
 
         for (int i = factories.size() - 1; i >= 0; i--) {
             ArgumentFactory factory = factories.get(i);
-            if (factory.accepts(expectedType, it, ctx)) {
-                return factory.build(expectedType, it, ctx);
+            if (factory.accepts(expectedType, boundValue, ctx)) {
+                return factory.build(expectedType, boundValue, ctx);
             }
             // Fall back to any factory accepting Object if necessary but
             // prefer any more specific factory first.
-            if (candidate == null && factory.accepts(Object.class, it, ctx)) {
+            if (candidate == null && factory.accepts(Object.class, boundValue, ctx)) {
                 candidate = factory;
             }
         }
         if (candidate != null) {
-            return candidate.build(Object.class, it, ctx);
+            return candidate.build(Object.class, boundValue, ctx);
         }
 
-        throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(it));
+        throw new IllegalStateException("Unbindable argument passed: " + String.valueOf(boundValue));
     }
 
     private static final ArgumentFactory BUILT_INS = new BuiltInArgumentFactory();
 
-    public void register(ArgumentFactory<?> argumentFactory)
+    void register(ArgumentFactory<?> argumentFactory)
     {
         factories.add(argumentFactory);
     }
 
-    public Foreman createChild()
+    Foreman createChild()
     {
         return new Foreman(factories);
     }
