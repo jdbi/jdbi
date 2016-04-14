@@ -24,7 +24,7 @@
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi</artifactId>
     <name>jDBI</name>
-    <version>2.73-SNAPSHOT</version>
+    <version>2.73</version>
     <packaging>jar</packaging>
     <description>
         jDBI is designed to provide convenient tabular data access in
@@ -47,7 +47,7 @@
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
         <url>https://github.com/jdbi/jdbi/</url>
-      <tag>HEAD</tag>
+      <tag>jdbi-2.73</tag>
   </scm>
 
     <developers>
