@@ -71,6 +71,11 @@ public class TestingStatementContext implements StatementContext
     }
 
     @Override
+    public Optional<Type> elementTypeFor(Type containerType) {
+        return collectors.elementTypeFor(containerType);
+    }
+
+    @Override
     public String getRawSql()
     {
         throw new UnsupportedOperationException();

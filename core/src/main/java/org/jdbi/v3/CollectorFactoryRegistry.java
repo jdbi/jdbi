@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3;
 
+import static org.jdbi.v3.Types.findGenericParameter;
 import static org.jdbi.v3.Types.getErasedType;
-import static org.jdbi.v3.internal.JdbiStreams.toStream;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -50,9 +50,19 @@ class CollectorFactoryRegistry {
         factories.add(0, factory);
     }
 
-    Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
+    Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
+        return findFactoryFor(containerType)
+                .map(f -> f.build(containerType));
+    }
+
+    Optional<Type> elementTypeFor(Type containerType) {
+        return findFactoryFor(containerType)
+                .flatMap(f -> f.elementType(containerType));
+    }
+
+    private Optional<CollectorFactory> findFactoryFor(Type containerType) {
         return factories.stream()
-                .flatMap(factory -> toStream(factory.build(type)))
+                .filter(f -> f.accepts(containerType))
                 .findFirst();
     }
 
@@ -62,28 +72,52 @@ class CollectorFactoryRegistry {
 
     private static class SortedSetCollectorFactory<T> implements CollectorFactory {
         @Override
-        public Optional<Collector<?, ?, ?>> build(Type type) {
-            return getErasedType(type) == SortedSet.class
-                    ? Optional.of(Collectors.toCollection(TreeSet::new))
-                    : Optional.empty();
+        public boolean accepts(Type containerType) {
+            return getErasedType(containerType) == SortedSet.class;
+        }
+
+        @Override
+        public Optional<Type> elementType(Type containerType) {
+            return findGenericParameter(containerType, SortedSet.class);
+        }
+
+        @Override
+        public Collector<?, ?, ?> build(Type containerType) {
+            return Collectors.toCollection(TreeSet::new);
         }
     }
 
     private static class ListCollectorFactory<T> implements CollectorFactory {
         @Override
-        public Optional<Collector<?, ?, ?>> build(Type type) {
-            return getErasedType(type) == List.class
-                    ? Optional.of(Collectors.toList())
-                    : Optional.empty();
+        public boolean accepts(Type containerType) {
+            return getErasedType(containerType) == List.class;
+        }
+
+        @Override
+        public Optional<Type> elementType(Type containerType) {
+            return findGenericParameter(containerType, List.class);
+        }
+
+        @Override
+        public Collector<?, ?, ?> build(Type containerType) {
+            return Collectors.toList();
         }
     }
 
     private static class SetCollectorFactory<T> implements CollectorFactory {
         @Override
-        public Optional<Collector<?, ?, ?>> build(Type type) {
-            return getErasedType(type) == Set.class
-                    ? Optional.of(Collectors.toSet())
-                    : Optional.empty();
+        public boolean accepts(Type containerType) {
+            return getErasedType(containerType) == Set.class;
+        }
+
+        @Override
+        public Optional<Type> elementType(Type containerType) {
+            return findGenericParameter(containerType, Set.class);
+        }
+
+        @Override
+        public Collector<?, ?, ?> build(Type containerType) {
+            return Collectors.toSet();
         }
     }
 }

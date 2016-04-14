@@ -117,6 +117,11 @@ public final class ConcreteStatementContext implements StatementContext
         return collectors.findCollectorFor(type);
     }
 
+    @Override
+    public Optional<Type> elementTypeFor(Type containerType) {
+        return collectors.elementTypeFor(containerType);
+    }
+
     void setRawSql(String rawSql)
     {
         this.rawSql = rawSql;

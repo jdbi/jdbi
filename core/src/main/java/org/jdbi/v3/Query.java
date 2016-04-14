@@ -114,7 +114,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapTo(Class<T> resultType)
     {
-        return this.<T>mapTo((Type) resultType);
+        return this.mapTo((Type) resultType);
     }
 
     /**
@@ -131,7 +131,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapTo(GenericType<T> resultType)
     {
-        return this.<T>mapTo(resultType.getType());
+        return this.mapTo(resultType.getType());
     }
 
     /**
@@ -146,8 +146,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @see Handle#registerMapper(ResultSetMapperFactory)
      * @see Handle#registerMapper(org.jdbi.v3.tweak.ResultSetMapper)
      */
-    private <T> Query<T> mapTo(Type resultType) {
-        return this.map(new RegisteredMapper<>(resultType, mappingRegistry));
+    public Query mapTo(Type resultType) {
+        return this.map(new RegisteredMapper(resultType, mappingRegistry));
     }
 
     public <T> Query<T> map(ResultSetMapper<T> mapper)
