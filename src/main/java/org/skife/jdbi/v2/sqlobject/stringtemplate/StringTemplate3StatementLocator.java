@@ -260,6 +260,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
                 literals.defineTemplate(key, name);
             }
             StringTemplate t = literals.lookupTemplate(key);
+            t.reset();
             for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
                 t.setAttribute(entry.getKey(), entry.getValue());
             }
