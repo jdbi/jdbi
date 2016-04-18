@@ -22,10 +22,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.fasterxml.classmate.members.ResolvedMethod;
-
-import net.sf.cglib.proxy.MethodProxy;
-
 import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.PreparedBatch;
@@ -36,42 +32,41 @@ import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
 class BatchHandler extends CustomizingStatementHandler
 {
-    private final String  sql;
+    private final String sql;
     private final boolean transactional;
     private final ChunkSizeFunction batchChunkSize;
 
-    BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    BatchHandler(Class<?> sqlObjectType, Method method)
     {
         super(sqlObjectType, method);
-        if(!returnTypeIsValid(method.getRawMember().getReturnType()) ) {
+        if(!returnTypeIsValid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
         }
-        Method raw_method = method.getRawMember();
-        SqlBatch anno = raw_method.getAnnotation(SqlBatch.class);
-        this.sql = SqlAnnotations.getSql(anno, raw_method);
+        SqlBatch anno = method.getAnnotation(SqlBatch.class);
+        this.sql = SqlAnnotations.getSql(anno, method);
         this.transactional = anno.transactional();
-        this.batchChunkSize = determineBatchChunkSize(sqlObjectType, raw_method);
+        this.batchChunkSize = determineBatchChunkSize(sqlObjectType, method);
     }
 
-    private ChunkSizeFunction determineBatchChunkSize(Class<?> sqlObjectType, Method raw_method)
+    private ChunkSizeFunction determineBatchChunkSize(Class<?> sqlObjectType, Method method)
     {
         // this next big if chain determines the batch chunk size. It looks from most specific
         // scope to least, that is: as an argument, then on the method, then on the class,
         // then default to Integer.MAX_VALUE
 
-        int index_of_batch_chunk_size_annotation_on_parameter;
-        if ((index_of_batch_chunk_size_annotation_on_parameter = findBatchChunkSizeFromParam(raw_method)) >= 0) {
-            return new ParamBasedChunkSizeFunction(index_of_batch_chunk_size_annotation_on_parameter);
+        int batchChunkSizeParameterIndex;
+        if ((batchChunkSizeParameterIndex = indexOfBatchChunkSizeParameter(method)) >= 0) {
+            return new ParamBasedChunkSizeFunction(batchChunkSizeParameterIndex);
         }
-        else if (raw_method.isAnnotationPresent(BatchChunkSize.class)) {
-            final int size = raw_method.getAnnotation(BatchChunkSize.class).value();
+        else if (method.isAnnotationPresent(BatchChunkSize.class)) {
+            final int size = method.getAnnotation(BatchChunkSize.class).value();
             if (size <= 0) {
                 throw new IllegalArgumentException("Batch chunk size must be >= 0");
             }
             return new ConstantChunkSizeFunction(size);
         }
         else if (sqlObjectType.isAnnotationPresent(BatchChunkSize.class)) {
-            final int size = BatchChunkSize.class.cast(sqlObjectType.getAnnotation(BatchChunkSize.class)).value();
+            final int size = sqlObjectType.getAnnotation(BatchChunkSize.class).value();
             return new ConstantChunkSizeFunction(size);
         }
         else {
@@ -79,22 +74,19 @@ class BatchHandler extends CustomizingStatementHandler
         }
     }
 
-    private int findBatchChunkSizeFromParam(Method raw_method)
+    private int indexOfBatchChunkSizeParameter(Method method)
     {
-        Annotation[][] param_annos = raw_method.getParameterAnnotations();
-        for (int i = 0; i < param_annos.length; i++) {
-            Annotation[] annos = param_annos[i];
-            for (Annotation anno : annos) {
-                if (anno.annotationType().isAssignableFrom(BatchChunkSize.class)) {
-                    return i;
-                }
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            if (Stream.of(parameterAnnotations[i]).anyMatch(BatchChunkSize.class::isInstance)) {
+                return i;
             }
         }
         return -1;
     }
 
     @Override
-    public Object invoke(Supplier<Handle> h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> h, Object target, Object[] args, Method method)
     {
         boolean foundIterator = false;
         Handle handle = h.get();
@@ -231,8 +223,8 @@ class BatchHandler extends CustomizingStatementHandler
 
     }
 
-    private static String invalidReturnTypeMessage(ResolvedMethod method) {
-        return method.getDeclaringType() + "." + method +
+    private static String invalidReturnTypeMessage(Method method) {
+        return method.getDeclaringClass() + "." + method.getName() +
                 " method is annotated with @SqlBatch so should return void or int[] but is returning: " +
                 method.getReturnType();
     }

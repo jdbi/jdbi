@@ -32,11 +32,15 @@ import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class TestVariousOddities
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void testAttach() throws Exception
@@ -97,14 +101,12 @@ public class TestVariousOddities
     @Test
     public void testNullQueryReturn()
     {
-        try {
-            db.getSharedHandle().attach(SpiffyBoom.class);
-        } catch (IllegalStateException e) {
-            assertEquals("Method org.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
-                    "is annotated as if it should return a value, but the method is void.", e.getMessage());
-            return;
-        }
-        fail();
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage(
+                "Method org.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
+                        "is annotated as if it should return a value, but the method is void.");
+
+        db.getSharedHandle().attach(SpiffyBoom.class);
     }
 
     public interface Spiffy

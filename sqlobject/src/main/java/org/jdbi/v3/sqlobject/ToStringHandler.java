@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import net.sf.cglib.proxy.MethodProxy;
-
 import org.jdbi.v3.Handle;
 
 class ToStringHandler implements Handler
@@ -32,7 +30,7 @@ class ToStringHandler implements Handler
     }
 
     @Override
-    public Object invoke(final Supplier<Handle> handle, final Object target, final Object[] args, MethodProxy mp)
+    public Object invoke(final Supplier<Handle> handle, final Object target, final Object[] args, Method method)
     {
         return className + '@' + Integer.toHexString(target.hashCode());
     }

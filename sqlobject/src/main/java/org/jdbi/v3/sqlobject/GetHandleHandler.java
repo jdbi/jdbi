@@ -13,16 +13,15 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
 import java.util.function.Supplier;
-
-import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
 
 class GetHandleHandler implements Handler
 {
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
         return handle.get();
     }

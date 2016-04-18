@@ -13,13 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
 import java.util.function.Supplier;
-
-import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
 
 interface Handler
 {
-    Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp) throws Exception;
+    Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method) throws Exception;
 }

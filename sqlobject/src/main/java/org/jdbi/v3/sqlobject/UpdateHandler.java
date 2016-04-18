@@ -13,15 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.function.Supplier;
-
-import com.fasterxml.classmate.members.ResolvedMethod;
-
-import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.GeneratedKeys;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.Types;
 import org.jdbi.v3.Update;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
@@ -32,18 +31,19 @@ class UpdateHandler extends CustomizingStatementHandler
     private final String sql;
     private final Returner returner;
 
-    UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    UpdateHandler(Class<?> sqlObjectType, Method method)
     {
         super(sqlObjectType, method);
 
-        if(returnTypeIsInvalid(method.getRawMember().getReturnType()) ) {
-            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
+        Type returnType = Types.resolveType(method.getGenericReturnType(), sqlObjectType);
+        if(returnTypeIsInvalid(method.getReturnType()) ) {
+            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
         }
-        this.sql = SqlAnnotations.getSql(method.getRawMember().getAnnotation(SqlUpdate.class), method.getRawMember());
-        if (method.getRawMember().isAnnotationPresent(GetGeneratedKeys.class)) {
+        this.sql = SqlAnnotations.getSql(method.getAnnotation(SqlUpdate.class), method);
+        if (method.isAnnotationPresent(GetGeneratedKeys.class)) {
 
-            final ResultReturnThing magic = ResultReturnThing.forType(method);
-            final GetGeneratedKeys ggk = method.getRawMember().getAnnotation(GetGeneratedKeys.class);
+            final ResultReturnThing magic = ResultReturnThing.forMethod(sqlObjectType, method);
+            final GetGeneratedKeys ggk = method.getAnnotation(GetGeneratedKeys.class);
             final RowMapper<?> mapper;
             try {
                 mapper = ggk.value().newInstance();
@@ -62,7 +62,7 @@ class UpdateHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
         Update q = handle.get().createStatement(sql);
         populateSqlObjectData((ConcreteStatementContext)q.getContext());
@@ -84,9 +84,9 @@ class UpdateHandler extends CustomizingStatementHandler
                 !type.equals(Void.TYPE);
     }
 
-    private String invalidReturnTypeMessage(ResolvedMethod method) {
-        return method.getDeclaringType() + "." + method +
+    private String invalidReturnTypeMessage(Method method, Type returnType) {
+        return method.getDeclaringClass().getSimpleName() + "." + method.getName() +
                 " method is annotated with @SqlUpdate so should return void or Number but is returning: " +
-                method.getReturnType();
+                returnType;
     }
 }
