@@ -32,7 +32,7 @@ public @interface BindSomething
         @Override
         public Binder<BindSomething, Object> build(BindSomething annotation)
         {
-            return (q, param, bind, arg) -> {
+            return (q, param, index, bind, arg) -> {
                 Something it = (Something) arg;
                 q.bind(bind.value() + ".id", it.getId());
                 q.bind(bind.value() + ".name", it.getName());

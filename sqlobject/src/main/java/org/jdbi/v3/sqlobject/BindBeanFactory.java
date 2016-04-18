@@ -24,7 +24,7 @@ class BindBeanFactory implements BinderFactory<BindBean, Object>
     @Override
     public Binder<BindBean, Object> build(BindBean annotation)
     {
-        return (q, param, bind, arg) -> {
+        return (q, param, index, bind, arg) -> {
             final String prefix;
             if (BindBean.BARE_BINDING.equals(bind.value())) {
                 prefix = "";

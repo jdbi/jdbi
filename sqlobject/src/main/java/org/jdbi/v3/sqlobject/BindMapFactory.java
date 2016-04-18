@@ -24,7 +24,7 @@ class BindMapFactory implements BinderFactory<BindMap, Map<String, Object>>
     @Override
     public Binder<BindMap, Map<String, Object>> build(BindMap annotation)
     {
-        return (q, param, bind, arg) -> {
+        return (q, param, index, bind, arg) -> {
             final String prefix;
             if (BindBean.BARE_BINDING.equals(bind.prefix())) {
                 prefix = "";

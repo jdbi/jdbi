@@ -90,7 +90,7 @@ public class TestPositionalBinder {
         Integer getIdByNameAndCode(String name, int code);
 
         @SqlUpdate("insert into something(something_id, name, code) values (:0, :1, :2)")
-        void insertSomething(int id, String name, int code);
+        void insertSomething(int id, @Bind String name, int code);
 
         @SqlUpdate("insert into something(something_id,name, code) values (19, :0, :code)")
         void insertWithDefaultParams(String name, @Bind("code") int code);

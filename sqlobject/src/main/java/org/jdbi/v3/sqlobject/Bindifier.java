@@ -36,6 +36,6 @@ class Bindifier<AnnoType extends Annotation>
 
     void bind(SQLStatement<?> q, Object[] args)
     {
-        binder.bind(q, parameter, annotation, args[param_idx]);
+        binder.bind(q, parameter, param_idx, annotation, args[param_idx]);
     }
 }

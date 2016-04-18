@@ -75,7 +75,7 @@ public @interface BindIn
         {
             final String key = in.value();
 
-            return (q, param, bind, arg) -> {
+            return (q, param, index, bind, arg) -> {
                 Iterable<?> coll = (Iterable<?>) arg;
                 Type parameterType = param.getParameterizedType();
                 Type elementType = findGenericParameter(parameterType, Iterable.class)

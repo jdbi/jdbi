@@ -86,7 +86,7 @@ abstract class CustomizingStatementHandler implements Handler
                         binders.add(new Bindifier<>(this.method, annotation, paramIndex, fact.build(annotation)));
                     }
                     catch (Exception e) {
-                        throw new IllegalStateException("unable to instantiate cusotmizer", e);
+                        throw new IllegalStateException("unable to instantiate customizer", e);
                     }
                     thereBindingAnnotation = true;
                 }
@@ -108,7 +108,7 @@ abstract class CustomizingStatementHandler implements Handler
             if (!thereBindingAnnotation) {
                 // If there is no binding annotation on a parameter,
                 // then add a default parameter binder
-                binders.add(new Bindifier<>(method, null, paramIndex, new DefaultObjectBinder(paramIndex)));
+                binders.add(new Bindifier<>(method, null, paramIndex, new DefaultObjectBinder()));
             }
         }
     }

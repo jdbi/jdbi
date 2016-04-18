@@ -18,7 +18,7 @@ import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.SQLStatement;
 
-public interface Binder<AnnotationType extends Annotation, ArgType>
+public interface Binder<A extends Annotation, T>
 {
-    void bind(SQLStatement<?> q, Parameter parameter, AnnotationType bind, ArgType arg);
+    void bind(SQLStatement<?> q, Parameter parameter, int index, A bind, T arg);
 }
