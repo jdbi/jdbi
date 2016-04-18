@@ -26,7 +26,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class TestOptionalParameters {
+public class TestOptional {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -40,13 +40,23 @@ public class TestOptionalParameters {
     }
 
     @Test
-    public void testOptionalPresent() {
+    public void testOptionalParameterPresent() {
         assertThat(dao.findIds(Optional.of("brian")), equalTo(ImmutableList.of(1)));
     }
 
     @Test
-    public void testOptionalAbsent() {
+    public void testOptionalPresentAbsent() {
         assertThat(dao.findIds(Optional.empty()), equalTo(ImmutableList.of(1, 2)));
+    }
+
+    @Test
+    public void testOptionalReturnPresent() {
+        assertThat(dao.findNameById(1), equalTo(Optional.of("brian")));
+    }
+
+    @Test
+    public void testOptionalReturnAbsent() {
+        assertThat(dao.findNameById(3), equalTo(Optional.empty()));
     }
 
     @RegisterRowMapper(SomethingMapper.class)
@@ -56,5 +66,8 @@ public class TestOptionalParameters {
 
         @SqlQuery("select id from something where :name is null or name = :name order by id")
         List<Integer> findIds(@Bind("name") Optional<String> name);
+
+        @SqlQuery("select name from something where id = :id")
+        Optional<String> findNameById(@Bind long id);
     }
 }

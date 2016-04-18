@@ -37,9 +37,10 @@ class CollectorFactoryRegistry {
     private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
 
     CollectorFactoryRegistry() {
-        factories.add(new ListCollectorFactory<>());
-        factories.add(new SortedSetCollectorFactory<>());
-        factories.add(new SetCollectorFactory<>());
+        factories.add(new ListCollectorFactory());
+        factories.add(new SortedSetCollectorFactory());
+        factories.add(new SetCollectorFactory());
+        factories.add(new OptionalCollectorFactory());
     }
 
     private CollectorFactoryRegistry(CollectorFactoryRegistry that) {
@@ -70,7 +71,7 @@ class CollectorFactoryRegistry {
         return new CollectorFactoryRegistry(registry);
     }
 
-    private static class SortedSetCollectorFactory<T> implements CollectorFactory {
+    private static class SortedSetCollectorFactory implements CollectorFactory {
         @Override
         public boolean accepts(Type containerType) {
             return getErasedType(containerType) == SortedSet.class;
@@ -87,7 +88,7 @@ class CollectorFactoryRegistry {
         }
     }
 
-    private static class ListCollectorFactory<T> implements CollectorFactory {
+    private static class ListCollectorFactory implements CollectorFactory {
         @Override
         public boolean accepts(Type containerType) {
             return getErasedType(containerType) == List.class;
@@ -104,7 +105,7 @@ class CollectorFactoryRegistry {
         }
     }
 
-    private static class SetCollectorFactory<T> implements CollectorFactory {
+    private static class SetCollectorFactory implements CollectorFactory {
         @Override
         public boolean accepts(Type containerType) {
             return getErasedType(containerType) == Set.class;
@@ -118,6 +119,40 @@ class CollectorFactoryRegistry {
         @Override
         public Collector<?, ?, ?> build(Type containerType) {
             return Collectors.toSet();
+        }
+    }
+
+    private static class OptionalCollectorFactory implements CollectorFactory {
+        @Override
+        public boolean accepts(Type containerType) {
+            return getErasedType(containerType) == Optional.class;
+        }
+
+        @Override
+        public Optional<Type> elementType(Type containerType) {
+            return findGenericParameter(containerType, Optional.class);
+        }
+
+        @Override
+        public Collector<?, ?, ?> build(Type containerType) {
+            return Collector.<Object, OptionalBuilder, Optional<Object>>of(
+                    OptionalBuilder::new,
+                    OptionalBuilder::set,
+                    (left, right) -> left.build().isPresent() ? left : right,
+                    OptionalBuilder::build);
+        }
+
+    }
+
+    private static class OptionalBuilder<T> {
+        private Optional<T> optional = Optional.empty();
+
+        public void set(T value) {
+            optional = Optional.of(value);
+        }
+
+        public Optional<T> build() {
+            return optional;
         }
     }
 }
