@@ -24,9 +24,9 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.ResultBearing;
 import org.jdbi.v3.ResultIterator;
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Types;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.tweak.RowMapper;
 
@@ -45,7 +45,7 @@ abstract class ResultReturnThing
             return result(q.map(mapper), handle);
         }
         else {
-            return result(q.mapTo(elementType()), handle);
+            return result(q.mapTo(elementType(q.getContext())), handle);
         }
     }
 
@@ -65,20 +65,17 @@ abstract class ResultReturnThing
         else if (Stream.class.isAssignableFrom(returnClass)) {
             return new StreamReturnThing(returnType);
         }
-        else if (Iterable.class.isAssignableFrom(returnClass)) {
-            return new IterableReturningThing(returnType);
-        }
         else if (Iterator.class.isAssignableFrom(returnClass)) {
             return new IteratorResultReturnThing(returnType);
         }
         else {
-            return new SingleValueResultReturnThing(method, returnType);
+            return new DefaultResultReturnThing(method, returnType);
         }
     }
 
     protected abstract Object result(ResultBearing<?> q, Supplier<Handle> handle);
 
-    protected abstract Type elementType();
+    protected abstract Type elementType(StatementContext ctx);
 
     static class StreamReturnThing extends ResultReturnThing
     {
@@ -97,55 +94,38 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Type elementType() {
+        protected Type elementType(StatementContext ctx) {
             return elementType;
         }
     }
 
-    static class SingleValueResultReturnThing extends ResultReturnThing
+    static class DefaultResultReturnThing extends ResultReturnThing
     {
-        private final Type elementType;
-        private final Type containerType;
+        private final Type returnType;
 
-        SingleValueResultReturnThing(Method method, Type returnType)
+        DefaultResultReturnThing(Method method, Type returnType)
         {
-            if (method.isAnnotationPresent(SingleValueResult.class)) {
-                SingleValueResult svr = method.getAnnotation(SingleValueResult.class);
-                // try to guess generic type
-                if(SingleValueResult.Default.class == svr.value()){
-                    Class<?> erasedReturnType = Types.getErasedType(returnType);
-                    elementType = Types.findGenericParameter(returnType, erasedReturnType)
-                            .orElseThrow(() -> new IllegalArgumentException(
-                                    "Ambiguous generic information. SingleValueResult type could not be fetched."));
-
-                }else{
-                    elementType = svr.value();
-                }
-                this.containerType = returnType;
-            }
-            else {
-                this.elementType = returnType;
-                this.containerType = null;
-            }
-
+            this.returnType = returnType;
         }
 
         @Override
         @SuppressWarnings("unchecked")
         protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
         {
-            if (containerType != null) {
-                Collector collector = ((Query)q).getContext().findCollectorFor(containerType)
-                        .orElseThrow(() -> new IllegalStateException("No collector available for " + containerType));
-                return q.collect(collector);
+            if (q instanceof Query) {
+                Collector collector = ((Query)q).getContext().findCollectorFor(returnType).orElse(null);
+                if (collector != null) {
+                    return q.collect(collector);
+                }
             }
             return q.findFirst().orElse(null);
         }
 
         @Override
-        protected Type elementType()
+        protected Type elementType(StatementContext ctx)
         {
-            return elementType;
+            // if returnType is not supported by a collector factory, assume it to be a single-value return type.
+            return ctx.elementTypeFor(returnType).orElse(returnType);
         }
     }
 
@@ -169,7 +149,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Type elementType()
+        protected Type elementType(StatementContext ctx)
         {
             return elementType;
         }
@@ -250,40 +230,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Type elementType()
-        {
-            return elementType;
-        }
-    }
-
-    static class IterableReturningThing extends ResultReturnThing
-    {
-        private final Type iterableType;
-        private final Type elementType;
-
-        IterableReturningThing(Type returnType)
-        {
-            iterableType = returnType;
-            elementType = Types.findGenericParameter(iterableType, Iterable.class)
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect Iterable<T> element type T in method return type " + returnType));
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
-        {
-            if (q instanceof Query) {
-                Collector collector = ((Query) q).getContext().findCollectorFor(iterableType)
-                        .orElseThrow(() -> new IllegalStateException("No collector available for " + iterableType));
-                return q.collect(collector);
-            } else {
-                throw new UnsupportedOperationException("Collect is not supported for " + q);
-            }
-        }
-
-        @Override
-        protected Type elementType()
+        protected Type elementType(StatementContext ctx)
         {
             return elementType;
         }

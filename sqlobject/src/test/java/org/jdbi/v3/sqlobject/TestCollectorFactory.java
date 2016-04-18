@@ -27,7 +27,6 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
-import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -125,17 +124,14 @@ public class TestCollectorFactory {
         void insert(@BindBean Something it);
 
         @SqlQuery("select name from something where id = :id")
-        @SingleValueResult(String.class)
         Optional<String> findNameById(@Bind("id") int id);
 
         @SqlQuery("select name from something where id = :id")
-        @SingleValueResult
         Optional<String> smartFindNameById(@Bind("id") int id);
     }
 
     public interface Base<T> {
         @SqlQuery("select name from something where id = :id")
-        @SingleValueResult
         Optional<T> inheritedGenericFindNameById(@Bind("id") int id);
     }
 
