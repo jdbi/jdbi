@@ -18,6 +18,7 @@ import static org.jdbi.v3.Types.getErasedType;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URL;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -90,6 +91,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, Time.class, Types.TIME, PreparedStatement::setTime);
         register(map, Timestamp.class, Types.TIMESTAMP, PreparedStatement::setTimestamp);
         register(map, URL.class, Types.DATALINK, PreparedStatement::setURL);
+        register(map, URI.class, Types.VARCHAR, stringifyValue(PreparedStatement::setString));
         return Collections.unmodifiableMap(map);
     }
 
@@ -103,7 +105,9 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
             expectedClass = value.getClass();
         }
 
+        @SuppressWarnings("rawtypes")
         ArgBuilder v = BUILDERS.get(expectedClass);
+
         if (v != null) {
             return Optional.of(v.build(value));
         }
