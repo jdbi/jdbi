@@ -105,7 +105,9 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
             expectedClass = value.getClass();
         }
 
+        @SuppressWarnings("rawtypes")
         ArgBuilder v = BUILDERS.get(expectedClass);
+
         if (v != null) {
             return Optional.of(v.build(value));
         }
