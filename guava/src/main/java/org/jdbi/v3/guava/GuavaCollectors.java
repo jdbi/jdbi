@@ -101,6 +101,12 @@ public class GuavaCollectors {
         private Optional<T> optional = Optional.absent();
 
         public void set(T value) {
+            if (optional.isPresent()) {
+                throw new IllegalStateException(
+                        String.format("Multiple values for Optional type: ['%s','%s',...]",
+                                optional.get(),
+                                value));
+            }
             optional = Optional.of(value);
         }
 

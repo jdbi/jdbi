@@ -108,4 +108,10 @@ public class TestGuavaCollectors {
         assertFalse(shouldBeAbsent.isPresent());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void optionalMultiple() {
+        db.getSharedHandle().createQuery("select intValue from something")
+                .mapTo(int.class)
+                .collect(GuavaCollectors.toOptional());
+    }
 }

@@ -148,6 +148,12 @@ class CollectorFactoryRegistry {
         private Optional<T> optional = Optional.empty();
 
         public void set(T value) {
+            if (optional.isPresent()) {
+                throw new IllegalStateException(
+                        String.format("Multiple values for Optional type: ['%s','%s',...]",
+                                optional.get(),
+                                value));
+            }
             optional = Optional.of(value);
         }
 

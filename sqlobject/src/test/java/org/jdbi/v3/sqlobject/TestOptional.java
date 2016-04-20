@@ -59,6 +59,11 @@ public class TestOptional {
         assertThat(dao.findNameById(3), equalTo(Optional.empty()));
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testOptionalReturnMultiple() {
+        dao.findMultiple();
+    }
+
     @RegisterRowMapper(SomethingMapper.class)
     public interface DAO {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
@@ -69,5 +74,8 @@ public class TestOptional {
 
         @SqlQuery("select name from something where id = :id")
         Optional<String> findNameById(@Bind long id);
+
+        @SqlQuery("select name from something")
+        Optional<String> findMultiple();
     }
 }
