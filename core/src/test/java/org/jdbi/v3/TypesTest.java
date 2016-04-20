@@ -102,4 +102,31 @@ public class TypesTest {
         return getClass().getDeclaredMethod(methodName).getGenericReturnType();
     }
 
+
+    @Test
+    public void resolveType() throws Exception {
+        abstract class A<T> {
+            abstract T a();
+        }
+        abstract class B extends A<String> {
+        }
+
+        assertThat(Types.resolveType(A.class.getDeclaredMethod("a").getGenericReturnType(), B.class),
+                equalTo(String.class));
+    }
+
+    @Test
+    public void resolveTypeUnrelatedContext() throws Exception {
+        abstract class A1<T> {
+            abstract T a();
+        }
+        abstract class A2<T> {
+            abstract T a();
+        }
+        abstract class B extends A2<String> {
+        }
+
+        Type t = A1.class.getDeclaredMethod("a").getGenericReturnType();
+        assertThat(Types.resolveType(t, B.class), equalTo(t));
+    }
 }
