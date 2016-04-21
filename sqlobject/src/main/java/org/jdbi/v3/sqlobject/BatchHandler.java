@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.ConcreteStatementContext;
@@ -77,12 +78,10 @@ class BatchHandler extends CustomizingStatementHandler
     private int indexOfBatchChunkSizeParameter(Method method)
     {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-        for (int i = 0; i < parameterAnnotations.length; i++) {
-            if (Stream.of(parameterAnnotations[i]).anyMatch(BatchChunkSize.class::isInstance)) {
-                return i;
-            }
-        }
-        return -1;
+        return IntStream.range(0, parameterAnnotations.length)
+                        .filter(i -> Stream.of(parameterAnnotations[i]).anyMatch(BatchChunkSize.class::isInstance))
+                        .findFirst()
+                        .orElse(-1);
     }
 
     @Override
