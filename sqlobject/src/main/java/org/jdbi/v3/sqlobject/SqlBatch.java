@@ -17,8 +17,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.fasterxml.classmate.members.ResolvedMethod;
+import java.lang.reflect.Method;
 
 /**
  * Annotate a method to indicate that it will create and execute a SQL batch. At least one
@@ -52,7 +51,7 @@ public @interface SqlBatch
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config) {
+        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config) {
             return new BatchHandler(sqlObjectType, method);
         }
     }

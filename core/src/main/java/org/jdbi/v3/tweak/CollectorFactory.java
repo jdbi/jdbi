@@ -21,13 +21,25 @@ import java.util.stream.Collector;
  * Factory for building containers of elements.
  * The collector produces only objects of the type of the container elements.
  */
-@FunctionalInterface
 public interface CollectorFactory {
     /**
-     * Supplies a {@link Collector} for the given container type if the factory supports it; empty otherwise.
+     * Returns true if this factory can produce a collector for the given container type; false otherwise.
+     * @param containerType the container type
+     */
+    boolean accepts(Type containerType);
+
+    /**
+     * Returns the container element type if it can be discovered through reflection; empty otherwise.
+     * @param containerType the container type
+     * @return
+     */
+    Optional<Type> elementType(Type containerType);
+
+    /**
+     * Supplies a {@link Collector} for the given container type.
      *
-     * @param type the type of the container
+     * @param containerType the type of the container
      * @see org.jdbi.v3.StatementContext#findCollectorFor(Type)
      */
-    Optional<Collector<?, ?, ?>> build(Type type);
+    Collector<?, ?, ?> build(Type containerType);
 }

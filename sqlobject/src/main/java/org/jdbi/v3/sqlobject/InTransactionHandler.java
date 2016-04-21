@@ -13,9 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
 import java.util.function.Supplier;
-
-import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
@@ -23,7 +22,7 @@ import org.jdbi.v3.sqlobject.mixins.Transactional;
 class InTransactionHandler implements Handler
 {
     @Override
-    public Object invoke(Supplier<Handle> handle, final Object target, Object[] args, MethodProxy mp) throws Exception
+    public Object invoke(Supplier<Handle> handle, final Object target, Object[] args, Method method) throws Exception
     {
         @SuppressWarnings("unchecked")
         final TransactionalCallback callback = (TransactionalCallback) args[0];

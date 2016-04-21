@@ -16,8 +16,6 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
-import net.sf.cglib.proxy.MethodProxy;
-
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
@@ -28,21 +26,21 @@ class PassThroughTransactionHandler implements Handler
     private final TransactionIsolationLevel isolation;
     private final PassThroughHandler delegate;
 
-    PassThroughTransactionHandler(Method method, Transaction tx)
+    PassThroughTransactionHandler(Transaction tx)
     {
         this.isolation = tx.value();
-        this.delegate = new PassThroughHandler(method);
+        this.delegate = new PassThroughHandler();
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, final Object target, final Object[] args, final MethodProxy mp) throws Exception
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method) throws Exception
     {
         Handle h = handle.get();
         if (h.isInTransaction()) {
             throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
         }
 
-        TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(handle, target, args, mp);
+        TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(handle, target, args, method);
 
         if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
             return h.inTransaction(callback);

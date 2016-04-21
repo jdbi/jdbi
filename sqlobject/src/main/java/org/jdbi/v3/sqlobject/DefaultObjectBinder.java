@@ -23,20 +23,12 @@ import org.jdbi.v3.Types;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
 {
-    private final int paramIndex;
-
     DefaultObjectBinder()
     {
-        this(-1); // TODO 3: this sucks, if you @Bind with default settings, you lose position info
-    }
-
-    DefaultObjectBinder(int paramIndex)
-    {
-        this.paramIndex = paramIndex;
     }
 
     @Override
-    public void bind(SQLStatement<?> q, Parameter param, Bind b, Object arg)
+    public void bind(SQLStatement<?> q, Parameter param, int index, Bind b, Object arg)
     {
         final String bindName;
         if (b == null || b.value().equals(Bind.USE_PARAM_NAME)) {
@@ -64,7 +56,7 @@ class DefaultObjectBinder implements Binder<Bind, Object>
             }
         }
 
-        q.bindByType(paramIndex, arg, type);
+        q.bindByType(index, arg, type);
         q.bindByType(bindName, arg, type);
     }
 }

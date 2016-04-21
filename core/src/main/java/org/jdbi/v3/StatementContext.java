@@ -83,6 +83,12 @@ public interface StatementContext
     Optional<Collector<?, ?, ?>> findCollectorFor(Type type);
 
     /**
+     * Returns the element type for the given container type, if available.
+     * @param containerType the container type.
+     */
+    Optional<Type> elementTypeFor(Type containerType);
+
+    /**
      * Obtain the initial sql for the statement used to create the statement
      *
      * @return the initial sql

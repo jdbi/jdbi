@@ -19,8 +19,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.classmate.members.ResolvedMethod;
-
 import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
@@ -35,10 +33,10 @@ abstract class CustomizingStatementHandler implements Handler
     private final Method method;
 
     @SuppressWarnings("unchecked")
-    CustomizingStatementHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    CustomizingStatementHandler(Class<?> sqlObjectType, Method method)
     {
         this.sqlObjectType = sqlObjectType;
-        this.method = method.getRawMember();
+        this.method = method;
 
         for (final Annotation annotation : sqlObjectType.getAnnotations()) {
             if (annotation.annotationType().isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
@@ -56,12 +54,11 @@ abstract class CustomizingStatementHandler implements Handler
         }
 
 
-        final Annotation[] method_annotations = method.getRawMember().getAnnotations();
-        for (final Annotation method_annotation : method_annotations) {
-            final Class<? extends Annotation> m_anno_class = method_annotation.annotationType();
-            if (m_anno_class.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
+        for (final Annotation annotation : method.getAnnotations()) {
+            final Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (annotationType.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
                 final SqlStatementCustomizingAnnotation scf =
-                    m_anno_class.getAnnotation(SqlStatementCustomizingAnnotation.class);
+                    annotationType.getAnnotation(SqlStatementCustomizingAnnotation.class);
                 final SqlStatementCustomizerFactory f;
                 try {
                     f = scf.value().newInstance();
@@ -69,33 +66,32 @@ abstract class CustomizingStatementHandler implements Handler
                 catch (Exception e) {
                     throw new IllegalStateException("unable to instantiate statement customizer factory", e);
                 }
-                methodBasedCustomizerFactories.add(new FactoryAnnotationPair(f, method_annotation));
+                methodBasedCustomizerFactories.add(new FactoryAnnotationPair(f, annotation));
             }
 
         }
 
-        final Annotation[][] param_annotations = method.getRawMember().getParameterAnnotations();
-        for (int param_idx = 0; param_idx < param_annotations.length; param_idx++) {
+        final Annotation[][] paramAnnotations = method.getParameterAnnotations();
+        for (int paramIndex = 0; paramIndex < paramAnnotations.length; paramIndex++) {
             boolean thereBindingAnnotation = false;
-            for (final Annotation annotation : param_annotations[param_idx]) {
-                final Class<? extends Annotation> anno_class = annotation.annotationType();
+            for (final Annotation annotation : paramAnnotations[paramIndex]) {
+                final Class<? extends Annotation> annotationType = annotation.annotationType();
 
 
-                if (anno_class.isAnnotationPresent(BindingAnnotation.class)) {
+                if (annotationType.isAnnotationPresent(BindingAnnotation.class)) {
                     // we have a binder
-                    BindingAnnotation ba = annotation.annotationType().getAnnotation(BindingAnnotation.class);
+                    BindingAnnotation ba = annotationType.getAnnotation(BindingAnnotation.class);
                     try {
                         BinderFactory<Annotation, Object> fact = (BinderFactory<Annotation, Object>) ba.value().newInstance();
-                        binders.add(new Bindifier<>(this.method, annotation, param_idx, fact.build(annotation)));
-
+                        binders.add(new Bindifier<>(this.method, annotation, paramIndex, fact.build(annotation)));
                     }
                     catch (Exception e) {
-                        throw new IllegalStateException("unable to instantiate cusotmizer", e);
+                        throw new IllegalStateException("unable to instantiate customizer", e);
                     }
                     thereBindingAnnotation = true;
                 }
 
-                if (anno_class.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
+                if (annotationType.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
                     SqlStatementCustomizingAnnotation sca = annotation.annotationType()
                                                                       .getAnnotation(SqlStatementCustomizingAnnotation.class);
                     final SqlStatementCustomizerFactory f;
@@ -105,14 +101,14 @@ abstract class CustomizingStatementHandler implements Handler
                     catch (Exception e) {
                         throw new IllegalStateException("unable to instantiate sql statement customizer factory", e);
                     }
-                    paramBasedCustomizerFactories.add(new FactoryAnnotationIndexTriple(f, annotation, param_idx));
+                    paramBasedCustomizerFactories.add(new FactoryAnnotationIndexTriple(f, annotation, paramIndex));
                     thereBindingAnnotation = true;
                 }
             }
             if (!thereBindingAnnotation) {
                 // If there is no binding annotation on a parameter,
                 // then add a default parameter binder
-                binders.add(new Bindifier<>(method.getRawMember(), null, param_idx, new DefaultObjectBinder(param_idx)));
+                binders.add(new Bindifier<>(method, null, paramIndex, new DefaultObjectBinder()));
             }
         }
     }

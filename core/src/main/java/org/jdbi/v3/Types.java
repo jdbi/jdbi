@@ -63,12 +63,23 @@ public class Types {
      * @return the parameter on the supertype, if it is concretely defined.
      */
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype) {
-        Type parameterType = TypeToken.of(type)
-                .resolveType(parameterizedSupertype.getTypeParameters()[0])
+        Type parameterType = resolveType(parameterizedSupertype.getTypeParameters()[0], type);
+        return parameterType instanceof Class || parameterType instanceof ParameterizedType
+                ? Optional.of(parameterType)
+                : Optional.empty();
+    }
+
+    /**
+     * Resolves the <code>type</code> parameter in the context of <code>contextType</code>. For example, if
+     * <code>type</code> is <code>List.class.getMethod("get", int.class).getGenericReturnType()</code>, and
+     * <code>contextType</code> is <code>List&lt;String></code>, this method returns <code>String.class</code>
+     * @param type the type to be resolved in the scope of <code>contextType</code>
+     * @param contextType the context type in which <code>type</code> is interpreted to resolve the type.
+     * @return the resolved type.
+     */
+    public static Type resolveType(Type type, Type contextType) {
+        return TypeToken.of(contextType)
+                .resolveType(type)
                 .getType();
-        if (parameterType instanceof Class || parameterType instanceof ParameterizedType) {
-            return Optional.of(parameterType);
-        }
-        return Optional.empty();
     }
 }

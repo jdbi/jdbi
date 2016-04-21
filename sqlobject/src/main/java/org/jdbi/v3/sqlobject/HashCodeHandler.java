@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import net.sf.cglib.proxy.MethodProxy;
-
 import org.jdbi.v3.Handle;
 
 class HashCodeHandler implements Handler
@@ -39,7 +37,7 @@ class HashCodeHandler implements Handler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
         return System.identityHashCode(target);
     }

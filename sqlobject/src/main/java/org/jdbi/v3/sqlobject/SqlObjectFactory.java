@@ -25,12 +25,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.fasterxml.classmate.MemberResolver;
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.ResolvedTypeWithMembers;
-import com.fasterxml.classmate.TypeResolver;
-import com.fasterxml.classmate.members.ResolvedMethod;
-
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -45,7 +39,6 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
 
     private static final MethodInterceptor NO_OP = (proxy, method, args, methodProxy) -> null;
 
-    private final TypeResolver typeResolver = new TypeResolver();
     private final Map<Method, Handler> mixinHandlers = new HashMap<>();
     private final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Factory> factories = new ConcurrentHashMap<>();
@@ -67,12 +60,8 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
             return true;
         }
 
-        MemberResolver mr = new MemberResolver(typeResolver);
-        ResolvedType extension_type = typeResolver.resolve(extensionType);
-        ResolvedTypeWithMembers d = mr.resolve(extension_type, null, null);
-
-        return Stream.of(d.getMemberMethods())
-                .flatMap(m -> Stream.of(m.getRawMember().getAnnotations()))
+        return Stream.of(extensionType.getMethods())
+                .flatMap(m -> Stream.of(m.getAnnotations()))
                 .anyMatch(a -> a.annotationType().isAnnotationPresent(SqlMethodAnnotation.class));
     }
 
@@ -110,16 +99,10 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
 
     private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType, SqlObject config) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
-            final MemberResolver mr = new MemberResolver(typeResolver);
-            final ResolvedType sql_object_type = typeResolver.resolve(sqlObjectType);
-
-            final ResolvedTypeWithMembers d = mr.resolve(sql_object_type, null, null);
 
             final Map<Method, Handler> handlers = new HashMap<>();
-            for (final ResolvedMethod method : d.getMemberMethods()) {
-                final Method rawMethod = method.getRawMember();
-
-                Optional<? extends Class<? extends HandlerFactory>> factoryClass = Stream.of(rawMethod.getAnnotations())
+            for (Method method : sqlObjectType.getMethods()) {
+                Optional<? extends Class<? extends HandlerFactory>> factoryClass = Stream.of(method.getAnnotations())
                         .map(a -> a.annotationType().getAnnotation(SqlMethodAnnotation.class))
                         .filter(Objects::nonNull)
                         .map(a -> a.value())
@@ -128,13 +111,13 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
                 if (factoryClass.isPresent()) {
                     HandlerFactory factory = buildFactory(factoryClass.get());
                     Handler handler = factory.buildHandler(sqlObjectType, method, config);
-                    handlers.put(rawMethod, handler);
+                    handlers.put(method, handler);
                 }
-                else if (mixinHandlers.containsKey(rawMethod)) {
-                    handlers.put(rawMethod, mixinHandlers.get(rawMethod));
+                else if (mixinHandlers.containsKey(method)) {
+                    handlers.put(method, mixinHandlers.get(method));
                 }
                 else {
-                    handlers.put(rawMethod, new PassThroughHandler(rawMethod));
+                    handlers.put(method, new PassThroughHandler());
                 }
             }
 
@@ -165,7 +148,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
                 return methodProxy.invokeSuper(proxy, args);
             }
 
-            return handler.invoke(handle, proxy, args, methodProxy);
+            return handler.invoke(handle, proxy, args, method);
         };
     }
 }

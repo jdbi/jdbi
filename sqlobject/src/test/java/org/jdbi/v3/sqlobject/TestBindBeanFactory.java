@@ -59,8 +59,7 @@ public class TestBindBeanFactory
             handle.registerArgumentFactory(ObjectArgumentFactory.create(Foo.class));
             final Update testStatement = handle.createStatement("does not matter");
 
-
-            beanBinder.bind(testStatement, null, bindBeanImpl, testBean);
+            beanBinder.bind(testStatement, null, 0, bindBeanImpl, testBean);
 
             StatementContext context = testStatement.getContext();
             Binding binding = context.getBinding();

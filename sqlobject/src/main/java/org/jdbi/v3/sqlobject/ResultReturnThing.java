@@ -13,33 +13,31 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
-
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeBindings;
-import com.fasterxml.classmate.members.ResolvedMethod;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
 import org.jdbi.v3.ResultBearing;
 import org.jdbi.v3.ResultIterator;
+import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.Types;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
-import org.jdbi.v3.sqlobject.customizers.SingleValueResult;
 import org.jdbi.v3.tweak.RowMapper;
 
 abstract class ResultReturnThing
 {
-    public Object map(ResolvedMethod method, Query<?> q, Supplier<Handle> handle)
+    public Object map(Method method, Query<?> q, Supplier<Handle> handle)
     {
-        if (method.getRawMember().isAnnotationPresent(UseRowMapper.class)) {
+        if (method.isAnnotationPresent(UseRowMapper.class)) {
             final RowMapper<?> mapper;
             try {
-                mapper = method.getRawMember().getAnnotation(UseRowMapper.class).value().newInstance();
+                mapper = method.getAnnotation(UseRowMapper.class).value().newInstance();
             }
             catch (Exception e) {
                 throw new UnableToCreateStatementException("unable to access mapper", e, null);
@@ -47,47 +45,47 @@ abstract class ResultReturnThing
             return result(q.map(mapper), handle);
         }
         else {
-            return result(q.mapTo(mapTo(method)), handle);
+            return result(q.mapTo(elementType(q.getContext())), handle);
         }
     }
 
-    static ResultReturnThing forType(ResolvedMethod method)
+    static ResultReturnThing forMethod(Class<?> extensionType, Method method)
     {
-        ResolvedType return_type = method.getReturnType();
-        if (return_type == null) {
+        Type returnType = Types.resolveType(method.getGenericReturnType(), extensionType);
+        Class returnClass = Types.getErasedType(returnType);
+        if (Void.TYPE.equals(returnClass)) {
             throw new IllegalStateException(String.format(
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
-                    method.getDeclaringType().getErasedType().getName(),
+                    method.getDeclaringClass().getName(),
                     method.getName()));
         }
-        else if (return_type.isInstanceOf(ResultBearing.class)) {
-            return new ResultBearingResultReturnThing(method);
+        else if (ResultBearing.class.isAssignableFrom(returnClass)) {
+            return new ResultBearingResultReturnThing(returnType);
         }
-        else if (return_type.isInstanceOf(Stream.class)) {
-            return new StreamReturnThing(method);
+        else if (Stream.class.isAssignableFrom(returnClass)) {
+            return new StreamReturnThing(returnType);
         }
-        else if (return_type.isInstanceOf(Iterable.class)) {
-            return new IterableReturningThing(method);
-        }
-        else if (return_type.isInstanceOf(Iterator.class)) {
-            return new IteratorResultReturnThing(method);
+        else if (Iterator.class.isAssignableFrom(returnClass)) {
+            return new IteratorResultReturnThing(returnType);
         }
         else {
-            return new SingleValueResultReturnThing(method);
+            return new DefaultResultReturnThing(method, returnType);
         }
     }
 
     protected abstract Object result(ResultBearing<?> q, Supplier<Handle> handle);
 
-    protected abstract Class<?> mapTo(ResolvedMethod method);
+    protected abstract Type elementType(StatementContext ctx);
 
     static class StreamReturnThing extends ResultReturnThing
     {
-        private final ResolvedType type;
+        private final Type elementType;
 
-        StreamReturnThing(ResolvedMethod method)
+        StreamReturnThing(Type returnType)
         {
-            type = method.getReturnType().typeParametersFor(Stream.class).get(0);
+            elementType = Types.findGenericParameter(returnType, Stream.class)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Cannot reflect Stream<T> element type T in method return type " + returnType));
         }
 
         @Override
@@ -96,71 +94,52 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Class<?> mapTo(ResolvedMethod method) {
-            return type.getErasedType();
+        protected Type elementType(StatementContext ctx) {
+            return elementType;
         }
     }
 
-    static class SingleValueResultReturnThing extends ResultReturnThing
+    static class DefaultResultReturnThing extends ResultReturnThing
     {
-        private final Class<?> returnType;
-        private final Class<?> containerType;
+        private final Type returnType;
 
-        SingleValueResultReturnThing(ResolvedMethod method)
+        DefaultResultReturnThing(Method method, Type returnType)
         {
-            if (method.getRawMember().isAnnotationPresent(SingleValueResult.class)) {
-                SingleValueResult svr = method.getRawMember().getAnnotation(SingleValueResult.class);
-                // try to guess generic type
-                if(SingleValueResult.Default.class == svr.value()){
-                    TypeBindings typeBindings = method.getReturnType().getTypeBindings();
-                    if(typeBindings.size() == 1){
-                        this.returnType = typeBindings.getBoundType(0).getErasedType();
-                    }else{
-                        throw new IllegalArgumentException("Ambiguous generic information. SingleValueResult type could not be fetched.");
-                    }
-
-                }else{
-                    this.returnType = svr.value();
-                }
-                this.containerType = method.getReturnType().getErasedType();
-            }
-            else {
-                this.returnType = method.getReturnType().getErasedType();
-                this.containerType = null;
-            }
-
+            this.returnType = returnType;
         }
 
         @Override
         @SuppressWarnings("unchecked")
         protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
         {
-            if (containerType != null) {
-                Collector collector = ((Query)q).getContext().findCollectorFor(containerType)
-                        .orElseThrow(() -> new IllegalStateException("No collector available for " + containerType));
-                return q.collect(collector);
+            if (q instanceof Query) {
+                Collector collector = ((Query)q).getContext().findCollectorFor(returnType).orElse(null);
+                if (collector != null) {
+                    return q.collect(collector);
+                }
             }
             return q.findFirst().orElse(null);
         }
 
         @Override
-        protected Class<?> mapTo(ResolvedMethod method)
+        protected Type elementType(StatementContext ctx)
         {
-            return returnType;
+            // if returnType is not supported by a collector factory, assume it to be a single-value return type.
+            return ctx.elementTypeFor(returnType).orElse(returnType);
         }
     }
 
     static class ResultBearingResultReturnThing extends ResultReturnThing
     {
 
-        private final ResolvedType resolvedType;
+        private final Type elementType;
 
-        ResultBearingResultReturnThing(ResolvedMethod method)
+        ResultBearingResultReturnThing(Type returnType)
         {
             // extract T from Query<T>
-            ResolvedType query_type = method.getReturnType();
-            List<ResolvedType> query_return_types = query_type.typeParametersFor(org.jdbi.v3.Query.class);
-            this.resolvedType = query_return_types.get(0);
+            elementType = Types.findGenericParameter(returnType, Query.class)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Cannot reflect Query<T> element type T in method return type " + returnType));
         }
 
         @Override
@@ -170,22 +149,21 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Class<?> mapTo(ResolvedMethod method)
+        protected Type elementType(StatementContext ctx)
         {
-            return resolvedType.getErasedType();
+            return elementType;
         }
     }
 
     static class IteratorResultReturnThing extends ResultReturnThing
     {
-        private final ResolvedType resolvedType;
+        private final Type elementType;
 
-        IteratorResultReturnThing(ResolvedMethod method)
+        IteratorResultReturnThing(Type returnType)
         {
-            ResolvedType query_type = method.getReturnType();
-            List<ResolvedType> query_return_types = query_type.typeParametersFor(Iterator.class);
-            this.resolvedType = query_return_types.get(0);
-
+            this.elementType = Types.findGenericParameter(returnType, Iterator.class)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Cannot reflect Iterator<T> element type T in method return type " + returnType));
         }
 
         @Override
@@ -252,40 +230,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Class<?> mapTo(ResolvedMethod method)
-        {
-            return resolvedType.getErasedType();
-        }
-    }
-
-    static class IterableReturningThing extends ResultReturnThing
-    {
-        private final Class<?> iterableType;
-        private final Class<?> elementType;
-
-        IterableReturningThing(ResolvedMethod method)
-        {
-            // extract T from List<T>
-            ResolvedType returnType = method.getReturnType();
-            this.iterableType = returnType.getErasedType();
-            this.elementType = returnType.typeParametersFor(Iterable.class).get(0).getErasedType();
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
-        {
-            if (q instanceof Query) {
-                Collector collector = ((Query) q).getContext().findCollectorFor(iterableType)
-                        .orElseThrow(() -> new IllegalStateException("No collector available for " + iterableType));
-                return q.collect(collector);
-            } else {
-                throw new UnsupportedOperationException("Collect is not supported for " + q);
-            }
-        }
-
-        @Override
-        protected Class<?> mapTo(ResolvedMethod method)
+        protected Type elementType(StatementContext ctx)
         {
             return elementType;
         }

@@ -10,19 +10,14 @@ This file describes the changes expected in some eventual 3.0 release.
    so that we can avoid duplicating that logic. Means rejiggering how stuff gets
    bound quite a bit.
 * Clean up naming on sql object api elements
-* Use Type instead of Class to support more robust generics in mappers.
 * Rework the sharing of StatementContext and Mappers to make ownership of these objects more clear
 * Consider using Jackson for type mapping?
-* Consider CallbackFailedException wrapping policy (see #198)
 * Decide if ColumnNameMappingStrategy is the right abstraction?
 * Revisit how SqlObject binding annotations work - lots of icky generics that don't seem to actually provide safety
 * DefaultObjectBinder default constructor behaves differently due to lack of position information, so adding @Bind causes loss of functionality
 * Revisit resource ownership -- we need a better model to keep track of all the various JDBC resources we use and ensure they are closed
-* Big fat warning about Stream resource leaks -- must always use try-with-resources
 * Reinstate maven-shade-plugin.
 * Implement Types.findGenericParameter by hand, or copy TypeToken from Guava, and strip it down to only what we need.
-* Remove ArgumentFactory<T> generic parameter T.
 * StatementContext: overload columnMapperFor, argumentFor, and/or collectorFor with variants that take Class<T> and GenericType<T>?
   * Not much to be gained by overloading argumentFor, other than to help out folks who don't know that Class IS_A Type.
 * Coalesce MappingRegistry, ArgumentRegistry, and CollectorFactoryRegistry into a single type? They tend to get passed around together everywhere.
-* Migrate sqlobject from Classmate ResolvedType to Guava TypeToken?

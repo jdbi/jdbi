@@ -19,8 +19,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import com.fasterxml.classmate.members.ResolvedMethod;
-
 import org.jdbi.v3.TransactionIsolationLevel;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,9 +30,8 @@ public @interface Transaction
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config) {
-            Method rawMethod = method.getRawMember();
-            return new PassThroughTransactionHandler(rawMethod, rawMethod.getAnnotation(Transaction.class));
+        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config) {
+            return new PassThroughTransactionHandler(method.getAnnotation(Transaction.class));
         }
     }
 }

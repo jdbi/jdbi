@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.guava;
 
+import static org.jdbi.v3.Types.findGenericParameter;
 import static org.jdbi.v3.Types.getErasedType;
 
 import java.lang.reflect.Type;
@@ -100,6 +101,12 @@ public class GuavaCollectors {
         private Optional<T> optional = Optional.absent();
 
         public void set(T value) {
+            if (optional.isPresent()) {
+                throw new IllegalStateException(
+                        String.format("Multiple values for Optional type: ['%s','%s',...]",
+                                optional.get(),
+                                value));
+            }
             optional = Optional.of(value);
         }
 
@@ -126,8 +133,18 @@ public class GuavaCollectors {
                 .build();
 
         @Override
-        public java.util.Optional<Collector<?, ?, ?>> build(Type type) {
-            return java.util.Optional.ofNullable(collectors.get(getErasedType(type)));
+        public boolean accepts(Type containerType) {
+            return collectors.containsKey(getErasedType(containerType));
+        }
+
+        @Override
+        public java.util.Optional<Type> elementType(Type containerType) {
+            return findGenericParameter(containerType, getErasedType(containerType));
+        }
+
+        @Override
+        public Collector<?, ?, ?> build(Type containerType) {
+            return collectors.get(getErasedType(containerType));
         }
     }
 }

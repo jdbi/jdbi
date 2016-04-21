@@ -13,43 +13,40 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.function.Supplier;
-
-import com.fasterxml.classmate.members.ResolvedMethod;
-
-import net.sf.cglib.proxy.MethodProxy;
 
 import org.jdbi.v3.Call;
 import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.OutParameters;
+import org.jdbi.v3.Types;
 
 class CallHandler extends CustomizingStatementHandler
 {
     private final String sql;
     private final boolean returnOutParams;
 
-    CallHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    CallHandler(Class<?> sqlObjectType, Method method)
     {
         super(sqlObjectType, method);
 
-        if (null != method.getReturnType() ) {
-            if (method.getReturnType().isInstanceOf(OutParameters.class)){
-                returnOutParams = true;
-            }
-            else {
-                throw new IllegalArgumentException("@SqlCall methods may only return null or OutParameters at present");
-            }
-        }
-        else {
+        Type returnType = Types.resolveType(method.getGenericReturnType(), sqlObjectType);
+        Class<?> returnClass = Types.getErasedType(returnType);
+        if (Void.TYPE.equals(returnClass)) {
             returnOutParams = false;
+        } else if (OutParameters.class.isAssignableFrom(returnClass)) {
+            returnOutParams = true;
+        } else {
+            throw new IllegalArgumentException("@SqlCall methods may only return null or OutParameters at present");
         }
 
-        this.sql = SqlAnnotations.getSql(method.getRawMember().getAnnotation(SqlCall.class), method.getRawMember());
+        this.sql = SqlAnnotations.getSql(method.getAnnotation(SqlCall.class), method);
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
         Call call = handle.get().createCall(sql);
         populateSqlObjectData((ConcreteStatementContext)call.getContext());

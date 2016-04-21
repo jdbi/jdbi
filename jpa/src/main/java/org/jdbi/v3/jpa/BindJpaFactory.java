@@ -21,7 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 public class BindJpaFactory implements BinderFactory<BindJpa, Object> {
     @Override
     public Binder<BindJpa, Object> build(BindJpa annotation) {
-        return (q, parameter, bind, arg) -> {
+        return (q, parameter, index, bind, arg) -> {
             final String prefix;
             if (BindJpa.DEFAULT.equals(bind.value())) {
                 prefix = "";

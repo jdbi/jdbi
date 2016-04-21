@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import com.fasterxml.classmate.members.ResolvedMethod;
+import java.lang.reflect.Method;
 
 interface HandlerFactory {
-    Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config);
+    Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config);
 }

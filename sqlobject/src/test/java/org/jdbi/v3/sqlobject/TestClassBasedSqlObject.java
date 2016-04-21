@@ -51,7 +51,7 @@ public class TestClassBasedSqlObject
         assertThat(c, equalTo(new Something(3, "Cora")));
     }
 
-    @Test(expected = NoSuchMethodError.class)
+    @Test(expected = AbstractMethodError.class)
     public void testUnimplementedMethod() throws Exception
     {
         Dao dao = handle.attach(Dao.class);
@@ -68,7 +68,7 @@ public class TestClassBasedSqlObject
         assertThat(c, equalTo(new Something(3, "Cora")));
     }
 
-    @Test(expected = NoSuchMethodError.class)
+    @Test(expected = AbstractMethodError.class)
     public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception
     {
         SomethingDao dao = handle.attach(SomethingDao.class);

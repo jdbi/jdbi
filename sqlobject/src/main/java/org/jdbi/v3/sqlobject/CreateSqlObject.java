@@ -17,8 +17,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.fasterxml.classmate.members.ResolvedMethod;
+import java.lang.reflect.Method;
 
 /**
  * Use this annotation on a sql object method to create a new sql object with the same underlying handle as the sql
@@ -31,8 +30,8 @@ public @interface CreateSqlObject
 {
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, ResolvedMethod method, SqlObject config) {
-            return new CreateSqlObjectHandler(method.getRawMember().getReturnType(), config);
+        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config) {
+            return new CreateSqlObjectHandler(method.getReturnType(), config);
         }
     }
 }
