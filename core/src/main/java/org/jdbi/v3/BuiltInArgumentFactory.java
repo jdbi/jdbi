@@ -27,11 +27,18 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
@@ -92,6 +99,15 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, Timestamp.class, Types.TIMESTAMP, PreparedStatement::setTimestamp);
         register(map, URL.class, Types.DATALINK, PreparedStatement::setURL);
         register(map, URI.class, Types.VARCHAR, stringifyValue(PreparedStatement::setString));
+
+        Calendar c = Calendar.getInstance();
+        Supplier<Calendar> cal = () -> (Calendar) c.clone();
+        register(map, Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v), cal.get()));
+        register(map, LocalDate.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v.atStartOfDay())));
+        register(map, LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
+        register(map, OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant()), cal.get()));
+        register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant()), cal.get()));
+
         return Collections.unmodifiableMap(map);
     }
 
