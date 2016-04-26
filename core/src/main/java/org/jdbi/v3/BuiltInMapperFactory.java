@@ -29,11 +29,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.util.EnumMapper;
@@ -75,13 +73,11 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         mappers.put(URL.class, referenceMapper(ResultSet::getURL));
         mappers.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
 
-        Calendar c = Calendar.getInstance();
-        Supplier<Calendar> cal = () -> (Calendar) c.clone();
-        mappers.put(Instant.class, referenceMapper((r, i) -> getInstant(r, i, cal.get())));
+        mappers.put(Instant.class, referenceMapper(BuiltInMapperFactory::getInstant));
         mappers.put(LocalDate.class, referenceMapper(BuiltInMapperFactory::getLocalDate));
         mappers.put(LocalDateTime.class, referenceMapper(BuiltInMapperFactory::getLocalDateTime));
-        mappers.put(OffsetDateTime.class, referenceMapper((r, i) -> getOffsetDateTime(r, i, cal.get())));
-        mappers.put(ZonedDateTime.class, referenceMapper((r, i) -> getZonedDateTime(r, i, cal.get())));
+        mappers.put(OffsetDateTime.class, referenceMapper(BuiltInMapperFactory::getOffsetDateTime));
+        mappers.put(ZonedDateTime.class, referenceMapper(BuiltInMapperFactory::getZonedDateTime));
     }
 
     @Override
@@ -133,8 +129,8 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         }
     }
 
-    private static Instant getInstant(ResultSet r, int i, Calendar cal) throws SQLException {
-        Timestamp ts = r.getTimestamp(i, cal);
+    private static Instant getInstant(ResultSet r, int i) throws SQLException {
+        Timestamp ts = r.getTimestamp(i);
         return ts == null ? null : ts.toInstant();
     }
 
@@ -148,13 +144,13 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         return ts == null ? null : ts.toLocalDateTime();
     }
 
-    private static OffsetDateTime getOffsetDateTime(ResultSet r, int i, Calendar cal) throws SQLException {
-        Timestamp ts = r.getTimestamp(i, cal);
+    private static OffsetDateTime getOffsetDateTime(ResultSet r, int i) throws SQLException {
+        Timestamp ts = r.getTimestamp(i);
         return ts == null ? null : OffsetDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
     }
 
-    private static ZonedDateTime getZonedDateTime(ResultSet r, int i, Calendar cal) throws SQLException {
-        Timestamp ts = r.getTimestamp(i, cal);
+    private static ZonedDateTime getZonedDateTime(ResultSet r, int i) throws SQLException {
+        Timestamp ts = r.getTimestamp(i);
         return ts == null ? null : ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
     }
 }

@@ -100,13 +100,11 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, URL.class, Types.DATALINK, PreparedStatement::setURL);
         register(map, URI.class, Types.VARCHAR, stringifyValue(PreparedStatement::setString));
 
-        Calendar c = Calendar.getInstance();
-        Supplier<Calendar> cal = () -> (Calendar) c.clone();
-        register(map, Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v), cal.get()));
+        register(map, Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
         register(map, LocalDate.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v.atStartOfDay())));
         register(map, LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
-        register(map, OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant()), cal.get()));
-        register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant()), cal.get()));
+        register(map, OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
+        register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
 
         return Collections.unmodifiableMap(map);
     }
