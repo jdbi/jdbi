@@ -403,7 +403,7 @@ public class DBI implements IDBI
 
     /**
      * Create a new sql object which will obtain and release connections from this dbi instance, as it needs to,
-     * and can, respectively. You should not explicitely close this sql object
+     * and can, respectively. You should not explicitly close this sql object
      *
      * @param sqlObjectType an interface with annotations declaring desired behavior
      * @param <SqlObjectType>
