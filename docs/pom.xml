@@ -45,7 +45,7 @@
                 </executions>
 
                 <configuration>
-                    <sourceDirectory>.</sourceDirectory>
+                    <sourceDirectory>src/adoc</sourceDirectory>
                     <backend>html</backend>
                 </configuration>
             </plugin>
@@ -76,12 +76,10 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <pubScmUrl>scm:git:git@github.com:jdbi/jdbi.git</pubScmUrl>
-                            <scmBranch>gh-pages</scmBranch>
+                            <pubScmUrl>scm:git:git@github.com:jdbi/jdbi.github.io.git</pubScmUrl>
                             <scmPubCheckoutDirectory>/tmp/gh-pages-publish</scmPubCheckoutDirectory>
                             <content>${project.build.directory}/generated-docs</content>
                             <localCheckout>true</localCheckout>
-                            <excludes>.git</excludes>
                         </configuration>
                     </plugin>
                 </plugins>
