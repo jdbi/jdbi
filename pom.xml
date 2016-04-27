@@ -290,6 +290,7 @@
         <module>core</module>
         <module>sqlobject</module>
         <module>guava</module>
+        <module>jodatime</module>
         <module>jpa</module>
         <module>spring</module>
     </modules>
