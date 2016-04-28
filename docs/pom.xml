@@ -28,6 +28,10 @@
         Build and deploy jdbi docs, written in AsciiDoc.
     </description>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
