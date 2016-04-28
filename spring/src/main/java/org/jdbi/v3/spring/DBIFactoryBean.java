@@ -16,13 +16,13 @@ package org.jdbi.v3.spring;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.springframework.beans.factory.FactoryBean;
-
-import javax.annotation.PostConstruct;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 /**
  * Utility class which constructs an {@link DBI} instance which can conveniently participate
@@ -52,7 +52,8 @@ public class DBIFactoryBean implements FactoryBean<DBI>
     @Override
     public DBI getObject() throws Exception
     {
-        final DBI dbi = DBI.create(new SpringDataSourceConnectionFactory(dataSource));
+        final DBI dbi = DBI.create(() -> DataSourceUtils.getConnection(dataSource));
+
         if (statementLocator != null) {
             dbi.setStatementLocator(statementLocator);
         }
