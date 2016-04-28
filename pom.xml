@@ -115,6 +115,13 @@
               </toolchains>
             </configuration>
           </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <forkCount>1</forkCount>
+            </configuration>
+          </plugin>
         </plugins>
       </pluginManagement>
       <plugins>
@@ -290,6 +297,7 @@
         <module>core</module>
         <module>sqlobject</module>
         <module>guava</module>
+        <module>jodatime</module>
         <module>jpa</module>
         <module>spring</module>
         <module>docs</module>
