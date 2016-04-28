@@ -1,0 +1,21 @@
+= jdbi3 documentation
+
+*jdbi* is a thin wrapper around the Java database
+API, JDBC.  It provides helpful abstractions around
+accessing your database tables in a way that respects
+the relational model.
+
+Unlike an ORM, *jdbi* does not pretend to seamlessly
+convert your Java object model into the relational
+model -- instead, it provides easy mapping between
+SQL _you_ write and simple tabular data structures.
+
+*jdbi3* is an update which sports a cleaned up API,
+a stronger resource ownership model, and leverages
+the power of the new Java 8 APIs.
+
+WARNING: *jdbi3* is currently under active development.
+http://www.jdbi.org[jdbi2] is still the stable release.
+*jdbi3* should generously be considered alpha quality.
+We love feedback and early testing, but be prepared to
+find a few bugs!

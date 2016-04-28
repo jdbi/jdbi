@@ -293,5 +293,6 @@
         <module>jodatime</module>
         <module>jpa</module>
         <module>spring</module>
+        <module>docs</module>
     </modules>
 </project>
