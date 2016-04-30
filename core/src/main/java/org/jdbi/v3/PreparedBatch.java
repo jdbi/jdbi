@@ -30,8 +30,6 @@ import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
-import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.util.SingleColumnMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,25 +44,17 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
 {
     private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
 
-    private final MappingRegistry mappingRegistry;
     private final List<PreparedBatchPart> parts = new ArrayList<>();
     private Binding currentBinding;
 
-    PreparedBatch(StatementLocator locator,
-                  StatementRewriter rewriter,
+    PreparedBatch(JdbiConfig config,
                   Handle handle,
                   StatementBuilder statementBuilder,
                   String sql,
                   ConcreteStatementContext ctx,
-                  TimingCollector timingCollector,
-                  Collection<StatementCustomizer> statementCustomizers,
-                  ArgumentRegistry argumentRegistry,
-                  MappingRegistry mappingRegistry,
-                  CollectorFactoryRegistry collectorFactoryRegistry)
+                  Collection<StatementCustomizer> statementCustomizers)
     {
-        super(new Binding(), locator, rewriter, handle, statementBuilder, sql, ctx, timingCollector,
-                statementCustomizers, argumentRegistry, collectorFactoryRegistry);
-        this.mappingRegistry = mappingRegistry;
+        super(config, new Binding(), handle, statementBuilder, sql, ctx, statementCustomizers);
         this.currentBinding = new Binding();
     }
 
@@ -131,16 +121,16 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(GenericType<GeneratedKeyType> generatedKeyType) {
-        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType.getType(), mappingRegistry));
+        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType.getType(), config.mappingRegistry));
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType) {
-        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType, mappingRegistry));
+        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType, config.mappingRegistry));
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType,
                                                                                      String... columnNames) {
-        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType, mappingRegistry), columnNames);
+        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType, config.mappingRegistry), columnNames);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(ColumnMapper<GeneratedKeyType> mapper,
@@ -235,17 +225,13 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(this.currentBinding,
+        PreparedBatchPart part = new PreparedBatchPart(config,
+                                                       this.currentBinding,
                                                        this,
-                                                       getStatementLocator(),
-                                                       getRewriter(),
                                                        getHandle(),
                                                        getStatementBuilder(),
                                                        getSql(),
-                                                       getConcreteContext(),
-                                                       getTimingCollector(),
-                                                       getArgumentRegistry(),
-                                                       getCollectorFactoryRegistry());
+                                                       getConcreteContext());
         parts.add(part);
         this.currentBinding = new Binding();
         return part;

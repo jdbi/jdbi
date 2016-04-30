@@ -17,8 +17,6 @@ import java.util.Collections;
 
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
-import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
  * Represents a single statement in a prepared batch
@@ -29,20 +27,15 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
 
-    PreparedBatchPart(Binding binding,
+    PreparedBatchPart(JdbiConfig config,
+                      Binding binding,
                       PreparedBatch batch,
-                      StatementLocator locator,
-                      StatementRewriter rewriter,
                       Handle handle,
                       StatementBuilder cache,
                       String sql,
-                      ConcreteStatementContext context,
-                      TimingCollector timingCollector,
-                      ArgumentRegistry argumentRegistry,
-                      CollectorFactoryRegistry collectorFactoryRegistry)
+                      ConcreteStatementContext context)
     {
-        super(binding, locator, rewriter, handle, cache, sql, context, timingCollector,
-                Collections.<StatementCustomizer>emptyList(), argumentRegistry, collectorFactoryRegistry);
+        super(config, binding, handle, cache, sql, context, Collections.<StatementCustomizer>emptyList());
         this.batch = batch;
     }
 

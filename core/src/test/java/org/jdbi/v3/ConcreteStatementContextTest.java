@@ -18,7 +18,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.junit.Test;
@@ -56,11 +55,11 @@ public class ConcreteStatementContextTest {
     public void testMapperForDelegatesToRegistry() {
         ColumnMapper<?> mapper = new FooMapper();
 
-        MappingRegistry registry = new MappingRegistry();
-        registry.addColumnMapper(mapper);
+        JdbiConfig config = new JdbiConfig();
+        config.mappingRegistry.addColumnMapper(mapper);
 
         final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry, new ArgumentRegistry(), new CollectorFactoryRegistry());
+                new ConcreteStatementContext(config);
 
         assertThat(context.findColumnMapperFor(Foo.class).get(), equalTo(mapper));
     }

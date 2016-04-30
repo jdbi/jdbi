@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -31,11 +30,9 @@ import org.jdbi.v3.tweak.ColumnMapper;
 
 public final class ConcreteStatementContext implements StatementContext
 {
+    private final JdbiConfig config;
+
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
-    private final Map<String, Object>        attributes = new HashMap<>();
-    private final MappingRegistry mappingRegistry;
-    private final ArgumentRegistry argumentRegistry;
-    private final CollectorFactoryRegistry collectors;
 
     private String            rawSql;
     private String            rewrittenSql;
@@ -51,15 +48,12 @@ public final class ConcreteStatementContext implements StatementContext
 
     /* visible for testing */
     ConcreteStatementContext() {
-        this(new HashMap<>(), new MappingRegistry(), new ArgumentRegistry(), new CollectorFactoryRegistry());
+        this(new JdbiConfig());
     }
 
-    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry, ArgumentRegistry argumentRegistry, CollectorFactoryRegistry collectors)
+    ConcreteStatementContext(JdbiConfig config)
     {
-        attributes.putAll(globalAttributes);
-        this.mappingRegistry = mappingRegistry;
-        this.argumentRegistry = argumentRegistry;
-        this.collectors = collectors;
+        this.config = config;
     }
 
     /**
@@ -73,7 +67,7 @@ public final class ConcreteStatementContext implements StatementContext
     @Override
     public Object setAttribute(String key, Object value)
     {
-        return attributes.put(key, value);
+        return config.statementAttributes.put(key, value);
     }
 
     /**
@@ -86,7 +80,7 @@ public final class ConcreteStatementContext implements StatementContext
     @Override
     public Object getAttribute(String key)
     {
-        return this.attributes.get(key);
+        return config.statementAttributes.get(key);
     }
 
     /**
@@ -98,28 +92,28 @@ public final class ConcreteStatementContext implements StatementContext
     @Override
     public Map<String, Object> getAttributes()
     {
-        return attributes;
+        return config.statementAttributes;
     }
 
     @Override
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type)
     {
-        return mappingRegistry.findColumnMapperFor(type, this);
+        return config.mappingRegistry.findColumnMapperFor(type, this);
     }
 
     @Override
     public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return argumentRegistry.findArgumentFor(type, value, this);
+        return config.argumentRegistry.findArgumentFor(type, value, this);
     }
 
     @Override
     public Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
-        return collectors.findCollectorFor(type);
+        return config.collectorRegistry.findCollectorFor(type);
     }
 
     @Override
     public Optional<Type> elementTypeFor(Type containerType) {
-        return collectors.elementTypeFor(containerType);
+        return config.collectorRegistry.elementTypeFor(containerType);
     }
 
     void setRawSql(String rawSql)

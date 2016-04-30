@@ -26,19 +26,19 @@ import org.jdbi.v3.tweak.StatementCustomizer;
 
 abstract class BaseStatement
 {
+    final JdbiConfig config;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
     private final ConcreteStatementContext context;
-    private final ArgumentRegistry argumentRegistry;
 
-    protected BaseStatement(final ConcreteStatementContext context, ArgumentRegistry argumentRegistry)
+    BaseStatement(JdbiConfig config, ConcreteStatementContext context)
     {
+        this.config = config;
         this.context = context;
-        this.argumentRegistry = argumentRegistry;
         addCustomizer(new StatementCleaningCustomizer());
     }
 
-    protected final ArgumentRegistry getArgumentRegistry() {
-        return argumentRegistry;
+    final ArgumentRegistry getArgumentRegistry() {
+        return config.argumentRegistry;
     }
 
     protected final ConcreteStatementContext getConcreteContext()
