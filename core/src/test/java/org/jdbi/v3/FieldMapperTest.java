@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,7 +42,8 @@ public class FieldMapperTest {
     @Mock
     ResultSetMetaData resultSetMetaData;
 
-    TestingStatementContext ctx = new TestingStatementContext(Collections.emptyMap());
+    JdbiConfig config = new JdbiConfig();
+    StatementContext ctx = new StatementContext(config);
 
     FieldMapper<SampleBean> mapper = new FieldMapper<>(SampleBean.class);
     
@@ -153,7 +153,7 @@ public class FieldMapperTest {
 
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
-        ctx.registerColumnMapper(new ValueTypeMapper());
+        config.mappingRegistry.addColumnMapper(new ValueTypeMapper());
 
         when(resultSetMetaData.getColumnCount()).thenReturn(2);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");

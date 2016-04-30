@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.ConcreteStatementContext;
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.SQLStatement;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 
@@ -113,7 +113,7 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    protected final void populateSqlObjectData(ConcreteStatementContext q)
+    protected final void populateSqlObjectData(StatementContext q)
     {
         q.setSqlObjectMethod(method);
         q.setSqlObjectType(sqlObjectType);

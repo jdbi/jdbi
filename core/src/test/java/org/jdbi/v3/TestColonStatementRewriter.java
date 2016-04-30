@@ -38,7 +38,7 @@ public class TestColonStatementRewriter
     {
         return rw.rewrite(sql,
                 new Binding(),
-                new ConcreteStatementContext());
+                new StatementContext());
     }
 
     @Test

@@ -36,7 +36,7 @@ public class Batch extends BaseStatement
 
     Batch(JdbiConfig config,
           Connection connection,
-          ConcreteStatementContext statementContext)
+          StatementContext statementContext)
     {
         super(config, statementContext);
         this.connection = connection;

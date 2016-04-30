@@ -35,7 +35,7 @@ public class Update extends SQLStatement<Update>
            Handle handle,
            StatementBuilder statementBuilder,
            String sql,
-           ConcreteStatementContext ctx)
+           StatementContext ctx)
     {
         super(config, new Binding(), handle, statementBuilder, sql, ctx, Collections.<StatementCustomizer>emptyList());
     }
@@ -65,9 +65,9 @@ public class Update extends SQLStatement<Update>
      */
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final RowMapper<GeneratedKeyType> mapper, String columnName)
     {
-        getConcreteContext().setReturningGeneratedKeys(true);
+        getContext().setReturningGeneratedKeys(true);
         if (columnName != null && !columnName.isEmpty()) {
-            getConcreteContext().setGeneratedKeysColumnNames(new String[] { columnName } );
+            getContext().setGeneratedKeysColumnNames(new String[] { columnName } );
         }
         return new GeneratedKeys<>(mapper,
                 Update.this,

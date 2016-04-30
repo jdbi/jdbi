@@ -51,7 +51,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                   Handle handle,
                   StatementBuilder statementBuilder,
                   String sql,
-                  ConcreteStatementContext ctx,
+                  StatementContext ctx,
                   Collection<StatementCustomizer> statementCustomizers)
     {
         super(config, new Binding(), handle, statementBuilder, sql, ctx, statementCustomizers);
@@ -231,7 +231,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
                                                        getHandle(),
                                                        getStatementBuilder(),
                                                        getSql(),
-                                                       getConcreteContext());
+                                                       getContext());
         parts.add(part);
         this.currentBinding = new Binding();
         return part;

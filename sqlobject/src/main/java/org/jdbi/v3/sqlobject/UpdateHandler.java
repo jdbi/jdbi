@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.GeneratedKeys;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Types;
@@ -65,7 +64,7 @@ class UpdateHandler extends CustomizingStatementHandler
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
         Update q = handle.get().createStatement(sql);
-        populateSqlObjectData((ConcreteStatementContext)q.getContext());
+        populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
         return this.returner.value(q, handle);

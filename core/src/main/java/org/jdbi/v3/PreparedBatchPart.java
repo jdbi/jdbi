@@ -33,7 +33,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
                       Handle handle,
                       StatementBuilder cache,
                       String sql,
-                      ConcreteStatementContext context)
+                      StatementContext context)
     {
         super(config, binding, handle, cache, sql, context, Collections.<StatementCustomizer>emptyList());
         this.batch = batch;

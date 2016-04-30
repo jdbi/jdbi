@@ -66,7 +66,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
                  Handle handle,
                  StatementBuilder statementBuilder,
                  String sql,
-                 ConcreteStatementContext ctx,
+                 StatementContext ctx,
                  Collection<StatementCustomizer> statementCustomizers) {
         super(config, ctx);
         assert verifyOurNastyDowncastIsOkay();
@@ -1253,9 +1253,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     protected PreparedStatement internalExecute()
     {
         final String located_sql = wrapLookup(sql);
-        getConcreteContext().setLocatedSql(located_sql);
+        getContext().setLocatedSql(located_sql);
         rewritten = config.statementRewriter.rewrite(located_sql, getParameters(), getContext());
-        getConcreteContext().setRewrittenSql(rewritten.getSql());
+        getContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
                 stmt = statementBuilder.createCall(handle.getConnection(), rewritten.getSql(), getContext());
@@ -1272,7 +1272,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         // caching statement builder relies on the statement *not* being closed.
         addCleanable(new Cleanables.StatementBuilderCleanable(statementBuilder, handle.getConnection(), sql, stmt));
 
-        getConcreteContext().setStatement(stmt);
+        getContext().setStatement(stmt);
 
         try {
             rewritten.bind(getParameters(), stmt);

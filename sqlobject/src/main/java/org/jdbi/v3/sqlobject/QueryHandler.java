@@ -16,7 +16,6 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
 
@@ -36,7 +35,7 @@ class QueryHandler extends CustomizingStatementHandler
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
         Query<?> q = handle.get().createQuery(sql);
-        populateSqlObjectData((ConcreteStatementContext) q.getContext());
+        populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
 

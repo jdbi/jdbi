@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.exceptions.StatementException;
@@ -128,13 +127,8 @@ public class TestClasspathStatementLocator
     public void testCachesOriginalQueryWhenNotFound() throws Exception
     {
         StatementLocator statementLocator = new ClasspathStatementLocator();
-        StatementContext statementContext = new TestingStatementContext(new HashMap<>()) {
-
-            @Override
-            public Class<?> getSqlObjectType() {
-                return TestClasspathStatementLocator.class;
-            }
-        };
+        StatementContext statementContext = new StatementContext();
+        statementContext.setSqlObjectType(TestClasspathStatementLocator.class);
 
         String input = "missing query";
         String located = statementLocator.locate(input, statementContext);

@@ -46,7 +46,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
           Handle handle,
           StatementBuilder cache,
           String sql,
-          ConcreteStatementContext ctx,
+          StatementContext ctx,
           Collection<StatementCustomizer> customizers)
     {
         super(config, params, handle, cache, sql, ctx, customizers);
@@ -148,7 +148,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
                 getHandle(),
                 getStatementBuilder(),
                 getSql(),
-                getConcreteContext(),
+                getContext(),
                 getStatementCustomizers());
     }
 
@@ -229,7 +229,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @return the modified query
      */
     public Query<ResultType> concurrentUpdatable() {
-        getConcreteContext().setConcurrentUpdatable(true);
+        getContext().setConcurrentUpdatable(true);
         return this;
     }
 

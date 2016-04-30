@@ -72,7 +72,7 @@ class BasicHandle implements Handle
                 this,
                 statementBuilder,
                 sql,
-                new ConcreteStatementContext(queryConfig),
+                new StatementContext(queryConfig),
                 Collections.<StatementCustomizer>emptyList());
     }
 
@@ -227,7 +227,7 @@ class BasicHandle implements Handle
                           this,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(updateConfig));
+                          new StatementContext(updateConfig));
     }
 
     @Override
@@ -238,7 +238,7 @@ class BasicHandle implements Handle
                         this,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(callConfig),
+                        new StatementContext(callConfig),
                         Collections.<StatementCustomizer>emptyList());
     }
 
@@ -267,7 +267,7 @@ class BasicHandle implements Handle
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(batchConfig),
+                                 new StatementContext(batchConfig),
                                  Collections.<StatementCustomizer>emptyList());
     }
 
@@ -277,7 +277,7 @@ class BasicHandle implements Handle
         JdbiConfig batchConfig = JdbiConfig.copyOf(config);
         return new Batch(batchConfig,
                          this.connection,
-                         new ConcreteStatementContext(batchConfig));
+                         new StatementContext(batchConfig));
     }
 
     @Override
@@ -360,7 +360,7 @@ class BasicHandle implements Handle
     public Script createScript(String name)
     {
         JdbiConfig scriptConfig = JdbiConfig.copyOf(config);
-        return new Script(scriptConfig, this, name, new ConcreteStatementContext(scriptConfig));
+        return new Script(scriptConfig, this, name, new StatementContext(scriptConfig));
     }
 
     @Override

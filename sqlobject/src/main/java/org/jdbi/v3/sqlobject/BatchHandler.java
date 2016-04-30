@@ -23,7 +23,6 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.PreparedBatch;
 import org.jdbi.v3.PreparedBatchPart;
@@ -118,7 +117,7 @@ class BatchHandler extends CustomizingStatementHandler
         List<int[]> rs_parts = new ArrayList<>();
 
         PreparedBatch batch = handle.prepareBatch(sql);
-        populateSqlObjectData((ConcreteStatementContext) batch.getContext());
+        populateSqlObjectData(batch.getContext());
         applyCustomizers(batch, args);
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
@@ -132,7 +131,7 @@ class BatchHandler extends CustomizingStatementHandler
                 processed = 0;
                 rs_parts.add(executeBatch(handle, batch));
                 batch = handle.prepareBatch(sql);
-                populateSqlObjectData((ConcreteStatementContext) batch.getContext());
+                populateSqlObjectData(batch.getContext());
                 applyCustomizers(batch, args);
             }
         }
