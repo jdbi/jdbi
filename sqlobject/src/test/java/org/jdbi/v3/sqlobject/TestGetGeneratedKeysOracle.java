@@ -57,7 +57,7 @@ public class TestGetGeneratedKeysOracle {
 
     /**
      * Oracle needs to be queried by index and not id (like
-     * {@link FigureItOutRowMapper} does).
+     * {@link DefaultGeneratedKeyMapper} does).
      */
     public static class OracleGeneratedKeyMapper implements RowMapper<Long> {
 

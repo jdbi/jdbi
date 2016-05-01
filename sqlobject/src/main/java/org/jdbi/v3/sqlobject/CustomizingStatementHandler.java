@@ -115,7 +115,6 @@ abstract class CustomizingStatementHandler implements Handler
 
     protected final void populateSqlObjectData(StatementContext q)
     {
-        q.setSqlObjectMethod(method);
         q.setSqlObjectType(sqlObjectType);
     }
 

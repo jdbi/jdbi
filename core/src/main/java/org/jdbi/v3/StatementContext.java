@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,7 +46,6 @@ public final class StatementContext
     private Connection        connection;
     private Binding           binding;
     private Class<?>          sqlObjectType;
-    private Method            sqlObjectMethod;
     private boolean           returningGeneratedKeys;
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
@@ -236,17 +234,6 @@ public final class StatementContext
     public Class<?> getSqlObjectType()
     {
         return sqlObjectType;
-    }
-
-    // TODO make default access or remove altogether
-    public void setSqlObjectMethod(Method sqlObjectMethod)
-    {
-        this.sqlObjectMethod = sqlObjectMethod;
-    }
-
-    public Method getSqlObjectMethod()
-    {
-        return sqlObjectMethod;
     }
 
     void setReturningGeneratedKeys(boolean b)

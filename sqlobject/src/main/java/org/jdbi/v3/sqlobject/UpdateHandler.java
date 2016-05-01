@@ -44,11 +44,16 @@ class UpdateHandler extends CustomizingStatementHandler
             final ResultReturnThing magic = ResultReturnThing.forMethod(sqlObjectType, method);
             final GetGeneratedKeys ggk = method.getAnnotation(GetGeneratedKeys.class);
             final RowMapper<?> mapper;
-            try {
-                mapper = ggk.value().newInstance();
+            if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
+                mapper = new DefaultGeneratedKeyMapper(returnType, ggk.columnName());
             }
-            catch (Exception e) {
-                throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
+            else {
+                try {
+                    mapper = ggk.value().newInstance();
+                }
+                catch (Exception e) {
+                    throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
+                }
             }
             this.returner = (update, handle) -> {
                 GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
