@@ -20,6 +20,7 @@ public class PostgresJdbiPlugin implements JdbiPlugin {
     @Override
     public Handle customizeHandle(Handle handle) {
         handle.registerArgumentFactory(new SqlArrayArgumentFactory());
+        handle.registerArgumentFactory(new TypedEnumArgumentFactory());
         handle.registerColumnMapper(new SqlArrayMapperFactory());
         return handle;
     }
