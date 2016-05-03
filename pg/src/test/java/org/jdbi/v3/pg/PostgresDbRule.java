@@ -1,19 +1,21 @@
 package org.jdbi.v3.pg;
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgreSQLRule;
-
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+
+import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
+import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
 
 /**
  * Helper for a single, superuser privileged Postgres database.
  */
 public class PostgresDbRule implements TestRule {
 
-    public EmbeddedPostgreSQLRule pg = new EmbeddedPostgreSQLRule();
+    public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
     private DBI dbi;
     private Handle h;
 
@@ -22,8 +24,9 @@ public class PostgresDbRule implements TestRule {
         return pg.apply(new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                dbi = DBI.create(pg.getEmbeddedPostgreSQL().getDatabase("postgres", "postgres"))
-                        .installPlugin(new PostgresJdbiPlugin());
+                dbi = DBI.create(pg.getEmbeddedPostgres().getDatabase("postgres", "postgres"))
+                        .installPlugin(new PostgresJdbiPlugin())
+                        .installPlugin(new SqlObjectPlugin());
                 h = dbi.open();
 
                 try {
