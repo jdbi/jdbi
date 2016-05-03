@@ -4,6 +4,7 @@ import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdbi.v3.StatementContext;
@@ -59,8 +60,6 @@ public class ArrayColumnMapper implements ColumnMapper<Object[]> {
         if (length == capacity) {
             return accumulator;
         }
-        Object[] result = (Object[]) java.lang.reflect.Array.newInstance(componentType, length);
-        System.arraycopy(accumulator, 0, result, 0, length);
-        return result;
+        return Arrays.copyOf(accumulator, length);
     }
 }
