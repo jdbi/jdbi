@@ -3,6 +3,7 @@ package org.jdbi.v3.pg;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -60,8 +61,10 @@ public class TestSqlArrays {
 
     @Test
     public void testIntList() throws Exception {
-        ao.insertIntList(Arrays.asList(testInts));
-        assertEquals(, ao.fetchIntList());
+        List<Integer> testIntList = new ArrayList<Integer>();
+        Arrays.stream(testInts).forEach(testIntList::add);
+        ao.insertIntList(testIntList);
+        assertEquals(testIntList, ao.fetchIntList());
     }
 
     interface ArrayObject {

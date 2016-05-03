@@ -1,24 +1,23 @@
 package org.jdbi.v3.pg;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.Types;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
-public class SqlArrayArgumentFactory implements ArgumentFactory<Object[]> {
+public class SqlArrayArgumentFactory implements ArgumentFactory {
 
     @Override
-    public boolean accepts(Class<?> expectedType, Object value, StatementContext ctx) {
-        return expectedType.isArray();
-    }
-
-    @Override
-    public Argument build(Class<?> expectedType, Object[] value, StatementContext ctx) {
-        return new ArrayArgument(guessSqlType(value), value);
+    public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
+        return Types.getErasedType(type).isArray() ?
+                Optional.of(new ArrayArgument(guessSqlType((Object[]) value), value)) : Optional.empty();
     }
 
     private static final Map<Class<?>, String> BEST_GUESS;

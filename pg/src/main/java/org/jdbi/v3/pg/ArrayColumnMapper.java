@@ -7,9 +7,9 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ResultColumnMapper;
+import org.jdbi.v3.tweak.ColumnMapper;
 
-public class ArrayColumnMapper implements ResultColumnMapper<Object[]> {
+public class ArrayColumnMapper implements ColumnMapper<Object[]> {
     private static final CopyOnWriteArraySet<Integer> UNSUPPORTED_TYPES = new CopyOnWriteArraySet<>();
     private final Class<?> componentType;
     private final StatementContext ctx;
@@ -20,13 +20,8 @@ public class ArrayColumnMapper implements ResultColumnMapper<Object[]> {
     }
 
     @Override
-    public Object[] mapColumn(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+    public Object[] map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         return buildArray(r.getArray(columnNumber));
-    }
-
-    @Override
-    public Object[] mapColumn(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
-        return buildArray(r.getArray(columnLabel));
     }
 
     private Object[] buildArray(Array array) throws SQLException {
@@ -43,14 +38,15 @@ public class ArrayColumnMapper implements ResultColumnMapper<Object[]> {
     }
 
     private Object[] buildFromResultSet(Array array) throws SQLException {
-        final ResultColumnMapper<?> mapper = ctx.columnMapperFor(componentType);
+        final ColumnMapper<?> mapper = ctx.findColumnMapperFor(componentType)
+                .orElseThrow(() -> new IllegalArgumentException("Unable to find column mapper for " + componentType));
 
         int capacity = 16;
         int length = 0;
         Object[] accumulator = (Object[]) java.lang.reflect.Array.newInstance(componentType, capacity);
         try (ResultSet rs = array.getResultSet()) {
             while (rs.next()) {
-                accumulator[length++] = mapper.mapColumn(rs, 2, ctx);
+                accumulator[length++] = mapper.map(rs, 2, ctx);
                 if (length == capacity) {
                     Object[] oldArray = accumulator;
                     accumulator = (Object[]) java.lang.reflect.Array.newInstance(componentType, capacity * 2);
