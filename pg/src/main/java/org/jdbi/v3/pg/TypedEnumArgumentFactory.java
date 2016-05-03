@@ -8,6 +8,12 @@ import org.jdbi.v3.Types;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 
+/**
+ * Default {@code jdbi} behavior is to bind {@code Enum} subclasses as
+ * a string, which Postgres won't implicitly convert to an enum type.
+ * If instead you bind it as {@code java.sql.Types.OTHER}, Postgres will
+ * autodetect the enum correctly.
+ */
 public class TypedEnumArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
