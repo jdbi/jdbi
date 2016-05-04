@@ -69,8 +69,7 @@ class ExtensionRegistry {
     <E> Optional<E> findExtensionFor(Class<E> extensionType, Supplier<Handle> handle) {
         return factories.stream()
                 .filter(entry -> entry.factory.accepts(extensionType))
-                .map(entry -> entry.factory.attach(extensionType, entry.config, handle))
-                .map(extensionType::cast)
+                .map(entry -> extensionType.cast(entry.factory.attach(extensionType, entry.config, handle)))
                 .findFirst();
     }
 
