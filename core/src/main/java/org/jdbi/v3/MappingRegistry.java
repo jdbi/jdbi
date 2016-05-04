@@ -68,7 +68,7 @@ class MappingRegistry
                                 .flatMap(factory -> toStream(factory.build(t, ctx)))
                                 .findFirst(),
                         () -> findColumnMapperFor(t, ctx)
-                                .map(SingleColumnMapper::new))
+                                .map(c -> new SingleColumnMapper<>(c)))
                         .orElse(null)));
     }
 
