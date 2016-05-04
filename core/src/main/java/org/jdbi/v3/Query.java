@@ -104,7 +104,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      */
     public <T> Query<T> mapTo(Class<T> resultType)
     {
-        return this.mapTo((Type) resultType);
+        return this.mapTo(resultType);
     }
 
     /**
@@ -143,7 +143,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     public <T> Query<T> map(RowMapper<T> mapper)
     {
         return new Query<>(config,
-                getParameters(),
+                getParams(),
                 mapper,
                 getHandle(),
                 getStatementBuilder(),

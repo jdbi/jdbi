@@ -157,7 +157,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
             throw new UnableToCreateStatementException(String.format("Exception while locating statement for [%s]",
                                                                      getSql()), e, getContext());
         }
-        final RewrittenStatement rewritten = getRewriter().rewrite(my_sql, current.getParameters(), getContext());
+        final RewrittenStatement rewritten = getRewriter().rewrite(my_sql, current.getParams(), getContext());
         PreparedStatement stmt;
         try {
             try {
@@ -180,7 +180,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
 
             try {
                 for (PreparedBatchPart part : parts) {
-                    rewritten.bind(part.getParameters(), stmt);
+                    rewritten.bind(part.getParams(), stmt);
                     stmt.addBatch();
                 }
             }
