@@ -27,6 +27,7 @@ public class ConstructorMapperTest {
     @Before
     public void setUp() throws Exception {
         db.getSharedHandle().registerRowMapper(ConstructorMapper.factoryFor(ConstructorBean.class));
+        db.getSharedHandle().registerRowMapper(ConstructorMapper.factoryFor(NamedParameterBean.class));
         db.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
 
         db.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");
@@ -65,12 +66,26 @@ public class ConstructorMapperTest {
         assertEquals(2, bean.i);
     }
 
+    @Test
+    public void testName() throws Exception {
+        NamedParameterBean nb = db.getSharedHandle().createQuery("SELECT 3 AS xyz")
+                .mapTo(NamedParameterBean.class).findOnly();
+        assertEquals(3, nb.i);
+    }
+
     static class ConstructorBean {
         private final String s;
         private final int i;
 
         ConstructorBean(String s, int i) {
             this.s = s;
+            this.i = i;
+        }
+    }
+
+    static class NamedParameterBean {
+        final int i;
+        NamedParameterBean(@DbName("xyz") int i) {
             this.i = i;
         }
     }

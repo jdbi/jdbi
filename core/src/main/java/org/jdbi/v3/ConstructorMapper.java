@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -118,13 +119,21 @@ public class ConstructorMapper<T> implements RowMapper<T>
     {
         for (int i = 0; i < constructor.getParameterCount(); i++) {
             for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                if (strategy.nameMatches(constructor.getParameters()[i].getName(), columnName)) {
+                if (strategy.nameMatches(paramName(constructor.getParameters()[i]), columnName)) {
                     return i;
                 }
             }
         }
         throw new IllegalArgumentException("Constructor " + constructor + " has no parameter for '" + columnName +
                 "'. Are parameter names compiled into your class?");
+    }
+
+    private static String paramName(Parameter parameter) {
+        DbName dbName = parameter.getAnnotation(DbName.class);
+        if (dbName != null) {
+            return dbName.value();
+        }
+        return parameter.getName();
     }
 
     interface ObjectCreator<T> {
