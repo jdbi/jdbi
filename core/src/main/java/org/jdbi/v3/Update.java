@@ -24,8 +24,6 @@ import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
-import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.util.SingleColumnMapper;
 
 /**
@@ -33,22 +31,13 @@ import org.jdbi.v3.util.SingleColumnMapper;
  */
 public class Update extends SQLStatement<Update>
 {
-    private final MappingRegistry mappingRegistry;
-
-    Update(Handle handle,
-           StatementLocator locator,
-           StatementRewriter statementRewriter,
+    Update(JdbiConfig config,
+           Handle handle,
            StatementBuilder statementBuilder,
            String sql,
-           ConcreteStatementContext ctx,
-           TimingCollector timingCollector,
-           ArgumentRegistry argumentRegistry,
-           MappingRegistry mappingRegistry,
-           CollectorFactoryRegistry collectorFactoryRegistry)
+           StatementContext ctx)
     {
-        super(new Binding(), locator, statementRewriter, handle, statementBuilder, sql, ctx, timingCollector,
-                Collections.<StatementCustomizer>emptyList(), argumentRegistry, collectorFactoryRegistry);
-        this.mappingRegistry = mappingRegistry;
+        super(config, new Binding(), handle, statementBuilder, sql, ctx, Collections.<StatementCustomizer>emptyList());
     }
 
     /**
@@ -76,9 +65,9 @@ public class Update extends SQLStatement<Update>
      */
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(final RowMapper<GeneratedKeyType> mapper, String columnName)
     {
-        getConcreteContext().setReturningGeneratedKeys(true);
+        getContext().setReturningGeneratedKeys(true);
         if (columnName != null && !columnName.isEmpty()) {
-            getConcreteContext().setGeneratedKeysColumnNames(new String[] { columnName } );
+            getContext().setGeneratedKeysColumnNames(new String[] { columnName } );
         }
         return new GeneratedKeys<>(mapper,
                 Update.this,
@@ -95,11 +84,11 @@ public class Update extends SQLStatement<Update>
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(GenericType<GeneratedKeyType> generatedKeyType) {
-        return executeAndReturnGeneratedKeys(new RegisteredRowMapper<>(generatedKeyType.getType(), mappingRegistry), null);
+        return executeAndReturnGeneratedKeys(new RegisteredRowMapper<>(generatedKeyType.getType(), config.mappingRegistry), null);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(Class<GeneratedKeyType> generatedKeyType) {
-        return executeAndReturnGeneratedKeys(new RegisteredRowMapper<>(generatedKeyType, mappingRegistry), null);
+        return executeAndReturnGeneratedKeys(new RegisteredRowMapper<>(generatedKeyType, config.mappingRegistry), null);
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

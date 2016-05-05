@@ -18,10 +18,8 @@ import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -57,19 +55,11 @@ public class DBI
 {
     private static final Logger LOG = LoggerFactory.getLogger(DBI.class);
 
-    private final Map<String, Object> globalStatementAttributes = new ConcurrentHashMap<>();
-    private final MappingRegistry mappingRegistry = new MappingRegistry();
-    private final CollectorFactoryRegistry collectorFactoryRegistry = new CollectorFactoryRegistry();
-    private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
-    private final ExtensionRegistry extensionRegistry = new ExtensionRegistry();
+    private final JdbiConfig config = new JdbiConfig();
 
     private final ConnectionFactory connectionFactory;
-
-    private final AtomicReference<StatementRewriter> statementRewriter = new AtomicReference<>(new ColonPrefixNamedParamStatementRewriter());
-    private final AtomicReference<StatementLocator> statementLocator = new AtomicReference<>(new ClasspathStatementLocator());
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(new LocalTransactionHandler());
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(new DefaultStatementBuilderFactory());
-    private final AtomicReference<TimingCollector> timingCollector = new AtomicReference<>(TimingCollector.NOP_TIMING_COLLECTOR);
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
@@ -178,12 +168,12 @@ public class DBI
     public void setStatementLocator(StatementLocator locator)
     {
         assert locator != null;
-        this.statementLocator.set(locator);
+        config.statementLocator = locator;
     }
 
     public StatementLocator getStatementLocator()
     {
-        return this.statementLocator.get();
+        return config.statementLocator;
     }
 
     /**
@@ -195,12 +185,12 @@ public class DBI
     public void setStatementRewriter(StatementRewriter rewriter)
     {
         assert rewriter != null;
-        this.statementRewriter.set(rewriter);
+        config.statementRewriter = rewriter;
     }
 
     public StatementRewriter getStatementRewriter()
     {
-        return this.statementRewriter.get();
+        return config.statementRewriter;
     }
 
     /**
@@ -242,17 +232,7 @@ public class DBI
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new BasicHandle(transactionhandler.get(),
-                                       statementLocator.get(),
-                                       cache,
-                                       statementRewriter.get(),
-                                       conn,
-                                       globalStatementAttributes,
-                                       timingCollector.get(),
-                                       MappingRegistry.copyOf(mappingRegistry),
-                                       ArgumentRegistry.copyOf(argumentRegistry),
-                                       CollectorFactoryRegistry.copyOf(collectorFactoryRegistry),
-                                       ExtensionRegistry.copyOf(extensionRegistry));
+            Handle h = new BasicHandle(JdbiConfig.copyOf(config), transactionhandler.get(), cache, conn);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
@@ -270,7 +250,7 @@ public class DBI
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerRowMapper(RowMapper<?> mapper) {
-        mappingRegistry.addRowMapper(mapper);
+        config.mappingRegistry.addRowMapper(mapper);
     }
 
     /**
@@ -279,7 +259,7 @@ public class DBI
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      */
     public void registerRowMapper(RowMapperFactory factory) {
-        mappingRegistry.addRowMapper(factory);
+        config.mappingRegistry.addRowMapper(factory);
     }
 
     /**
@@ -288,7 +268,7 @@ public class DBI
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      */
     public void registerColumnMapper(ColumnMapper<?> mapper) {
-        mappingRegistry.addColumnMapper(mapper);
+        config.mappingRegistry.addColumnMapper(mapper);
     }
 
     /**
@@ -297,7 +277,7 @@ public class DBI
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      */
     public void registerColumnMapper(ColumnMapperFactory factory) {
-        mappingRegistry.addColumnMapper(factory);
+        config.mappingRegistry.addColumnMapper(factory);
     }
 
     /**
@@ -309,7 +289,7 @@ public class DBI
      */
     public void define(String key, Object value)
     {
-        this.globalStatementAttributes.put(key, value);
+        config.statementAttributes.put(key, value);
     }
 
     /**
@@ -391,7 +371,7 @@ public class DBI
             throws NoSuchExtensionException, X
     {
         try (LazyHandle handle = new LazyHandle(this)) {
-            E extension = extensionRegistry.findExtensionFor(extensionType, handle)
+            E extension = config.extensionRegistry.findExtensionFor(extensionType, handle)
                     .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
 
             return callback.withExtension(extension);
@@ -431,7 +411,7 @@ public class DBI
         if (!Modifier.isPublic(extensionType.getModifiers())) {
             throw new IllegalArgumentException("On-demand extensions types must be public.");
         }
-        if (!extensionRegistry.hasExtensionFor(extensionType)) {
+        if (!config.extensionRegistry.hasExtensionFor(extensionType)) {
             throw new NoSuchExtensionException("Extension not found: " + extensionType);
         }
 
@@ -526,34 +506,34 @@ public class DBI
      */
     public void setTimingCollector(final TimingCollector timingCollector) {
         if (timingCollector == null) {
-            this.timingCollector.set(TimingCollector.NOP_TIMING_COLLECTOR);
+            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
         }
         else {
-            this.timingCollector.set(timingCollector);
+            config.timingCollector = timingCollector;
         }
     }
 
     public TimingCollector getTimingCollector()
     {
-        return this.timingCollector.get();
+        return config.timingCollector;
     }
 
     public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
-        argumentRegistry.register(argumentFactory);
+        config.argumentRegistry.register(argumentFactory);
     }
 
     public void registerCollectorFactory(CollectorFactory collectorFactory)
     {
-        collectorFactoryRegistry.register(collectorFactory);
+        config.collectorRegistry.register(collectorFactory);
     }
 
     public void registerExtensionFactory(ExtensionFactory extensionFactory)
     {
-        extensionRegistry.register(extensionFactory);
+        config.extensionRegistry.register(extensionFactory);
     }
 
     public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        extensionRegistry.configure(configClass, consumer);
+        config.extensionRegistry.configure(configClass, consumer);
     }
 }

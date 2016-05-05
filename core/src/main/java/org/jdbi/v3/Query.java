@@ -26,8 +26,6 @@ import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
-import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
  * Statement providing convenience result handling for SQL queries.
@@ -41,26 +39,18 @@ import org.jdbi.v3.tweak.StatementRewriter;
 public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements ResultBearing<ResultType>
 {
     private final RowMapper<ResultType> mapper;
-    private final MappingRegistry             mappingRegistry;
 
-    Query(Binding params,
+    Query(JdbiConfig config,
+          Binding params,
           RowMapper<ResultType> mapper,
-          StatementLocator locator,
-          StatementRewriter statementRewriter,
           Handle handle,
           StatementBuilder cache,
           String sql,
-          ConcreteStatementContext ctx,
-          TimingCollector timingCollector,
-          Collection<StatementCustomizer> customizers,
-          MappingRegistry mappingRegistry,
-          ArgumentRegistry argumentRegistry,
-          CollectorFactoryRegistry collectorFactoryRegistry)
+          StatementContext ctx,
+          Collection<StatementCustomizer> customizers)
     {
-        super(params, locator, statementRewriter, handle, cache, sql, ctx, timingCollector, customizers, argumentRegistry,
-                collectorFactoryRegistry);
+        super(config, params, handle, cache, sql, ctx, customizers);
         this.mapper = mapper;
-        this.mappingRegistry = mappingRegistry;
     }
 
     /**
@@ -147,24 +137,19 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @see Handle#registerRowMapper(RowMapper)
      */
     public Query mapTo(Type resultType) {
-        return this.map(new RegisteredRowMapper(resultType, mappingRegistry));
+        return this.map(new RegisteredRowMapper(resultType, config.mappingRegistry));
     }
 
     public <T> Query<T> map(RowMapper<T> mapper)
     {
-        return new Query<>(getParameters(),
+        return new Query<>(config,
+                getParameters(),
                 mapper,
-                getStatementLocator(),
-                getRewriter(),
                 getHandle(),
                 getStatementBuilder(),
                 getSql(),
-                getConcreteContext(),
-                getTimingCollector(),
-                getStatementCustomizers(),
-                MappingRegistry.copyOf(mappingRegistry),
-                ArgumentRegistry.copyOf(getArgumentRegistry()),
-                CollectorFactoryRegistry.copyOf(getCollectorFactoryRegistry()));
+                getContext(),
+                getStatementCustomizers());
     }
 
     /**
@@ -244,27 +229,27 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * @return the modified query
      */
     public Query<ResultType> concurrentUpdatable() {
-        getConcreteContext().setConcurrentUpdatable(true);
+        getContext().setConcurrentUpdatable(true);
         return this;
     }
 
     public void registerRowMapper(RowMapper<?> m)
     {
-        this.mappingRegistry.addRowMapper(new InferredMapperFactory(m));
+        config.mappingRegistry.addRowMapper(new InferredMapperFactory(m));
     }
 
     public void registerRowMapper(RowMapperFactory m)
     {
-        this.mappingRegistry.addRowMapper(m);
+        config.mappingRegistry.addRowMapper(m);
     }
 
     public void registerColumnMapper(ColumnMapper<?> m)
     {
-        this.mappingRegistry.addColumnMapper(m);
+        config.mappingRegistry.addColumnMapper(m);
     }
 
     public void registerColumnMapper(ColumnMapperFactory m)
     {
-        this.mappingRegistry.addColumnMapper(m);
+        config.mappingRegistry.addColumnMapper(m);
     }
 }

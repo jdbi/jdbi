@@ -18,7 +18,6 @@ import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.Call;
-import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.OutParameters;
 import org.jdbi.v3.Types;
@@ -49,7 +48,7 @@ class CallHandler extends CustomizingStatementHandler
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
         Call call = handle.get().createCall(sql);
-        populateSqlObjectData((ConcreteStatementContext)call.getContext());
+        populateSqlObjectData(call.getContext());
         applyCustomizers(call, args);
         applyBinders(call, args);
 

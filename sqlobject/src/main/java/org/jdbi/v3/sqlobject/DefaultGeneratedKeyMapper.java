@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,19 +21,22 @@ import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 
-class FigureItOutRowMapper implements RowMapper<Object> {
+class DefaultGeneratedKeyMapper implements RowMapper<Object> {
+    private final Type returnType;
+    private final String columnName;
+
+    DefaultGeneratedKeyMapper(Type returnType, String columnName) {
+        this.returnType = returnType;
+        this.columnName = columnName;
+    }
+
     @Override
     public Object map(ResultSet r, StatementContext ctx) throws SQLException {
-        Method m = ctx.getSqlObjectMethod();
-        Type type = m.getGenericReturnType();
-        GetGeneratedKeys ggk = m.getAnnotation(GetGeneratedKeys.class);
-        String keyColumn = ggk.columnName();
+        ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(returnType)
+                .orElseThrow(() -> new IllegalStateException("No column mapper for " + returnType));
 
-        ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(type)
-                .orElseThrow(() -> new IllegalStateException("No column mapper for " + type));
-
-        return "".equals(keyColumn)
+        return "".equals(columnName)
                 ? columnMapper.map(r, 1, ctx)
-                : columnMapper.map(r, keyColumn, ctx);
+                : columnMapper.map(r, columnName, ctx);
     }
 }

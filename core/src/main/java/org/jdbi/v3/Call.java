@@ -25,8 +25,6 @@ import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
-import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
  * Used for invoking stored procedures.
@@ -35,19 +33,14 @@ public class Call extends SQLStatement<Call>
 {
     private final List<OutParamArgument> params = new ArrayList<>();
 
-    Call(Handle handle,
-         StatementLocator locator,
-         StatementRewriter rewriter,
+    Call(JdbiConfig config,
+         Handle handle,
          StatementBuilder cache,
          String sql,
-         ConcreteStatementContext ctx,
-         TimingCollector timingCollector,
-         Collection<StatementCustomizer> customizers,
-         ArgumentRegistry argumentRegistry,
-         CollectorFactoryRegistry collectorFactoryRegistry)
+         StatementContext ctx,
+         Collection<StatementCustomizer> customizers)
     {
-        super(new Binding(), locator, rewriter, handle, cache, sql, ctx, timingCollector, customizers, argumentRegistry,
-                collectorFactoryRegistry);
+        super(config, new Binding(), handle, cache, sql, ctx, customizers);
     }
 
     /**

@@ -55,42 +55,28 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     private final String           sql;
     private final StatementBuilder statementBuilder;
 
-    private StatementLocator  locator;
-    private StatementRewriter rewriter;
-
     /**
      * This will be set on execution, not before
      */
     private       RewrittenStatement rewritten;
     private       PreparedStatement  stmt;
-    private final TimingCollector    timingCollector;
-    private final CollectorFactoryRegistry collectorFactoryRegistry;
 
-    SQLStatement(Binding params,
-                 StatementLocator locator,
-                 StatementRewriter rewriter,
+    SQLStatement(JdbiConfig config,
+                 Binding params,
                  Handle handle,
                  StatementBuilder statementBuilder,
                  String sql,
-                 ConcreteStatementContext ctx,
-                 TimingCollector timingCollector,
-                 Collection<StatementCustomizer> statementCustomizers,
-                 ArgumentRegistry argumentRegistry,
-                 CollectorFactoryRegistry collectorFactoryRegistry)
-    {
-        super(ctx, argumentRegistry);
+                 StatementContext ctx,
+                 Collection<StatementCustomizer> statementCustomizers) {
+        super(config, ctx);
         assert verifyOurNastyDowncastIsOkay();
 
         addCustomizers(statementCustomizers);
 
         this.statementBuilder = statementBuilder;
-        this.rewriter = rewriter;
         this.handle = handle;
         this.sql = sql;
-        this.timingCollector = timingCollector;
         this.params = params;
-        this.locator = locator;
-        this.collectorFactoryRegistry = collectorFactoryRegistry;
 
         ctx.setConnection(handle.getConnection());
         ctx.setRawSql(sql);
@@ -99,12 +85,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
     CollectorFactoryRegistry getCollectorFactoryRegistry()
     {
-        return collectorFactoryRegistry;
+        return config.collectorRegistry;
     }
 
     @SuppressWarnings("unchecked")
     public SelfType registerCollectorFactory(CollectorFactory collectorFactory) {
-        this.collectorFactoryRegistry.register(collectorFactory);
+        config.collectorRegistry.register(collectorFactory);
         return (SelfType) this;
     }
 
@@ -120,7 +106,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     @SuppressWarnings("unchecked")
     public SelfType setStatementLocator(StatementLocator locator) {
-        this.locator = locator;
+        config.statementLocator = locator;
         return (SelfType) this;
     }
 
@@ -129,7 +115,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      */
     @SuppressWarnings("unchecked")
     public SelfType setStatementRewriter(StatementRewriter rewriter) {
-        this.rewriter = rewriter;
+        config.statementRewriter = rewriter;
         return (SelfType) this;
     }
 
@@ -207,12 +193,12 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
     protected StatementLocator getStatementLocator()
     {
-        return this.locator;
+        return config.statementLocator;
     }
 
     protected StatementRewriter getRewriter()
     {
-        return rewriter;
+        return config.statementRewriter;
     }
 
     protected Binding getParams()
@@ -1257,7 +1243,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     private String wrapLookup(String sql)
     {
         try {
-            return locator.locate(sql, this.getContext());
+            return config.statementLocator.locate(sql, this.getContext());
         }
         catch (Exception e) {
             throw new UnableToCreateStatementException("Exception thrown while looking for statement", e, getContext());
@@ -1267,9 +1253,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     protected PreparedStatement internalExecute()
     {
         final String located_sql = wrapLookup(sql);
-        getConcreteContext().setLocatedSql(located_sql);
-        rewritten = rewriter.rewrite(located_sql, getParameters(), getContext());
-        getConcreteContext().setRewrittenSql(rewritten.getSql());
+        getContext().setLocatedSql(located_sql);
+        rewritten = config.statementRewriter.rewrite(located_sql, getParameters(), getContext());
+        getContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
                 stmt = statementBuilder.createCall(handle.getConnection(), rewritten.getSql(), getContext());
@@ -1286,7 +1272,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         // caching statement builder relies on the statement *not* being closed.
         addCleanable(new Cleanables.StatementBuilderCleanable(statementBuilder, handle.getConnection(), sql, stmt));
 
-        getConcreteContext().setStatement(stmt);
+        getContext().setStatement(stmt);
 
         try {
             rewritten.bind(getParameters(), stmt);
@@ -1302,7 +1288,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
             LOG.trace("Execute SQL \"{}\" in {}ms", rewritten.getSql(), elapsedTime / 1000000L);
-            timingCollector.collect(elapsedTime, getContext());
+            config.timingCollector.collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
             try {
@@ -1320,6 +1306,6 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
     protected TimingCollector getTimingCollector()
     {
-        return timingCollector;
+        return config.timingCollector;
     }
 }

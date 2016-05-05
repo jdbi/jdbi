@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.StatementRewriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,20 +32,14 @@ public class Batch extends BaseStatement
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
     private final List<String> parts = new ArrayList<>();
-    private final StatementRewriter rewriter;
     private final Connection connection;
-    private final TimingCollector timingCollector;
 
-    Batch(StatementRewriter rewriter,
+    Batch(JdbiConfig config,
           Connection connection,
-          ConcreteStatementContext statementContext,
-          TimingCollector timingCollector,
-          ArgumentRegistry argumentRegistry)
+          StatementContext statementContext)
     {
-        super(statementContext, argumentRegistry);
-        this.rewriter = rewriter;
+        super(config, statementContext);
         this.connection = connection;
-        this.timingCollector = timingCollector;
     }
 
     /**
@@ -103,7 +96,7 @@ public class Batch extends BaseStatement
             {
                 for (String part : parts)
                 {
-                    final String sql = rewriter.rewrite(part, empty, getContext()).getSql();
+                    final String sql = config.statementRewriter.rewrite(part, empty, getContext()).getSql();
                     LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }
@@ -120,7 +113,7 @@ public class Batch extends BaseStatement
                 final long elapsedTime = System.nanoTime() - start;
                 LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                timingCollector.collect(elapsedTime, getContext());
+                config.timingCollector.collect(elapsedTime, getContext());
                 return rs;
 
             }

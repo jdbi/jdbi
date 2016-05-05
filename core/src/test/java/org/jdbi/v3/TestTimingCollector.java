@@ -18,7 +18,6 @@ import static org.junit.Assert.assertEquals;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
@@ -41,17 +40,9 @@ public class TestTimingCollector
         tc = new TTC();
 
         Connection conn = db.openHandle().getConnection();
-        return new BasicHandle(new LocalTransactionHandler(),
-                               new ClasspathStatementLocator(),
-                               new DefaultStatementBuilder(),
-                               new ColonPrefixNamedParamStatementRewriter(),
-                               conn,
-                               new HashMap<>(),
-                               tc,
-                               new MappingRegistry(),
-                               new ArgumentRegistry(),
-                               new CollectorFactoryRegistry(),
-                               new ExtensionRegistry());
+        JdbiConfig config = new JdbiConfig();
+        config.timingCollector = tc;
+        return new BasicHandle(config, new LocalTransactionHandler(), new DefaultStatementBuilder(), conn);
     }
 
 

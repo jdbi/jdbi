@@ -18,17 +18,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.junit.Test;
 
-public class ConcreteStatementContextTest {
+public class StatementContextTest {
 
 
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
-        final ConcreteStatementContext context = new ConcreteStatementContext();
+        final StatementContext context = new StatementContext();
 
         context.setReturningGeneratedKeys(true);
         context.setConcurrentUpdatable(true);
@@ -36,7 +35,7 @@ public class ConcreteStatementContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
-        final ConcreteStatementContext context = new ConcreteStatementContext();
+        final StatementContext context = new StatementContext();
 
         context.setConcurrentUpdatable(true);
         context.setReturningGeneratedKeys(true);
@@ -56,11 +55,10 @@ public class ConcreteStatementContextTest {
     public void testMapperForDelegatesToRegistry() {
         ColumnMapper<?> mapper = new FooMapper();
 
-        MappingRegistry registry = new MappingRegistry();
-        registry.addColumnMapper(mapper);
+        JdbiConfig config = new JdbiConfig();
+        config.mappingRegistry.addColumnMapper(mapper);
 
-        final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry, new ArgumentRegistry(), new CollectorFactoryRegistry());
+        final StatementContext context = new StatementContext(config);
 
         assertThat(context.findColumnMapperFor(Foo.class).get(), equalTo(mapper));
     }

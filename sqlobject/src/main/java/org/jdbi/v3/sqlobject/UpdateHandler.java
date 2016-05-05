@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.ConcreteStatementContext;
 import org.jdbi.v3.GeneratedKeys;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Types;
@@ -45,11 +44,16 @@ class UpdateHandler extends CustomizingStatementHandler
             final ResultReturnThing magic = ResultReturnThing.forMethod(sqlObjectType, method);
             final GetGeneratedKeys ggk = method.getAnnotation(GetGeneratedKeys.class);
             final RowMapper<?> mapper;
-            try {
-                mapper = ggk.value().newInstance();
+            if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
+                mapper = new DefaultGeneratedKeyMapper(returnType, ggk.columnName());
             }
-            catch (Exception e) {
-                throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
+            else {
+                try {
+                    mapper = ggk.value().newInstance();
+                }
+                catch (Exception e) {
+                    throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
+                }
             }
             this.returner = (update, handle) -> {
                 GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
@@ -65,7 +69,7 @@ class UpdateHandler extends CustomizingStatementHandler
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
         Update q = handle.get().createStatement(sql);
-        populateSqlObjectData((ConcreteStatementContext)q.getContext());
+        populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
         return this.returner.value(q, handle);

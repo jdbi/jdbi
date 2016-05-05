@@ -24,6 +24,6 @@ import org.jdbi.v3.tweak.RowMapper;
 @Target({ElementType.METHOD})
 public @interface GetGeneratedKeys
 {
-    Class<? extends RowMapper<?>> value() default FigureItOutRowMapper.class;
+    Class<? extends RowMapper<?>> value() default DefaultGeneratedKeyMapper.class;
     String columnName() default "";
 }
