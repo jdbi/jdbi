@@ -16,7 +16,6 @@ package org.jdbi.v3;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -27,6 +26,7 @@ import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
 import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
@@ -34,7 +34,6 @@ import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.jdbi.v3.tweak.StatementRewriter;
 import org.jdbi.v3.tweak.TransactionHandler;
-import org.jdbi.v3.tweak.CollectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,68 +41,39 @@ class BasicHandle implements Handle
 {
     private static final Logger LOG = LoggerFactory.getLogger(BasicHandle.class);
 
-    private StatementRewriter statementRewriter;
-    private StatementLocator  statementLocator;
-    private TimingCollector   timingCollector;
-    private StatementBuilder  statementBuilder;
+    private final JdbiConfig config;
+
+    private StatementBuilder statementBuilder;
 
     private boolean closed = false;
 
-    private final Map<String, Object>      globalStatementAttributes;
-    private final MappingRegistry          mappingRegistry;
-    private final CollectorFactoryRegistry collectorFactoryRegistry;
-    private final ArgumentRegistry         argumentRegistry;
-    private final ExtensionRegistry        extensionRegistry;
     private final TransactionHandler       transactions;
     private final Connection               connection;
 
 
-    BasicHandle(TransactionHandler transactions,
-                StatementLocator statementLocator,
+    BasicHandle(JdbiConfig config,
+                TransactionHandler transactions,
                 StatementBuilder preparedStatementCache,
-                StatementRewriter statementRewriter,
-                Connection connection,
-                Map<String, Object> globalStatementAttributes,
-                TimingCollector timingCollector,
-                MappingRegistry mappingRegistry,
-                ArgumentRegistry argumentRegistry,
-                CollectorFactoryRegistry collectorFactoryRegistry,
-                ExtensionRegistry extensionRegistry)
+                Connection connection)
     {
+        this.config = config;
         this.statementBuilder = preparedStatementCache;
-        this.statementRewriter = statementRewriter;
         this.transactions = transactions;
         this.connection = connection;
-        this.statementLocator = statementLocator;
-        this.timingCollector = timingCollector;
-        this.mappingRegistry = mappingRegistry;
-        this.argumentRegistry = argumentRegistry;
-        this.globalStatementAttributes = new HashMap<>();
-        this.globalStatementAttributes.putAll(globalStatementAttributes);
-        this.collectorFactoryRegistry = collectorFactoryRegistry;
-        this.extensionRegistry = extensionRegistry;
     }
 
     @Override
     public Query<Map<String, Object>> createQuery(String sql)
     {
-        MappingRegistry queryRegistry = MappingRegistry.copyOf(this.mappingRegistry);
-        ArgumentRegistry queryArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
-        CollectorFactoryRegistry queryCollectors = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
-        return new Query<>(
+        JdbiConfig queryConfig = JdbiConfig.copyOf(config);
+        return new Query<>(queryConfig,
                 new Binding(),
                 new DefaultMapper(),
-                statementLocator,
-                statementRewriter,
                 this,
                 statementBuilder,
                 sql,
-                new ConcreteStatementContext(globalStatementAttributes, queryRegistry, queryArgumentRegistry, queryCollectors),
-                timingCollector,
-                Collections.<StatementCustomizer>emptyList(),
-                queryRegistry,
-                queryArgumentRegistry,
-                queryCollectors);
+                new StatementContext(queryConfig),
+                Collections.<StatementCustomizer>emptyList());
     }
 
     /**
@@ -145,7 +115,7 @@ class BasicHandle implements Handle
     @Override
     public void define(String key, Object value)
     {
-        this.globalStatementAttributes.put(key, value);
+        config.statementAttributes.put(key, value);
     }
 
     /**
@@ -221,10 +191,10 @@ class BasicHandle implements Handle
     public void setTimingCollector(final TimingCollector timingCollector)
     {
         if (timingCollector == null) {
-            this.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
+            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
         }
         else {
-            this.timingCollector = timingCollector;
+            config.timingCollector = timingCollector;
         }
     }
 
@@ -252,36 +222,24 @@ class BasicHandle implements Handle
     @Override
     public Update createStatement(String sql)
     {
-        ArgumentRegistry updateArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
-        MappingRegistry updateMappingRegistry = MappingRegistry.copyOf(this.mappingRegistry);
-        CollectorFactoryRegistry updateCollectors = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
-        return new Update(this,
-                          statementLocator,
-                          statementRewriter,
+        JdbiConfig updateConfig = JdbiConfig.copyOf(config);
+        return new Update(updateConfig,
+                          this,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes, updateMappingRegistry, updateArgumentRegistry, updateCollectors),
-                          timingCollector,
-                          updateArgumentRegistry,
-                          updateMappingRegistry,
-                          updateCollectors);
+                          new StatementContext(updateConfig));
     }
 
     @Override
     public Call createCall(String sql)
     {
-        ArgumentRegistry callArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
-        CollectorFactoryRegistry callCollectors = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
-        return new Call(this,
-                        statementLocator,
-                        statementRewriter,
+        JdbiConfig callConfig = JdbiConfig.copyOf(config);
+        return new Call(callConfig,
+                        this,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), callArgumentRegistry, callCollectors),
-                        timingCollector,
-                        Collections.<StatementCustomizer>emptyList(),
-                        callArgumentRegistry,
-                        callCollectors);
+                        new StatementContext(callConfig),
+                        Collections.<StatementCustomizer>emptyList());
     }
 
     @Override
@@ -304,31 +262,22 @@ class BasicHandle implements Handle
     @Override
     public PreparedBatch prepareBatch(String sql)
     {
-        ArgumentRegistry batchArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
-        MappingRegistry batchMappingRegistry = MappingRegistry.copyOf(mappingRegistry);
-        CollectorFactoryRegistry batchCollectors = CollectorFactoryRegistry.copyOf(collectorFactoryRegistry);
-        return new PreparedBatch(statementLocator,
-                                 statementRewriter,
+        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        return new PreparedBatch(batchConfig,
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(globalStatementAttributes, batchMappingRegistry, batchArgumentRegistry, batchCollectors),
-                                 timingCollector,
-                                 Collections.<StatementCustomizer>emptyList(),
-                                 batchArgumentRegistry,
-                                 batchMappingRegistry,
-                                 batchCollectors);
+                                 new StatementContext(batchConfig),
+                                 Collections.<StatementCustomizer>emptyList());
     }
 
     @Override
     public Batch createBatch()
     {
-        ArgumentRegistry batchArgumentRegistry = ArgumentRegistry.copyOf(argumentRegistry);
-        return new Batch(this.statementRewriter,
+        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        return new Batch(batchConfig,
                          this.connection,
-                         new ConcreteStatementContext(globalStatementAttributes, MappingRegistry.copyOf(mappingRegistry), batchArgumentRegistry, CollectorFactoryRegistry.copyOf(collectorFactoryRegistry)),
-                         timingCollector,
-                         batchArgumentRegistry);
+                         new StatementContext(batchConfig));
     }
 
     @Override
@@ -398,24 +347,20 @@ class BasicHandle implements Handle
     @Override
     public void setStatementLocator(StatementLocator locator)
     {
-        this.statementLocator = locator;
+        config.statementLocator = locator;
     }
 
     @Override
     public void setStatementRewriter(StatementRewriter rewriter)
     {
-        this.statementRewriter = rewriter;
+        config.statementRewriter = rewriter;
     }
 
     @Override
     public Script createScript(String name)
     {
-        return new Script(this, statementLocator, name,
-                new ConcreteStatementContext(
-                        globalStatementAttributes,
-                        MappingRegistry.copyOf(mappingRegistry),
-                        ArgumentRegistry.copyOf(argumentRegistry),
-                        CollectorFactoryRegistry.copyOf(collectorFactoryRegistry)));
+        JdbiConfig scriptConfig = JdbiConfig.copyOf(config);
+        return new Script(scriptConfig, this, name, new StatementContext(scriptConfig));
     }
 
     @Override
@@ -427,29 +372,29 @@ class BasicHandle implements Handle
     @Override
     public void registerRowMapper(RowMapper<?> mapper)
     {
-        mappingRegistry.addRowMapper(mapper);
+        config.mappingRegistry.addRowMapper(mapper);
     }
 
     @Override
     public void registerRowMapper(RowMapperFactory factory)
     {
-        mappingRegistry.addRowMapper(factory);
+        config.mappingRegistry.addRowMapper(factory);
     }
 
     @Override
     public void registerColumnMapper(ColumnMapper<?> mapper) {
-        mappingRegistry.addColumnMapper(mapper);
+        config.mappingRegistry.addColumnMapper(mapper);
     }
 
     @Override
     public void registerColumnMapper(ColumnMapperFactory factory) {
-        mappingRegistry.addColumnMapper(factory);
+        config.mappingRegistry.addColumnMapper(factory);
     }
 
     @Override
     public <T> T attach(Class<T> extensionType)
     {
-        return (T) extensionRegistry.findExtensionFor(extensionType, () -> this)
+        return (T) config.extensionRegistry.findExtensionFor(extensionType, () -> this)
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
@@ -488,21 +433,21 @@ class BasicHandle implements Handle
     @Override
     public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
-        this.argumentRegistry.register(argumentFactory);
+        config.argumentRegistry.register(argumentFactory);
     }
 
     @Override
     public void registerCollectorFactory(CollectorFactory factory) {
-        this.collectorFactoryRegistry.register(factory);
+        config.collectorRegistry.register(factory);
     }
 
     @Override
     public void registerExtension(ExtensionFactory factory) {
-        this.extensionRegistry.register(factory);
+        config.extensionRegistry.register(factory);
     }
 
     @Override
     public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        this.extensionRegistry.configure(configClass, consumer);
+        config.extensionRegistry.configure(configClass, consumer);
     }
 }

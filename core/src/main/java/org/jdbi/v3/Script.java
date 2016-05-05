@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.StatementLocator;
 
 /**
  * Represents a number of SQL statements which will be executed in a batch statement.
@@ -26,15 +25,15 @@ import org.jdbi.v3.tweak.StatementLocator;
 public class Script
 {
 
+    private final JdbiConfig config;
     private final Handle handle;
-    private final StatementLocator locator;
     private final String name;
     private final StatementContext statementContext;
 
-    Script(Handle h, StatementLocator locator, String name, StatementContext statementContext)
+    Script(JdbiConfig config, Handle h, String name, StatementContext statementContext)
     {
+        this.config = config;
         this.handle = h;
-        this.locator = locator;
         this.name = name;
         this.statementContext = statementContext;
     }
@@ -64,7 +63,7 @@ public class Script
         final String script;
 
         try {
-            script = locator.locate(name, statementContext);
+            script = config.statementLocator.locate(name, statementContext);
         } catch (Exception e) {
             throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, statementContext);
         }

@@ -23,7 +23,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,7 +42,8 @@ public class BeanMapperTest {
     @Mock
     ResultSetMetaData resultSetMetaData;
 
-    TestingStatementContext ctx = new TestingStatementContext(Collections.emptyMap());
+    JdbiConfig config = new JdbiConfig();
+    StatementContext ctx = new StatementContext(config);
 
     BeanMapper<SampleBean> mapper = new BeanMapper<>(SampleBean.class);
     
@@ -204,7 +204,7 @@ public class BeanMapperTest {
 
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
-        ctx.registerColumnMapper(new ValueTypeMapper());
+        config.mappingRegistry.addColumnMapper(new ValueTypeMapper());
 
         when(resultSetMetaData.getColumnCount()).thenReturn(2);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");

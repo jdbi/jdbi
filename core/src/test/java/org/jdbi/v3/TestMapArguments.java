@@ -37,7 +37,7 @@ public class TestMapArguments
 
     ArgumentRegistry argumentRegistry = new ArgumentRegistry();
 
-    StatementContext ctx = new ConcreteStatementContext();
+    StatementContext ctx = new StatementContext();
 
     @Test
     public void testBind() throws Exception
