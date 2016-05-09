@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
@@ -69,12 +68,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
     }
 
     private ObjectCreator<T> createCreator(List<String> columnNames, ResultSetMetaData metadata, StatementContext ctx) {
-        final int length;
-        try {
-            length = metadata.getColumnCount();
-        } catch (SQLException e) {
-            throw new ResultSetException("Could not get column count", e, ctx);
-        }
+        final int length = columnNames.size();
 
         if (length != constructor.getParameterCount()) {
             throw new IllegalStateException(length + " columns in result set, but constructor takes " + constructor.getParameterCount());
@@ -129,7 +123,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
     }
 
     private static String paramName(Parameter parameter) {
-        DbName dbName = parameter.getAnnotation(DbName.class);
+        ColumnName dbName = parameter.getAnnotation(ColumnName.class);
         if (dbName != null) {
             return dbName.value();
         }

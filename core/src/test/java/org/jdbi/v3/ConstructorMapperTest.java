@@ -52,18 +52,12 @@ public class ConstructorMapperTest {
 
     @Test(expected = IllegalStateException.class)
     public void testDuplicate() throws Exception {
-        ConstructorBean bean = db.getSharedHandle().createQuery("SELECT i, s, s FROM bean").mapTo(ConstructorBean.class).findOnly();
-
-        assertEquals("3", bean.s);
-        assertEquals(2, bean.i);
+        db.getSharedHandle().createQuery("SELECT i, s, s FROM bean").mapTo(ConstructorBean.class).findOnly();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMismatch() throws Exception {
-        ConstructorBean bean = db.getSharedHandle().createQuery("SELECT i, '7' FROM bean").mapTo(ConstructorBean.class).findOnly();
-
-        assertEquals("3", bean.s);
-        assertEquals(2, bean.i);
+        db.getSharedHandle().createQuery("SELECT i, '7' FROM bean").mapTo(ConstructorBean.class).findOnly();
     }
 
     @Test
@@ -85,7 +79,7 @@ public class ConstructorMapperTest {
 
     static class NamedParameterBean {
         final int i;
-        NamedParameterBean(@DbName("xyz") int i) {
+        NamedParameterBean(@ColumnName("xyz") int i) {
             this.i = i;
         }
     }
