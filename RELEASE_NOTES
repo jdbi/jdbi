@@ -1,3 +1,6 @@
+2.74
+  - cglib 3.2.2, asm 5.1; fixes codegen for new Java 8 bridge methods
+
 2.73
   - Allow clearing of bindings in SQLStatement
   - (finally!) parse Postgres CAST syntax 'value::type' properly in colon
