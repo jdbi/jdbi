@@ -164,6 +164,9 @@ class SqlObject
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
                 handlers.put(raw_method, new CloseHandler());
             }
+            else if (method.getName().equals("finalize") && method.getRawMember().getParameterTypes().length == 0) {
+                // no handler for finalize()
+            }
             else if (raw_method.isAnnotationPresent(Transaction.class)) {
                 handlers.put(raw_method, new PassThroughTransactionHandler(raw_method, raw_method.getAnnotation(Transaction.class)));
             }
