@@ -15,7 +15,11 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.RewrittenStatement;
@@ -36,9 +40,14 @@ public class TestColonStatementRewriter
 
     private RewrittenStatement rewrite(String sql)
     {
-        return rw.rewrite(sql,
-                new Binding(),
-                new StatementContext());
+        return rewrite(sql, Collections.emptyMap());
+    }
+
+    private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
+        StatementContext ctx = new StatementContext();
+        attributes.forEach(ctx::setAttribute);
+
+        return rw.rewrite(sql, new Binding(), ctx);
     }
 
     @Test
@@ -90,6 +99,23 @@ public class TestColonStatementRewriter
         Assert.fail("Expected 'UnableToCreateStatementException' but got none");
     }
 
+    @Test
+    public void testSubstitutesAttributesForAngleBracketTokens() throws Exception
+    {
+        Map<String, Object> attributes = ImmutableMap.of(
+                "column", "foo",
+                "table", "bar",
+                "condition", "baz");
+        RewrittenStatement rws = rewrite("select <column> from <table> where <column> = :someValue", attributes);
+        assertEquals("select foo from bar where foo = ?", rws.getSql());
+    }
+
+    @Test(expected = UnableToCreateStatementException.class)
+    public void testMissingAttributeForAngleBracketToken() throws Exception
+    {
+        rewrite("select * from <table>", Collections.emptyMap());
+    }
+    
     @Test
     public void testCachesRewrittenStatements() throws Exception
     {

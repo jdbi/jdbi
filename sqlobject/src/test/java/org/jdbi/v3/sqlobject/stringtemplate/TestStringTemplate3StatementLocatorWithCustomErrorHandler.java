@@ -18,7 +18,6 @@ import java.util.UUID;
 
 import com.google.common.collect.Lists;
 
-import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
@@ -67,7 +66,6 @@ public class TestStringTemplate3StatementLocatorWithCustomErrorHandler {
         dao.ids(Lists.newArrayList(1, 2));
     }
 
-    @UseStringTemplate3StatementLocator(errorListener = MyTestCustomErrorHandler.class)
     public interface MyDAO {
         @SqlQuery("select * from foo where bar < 12 and id in (<ids>)")
         Object broken();
@@ -77,21 +75,5 @@ public class TestStringTemplate3StatementLocatorWithCustomErrorHandler {
 
         @SqlQuery("select * from foo where id in (<ids>)")
         Object ids(@BindIn("ids") List<Integer> ids);
-    }
-
-    public static class MyTestCustomErrorHandler implements StringTemplateErrorListener {
-
-        @Override
-        public void error(String msg, Throwable e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-            throw new RuntimeException(e);
-        }
-
-        @Override
-        public void warning(String msg) {
-            throw new RuntimeException("warning:" + msg);
-        }
     }
 }

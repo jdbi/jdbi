@@ -107,7 +107,6 @@ public class TestStringTemplate3Locator
         badass.insert("something", new Something(2, "Fred"));
     }
 
-    @UseStringTemplate3StatementLocator
     @RegisterRowMapper(SomethingMapper.class)
     interface HoneyBadger
     {

@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
@@ -61,20 +63,40 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
     @Override
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
-        ParsedStatement stmt = cache.get(sql);
-        if (stmt == null) {
-            try {
-                stmt = parseString(sql);
-                cache.put(sql, stmt);
-            }
-            catch (IllegalArgumentException e) {
-                throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
-            }
+        try {
+            sql = replaceAttributeTokens(sql, ctx);
+            ParsedStatement stmt = cache.computeIfAbsent(sql, key -> parseString(key));
+            return new MyRewrittenStatement(stmt, ctx);
         }
-        return new MyRewrittenStatement(stmt, ctx);
+        catch (IllegalArgumentException e) {
+            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
+        }
     }
 
-    ParsedStatement parseString(final String sql) throws IllegalArgumentException
+    private final Pattern DEFINED_ATTRIBUTE = Pattern.compile("<([a-zA-Z0-9_]+)>");
+
+    private String replaceAttributeTokens(String input, StatementContext ctx) throws IllegalArgumentException
+    {
+        StringBuilder b = new StringBuilder(input.length());
+
+        Matcher m = DEFINED_ATTRIBUTE.matcher(input);
+        int cursor = 0;
+
+        while (m.find()) {
+            b.append(input.substring(cursor, m.start()));
+            Object attribute = ctx.getAttribute(m.group(1));
+            if (attribute == null) {
+                throw new IllegalArgumentException("Undefined attribute for token '" + m.group() + "'");
+            }
+            b.append(attribute);
+            cursor = m.end();
+        }
+        b.append(input.substring(cursor));
+
+        return b.toString();
+    }
+
+    ParsedStatement parseString(String sql) throws IllegalArgumentException
     {
         ParsedStatement stmt = new ParsedStatement();
         StringBuilder b = new StringBuilder();
