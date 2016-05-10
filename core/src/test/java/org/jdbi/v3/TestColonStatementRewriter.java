@@ -115,7 +115,14 @@ public class TestColonStatementRewriter
     {
         rewrite("select * from <table>", Collections.emptyMap());
     }
-    
+
+    @Test
+    public void testLeaveEnquotedAngleBracketTokensIntact() throws Exception
+    {
+        String sql = "select '<foo>' foo, \"<bar>\" bar from something";
+        assertEquals(sql, rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp")).getSql());
+    }
+
     @Test
     public void testCachesRewrittenStatements() throws Exception
     {
