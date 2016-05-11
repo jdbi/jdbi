@@ -72,6 +72,7 @@ public class ColonPrefixStatementRewriter implements StatementRewriter
         Token t = lexer.nextToken();
         while (t.getType() != DefineStatementLexer.EOF) {
             switch (t.getType()) {
+                case DefineStatementLexer.COMMENT:
                 case DefineStatementLexer.LITERAL:
                 case DefineStatementLexer.QUOTED_TEXT:
                 case DefineStatementLexer.DOUBLE_QUOTED_TEXT:
@@ -105,6 +106,7 @@ public class ColonPrefixStatementRewriter implements StatementRewriter
         Token t = lexer.nextToken();
         while (t.getType() != ColonStatementLexer.EOF) {
             switch (t.getType()) {
+            case ColonStatementLexer.COMMENT:
             case ColonStatementLexer.LITERAL:
             case ColonStatementLexer.QUOTED_TEXT:
             case ColonStatementLexer.DOUBLE_QUOTED_TEXT:

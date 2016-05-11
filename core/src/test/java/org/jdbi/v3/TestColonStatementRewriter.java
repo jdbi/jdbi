@@ -100,7 +100,7 @@ public class TestColonStatementRewriter
     }
 
     @Test
-    public void testSubstitutesAttributesForAngleBracketTokens() throws Exception
+    public void testSubstitutesDefinedAttributes() throws Exception
     {
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
@@ -111,23 +111,23 @@ public class TestColonStatementRewriter
     }
 
     @Test(expected = UnableToCreateStatementException.class)
-    public void testMissingAttributeForAngleBracketToken() throws Exception
+    public void testUndefinedAttribute() throws Exception
     {
         rewrite("select * from <table>", Collections.emptyMap());
     }
 
     @Test
-    public void testLeaveEnquotedAngleBracketTokensIntact() throws Exception
+    public void testLeaveEnquotedTokensIntact() throws Exception
     {
         String sql = "select '<foo>' foo, \"<bar>\" bar from something";
         assertEquals(sql, rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp")).getSql());
     }
 
     @Test
-    public void testIgnoreAngleBracketsNotEnclosingAToken() throws Exception
+    public void testIgnoreAngleBracketsNotPartOfToken() throws Exception
     {
         String sql = "select * from foo where end_date < ? and start_date > ?";
-        assertEquals(sql, rewrite(sql, ImmutableMap.of("table", "foo")).getSql());
+        assertEquals(sql, rewrite(sql).getSql());
     }
 
     @Test
@@ -153,8 +153,10 @@ public class TestColonStatementRewriter
         assertEquals(1, ctr.get());
     }
 
+    @Test
     public void testCommentQuote() throws Exception
     {
-        rewrite("select 1 /* ' \" */");
+        String sql = "select 1 /* ' \" <foo> */";
+        assertEquals(sql, rewrite(sql).getSql());
     }
 }
