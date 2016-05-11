@@ -64,6 +64,8 @@
                 <configuration>
                     <sourceDirectory>src/adoc</sourceDirectory>
                     <backend>html</backend>
+                    <baseDir>src/test/java/jdbi/doc</baseDir>
+                    <sourceHighlighter>coderay</sourceHighlighter>
                 </configuration>
             </plugin>
         </plugins>
