@@ -30,12 +30,12 @@ import org.junit.Test;
 
 public class TestColonStatementRewriter
 {
-    private ColonPrefixNamedParamStatementRewriter rw;
+    private ColonPrefixStatementRewriter rw;
 
     @Before
     public void setUp() throws Exception
     {
-        this.rw = new ColonPrefixNamedParamStatementRewriter();
+        this.rw = new ColonPrefixStatementRewriter();
     }
 
     private RewrittenStatement rewrite(String sql)
@@ -127,13 +127,13 @@ public class TestColonStatementRewriter
     public void testCachesRewrittenStatements() throws Exception
     {
         final AtomicInteger ctr = new AtomicInteger(0);
-        rw = new ColonPrefixNamedParamStatementRewriter()
+        rw = new ColonPrefixStatementRewriter()
         {
             @Override
-            ParsedStatement parseString(final String sql) throws IllegalArgumentException
+            ParsedStatement rewriteNamedParameters(final String sql) throws IllegalArgumentException
             {
                 ctr.incrementAndGet();
-                return super.parseString(sql);
+                return super.rewriteNamedParameters(sql);
             }
         };
 

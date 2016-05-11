@@ -16,6 +16,9 @@
         <Class name="org.jdbi.rewriter.colon.ColonStatementLexer" />
     </Match>
     <Match>
+        <Class name="org.jdbi.rewriter.define.DefineStatementLexer" />
+    </Match>
+    <Match>
         <Class name="org.jdbi.rewriter.hash.HashStatementLexer" />
     </Match>
     <Match>

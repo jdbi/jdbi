@@ -43,7 +43,7 @@ class JdbiConfig {
         collectorRegistry = new CollectorFactoryRegistry();
         extensionRegistry = new ExtensionRegistry();
 
-        statementRewriter = new ColonPrefixNamedParamStatementRewriter();
+        statementRewriter = new ColonPrefixStatementRewriter();
         statementLocator = new ClasspathStatementLocator();
         timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
     }
