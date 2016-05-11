@@ -25,11 +25,11 @@ import java.util.stream.Stream;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.jdbi.rewriter.define.DefineStatementLexer;
-import org.jdbi.rewriter.hash.HashStatementLexer;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.internal.JdbiStreams;
+import org.jdbi.v3.internal.lexer.DefineStatementLexer;
+import org.jdbi.v3.internal.lexer.HashStatementLexer;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementRewriter;

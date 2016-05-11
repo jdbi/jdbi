@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.Token;
+import org.jdbi.v3.internal.lexer.SqlScriptLexer;
 
 /**
  * An SQL script parser.
