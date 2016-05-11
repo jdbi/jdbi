@@ -124,6 +124,13 @@ public class TestColonStatementRewriter
     }
 
     @Test
+    public void testIgnoreAngleBracketsNotEnclosingAToken() throws Exception
+    {
+        String sql = "select * from foo where end_date < ? and start_date > ?";
+        assertEquals(sql, rewrite(sql, ImmutableMap.of("table", "foo")).getSql());
+    }
+
+    @Test
     public void testCachesRewrittenStatements() throws Exception
     {
         final AtomicInteger ctr = new AtomicInteger(0);
