@@ -16,6 +16,7 @@ fragment ESCAPE: '\\';
 fragment ESCAPE_QUOTE: ESCAPE QUOTE;
 fragment DOUBLE_QUOTE: '"';
 fragment COLON: ':';
+fragment DOUBLE_COLON: {input.LA(2) == ':'}?=> '::';
 fragment NAME: 'a'..'z' | 'A'..'Z' | '0'..'9' | '_' | '.' | '#';
 
 COMMENT: '/*' .* '*/';
@@ -26,7 +27,5 @@ ESCAPED_TEXT : ESCAPE . ;
 NAMED_PARAM: COLON (NAME)+;
 POSITIONAL_PARAM: '?';
 
-LITERAL: (NAME | ' ' | '\t' | '\n' | '\r' | ',' | '@' | '!' | '=' | ';' | '(' | ')' | '[' | ']'
+LITERAL: (NAME | ' ' | '\t' | '\n' | '\r' | ',' | '@' | '!' | '=' | DOUBLE_COLON | ';' | '(' | ')' | '[' | ']'
          | '+' | '-' | '<' | '>' | '%' | '&' | '^' | '|' | '$' | '~' | '{' | '}' | '`')+ | '*' | '/';
-
-

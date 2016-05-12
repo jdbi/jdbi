@@ -158,4 +158,11 @@ public class TestColonStatementRewriter
         String sql = "select 1 /* ' \" <foo> */";
         assertEquals(sql, rewrite(sql).getSql());
     }
+
+    @Test
+    public void testDoubleColon() throws Exception
+    {
+        String sql = "select '2016-05-11'::date from foo";
+        assertEquals(sql, rewrite(sql).getSql());
+    }
 }
