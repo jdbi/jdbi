@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.stringtemplate;
+package org.jdbi.v3.sqlobject;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,14 +21,12 @@ import com.google.common.collect.Lists;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.unstable.BindIn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestStringTemplate3StatementLocatorWithCustomErrorHandler {
+public class TestBindInParameter {
 
     private DBI dbi;
     private Handle handle;

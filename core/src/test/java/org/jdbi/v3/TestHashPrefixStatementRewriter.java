@@ -97,11 +97,11 @@ public class TestHashPrefixStatementRewriter
     }
 
     @Test
-    public void testSubstitutesDefinedAttributes() throws Exception{
+    public void testSubstitutesDefinedAttributes() throws Exception
+    {
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
-                "table", "bar",
-                "condition", "baz");
+                "table", "bar");
         RewrittenStatement rws = rewrite("select <column> from <table> where <column> = #someValue", attributes);
         assertEquals("select foo from bar where foo = ?", rws.getSql());
     }

@@ -19,7 +19,6 @@ import static org.junit.Assert.assertThat;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.ColonPrefixStatementRewriter;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.StatementContext;
@@ -39,9 +38,6 @@ public class TestRegisterArgumentFactory
     public void setUp() throws Exception
     {
         DBI dbi = db.getDbi();
-
-        // this is the default, but be explicit for sake of clarity in test
-        dbi.setStatementRewriter(new ColonPrefixStatementRewriter());
     }
 
     @Test

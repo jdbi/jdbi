@@ -103,8 +103,7 @@ public class TestColonStatementRewriter
     {
         Map<String, Object> attributes = ImmutableMap.of(
                 "column", "foo",
-                "table", "bar",
-                "condition", "baz");
+                "table", "bar");
         RewrittenStatement rws = rewrite("select <column> from <table> where <column> = :someValue", attributes);
         assertEquals("select foo from bar where foo = ?", rws.getSql());
     }
