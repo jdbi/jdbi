@@ -26,7 +26,6 @@ import java.util.regex.Matcher;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.StatementLocator;
 
@@ -40,11 +39,11 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     static {
         final ConcurrentMap<String, StringTemplateGroup> cache = new ConcurrentHashMap<>();
-        cache.put("empty template group", new StringTemplateGroup("empty template group", AngleBracketTemplateLexer.class));
+        cache.put("empty template group", new StringTemplateGroup("empty template group"));
         ANNOTATION_LOCATOR_CACHE = cache;
     }
 
-    private final StringTemplateGroup literals = new StringTemplateGroup("literals", AngleBracketTemplateLexer.class);
+    private final StringTemplateGroup literals = new StringTemplateGroup("literals");
     private final StringTemplateGroup group;
     private final boolean treatLiteralsAsTemplates;
 
@@ -217,10 +216,10 @@ public class StringTemplate3StatementLocator implements StatementLocator
             StringTemplateGroup result;
 
             if (superGroup == null) {
-                result = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class, errorListener);
+                result = new StringTemplateGroup(reader, errorListener);
             }
             else {
-                result = new StringTemplateGroup(reader, AngleBracketTemplateLexer.class, errorListener, superGroup);
+                result = new StringTemplateGroup(reader, null, errorListener, superGroup);
             }
 
             if (cacheKey != null) {

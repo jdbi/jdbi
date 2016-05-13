@@ -18,11 +18,11 @@ import org.junit.Test;
 
 public class TestEscapedCharacters
 {
-    private final ColonPrefixNamedParamStatementRewriter rewriter = new ColonPrefixNamedParamStatementRewriter();
+    private final ColonPrefixStatementRewriter rewriter = new ColonPrefixStatementRewriter();
 
     private String parseString(final String src)
     {
-        return rewriter.parseString(src).getParsedSql();
+        return rewriter.rewriteNamedParameters(src).getParsedSql();
     }
 
     @Test

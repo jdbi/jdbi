@@ -15,7 +15,11 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.RewrittenStatement;
@@ -23,22 +27,26 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class TestColonStatementRewriter
 {
-    private ColonPrefixNamedParamStatementRewriter rw;
+    private ColonPrefixStatementRewriter rw;
 
     @Before
     public void setUp() throws Exception
     {
-        this.rw = new ColonPrefixNamedParamStatementRewriter();
+        this.rw = new ColonPrefixStatementRewriter();
     }
 
     private RewrittenStatement rewrite(String sql)
     {
-        return rw.rewrite(sql,
-                new Binding(),
-                new StatementContext());
+        return rewrite(sql, Collections.emptyMap());
+    }
+
+    private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
+        StatementContext ctx = new StatementContext();
+        attributes.forEach(ctx::setAttribute);
+
+        return rw.rewrite(sql, new Binding(), ctx);
     }
 
     @Test
@@ -91,16 +99,46 @@ public class TestColonStatementRewriter
     }
 
     @Test
+    public void testSubstitutesDefinedAttributes() throws Exception
+    {
+        Map<String, Object> attributes = ImmutableMap.of(
+                "column", "foo",
+                "table", "bar");
+        RewrittenStatement rws = rewrite("select <column> from <table> where <column> = :someValue", attributes);
+        assertEquals("select foo from bar where foo = ?", rws.getSql());
+    }
+
+    @Test(expected = UnableToCreateStatementException.class)
+    public void testUndefinedAttribute() throws Exception
+    {
+        rewrite("select * from <table>", Collections.emptyMap());
+    }
+
+    @Test
+    public void testLeaveEnquotedTokensIntact() throws Exception
+    {
+        String sql = "select '<foo>' foo, \"<bar>\" bar from something";
+        assertEquals(sql, rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp")).getSql());
+    }
+
+    @Test
+    public void testIgnoreAngleBracketsNotPartOfToken() throws Exception
+    {
+        String sql = "select * from foo where end_date < ? and start_date > ?";
+        assertEquals(sql, rewrite(sql).getSql());
+    }
+
+    @Test
     public void testCachesRewrittenStatements() throws Exception
     {
         final AtomicInteger ctr = new AtomicInteger(0);
-        rw = new ColonPrefixNamedParamStatementRewriter()
+        rw = new ColonPrefixStatementRewriter()
         {
             @Override
-            ParsedStatement parseString(final String sql) throws IllegalArgumentException
+            ParsedStatement rewriteNamedParameters(final String sql) throws IllegalArgumentException
             {
                 ctr.incrementAndGet();
-                return super.parseString(sql);
+                return super.rewriteNamedParameters(sql);
             }
         };
 
@@ -113,8 +151,17 @@ public class TestColonStatementRewriter
         assertEquals(1, ctr.get());
     }
 
+    @Test
     public void testCommentQuote() throws Exception
     {
-        rewrite("select 1 /* ' \" */");
+        String sql = "select 1 /* ' \" <foo> */";
+        assertEquals(sql, rewrite(sql).getSql());
+    }
+
+    @Test
+    public void testDoubleColon() throws Exception
+    {
+        String sql = "select '2016-05-11'::date from foo";
+        assertEquals(sql, rewrite(sql).getSql());
     }
 }

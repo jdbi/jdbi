@@ -1,7 +1,7 @@
 lexer grammar SqlScriptLexer;
 
 @header {
-    package org.jdbi.v3;
+    package org.jdbi.v3.internal.lexer;
 }
 
 @lexer::members {
@@ -19,7 +19,7 @@ COMMENT
     ;
 
 MULTI_LINE_COMMENT
-    : '/*' (options {greedy=false;} :.)* '*/' { skip(); }
+    : '/*' .* '*/' { skip(); }
     ;
 
 NEWLINES

@@ -13,11 +13,11 @@
  */
 package org.jdbi.v3.unstable.grammar;
 
-import static org.jdbi.rewriter.colon.ColonStatementLexer.*;
+import static org.jdbi.v3.internal.lexer.ColonStatementLexer.*;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Lexer;
-import org.jdbi.rewriter.colon.ColonStatementLexer;
+import org.jdbi.v3.internal.lexer.ColonStatementLexer;
 import org.junit.Test;
 
 

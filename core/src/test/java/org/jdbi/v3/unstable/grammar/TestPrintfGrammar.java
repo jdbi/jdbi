@@ -13,11 +13,11 @@
  */
 package org.jdbi.v3.unstable.grammar;
 
-import static org.jdbi.rewriter.printf.FormatterStatementLexer.*;
+import static org.jdbi.v3.internal.lexer.FormatterStatementLexer.*;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Lexer;
-import org.jdbi.rewriter.printf.FormatterStatementLexer;
+import org.jdbi.v3.internal.lexer.FormatterStatementLexer;
 import org.junit.Test;
 
 public class TestPrintfGrammar extends GrammarTestCase
