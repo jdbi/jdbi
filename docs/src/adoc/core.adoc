@@ -1,0 +1,36 @@
+= DBIs and Handles
+
+A DBI object is the main entry point into the *jdbi* library.
+It is roughly analogous to a
+link:https://docs.oracle.com/javase/8/docs/api/javax/sql/DataSource.html[javax.sql.DataSource]
+combined with configuration for the various *jdbi* APIs.
+
+A configured DBI is threadsafe and does not own any database resources.
+An application should configure a single or small number of shared
+DBI instances.  In a more limited scope (such as a HTTP request, or event callback), you then
+request a *Handle* object from your *DBI*.  This *Handle* represents an active database
+link:https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html[java.sql.Connection]
+and inheirts *DBI*'s configuration at the time of creation.
+
+[source,java]
+----
+DBI userDatabase = DBI.create("jdbc:postgresql://localhost");
+final Optional<MyUser> foundUser = userDatabase.withHandle(h ->
+    h.createQuery("SELECT * FROM user WHERE id=:id")
+        .bind("id", 3)
+        .map(MyUser.class)
+        .findFirst()
+);
+----
+
+*Handle* provides a fluent query and update API that can map <<arguments#,arguments>>
+and <<results#,result sets>> to and from regular Java objects.
+You may register mappings for arguments 
+<<arguments#argument-factory,manually>> or use 
+<<arguments#bean-argument,Java Bean conventions>>.
+
+For result sets you can map
+<<results#row-mapper,one row at a time>>,
+<<results#column-mapper,by the type of each column>>, as
+<<results#bean-mapper,beans>>, or invoking
+<<results#constructor-mapper,annotated constructors>>.

@@ -21,6 +21,15 @@ include::HelloWorldTest.java[tags=frontPage]
 a stronger resource ownership model, and leverages
 the power of the new Java 8 APIs.
 
+Read about the core APIs:
+
+* <<core#,DBI and Handle>>
+* <<arguments#,Arguments and Binding>>
+* <<results#,>>
+* <<mapping#,Result Mapping>>
+* <<sqlobject#,SQLObject>>
+* <<spring#,Spring Integration>>
+
 WARNING: *jdbi3* is currently under active development.
 http://www.jdbi.org[jdbi2] is still the stable release.
 *jdbi3* should generously be considered alpha quality.
