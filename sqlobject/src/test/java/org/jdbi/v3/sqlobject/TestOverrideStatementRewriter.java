@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.jdbi.v3.ColonPrefixNamedParamStatementRewriter;
+import org.jdbi.v3.ColonPrefixStatementRewriter;
 import org.jdbi.v3.DBI;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
@@ -41,7 +41,7 @@ public class TestOverrideStatementRewriter
         DBI dbi = db.getDbi();
 
         // this is the default, but be explicit for sake of clarity in test
-        dbi.setStatementRewriter(new ColonPrefixNamedParamStatementRewriter());
+        dbi.setStatementRewriter(new ColonPrefixStatementRewriter());
         handle = dbi.open();
     }
 

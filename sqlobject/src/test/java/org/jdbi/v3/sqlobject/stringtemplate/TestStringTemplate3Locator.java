@@ -87,7 +87,6 @@ public class TestStringTemplate3Locator
         assertThat(name, equalTo("Bouncer"));
     }
 
-
     @Test
     public void testBatching() throws Exception
     {
@@ -96,26 +95,6 @@ public class TestStringTemplate3Locator
 
         assertThat(roo.findById(1L), equalTo(new Something(1, "Jeff")));
         assertThat(roo.findById(2L), equalTo(new Something(2, "Brian")));
-    }
-
-    @Test
-    public void testNoTemplateDefined() throws Exception
-    {
-        HoneyBadger badass = handle.attach(HoneyBadger.class);
-
-        badass.insert("something", new Something(1, "Ted"));
-        badass.insert("something", new Something(2, "Fred"));
-    }
-
-    @UseStringTemplate3StatementLocator
-    @RegisterRowMapper(SomethingMapper.class)
-    interface HoneyBadger
-    {
-        @SqlUpdate("insert into <table> (id, name) values (:id, :name)")
-        void insert(@Define("table") String table, @BindBean Something s);
-
-        @SqlQuery("select id, name from <table> where id = :id")
-        Something findById(@Define("table") String table, @Bind("id") Long id);
     }
 
     @UseStringTemplate3StatementLocator

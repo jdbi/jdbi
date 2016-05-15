@@ -1,7 +1,7 @@
 lexer grammar FormatterStatementLexer;
 
 @header {
-    package org.jdbi.rewriter.printf;
+    package org.jdbi.v3.internal.lexer;
 }
 
 @lexer::members {

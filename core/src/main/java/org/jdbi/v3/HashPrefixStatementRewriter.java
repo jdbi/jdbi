@@ -13,13 +13,6 @@
  */
 package org.jdbi.v3;
 
-import static org.jdbi.rewriter.hash.HashStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.jdbi.rewriter.hash.HashStatementLexer.ESCAPED_TEXT;
-import static org.jdbi.rewriter.hash.HashStatementLexer.LITERAL;
-import static org.jdbi.rewriter.hash.HashStatementLexer.NAMED_PARAM;
-import static org.jdbi.rewriter.hash.HashStatementLexer.POSITIONAL_PARAM;
-import static org.jdbi.rewriter.hash.HashStatementLexer.QUOTED_TEXT;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -32,10 +25,11 @@ import java.util.stream.Stream;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.jdbi.rewriter.hash.HashStatementLexer;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.internal.JdbiStreams;
+import org.jdbi.v3.internal.lexer.DefineStatementLexer;
+import org.jdbi.v3.internal.lexer.HashStatementLexer;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementRewriter;
@@ -61,20 +55,49 @@ public class HashPrefixStatementRewriter implements StatementRewriter
     @Override
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
-        ParsedStatement stmt = cache.get(sql);
-        if (stmt == null) {
-            try {
-                stmt = parseString(sql);
-                cache.put(sql, stmt);
-            }
-            catch (IllegalArgumentException e) {
-                throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
-            }
+        try {
+            ParsedStatement stmt = cache.computeIfAbsent(rewriteDefines(sql, ctx), this::rewriteNamedParameters);
+            return new MyRewrittenStatement(stmt, ctx);
         }
-        return new MyRewrittenStatement(stmt, ctx);
+        catch (IllegalArgumentException e) {
+            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
+        }
     }
 
-    ParsedStatement parseString(final String sql) throws IllegalArgumentException
+    String rewriteDefines(String sql, StatementContext ctx)
+    {
+        StringBuilder b = new StringBuilder();
+        DefineStatementLexer lexer = new DefineStatementLexer(new ANTLRStringStream(sql));
+        Token t = lexer.nextToken();
+        while (t.getType() != DefineStatementLexer.EOF) {
+            switch (t.getType()) {
+                case DefineStatementLexer.COMMENT:
+                case DefineStatementLexer.LITERAL:
+                case DefineStatementLexer.QUOTED_TEXT:
+                case DefineStatementLexer.DOUBLE_QUOTED_TEXT:
+                    b.append(t.getText());
+                    break;
+                case DefineStatementLexer.DEFINE:
+                    String text = t.getText();
+                    String key = text.substring(1, text.length() - 1);
+                    Object value = ctx.getAttribute(key);
+                    if (value == null) {
+                        throw new IllegalArgumentException("Undefined attribute for token '" + text + "'");
+                    }
+                    b.append(value);
+                    break;
+                case DefineStatementLexer.ESCAPED_TEXT:
+                    b.append(t.getText().substring(1));
+                    break;
+                default:
+                    break;
+            }
+            t = lexer.nextToken();
+        }
+        return b.toString();
+    }
+
+    ParsedStatement rewriteNamedParameters(final String sql) throws IllegalArgumentException
     {
         ParsedStatement stmt = new ParsedStatement();
         StringBuilder b = new StringBuilder();
@@ -82,24 +105,21 @@ public class HashPrefixStatementRewriter implements StatementRewriter
         Token t = lexer.nextToken();
         while (t.getType() != HashStatementLexer.EOF) {
             switch (t.getType()) {
-                case LITERAL:
+                case HashStatementLexer.COMMENT:
+                case HashStatementLexer.LITERAL:
+                case HashStatementLexer.QUOTED_TEXT:
+                case HashStatementLexer.DOUBLE_QUOTED_TEXT:
                     b.append(t.getText());
                     break;
-                case NAMED_PARAM:
-                    stmt.addNamedParamAt(t.getText().substring(1, t.getText().length()));
+                case HashStatementLexer.NAMED_PARAM:
+                    stmt.addNamedParamAt(t.getText().substring(1));
                     b.append("?");
                     break;
-                case QUOTED_TEXT:
-                    b.append(t.getText());
-                    break;
-                case DOUBLE_QUOTED_TEXT:
-                    b.append(t.getText());
-                    break;
-                case POSITIONAL_PARAM:
+                case HashStatementLexer.POSITIONAL_PARAM:
                     b.append("?");
                     stmt.addPositionalParamAt();
                     break;
-                case ESCAPED_TEXT:
+                case HashStatementLexer.ESCAPED_TEXT:
                     b.append(t.getText().substring(1));
                     break;
                 default:

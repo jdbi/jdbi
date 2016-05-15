@@ -13,12 +13,6 @@
  */
 package org.jdbi.v3;
 
-import static org.jdbi.rewriter.colon.ColonStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.jdbi.rewriter.colon.ColonStatementLexer.ESCAPED_TEXT;
-import static org.jdbi.rewriter.colon.ColonStatementLexer.LITERAL;
-import static org.jdbi.rewriter.colon.ColonStatementLexer.NAMED_PARAM;
-import static org.jdbi.rewriter.colon.ColonStatementLexer.POSITIONAL_PARAM;
-import static org.jdbi.rewriter.colon.ColonStatementLexer.QUOTED_TEXT;
 import static org.jdbi.v3.internal.JdbiOptionals.findFirstPresent;
 
 import java.sql.PreparedStatement;
@@ -32,9 +26,10 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.jdbi.rewriter.colon.ColonStatementLexer;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.internal.lexer.ColonStatementLexer;
+import org.jdbi.v3.internal.lexer.DefineStatementLexer;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementRewriter;
@@ -44,7 +39,7 @@ import org.jdbi.v3.tweak.StatementRewriter;
  * <p/>
  * This is the default statement rewriter
  */
-public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
+public class ColonPrefixStatementRewriter implements StatementRewriter
 {
     private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
@@ -61,20 +56,49 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
     @Override
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx)
     {
-        ParsedStatement stmt = cache.get(sql);
-        if (stmt == null) {
-            try {
-                stmt = parseString(sql);
-                cache.put(sql, stmt);
-            }
-            catch (IllegalArgumentException e) {
-                throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
-            }
+        try {
+            ParsedStatement stmt = cache.computeIfAbsent(rewriteDefines(sql, ctx), this::rewriteNamedParameters);
+            return new MyRewrittenStatement(stmt, ctx);
         }
-        return new MyRewrittenStatement(stmt, ctx);
+        catch (IllegalArgumentException e) {
+            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
+        }
     }
 
-    ParsedStatement parseString(final String sql) throws IllegalArgumentException
+    String rewriteDefines(String sql, StatementContext ctx)
+    {
+        StringBuilder b = new StringBuilder();
+        DefineStatementLexer lexer = new DefineStatementLexer(new ANTLRStringStream(sql));
+        Token t = lexer.nextToken();
+        while (t.getType() != DefineStatementLexer.EOF) {
+            switch (t.getType()) {
+                case DefineStatementLexer.COMMENT:
+                case DefineStatementLexer.LITERAL:
+                case DefineStatementLexer.QUOTED_TEXT:
+                case DefineStatementLexer.DOUBLE_QUOTED_TEXT:
+                    b.append(t.getText());
+                    break;
+                case DefineStatementLexer.DEFINE:
+                    String text = t.getText();
+                    String key = text.substring(1, text.length() - 1);
+                    Object value = ctx.getAttribute(key);
+                    if (value == null) {
+                        throw new IllegalArgumentException("Undefined attribute for token '" + text + "'");
+                    }
+                    b.append(value);
+                    break;
+                case DefineStatementLexer.ESCAPED_TEXT:
+                    b.append(t.getText().substring(1));
+                    break;
+                default:
+                    break;
+            }
+            t = lexer.nextToken();
+        }
+        return b.toString();
+    }
+
+    ParsedStatement rewriteNamedParameters(String sql) throws IllegalArgumentException
     {
         ParsedStatement stmt = new ParsedStatement();
         StringBuilder b = new StringBuilder();
@@ -82,24 +106,21 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
         Token t = lexer.nextToken();
         while (t.getType() != ColonStatementLexer.EOF) {
             switch (t.getType()) {
-            case LITERAL:
+            case ColonStatementLexer.COMMENT:
+            case ColonStatementLexer.LITERAL:
+            case ColonStatementLexer.QUOTED_TEXT:
+            case ColonStatementLexer.DOUBLE_QUOTED_TEXT:
                 b.append(t.getText());
                 break;
-            case NAMED_PARAM:
-                stmt.addNamedParamAt(t.getText().substring(1, t.getText().length()));
+            case ColonStatementLexer.NAMED_PARAM:
+                stmt.addNamedParamAt(t.getText().substring(1));
                 b.append("?");
                 break;
-            case QUOTED_TEXT:
-                b.append(t.getText());
-                break;
-            case DOUBLE_QUOTED_TEXT:
-                b.append(t.getText());
-                break;
-            case POSITIONAL_PARAM:
+            case ColonStatementLexer.POSITIONAL_PARAM:
                 b.append("?");
                 stmt.addPositionalParamAt();
                 break;
-            case ESCAPED_TEXT:
+            case ColonStatementLexer.ESCAPED_TEXT:
                 b.append(t.getText().substring(1));
                 break;
             default:

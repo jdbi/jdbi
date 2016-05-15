@@ -13,15 +13,6 @@
 -->
 <FindBugsFilter>
     <Match>
-        <Class name="org.jdbi.rewriter.colon.ColonStatementLexer" />
-    </Match>
-    <Match>
-        <Class name="org.jdbi.rewriter.hash.HashStatementLexer" />
-    </Match>
-    <Match>
-        <Class name="org.jdbi.rewriter.printf.FormatterStatementLexer" />
-    </Match>
-    <Match>
-        <Class name="org.jdbi.v3.SqlScriptLexer" />
+        <Package name="~org\.jdbi\.v3\.internal\.lexer\.*" />
     </Match>
 </FindBugsFilter>
