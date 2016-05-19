@@ -10,9 +10,25 @@ convert your Java object model into the relational
 model -- instead, it provides easy mapping between
 SQL _you_ write and simple tabular data structures.
 
+
+[source,java]
+-------------------------------------------
+include::HelloWorldTest.java[tags=frontPage]
+-------------------------------------------
+
+
 *jdbi3* is an update which sports a cleaned up API,
 a stronger resource ownership model, and leverages
 the power of the new Java 8 APIs.
+
+Read about the core APIs:
+
+* <<core#,DBI and Handle>>
+* <<arguments#,Arguments and Binding>>
+* <<results#,>>
+* <<mapping#,Result Mapping>>
+* <<sqlobject#,SQLObject>>
+* <<spring#,Spring Integration>>
 
 WARNING: *jdbi3* is currently under active development.
 http://www.jdbi.org[jdbi2] is still the stable release.

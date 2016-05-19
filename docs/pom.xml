@@ -23,7 +23,7 @@
 
     <artifactId>jdbi3-docs</artifactId>
     <name>jdbi documentation</name>
-    <packaging>pom</packaging>
+
     <description>
         Build and deploy jdbi docs, written in AsciiDoc.
     </description>
@@ -32,12 +32,25 @@
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
+    <dependencies>
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>1.5.2</version>
+                <version>1.5.3</version>
                 <executions>
                     <execution>
                         <id>output-html</id>
@@ -51,6 +64,8 @@
                 <configuration>
                     <sourceDirectory>src/adoc</sourceDirectory>
                     <backend>html</backend>
+                    <baseDir>src/test/java/jdbi/doc</baseDir>
+                    <sourceHighlighter>coderay</sourceHighlighter>
                 </configuration>
             </plugin>
         </plugins>
