@@ -23,6 +23,7 @@ the power of the new Java 8 APIs.
 
 Read about the core APIs:
 
+* <<tour#,5-Minute Tour>>
 * <<core#,DBI and Handle>>
 * <<arguments#,Arguments and Binding>>
 * <<results#,>>
