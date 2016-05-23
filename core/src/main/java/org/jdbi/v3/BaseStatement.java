@@ -42,7 +42,7 @@ abstract class BaseStatement
     }
 
     /**
-     * Obtain the statement context associated with this statement
+     * @return the statement context associated with this statement
      */
     public final StatementContext getContext()
     {
