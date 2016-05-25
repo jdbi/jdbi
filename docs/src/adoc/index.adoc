@@ -26,8 +26,7 @@ Read about the core APIs:
 * <<tour#,5-Minute Tour>>
 * <<core#,DBI and Handle>>
 * <<arguments#,Arguments and Binding>>
-* <<results#,>>
-* <<mapping#,Result Mapping>>
+* <<results#,Result Mapping>>
 * <<sqlobject#,SQLObject>>
 * <<spring#,Spring Integration>>
 
