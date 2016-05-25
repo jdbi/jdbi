@@ -34,27 +34,27 @@ public class FiveMinuteTourTest {
 
     @Before
     public void setUp() {
-// tag::createJdbi[]
-// H2 in-memory database
-Jdbi dbi = Jdbi.create("jdbc:h2:mem:test");
-// end::createJdbi[]
+        // tag::createJdbi[]
+        // H2 in-memory database
+        Jdbi dbi = Jdbi.create("jdbc:h2:mem:test");
+        // end::createJdbi[]
 
         // shared handle to keep database open
         this.dbi = dbi;
         this.handle = dbi.open();
 
-// tag::useHandle[]
-dbi.useHandle(handle -> {
-    handle.execute("create table something (id int primary key, name varchar(100))");
-    handle.insert("insert into something (id, name) values (?, ?)", 1, "Alice");
-    handle.insert("insert into something (id, name) values (?, ?)", 2, "Bob");
+        // tag::useHandle[]
+        dbi.useHandle(handle -> {
+            handle.execute("create table something (id int primary key, name varchar(100))");
+            handle.insert("insert into something (id, name) values (?, ?)", 1, "Alice");
+            handle.insert("insert into something (id, name) values (?, ?)", 2, "Bob");
 
-    List<String> names = handle.createQuery("select name from something")
-                               .mapTo(String.class)
-                               .list();
-    assertThat(names).contains("Alice", "Bob");
-});
-// end::useHandle[]
+            List<String> names = handle.createQuery("select name from something")
+                                       .mapTo(String.class)
+                                       .list();
+            assertThat(names).contains("Alice", "Bob");
+        });
+        // end::useHandle[]
     }
 
     @After
@@ -64,68 +64,68 @@ dbi.useHandle(handle -> {
 
     @Test
     public void tryWithResources() {
-// tag::openHandle[]
-try (Handle handle = dbi.open()) {
-    // do stuff
-}
-// end::openHandle[]
+        // tag::openHandle[]
+        try (Handle handle = dbi.open()) {
+            // do stuff
+        }
+        // end::openHandle[]
     }
 
-// tag::defineCustomMapper[]
-public final class Something {
-    final int id;
-    final String name;
+    // tag::defineCustomMapper[]
+    public final class Something {
+        final int id;
+        final String name;
 
-    Something(int id, String name) {
-        this.id = id;
-        this.name = name;
+        Something(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
     }
-}
 
-public class SomethingMapper implements RowMapper<Something> {
-    @Override
-    public Something map(ResultSet r, StatementContext ctx) throws SQLException {
-        return new Something(r.getInt("id"), r.getString("name"));
+    public class SomethingMapper implements RowMapper<Something> {
+        @Override
+        public Something map(ResultSet r, StatementContext ctx) throws SQLException {
+            return new Something(r.getInt("id"), r.getString("name"));
+        }
     }
-}
-// end::defineCustomMapper[]
+    // end::defineCustomMapper[]
 
     @Test
     public void useCustomMapper() {
-// tag::useCustomMapper[]
-List<Something> things = handle.createQuery("select * from something")
-                               .map(new SomethingMapper())
-                               .list();
-assertThat(things).extracting("id", "name")
-                  .contains(tuple(1, "Alice"),
-                            tuple(2, "Bob"));
-// end::useCustomMapper[]
+        // tag::useCustomMapper[]
+        List<Something> things = handle.createQuery("select * from something")
+                                       .map(new SomethingMapper())
+                                       .list();
+        assertThat(things).extracting("id", "name")
+                          .contains(tuple(1, "Alice"),
+                                    tuple(2, "Bob"));
+        // end::useCustomMapper[]
     }
 
     @Test
     public void registerCustomMapper() {
-// tag::registerCustomMapper[]
-handle.registerRowMapper(new SomethingMapper());
+        // tag::registerCustomMapper[]
+        handle.registerRowMapper(new SomethingMapper());
 
-List<Something> things = handle.createQuery("select * from something")
-                               .mapTo(Something.class)
-                               .list();
-assertThat(things).extracting("id", "name")
-                  .contains(tuple(1, "Alice"),
-                            tuple(2, "Bob"));
-// end::registerCustomMapper[]
+        List<Something> things = handle.createQuery("select * from something")
+                                       .mapTo(Something.class)
+                                       .list();
+        assertThat(things).extracting("id", "name")
+                          .contains(tuple(1, "Alice"),
+                                    tuple(2, "Bob"));
+        // end::registerCustomMapper[]
     }
 
     @Test
     public void namedParameters() {
         handle.registerRowMapper(new SomethingMapper());
-// tag::namedParameters[]
-Something thing = handle.createQuery("select * from something where id = :id")
-                        .bind("id", 1)
-                        .mapTo(Something.class)
-                        .findOnly();
-assertThat(thing).extracting("id", "name")
-                 .contains(1, "Alice");
-// end::namedParameters[]
+        // tag::namedParameters[]
+        Something thing = handle.createQuery("select * from something where id = :id")
+                                .bind("id", 1)
+                                .mapTo(Something.class)
+                                .findOnly();
+        assertThat(thing).extracting("id", "name")
+                         .contains(1, "Alice");
+        // end::namedParameters[]
     }
 }
