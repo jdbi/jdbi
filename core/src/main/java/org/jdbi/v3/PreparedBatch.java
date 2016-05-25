@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * a very efficient way to execute large numbers of the same statement where
  * the statement only varies by the arguments bound to it.
  */
-public class PreparedBatch extends SQLStatement<PreparedBatch>
+public class PreparedBatch extends SqlStatement<PreparedBatch>
 {
     private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
 

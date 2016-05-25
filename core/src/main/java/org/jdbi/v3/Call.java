@@ -29,7 +29,7 @@ import org.jdbi.v3.tweak.StatementCustomizer;
 /**
  * Used for invoking stored procedures.
  */
-public class Call extends SQLStatement<Call>
+public class Call extends SqlStatement<Call>
 {
     private final List<OutParamArgument> params = new ArrayList<>();
 
