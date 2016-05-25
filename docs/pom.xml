@@ -49,10 +49,10 @@
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-jodatime</artifactId>
       </dependency>
-      <!--<dependency>-->
-        <!--<groupId>org.jdbi</groupId>-->
-        <!--<artifactId>jdbi3-jpa</artifactId>-->
-      <!--</dependency>-->
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-jpa</artifactId>
+      </dependency>
       <!--<dependency>-->
         <!--<groupId>org.jdbi</groupId>-->
         <!--<artifactId>jdbi3-spring</artifactId>-->
