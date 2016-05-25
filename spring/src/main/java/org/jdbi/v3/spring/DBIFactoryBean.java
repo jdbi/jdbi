@@ -96,6 +96,8 @@ public class DBIFactoryBean implements FactoryBean<Jdbi>
     /**
      * The datasource, which should be managed by spring's transaction system, from which
      * the {@link Jdbi} will obtain connections
+     *
+     * @param dataSource the data source.
      */
     public void setDataSource(DataSource dataSource)
     {
