@@ -36,6 +36,8 @@ import org.jdbi.v3.tweak.CollectorFactory;
  */
 public class GuavaCollectors {
     /**
+     * @param <T> the element type collected.
+     *
      * @return a collector into {@code ImmutableList<T>}
      */
     public static <T> Collector<T, ?, ImmutableList<T>> toImmutableList() {
@@ -47,6 +49,8 @@ public class GuavaCollectors {
     }
 
     /**
+     * @param <T> the element type collected.
+     *
      * @return a collector into {@code ImmutableSet<T>}
      */
     public static <T> Collector<T, ?, ImmutableSet<T>> toImmutableSet() {
@@ -58,6 +62,8 @@ public class GuavaCollectors {
     }
 
     /**
+     * @param <T> the element type collected.
+     *
      * @return a collector into {@code ImmutableSortedSet<T>}
      */
     public static <T extends Comparable<T>> Collector<T, ?, ImmutableSortedSet<T>> toImmutableSortedSet() {
@@ -70,6 +76,8 @@ public class GuavaCollectors {
 
     /**
      * @param comparator the comparator for sorting set elements.
+     * @param <T> the element type collected.
+     *
      * @return a collector into {@code ImmutableSortedSet<T>} using the given comparator for sorting
      */
     public static <T> Collector<T, ?, ImmutableSortedSet<T>> toImmutableSortedSet(Comparator<T> comparator) {
@@ -86,6 +94,8 @@ public class GuavaCollectors {
     }
 
     /**
+     * @param <T> the element type collected.
+     *
      * @return a collector into Guava's {@code Optional<T>}
      */
     public static <T> Collector<T, ?, Optional<T>> toOptional() {
