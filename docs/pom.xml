@@ -45,10 +45,10 @@
         <groupId>com.google.auto.service</groupId>
         <artifactId>auto-service</artifactId>
       </dependency>
-      <!--<dependency>-->
-        <!--<groupId>org.jdbi</groupId>-->
-        <!--<artifactId>jdbi3-jodatime</artifactId>-->
-      <!--</dependency>-->
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-jodatime</artifactId>
+      </dependency>
       <!--<dependency>-->
         <!--<groupId>org.jdbi</groupId>-->
         <!--<artifactId>jdbi3-jpa</artifactId>-->
