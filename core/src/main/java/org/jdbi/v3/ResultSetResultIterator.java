@@ -25,7 +25,7 @@ import org.jdbi.v3.tweak.RowMapper;
 class ResultSetResultIterator<Type> implements ResultIterator<Type>
 {
     private final RowMapper<Type> mapper;
-    private final SQLStatement<?> jdbiStatement;
+    private final SqlStatement<?> jdbiStatement;
     private final ResultSet results;
     private final StatementContext context;
 
@@ -34,7 +34,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private volatile boolean closed = false;
 
     ResultSetResultIterator(RowMapper<Type> mapper,
-                            SQLStatement<?> jdbiStatement,
+                            SqlStatement<?> jdbiStatement,
                             Statement stmt,
                             ResultSet results,
                             StatementContext context)

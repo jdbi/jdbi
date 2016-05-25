@@ -28,7 +28,7 @@ import org.jdbi.v3.tweak.RowMapper;
 public class GeneratedKeys<T> implements ResultBearing<T>
 {
     private final RowMapper<T>             mapper;
-    private final SQLStatement<?>          jdbiStatement;
+    private final SqlStatement<?>          jdbiStatement;
     private final Statement                stmt;
     private final ResultSet                results;
     private final StatementContext         context;
@@ -43,7 +43,7 @@ public class GeneratedKeys<T> implements ResultBearing<T>
      * @param context       The statement context
      */
     GeneratedKeys(RowMapper<T> mapper,
-                  SQLStatement<?> jdbiStatement,
+                  SqlStatement<?> jdbiStatement,
                   Statement stmt,
                   StatementContext context)
     {
