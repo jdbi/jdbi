@@ -11,7 +11,7 @@ model -- instead, it provides easy mapping between
 SQL _you_ write and simple tabular data structures.
 
 
-[source,java]
+[source,java,indent=0]
 -------------------------------------------
 include::HelloWorldTest.java[tags=frontPage]
 -------------------------------------------

@@ -36,4 +36,4 @@ include::ArgumentsTest.java[tags=uuidArgumentFactory]
 
 You can also register *ArgumentFactory* instances which can inspect
 the type of bindings and determine if they understand how to convert
-the type to *Argument*s.
+the type to Arguments.
