@@ -132,6 +132,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
                             <includeDependencySources>true</includeDependencySources>
                             <excludePackageNames>*.internal.*</excludePackageNames>
                             <dependencySourceIncludes>
