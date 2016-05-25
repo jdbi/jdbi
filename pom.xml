@@ -299,7 +299,7 @@
         <module>guava</module>
         <module>jodatime</module>
         <module>jpa</module>
-        <module>pg</module>
+        <module>postgres</module>
         <module>spring</module>
         <module>docs</module>
     </modules>
