@@ -35,6 +35,10 @@ public class ClasspathStatementLocator implements StatementLocator
 
     /**
      * Very basic sanity test to see if a string looks like it might be sql
+     *
+     * @param sql string to test for SQL-ness
+     *
+     * @return whether the argument looks like SQL
      */
     public static boolean looksLikeSql(String sql)
     {
@@ -54,12 +58,14 @@ public class ClasspathStatementLocator implements StatementLocator
     /**
      * If the passed in name doesn't look like SQL it will search the classpath for a file
      * which looks like the provided name.
-     * <p/>
+     * <p>
      * The "looks like" algorithm is not very sophisticated, it basically looks for the string
      * to begin with insert, update, select, call, delete, create, alter, or drop followed
      * by a space.
-     * <p/>
+     * </p>
+     * <p>
      * If no resource is found using the passed in string, the string s returned as-is
+     * </p>
      *
      * @param name Name or statement literal
      *
