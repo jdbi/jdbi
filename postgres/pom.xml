@@ -21,8 +21,8 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3-pg</artifactId>
-    <name>jDBI Postgres</name>
+    <artifactId>jdbi3-postgres</artifactId>
+    <name>jdbi Postgres</name>
     <description>
         jDBI PostgreSQL specific features
     </description>
