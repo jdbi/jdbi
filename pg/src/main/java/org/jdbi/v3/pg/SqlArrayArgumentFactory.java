@@ -30,7 +30,8 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
         return Types.getErasedType(type).isArray() ?
-                Optional.of(new ArrayArgument(guessSqlType((Object[]) value), value)) : Optional.empty();
+                Optional.of(ArrayArgument.fromAnyArray(guessSqlType(value), value)) :
+                    Optional.empty();
     }
 
     private static final Map<Class<?>, String> BEST_GUESS;
@@ -49,9 +50,13 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
      * Look at a Java array and attempt to determine an appropriate
      * SQL type to pass to the driver.
      */
-    static final String guessSqlType(Object[] array) {
-        String guess = BEST_GUESS.get(array.getClass().getComponentType());
-        if (array.length == 0 || guess == null) {
+    static final String guessSqlType(Object array) {
+        final Class<?> klass = array.getClass();
+        if (!klass.isArray()) {
+            throw new IllegalArgumentException("not an array: " + klass);
+        }
+        String guess = BEST_GUESS.get(klass.getComponentType());
+        if (((Object[]) array).length == 0 || guess == null) {
             return "varchar";
         }
         return guess;
