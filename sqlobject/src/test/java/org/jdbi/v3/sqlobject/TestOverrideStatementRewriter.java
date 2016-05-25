@@ -17,7 +17,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.jdbi.v3.ColonPrefixStatementRewriter;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.HashPrefixStatementRewriter;
@@ -38,7 +38,7 @@ public class TestOverrideStatementRewriter
     @Before
     public void setUp() throws Exception
     {
-        DBI dbi = db.getDbi();
+        Jdbi dbi = db.getDbi();
 
         // this is the default, but be explicit for sake of clarity in test
         dbi.setStatementRewriter(new ColonPrefixStatementRewriter());

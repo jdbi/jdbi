@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.common.collect.ImmutableSet;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
@@ -37,7 +37,7 @@ import org.junit.Test;
 
 public class TestDoublyTransactional
 {
-    private DBI    dbi;
+    private Jdbi    dbi;
     private Handle handle;
     private final AtomicBoolean inTransaction = new AtomicBoolean();
 
@@ -76,7 +76,7 @@ public class TestDoublyTransactional
         };
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = DBI.create(ds);
+        dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
         dbi.registerRowMapper(new SomethingMapper());
 

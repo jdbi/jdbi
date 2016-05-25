@@ -33,7 +33,7 @@ public class TestArgumentFactory
     @Test
     public void testRegisterOnDBI() throws Exception
     {
-        final DBI dbi = db.getDbi();
+        final Jdbi dbi = db.getDbi();
         dbi.registerArgumentFactory(new NameAF());
         try (Handle h = dbi.open()) {
             h.createStatement("insert into something (id, name) values (:id, :name)")

@@ -15,7 +15,7 @@ package org.jdbi.v3.spring;
 
 import javax.sql.DataSource;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,7 +79,7 @@ public class TestDBIFactoryBean {
             fail("unexpected exception");
         }
 
-        try (final Handle h = DBI.open(ds)) {
+        try (final Handle h = Jdbi.open(ds)) {
             int count = h.createQuery("select count(*) from something").mapTo(int.class).findOnly();
             assertEquals(0, count);
         }

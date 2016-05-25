@@ -18,17 +18,17 @@ import static org.junit.Assert.assertThat;
 
 import java.util.UUID;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestGetGeneratedKeysHsqlDb {
 
-    private DBI dbi;
+    private Jdbi dbi;
 
     @Before
     public void setUp() throws Exception {
-        dbi = DBI.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
+        dbi = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
                 .installPlugin(new SqlObjectPlugin());
         dbi.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
     }

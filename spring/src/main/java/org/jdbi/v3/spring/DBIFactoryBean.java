@@ -21,7 +21,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.StatementLocator;
 import org.springframework.beans.factory.FactoryBean;
@@ -29,10 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 /**
- * Utility class which constructs an {@link DBI} instance which can conveniently participate
+ * Utility class which constructs an {@link Jdbi} instance which can conveniently participate
  * in Spring's transaction management system.
  */
-public class DBIFactoryBean implements FactoryBean<DBI>
+public class DBIFactoryBean implements FactoryBean<Jdbi>
 {
     private DataSource dataSource;
     private StatementLocator statementLocator;
@@ -56,9 +56,9 @@ public class DBIFactoryBean implements FactoryBean<DBI>
      * See {@link org.springframework.beans.factory.FactoryBean#getObject}
      */
     @Override
-    public DBI getObject() throws Exception
+    public Jdbi getObject() throws Exception
     {
-        final DBI dbi = DBI.create(() -> DataSourceUtils.getConnection(dataSource));
+        final Jdbi dbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
 
         plugins.forEach(dbi::installPlugin);
 
@@ -79,7 +79,7 @@ public class DBIFactoryBean implements FactoryBean<DBI>
     @Override
     public Class<?> getObjectType()
     {
-        return DBI.class;
+        return Jdbi.class;
     }
 
     /**
@@ -95,7 +95,7 @@ public class DBIFactoryBean implements FactoryBean<DBI>
 
     /**
      * The datasource, which should be managed by spring's transaction system, from which
-     * the {@link DBI} will obtain connections
+     * the {@link Jdbi} will obtain connections
      */
     public void setDataSource(DataSource dataSource)
     {

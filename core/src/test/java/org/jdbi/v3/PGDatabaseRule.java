@@ -23,14 +23,14 @@ import org.junit.rules.ExternalResource;
 
 public class PGDatabaseRule extends ExternalResource
 {
-    private DBI dbi;
+    private Jdbi dbi;
     private List<JdbiPlugin> plugins = new ArrayList<>();
 
     @Override
     protected void before() throws Throwable
     {
         assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
-        dbi = DBI.create("jdbc:postgresql:jdbi_test", "postgres", "");
+        dbi = Jdbi.create("jdbc:postgresql:jdbi_test", "postgres", "");
         plugins.forEach(dbi::installPlugin);
     }
 
@@ -40,7 +40,7 @@ public class PGDatabaseRule extends ExternalResource
         dbi = null;
     }
 
-    public DBI getDbi()
+    public Jdbi getDbi()
     {
         return dbi;
     }

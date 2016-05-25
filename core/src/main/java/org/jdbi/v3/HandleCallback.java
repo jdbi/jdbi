@@ -14,7 +14,7 @@
 package org.jdbi.v3;
 
 /**
- * Callback for use with {@link org.jdbi.v3.DBI#withHandle(HandleCallback)}
+ * Callback for use with {@link org.jdbi.v3.Jdbi#withHandle(HandleCallback)}
  */
 @FunctionalInterface
 public interface HandleCallback<T, X extends Exception>

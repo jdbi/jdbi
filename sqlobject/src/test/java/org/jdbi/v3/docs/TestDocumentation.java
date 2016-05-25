@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Query;
@@ -92,7 +92,7 @@ public class TestDocumentation
     @Test
     public void testObtainHandleInCallback() throws Exception
     {
-        DBI dbi = DBI.create("jdbc:h2:mem:" + UUID.randomUUID());
+        Jdbi dbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
         dbi.useHandle(handle -> handle.execute("create table silly (id int)"));
     }
 
