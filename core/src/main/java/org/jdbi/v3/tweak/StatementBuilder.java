@@ -39,6 +39,8 @@ public interface StatementBuilder
      * @param ctx Statement context associated with the SQLStatement this is building for
      *
      * @return a PreparedStatement for the given arguments
+     *
+     * @throws SQLException if anything goes wrong preparing the statement
      */
     PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException;
 
@@ -50,6 +52,8 @@ public interface StatementBuilder
      * @param ctx Statement context associated with the SQLStatement this is building for
      *
      * @return a CallableStatement for the given arguments
+     *
+     * @throws SQLException if anything goes wrong preparing the statement
      */
     CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException;
 

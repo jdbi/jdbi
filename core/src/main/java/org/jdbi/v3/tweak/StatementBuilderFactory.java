@@ -23,6 +23,7 @@ import java.sql.Connection;
 public interface StatementBuilderFactory
 {
     /**
+     * @param conn the connection to create a statement builder for
      * @return a StatementBuilder, called when a new handle is opened
      */
     StatementBuilder createStatementBuilder(Connection conn);

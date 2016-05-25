@@ -49,7 +49,7 @@ public interface ResultBearing<T> extends Iterable<T>
     }
 
     /**
-     * Get the first row in the result set, if present.
+     * @return the first row in the result set, if present.
      */
     default Optional<T> findFirst() {
         try (ResultIterator<T> iter = iterator()) {
@@ -66,10 +66,13 @@ public interface ResultBearing<T> extends Iterable<T>
      * </p>
      *
      * <pre>
-     * try (Stream&lt;T> stream = query.stream()) {
+     * try (Stream&lt;T&gt; stream = query.stream()) {
      *   // do stuff with stream
      * }
      * </pre>
+     *
+     * @return the stream of results.
+     *
      * @see #useStream(StreamConsumer)
      * @see #withStream(StreamCallback)
      */
@@ -84,6 +87,8 @@ public interface ResultBearing<T> extends Iterable<T>
      * released before this method returns.
      *
      * @param consumer a consumer which receives the stream of results.
+     * @param <X> the exception type thrown by the callback, if any
+     *
      * @throws X any exception thrown by the callback
      */
     default <X extends Exception> void useStream(StreamConsumer<T, X> consumer) throws X {
@@ -98,8 +103,11 @@ public interface ResultBearing<T> extends Iterable<T>
      * released before this method returns.
      *
      * @param callback a callback which receives the stream of results, and returns some result.
-     * @param <R>      the type returned by the callback
+     * @param <R> the type returned by the callback
+     * @param <X> the exception type thrown by the callback, if any
+     *
      * @return the value returned by the callback.
+     *
      * @throws X any exception thrown by the callback
      */
     default <R, X extends Exception> R withStream(StreamCallback<T, R, X> callback) throws X {
@@ -109,7 +117,7 @@ public interface ResultBearing<T> extends Iterable<T>
     }
 
     /**
-     * Returns the list of query results.
+     * @return the list of query results.
      */
     default List<T> list() {
         return collect(Collectors.toList());
