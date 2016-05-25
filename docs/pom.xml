@@ -91,7 +91,10 @@
                     <artifactId>maven-dependency-plugin</artifactId>
                     <configuration>
                         <!-- Don't care, just want javadocs -->
-                        <ignoredUnusedDeclaredDependencies>*</ignoredUnusedDeclaredDependencies>
+                        <ignoredDependencies>
+                            <ignoredDependency>org.jdbi:*</ignoredDependency>
+                            <ignoredDependency>com.google.auto.service:auto-service</ignoredDependency>
+                        </ignoredDependencies>
                     </configuration>
                 </plugin>
             </plugins>
