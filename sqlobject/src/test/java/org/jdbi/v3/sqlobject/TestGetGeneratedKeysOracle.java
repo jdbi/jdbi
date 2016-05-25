@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.RowMapper;
 import org.junit.After;
@@ -36,11 +36,11 @@ import org.junit.Test;
  */
 public class TestGetGeneratedKeysOracle {
 
-    private DBI dbi;
+    private Jdbi dbi;
 
     @Before
     public void setUp() throws Exception {
-        dbi = DBI.create("jdbc:oracle:thin:@localhost:test", "oracle", "oracle");
+        dbi = Jdbi.create("jdbc:oracle:thin:@localhost:test", "oracle", "oracle");
         dbi.useHandle(handle -> {
             handle.execute("create sequence something_id_sequence INCREMENT BY 1 START WITH 100");
             handle.execute("create table something (name varchar(200), id int, constraint something_id primary key (id))");

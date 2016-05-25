@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.ResultIterator;
 import org.jdbi.v3.Something;
@@ -48,7 +48,7 @@ import org.junit.Test;
 
 public class TestOnDemandSqlObject
 {
-    private DBI    dbi;
+    private Jdbi    dbi;
     private Handle handle;
     private final HandleTracker tracker = new HandleTracker();
     private JdbcDataSource ds;
@@ -59,7 +59,7 @@ public class TestOnDemandSqlObject
         ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = DBI.create(ds);
+        dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
         handle.execute("create table something (id int primary key, name varchar(100))");

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
@@ -32,7 +32,7 @@ import org.junit.Test;
 
 public class TestMapBinder
 {
-    private DBI    dbi;
+    private Jdbi    dbi;
     private Handle handle;
 
     @Before
@@ -40,7 +40,7 @@ public class TestMapBinder
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:test");
-        dbi = DBI.create(ds).installPlugin(new SqlObjectPlugin());
+        dbi = Jdbi.create(ds).installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100), a varchar(100), b int, c varchar(100))");

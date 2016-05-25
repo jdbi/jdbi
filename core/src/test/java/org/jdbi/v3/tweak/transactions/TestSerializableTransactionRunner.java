@@ -16,7 +16,7 @@ package org.jdbi.v3.tweak.transactions;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.TransactionIsolationLevel;
@@ -30,12 +30,12 @@ public class TestSerializableTransactionRunner
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
-    private DBI dbi;
+    private Jdbi dbi;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = DBI.create(db.getConnectionFactory());
+        dbi = Jdbi.create(db.getConnectionFactory());
         dbi.setTransactionHandler(new SerializableTransactionRunner());
     }
 

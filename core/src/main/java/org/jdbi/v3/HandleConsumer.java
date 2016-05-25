@@ -14,7 +14,7 @@
 package org.jdbi.v3;
 
 /**
- * Callback for use with {@link org.jdbi.v3.DBI#useHandle(HandleConsumer)}
+ * Callback for use with {@link org.jdbi.v3.Jdbi#useHandle(HandleConsumer)}
  */
 @FunctionalInterface
 public interface HandleConsumer<X extends Exception>

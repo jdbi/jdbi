@@ -97,8 +97,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see DBI#registerRowMapper(RowMapper)
-     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Jdbi#registerRowMapper(RowMapper)
+     * @see Jdbi#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */
@@ -114,8 +114,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see DBI#registerRowMapper(RowMapper)
-     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Jdbi#registerRowMapper(RowMapper)
+     * @see Jdbi#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */
@@ -131,8 +131,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see DBI#registerRowMapper(RowMapper)
-     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Jdbi#registerRowMapper(RowMapper)
+     * @see Jdbi#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */

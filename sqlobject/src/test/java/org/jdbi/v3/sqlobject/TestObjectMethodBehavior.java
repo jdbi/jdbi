@@ -21,14 +21,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestObjectMethodBehavior
 {
-    private DBI    dbi;
+    private Jdbi    dbi;
     private UselessDao dao;
 
     public interface UselessDao extends Cloneable, GetHandle
@@ -87,7 +87,7 @@ public class TestObjectMethodBehavior
                 throw new UnsupportedOperationException();
             }
         };
-        dbi = DBI.create(ds);
+        dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
         dao = dbi.onDemand(UselessDao.class);
     }

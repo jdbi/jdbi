@@ -24,7 +24,7 @@ public class TestNoOpStatementRewriter
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
-    private DBI dbi;
+    private Jdbi dbi;
 
     @Before
     public void setUp() throws Exception

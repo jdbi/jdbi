@@ -1,17 +1,17 @@
 = Five Minute Tour
 
-== DBI
+== Jdbi
 
-The `DBI` object is basically a fancy wrapper around a
+The `Jdbi` object is basically a fancy wrapper around a
 `javax.sql.DataSource`. Typically an application will create one
-shared `DBI` instance application-wide, and set up shared
+shared `Jdbi` instance application-wide, and set up shared
 configuration there.
 
 For now let's just use the out-of-the-box configuration: 
 
 [source,java,indent=0]
 -------------------------------------------
-include::FiveMinuteTourTest.java[tags=createDbi]
+include::FiveMinuteTourTest.java[tags=createJdbi]
 -------------------------------------------
 
 == Handles
@@ -21,9 +21,9 @@ The `Handle` is likewise a wrapper around a
 when you are done with them, or else your app will leak database
 connections.
 
-You can call `DBI.open()` to get a `Handle` instance, but most
-of the time you should just use the `DBI.useHandle` or
-`DBI.withHandle` callback methods, which ensure that the handle
+You can call `Jdbi.open()` to get a `Handle` instance, but most
+of the time you should just use the `Jdbi.useHandle` or
+`Jdbi.withHandle` callback methods, which ensure that the handle
 is cleaned up, and the connection released before returning to
 the caller. Use `withHandle` when your database action returns a
 result, or `useHandle` if no result is returned.
@@ -33,7 +33,7 @@ result, or `useHandle` if no result is returned.
 include::FiveMinuteTourTest.java[tags=useHandle]
 -------------------------------------------
 
-If you do use `DBI.open()`, we recommend doing so in a
+If you do use `Jdbi.open()`, we recommend doing so in a
 try-with-resources block for safety.
 
 [source,java,indent=0]
@@ -55,7 +55,7 @@ include::FiveMinuteTourTest.java[tags=defineCustomMapper]
 include::FiveMinuteTourTest.java[tags=useCustomMapper]
 ---------------------------------------------------------
 
-Registering a `RowMapper` with the `Handle` or the `DBI` (before
+Registering a `RowMapper` with the `Handle` or the `Jdbi` (before
 the handle is created) allows you to map to the data type
 without having to specify the mapper type everywhere:
 
