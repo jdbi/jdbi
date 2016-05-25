@@ -286,7 +286,7 @@ public class DBI
      * Register a column mapper factory.
      *
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     * 
+     *
      * @param factory the column mapper factory
      */
     public void registerColumnMapper(ColumnMapperFactory factory) {
@@ -421,7 +421,7 @@ public class DBI
      * @param <E> the extension type
      *
      * @return an extension which opens and closes handles (as needed) for individual method calls. Only public
-     * interface types may be used as on-demand extensions. 
+     * interface types may be used as on-demand extensions.
      */
     public <E> E onDemand(Class<E> extensionType) throws NoSuchExtensionException {
         if (!extensionType.isInterface()) {
