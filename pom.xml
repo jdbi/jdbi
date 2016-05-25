@@ -90,6 +90,9 @@
         <basepom.test.timeout>120</basepom.test.timeout>
 
         <basepom.check.skip-modernizer>false</basepom.check.skip-modernizer>
+
+        <!-- should go upstream https://github.com/basepom/basepom/pull/20 -->
+        <dep.plugin.modernizer.version>1.4.0</dep.plugin.modernizer.version>
     </properties>
 
     <build>
@@ -117,6 +120,35 @@
               </toolchains>
             </configuration>
           </plugin>
+
+          <!-- should go upstream https://github.com/basepom/basepom/pull/20 -->
+          <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+          <plugin>
+            <groupId>org.eclipse.m2e</groupId>
+            <artifactId>lifecycle-mapping</artifactId>
+            <version>1.0.0</version>
+            <configuration>
+              <lifecycleMappingMetadata>
+                <pluginExecutions>
+                  <pluginExecution>
+                    <pluginExecutionFilter>
+                      <groupId>org.gaul</groupId>
+                      <artifactId>
+                        modernizer-maven-plugin
+                      </artifactId>
+                      <versionRange>[1.4.0,)</versionRange>
+                      <goals>
+                        <goal>modernizer</goal>
+                      </goals>
+                    </pluginExecutionFilter>
+                    <action>
+                      <ignore></ignore>
+                    </action>
+                  </pluginExecution>
+                </pluginExecutions>
+              </lifecycleMappingMetadata>
+            </configuration>
+          </plugin>
         </plugins>
       </pluginManagement>
       <plugins>
@@ -127,6 +159,24 @@
             <execution>
               <goals>
                 <goal>toolchain</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- should go upstream https://github.com/basepom/basepom/pull/20 -->
+        <plugin>
+          <groupId>org.gaul</groupId>
+          <artifactId>modernizer-maven-plugin</artifactId>
+          <version>${dep.plugin.modernizer.version}</version>
+          <configuration>
+            <javaVersion>${project.build.targetJdk}</javaVersion>
+            <failOnViolations>${basepom.check.fail-modernizer}</failOnViolations>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>modernizer</goal>
               </goals>
             </execution>
           </executions>
