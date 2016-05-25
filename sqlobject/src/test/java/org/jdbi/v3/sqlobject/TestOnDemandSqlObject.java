@@ -34,7 +34,7 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.ResultIterator;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.exceptions.DBIException;
+import org.jdbi.v3.exceptions.JdbiException;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.spi.JdbiPlugin;
@@ -108,7 +108,7 @@ public class TestOnDemandSqlObject
         try {
             s.crashNow();
             fail();
-        } catch (DBIException e) {
+        } catch (JdbiException e) {
         }
 
         assertFalse( tracker.hasOpenedHandle() );
@@ -123,7 +123,7 @@ public class TestOnDemandSqlObject
         try {
             i.next();
             fail();
-        } catch (DBIException ex) {
+        } catch (JdbiException ex) {
         }
 
         assertFalse(tracker.hasOpenedHandle());

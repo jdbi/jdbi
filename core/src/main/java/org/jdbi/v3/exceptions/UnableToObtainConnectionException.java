@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.exceptions;
 
-public class UnableToObtainConnectionException extends DBIException
+public class UnableToObtainConnectionException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 

@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.exceptions;
 
-public class TransactionFailedException extends DBIException
+public class TransactionFailedException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 

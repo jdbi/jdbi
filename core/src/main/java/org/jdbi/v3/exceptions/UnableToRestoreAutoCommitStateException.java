@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.exceptions;
 
-public class UnableToRestoreAutoCommitStateException extends DBIException {
+public class UnableToRestoreAutoCommitStateException extends JdbiException {
 
     private static final long serialVersionUID = 2433069110223543423L;
 
