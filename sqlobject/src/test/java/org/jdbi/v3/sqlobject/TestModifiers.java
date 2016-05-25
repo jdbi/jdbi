@@ -124,8 +124,8 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnMethod() throws Exception
     {
-        db.getDbi().useExtension(Spiffy.class, spiffy -> {
-            db.getDbi().useExtension(IsoLevels.class, iso -> {
+        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
+            db.getJdbi().useExtension(IsoLevels.class, iso -> {
                 spiffy.begin();
                 spiffy.insert(1, "Tom");
 
@@ -143,8 +143,8 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnParam() throws Exception
     {
-        db.getDbi().useExtension(Spiffy.class, spiffy -> {
-            db.getDbi().useExtension(IsoLevels.class, iso -> {
+        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
+            db.getJdbi().useExtension(IsoLevels.class, iso -> {
                 spiffy.begin();
                 spiffy.insert(1, "Tom");
 

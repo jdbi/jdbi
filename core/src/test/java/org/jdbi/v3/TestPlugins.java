@@ -30,27 +30,27 @@ public class TestPlugins {
     public void testCustomizeHandle() throws Exception {
         Handle h = mock(Handle.class);
 
-        db.getDbi().installPlugin(new JdbiPlugin() {
+        db.getJdbi().installPlugin(new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
                 return h;
             }
         });
 
-        assertSame(h, db.getDbi().open());
+        assertSame(h, db.getJdbi().open());
     }
 
     @Test
     public void testCustomizeConnection() throws Exception {
         Connection c = mock(Connection.class);
 
-        db.getDbi().installPlugin(new JdbiPlugin() {
+        db.getJdbi().installPlugin(new JdbiPlugin() {
             @Override
             public Connection customizeConnection(Connection conn) {
                 return c;
             }
         });
 
-        assertSame(c, db.getDbi().open().getConnection());
+        assertSame(c, db.getJdbi().open().getConnection());
     }
 }

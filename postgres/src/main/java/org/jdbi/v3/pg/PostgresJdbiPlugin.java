@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.pg;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.spi.JdbiPlugin;
 
 public class PostgresJdbiPlugin implements JdbiPlugin {
     @Override
-    public void customizeDbi(DBI dbi) {
-        dbi.registerArgumentFactory(new SqlArrayArgumentFactory());
-        dbi.registerArgumentFactory(new TypedEnumArgumentFactory());
-        dbi.registerColumnMapper(new SqlArrayMapperFactory());
+    public void customizeDbi(Jdbi db) {
+        db.registerArgumentFactory(new SqlArrayArgumentFactory());
+        db.registerArgumentFactory(new TypedEnumArgumentFactory());
+        db.registerColumnMapper(new SqlArrayMapperFactory());
     }
 }

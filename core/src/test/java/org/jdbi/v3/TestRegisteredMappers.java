@@ -32,7 +32,7 @@ public class TestRegisteredMappers
     @Before
     public void setUp() throws Exception
     {
-        dbi = db.getDbi();
+        dbi = db.getJdbi();
     }
 
     @Test

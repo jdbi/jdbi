@@ -76,7 +76,7 @@ public class H2DatabaseRule extends ExternalResource
         return uri;
     }
 
-    public Jdbi getDbi()
+    public Jdbi getJdbi()
     {
         return dbi;
     }
@@ -88,7 +88,7 @@ public class H2DatabaseRule extends ExternalResource
 
     public Handle openHandle()
     {
-        return getDbi().open();
+        return getJdbi().open();
     }
 
     public ConnectionFactory getConnectionFactory()

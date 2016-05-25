@@ -43,7 +43,7 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findById(7).findOnly();
 
             assertEquals("Tim", s.getName());
@@ -55,7 +55,7 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        db.getDbi().useExtension(Spiffy2.class, spiffy -> {
+        db.getJdbi().useExtension(Spiffy2.class, spiffy -> {
             Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
 
             assertEquals("Tim", s.getName());

@@ -42,7 +42,7 @@ public class TestHandle
             h.insert("insert into something (id, name) values (1, 'Keith')");
         }
 
-        String value = db.getDbi().withHandle(handle ->
+        String value = db.getJdbi().withHandle(handle ->
                 handle.inTransaction((handle1, status) ->
                         handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
 

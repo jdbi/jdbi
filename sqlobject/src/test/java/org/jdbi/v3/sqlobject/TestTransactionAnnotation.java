@@ -95,7 +95,7 @@ public class TestTransactionAnnotation
         final CountDownLatch inserted = new CountDownLatch(1);
         final CountDownLatch committed = new CountDownLatch(1);
 
-        final Other o = db.getDbi().onDemand(Other.class);
+        final Other o = db.getJdbi().onDemand(Other.class);
         Future<Void> rf = es.submit(() -> {
             try {
                 o.insert(inserted, 1, "diwaker");

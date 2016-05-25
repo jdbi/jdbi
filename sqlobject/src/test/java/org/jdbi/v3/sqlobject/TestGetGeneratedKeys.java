@@ -38,7 +38,7 @@ public class TestGetGeneratedKeys
     @Test
     public void testFoo() throws Exception
     {
-        db.getDbi().useExtension(DAO.class, dao -> {
+        db.getJdbi().useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 

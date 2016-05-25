@@ -26,14 +26,14 @@ public class TestUuid {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
-    public DBI dbi;
+    public Jdbi jdbi;
     public Handle h;
 
     @Before
     public void setupDbi() throws Exception {
-        dbi = db.getDbi();
+        jdbi = db.getJdbi();
 
-        h = dbi.open();
+        h = jdbi.open();
         h.execute("CREATE TABLE foo (bar UUID)");
     }
 
