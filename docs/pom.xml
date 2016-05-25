@@ -113,7 +113,7 @@
                         </goals>
                         <configuration>
                             <includeDependencySources>true</includeDependencySources>
-
+                            <excludePackageNames>*.internal.*</excludePackageNames>
                             <dependencySourceIncludes>
                                 <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
                             </dependencySourceIncludes>
