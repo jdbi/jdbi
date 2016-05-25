@@ -38,14 +38,14 @@ public interface Handle extends Closeable
 {
 
     /**
-     * Get the JDBC Connection this Handle uses
      * @return the JDBC Connection this Handle uses
      */
     Connection getConnection();
 
     /**
-     * @throws org.jdbi.v3.exceptions.UnableToCloseResourceException if any
-     * resources throw exception while closing
+     * Closes the handle, its connection, and any other database resources it is holding.
+     *
+     * @throws org.jdbi.v3.exceptions.UnableToCloseResourceException if any resources throw exception while closing
      */
     @Override
     void close();
@@ -61,62 +61,83 @@ public interface Handle extends Closeable
 
     /**
      * Start a transaction
+     *
+     * @return the same handle
      */
     Handle begin();
 
     /**
      * Commit a transaction
+     *
+     * @return the same handle
      */
     Handle commit();
 
     /**
      * Rollback a transaction
+     *
+     * @return the same handle
      */
     Handle rollback();
 
     /**
      * Rollback a transaction to a named checkpoint
+     *
      * @param checkpointName the name of the checkpoint, previously declared with {@link Handle#checkpoint}
+     *
+     * @return the same handle
      */
     Handle rollback(String checkpointName);
 
     /**
-     * Is the handle in a transaction? It defers to the underlying {@link org.jdbi.v3.tweak.TransactionHandler}
+     * @return whether the handle is in a transaction. Delegates to the underlying
+     *         {@link org.jdbi.v3.tweak.TransactionHandler}.
      */
     boolean isInTransaction();
 
     /**
      * Return a default Query instance which can be executed later, as long as this handle remains open.
      * @param sql the select sql
+     *
+     * @return the Query
      */
     Query<Map<String, Object>> createQuery(String sql);
 
     /**
      * Create an Insert or Update statement which returns the number of rows modified.
+     *
      * @param sql The statement sql
+     *
+     * @return the Update
      */
     Update createStatement(String sql);
 
     /**
      * Create a call to a stored procedure
      *
-     * @param callableSql
+     * @param sql the stored procedure sql
+     *
      * @return the Call
      */
-    Call createCall(String callableSql);
+    Call createCall(String sql);
 
 
     /**
      * Execute a simple insert statement
+     *
      * @param sql the insert SQL
+     * @param args positional arguments
+     *
      * @return the number of rows inserted
      */
     int insert(String sql, Object... args);
 
     /**
      * Execute a simple update statement
+     *
      * @param sql the update SQL
      * @param args positional arguments
+     *
      * @return the number of updated inserted
      */
     int update(String sql, Object... args);
@@ -139,13 +160,21 @@ public interface Handle extends Closeable
     /**
      * Executes <code>callback</code> in a transaction, and returns the result of the callback.
      *
+     * @param callback a callback which will receive an open handle, in a transaction.
+     * @param <R> type returned by callback
+     * @param <X> exception type thrown by the callback, if any
+     *
      * @return value returned from the callback
+     *
      * @throws X any exception thrown by the callback
      */
     <R, X extends Exception> R inTransaction(TransactionCallback<R, X> callback) throws X;
 
     /**
      * Executes <code>callback</code> in a transaction.
+     *
+     * @param callback a callback which will receive an open handle, in a transaction.
+     * @param <X> exception type thrown by the callback, if any
      *
      * @throws X any exception thrown by the callback
      */
@@ -158,7 +187,14 @@ public interface Handle extends Closeable
      * This form accepts a transaction isolation level which will be applied to the connection
      * for the scope of this transaction, after which the original isolation level will be restored.
      * </p>
+     * @param level the transaction isolation level which will be applied to the connection for the scope of this
+     *              transaction, after which the original isolation level will be restored.
+     * @param callback a callback which will receive an open handle, in a transaction.
+     * @param <R> type returned by callback
+     * @param <X> exception type thrown by the callback, if any
+     *
      * @return value returned from the callback
+     *
      * @throws X any exception thrown by the callback
      */
     <R, X extends Exception> R inTransaction(TransactionIsolationLevel level,
@@ -171,6 +207,10 @@ public interface Handle extends Closeable
      * This form accepts a transaction isolation level which will be applied to the connection
      * for the scope of this transaction, after which the original isolation level will be restored.
      * </p>
+     * @param level the transaction isolation level which will be applied to the connection for the scope of this
+     *              transaction, after which the original isolation level will be restored.
+     * @param callback a callback which will receive an open handle, in a transaction.
+     * @param <X> exception type thrown by the callback, if any
      * @throws X any exception thrown by the callback
      */
     <X extends Exception> void useTransaction(TransactionIsolationLevel level,
@@ -185,20 +225,28 @@ public interface Handle extends Closeable
     List<Map<String, Object>> select(String sql, Object... args);
 
     /**
-     * Allows for overiding the default statement locator. The default searches the
+     * Allows for overriding the default statement locator. The default searches the
      * classpath for named statements
+     *
+     * @param locator the statement locator
      */
     void setStatementLocator(StatementLocator locator);
 
     /**
      * Allows for overiding the default statement rewriter. The default handles
      * named parameter interpolation.
+     *
+     * @param rewriter the statement rewriter.
      */
     void setStatementRewriter(StatementRewriter rewriter);
 
     /**
      * Creates an SQL script, looking for the source of the script using the
      * current statement locator (which defaults to searching the classpath)
+     *
+     * @param name the script name (passed to the statement locator)
+     *
+     * @return the created Script.
      */
     Script createScript(String name);
 
@@ -220,6 +268,8 @@ public interface Handle extends Closeable
      * Release a previously created checkpoint
      *
      * @param checkpointName the name of the checkpoint to release
+     *
+     * @return the same handle
      */
     Handle release(String checkpointName);
 
@@ -232,6 +282,8 @@ public interface Handle extends Closeable
     /**
      * Specify the class used to collect timing information. The default is inherited from the DBI used
      * to create this Handle.
+     *
+     * @param timingCollector the timing collector
      */
     void setTimingCollector(TimingCollector timingCollector);
 
@@ -239,6 +291,8 @@ public interface Handle extends Closeable
      * Register a row mapper which will have its parameterized type inspected to determine what it maps to
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     *
+     * @param mapper the row mapper
      */
     void registerRowMapper(RowMapper<?> mapper);
 
@@ -246,6 +300,8 @@ public interface Handle extends Closeable
      * Register a row mapper factory.
      *
      * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
+     *
+     * @param factory the row mapper factory
      */
     void registerRowMapper(RowMapperFactory factory);
 
@@ -253,6 +309,8 @@ public interface Handle extends Closeable
      * Register a column mapper which will have its parameterized type inspected to determine what it maps to
      *
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param mapper the column mapper
      */
     void registerColumnMapper(ColumnMapper<?> mapper);
 
@@ -260,6 +318,8 @@ public interface Handle extends Closeable
      * Register a column mapper factory.
      *
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param factory the column mapper factory
      */
     void registerColumnMapper(ColumnMapperFactory factory);
 
