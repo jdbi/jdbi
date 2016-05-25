@@ -34,7 +34,7 @@ public class TestCallable
 
     @Before
     public void setUp() throws Exception {
-        h = db.getDbi().open();
+        h = db.getJdbi().open();
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
         h.execute("CREATE ALIAS TEST_PROCEDURE FOR \"org.jdbi.v3.TestCallable.testProcedure\"");
     }

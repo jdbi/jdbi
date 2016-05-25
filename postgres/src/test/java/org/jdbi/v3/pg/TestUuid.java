@@ -35,7 +35,7 @@ public class TestUuid {
 
     @Before
     public void setupDbi() throws Exception {
-        h = db.getDbi().open();
+        h = db.getJdbi().open();
         h.execute("CREATE TABLE foo (bar UUID)");
     }
 

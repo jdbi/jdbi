@@ -30,7 +30,7 @@ public class TestCustomBinder
     public void testFoo() throws Exception
     {
         db.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
-        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findSame(new Something(2, "Unknown"));
             assertEquals("Martin", s.getName());
         });

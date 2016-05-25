@@ -39,7 +39,7 @@ public class TestCreateSqlObjectAnnotation
     @Before
     public void setUp() throws Exception
     {
-        db.getDbi().registerRowMapper(new SomethingMapper());
+        db.getJdbi().registerRowMapper(new SomethingMapper());
         handle = db.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }
@@ -65,7 +65,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testTransactionPropagates() throws Exception
     {
-        Foo foo = db.getDbi().open().attach(Foo.class);
+        Foo foo = db.getJdbi().open().attach(Foo.class);
 
         try {
             foo.insertAndFail(1, "Jeff");
@@ -118,7 +118,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate " +
                 "so should return void or Number but is returning: java.util.List<java.lang.String>");
 
-        db.getDbi().open().attach(BogusSqlUpdateDao.class);
+        db.getJdbi().open().attach(BogusSqlUpdateDao.class);
     }
 
     public interface BogusSqlUpdateDao {
@@ -132,7 +132,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch " +
                 "so should return void or int[] but is returning: int");
 
-        db.getDbi().open().attach(BogusSqlBatchDao.class);
+        db.getJdbi().open().attach(BogusSqlBatchDao.class);
     }
 
     public interface BogusSqlBatchDao {

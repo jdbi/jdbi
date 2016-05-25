@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.pg;
 
-import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -29,7 +29,7 @@ import com.opentable.db.postgres.junit.SingleInstancePostgresRule;
 public class PostgresDbRule implements TestRule {
 
     public SingleInstancePostgresRule pg = EmbeddedPostgresRules.singleInstance();
-    private DBI dbi;
+    private Jdbi db;
     private Handle h;
 
     @Override
@@ -37,15 +37,15 @@ public class PostgresDbRule implements TestRule {
         return pg.apply(new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                dbi = DBI.create(pg.getEmbeddedPostgres().getDatabase("postgres", "postgres"))
+                db = Jdbi.create(pg.getEmbeddedPostgres().getDatabase("postgres", "postgres"))
                         .installPlugin(new PostgresJdbiPlugin())
                         .installPlugin(new SqlObjectPlugin());
-                h = dbi.open();
+                h = db.open();
 
                 try {
                     base.evaluate();
                 } finally {
-                    dbi = null;
+                    db = null;
                     h.close();
                     h = null;
                 }
@@ -53,9 +53,9 @@ public class PostgresDbRule implements TestRule {
         }, description);
     }
 
-    public DBI getDbi() {
-        if (dbi == null) throw new AssertionError("Test not running");
-        return dbi;
+    public Jdbi getJdbi() {
+        if (db == null) throw new AssertionError("Test not running");
+        return db;
     }
 
     public Handle getSharedHandle() {

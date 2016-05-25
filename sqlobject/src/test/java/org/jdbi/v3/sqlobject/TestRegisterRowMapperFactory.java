@@ -39,7 +39,7 @@ public class TestRegisterRowMapperFactory
     @Test
     public void testSimple() throws Exception
     {
-        FooDao fooDao = db.getDbi().onDemand(FooDao.class);
+        FooDao fooDao = db.getJdbi().onDemand(FooDao.class);
 
         List<Foo> foos = fooDao.select();
         Assert.assertNotNull(foos);

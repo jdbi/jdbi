@@ -73,7 +73,7 @@ public class TestDocumentation
     @Test
     public void testFiveMinuteSqlObjectExample() throws Exception
     {
-        db.getDbi().useExtension(MyDAO.class, dao -> {
+        db.getJdbi().useExtension(MyDAO.class, dao -> {
             dao.insert(2, "Aaron");
 
             String name = dao.findNameById(2);
@@ -86,7 +86,7 @@ public class TestDocumentation
     @Test
     public void testObtainHandleViaOpen() throws Exception
     {
-        try (Handle handle = db.getDbi().open()) { }
+        try (Handle handle = db.getJdbi().open()) { }
     }
 
     @Test
@@ -164,7 +164,7 @@ public class TestDocumentation
     @Test
     public void testOnDemandDao() throws Exception
     {
-        MyDAO dao = db.getDbi().onDemand(MyDAO.class);
+        MyDAO dao = db.getJdbi().onDemand(MyDAO.class);
         dao.insert(2, "test");
     }
 

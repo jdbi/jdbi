@@ -28,7 +28,7 @@ public class TestDefaultMethods
 
     @Test
     public void testDefaultMethod() throws Exception {
-        Spiffy dao = db.getDbi().onDemand(Spiffy.class);
+        Spiffy dao = db.getJdbi().onDemand(Spiffy.class);
         Something test = dao.insertAndReturn(3, "test");
         assertEquals(3, test.getId());
         assertEquals("test", test.getName());
@@ -36,13 +36,13 @@ public class TestDefaultMethods
 
     @Test
     public void testOverride() throws Exception {
-        SpiffyOverride dao = db.getDbi().onDemand(SpiffyOverride.class);
+        SpiffyOverride dao = db.getJdbi().onDemand(SpiffyOverride.class);
         assertEquals(null, dao.insertAndReturn(123, "fake"));
     }
 
     @Test
     public void testOverrideWithDefault() throws Exception {
-        SpiffyOverrideWithDefault dao = db.getDbi().onDemand(SpiffyOverrideWithDefault.class);
+        SpiffyOverrideWithDefault dao = db.getJdbi().onDemand(SpiffyOverrideWithDefault.class);
         assertEquals(-6, dao.insertAndReturn(123, "fake").getId());
     }
 

@@ -78,7 +78,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObject() throws Exception {
-        Dao dao = h2.getDbi().onDemand(Dao.class);
+        Dao dao = h2.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
@@ -88,7 +88,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObjectSingleValue() throws Exception {
-        Dao dao = h2.getDbi().onDemand(Dao.class);
+        Dao dao = h2.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
@@ -104,7 +104,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObjectSetReturnValue() throws Exception {
-        Dao dao = h2.getDbi().onDemand(Dao.class);
+        Dao dao = h2.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 

@@ -38,7 +38,7 @@ public class TestOverrideStatementRewriter
     @Before
     public void setUp() throws Exception
     {
-        Jdbi dbi = db.getDbi();
+        Jdbi dbi = db.getJdbi();
 
         // this is the default, but be explicit for sake of clarity in test
         dbi.setStatementRewriter(new ColonPrefixStatementRewriter());
