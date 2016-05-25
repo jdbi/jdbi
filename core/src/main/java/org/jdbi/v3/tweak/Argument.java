@@ -31,7 +31,7 @@ public interface Argument
      * @param position the position to which the argument should be bound, using the
      *                 stupid JDBC "start at 1" bit
      * @param statement the prepared statement the argument is to be bound to
-     * @param ctx
+     * @param ctx the statement context
      * @throws SQLException if anything goes wrong
      */
     void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException;

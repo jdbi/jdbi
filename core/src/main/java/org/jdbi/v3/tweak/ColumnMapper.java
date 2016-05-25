@@ -31,6 +31,7 @@ public interface ColumnMapper<T>
      *
      * @param r the result set being iterated
      * @param columnNumber the column number to map (starts at 1)
+     * @param ctx the statement context
      * @return the value to return for this column
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */
@@ -42,6 +43,7 @@ public interface ColumnMapper<T>
      *
      * @param r the result set being iterated
      * @param columnLabel the column label to map
+     * @param ctx the statement context
      * @return the value to return for this column
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */

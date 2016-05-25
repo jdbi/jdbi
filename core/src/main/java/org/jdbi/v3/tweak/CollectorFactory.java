@@ -23,22 +23,24 @@ import java.util.stream.Collector;
  */
 public interface CollectorFactory {
     /**
-     * Returns true if this factory can produce a collector for the given container type; false otherwise.
      * @param containerType the container type
+     *
+     * @return whether this factory can produce a collector for the given container type.
      */
     boolean accepts(Type containerType);
 
     /**
-     * Returns the container element type if it can be discovered through reflection; empty otherwise.
      * @param containerType the container type
-     * @return
+     *
+     * @return the container element type if it can be discovered through reflection; empty otherwise.
      */
     Optional<Type> elementType(Type containerType);
 
     /**
-     * Supplies a {@link Collector} for the given container type.
-     *
      * @param containerType the type of the container
+     *
+     * @return a {@link Collector} for the given container type.
+     *
      * @see org.jdbi.v3.StatementContext#findCollectorFor(Type)
      */
     Collector<?, ?, ?> build(Type containerType);
