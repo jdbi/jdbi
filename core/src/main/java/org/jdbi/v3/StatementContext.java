@@ -127,8 +127,8 @@ public final class StatementContext
     }
 
     /**
-     * Returns the element type for the given container type, if available.
      * @param containerType the container type.
+     * @return the element type for the given container type, if available.
      */
     public Optional<Type> elementTypeFor(Type containerType) {
         return config.collectorRegistry.elementTypeFor(containerType);
@@ -156,8 +156,9 @@ public final class StatementContext
 
     /**
      * Obtain the located and rewritten sql
-     * <p/>
+     * <p>
      * Not available until until statement execution time
+     * </p>
      *
      * @return the sql as it will be executed against the database
      */
@@ -173,8 +174,9 @@ public final class StatementContext
 
     /**
      * Obtain the located sql
-     * <p/>
+     * <p>
      * Not available until until statement execution time
+     * </p>
      *
      * @return the sql which will be passed to the statement rewriter
      */
@@ -190,8 +192,9 @@ public final class StatementContext
 
     /**
      * Obtain the actual prepared statement being used.
-     * <p/>
+     * <p>
      * Not available until execution time
+     * </p>
      *
      * @return Obtain the actual prepared statement being used.
      */
@@ -246,7 +249,7 @@ public final class StatementContext
     }
 
     /**
-     * Is the statement being generated expected to return the generated keys?
+     * @return whether the statement being generated is expected to return generated keys.
      */
     public boolean isReturningGeneratedKeys()
     {

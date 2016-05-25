@@ -263,15 +263,7 @@ public class PreparedBatch extends SQLStatement<PreparedBatch>
     }
 
     /**
-     * The number of statements which are in this batch
-     */
-    public int getSize()
-    {
-        return parts.size();
-    }
-
-    /**
-     * The number of statements which are in this batch
+     * @return the number of statements which are in this batch
      */
     public int size()
     {

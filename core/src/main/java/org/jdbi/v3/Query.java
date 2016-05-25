@@ -82,6 +82,7 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      * for each row and set the JavaBean properties which match fields in the result set.
      *
      * @param resultType JavaBean class to map result set fields into the properties of, by name
+     * @param <T> the JavaBean class to map result rows to.
      *
      * @return a Query which provides the bean property mapping
      */
@@ -91,9 +92,10 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     /**
-     * Makes use of registered mappers to map the result set to the desired type.
+     * Makes use of registered mappers to map the result rows to the desired type.
      *
-     * @param resultType the type to map the query results to
+     * @param resultType the type to map the query result rows to
+     * @param <T> the type to map result rows to
      *
      * @return a new query instance which will map to the desired type
      *
@@ -108,11 +110,12 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     /**
-     * Makes use of registered mappers to map the result set to the desired type.
+     * Makes use of registered mappers to map the result rows to the desired type.
      *
-     * @param resultType the type to map the query results to
+     * @param resultType the type to map the query result rows to
+     * @param <T> the type to map result rows to
      *
-     * @return a new query instance which will map to the desired type
+     * @return a new query instance which will map rows to the desired type
      *
      * @see DBI#registerRowMapper(RowMapper)
      * @see DBI#registerRowMapper(RowMapperFactory)
@@ -125,9 +128,9 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
     }
 
     /**
-     * Makes use of registered mappers to map the result set to the desired type.
+     * Makes use of registered mappers to map the result rows to the desired type.
      *
-     * @param resultType the type to map the query results to
+     * @param resultType the type to map the query result rows to
      *
      * @return a new query instance which will map to the desired type
      *

@@ -32,6 +32,7 @@ public class OutParameters
      *
      * @param name The out parameter name
      * @param type The java type to obtain
+     * @param <T> the output parameter type
      * @return the output of name as type T
      */
     public <T> T getObject(String name, Class<T> type) {
@@ -66,9 +67,9 @@ public class OutParameters
      *
      * @param pos The out parameter position
      * @param type The java type to obtain
+     * @param <T> the output parameter type
      * @return the output of name as type T
      */
-
     public <T> T getObject(int pos, Class<T> type) {
         return type.cast(getObject(pos));
     }

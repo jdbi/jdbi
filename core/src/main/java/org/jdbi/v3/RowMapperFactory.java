@@ -29,6 +29,9 @@ public interface RowMapperFactory
      *
      * @param type the target type to map to
      * @param ctx the statement context.
+     *
+     * @return a row mapper for the given type if this factory supports it; <code>Optional.empty()</code> otherwise.
+     *
      * @see StatementContext#findColumnMapperFor(Type)
      */
     Optional<RowMapper<?>> build(Type type, StatementContext ctx);
