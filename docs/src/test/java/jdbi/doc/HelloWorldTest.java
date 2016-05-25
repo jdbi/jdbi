@@ -13,7 +13,7 @@
  */
 package jdbi.doc;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.junit.Test;
 
 public class HelloWorldTest {
@@ -21,7 +21,7 @@ public class HelloWorldTest {
     @Test
     // tag::frontPage[]
     public void helloJdbi() {
-        DBI dbi;
+        Jdbi dbi;
     }
     // end::frontPage[]
 }

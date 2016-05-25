@@ -16,12 +16,12 @@ package org.jdbi.v3;
 import java.util.function.Supplier;
 
 class LazyHandle implements Supplier<Handle>, AutoCloseable {
-    private final DBI dbi;
+    private final Jdbi dbi;
 
     private volatile Handle handle;
     private volatile boolean closed = false;
 
-    public LazyHandle(DBI dbi) {
+    public LazyHandle(Jdbi dbi) {
         this.dbi = dbi;
     }
 

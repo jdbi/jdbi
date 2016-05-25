@@ -14,7 +14,7 @@
 package org.jdbi.v3.extension;
 
 /**
- * Callback for use with {@link org.jdbi.v3.DBI#withExtension}.
+ * Callback for use with {@link org.jdbi.v3.Jdbi#withExtension}.
  *
  * @param <R> return type
  * @param <E> extension type

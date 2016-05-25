@@ -19,7 +19,7 @@ import static org.junit.Assert.assertSame;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.TransactionIsolationLevel;
@@ -33,7 +33,7 @@ import org.junit.Test;
 
 public class TestMixinInterfaces
 {
-    private DBI dbi;
+    private Jdbi dbi;
     private Handle handle;
 
     @Before
@@ -41,7 +41,7 @@ public class TestMixinInterfaces
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = DBI.create(ds);
+        dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
 

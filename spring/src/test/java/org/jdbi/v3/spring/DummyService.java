@@ -13,16 +13,16 @@
  */
 package org.jdbi.v3.spring;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DummyService implements Service
 {
-    private final DBI dbi;
+    private final Jdbi dbi;
 
-    public DummyService(DBI dbi)
+    public DummyService(Jdbi dbi)
     {
         this.dbi = dbi;
     }

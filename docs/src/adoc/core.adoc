@@ -1,6 +1,6 @@
-= DBIs and Handles
+= Jdbi and Handles
 
-A DBI object is the main entry point into the *jdbi* library.
+A *Jdbi* object is the main entry point into the library.
 It is roughly analogous to a
 link:https://docs.oracle.com/javase/8/docs/api/javax/sql/DataSource.html[javax.sql.DataSource]
 combined with configuration for the various *jdbi* APIs.
@@ -10,11 +10,11 @@ An application should configure a single or small number of shared
 DBI instances.  In a more limited scope (such as a HTTP request, or event callback), you then
 request a *Handle* object from your *DBI*.  This *Handle* represents an active database
 link:https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html[java.sql.Connection]
-and inheirts *DBI*'s configuration at the time of creation.
+and inheirts *Jdbi*'s configuration at the time of creation.
 
 [source,java]
 ----
-DBI userDatabase = DBI.create("jdbc:postgresql://localhost");
+Jdbi userDatabase = Jdbi.create("jdbc:postgresql://localhost");
 final Optional<MyUser> foundUser = userDatabase.withHandle(h ->
     h.createQuery("SELECT * FROM user WHERE id=:id")
         .bind("id", 3)

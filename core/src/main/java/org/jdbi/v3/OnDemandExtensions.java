@@ -34,7 +34,7 @@ public class OnDemandExtensions {
         }
     }
 
-    public static <E> E create(DBI dbi, Class<E> extensionType) {
+    public static <E> E create(Jdbi dbi, Class<E> extensionType) {
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];

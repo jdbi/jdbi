@@ -20,8 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.jdbi.v3.DBI;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.RowMapper;
 import org.junit.After;
@@ -29,15 +29,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FiveMinuteTourTest {
-    private DBI dbi;
+    private Jdbi dbi;
     private Handle handle;
 
     @Before
     public void setUp() {
-// tag::createDbi[]
+// tag::createJdbi[]
 // H2 in-memory database
-DBI dbi = DBI.create("jdbc:h2:mem:test");
-// end::createDbi[]
+Jdbi dbi = Jdbi.create("jdbc:h2:mem:test");
+// end::createJdbi[]
 
         // shared handle to keep database open
         this.dbi = dbi;
