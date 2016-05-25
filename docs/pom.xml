@@ -63,10 +63,10 @@
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-spring</artifactId>
       </dependency>
-      <!--<dependency>-->
-        <!--<groupId>org.jdbi</groupId>-->
-        <!--<artifactId>jdbi3-sqlobject</artifactId>-->
-      <!--</dependency>-->
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-sqlobject</artifactId>
+      </dependency>
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
