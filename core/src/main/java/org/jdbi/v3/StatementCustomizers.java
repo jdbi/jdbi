@@ -49,7 +49,7 @@ public final class StatementCustomizers
             stmt.setFetchDirection(direction);
         }
 
-        public void apply(SQLStatement<?> q) throws SQLException
+        public void apply(SqlStatement<?> q) throws SQLException
         {
             q.setFetchDirection(direction);
         }

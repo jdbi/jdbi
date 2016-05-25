@@ -17,7 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.SqlStatement;
 
 class Bindifier<AnnoType extends Annotation>
 {
@@ -34,7 +34,7 @@ class Bindifier<AnnoType extends Annotation>
         this.parameter = method.getParameters()[param_idx];
     }
 
-    void bind(SQLStatement<?> q, Object[] args)
+    void bind(SqlStatement<?> q, Object[] args)
     {
         binder.bind(q, parameter, param_idx, annotation, args[param_idx]);
     }

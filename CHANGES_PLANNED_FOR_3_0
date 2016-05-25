@@ -6,7 +6,7 @@ This file describes the changes expected in some eventual 3.0 release.
 * Batter batch interface
 ** That the batch isn't a statement is a problem for the sql object api as you
    cannot apply sql statement customizers.
-** It should use the same SQLStatement#internalExecute method for execution
+** It should use the same SqlStatement#internalExecute method for execution
    so that we can avoid duplicating that logic. Means rejiggering how stuff gets
    bound quite a bit.
 * Clean up naming on sql object api elements

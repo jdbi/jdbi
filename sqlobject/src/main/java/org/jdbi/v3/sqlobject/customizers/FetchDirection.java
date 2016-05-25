@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 
-import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.SqlStatement;
 import org.jdbi.v3.StatementCustomizers;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -81,7 +81,7 @@ public @interface FetchDirection
         }
 
         @Override
-        public void apply(SQLStatement<?> q) throws SQLException
+        public void apply(SqlStatement<?> q) throws SQLException
         {
             q.addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(direction));
         }

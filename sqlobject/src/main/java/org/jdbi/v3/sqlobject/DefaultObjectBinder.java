@@ -18,7 +18,7 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 
 import org.jdbi.v3.PreparedBatchPart;
-import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.SqlStatement;
 import org.jdbi.v3.Types;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
@@ -28,7 +28,7 @@ class DefaultObjectBinder implements Binder<Bind, Object>
     }
 
     @Override
-    public void bind(SQLStatement<?> q, Parameter param, int index, Bind b, Object arg)
+    public void bind(SqlStatement<?> q, Parameter param, int index, Bind b, Object arg)
     {
         final String bindName;
         if (b == null || b.value().equals(Bind.USE_PARAM_NAME)) {

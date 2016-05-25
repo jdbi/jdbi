@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.SqlStatement;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 
 abstract class CustomizingStatementHandler implements Handler
@@ -118,14 +118,14 @@ abstract class CustomizingStatementHandler implements Handler
         q.setSqlObjectType(sqlObjectType);
     }
 
-    protected void applyBinders(SQLStatement<?> q, Object[] args)
+    protected void applyBinders(SqlStatement<?> q, Object[] args)
     {
         for (Bindifier<?> binder : binders) {
             binder.bind(q, args);
         }
     }
 
-    protected void applyCustomizers(SQLStatement<?> q, Object[] args)
+    protected void applyCustomizers(SqlStatement<?> q, Object[] args)
     {
         for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
             try {
