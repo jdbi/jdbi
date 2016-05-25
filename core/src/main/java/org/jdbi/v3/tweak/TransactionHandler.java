@@ -19,38 +19,48 @@ import org.jdbi.v3.TransactionIsolationLevel;
 
 /**
  * Interface which defines callbacks to be used when transaction methods are called on a handle.
- * Used by specifying on an <code>IDBI</code> instance. All <code>Handle</code> instances
- * opened from that <code>IDBI</code> will use the handler specified.
- * <p />
- * The default implementation, <code>ConnectionTransactionHandler</code>, explicitely manages
+ * Used by specifying on a <code>DBI</code> instance. All <code>Handle</code> instances
+ * opened from that <code>DBI</code> will use the handler specified.
+ *
+ * <p>
+ * The default implementation, <code>ConnectionTransactionHandler</code>, explicitly manages
  * the transactions on the underlying JDBC <code>Connection</code>.
+ * </p>
  */
 public interface TransactionHandler
 {
     /**
      * Called when a transaction is started
+     *
+     * @param handle the handle the transaction is being started on
      */
     void begin(Handle handle); // TODO consider having this return a TransactionStatus
 
     /**
      * Called when a transaction is committed
+     *
+     * @param handle the handle the commit is being performed on
      */
     void commit(Handle handle);
 
     /**
      * Called when a transaction is rolled back
+     *
+     * @param handle the handle the rollback is being performed on
      */
     void rollback(Handle handle);
 
     /**
      * Roll back to a named checkpoint
+     *
      * @param handle the handle the rollback is being performed on
      * @param name the name of the checkpoint to rollback to
      */
     void rollback(Handle handle, String name);
 
     /**
-     * Called to test if a handle is in a transaction
+     * @param handle the handle to test
+     * @return whether the given handle is in a transaction
      */
     boolean isInTransaction(Handle handle);
 
@@ -72,6 +82,15 @@ public interface TransactionHandler
 
     /**
      * Run a transaction.
+     *
+     * @param handle the handle to the database
+     * @param callback a callback which will receive the open handle, in a transaction.
+     * @param <R> the callback return type
+     * @param <X> the exception type thrown by the callback, if any
+     *
+     * @return the value returned by the callback.
+     *
+     * @throws X any exception thrown by the callback.
      * @see Handle#inTransaction(TransactionCallback)
      */
     <R, X extends Exception> R inTransaction(Handle handle,
@@ -79,6 +98,16 @@ public interface TransactionHandler
 
     /**
      * Run a transaction.
+     *
+     * @param handle the handle to the database
+     * @param level the isolation level for the transaction
+     * @param callback a callback which will receive the open handle, in a transaction.
+     * @param <R> the callback return type
+     * @param <X> the exception type thrown by the callback, if any
+     *
+     * @return the value returned by the callback.
+     *
+     * @throws X any exception thrown by the callback.
      * @see Handle#inTransaction(TransactionIsolationLevel, TransactionCallback)
      */
     <R, X extends Exception> R inTransaction(Handle handle,
