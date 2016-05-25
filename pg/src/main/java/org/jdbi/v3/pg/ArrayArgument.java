@@ -23,16 +23,28 @@ import org.jdbi.v3.tweak.Argument;
 public class ArrayArgument implements Argument {
 
     private final String elementType;
-    private final Object[] array;
+    private final Object array;
 
-    public ArrayArgument(String elementType, Object... array) {
+    private ArrayArgument(String elementType, Object array) {
         this.elementType = elementType;
         this.array = array;
     }
 
+    public static ArrayArgument fromArray(String elementType, Object[] array) {
+        return fromAnyArray(elementType, array);
+    }
+
+    public static ArrayArgument fromAnyArray(String elementType, Object array) {
+        return new ArrayArgument(elementType, array);
+    }
+
+    public static ArrayArgument fromVarargs(String elementType, Object... elements) {
+        return fromArray(elementType, elements);
+    }
+
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-        Array sqlArray = statement.getConnection().createArrayOf(elementType, array);
+        Array sqlArray = statement.getConnection().createArrayOf(elementType, (Object[]) array);
         statement.setArray(position, sqlArray);
     }
 }
