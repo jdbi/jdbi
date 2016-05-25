@@ -14,18 +14,18 @@
 package org.jdbi.v3.exceptions;
 
 /**
- * Base runtime exception for exceptions thrown from jDBI
+ * Base runtime exception for exceptions thrown from jdbi.
  */
-public abstract class DBIException extends RuntimeException
+public abstract class JdbiException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
-    public DBIException(String string, Throwable throwable)
+    public JdbiException(String string, Throwable throwable)
     {
         super(string, throwable);
     }
 
-    public DBIException(Throwable cause)
+    public JdbiException(Throwable cause)
     {
         super(cause);
     }
@@ -38,7 +38,7 @@ public abstract class DBIException extends RuntimeException
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public DBIException(String message)
+    public JdbiException(String message)
     {
         super(message);
     }

@@ -15,7 +15,7 @@ package org.jdbi.v3.exceptions;
 
 import java.sql.SQLException;
 
-public class UnableToManipulateTransactionIsolationLevelException extends DBIException
+public class UnableToManipulateTransactionIsolationLevelException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 

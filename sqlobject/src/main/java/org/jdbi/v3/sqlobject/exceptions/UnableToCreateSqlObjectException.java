@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.sqlobject.exceptions;
 
-import org.jdbi.v3.exceptions.DBIException;
+import org.jdbi.v3.exceptions.JdbiException;
 
-public class UnableToCreateSqlObjectException extends DBIException {
+public class UnableToCreateSqlObjectException extends JdbiException {
     private static final long serialVersionUID = 1L;
 
     public UnableToCreateSqlObjectException(String message) {

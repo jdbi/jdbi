@@ -15,7 +15,7 @@ package org.jdbi.v3.exceptions;
 
 import org.jdbi.v3.StatementContext;
 
-public abstract class StatementException extends DBIException
+public abstract class StatementException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 
