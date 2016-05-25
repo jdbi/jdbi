@@ -20,7 +20,7 @@ package org.jdbi.v3.extension;
  */
 public interface ExtensionConfig<C extends ExtensionConfig<C>> {
     /**
-     * Returns a copy of this configuration object. Changes to the copy should not modify the original.
+     * @return a copy of this configuration object. Changes to the copy should not modify the original.
      */
     C createCopy();
 }

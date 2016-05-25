@@ -32,30 +32,4 @@ public class UnableToExecuteStatementException extends StatementException
     {
         super(string, throwable, ctx);
     }
-
-    /**
-     * @deprecated
-     */
-    @Deprecated
-    public UnableToExecuteStatementException(Exception e) {
-        super(e, null);
-    }
-
-    /**
-     * @deprecated
-     */
-    @Deprecated
-    public UnableToExecuteStatementException(String message)
-    {
-        super(message, (StatementContext) null);
-    }
-
-    /**
-     * @deprecated
-     */
-    @Deprecated
-    public UnableToExecuteStatementException(String string, Throwable throwable)
-    {
-        super(string, throwable, null);
-    }
 }

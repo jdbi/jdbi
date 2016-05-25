@@ -24,25 +24,26 @@ import org.jdbi.v3.Handle;
  */
 public interface ExtensionFactory<C extends ExtensionConfig<C>> {
     /**
-     * Returns a new default configuration for this extension factory.
+     * @return a new default configuration for this extension factory.
      */
     C createConfig();
 
     /**
-     * Returns true if the factory can produce an extension of the given type; false otherwise.
-     *
      * @param extensionType the extension type
+     *
+     * @return whether the factory can produce an extension of the given type
      */
     boolean accepts(Class<?> extensionType);
 
     /**
-     * Returns an extension of the given type, attached to the given handle.
-     *
-     * @param extensionType the type of the extension.
+     * @param extensionType the extension type.
      * @param config        the extension configuration.
      * @param handle        Supplies the database handle. This supplier may lazily open a Handle on the first
      *                      invocation. Extension implementors should take care not to fetch the handle before it is
      *                      needed, to avoid opening handles unnecessarily.
+     * @param <E> the extension type
+     *
+     * @return an extension of the given type, attached to the given handle.
      * @throws IllegalArgumentException if the extension type is not supported by this factory.
      * @see org.jdbi.v3.DBI#onDemand(Class)
      */
