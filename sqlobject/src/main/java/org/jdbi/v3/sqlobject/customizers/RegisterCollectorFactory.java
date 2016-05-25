@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.Query;
-import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.SqlStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -69,7 +69,7 @@ public @interface RegisterCollectorFactory {
         }
 
         @Override
-        public void apply(SQLStatement<?> q) throws SQLException {
+        public void apply(SqlStatement<?> q) throws SQLException {
             if (q instanceof Query) {
                 Query<?> query = (Query<?>) q;
                 factories.forEach(query::registerCollectorFactory);

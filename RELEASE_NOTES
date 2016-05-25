@@ -120,7 +120,7 @@
   - minor code cleanups to reduce number of warnings
   - Expose NamedArgumentFinder to allow custom lookup of Arguments. JDBI already provides
     two implementations of the Interface, one for Maps and one for BeanProperties.
-  - Add ability to set query timeout (in seconds) on SQLStatement
+  - Add ability to set query timeout (in seconds) on SqlStatement
 
 2.9.3
   - Add <url /> element to pom so can get into central :-)
@@ -137,7 +137,7 @@
   - Aborted, trying to make gpg signing work correctly
 
 2.8.0
-  - Add methods to SQLStatement and PreparedBatch that allow adding a set of defines
+  - Add methods to SqlStatement and PreparedBatch that allow adding a set of defines
     to the context in one go.
   - Add ~ { and } as legal characters in the colon prefix grammar
 
@@ -154,21 +154,21 @@
     accurate and much more lightweight. As we only calculate time differences, it is
     good enough.
   - fix more compiler warnings
-  - add null checks for all object types on SQLStatement
+  - add null checks for all object types on SqlStatement
   - move object null checks, that don't require boxing/unboxing
     into the Argument classes. Keep the checks for object/primitive
     types in SQL to avoid boxing/unboxing overhead.
 
 2.6.0
    Fix a number of compiler warnings
-   Add new binding methods for SQLStatement
+   Add new binding methods for SqlStatement
     - Integer, Boolean, Byte, Long, Short  Object
     - double, float, short primitive
    All bind methods taking an object should check
    for null values and bind a NullArgument accordingly.
 
 2.5.0
-    Add new binding methods for SQLStatement
+    Add new binding methods for SqlStatement
       - char types
       - boolean as int (for DBs missing a boolean type)
     Re-add unit test removed in 2.4.9 with unicode escapes
@@ -251,7 +251,7 @@
 2.0pre16
     Clean up the build so the stringtemplate stuff is useful
 
-    SQLStatement#bind(*, Character) which converts to a string
+    SqlStatement#bind(*, Character) which converts to a string
 
     Provide a non-caching default statement builder
 
@@ -288,11 +288,11 @@
 
     Renamed PreparedBatchPart.another() to next()
 
-    Change SQLStatement#first to return null on an empty result instead of an NPE
+    Change SqlStatement#first to return null on an empty result instead of an NPE
 
     Allow setting attributes on statement contexts for batches and prepared batches
 
-    SQLStatement.bindNull(...)
+    SqlStatement.bindNull(...)
 
 2.0pre12
     [bugfix] Pass statement context into result mapped queries

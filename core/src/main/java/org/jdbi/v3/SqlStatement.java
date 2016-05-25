@@ -46,9 +46,9 @@ import org.slf4j.LoggerFactory;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> extends BaseStatement
+public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> extends BaseStatement
 {
-    private static final Logger LOG = LoggerFactory.getLogger(SQLStatement.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
 
     private final Binding          params;
     private final Handle           handle;
@@ -61,7 +61,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
     private       RewrittenStatement rewritten;
     private       PreparedStatement  stmt;
 
-    SQLStatement(JdbiConfig config,
+    SqlStatement(JdbiConfig config,
                  Binding params,
                  Handle handle,
                  StatementBuilder statementBuilder,
@@ -178,9 +178,9 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
     private boolean verifyOurNastyDowncastIsOkay()
     {
-        // Prevent bogus signatures like Update extends SQLStatement<Query>
-        // SQLStatement's generic parameter must be supertype of getClass()
-        return Types.findGenericParameter(getClass(), SQLStatement.class)
+        // Prevent bogus signatures like Update extends SqlStatement<Query>
+        // SqlStatement's generic parameter must be supertype of getClass()
+        return Types.findGenericParameter(getClass(), SqlStatement.class)
                 .map(Types::getErasedType)
                 .map(type -> type.isAssignableFrom(getClass()))
                 .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯

@@ -23,7 +23,7 @@ import org.jdbi.v3.tweak.StatementCustomizer;
  *
  * @see PreparedBatch
  */
-public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
+public class PreparedBatchPart extends SqlStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
 
