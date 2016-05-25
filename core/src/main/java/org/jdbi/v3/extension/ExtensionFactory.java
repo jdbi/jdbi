@@ -45,7 +45,7 @@ public interface ExtensionFactory<C extends ExtensionConfig<C>> {
      *
      * @return an extension of the given type, attached to the given handle.
      * @throws IllegalArgumentException if the extension type is not supported by this factory.
-     * @see org.jdbi.v3.DBI#onDemand(Class)
+     * @see org.jdbi.v3.Jdbi#onDemand(Class)
      */
     <E> E attach(Class<E> extensionType, C config, Supplier<Handle> handle);
 }

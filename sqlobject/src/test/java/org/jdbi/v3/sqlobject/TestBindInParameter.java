@@ -18,7 +18,7 @@ import java.util.UUID;
 
 import com.google.common.collect.Lists;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.unstable.BindIn;
@@ -28,13 +28,13 @@ import org.junit.Test;
 
 public class TestBindInParameter {
 
-    private DBI dbi;
+    private Jdbi dbi;
     private Handle handle;
     private MyDAO dao;
 
     @Before
     public void setUp() {
-        dbi = DBI.create("jdbc:h2:mem:" + UUID.randomUUID());
+        dbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
         dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
         handle.createStatement(

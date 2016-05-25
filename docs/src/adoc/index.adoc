@@ -11,7 +11,7 @@ model -- instead, it provides easy mapping between
 SQL _you_ write and simple tabular data structures.
 
 
-[source,java]
+[source,java,indent=0]
 -------------------------------------------
 include::HelloWorldTest.java[tags=frontPage]
 -------------------------------------------
@@ -24,10 +24,9 @@ the power of the new Java 8 APIs.
 Read about the core APIs:
 
 * <<tour#,5-Minute Tour>>
-* <<core#,DBI and Handle>>
+* <<core#,Jdbi and Handle>>
 * <<arguments#,Arguments and Binding>>
-* <<results#,>>
-* <<mapping#,Result Mapping>>
+* <<results#,Result Mapping>>
 * <<sqlobject#,SQLObject>>
 * <<spring#,Spring Integration>>
 

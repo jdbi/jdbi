@@ -29,7 +29,7 @@ public class H2DatabaseRule extends ExternalResource
 {
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private Connection con;
-    private DBI dbi;
+    private Jdbi dbi;
     private Handle sharedHandle;
     private boolean installPlugins = false;
     private List<JdbiPlugin> plugins = new ArrayList<>(); 
@@ -37,7 +37,7 @@ public class H2DatabaseRule extends ExternalResource
     @Override
     protected void before() throws Throwable
     {
-        dbi = DBI.create(uri);
+        dbi = Jdbi.create(uri);
         if (installPlugins) {
             dbi.installPlugins();
         }
@@ -76,7 +76,7 @@ public class H2DatabaseRule extends ExternalResource
         return uri;
     }
 
-    public DBI getDbi()
+    public Jdbi getDbi()
     {
         return dbi;
     }

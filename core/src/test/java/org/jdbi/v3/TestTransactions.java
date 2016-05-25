@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.List;
 
-import org.jdbi.v3.exceptions.DBIException;
+import org.jdbi.v3.exceptions.JdbiException;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.junit.Rule;
@@ -152,7 +152,7 @@ public class TestTransactions
                 throw new IllegalArgumentException();
             });
         }
-        catch (DBIException e) {
+        catch (JdbiException e) {
             fail("Should have thrown a straight RuntimeException");
         }
         catch (IllegalArgumentException e)

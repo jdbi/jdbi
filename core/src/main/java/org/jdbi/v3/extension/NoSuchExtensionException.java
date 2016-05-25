@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.extension;
 
-import org.jdbi.v3.exceptions.DBIException;
+import org.jdbi.v3.exceptions.JdbiException;
 
-public class NoSuchExtensionException extends DBIException {
+public class NoSuchExtensionException extends JdbiException {
     public NoSuchExtensionException(String string, Throwable throwable) {
         super(string, throwable);
     }

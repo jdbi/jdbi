@@ -29,7 +29,7 @@ import org.jdbi.v3.util.SingleColumnMapper;
 /**
  * Used for INSERT, UPDATE, and DELETE statements
  */
-public class Update extends SQLStatement<Update>
+public class Update extends SqlStatement<Update>
 {
     Update(JdbiConfig config,
            Handle handle,

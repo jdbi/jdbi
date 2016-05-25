@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterArgumentFactory;
@@ -37,7 +37,7 @@ public class TestRegisterArgumentFactory
     @Before
     public void setUp() throws Exception
     {
-        DBI dbi = db.getDbi();
+        Jdbi dbi = db.getDbi();
     }
 
     @Test

@@ -47,7 +47,7 @@ import org.jdbi.v3.tweak.ArgumentFactory;
  * The BuiltInArgumentFactory provides instances of {@link Argument} for
  * many core Java types.  Generally you should not need to use this
  * class directly, but instead should bind your object with the
- * {@link SQLStatement} convenience methods.
+ * {@link SqlStatement} convenience methods.
  */
 public class BuiltInArgumentFactory implements ArgumentFactory {
     // Care for the initialization order here, there's a fair number of statics.  Create the builders before the factory instance.

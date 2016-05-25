@@ -39,7 +39,7 @@ public class TestTransactionsAutoCommit
         final PreparedStatement statement = mock(PreparedStatement.class);
         InOrder inOrder = inOrder(connection, statement);
 
-        Handle h = DBI.create(() -> connection).open();
+        Handle h = Jdbi.create(() -> connection).open();
 
         when(connection.getAutoCommit()).thenReturn(true);
         when(connection.prepareStatement(anyString())).thenReturn(statement);

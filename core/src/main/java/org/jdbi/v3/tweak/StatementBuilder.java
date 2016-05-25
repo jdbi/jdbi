@@ -36,7 +36,7 @@ public interface StatementBuilder
      *
      * @param conn the JDBC Connection the statement is being created for
      * @param sql the translated SQL which should be prepared
-     * @param ctx Statement context associated with the SQLStatement this is building for
+     * @param ctx Statement context associated with the SqlStatement this is building for
      *
      * @return a PreparedStatement for the given arguments
      *
@@ -49,7 +49,7 @@ public interface StatementBuilder
      *
      * @param conn the JDBC Connection the statement is being created for
      * @param sql the translated SQL which should be prepared
-     * @param ctx Statement context associated with the SQLStatement this is building for
+     * @param ctx Statement context associated with the SqlStatement this is building for
      *
      * @return a CallableStatement for the given arguments
      *

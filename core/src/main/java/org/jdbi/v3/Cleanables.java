@@ -188,7 +188,7 @@ class Cleanables
     }
 
     /**
-     * In the {@link SQLStatement} derived classes, the {@link Statement} is not managed directly but through the
+     * In the {@link SqlStatement} derived classes, the {@link Statement} is not managed directly but through the
      * {@link StatementBuilder}.
      */
     static class StatementBuilderCleanable implements Cleanable

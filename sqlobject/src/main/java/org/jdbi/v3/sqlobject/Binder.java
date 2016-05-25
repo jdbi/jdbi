@@ -16,9 +16,9 @@ package org.jdbi.v3.sqlobject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 
-import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.SqlStatement;
 
 public interface Binder<A extends Annotation, T>
 {
-    void bind(SQLStatement<?> q, Parameter parameter, int index, A bind, T arg);
+    void bind(SqlStatement<?> q, Parameter parameter, int index, A bind, T arg);
 }

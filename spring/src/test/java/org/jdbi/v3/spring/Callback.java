@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.spring;
 
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 
 public interface Callback
 {
-    void call(DBI dbi);
+    void call(Jdbi dbi);
 }

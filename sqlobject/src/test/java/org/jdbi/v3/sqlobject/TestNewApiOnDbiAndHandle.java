@@ -21,7 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.DBI;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
@@ -33,7 +33,7 @@ import org.junit.Test;
 
 public class TestNewApiOnDbiAndHandle
 {
-    private DBI    dbi;
+    private Jdbi    dbi;
     private Handle handle;
 
     @Before
@@ -41,7 +41,7 @@ public class TestNewApiOnDbiAndHandle
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = DBI.create(ds);
+        dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
         dbi.registerRowMapper(new SomethingMapper());
         handle = dbi.open();
@@ -96,7 +96,7 @@ public class TestNewApiOnDbiAndHandle
 
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnDemand(){
-        DBI.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+        Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .installPlugin(new SqlObjectPlugin())
                 .onDemand(Spiffy.class)
                 .findNameById(1);
@@ -104,7 +104,7 @@ public class TestNewApiOnDbiAndHandle
 
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnOpen(){
-        DBI.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+        Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .installPlugin(new SqlObjectPlugin())
                 .open()
                 .attach(Spiffy.class);
@@ -112,7 +112,7 @@ public class TestNewApiOnDbiAndHandle
 
     @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnAttach(){
-        DBI.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+        Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .installPlugin(new SqlObjectPlugin())
                 .open()
                 .attach(Spiffy.class);

@@ -1,0 +1,92 @@
+= Results
+
+After executing a database query, you need to interpret the results.
+JDBC provides the *ResultSet* class which can do simple mapping to
+Java primitives and built in classes, but the API leaves a lot
+to be desired.  *jdbi* provides more configurable mapping, including
+the ability to register custom mappers for rows and columns.
+
+The mapper is selected based on the type that your query is declared to return.
+If a mapper for the entire row is configured, it will directly convert
+each row into a domain object.  Failing that, if the type represents a single
+value, the column mappers are consulted.
+
+*jdbi* handles the tedium of iterating over the rows in the ResultSet and
+presenting the results to you in a container such as a *List*, *Stream*,
+*Optional*, or *Iterator*.
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=headlineExample]
+-------------------------------------------
+
+== Row Mapper
+
+The above example introduces a row mapper.  As you might assume, the row mapper
+is called once for every row found as *jdbi* iterates through the result set.
+
+Row mappers are either directly registered to handle a specific query, or
+can be driven by the return type:
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=rowMapper]
+-------------------------------------------
+
+This *RowMapper* is equivalent to the lambda mapper above but more explicit.
+We also introduce the *Query.list()* method which collects all rows into a
+*List<T>* object.
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=rowMapperFactory]
+-------------------------------------------
+
+The Factory is allowed to consider whether it can handle any given *Type*
+and provides the above RowMapper to do the actual work.
+
+*Stream* integration allows you to use a RowMapper to adapt a ResultSet into
+the new Java 8 Streams framework.  As long as your database supports streaming
+results (for example, PostgreSQL will do it as long as you are in a transaction
+and set a fetch size), the stream will lazily fetch rows from the database as
+necessary.
+
+== Constructor Mapper
+
+*jdbi* provides a simple constructor mapper which uses reflection to assign
+columns to constructor parameters by name.  Unfortunately parameter names
+are not enabled by default and require a compiler option, but once you
+have that enabled the result is quite concise:
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=constructorMapper]
+-------------------------------------------
+
+The parameter names "id", "name" match the database column names
+and as such no custom mapper code is required at all.
+
+== Column Mapper
+
+Sometimes you only wish to fetch a single value, or need
+to build a larger object out of multiple individually mappable
+elements.  A column mapper works on a single column instead of
+by row:
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=columnMapper]
+-------------------------------------------
+
+Notice how the ConstructorMapper, which usually would not know
+what to do with a custom *UserName* object, now automatically
+uses the column mapper to fill in the constructor parameter.
+
+== Bean Mapper
+
+We also provide basic support for beans:
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=beanMapper]
+-------------------------------------------

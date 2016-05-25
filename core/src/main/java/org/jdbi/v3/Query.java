@@ -36,7 +36,7 @@ import org.jdbi.v3.tweak.StatementCustomizer;
  * The default mapper also carries a performance penalty because it must
  * inspect metadata for each row.
  */
-public class Query<ResultType> extends SQLStatement<Query<ResultType>> implements ResultBearing<ResultType>
+public class Query<ResultType> extends SqlStatement<Query<ResultType>> implements ResultBearing<ResultType>
 {
     private final RowMapper<ResultType> mapper;
 
@@ -99,8 +99,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see DBI#registerRowMapper(RowMapper)
-     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Jdbi#registerRowMapper(RowMapper)
+     * @see Jdbi#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */
@@ -117,8 +117,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map rows to the desired type
      *
-     * @see DBI#registerRowMapper(RowMapper)
-     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Jdbi#registerRowMapper(RowMapper)
+     * @see Jdbi#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */
@@ -134,8 +134,8 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see DBI#registerRowMapper(RowMapper)
-     * @see DBI#registerRowMapper(RowMapperFactory)
+     * @see Jdbi#registerRowMapper(RowMapper)
+     * @see Jdbi#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */

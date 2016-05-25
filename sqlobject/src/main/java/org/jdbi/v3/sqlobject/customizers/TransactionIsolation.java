@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.SQLStatement;
+import org.jdbi.v3.SqlStatement;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
@@ -75,7 +75,7 @@ public @interface TransactionIsolation
         MyCustomizer(TransactionIsolationLevel level) {this.level = level;}
 
         @Override
-        public void apply(SQLStatement<?> q) throws SQLException
+        public void apply(SqlStatement<?> q) throws SQLException
         {
             final int initial_level = q.getContext().getConnection().getTransactionIsolation();
 

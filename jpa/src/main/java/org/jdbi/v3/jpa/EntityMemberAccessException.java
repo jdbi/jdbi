@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.exceptions.DBIException;
+import org.jdbi.v3.exceptions.JdbiException;
 
-public class EntityMemberAccessException extends DBIException {
+public class EntityMemberAccessException extends JdbiException {
     private static final long serialVersionUID = 1L;
 
     public EntityMemberAccessException(String string, Throwable throwable) {

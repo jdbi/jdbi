@@ -42,7 +42,7 @@ public class TestTooManyCursors
     {
         ConnectionFactory cf = db.getConnectionFactory();
         ConnectionFactory errorCf = new ErrorProducingConnectionFactory(cf, 99);
-        DBI dbi = DBI.create(errorCf);
+        Jdbi dbi = Jdbi.create(errorCf);
 
         dbi.useHandle(handle -> {
             handle.setStatementBuilder(new DefaultStatementBuilder());

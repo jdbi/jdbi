@@ -39,6 +39,12 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3</artifactId>
+        <classifier>tests</classifier>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-guava</artifactId>
       </dependency>
       <dependency>

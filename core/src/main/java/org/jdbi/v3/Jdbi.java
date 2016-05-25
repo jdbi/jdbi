@@ -51,9 +51,9 @@ import org.slf4j.LoggerFactory;
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
  * and provide "global" configuration for all handles obtained from it.
  */
-public class DBI
+public class Jdbi
 {
-    private static final Logger LOG = LoggerFactory.getLogger(DBI.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Jdbi.class);
 
     private final JdbiConfig config = new JdbiConfig();
 
@@ -63,7 +63,7 @@ public class DBI
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
-    private DBI(ConnectionFactory connectionFactory)
+    private Jdbi(ConnectionFactory connectionFactory)
     {
         if (connectionFactory == null) {
             throw new IllegalArgumentException("null connectionFactory");
@@ -76,7 +76,7 @@ public class DBI
      *
      * @return a DBI which uses the given data source as a connection factory.
      */
-    public static DBI create(DataSource dataSource)
+    public static Jdbi create(DataSource dataSource)
     {
         return create(dataSource::getConnection);
     }
@@ -93,8 +93,8 @@ public class DBI
      *
      * @return a DBI which uses the given connection factory.
      */
-    public static DBI create(ConnectionFactory connectionFactory) {
-        return new DBI(connectionFactory);
+    public static Jdbi create(ConnectionFactory connectionFactory) {
+        return new Jdbi(connectionFactory);
     }
 
     /**
@@ -102,7 +102,7 @@ public class DBI
      *
      * @return a DBI which uses {@link DriverManager} as a connection factory.
      */
-    public static DBI create(final String url)
+    public static Jdbi create(final String url)
     {
         if (url == null) {
             throw new IllegalArgumentException("null url");
@@ -116,7 +116,7 @@ public class DBI
      *
      * @return a DBI which uses {@link DriverManager} as a connection factory.
      */
-    public static DBI create(final String url, final Properties properties)
+    public static Jdbi create(final String url, final Properties properties)
     {
         if (url == null) {
             throw new IllegalArgumentException("null url");
@@ -134,7 +134,7 @@ public class DBI
      *
      * @return a DBI which uses {@link DriverManager} as a connection factory.
      */
-    public static DBI create(final String url, final String username, final String password)
+    public static Jdbi create(final String url, final String username, final String password)
     {
         if (url == null) {
             throw new IllegalArgumentException("null url");
@@ -148,14 +148,14 @@ public class DBI
         return create(() -> DriverManager.getConnection(url, username, password));
     }
 
-    public DBI installPlugins()
+    public Jdbi installPlugins()
     {
         ServiceLoader.load(JdbiPlugin.class).forEach(this::installPlugin);
         LOG.debug("Automatically installed plugins {}", plugins);
         return this;
     }
 
-    public DBI installPlugin(JdbiPlugin plugin)
+    public Jdbi installPlugin(JdbiPlugin plugin)
     {
         plugin.customizeDbi(this);
         plugins.add(plugin);
