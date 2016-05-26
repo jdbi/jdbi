@@ -83,6 +83,7 @@
         <basepom.maven.version>2.0.9</basepom.maven.version>
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
+        <dep.slf4j.version>1.7.21</dep.slf4j.version>
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
         <basepom.test.fork-count>8</basepom.test.fork-count>
@@ -271,6 +272,17 @@
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${dep.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${dep.slf4j.version}</version>
             </dependency>
 
             <dependency>
