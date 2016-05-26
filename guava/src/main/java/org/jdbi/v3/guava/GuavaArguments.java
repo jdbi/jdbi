@@ -28,12 +28,14 @@ import org.jdbi.v3.tweak.ArgumentFactory;
  */
 public class GuavaArguments {
     /**
-     * Returns an {@link ArgumentFactory} which knows understands Guava types.
-     * <p/>
+     * Returns an {@link ArgumentFactory} which understands Guava types.
+     *
      * <p>Currently supported types:</p>
      * <ul>
      * <li>{@code com.google.common.base.Optional}</li>
      * </ul>
+     *
+     * @return an {@link ArgumentFactory} which understands Guava types.
      */
     public static ArgumentFactory factory() {
         return new Factory();

@@ -44,13 +44,23 @@ public class Call extends SqlStatement<Call>
     }
 
     /**
-     * Register output parameter
+     * Register a positional output parameter
+     * @param position the parameter position (zero-based)
+     * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
+     * @return self
      */
     public Call registerOutParameter(int position, int sqlType)
     {
         return registerOutParameter(position, sqlType, null);
     }
 
+    /**
+     * Register a positional output parameter
+     * @param position the parameter position (zero-based)
+     * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
+     * @param mapper a mapper which converts the {@link CallableStatement} to a desired output type.
+     * @return self
+     */
     public Call registerOutParameter(int position, int sqlType, CallableStatementMapper mapper)
     {
         getParams().addPositional(position, new OutParamArgument(sqlType, mapper, null));
@@ -58,13 +68,23 @@ public class Call extends SqlStatement<Call>
     }
 
     /**
-     * Register output parameter
+     * Register a named output parameter
+     * @param name the parameter name
+     * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
+     * @return self
      */
     public Call registerOutParameter(String name, int sqlType)
     {
         return registerOutParameter(name, sqlType, null);
     }
 
+    /**
+     * Register a named output parameter
+     * @param name the parameter name
+     * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
+     * @param mapper a mapper which converts the {@link CallableStatement} to a desired output type.
+     * @return self
+     */
     public Call registerOutParameter(String name, int sqlType, CallableStatementMapper mapper)
     {
         getParams().addNamed(name, new OutParamArgument(sqlType, mapper, name));
@@ -73,6 +93,7 @@ public class Call extends SqlStatement<Call>
 
     /**
      * Invoke the callable statement
+     * @return the output parameters resulting from the invocation.
      */
     public OutParameters invoke()
     {

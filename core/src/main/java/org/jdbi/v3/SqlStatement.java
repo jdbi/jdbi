@@ -103,6 +103,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     /**
      * Override the statement locator used for this statement
+     *
+     * @param locator the statement locator
+     *
+     * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
     public SelfType setStatementLocator(StatementLocator locator) {
@@ -112,6 +116,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     /**
      * Override the statement rewriter used for this statement
+     *
+     * @param rewriter the statement rewriter
+     *
+     * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
     public SelfType setStatementRewriter(StatementRewriter rewriter) {
@@ -212,7 +220,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     }
 
     /**
-     * The un-translated SQL used to create this statement
+     * @return the un-translated SQL used to create this statement
      */
     protected String getSql()
     {
@@ -224,7 +232,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @param seconds number of seconds before timing out
      *
-     * @return the same instance
+     * @return the same Query instance
      */
     public SelfType setQueryTimeout(final int seconds)
     {
@@ -233,6 +241,8 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     /**
      * Close the handle when the statement is closed.
+     *
+     * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
     public SelfType cleanupHandle()
@@ -243,6 +253,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     /**
      * Force transaction state when the statement is cleaned up.
+     *
+     * @param state the transaction state to enforce.
+     *
+     * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
     public SelfType cleanupHandle(final TransactionState state)
@@ -317,6 +331,8 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      * Binds a new {@link NamedArgumentFinder}.
      *
      * @param namedArgumentFinder A NamedArgumentFinder to bind. Can be null.
+     *
+     * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
     public SelfType bindNamedArgumentFinder(final NamedArgumentFinder namedArgumentFinder)
@@ -517,6 +533,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @param position position to bind the parameter at, starting at 0
      * @param value    to bind
+     * @param length the number of bytes in the stream.
      *
      * @return the same Query instance
      */

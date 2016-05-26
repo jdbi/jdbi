@@ -29,6 +29,7 @@ Read about the core APIs:
 * <<results#,Result Mapping>>
 * <<sqlobject#,SQLObject>>
 * <<spring#,Spring Integration>>
+* link:apidocs/index.html[Javadoc]
 
 WARNING: *jdbi3* is currently under active development.
 http://www.jdbi.org[jdbi2] is still the stable release.

@@ -36,33 +36,6 @@ public abstract class StatementException extends JdbiException
         this.statementContext = ctx;
     }
 
-    /**
-     * @deprecated
-     */
-    @Deprecated
-    public StatementException(String string, Throwable throwable) {
-        super(string, throwable);
-        this.statementContext = null;
-    }
-
-    /**
-     * @deprecated
-     */
-    @Deprecated
-    public StatementException(Throwable cause) {
-        super(cause);
-        this.statementContext = null;
-    }
-
-    /**
-     * @deprecated
-     */
-    @Deprecated
-    public StatementException(String message) {
-        super(message);
-        this.statementContext = null;
-    }
-
     public StatementContext getStatementContext() {
         return statementContext;
     }

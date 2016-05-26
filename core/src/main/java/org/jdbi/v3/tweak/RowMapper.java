@@ -30,7 +30,7 @@ public interface RowMapper<T>
      * set to advance, allow jDBI to do that, please.
      *
      * @param r the result set being iterated
-     * @param ctx
+     * @param ctx the statement context
      * @return the value to return for this row
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */

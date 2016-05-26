@@ -40,6 +40,7 @@ public @interface RegisterObjectArgumentFactory
 {
     /**
      * The argument type(s) which are compatible with {@link java.sql.PreparedStatement#setObject(int, Object)}.
+     * @return the argument types
      */
     Class<? extends Class>[] value();
 
@@ -47,6 +48,7 @@ public @interface RegisterObjectArgumentFactory
      * SQL type constant(s) from {@link Types}. If omitted, defaults to {@link Types#NULL}. If specified, must have the
      * same number of elements as {@link #value()}. Each <code>sqlType</code> element is applied to the
      * <code>value</code> element at the same index.
+     * @return SQL types corresponding pairwise to the elements in {@link #value()}.
      */
     int[] sqlType() default {};
 

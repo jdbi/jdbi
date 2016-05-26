@@ -20,8 +20,9 @@ package org.jdbi.v3.util.bean;
 // TODO 3: Is this the right pattern?
 public interface ColumnNameMappingStrategy {
     /**
-     * Given the Java name and SQL column name,
-     * return true if they are logically equivalent.
+     * @param propertyName a JavaBean property or field name
+     * @param sqlColumnName an SQL column name.
+     * @return whether the given names are logically equivalent
      */
     boolean nameMatches(String propertyName, String sqlColumnName);
 }

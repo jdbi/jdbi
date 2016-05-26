@@ -34,6 +34,8 @@ public interface GetHandle
      * and yields it to a callback for use by clients.
      *
      * @param callback A callback which will receive the handle associated to this sql object
+     * @param <R> type returned by the callback
+     * @param <X> exception type thrown by the callback, if any.
      *
      * @return the value returned by callback
      *
@@ -48,6 +50,7 @@ public interface GetHandle
      * and yields it to a consumer for use by clients.
      *
      * @param consumer A consumer which will receive the handle associated to this sql object
+     * @param <X> exception type thrown by the callback, if any.
      *
      * @throws X any exception thrown by the callback
      */

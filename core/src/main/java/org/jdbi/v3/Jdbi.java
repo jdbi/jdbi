@@ -72,9 +72,9 @@ public class Jdbi
     }
 
     /**
-     * Constructor for use with a DataSource which will provide
+     * @param dataSource the data source.
      *
-     * @param dataSource
+     * @return a DBI which uses the given data source as a connection factory.
      */
     public static Jdbi create(DataSource dataSource)
     {
@@ -83,20 +83,24 @@ public class Jdbi
 
     /**
      * Factory used to allow for obtaining a Connection in a customized manner.
-     * <p/>
-     * The {@link org.jdbi.v3.tweak.ConnectionFactory#openConnection()} method will
-     * be invoked to obtain a connection instance whenever a Handle is opened.
      *
-     * @param connectionFactory Prvides JDBC connections to Handle instances
+     * <p>
+     * The {@link ConnectionFactory#openConnection()} method will be invoked to obtain a connection instance
+     * whenever a Handle is opened.
+     * </p>
+     *
+     * @param connectionFactory Provides JDBC connections to Handle instances
+     *
+     * @return a DBI which uses the given connection factory.
      */
     public static Jdbi create(ConnectionFactory connectionFactory) {
         return new Jdbi(connectionFactory);
     }
 
     /**
-     * Create a DBI which directly uses the DriverManager
-     *
      * @param url JDBC URL for connections
+     *
+     * @return a DBI which uses {@link DriverManager} as a connection factory.
      */
     public static Jdbi create(final String url)
     {
@@ -107,10 +111,10 @@ public class Jdbi
     }
 
     /**
-     * Create a DBI which directly uses the DriverManager
-     *
      * @param url   JDBC URL for connections
      * @param properties Properties to pass to DriverManager.getConnection(url, props) for each new handle
+     *
+     * @return a DBI which uses {@link DriverManager} as a connection factory.
      */
     public static Jdbi create(final String url, final Properties properties)
     {
@@ -124,11 +128,11 @@ public class Jdbi
     }
 
     /**
-     * Create a DBI which directly uses the DriverManager
-     *
      * @param url      JDBC URL for connections
      * @param username User name for connection authentication
      * @param password Password for connection authentication
+     *
+     * @return a DBI which uses {@link DriverManager} as a connection factory.
      */
     public static Jdbi create(final String url, final String username, final String password)
     {
@@ -197,9 +201,10 @@ public class Jdbi
      * Specify the TransactionHandler instance to use. This allows overriding
      * transaction semantics, or mapping into different transaction
      * management systems.
-     * <p/>
+     * <p>
      * The default version uses local transactions on the database Connection
      * instances obtained.
+     * </p>
      *
      * @param handler The TransactionHandler to use for all Handle instances obtained
      *                from this DBI
@@ -248,6 +253,8 @@ public class Jdbi
      * Register a row mapper which will have its parameterized type inspected to determine what it maps to
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     *
+     * @param mapper the row mapper
      */
     public void registerRowMapper(RowMapper<?> mapper) {
         config.mappingRegistry.addRowMapper(mapper);
@@ -257,15 +264,19 @@ public class Jdbi
      * Register a row mapper factory.
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     *
+     * @param factory the row mapper factory
      */
     public void registerRowMapper(RowMapperFactory factory) {
         config.mappingRegistry.addRowMapper(factory);
     }
 
     /**
-     * Register a column mapper which will have its parameterized type inspected to determine what it maps to
+     * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
      *
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param mapper the column mapper
      */
     public void registerColumnMapper(ColumnMapper<?> mapper) {
         config.mappingRegistry.addColumnMapper(mapper);
@@ -275,6 +286,8 @@ public class Jdbi
      * Register a column mapper factory.
      *
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param factory the column mapper factory
      */
     public void registerColumnMapper(ColumnMapperFactory factory) {
         config.mappingRegistry.addColumnMapper(factory);
@@ -297,6 +310,8 @@ public class Jdbi
      * for use by clients.
      *
      * @param callback A callback which will receive an open Handle
+     * @param <R> type returned by the callback
+     * @param <X> exception type thrown by the callback, if any.
      *
      * @return the value returned by callback
      *
@@ -314,6 +329,8 @@ public class Jdbi
      * for use by clients.
      *
      * @param callback A callback which will receive an open Handle
+     * @param <X> exception type thrown by the callback, if any.
+     *
      * @throws X any exception thrown by the callback
      */
     public <X extends Exception> void useHandle(final HandleConsumer<X> callback) throws X
@@ -328,6 +345,8 @@ public class Jdbi
      * callback raises an exception.
      *
      * @param callback A callback which will receive an open Handle, in a transaction
+     * @param <R> type returned by the callback
+     * @param <X> exception type thrown by the callback, if any.
      *
      * @return the value returned by callback
      *
@@ -398,11 +417,11 @@ public class Jdbi
     }
 
     /**
-     * Returns an extension which opens and closes handles (as needed) for individual method calls. Only public
-     * interface types may be used as on-demand extensions.
-     *
      * @param extensionType the type of extension. Must be a public interface type.
      * @param <E> the extension type
+     *
+     * @return an extension which opens and closes handles (as needed) for individual method calls. Only public
+     * interface types may be used as on-demand extensions.
      */
     public <E> E onDemand(Class<E> extensionType) throws NoSuchExtensionException {
         if (!extensionType.isInterface()) {
@@ -421,7 +440,7 @@ public class Jdbi
     /**
      * Convenience method used to obtain a handle from a specific data source
      *
-     * @param dataSource
+     * @param dataSource the JDBC data source.
      *
      * @return Handle using a Connection obtained from the provided DataSource
      */
@@ -433,7 +452,7 @@ public class Jdbi
     /**
      * Create a Handle wrapping a particular JDBC Connection
      *
-     * @param connection
+     * @param connection the JDBC connection
      *
      * @return Handle bound to connection
      */
@@ -489,6 +508,8 @@ public class Jdbi
      * against this DBI instance the factory will be used to create a StatementBuilder for
      * that specific handle. When the handle is closed, the StatementBuilder's close method
      * will be invoked.
+     *
+     * @param factory the new statement builder factory.
      */
     public void setStatementBuilderFactory(StatementBuilderFactory factory)
     {
@@ -503,6 +524,8 @@ public class Jdbi
     /**
      * Add a callback to accumulate timing information about the queries running from this
      * data source.
+     *
+     * @param timingCollector the new timing collector
      */
     public void setTimingCollector(final TimingCollector timingCollector) {
         if (timingCollector == null) {

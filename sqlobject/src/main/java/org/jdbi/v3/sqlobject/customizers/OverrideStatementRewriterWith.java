@@ -37,6 +37,7 @@ public @interface OverrideStatementRewriterWith
 {
     /**
      * Specify the StatementRewriter class to use.
+     * @return the StatementRewriter class to use.
      */
     Class<? extends StatementRewriter> value();
 

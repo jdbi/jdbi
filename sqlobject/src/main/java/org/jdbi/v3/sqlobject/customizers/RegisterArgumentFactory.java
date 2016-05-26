@@ -36,7 +36,8 @@ import org.jdbi.v3.tweak.ArgumentFactory;
 public @interface RegisterArgumentFactory
 {
     /**
-     * The key for the attribute to set. The value will be the value passed to the annotated argument
+     * The argument factory classes to register
+     * @return one or more argument factory classes.
      */
     Class<? extends ArgumentFactory>[] value();
 

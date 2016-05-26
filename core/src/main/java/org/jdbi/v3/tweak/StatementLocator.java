@@ -25,6 +25,8 @@ public interface StatementLocator
      * a StatementRewriter, so this can include stuff like named params and whatnot.
      *
      * @param name The name of the statement, as provided to a Handle
+     * @param ctx the statement context.
+     *
      * @return the SQL to execute, after it goes through a StatementRewriter
      * @throws Exception if anything goes wrong, jDBI will percolate expected exceptions
      */

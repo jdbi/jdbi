@@ -31,6 +31,7 @@ public @interface SqlUpdate
      * The sql (or statement name if using a statement locator) to be executed. The default value will use
      * the method name of the method being annotated. This default behavior is only useful in conjunction
      * with a statement locator.
+     * @return the SQL string (or name)
      */
     String value() default SqlQuery.DEFAULT_VALUE;
 

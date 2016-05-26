@@ -36,13 +36,36 @@
       <dependency>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3</artifactId>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3</artifactId>
         <classifier>tests</classifier>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-guava</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>com.google.auto.service</groupId>
+        <artifactId>auto-service</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-jodatime</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-jpa</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-spring</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-sqlobject</artifactId>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
@@ -62,6 +85,20 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <configuration>
+                        <!-- Don't care, just want javadocs -->
+                        <ignoredDependencies>
+                            <ignoredDependency>org.jdbi:*</ignoredDependency>
+                            <ignoredDependency>com.google.auto.service:auto-service</ignoredDependency>
+                        </ignoredDependencies>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
@@ -83,6 +120,28 @@
                     <baseDir>src/test/java/jdbi/doc</baseDir>
                     <sourceHighlighter>coderay</sourceHighlighter>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <executions>
+                    <execution>
+                        <id>javadoc-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
+                            <failOnError>true</failOnError>
+                            <includeDependencySources>true</includeDependencySources>
+                            <excludePackageNames>*.internal.*</excludePackageNames>
+                            <dependencySourceIncludes>
+                                <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
+                            </dependencySourceIncludes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

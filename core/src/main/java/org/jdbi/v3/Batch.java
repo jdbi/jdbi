@@ -55,9 +55,12 @@ public class Batch extends BaseStatement
     }
 
     /**
-     * Specify a value on the statement context for this batch
+     * Define a value on the {@link StatementContext}.
      *
-     * @return self
+     * @param key   Key to access this value from the StatementContext
+     * @param value Value to setAttribute on the StatementContext
+     *
+     * @return this
      */
     public Batch define(String key, Object value) {
         getContext().setAttribute(key, value);

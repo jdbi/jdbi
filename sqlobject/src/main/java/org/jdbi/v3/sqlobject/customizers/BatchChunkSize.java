@@ -33,6 +33,7 @@ public @interface BatchChunkSize
      * do not use the default. It is present for when the annotation is used
      * on a parameter, in which case this value will be ignored and the parameter value
      * will be used. The parameter type must be an int (or castable to an int).
+     * @return the batch chunk size.
      */
     int value() default -1;
 }

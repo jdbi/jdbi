@@ -51,6 +51,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
     {
         return new Builder(baseClass);
     }
+
     public static StringTemplate3StatementLocator.Builder builder(String path)
     {
         return new Builder(path);
@@ -58,6 +59,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     /**
      * Use {@link StringTemplate3StatementLocator#builder(Class)} and {@link StringTemplate3StatementLocator.Builder}.
+     * @param baseClass base class
      */
     @Deprecated
     public StringTemplate3StatementLocator(Class<?> baseClass)
@@ -72,6 +74,9 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     /**
      * Use {@link StringTemplate3StatementLocator#builder(Class)} and {@link StringTemplate3StatementLocator.Builder}.
+     * @param baseClass base class
+     * @param allowImplicitTemplateGroup allow implicit template group
+     * @param treatLiteralsAsTemplates treat literals as templates
      */
     @Deprecated
     public StringTemplate3StatementLocator(Class<?> baseClass,
@@ -88,6 +93,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     /**
      * Use {@link StringTemplate3StatementLocator#builder(String)} and {@link StringTemplate3StatementLocator.Builder}.
+     * @param templateGroupFilePathOnClasspath template group file path on classpath
      */
     @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath)
@@ -102,6 +108,9 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     /**
      * Use {@link StringTemplate3StatementLocator#builder(String)} and {@link StringTemplate3StatementLocator.Builder}.
+     * @param templateGroupFilePathOnClasspath template group file path on classpath
+     * @param allowImplicitTemplateGroup allow implicit template group
+     * @param treatLiteralsAsTemplates treat literals as templates
      */
     @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,
@@ -118,6 +127,10 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     /**
      * Use {@link StringTemplate3StatementLocator#builder(Class)} and {@link StringTemplate3StatementLocator.Builder}.
+     * @param baseClass base class
+     * @param allowImplicitTemplateGroup allow implicit template group
+     * @param treatLiteralsAsTemplates treat literals as templates
+     * @param shouldCache should cache
      */
     @Deprecated
     public StringTemplate3StatementLocator(Class<?> baseClass,
@@ -135,6 +148,10 @@ public class StringTemplate3StatementLocator implements StatementLocator
 
     /**
      * Use {@link StringTemplate3StatementLocator#builder(String)} and {@link StringTemplate3StatementLocator.Builder}.
+     * @param templateGroupFilePathOnClasspath template group file path on classpath
+     * @param allowImplicitTemplateGroup allow implicit template group
+     * @param treatLiteralsAsTemplates treat literals as templates
+     * @param shouldCache should cache
      */
     @Deprecated
     public StringTemplate3StatementLocator(String templateGroupFilePathOnClasspath,

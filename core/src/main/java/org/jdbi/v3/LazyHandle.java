@@ -21,7 +21,7 @@ class LazyHandle implements Supplier<Handle>, AutoCloseable {
     private volatile Handle handle;
     private volatile boolean closed = false;
 
-    public LazyHandle(Jdbi dbi) {
+    LazyHandle(Jdbi dbi) {
         this.dbi = dbi;
     }
 

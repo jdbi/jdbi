@@ -29,6 +29,7 @@ public @interface UseRowMapper
 {
     /**
      * The class implementing {@link RowMapper}. It must have a no-arg constructor.
+     * @return the class of row mapper to use.
      */
     Class<? extends RowMapper<?>> value();
 }

@@ -37,6 +37,7 @@ public @interface OverrideStatementLocatorWith
 {
     /**
      * Specify the statement locator class to use
+     * @return the statement locator class to use
      */
     Class<? extends org.jdbi.v3.tweak.StatementLocator> value();
 

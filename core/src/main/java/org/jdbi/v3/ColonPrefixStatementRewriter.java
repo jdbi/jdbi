@@ -35,9 +35,10 @@ import org.jdbi.v3.tweak.RewrittenStatement;
 import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
- * Statement rewriter which replaces named parameter tokens of the form :tokenName
- * <p/>
+ * Statement rewriter which replaces named parameter tokens of the form <code>:tokenName</code>
+ * <p>
  * This is the default statement rewriter
+ * </p>
  */
 public class ColonPrefixStatementRewriter implements StatementRewriter
 {

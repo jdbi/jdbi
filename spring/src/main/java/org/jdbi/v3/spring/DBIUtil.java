@@ -31,7 +31,9 @@ public class DBIUtil
     /**
      * Obtain a Handle instance, either the transactionally bound one if we are in a transaction,
      * or a new one otherwise.
-     * @param dbi the IDBI instance from which to obtain the handle
+     * @param dbi the Jdbi instance from which to obtain the handle
+     *
+     * @return the Handle instance
      */
     public static Handle getHandle(Jdbi dbi)
     {

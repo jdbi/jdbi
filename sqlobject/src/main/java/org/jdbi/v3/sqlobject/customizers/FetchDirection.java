@@ -36,7 +36,8 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 public @interface FetchDirection
 {
     /**
-     * Set to a value valid for fetch direction on the jdc statement
+     * Set to a value valid for fetch direction on the jdbc statement
+     * @return the fetch direction
      */
     int value();
 

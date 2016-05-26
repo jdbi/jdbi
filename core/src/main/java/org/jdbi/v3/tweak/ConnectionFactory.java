@@ -23,7 +23,8 @@ import java.sql.SQLException;
 public interface ConnectionFactory
 {
     /**
-     * Provides a Connection
+     * @return a Connection
+     * @throws SQLException if anything goes wrong
      */
     Connection openConnection() throws SQLException;
 }

@@ -37,6 +37,10 @@ public interface StatementBuilder
      * @param conn the JDBC Connection the statement is being created for
      * @param sql the translated SQL which should be prepared
      * @param ctx Statement context associated with the SqlStatement this is building for
+     *
+     * @return a PreparedStatement for the given arguments
+     *
+     * @throws SQLException if anything goes wrong preparing the statement
      */
     PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException;
 
@@ -46,6 +50,10 @@ public interface StatementBuilder
      * @param conn the JDBC Connection the statement is being created for
      * @param sql the translated SQL which should be prepared
      * @param ctx Statement context associated with the SqlStatement this is building for
+     *
+     * @return a CallableStatement for the given arguments
+     *
+     * @throws SQLException if anything goes wrong preparing the statement
      */
     CallableStatement createCall(Connection conn, String sql, StatementContext ctx) throws SQLException;
 
@@ -53,6 +61,7 @@ public interface StatementBuilder
     /**
      * Called to close an individual prepared statement created from this builder.
      *
+     * @param conn the connection to close
      * @param sql the translated SQL which was prepared
      * @param stmt the statement
      *
@@ -62,6 +71,8 @@ public interface StatementBuilder
 
     /**
      * Called when the handle this StatementBuilder is attached to is closed.
+     *
+     * @param conn the connection to close.
      */
     void close(Connection conn);
 }

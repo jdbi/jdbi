@@ -31,30 +31,30 @@ import org.jdbi.v3.tweak.StatementCustomizer;
  * add the statement customizer to a DML statement and bind (positionally) the return
  * params. Sadly, I think they (and the mapper) have to be positional. Usage is
  * like this:
- * <pre><code>
+ * <pre>
  * public void testFoo() throws Exception
  * {
  *     Handle h = dbi.open();
- * <p/>
+ *
  *     OracleReturning&lt;Integer&gt; or = new OracleReturning&lt;Integer&gt;(new RowMapper&lt;Integer&gt;() {
  *         public Integer map(int index, ResultSet r) throws SQLException
  *         {
  *             return r.getInt(1);
  *         }
  *     });
- * <p/>
+ *
  *     or.registerReturnParam(1, OracleTypes.INTEGER);
- * <p/>
+ *
  *     h.createStatement("insert into something (id, name) values (17, 'Brian') returning id into ?")
  *             .addStatementCustomizer(or)
  *             .execute();
  *     List&lt;Integer&gt; ids = or.getReturnedResults();
- * <p/>
+ *
  *     assertEquals(1, ids.size());
  *     assertEquals(Integer.valueOf(17), ids.getAttribute(0));
  *     h.close();
  * }
- * </code></pre>
+ * </pre>
  * Though you can bind multiple params, and whatnot
  */
 @Deprecated

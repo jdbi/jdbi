@@ -24,17 +24,17 @@ import org.jdbi.v3.Binding;
 public interface RewrittenStatement
 {
     /**
-     * Called to bind a set of parameters to a prepared statement. The
+     * Binds a set of parameters to a prepared statement. The
      * statement will have been constructed from this RewrittenStatement's
      * getSql() return result
-     * @param params
-     * @param statement
-     * @throws SQLException
+     * @param params the parameters to bind to the statement
+     * @param statement the prepared statement to bind the parameters to.
+     * @throws SQLException if anything goes wrong
      */
     void bind(Binding params, PreparedStatement statement) throws SQLException;
 
     /**
-     * Obtain the SQL in valid (rewritten) form to be used to prepare a statement
+     * @return the SQL in valid (rewritten) form to be used to prepare a statement
      */
     String getSql();
 }
