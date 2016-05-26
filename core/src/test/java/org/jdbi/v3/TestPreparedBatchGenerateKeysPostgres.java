@@ -16,37 +16,35 @@ package org.jdbi.v3;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.jdbi.v3.tweak.ColumnMapper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestPreparedBatchGenerateKeysPostgres {
 
+    @Rule
+    public PGDatabaseRule pgdb = new PGDatabaseRule().withPreparer(new JdbiPreparer() {
+        @Override
+        protected void prepare(Handle handle) {
+            handle.execute("create table something (id serial, name varchar(50), create_time timestamp default now())");
+        }
+    });
+
     private Handle h;
 
-    @BeforeClass
-    public static void isPostgresInstalled() {
-        assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
-    }
-
     @Before
-    public void setUp() throws Exception {
-        h = Jdbi.open("jdbc:postgresql:jdbi_test", "postgres", "");
-        h.execute("drop table if exists something");
-        h.execute("create table something (id serial, name varchar(50), create_time timestamp default now())");
+    public void getHandle() {
+        h = pgdb.getDbi().open();
     }
 
     @After
-    public void tearDown() throws Exception {
-        h.execute("drop table something");
+    public void close() {
         h.close();
     }
 
