@@ -17,8 +17,8 @@
 
     <parent>
         <groupId>org.basepom</groupId>
-        <artifactId>basepom-standard-oss</artifactId>
-        <version>14</version>
+        <artifactId>basepom-oss</artifactId>
+        <version>18</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
