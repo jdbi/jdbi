@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 public @interface BindingAnnotation
 {
     /**
-     * Build a BinderFactory which will be used to build Binders, which will bind arguments
+     * @return a BinderFactory type which will be used to build Binders, which will bind arguments
      */
     Class<? extends BinderFactory<?, ?>> value();
 

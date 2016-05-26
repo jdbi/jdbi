@@ -35,7 +35,8 @@ import org.jdbi.v3.tweak.RowMapper;
 public @interface RegisterRowMapper
 {
     /**
-     * The row mapper class to register
+     * The row mapper classes to register
+     * @return one or more row mapper classes
      */
     Class<? extends RowMapper<?>>[] value();
 

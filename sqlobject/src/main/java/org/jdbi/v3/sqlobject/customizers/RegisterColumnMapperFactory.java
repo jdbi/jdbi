@@ -35,7 +35,8 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 public @interface RegisterColumnMapperFactory
 {
     /**
-     * The column mapper factory class to register
+     * The column mapper factory classes to register
+     * @return one or more column mapper factory classes.
      */
     Class<? extends ColumnMapperFactory>[] value();
 

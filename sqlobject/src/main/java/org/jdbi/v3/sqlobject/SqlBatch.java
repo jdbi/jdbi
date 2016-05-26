@@ -39,13 +39,13 @@ import java.lang.reflect.Method;
 public @interface SqlBatch
 {
     /**
-     * SQL String (or name)
+     * @return the SQL string (or name)
      */
     String value() default SqlQuery.DEFAULT_VALUE;
 
     /**
-     * Should the batch, or batch chunks be executed in a transaction. Default is
-     * true (and it will be strange if you want otherwise).
+     * @return whether to execute the batch chunks in a transaction. Default is true (and it will be strange if you
+     * want otherwise).
      */
     boolean transactional() default true;
 

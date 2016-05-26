@@ -36,6 +36,7 @@ public @interface MaxRows
 {
     /**
      * The max number of rows to return from the query.
+     * @return the max rows
      */
     int value();
 

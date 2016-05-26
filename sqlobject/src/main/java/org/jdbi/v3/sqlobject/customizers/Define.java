@@ -35,6 +35,7 @@ public @interface Define
 {
     /**
      * The key for the attribute to set. The value will be the value passed to the annotated argument
+     * @return the attribute key
      */
     String value();
 

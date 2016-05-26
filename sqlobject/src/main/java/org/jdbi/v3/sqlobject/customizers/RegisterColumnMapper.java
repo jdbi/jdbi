@@ -35,7 +35,8 @@ import org.jdbi.v3.tweak.ColumnMapper;
 public @interface RegisterColumnMapper
 {
     /**
-     * The column mapper class to register
+     * The column mapper classes to register
+     * @return one or more column mapper classes
      */
     Class<? extends ColumnMapper<?>>[] value();
 

@@ -33,6 +33,7 @@ public @interface RegisterBeanMapper
 {
     /**
      * The bean classes to map with BeanMapper.
+     * @return one or more bean classes.
      */
     Class<?>[] value();
 

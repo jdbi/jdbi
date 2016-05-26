@@ -30,11 +30,13 @@ public @interface BindMap
      * The list of allowed map keys to bind.
      * If not specified, to binds all provided {@code Map} entries.  Any missing parameters will cause an exception.
      * If specified, binds all provided keys.  Missing entries are bound with a SQL {@code NULL}.
+     * @return the map keys to bind.
      */
     String[] value() default {};
 
     /**
      * If specified, key {@code key} will be bound as {@code prefix.key}.
+     * @return the map key prefix
      */
     String prefix() default BindBean.BARE_BINDING;
 
@@ -42,6 +44,7 @@ public @interface BindMap
      * Specify key handling.
      * If false, {@code Map} keys must be strings, or an exception is thrown.
      * If true, any object may be the key, and it will be converted with {@link Object#toString()}.
+     * @return whether keys will be implicitly converted to Strings.
      */
     boolean implicitKeyStringConversion() default false;
 }
