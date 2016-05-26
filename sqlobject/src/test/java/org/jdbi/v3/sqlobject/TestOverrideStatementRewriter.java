@@ -16,12 +16,12 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.jdbi.v3.ColonPrefixStatementRewriter;
 import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.HashPrefixStatementRewriter;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.rewriter.ColonPrefixStatementRewriter;
+import org.jdbi.v3.rewriter.HashPrefixStatementRewriter;
 import org.jdbi.v3.sqlobject.customizers.OverrideStatementRewriterWith;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;

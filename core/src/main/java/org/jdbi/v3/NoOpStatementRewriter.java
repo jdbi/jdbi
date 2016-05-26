@@ -17,9 +17,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import org.jdbi.v3.rewriter.RewrittenStatement;
+import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.RewrittenStatement;
-import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
  * A statement rewriter which does not, in fact, rewrite anything. This is useful
