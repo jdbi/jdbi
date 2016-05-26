@@ -68,6 +68,10 @@
         <artifactId>jdbi3-sqlobject</artifactId>
       </dependency>
       <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-postgres</artifactId>
+      </dependency>
+      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <scope>test</scope>
