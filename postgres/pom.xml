@@ -80,12 +80,6 @@
             <groupId>com.opentable.components</groupId>
             <artifactId>otj-pg-embedded</artifactId>
             <scope>test</scope>
-            <exclusions>
-              <exclusion>
-                <artifactId>jdbi</artifactId>
-                <groupId>org.jdbi</groupId>
-              </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 </project>

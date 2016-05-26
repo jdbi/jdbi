@@ -13,36 +13,49 @@
  */
 package org.jdbi.v3;
 
-import static org.junit.Assume.assumeTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+
+import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
+import com.opentable.db.postgres.junit.PreparedDbRule;
 
 public class PGDatabaseRule extends ExternalResource
 {
-    private Jdbi dbi;
+    private Jdbi jdbi;
     private List<JdbiPlugin> plugins = new ArrayList<>();
+    private JdbiPreparer preparer;
+    private PreparedDbRule innerRule;
+
+    @Override
+    public Statement apply(Statement base, Description description) {
+        if (preparer == null) {
+            preparer = new JdbiPreparer.None();
+        }
+        innerRule = EmbeddedPostgresRules.preparedDatabase(preparer);
+        return innerRule.apply(super.apply(base, description), description);
+    }
 
     @Override
     protected void before() throws Throwable
     {
-        assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
-        dbi = Jdbi.create("jdbc:postgresql:jdbi_test", "postgres", "");
-        plugins.forEach(dbi::installPlugin);
+        jdbi = Jdbi.create(innerRule.getTestDatabase());
+        plugins.forEach(jdbi::installPlugin);
     }
 
     @Override
     protected void after()
     {
-        dbi = null;
+        jdbi = null;
     }
 
     public Jdbi getDbi()
     {
-        return dbi;
+        return jdbi;
     }
 
     public Handle openHandle()
@@ -52,6 +65,11 @@ public class PGDatabaseRule extends ExternalResource
 
     public PGDatabaseRule withPlugin(JdbiPlugin plugin) {
         plugins.add(plugin);
+        return this;
+    }
+
+    public PGDatabaseRule withPreparer(JdbiPreparer preparer) {
+        this.preparer = preparer;
         return this;
     }
 }
