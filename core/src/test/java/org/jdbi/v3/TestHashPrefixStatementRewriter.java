@@ -21,7 +21,8 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.tweak.RewrittenStatement;
+import org.jdbi.v3.rewriter.HashPrefixStatementRewriter;
+import org.jdbi.v3.rewriter.RewrittenStatement;
 import org.junit.Before;
 import org.junit.Test;
 

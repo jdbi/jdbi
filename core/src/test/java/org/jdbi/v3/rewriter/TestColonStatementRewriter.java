@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.rewriter;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,8 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.jdbi.v3.Binding;
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.tweak.RewrittenStatement;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

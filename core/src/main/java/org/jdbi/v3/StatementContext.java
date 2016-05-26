@@ -50,12 +50,11 @@ public final class StatementContext
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
 
-    /* visible for testing */
-    StatementContext() {
+    public StatementContext() {
         this(new JdbiConfig());
     }
 
-    StatementContext(JdbiConfig config)
+    public StatementContext(JdbiConfig config)
     {
         this.config = config;
     }

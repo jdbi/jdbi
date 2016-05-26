@@ -16,8 +16,9 @@ package org.jdbi.v3;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.rewriter.ColonPrefixStatementRewriter;
+import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.StatementRewriter;
 
 class JdbiConfig {
     static JdbiConfig copyOf(JdbiConfig original) {

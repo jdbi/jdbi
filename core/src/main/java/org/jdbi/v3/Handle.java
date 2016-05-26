@@ -22,13 +22,13 @@ import java.util.function.Consumer;
 import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
+import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.StatementRewriter;
 
 /**
  * This represents a connection to the database system. It usually is a wrapper around
