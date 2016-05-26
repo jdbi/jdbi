@@ -78,7 +78,7 @@ public class TestClassBasedSqlObject
     @Test
     public void testSimpleTransactionsSucceed() throws Exception
     {
-        SomethingDao dao = db.getDbi().onDemand(SomethingDao.class);
+        SomethingDao dao = db.getJdbi().onDemand(SomethingDao.class);
 
         dao.insertInSingleTransaction(10, "Linda");
     }
@@ -100,7 +100,7 @@ public class TestClassBasedSqlObject
     @Test(expected = TransactionException.class)
     public void testNestedTransactionsThrowException()
     {
-        SomethingDao dao = db.getDbi().onDemand(SomethingDao.class);
+        SomethingDao dao = db.getJdbi().onDemand(SomethingDao.class);
         dao.insertInNestedTransaction(11, "Angelina");
     }
 

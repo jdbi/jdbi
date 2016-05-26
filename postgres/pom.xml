@@ -21,12 +21,10 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3-sqlobject</artifactId>
-    <name>jDBI SQLObject</name>
-    <packaging>jar</packaging>
+    <artifactId>jdbi3-postgres</artifactId>
+    <name>jdbi Postgres</name>
     <description>
-        jDBI SQLObject transforms simple annotated interfaces into
-        full-featured DAO implementations.
+        jDBI PostgreSQL specific features
     </description>
     <url>http://jdbi.org/</url>
 
@@ -49,16 +47,10 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>stringtemplate</artifactId>
-            <optional>true</optional>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -79,45 +71,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guava</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-jexl</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.opentable.components</groupId>
+            <artifactId>otj-pg-embedded</artifactId>
+            <scope>test</scope>
+            <exclusions>
+              <exclusion>
+                <artifactId>jdbi</artifactId>
+                <groupId>org.jdbi</groupId>
+              </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

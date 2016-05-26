@@ -38,7 +38,7 @@ public class TestStream
         Something two = new Something(4, "bar");
         Something thr = new Something(5, "baz");
 
-        Spiffy dao = db.getDbi().open().attach(Spiffy.class);
+        Spiffy dao = db.getJdbi().open().attach(Spiffy.class);
         dao.insert(one);
         dao.insert(thr);
         dao.insert(two);

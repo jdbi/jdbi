@@ -28,7 +28,7 @@ public class TestStatements
     @Test
     public void testInsert() throws Exception
     {
-        db.getDbi().useExtension(Inserter.class, i -> {
+        db.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             int rows_affected = i.insert(2, "Diego");
 
@@ -42,7 +42,7 @@ public class TestStatements
     @Test
     public void testInsertWithVoidReturn() throws Exception
     {
-        db.getDbi().useExtension(Inserter.class, i -> {
+        db.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
 
@@ -55,7 +55,7 @@ public class TestStatements
     @Test
     public void testDoubleArgumentBind() throws Exception
     {
-        db.getDbi().useExtension(Doubler.class, d -> assertTrue(d.doubleTest("wooooot")));
+        db.getJdbi().useExtension(Doubler.class, d -> assertTrue(d.doubleTest("wooooot")));
     }
 
     public interface Inserter

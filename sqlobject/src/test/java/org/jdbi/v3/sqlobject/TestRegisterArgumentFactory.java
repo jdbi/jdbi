@@ -37,13 +37,13 @@ public class TestRegisterArgumentFactory
     @Before
     public void setUp() throws Exception
     {
-        Jdbi dbi = db.getDbi();
+        Jdbi dbi = db.getJdbi();
     }
 
     @Test
     public void testFoo() throws Exception
     {
-        db.getDbi().useExtension(Waffle.class, w -> {
+        db.getJdbi().useExtension(Waffle.class, w -> {
             w.insert(1, new Name("Brian", "McCallister"));
 
             assertThat(w.findName(1), equalTo("Brian McCallister"));

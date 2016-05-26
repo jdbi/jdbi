@@ -135,7 +135,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegisterRowMapperAnnotationWorks() throws Exception
     {
-        Kabob bob = db.getDbi().onDemand(Kabob.class);
+        Kabob bob = db.getJdbi().onDemand(Kabob.class);
 
         bob.insert(1, "Henning");
         Something henning = bob.find(1);
@@ -158,7 +158,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testNoErrorOnNoData() throws Exception
     {
-        Kabob bob = db.getDbi().onDemand(Kabob.class);
+        Kabob bob = db.getJdbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
         assertThat(henning, nullValue());

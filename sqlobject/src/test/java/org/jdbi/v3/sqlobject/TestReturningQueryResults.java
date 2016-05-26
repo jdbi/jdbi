@@ -47,7 +47,7 @@ public class TestReturningQueryResults
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findById(7);
             assertEquals("Tim", s.getName());
         });
@@ -59,7 +59,7 @@ public class TestReturningQueryResults
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Iterator<Something> itty = spiffy.findByIdRange(2, 10);
             Set<Something> all = new HashSet<>();
             while (itty.hasNext()) {
@@ -79,7 +79,7 @@ public class TestReturningQueryResults
         handle.execute("insert into something (id, name) values (7, 'Tim')");
         handle.execute("insert into something (id, name) values (3, 'Diego')");
 
-        db.getDbi().useExtension(Spiffy.class, spiffy -> {
+        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             List<Something> all = spiffy.findTwoByIds(3, 7);
 
             assertEquals(2, all.size());
