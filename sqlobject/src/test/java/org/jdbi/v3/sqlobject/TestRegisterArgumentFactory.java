@@ -19,8 +19,8 @@ import static org.junit.Assert.assertThat;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.H2DatabaseRule;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.sqlobject.customizers.RegisterArgumentFactory;
 import org.jdbi.v3.tweak.Argument;
@@ -33,17 +33,18 @@ public class TestRegisterArgumentFactory
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    private Jdbi dbi;
 
     @Before
     public void setUp() throws Exception
     {
-        Jdbi dbi = db.getJdbi();
+        dbi = db.getJdbi();
     }
 
     @Test
     public void testFoo() throws Exception
     {
-        db.getJdbi().useExtension(Waffle.class, w -> {
+        dbi.useExtension(Waffle.class, w -> {
             w.insert(1, new Name("Brian", "McCallister"));
 
             assertThat(w.findName(1), equalTo("Brian McCallister"));

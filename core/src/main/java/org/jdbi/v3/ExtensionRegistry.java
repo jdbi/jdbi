@@ -31,34 +31,38 @@ class ExtensionRegistry {
         return new ExtensionRegistry(registry.factories);
     }
 
-    private static class Entry {
-        static Entry copyOf(Entry entry) {
-            return new Entry(entry.factory, entry.config.createCopy());
+    private static class Entry<C extends ExtensionConfig<C>> {
+        static <C extends ExtensionConfig<C>> Entry<C> copyOf(Entry<C> entry) {
+            return new Entry<>(entry.factory, entry.config.createCopy());
         }
 
-        final ExtensionFactory factory;
-        final ExtensionConfig config;
+        final ExtensionFactory<C> factory;
+        final C config;
 
-        Entry(ExtensionFactory factory, ExtensionConfig config) {
+        Entry(ExtensionFactory<C> factory, C config) {
             this.factory = factory;
             this.config = config;
         }
+
+        <E> E attach(Class<E> extensionType, Supplier<Handle> handle) {
+            return factory.attach(extensionType, config, handle);
+        }
     }
 
-    private final List<Entry> factories;
+    private final List<Entry<? extends ExtensionConfig<?>>> factories;
 
     ExtensionRegistry() {
         this.factories = new CopyOnWriteArrayList<>();
     }
 
-    ExtensionRegistry(List<Entry> factories) {
+    ExtensionRegistry(List<Entry<? extends ExtensionConfig<?>>> factories) {
         this.factories = factories.stream()
                 .map(Entry::copyOf)
                 .collect(toCollection(CopyOnWriteArrayList::new));
     }
 
-    void register(ExtensionFactory factory) {
-        factories.add(0, new Entry(factory, factory.createConfig()));
+    <C extends ExtensionConfig<C>> void register(ExtensionFactory<C> factory) {
+        factories.add(0, new Entry<>(factory, factory.createConfig()));
     }
 
     boolean hasExtensionFor(Class<?> extensionType) {
@@ -69,7 +73,7 @@ class ExtensionRegistry {
     <E> Optional<E> findExtensionFor(Class<E> extensionType, Supplier<Handle> handle) {
         return factories.stream()
                 .filter(entry -> entry.factory.accepts(extensionType))
-                .map(entry -> extensionType.cast(entry.factory.attach(extensionType, entry.config, handle)))
+                .map(entry -> extensionType.cast(entry.attach(extensionType, handle)))
                 .findFirst();
     }
 

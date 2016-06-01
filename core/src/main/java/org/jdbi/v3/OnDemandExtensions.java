@@ -56,6 +56,9 @@ public class OnDemandExtensions {
             }
         };
 
-        return (E) Proxy.newProxyInstance(extensionType.getClassLoader(), new Class[]{extensionType}, handler);
+        return extensionType.cast(
+                Proxy.newProxyInstance(
+                        extensionType.getClassLoader(),
+                        new Class[]{extensionType}, handler));
     }
 }

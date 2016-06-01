@@ -137,7 +137,6 @@ public class OracleReturning<ResultType> extends BaseStatementCustomizer impleme
         }
         this.results = new ArrayList<>();
         try {
-            int i = 0;
             while (rs.next()) {
                 results.add(mapper.map(rs, context));
             }

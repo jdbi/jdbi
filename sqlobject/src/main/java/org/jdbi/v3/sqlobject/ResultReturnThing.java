@@ -52,7 +52,7 @@ abstract class ResultReturnThing
     static ResultReturnThing forMethod(Class<?> extensionType, Method method)
     {
         Type returnType = Types.resolveType(method.getGenericReturnType(), extensionType);
-        Class returnClass = Types.getErasedType(returnType);
+        Class<?> returnClass = Types.getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             throw new IllegalStateException(String.format(
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
@@ -109,7 +109,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
         {
             if (q instanceof Query) {

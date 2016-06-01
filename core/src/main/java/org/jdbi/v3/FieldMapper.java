@@ -54,7 +54,6 @@ public class FieldMapper<T> implements RowMapper<T>
     }
 
     @Override
-    @SuppressWarnings({"rawtypes"})
     public T map(ResultSet rs, StatementContext ctx)
             throws SQLException
     {

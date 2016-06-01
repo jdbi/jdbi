@@ -83,11 +83,10 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
         Class<?> rawType = getErasedType(type);
         if (rawType.isEnum()) {
-            return Optional.of(EnumMapper.byName((Class<? extends Enum>) rawType));
+            return Optional.of(EnumMapper.byName(rawType.asSubclass(Enum.class)));
         }
 
         return Optional.ofNullable(mappers.get(rawType));

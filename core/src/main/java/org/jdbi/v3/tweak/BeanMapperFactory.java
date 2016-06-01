@@ -37,6 +37,7 @@ public class BeanMapperFactory implements RowMapperFactory
         this.beanClasses = new ArrayList<>(beanClasses);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
         return Optional.of(getErasedType(type))
