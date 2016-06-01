@@ -14,7 +14,7 @@
 package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
 
-@UseStringTemplate3StatementLocator("/org/skife/jdbi/v2/sqlobject/stringtemplate/SuperDrink.sql.stg")
+@UseStringTemplate3StatementLocator(value = "/org/skife/jdbi/v2/sqlobject/stringtemplate/SuperDrink.sql.stg", cacheable = false)
 public interface SuperDrink
 {
 }

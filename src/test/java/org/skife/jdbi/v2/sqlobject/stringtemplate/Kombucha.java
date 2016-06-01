@@ -15,7 +15,7 @@ package org.skife.jdbi.v2.sqlobject.stringtemplate;
 
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 
-@UseStringTemplate3StatementLocator("/org/skife/jdbi/v2/sqlobject/stringtemplate/Kombucha.sql.stg")
+@UseStringTemplate3StatementLocator(value = "/org/skife/jdbi/v2/sqlobject/stringtemplate/Kombucha.sql.stg", cacheable = true)
 public interface Kombucha
 {
     @SqlQuery
