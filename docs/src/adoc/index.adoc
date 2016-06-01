@@ -27,6 +27,7 @@ Read about the core APIs:
 * <<core#,Jdbi and Handle>>
 * <<arguments#,Arguments and Binding>>
 * <<results#,Result Mapping>>
+* <<transaction#,Transactions>>
 * <<sqlobject#,SQLObject>>
 * <<spring#,Spring Integration>>
 * link:apidocs/index.html[Javadoc]

@@ -45,6 +45,12 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-postgres</artifactId>
+        <classifier>tests</classifier>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-guava</artifactId>
       </dependency>
       <dependency>
@@ -71,6 +77,13 @@
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-postgres</artifactId>
       </dependency>
+
+      <dependency>
+        <groupId>com.opentable.components</groupId>
+        <artifactId>otj-pg-embedded</artifactId>
+        <scope>test</scope>
+      </dependency>
+
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
