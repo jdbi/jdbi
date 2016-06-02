@@ -15,7 +15,9 @@ package org.jdbi.v3;
 
 import java.sql.SQLException;
 
-public interface Cleanable
+@FunctionalInterface
+interface Cleanable extends AutoCloseable
 {
-    void cleanup() throws SQLException;
+    @Override
+    void close() throws SQLException;
 }

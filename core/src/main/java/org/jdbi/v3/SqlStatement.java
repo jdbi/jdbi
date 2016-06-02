@@ -1282,7 +1282,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
         // caching statement builder relies on the statement *not* being closed.
-        addCleanable(new Cleanables.StatementBuilderCleanable(statementBuilder, handle.getConnection(), sql, stmt));
+        addCleanable(Cleanables.forStatementBuilder(statementBuilder, handle.getConnection(), sql, stmt));
 
         getContext().setStatement(stmt);
 

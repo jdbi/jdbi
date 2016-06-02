@@ -111,30 +111,27 @@ abstract class BaseStatement
         public final void cleanup(final StatementContext ctx)
             throws SQLException
         {
-            final List<SQLException> exceptions = new ArrayList<>();
+            SQLException exception = null;
             try {
                 List<Cleanable> cleanables = new ArrayList<>(context.getCleanables());
                 Collections.reverse(cleanables);
                 for (Cleanable cleanable : cleanables) {
                     try {
-                        cleanable.cleanup();
+                        cleanable.close();
                     }
-                    catch (SQLException sqlException) {
-                        exceptions.add(sqlException);
+                    catch (SQLException e) {
+                        if (exception == null) {
+                            exception = e;
+                        } else {
+                            exception.addSuppressed(e);
+                        }
                     }
                 }
                 context.getCleanables().clear();
             }
             finally {
-                if (exceptions.size() > 1) {
-                    // Chain multiple SQLExceptions together to be one big exceptions.
-                    // (Wonder if that actually works...)
-                    for (int i = 0; i < (exceptions.size() - 1); i++) {
-                        exceptions.get(i).setNextException(exceptions.get(i + 1));
-                    }
-                }
-                if (exceptions.size() > 0) {
-                    throw exceptions.get(0);
+                if (exception != null) {
+                    throw exception;
                 }
             }
         }
