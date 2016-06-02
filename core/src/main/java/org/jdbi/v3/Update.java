@@ -23,8 +23,8 @@ import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.DefaultMapper;
 import org.jdbi.v3.mapper.RowMapper;
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementCustomizer;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementCustomizer;
 import org.jdbi.v3.util.SingleColumnMapper;
 
 /**

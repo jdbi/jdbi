@@ -23,7 +23,7 @@ import java.util.List;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.mapper.RowMapper;
-import org.jdbi.v3.tweak.StatementCustomizer;
+import org.jdbi.v3.statement.StatementCustomizer;
 
 /**
  * Provides access to Oracle's "DML Returning" features introduced in 10.2. To use,
@@ -88,7 +88,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
     }
 
     /**
-     * @see org.jdbi.v3.tweak.StatementCustomizer#beforeExecution(java.sql.PreparedStatement,org.jdbi.v3.StatementContext)
+     * @see org.jdbi.v3.statement.StatementCustomizer#beforeExecution(java.sql.PreparedStatement,org.jdbi.v3.StatementContext)
      */
     @Override
     public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException

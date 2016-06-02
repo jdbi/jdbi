@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 
 import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.spi.JdbiPlugin;
-import org.jdbi.v3.tweak.StatementLocator;
+import org.jdbi.v3.statement.StatementLocator;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;

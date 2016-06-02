@@ -40,9 +40,9 @@ import org.jdbi.v3.mapper.CollectorFactory;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.rewriter.RewrittenStatement;
 import org.jdbi.v3.rewriter.StatementRewriter;
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementCustomizer;
-import org.jdbi.v3.tweak.StatementLocator;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementCustomizer;
+import org.jdbi.v3.statement.StatementLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

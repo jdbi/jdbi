@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.StatementCustomizer;
+import org.jdbi.v3.statement.StatementCustomizer;
 
 abstract class BaseStatement
 {

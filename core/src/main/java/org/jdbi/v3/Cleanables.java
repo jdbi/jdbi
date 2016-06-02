@@ -18,7 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import org.jdbi.v3.tweak.StatementBuilder;
+import org.jdbi.v3.statement.StatementBuilder;
 
 /**
  * Resource management for JDBI. Cleanables can be registered on a SQL statement and they get cleaned up when the

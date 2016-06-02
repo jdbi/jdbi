@@ -16,7 +16,7 @@ package org.jdbi.v3;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.tweak.StatementCustomizer;
+import org.jdbi.v3.statement.StatementCustomizer;
 
 public final class StatementCustomizers
 {

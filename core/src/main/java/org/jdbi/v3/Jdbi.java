@@ -41,11 +41,11 @@ import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.spi.JdbiPlugin;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementBuilderFactory;
+import org.jdbi.v3.statement.StatementLocator;
 import org.jdbi.v3.transaction.LocalTransactionHandler;
 import org.jdbi.v3.transaction.TransactionHandler;
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementBuilderFactory;
-import org.jdbi.v3.tweak.StatementLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

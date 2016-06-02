@@ -28,8 +28,8 @@ import org.jdbi.v3.mapper.ColumnMapperFactory;
 import org.jdbi.v3.mapper.InferredRowMapperFactory;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementCustomizer;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementCustomizer;
 
 /**
  * Statement providing convenience result handling for SQL queries.
