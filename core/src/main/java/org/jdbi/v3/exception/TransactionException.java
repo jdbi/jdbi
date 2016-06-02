@@ -11,24 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.exceptions;
+package org.jdbi.v3.exception;
 
-public class TransactionFailedException extends JdbiException
+public class TransactionException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 
-    public TransactionFailedException(String string, Throwable throwable)
+    public TransactionException(String string, Throwable throwable)
     {
         super(string, throwable);
     }
 
-    public TransactionFailedException(Throwable cause)
+    public TransactionException(Throwable cause)
     {
         super(cause);
     }
 
-    public TransactionFailedException(String message)
+    public TransactionException(String msg)
     {
-        super(message);
+        super(msg);
     }
 }

@@ -30,9 +30,9 @@ import java.util.Optional;
 import com.google.common.collect.Maps;
 
 import org.jdbi.HandyMapThing;
-import org.jdbi.v3.exceptions.NoResultsException;
-import org.jdbi.v3.exceptions.StatementException;
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.exception.NoResultsException;
+import org.jdbi.v3.exception.StatementException;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

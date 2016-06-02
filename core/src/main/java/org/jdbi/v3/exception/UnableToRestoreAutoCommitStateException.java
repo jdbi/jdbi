@@ -11,14 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.exceptions;
+package org.jdbi.v3.exception;
 
-public class UnableToCloseResourceException extends JdbiException
-{
-    private static final long serialVersionUID = 1L;
+public class UnableToRestoreAutoCommitStateException extends JdbiException {
 
-    public UnableToCloseResourceException(String string, Throwable throwable)
-    {
-        super(string, throwable);
+    private static final long serialVersionUID = 2433069110223543423L;
+
+    public UnableToRestoreAutoCommitStateException(Throwable throwable) {
+        super(throwable);
     }
 }

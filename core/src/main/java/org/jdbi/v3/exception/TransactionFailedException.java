@@ -11,21 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.exceptions;
+package org.jdbi.v3.exception;
 
-import org.jdbi.v3.StatementContext;
-
-public class UnableToCreateStatementException extends StatementException
+public class TransactionFailedException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 
-    public UnableToCreateStatementException(String string, Throwable throwable, StatementContext ctx)
+    public TransactionFailedException(String string, Throwable throwable)
     {
-        super(string, throwable, ctx);
+        super(string, throwable);
     }
 
-    public UnableToCreateStatementException(Exception e, StatementContext ctx)
+    public TransactionFailedException(Throwable cause)
     {
-        super(e, ctx);
+        super(cause);
+    }
+
+    public TransactionFailedException(String message)
+    {
+        super(message);
     }
 }

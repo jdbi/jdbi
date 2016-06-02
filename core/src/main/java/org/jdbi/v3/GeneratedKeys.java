@@ -17,7 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.jdbi.v3.exceptions.ResultSetException;
+import org.jdbi.v3.exception.ResultSetException;
 import org.jdbi.v3.mapper.RowMapper;
 
 /**

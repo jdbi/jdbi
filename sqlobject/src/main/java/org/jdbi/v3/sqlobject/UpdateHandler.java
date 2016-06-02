@@ -21,7 +21,7 @@ import org.jdbi.v3.GeneratedKeys;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Types;
 import org.jdbi.v3.Update;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 

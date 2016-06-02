@@ -19,7 +19,7 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.DefaultMapper;
 import org.jdbi.v3.mapper.RowMapper;

@@ -11,13 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.exceptions;
+package org.jdbi.v3.exception;
 
-public class UnableToRestoreAutoCommitStateException extends JdbiException {
+public class UnableToObtainConnectionException extends JdbiException
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 2433069110223543423L;
-
-    public UnableToRestoreAutoCommitStateException(Throwable throwable) {
-        super(throwable);
+    public UnableToObtainConnectionException(Throwable cause)
+    {
+        super(cause);
     }
 }

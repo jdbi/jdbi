@@ -22,7 +22,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.argument.NamedArgumentFinder;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 
 class BeanPropertyArguments implements NamedArgumentFinder
 {

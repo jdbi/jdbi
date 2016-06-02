@@ -11,24 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.exceptions;
+package org.jdbi.v3.exception;
 
-public class TransactionException extends JdbiException
+import java.sql.SQLException;
+
+public class UnableToManipulateTransactionIsolationLevelException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 
-    public TransactionException(String string, Throwable throwable)
+    public UnableToManipulateTransactionIsolationLevelException(int i, SQLException e)
     {
-        super(string, throwable);
+        super("Unable to set isolation level to " + i, e);
     }
 
-    public TransactionException(Throwable cause)
+    public UnableToManipulateTransactionIsolationLevelException(String msg, SQLException e)
     {
-        super(cause);
-    }
-
-    public TransactionException(String msg)
-    {
-        super(msg);
+        super(msg, e);
     }
 }

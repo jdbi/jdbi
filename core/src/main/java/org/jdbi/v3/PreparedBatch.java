@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.rewriter.RewrittenStatement;

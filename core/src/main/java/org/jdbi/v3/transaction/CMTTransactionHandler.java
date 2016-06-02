@@ -19,7 +19,7 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
-import org.jdbi.v3.exceptions.TransactionException;
+import org.jdbi.v3.exception.TransactionException;
 
 /**
  * Handler designed to behave properly in a J2EE CMT environment. It will never

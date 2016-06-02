@@ -21,7 +21,7 @@ import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 
 import org.antlr.runtime.ANTLRInputStream;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.statement.StatementLocator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

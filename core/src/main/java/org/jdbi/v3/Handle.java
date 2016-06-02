@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.argument.ArgumentFactory;
-import org.jdbi.v3.exceptions.UnableToCloseResourceException;
-import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.exception.UnableToCloseResourceException;
+import org.jdbi.v3.exception.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
@@ -206,7 +206,7 @@ public class Handle implements Closeable
     /**
      * Closes the handle, its connection, and any other database resources it is holding.
      *
-     * @throws org.jdbi.v3.exceptions.UnableToCloseResourceException if any resources throw exception while closing
+     * @throws org.jdbi.v3.exception.UnableToCloseResourceException if any resources throw exception while closing
      */
     @Override
     public void close() {

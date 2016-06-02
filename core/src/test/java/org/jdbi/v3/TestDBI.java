@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
+import org.jdbi.v3.exception.UnableToObtainConnectionException;
 import org.junit.Rule;
 import org.junit.Test;
 

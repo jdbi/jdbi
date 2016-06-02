@@ -21,9 +21,9 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.List;
 
-import org.jdbi.v3.exceptions.JdbiException;
-import org.jdbi.v3.exceptions.TransactionException;
-import org.jdbi.v3.exceptions.TransactionFailedException;
+import org.jdbi.v3.exception.JdbiException;
+import org.jdbi.v3.exception.TransactionException;
+import org.jdbi.v3.exception.TransactionFailedException;
 import org.junit.Rule;
 import org.junit.Test;
 

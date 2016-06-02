@@ -21,7 +21,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
 
-import org.jdbi.v3.exceptions.ResultSetException;
+import org.jdbi.v3.exception.ResultSetException;
 import org.jdbi.v3.mapper.BeanMapper;
 import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.exceptions.ResultSetException;
+import org.jdbi.v3.exception.ResultSetException;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.statement.StatementCustomizer;
 

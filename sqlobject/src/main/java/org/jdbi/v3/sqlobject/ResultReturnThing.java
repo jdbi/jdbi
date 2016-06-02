@@ -26,7 +26,7 @@ import org.jdbi.v3.ResultBearing;
 import org.jdbi.v3.ResultIterator;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Types;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 
