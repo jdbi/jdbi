@@ -165,7 +165,7 @@ public class StringTemplate3StatementLocator implements StatementLocator
             if (!literals.isDefined(key)) {
                 literals.defineTemplate(key, name);
             }
-            StringTemplate t = literals.lookupTemplate(key);
+            StringTemplate t = literals.getInstanceOf(key);
             for (Map.Entry<String, Object> entry : ctx.getAttributes().entrySet()) {
                 t.setAttribute(entry.getKey(), entry.getValue());
             }

@@ -34,12 +34,14 @@ class UpdateHandler extends CustomizingStatementHandler
     {
         super(sqlObjectType, method);
 
+        boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
+
         Type returnType = Types.resolveType(method.getGenericReturnType(), sqlObjectType);
-        if(returnTypeIsInvalid(method.getReturnType()) ) {
+        if (!isGetGeneratedKeys && returnTypeIsInvalid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
         }
         this.sql = SqlAnnotations.getSql(method.getAnnotation(SqlUpdate.class), method);
-        if (method.isAnnotationPresent(GetGeneratedKeys.class)) {
+        if (isGetGeneratedKeys) {
 
             final ResultReturnThing magic = ResultReturnThing.forMethod(sqlObjectType, method);
             final GetGeneratedKeys ggk = method.getAnnotation(GetGeneratedKeys.class);

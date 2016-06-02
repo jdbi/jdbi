@@ -19,14 +19,14 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.jdbi.v3.Binding;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 public class TestColonStatementRewriter
 {
@@ -90,6 +90,14 @@ public class TestColonStatementRewriter
     {
         RewrittenStatement rws = rewrite("select * from `v$session");
         assertEquals("select * from `v$session", rws.getSql());
+    }
+
+    @Test
+    public void testDoubleColon() throws Exception
+    {
+        final String doubleColon = "select 1::int";
+        RewrittenStatement rws = rewrite(doubleColon);
+        assertEquals(doubleColon, rws.getSql());
     }
 
     @Test(expected = UnableToCreateStatementException.class)
@@ -156,13 +164,6 @@ public class TestColonStatementRewriter
     public void testCommentQuote() throws Exception
     {
         String sql = "select 1 /* ' \" <foo> */";
-        assertEquals(sql, rewrite(sql).getSql());
-    }
-
-    @Test
-    public void testDoubleColon() throws Exception
-    {
-        String sql = "select '2016-05-11'::date from foo";
         assertEquals(sql, rewrite(sql).getSql());
     }
 }
