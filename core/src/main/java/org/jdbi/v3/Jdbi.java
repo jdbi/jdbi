@@ -18,6 +18,7 @@ import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -65,9 +66,7 @@ public class Jdbi
 
     private Jdbi(ConnectionFactory connectionFactory)
     {
-        if (connectionFactory == null) {
-            throw new IllegalArgumentException("null connectionFactory");
-        }
+        Objects.requireNonNull(connectionFactory, "null connectionFactory");
         this.connectionFactory = connectionFactory;
     }
 
@@ -104,9 +103,7 @@ public class Jdbi
      */
     public static Jdbi create(final String url)
     {
-        if (url == null) {
-            throw new IllegalArgumentException("null url");
-        }
+        Objects.requireNonNull(url, "null url");
         return create(() -> DriverManager.getConnection(url));
     }
 
@@ -118,12 +115,8 @@ public class Jdbi
      */
     public static Jdbi create(final String url, final Properties properties)
     {
-        if (url == null) {
-            throw new IllegalArgumentException("null url");
-        }
-        if (properties == null) {
-            throw new IllegalArgumentException("null properties");
-        }
+        Objects.requireNonNull(url, "null url");
+        Objects.requireNonNull(properties, "null properties");
         return create(() -> DriverManager.getConnection(url, properties));
     }
 
@@ -136,15 +129,9 @@ public class Jdbi
      */
     public static Jdbi create(final String url, final String username, final String password)
     {
-        if (url == null) {
-            throw new IllegalArgumentException("null url");
-        }
-        if (username == null) {
-            throw new IllegalArgumentException("null username");
-        }
-        if (password == null) {
-            throw new IllegalArgumentException("null password");
-        }
+        Objects.requireNonNull(url, "null url");
+        Objects.requireNonNull(username, "null username");
+        Objects.requireNonNull(password, "null password");
         return create(() -> DriverManager.getConnection(url, username, password));
     }
 
@@ -169,9 +156,7 @@ public class Jdbi
      */
     public static Handle open(final Connection connection)
     {
-        if (connection == null) {
-            throw new IllegalArgumentException("null connection");
-        }
+        Objects.requireNonNull(connection, "null connection");
         return create(() -> connection).open();
     }
 
@@ -256,9 +241,7 @@ public class Jdbi
      */
     public Jdbi setStatementLocator(StatementLocator locator)
     {
-        if (locator == null) {
-            throw new IllegalArgumentException("null statement locator");
-        }
+        Objects.requireNonNull(locator, "null statement locator");
         config.statementLocator = locator;
         return this;
     }
@@ -276,9 +259,7 @@ public class Jdbi
      */
     public Jdbi setStatementRewriter(StatementRewriter rewriter)
     {
-        if (rewriter == null) {
-            throw new IllegalArgumentException("null statement rewriter");
-        }
+        Objects.requireNonNull(rewriter, "null statement rewriter");
         config.statementRewriter = rewriter;
         return this;
     }
@@ -302,9 +283,7 @@ public class Jdbi
      */
     public Jdbi setTransactionHandler(TransactionHandler handler)
     {
-        if (handler == null) {
-            throw new IllegalArgumentException("null transaction handler");
-        }
+        Objects.requireNonNull(handler, "null transaction handler");
         this.transactionhandler.set(handler);
         return this;
     }
