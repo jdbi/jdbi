@@ -11,29 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.argument;
 
+import java.io.Reader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.Argument;
 
-class NullArgument implements Argument
+public class CharacterStreamArgument implements Argument
 {
-    private final int sqlType;
+    private final Reader value;
+    private final int length;
 
-    NullArgument(int sqlType) {
-        this.sqlType = sqlType;
-    }
-
-    @Override
-    public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException
+    public CharacterStreamArgument(Reader value, int length)
     {
-        statement.setNull(position, sqlType);
+        this.value = value;
+        this.length = length;
     }
 
     @Override
-    public String toString() {
-        return "NULL";
+    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
+    {
+        statement.setCharacterStream(position, value, length);
     }
 }

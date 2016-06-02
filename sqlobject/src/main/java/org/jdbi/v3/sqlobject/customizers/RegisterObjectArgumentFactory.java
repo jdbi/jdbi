@@ -23,7 +23,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.ObjectArgumentFactory;
+import org.jdbi.v3.argument.ObjectArgumentFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;

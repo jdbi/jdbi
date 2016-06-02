@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.argument;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.Types.getErasedType;
@@ -22,6 +22,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import org.jdbi.v3.Handle;
+import org.jdbi.v3.JdbiAccess;
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.junit.Rule;
@@ -37,7 +40,8 @@ public class TestArgumentRegistry
 
     private static final String I_AM_A_STRING = "I am a String";
 
-    private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
+    private final Handle handle = JdbiAccess.createHandle();
+    private final StatementContext ctx = JdbiAccess.createContext(handle);
 
     @Mock
     public PreparedStatement stmt;
@@ -45,70 +49,70 @@ public class TestArgumentRegistry
     @Test
     public void testWaffleLong() throws Exception
     {
-        argumentRegistry.findArgumentFor(Object.class, 3L, null).get().apply(1, stmt, null);
+        ctx.findArgumentFor(Object.class, 3L).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 
     @Test
     public void testWaffleShort() throws Exception
     {
-        argumentRegistry.findArgumentFor(Object.class, (short) 2000, null).get().apply(2, stmt, null);
+        ctx.findArgumentFor(Object.class, (short) 2000).get().apply(2, stmt, null);
         verify(stmt).setShort(2, (short) 2000);
     }
 
     @Test
     public void testWaffleString() throws Exception {
-        argumentRegistry.findArgumentFor(Object.class, I_AM_A_STRING, null).get().apply(3, stmt, null);
+        ctx.findArgumentFor(Object.class, I_AM_A_STRING).get().apply(3, stmt, null);
         verify(stmt).setString(3, I_AM_A_STRING);
     }
 
     @Test
     public void testExplicitWaffleLong() throws Exception {
-        argumentRegistry.findArgumentFor(Long.class, 3L, null).get().apply(1, stmt, null);
+        ctx.findArgumentFor(Long.class, 3L).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 
     @Test
     public void testExplicitWaffleShort() throws Exception {
-        argumentRegistry.findArgumentFor(short.class, (short) 2000, null).get().apply(2, stmt, null);
+        ctx.findArgumentFor(short.class, (short) 2000).get().apply(2, stmt, null);
         verify(stmt).setShort(2, (short) 2000);
     }
 
     @Test
     public void testExplicitWaffleString() throws Exception {
-        argumentRegistry.findArgumentFor(String.class, I_AM_A_STRING, null).get().apply(3, stmt, null);
+        ctx.findArgumentFor(String.class, I_AM_A_STRING).get().apply(3, stmt, null);
         verify(stmt).setString(3, I_AM_A_STRING);
     }
 
     @Test
     public void testPull88WeirdClassArgumentFactory() throws Exception
     {
-        argumentRegistry.register(new WeirdClassArgumentFactory());
+        handle.registerArgumentFactory(new WeirdClassArgumentFactory());
 
-        assertThat(argumentRegistry.findArgumentFor(Weird.class, new Weird(), null))
+        assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
-        assertThat(argumentRegistry.findArgumentFor(Weird.class, null, null))
+        assertThat(ctx.findArgumentFor(Weird.class, null))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
 
-        assertThat(argumentRegistry.findArgumentFor(Object.class, new Weird(), null))
+        assertThat(ctx.findArgumentFor(Object.class, new Weird()))
                 .isEmpty();
-        assertThat(argumentRegistry.findArgumentFor(Object.class, null, null))
+        assertThat(ctx.findArgumentFor(Object.class, null))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 
     @Test
     public void testPull88WeirdValueArgumentFactory()
     {
-        argumentRegistry.register(new WeirdValueArgumentFactory());
+        handle.registerArgumentFactory(new WeirdValueArgumentFactory());
 
-        assertThat(argumentRegistry.findArgumentFor(Weird.class, new Weird(), null))
+        assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
-        assertThat(argumentRegistry.findArgumentFor(Object.class, new Weird(), null))
+        assertThat(ctx.findArgumentFor(Object.class, new Weird()))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
 
-        assertThat(argumentRegistry.findArgumentFor(Weird.class, null, null))
+        assertThat(ctx.findArgumentFor(Weird.class, null))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
-        assertThat(argumentRegistry.findArgumentFor(Object.class, null, null))
+        assertThat(ctx.findArgumentFor(Object.class, null))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 

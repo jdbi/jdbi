@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.mapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -19,6 +19,8 @@ import static org.junit.Assert.fail;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.jdbi.v3.H2DatabaseRule;
+import org.jdbi.v3.Handle;
 import org.junit.Rule;
 import org.junit.Test;
 

@@ -11,12 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.argument;
 
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 

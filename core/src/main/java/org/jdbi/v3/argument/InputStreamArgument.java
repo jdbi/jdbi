@@ -11,25 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.argument;
 
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.Argument;
 
-/**
- *
- */
-class InputStreamArgument implements Argument
+public class InputStreamArgument implements Argument
 {
     private final InputStream value;
     private final int length;
     private final boolean ascii;
 
-    InputStreamArgument(InputStream value, int length, boolean ascii)
+    public InputStreamArgument(InputStream value, int length, boolean ascii)
     {
         this.value = value;
         this.length = length;

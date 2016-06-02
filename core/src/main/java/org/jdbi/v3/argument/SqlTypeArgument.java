@@ -11,19 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.argument;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.Argument;
 
-class SqlTypeArgument implements Argument
+public class SqlTypeArgument implements Argument
 {
     private final Object value;
     private final int sqlType;
 
-    SqlTypeArgument(Object value, int sqlType)
+    public SqlTypeArgument(Object value, int sqlType)
     {
         this.value = value;
         this.sqlType = sqlType;
