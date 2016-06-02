@@ -11,10 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.mapper;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jdbi.v3.ColumnName;
+import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.mapper.ConstructorMapper;
 import org.junit.Before;
 import org.junit.Rule;

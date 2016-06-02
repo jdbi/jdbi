@@ -11,7 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+
+package org.jdbi.v3.mapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,7 +24,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.jdbi.v3.mapper.FieldMapper;
+import org.jdbi.v3.DerivedBean;
+import org.jdbi.v3.Handle;
+import org.jdbi.v3.JdbiAccess;
+import org.jdbi.v3.SampleBean;
+import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.ValueType;
+import org.jdbi.v3.ValueTypeMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,8 +38,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-
-public class FieldMapperTest {
+public class BeanMapperTest {
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -43,20 +49,48 @@ public class FieldMapperTest {
     @Mock
     ResultSetMetaData resultSetMetaData;
 
-    JdbiConfig config = new JdbiConfig();
-    StatementContext ctx = new StatementContext(config);
+    Handle handle = JdbiAccess.createHandle();
+    StatementContext ctx = JdbiAccess.createContext(handle);
 
-    FieldMapper<SampleBean> mapper = new FieldMapper<>(SampleBean.class);
-    
+    BeanMapper<SampleBean> mapper = new BeanMapper<>(SampleBean.class);
+
     @Before
     public void setUpMocks() throws SQLException {
         when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
     }
 
     @Test
-    public void shouldSetValueOnPrivateField() throws Exception {
+    public void shouldSetValueOnPublicSetter() throws Exception {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
+
+        Long aLongVal = 100L;
+        when(resultSet.getLong(1)).thenReturn(aLongVal);
+        when(resultSet.wasNull()).thenReturn(false);
+
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
+
+        assertEquals(aLongVal, sampleBean.getLongField());
+    }
+
+    @Test
+    public void shouldHandleColumNameWithUnderscores() throws Exception {
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("LONG_FIELD");
+
+        Long aLongVal = 100L;
+        when(resultSet.getLong(1)).thenReturn(aLongVal);
+        when(resultSet.wasNull()).thenReturn(false);
+
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
+
+        assertEquals(aLongVal, sampleBean.getLongField());
+    }
+
+    @Test
+    public void shouldBeCaseInSensitiveOfColumnWithUnderscoresAndPropertyNames() throws Exception {
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNg_FiElD");
 
         Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
@@ -77,14 +111,13 @@ public class FieldMapperTest {
     }
 
     @Test
-    public void shouldBeCaseInSensitiveOfColumnAndFieldNames() throws Exception {
+    public void shouldBeCaseInSensitiveOfColumnAndPropertyNames() throws Exception {
         when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
 
         Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
         when(resultSet.wasNull()).thenReturn(false);
-
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertEquals(aLongVal, sampleBean.getLongField());
@@ -106,33 +139,57 @@ public class FieldMapperTest {
     }
 
     @Test
-    public void shouldSetValuesOnAllFieldAccessTypes() throws Exception {
-        when(resultSetMetaData.getColumnCount()).thenReturn(4);
+    public void shouldSetValuesOnPublicSetter() throws Exception {
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
-        when(resultSetMetaData.getColumnLabel(2)).thenReturn("protectedStringField");
-        when(resultSetMetaData.getColumnLabel(3)).thenReturn("packagePrivateIntField");
-        when(resultSetMetaData.getColumnLabel(4)).thenReturn("privateBigDecimalField");
 
-        Long aLongVal = 100L;
-        String aStringVal = "something";
-        int aIntVal = 1;
-        BigDecimal aBigDecimal = BigDecimal.TEN;
-        when(resultSet.getLong(1)).thenReturn(aLongVal);
-        when(resultSet.getString(2)).thenReturn(aStringVal);
-        when(resultSet.getInt(3)).thenReturn(aIntVal);
-        when(resultSet.getBigDecimal(4)).thenReturn(aBigDecimal);
+        Long expected = 1L;
+        when(resultSet.getLong(1)).thenReturn(expected);
         when(resultSet.wasNull()).thenReturn(false);
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, sampleBean.getLongField());
-        assertEquals(aBigDecimal, sampleBean.getPrivateBigDecimalField());
-        assertEquals(aIntVal, sampleBean.getPackagePrivateIntField());
-        assertEquals(aStringVal, sampleBean.getProtectedStringField());
+        assertEquals(expected, sampleBean.getLongField());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnProtectedSetter() throws Exception {
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("protectedStringField");
+
+        String expected = "string";
+        when(resultSet.getString(1)).thenReturn(expected);
+        when(resultSet.wasNull()).thenReturn(false);
+
+        mapper.map(resultSet, ctx);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnPackagePrivateSetter() throws Exception {
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("packagePrivateIntField");
+
+        int expected = 200;
+        when(resultSet.getInt(1)).thenReturn(expected);
+        when(resultSet.wasNull()).thenReturn(false);
+
+        mapper.map(resultSet, ctx);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnPrivateSetter() throws Exception {
+        when(resultSetMetaData.getColumnCount()).thenReturn(1);
+        when(resultSetMetaData.getColumnLabel(1)).thenReturn("privateBigDecimalField");
+
+        BigDecimal expected = BigDecimal.ONE;
+        when(resultSet.getBigDecimal(1)).thenReturn(expected);
+        when(resultSet.wasNull()).thenReturn(false);
+
+        mapper.map(resultSet, ctx);
     }
 
     @Test
-    public void shouldSetValuesInSuperClassFields() throws Exception {
+    public void shouldSetValuesInSuperClassProperties() throws Exception {
         when(resultSetMetaData.getColumnCount()).thenReturn(2);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
         when(resultSetMetaData.getColumnLabel(2)).thenReturn("blongField");
@@ -144,7 +201,7 @@ public class FieldMapperTest {
         when(resultSet.getLong(2)).thenReturn(bLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        FieldMapper<DerivedBean> mapper = new FieldMapper<>(DerivedBean.class);
+        BeanMapper<DerivedBean> mapper = new BeanMapper<>(DerivedBean.class);
 
         DerivedBean derivedBean = mapper.map(resultSet, ctx);
 
@@ -154,7 +211,7 @@ public class FieldMapperTest {
 
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
-        config.mappingRegistry.addColumnMapper(new ValueTypeMapper());
+        handle.registerColumnMapper(new ValueTypeMapper());
 
         when(resultSetMetaData.getColumnCount()).thenReturn(2);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");

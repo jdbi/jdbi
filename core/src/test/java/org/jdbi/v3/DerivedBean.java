@@ -14,7 +14,7 @@
 
 package org.jdbi.v3;
 
-class DerivedBean extends SampleBean {
+public class DerivedBean extends SampleBean {
     private Long blongField;
 
     public Long getBlongField() {

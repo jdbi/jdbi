@@ -11,13 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.mapper;
 
 import static org.junit.Assert.assertEquals;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.jdbi.v3.H2DatabaseRule;
+import org.jdbi.v3.Jdbi;
+import org.jdbi.v3.Something;
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.RowMapper;
 import org.junit.Before;
 import org.junit.Rule;

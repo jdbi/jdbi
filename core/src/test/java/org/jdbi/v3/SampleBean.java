@@ -16,7 +16,7 @@ package org.jdbi.v3;
 
 import java.math.BigDecimal;
 
-class SampleBean {
+public class SampleBean {
     private Long longField;
     protected String protectedStringField;
     public int packagePrivateIntField;

@@ -54,7 +54,7 @@ public final class StatementContext
         this(new JdbiConfig());
     }
 
-    public StatementContext(JdbiConfig config)
+    StatementContext(JdbiConfig config)
     {
         this.config = config;
     }
