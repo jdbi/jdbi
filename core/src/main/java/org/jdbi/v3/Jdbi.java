@@ -169,10 +169,13 @@ public class Jdbi
      * @param locator StatementLocator which will be used by all Handle instances
      *                created from this DBI
      */
-    public void setStatementLocator(StatementLocator locator)
+    public Jdbi setStatementLocator(StatementLocator locator)
     {
-        assert locator != null;
+        if (locator == null) {
+            throw new IllegalArgumentException("null statement locator");
+        }
         config.statementLocator = locator;
+        return this;
     }
 
     public StatementLocator getStatementLocator()
@@ -186,10 +189,13 @@ public class Jdbi
      *
      * @param rewriter StatementRewriter to use on all Handle instances
      */
-    public void setStatementRewriter(StatementRewriter rewriter)
+    public Jdbi setStatementRewriter(StatementRewriter rewriter)
     {
-        assert rewriter != null;
+        if (rewriter == null) {
+            throw new IllegalArgumentException("null statement rewriter");
+        }
         config.statementRewriter = rewriter;
+        return this;
     }
 
     public StatementRewriter getStatementRewriter()
@@ -209,10 +215,13 @@ public class Jdbi
      * @param handler The TransactionHandler to use for all Handle instances obtained
      *                from this DBI
      */
-    public void setTransactionHandler(TransactionHandler handler)
+    public Jdbi setTransactionHandler(TransactionHandler handler)
     {
-        assert handler != null;
+        if (handler == null) {
+            throw new IllegalArgumentException("null transaction handler");
+        }
         this.transactionhandler.set(handler);
+        return this;
     }
 
     public TransactionHandler getTransactionHandler()
@@ -256,8 +265,9 @@ public class Jdbi
      *
      * @param mapper the row mapper
      */
-    public void registerRowMapper(RowMapper<?> mapper) {
+    public Jdbi registerRowMapper(RowMapper<?> mapper) {
         config.mappingRegistry.addRowMapper(mapper);
+        return this;
     }
 
     /**
@@ -267,8 +277,9 @@ public class Jdbi
      *
      * @param factory the row mapper factory
      */
-    public void registerRowMapper(RowMapperFactory factory) {
+    public Jdbi registerRowMapper(RowMapperFactory factory) {
         config.mappingRegistry.addRowMapper(factory);
+        return this;
     }
 
     /**
@@ -278,8 +289,9 @@ public class Jdbi
      *
      * @param mapper the column mapper
      */
-    public void registerColumnMapper(ColumnMapper<?> mapper) {
+    public Jdbi registerColumnMapper(ColumnMapper<?> mapper) {
         config.mappingRegistry.addColumnMapper(mapper);
+        return this;
     }
 
     /**
@@ -289,8 +301,9 @@ public class Jdbi
      *
      * @param factory the column mapper factory
      */
-    public void registerColumnMapper(ColumnMapperFactory factory) {
+    public Jdbi registerColumnMapper(ColumnMapperFactory factory) {
         config.mappingRegistry.addColumnMapper(factory);
+        return this;
     }
 
     /**
@@ -300,9 +313,10 @@ public class Jdbi
      * @param key   The key for the attribute
      * @param value the value for the attribute
      */
-    public void define(String key, Object value)
+    public Jdbi define(String key, Object value)
     {
         config.statementAttributes.put(key, value);
+        return this;
     }
 
     /**
@@ -511,9 +525,10 @@ public class Jdbi
      *
      * @param factory the new statement builder factory.
      */
-    public void setStatementBuilderFactory(StatementBuilderFactory factory)
+    public Jdbi setStatementBuilderFactory(StatementBuilderFactory factory)
     {
         this.statementBuilderFactory.set(factory);
+        return this;
     }
 
     public StatementBuilderFactory getStatementBuilderFactory()
@@ -527,13 +542,14 @@ public class Jdbi
      *
      * @param timingCollector the new timing collector
      */
-    public void setTimingCollector(final TimingCollector timingCollector) {
+    public Jdbi setTimingCollector(final TimingCollector timingCollector) {
         if (timingCollector == null) {
             config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
         }
         else {
             config.timingCollector = timingCollector;
         }
+        return this;
     }
 
     public TimingCollector getTimingCollector()
@@ -541,22 +557,26 @@ public class Jdbi
         return config.timingCollector;
     }
 
-    public void registerArgumentFactory(ArgumentFactory argumentFactory)
+    public Jdbi registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         config.argumentRegistry.register(argumentFactory);
+        return this;
     }
 
-    public void registerCollectorFactory(CollectorFactory collectorFactory)
+    public Jdbi registerCollectorFactory(CollectorFactory collectorFactory)
     {
         config.collectorRegistry.register(collectorFactory);
+        return this;
     }
 
-    public void registerExtension(ExtensionFactory<?> extensionFactory)
+    public Jdbi registerExtension(ExtensionFactory<?> extensionFactory)
     {
         config.extensionRegistry.register(extensionFactory);
+        return this;
     }
 
-    public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
+    public <C extends ExtensionConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer) {
         config.extensionRegistry.configure(configClass, consumer);
+        return this;
     }
 }
