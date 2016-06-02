@@ -79,16 +79,19 @@ public class Handle implements Closeable
      * @param key Attribute name
      * @param value Attribute value
      */
-    public void define(String key, Object value) {
+    public Handle define(String key, Object value) {
         config.statementAttributes.put(key, value);
+        return this;
     }
 
-    public void registerArgumentFactory(ArgumentFactory argumentFactory) {
+    public Handle registerArgumentFactory(ArgumentFactory argumentFactory) {
         config.argumentRegistry.register(argumentFactory);
+        return this;
     }
 
-    public void registerCollectorFactory(CollectorFactory factory) {
+    public Handle registerCollectorFactory(CollectorFactory factory) {
         config.collectorRegistry.register(factory);
+        return this;
     }
 
     /**
@@ -98,8 +101,9 @@ public class Handle implements Closeable
      *
      * @param mapper the column mapper
      */
-    public void registerColumnMapper(ColumnMapper<?> mapper) {
+    public Handle registerColumnMapper(ColumnMapper<?> mapper) {
         config.mappingRegistry.addColumnMapper(mapper);
+        return this;
     }
 
     /**
@@ -109,12 +113,14 @@ public class Handle implements Closeable
      *
      * @param factory the column mapper factory
      */
-    public void registerColumnMapper(ColumnMapperFactory factory) {
+    public Handle registerColumnMapper(ColumnMapperFactory factory) {
         config.mappingRegistry.addColumnMapper(factory);
+        return this;
     }
 
-    public void registerExtension(ExtensionFactory<?> factory) {
+    public Handle registerExtension(ExtensionFactory<?> factory) {
         config.extensionRegistry.register(factory);
+        return this;
     }
 
     /**
@@ -124,8 +130,9 @@ public class Handle implements Closeable
      *
      * @param mapper the row mapper
      */
-    public void registerRowMapper(RowMapper<?> mapper) {
+    public Handle registerRowMapper(RowMapper<?> mapper) {
         config.mappingRegistry.addRowMapper(mapper);
+        return this;
     }
 
     /**
@@ -135,16 +142,18 @@ public class Handle implements Closeable
      *
      * @param factory the row mapper factory
      */
-    public void registerRowMapper(RowMapperFactory factory) {
+    public Handle registerRowMapper(RowMapperFactory factory) {
         config.mappingRegistry.addRowMapper(factory);
+        return this;
     }
 
     /**
      * Specify the statement builder to use for this handle.
      * @param builder StatementBuilder to be used
      */
-    public void setStatementBuilder(StatementBuilder builder) {
+    public Handle setStatementBuilder(StatementBuilder builder) {
         this.statementBuilder = builder;
+        return this;
     }
 
     /**
@@ -153,8 +162,9 @@ public class Handle implements Closeable
      *
      * @param locator the statement locator
      */
-    public void setStatementLocator(StatementLocator locator) {
+    public Handle setStatementLocator(StatementLocator locator) {
         config.statementLocator = locator;
+        return this;
     }
 
     /**
@@ -163,8 +173,9 @@ public class Handle implements Closeable
      *
      * @param rewriter the statement rewriter.
      */
-    public void setStatementRewriter(StatementRewriter rewriter) {
+    public Handle setStatementRewriter(StatementRewriter rewriter) {
         config.statementRewriter = rewriter;
+        return this;
     }
 
     /**
@@ -173,13 +184,14 @@ public class Handle implements Closeable
      *
      * @param timingCollector the timing collector
      */
-    public void setTimingCollector(final TimingCollector timingCollector) {
+    public Handle setTimingCollector(final TimingCollector timingCollector) {
         if (timingCollector == null) {
             config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
         }
         else {
             config.timingCollector = timingCollector;
         }
+        return this;
     }
 
     /**
