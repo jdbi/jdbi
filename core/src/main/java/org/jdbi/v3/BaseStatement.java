@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.BaseStatementCustomizer;
 import org.jdbi.v3.tweak.StatementCustomizer;
 
 abstract class BaseStatement
@@ -105,7 +104,7 @@ abstract class BaseStatement
         this.context.getCleanables().add(cleanable);
     }
 
-    class StatementCleaningCustomizer extends BaseStatementCustomizer
+    class StatementCleaningCustomizer implements StatementCustomizer
     {
         @Override
         public final void cleanup(final StatementContext ctx)

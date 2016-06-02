@@ -29,7 +29,7 @@ import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.tweak.BaseStatementCustomizer;
+import org.jdbi.v3.tweak.StatementCustomizer;
 
 /**
  * Used to specify the transaction isolation level for an object or method (via annotating the method
@@ -79,7 +79,7 @@ public @interface TransactionIsolation
         {
             final int initial_level = q.getContext().getConnection().getTransactionIsolation();
 
-            q.addStatementCustomizer(new BaseStatementCustomizer()
+            q.addStatementCustomizer(new StatementCustomizer()
             {
                 @Override
                 public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException

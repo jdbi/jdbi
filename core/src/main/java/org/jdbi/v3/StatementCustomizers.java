@@ -16,7 +16,6 @@ package org.jdbi.v3;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.tweak.BaseStatementCustomizer;
 import org.jdbi.v3.tweak.StatementCustomizer;
 
 public final class StatementCustomizers
@@ -34,7 +33,7 @@ public final class StatementCustomizers
     /**
      * Sets the fetch direction on a query. Can be used as a Statement customizer or a SqlStatementCustomizer.
      */
-    public static class FetchDirectionStatementCustomizer extends BaseStatementCustomizer
+    public static class FetchDirectionStatementCustomizer implements StatementCustomizer
     {
         private final Integer direction;
 
@@ -55,7 +54,7 @@ public final class StatementCustomizers
         }
     }
 
-    public static final class QueryTimeoutCustomizer extends BaseStatementCustomizer
+    public static final class QueryTimeoutCustomizer implements StatementCustomizer
     {
         private final int seconds;
 
@@ -71,7 +70,7 @@ public final class StatementCustomizers
         }
     }
 
-    public static final class FetchSizeCustomizer extends BaseStatementCustomizer
+    public static final class FetchSizeCustomizer implements StatementCustomizer
     {
         private final int fetchSize;
 
@@ -87,7 +86,7 @@ public final class StatementCustomizers
         }
     }
 
-    public static final class MaxRowsCustomizer extends BaseStatementCustomizer
+    public static final class MaxRowsCustomizer implements StatementCustomizer
     {
         private final int maxRows;
 
@@ -103,7 +102,7 @@ public final class StatementCustomizers
         }
     }
 
-    public static final class MaxFieldSizeCustomizer extends BaseStatementCustomizer
+    public static final class MaxFieldSizeCustomizer implements StatementCustomizer
     {
         private final int maxFieldSize;
 
