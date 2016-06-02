@@ -55,6 +55,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 {
     private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
 
+    private final SelfType         typedThis;
     private final Binding          params;
     private final Handle           handle;
     private final String           sql;
@@ -66,6 +67,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     private       RewrittenStatement rewritten;
     private       PreparedStatement  stmt;
 
+    @SuppressWarnings("unchecked")
     SqlStatement(JdbiConfig config,
                  Binding params,
                  Handle handle,
@@ -78,6 +80,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
         addCustomizers(statementCustomizers);
 
+        this.typedThis = (SelfType) this;
         this.statementBuilder = statementBuilder;
         this.handle = handle;
         this.sql = sql;
@@ -93,17 +96,15 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
         return config.collectorRegistry;
     }
 
-    @SuppressWarnings("unchecked")
     public SelfType registerCollectorFactory(CollectorFactory collectorFactory) {
         config.collectorRegistry.register(collectorFactory);
-        return (SelfType) this;
+        return typedThis;
     }
 
-    @SuppressWarnings("unchecked")
     public SelfType registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         getArgumentRegistry().register(argumentFactory);
-        return (SelfType) this;
+        return typedThis;
     }
 
     /**
@@ -113,10 +114,9 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    @SuppressWarnings("unchecked")
     public SelfType setStatementLocator(StatementLocator locator) {
         config.statementLocator = locator;
-        return (SelfType) this;
+        return typedThis;
     }
 
     /**
@@ -126,17 +126,15 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    @SuppressWarnings("unchecked")
     public SelfType setStatementRewriter(StatementRewriter rewriter) {
         config.statementRewriter = rewriter;
-        return (SelfType) this;
+        return typedThis;
     }
 
-    @SuppressWarnings("unchecked")
     public SelfType setFetchDirection(final int value)
     {
         addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
-        return (SelfType) this;
+        return typedThis;
     }
 
     /**
@@ -147,11 +145,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return this
      */
-    @SuppressWarnings("unchecked")
     public SelfType define(String key, Object value)
     {
         getContext().setAttribute(key, value);
-        return (SelfType) this;
+        return typedThis;
     }
 
     /**
@@ -161,7 +158,6 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return this
      */
-    @SuppressWarnings("unchecked")
     public SelfType define(final Map<String, ?> values)
     {
         final StatementContext context = getContext();
@@ -171,7 +167,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
                 context.setAttribute(entry.getKey(), entry.getValue());
             }
         }
-        return (SelfType) this;
+        return typedThis;
     }
 
     /**
@@ -182,11 +178,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return modified statement
      */
-    @SuppressWarnings("unchecked")
     public SelfType addStatementCustomizer(StatementCustomizer customizer)
     {
         super.addCustomizer(customizer);
-        return (SelfType) this;
+        return typedThis;
     }
 
     private boolean verifyOurNastyDowncastIsOkay()
@@ -249,11 +244,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    @SuppressWarnings("unchecked")
     public SelfType cleanupHandle()
     {
         super.addCleanable(Cleanables.forHandle(handle, TransactionState.ROLLBACK));
-        return (SelfType) this;
+        return typedThis;
     }
 
     /**
@@ -263,11 +257,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    @SuppressWarnings("unchecked")
     public SelfType cleanupHandle(final TransactionState state)
     {
         super.addCleanable(Cleanables.forHandle(handle, state));
-        return (SelfType) this;
+        return typedThis;
     }
 
 
@@ -294,11 +287,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    @SuppressWarnings("unchecked")
     public SelfType bind(String name, Argument argument)
     {
         getParams().addNamed(name, argument);
-        return (SelfType) this;
+        return typedThis;
     }
 
     /**
@@ -321,15 +313,12 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return modified statement
      */
-    @SuppressWarnings("unchecked")
     public SelfType bindFromMap(Map<String, ?> args)
     {
         if (args != null) {
-            return bindNamedArgumentFinder(new MapArguments(getArgumentRegistry(), getContext(), args));
+            bindNamedArgumentFinder(new MapArguments(getArgumentRegistry(), getContext(), args));
         }
-        else {
-            return (SelfType) this;
-        }
+        return typedThis;
     }
 
     /**
@@ -339,14 +328,13 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    @SuppressWarnings("unchecked")
     public SelfType bindNamedArgumentFinder(final NamedArgumentFinder namedArgumentFinder)
     {
         if (namedArgumentFinder != null) {
             getParams().addNamedArgumentFinder(namedArgumentFinder);
         }
 
-        return (SelfType) this;
+        return typedThis;
     }
 
     /**
