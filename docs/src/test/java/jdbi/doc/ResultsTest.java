@@ -25,12 +25,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.ColumnMapperFactory;
-import org.jdbi.v3.ConstructorMapper;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.RowMapperFactory;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.mapper.ColumnMapperFactory;
+import org.jdbi.v3.mapper.ConstructorMapper;
+import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.junit.Before;

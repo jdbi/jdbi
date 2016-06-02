@@ -33,6 +33,8 @@ import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionConsumer;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
+import org.jdbi.v3.mapper.ColumnMapperFactory;
+import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ArgumentFactory;

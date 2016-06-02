@@ -121,16 +121,16 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(GenericType<GeneratedKeyType> generatedKeyType) {
-        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType.getType(), config.mappingRegistry));
+        return executeAndGenerateKeys(rowMapperForType(generatedKeyType));
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType) {
-        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType, config.mappingRegistry));
+        return executeAndGenerateKeys(rowMapperForType(generatedKeyType));
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType,
                                                                                      String... columnNames) {
-        return executeAndGenerateKeys(new RegisteredRowMapper<>(generatedKeyType, config.mappingRegistry), columnNames);
+        return executeAndGenerateKeys(rowMapperForType(generatedKeyType), columnNames);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(ColumnMapper<GeneratedKeyType> mapper,

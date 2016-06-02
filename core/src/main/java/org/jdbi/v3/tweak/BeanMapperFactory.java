@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.v3.BeanMapper;
-import org.jdbi.v3.RowMapperFactory;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.mapper.BeanMapper;
+import org.jdbi.v3.mapper.RowMapperFactory;
 
 public class BeanMapperFactory implements RowMapperFactory
 {

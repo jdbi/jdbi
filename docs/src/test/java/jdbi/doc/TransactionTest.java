@@ -23,12 +23,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.jdbi.v3.ConstructorMapper;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.TransactionStatus;
+import org.jdbi.v3.mapper.ConstructorMapper;
 import org.jdbi.v3.pg.PostgresDbRule;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;

@@ -11,21 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.mapper;
 
 import static org.jdbi.v3.Types.findGenericParameter;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.RowMapper;
 
-class InferredMapperFactory implements RowMapperFactory
+public class InferredRowMapperFactory implements RowMapperFactory
 {
     private final Type maps;
     private final RowMapper<?> mapper;
 
-    InferredMapperFactory(RowMapper<?> mapper)
+    public InferredRowMapperFactory(RowMapper<?> mapper)
     {
         this.maps = findGenericParameter(mapper.getClass(), RowMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed RowMapper here"));

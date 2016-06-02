@@ -22,6 +22,10 @@ import java.util.Collection;
 import java.util.Locale;
 
 import org.jdbi.v3.exceptions.ResultSetException;
+import org.jdbi.v3.mapper.BeanMapper;
+import org.jdbi.v3.mapper.ColumnMapperFactory;
+import org.jdbi.v3.mapper.InferredRowMapperFactory;
+import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
@@ -142,7 +146,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      * @see Handle#registerRowMapper(RowMapper)
      */
     public Query<?> mapTo(Type resultType) {
-        return this.map(new RegisteredRowMapper<>(resultType, config.mappingRegistry));
+        return this.map(rowMapperForType(resultType));
     }
 
     public <T> Query<T> map(RowMapper<T> mapper)
@@ -240,7 +244,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
 
     public void registerRowMapper(RowMapper<?> m)
     {
-        config.mappingRegistry.addRowMapper(new InferredMapperFactory(m));
+        config.mappingRegistry.addRowMapper(new InferredRowMapperFactory(m));
     }
 
     public void registerRowMapper(RowMapperFactory m)

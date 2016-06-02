@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.RowMapperFactory;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.TestRegisterRowMapperFactory.Foo.FooMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapperFactory;
 import org.jdbi.v3.tweak.RowMapper;

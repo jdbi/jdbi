@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.mapper;
 
 import static org.jdbi.v3.Types.getErasedType;
 
@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.util.EnumMapper;
 

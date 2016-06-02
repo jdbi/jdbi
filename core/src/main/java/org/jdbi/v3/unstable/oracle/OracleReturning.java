@@ -71,7 +71,7 @@ public class OracleReturning<ResultType> extends BaseStatementCustomizer impleme
 
     /**
      * Provide a mapper which knows how to do positional access, sadly the
-     * {@link org.jdbi.v3.BeanMapper} uses the names in the result set
+     * {@link org.jdbi.v3.mapper.BeanMapper} uses the names in the result set
      *
      * @param mapper Must use only positional access to the result set
      */

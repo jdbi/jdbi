@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.mapper;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exceptions.ResultSetException;
 import org.jdbi.v3.tweak.RowMapper;
 

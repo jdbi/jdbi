@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.jdbi.v3.mapper.FieldMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jdbi.v3.mapper.ConstructorMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

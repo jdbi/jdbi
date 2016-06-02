@@ -11,21 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.mapper;
 
 import static org.jdbi.v3.Types.findGenericParameter;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ColumnMapper;
 
-class InferredColumnMapperFactory implements ColumnMapperFactory
+public class InferredColumnMapperFactory implements ColumnMapperFactory
 {
     private final Type maps;
     private final ColumnMapper<?> mapper;
 
-    InferredColumnMapperFactory(ColumnMapper<?> mapper)
+    public InferredColumnMapperFactory(ColumnMapper<?> mapper)
     {
         this.maps = findGenericParameter(mapper.getClass(), ColumnMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here"));

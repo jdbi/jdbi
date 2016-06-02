@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.mapper.DefaultMapper;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
@@ -85,11 +86,11 @@ public class Update extends SqlStatement<Update>
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(GenericType<GeneratedKeyType> generatedKeyType) {
-        return executeAndReturnGeneratedKeys(new RegisteredRowMapper<>(generatedKeyType.getType(), config.mappingRegistry), null);
+        return executeAndReturnGeneratedKeys(rowMapperForType(generatedKeyType), null);
     }
 
     public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndReturnGeneratedKeys(Class<GeneratedKeyType> generatedKeyType) {
-        return executeAndReturnGeneratedKeys(new RegisteredRowMapper<>(generatedKeyType, config.mappingRegistry), null);
+        return executeAndReturnGeneratedKeys(rowMapperForType(generatedKeyType), null);
     }
 
     public GeneratedKeys<Map<String, Object>> executeAndReturnGeneratedKeys()

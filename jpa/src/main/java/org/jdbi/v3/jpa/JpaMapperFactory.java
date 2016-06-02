@@ -20,8 +20,8 @@ import java.util.Optional;
 
 import javax.persistence.Entity;
 
-import org.jdbi.v3.RowMapperFactory;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.tweak.RowMapper;
 
 public class JpaMapperFactory implements RowMapperFactory {

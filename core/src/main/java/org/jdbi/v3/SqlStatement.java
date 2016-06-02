@@ -35,6 +35,7 @@ import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
+import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
@@ -1319,5 +1320,23 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     protected TimingCollector getTimingCollector()
     {
         return config.timingCollector;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> RowMapper<T> rowMapperForType(Class<T> type)
+    {
+        return (RowMapper<T>) rowMapperForType((Type) type);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> RowMapper<T> rowMapperForType(GenericType<T> type)
+    {
+        return (RowMapper<T>) rowMapperForType(type.getType());
+    }
+
+    protected RowMapper<?> rowMapperForType(Type type)
+    {
+        return config.mappingRegistry.findRowMapperFor(type, getContext())
+            .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 }
