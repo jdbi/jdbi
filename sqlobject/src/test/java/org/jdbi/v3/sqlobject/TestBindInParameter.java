@@ -16,15 +16,15 @@ package org.jdbi.v3.sqlobject;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.common.collect.Lists;
-
-import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.unstable.BindIn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 public class TestBindInParameter {
 
@@ -65,13 +65,13 @@ public class TestBindInParameter {
     }
 
     public interface MyDAO {
-        @SqlQuery("select * from foo where bar < 12 and id in (<ids>)")
-        Object broken();
+        @SqlQuery("select count(*) from foo where bar < 12 and id in (<ids>)")
+        int broken();
 
-        @SqlQuery("select * from foo where bar \\< 12 and id in (<ids>)")
-        Object works(@BindIn("ids") List<Long> ids);
+        @SqlQuery("select count(*) from foo where bar \\< 12 and id in (<ids>)")
+        int works(@BindIn("ids") List<Long> ids);
 
-        @SqlQuery("select * from foo where id in (<ids>)")
-        Object ids(@BindIn("ids") List<Integer> ids);
+        @SqlQuery("select count(*) from foo where id in (<ids>)")
+        int ids(@BindIn("ids") List<Integer> ids);
     }
 }
