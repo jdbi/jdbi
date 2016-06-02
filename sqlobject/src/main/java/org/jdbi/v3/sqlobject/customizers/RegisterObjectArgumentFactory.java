@@ -42,7 +42,7 @@ public @interface RegisterObjectArgumentFactory
      * The argument type(s) which are compatible with {@link java.sql.PreparedStatement#setObject(int, Object)}.
      * @return the argument types
      */
-    Class<? extends Class<?>>[] value();
+    Class<?>[] value();
 
     /**
      * SQL type constant(s) from {@link Types}. If omitted, defaults to {@link Types#NULL}. If specified, must have the
@@ -68,7 +68,7 @@ public @interface RegisterObjectArgumentFactory
 
         private SqlStatementCustomizer create(RegisterObjectArgumentFactory annotation)
         {
-            Class<? extends Class<?>>[] classes = annotation.value();
+            Class<?>[] classes = annotation.value();
             int[] sqlTypes = annotation.sqlType();
 
             if (sqlTypes.length != 0 && sqlTypes.length != classes.length) {
@@ -77,7 +77,7 @@ public @interface RegisterObjectArgumentFactory
 
             List<ArgumentFactory> factories = new ArrayList<>(classes.length);
             for (int i = 0; i < classes.length; i++) {
-                Class<? extends Class<?>> clazz = classes[i];
+                Class<?> clazz = classes[i];
                 int sqlType = sqlTypes.length == 0 ? Types.NULL : sqlTypes[i];
 
                 factories.add(ObjectArgumentFactory.create(clazz, sqlType));
