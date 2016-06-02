@@ -21,6 +21,11 @@ import java.util.Optional;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ColumnMapper;
 
+/**
+ * A generic ColumnMapperFactory that reflectively inspects a
+ * {@code ColumnMapper<T>} and maps only to columns of type
+ * {@code T}.
+ */
 public class InferredColumnMapperFactory implements ColumnMapperFactory
 {
     private final Type maps;

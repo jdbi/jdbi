@@ -21,6 +21,13 @@ import java.util.Optional;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.RowMapper;
 
+/**
+ * A generic RowMapperFactory that reflectively inspects a
+ * {@code RowMapper<T>} and maps only to columns of type
+ * {@code T}.  The type parameter T must be accessible
+ * via reflection or an {@link UnsupportedOperationException}
+ * will be thrown.
+ */
 public class InferredRowMapperFactory implements RowMapperFactory
 {
     private final Type maps;
