@@ -22,17 +22,17 @@ import org.jdbi.v3.StatementContext;
 public class ObjectArgumentFactory implements ArgumentFactory
 {
     public static ArgumentFactory create(Class<?> type) {
-        return create(type, java.sql.Types.NULL);
+        return create(type, null);
     }
 
-    public static ArgumentFactory create(Class<?> type, int sqlType) {
+    public static ArgumentFactory create(Class<?> type, Integer sqlType) {
         return new ObjectArgumentFactory(type, sqlType);
     }
 
     private final Class<?> type;
-    private final int sqlType;
+    private final Integer sqlType;
 
-    private ObjectArgumentFactory(Class<?> type, int sqlType) {
+    private ObjectArgumentFactory(Class<?> type, Integer sqlType) {
         this.type = type;
         this.sqlType = sqlType;
     }

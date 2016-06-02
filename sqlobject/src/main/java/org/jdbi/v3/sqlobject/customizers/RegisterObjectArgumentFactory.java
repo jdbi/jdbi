@@ -45,7 +45,7 @@ public @interface RegisterObjectArgumentFactory
     Class<?>[] value();
 
     /**
-     * SQL type constant(s) from {@link Types}. If omitted, defaults to {@link Types#NULL}. If specified, must have the
+     * SQL type constant(s) from {@link Types}. If omitted, defaults to not setting a type. If specified, must have the
      * same number of elements as {@link #value()}. Each <code>sqlType</code> element is applied to the
      * <code>value</code> element at the same index.
      * @return SQL types corresponding pairwise to the elements in {@link #value()}.
@@ -78,7 +78,7 @@ public @interface RegisterObjectArgumentFactory
             List<ArgumentFactory> factories = new ArrayList<>(classes.length);
             for (int i = 0; i < classes.length; i++) {
                 Class<?> clazz = classes[i];
-                int sqlType = sqlTypes.length == 0 ? Types.NULL : sqlTypes[i];
+                Integer sqlType = sqlTypes.length == 0 ? null : sqlTypes[i];
 
                 factories.add(ObjectArgumentFactory.create(clazz, sqlType));
             }
