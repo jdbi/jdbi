@@ -25,15 +25,15 @@ import java.util.concurrent.Future;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.mapper.ConstructorMapper;
 import org.jdbi.v3.pg.PostgresDbRule;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.Transaction;
 import org.jdbi.v3.transaction.SerializableTransactionRunner;
+import org.jdbi.v3.transaction.TransactionCallback;
+import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.transaction.TransactionStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

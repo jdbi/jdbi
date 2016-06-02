@@ -37,7 +37,10 @@ import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.statement.StatementBuilder;
 import org.jdbi.v3.statement.StatementCustomizer;
 import org.jdbi.v3.statement.StatementLocator;
+import org.jdbi.v3.transaction.TransactionCallback;
+import org.jdbi.v3.transaction.TransactionConsumer;
 import org.jdbi.v3.transaction.TransactionHandler;
+import org.jdbi.v3.transaction.TransactionIsolationLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

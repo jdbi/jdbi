@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.transaction;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,6 +21,9 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.List;
 
+import org.jdbi.v3.H2DatabaseRule;
+import org.jdbi.v3.Handle;
+import org.jdbi.v3.Something;
 import org.jdbi.v3.exception.JdbiException;
 import org.jdbi.v3.exception.TransactionException;
 import org.jdbi.v3.exception.TransactionFailedException;

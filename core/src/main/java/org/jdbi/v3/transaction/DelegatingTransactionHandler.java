@@ -14,8 +14,6 @@
 package org.jdbi.v3.transaction;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionIsolationLevel;
 
 public class DelegatingTransactionHandler implements TransactionHandler
 {

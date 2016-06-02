@@ -16,8 +16,6 @@ package org.jdbi.v3.transaction;
 import java.sql.SQLException;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionIsolationLevel;
 
 /**
  * A TransactionHandler that automatically retries transactions that fail due to

@@ -11,9 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.transaction;
 
-public enum TransactionState
+/**
+ * Allows rolling back a transaction in a TransactionCallback
+ */
+public interface TransactionStatus
 {
-    ROLLBACK, COMMIT
+    /**
+     * Force the transaction to be rolled back
+     */
+    void setRollbackOnly();
 }

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.transaction;
 
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -23,6 +23,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.jdbi.v3.Handle;
+import org.jdbi.v3.Jdbi;
 import org.junit.Test;
 import org.mockito.InOrder;
 

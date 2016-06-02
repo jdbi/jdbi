@@ -14,8 +14,6 @@
 package org.jdbi.v3.transaction;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionIsolationLevel;
 
 /**
  * Interface which defines callbacks to be used when transaction methods are called on a handle.

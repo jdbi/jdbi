@@ -11,15 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.transaction;
+
+import org.jdbi.v3.Handle;
 
 /**
- * Allows rolling back a transaction in a TransactionCallback
+ * Used as a callback which guarantees that the inTransaction method is invoked in
+ * a transaction, and will be committed or rolled back as specified.
  */
-public interface TransactionStatus
+@FunctionalInterface
+public interface TransactionCallback<R, X extends Exception>
 {
-    /**
-     * Force the transaction to be rolled back
-     */
-    void setRollbackOnly();
+    R inTransaction(Handle handle, TransactionStatus status) throws X;
 }

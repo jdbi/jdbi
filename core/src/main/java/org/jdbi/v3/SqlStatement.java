@@ -43,6 +43,7 @@ import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.statement.StatementBuilder;
 import org.jdbi.v3.statement.StatementCustomizer;
 import org.jdbi.v3.statement.StatementLocator;
+import org.jdbi.v3.transaction.TransactionState;
 import org.jdbi.v3.util.GenericType;
 import org.jdbi.v3.util.Types;
 import org.slf4j.Logger;

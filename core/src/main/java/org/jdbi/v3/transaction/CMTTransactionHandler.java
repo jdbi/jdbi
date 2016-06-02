@@ -16,9 +16,6 @@ package org.jdbi.v3.transaction;
 import java.sql.SQLException;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exception.TransactionException;
 
 /**
