@@ -64,30 +64,122 @@ public class Handle implements Closeable
     }
 
     /**
-     * Return a default Query instance which can be executed later, as long as this handle remains open.
-     * @param sql the select sql
-     *
-     * @return the Query
-     */
-    public Query<Map<String, Object>> createQuery(String sql) {
-        JdbiConfig queryConfig = JdbiConfig.copyOf(config);
-        return new Query<>(queryConfig,
-                new Binding(),
-                new DefaultMapper(),
-                this,
-                statementBuilder,
-                sql,
-                new StatementContext(queryConfig),
-                Collections.<StatementCustomizer>emptyList());
-    }
-
-    /**
      * Get the JDBC Connection this Handle uses.
      *
      * @return the JDBC Connection this Handle uses
      */
     public Connection getConnection() {
         return this.connection;
+    }
+
+    /**
+     * Define a statement attribute which will be applied to all {@link StatementContext}
+     * instances for statements created from this handle.
+     *
+     * @param key Attribute name
+     * @param value Attribute value
+     */
+    public void define(String key, Object value) {
+        config.statementAttributes.put(key, value);
+    }
+
+    public void registerArgumentFactory(ArgumentFactory argumentFactory) {
+        config.argumentRegistry.register(argumentFactory);
+    }
+
+    public void registerCollectorFactory(CollectorFactory factory) {
+        config.collectorRegistry.register(factory);
+    }
+
+    /**
+     * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
+     *
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param mapper the column mapper
+     */
+    public void registerColumnMapper(ColumnMapper<?> mapper) {
+        config.mappingRegistry.addColumnMapper(mapper);
+    }
+
+    /**
+     * Register a column mapper factory.
+     *
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param factory the column mapper factory
+     */
+    public void registerColumnMapper(ColumnMapperFactory factory) {
+        config.mappingRegistry.addColumnMapper(factory);
+    }
+
+    public void registerExtension(ExtensionFactory<?> factory) {
+        config.extensionRegistry.register(factory);
+    }
+
+    /**
+     * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     *
+     * @param mapper the row mapper
+     */
+    public void registerRowMapper(RowMapper<?> mapper) {
+        config.mappingRegistry.addRowMapper(mapper);
+    }
+
+    /**
+     * Register a row mapper factory.
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
+     *
+     * @param factory the row mapper factory
+     */
+    public void registerRowMapper(RowMapperFactory factory) {
+        config.mappingRegistry.addRowMapper(factory);
+    }
+
+    /**
+     * Specify the statement builder to use for this handle.
+     * @param builder StatementBuilder to be used
+     */
+    public void setStatementBuilder(StatementBuilder builder) {
+        this.statementBuilder = builder;
+    }
+
+    /**
+     * Allows for overriding the default statement locator. The default searches the
+     * classpath for named statements
+     *
+     * @param locator the statement locator
+     */
+    public void setStatementLocator(StatementLocator locator) {
+        config.statementLocator = locator;
+    }
+
+    /**
+     * Allows for overiding the default statement rewriter. The default handles
+     * named parameter interpolation.
+     *
+     * @param rewriter the statement rewriter.
+     */
+    public void setStatementRewriter(StatementRewriter rewriter) {
+        config.statementRewriter = rewriter;
+    }
+
+    /**
+     * Specify the class used to collect timing information. The default is inherited from the DBI used
+     * to create this Handle.
+     *
+     * @param timingCollector the timing collector
+     */
+    public void setTimingCollector(final TimingCollector timingCollector) {
+        if (timingCollector == null) {
+            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
+        }
+        else {
+            config.timingCollector = timingCollector;
+        }
     }
 
     /**
@@ -119,14 +211,157 @@ public class Handle implements Closeable
     }
 
     /**
-     * Define a statement attribute which will be applied to all {@link StatementContext}
-     * instances for statements created from this handle.
-     *
-     * @param key Attribute name
-     * @param value Attribute value
+     * Execute some SQL with no return value
+     * @param sql the sql to execute
+     * @param args arguments to bind to the sql
      */
-    public void define(String key, Object value) {
-        config.statementAttributes.put(key, value);
+    public void execute(String sql, Object... args) {
+        this.update(sql, args);
+    }
+
+    /**
+     * Execute a simple insert statement.
+     *
+     * @param sql the insert SQL
+     * @param args positional arguments
+     *
+     * @return the number of rows inserted
+     */
+    public int insert(String sql, Object... args) {
+        return update(sql, args);
+    }
+
+    /**
+     * Convenience method which executes a select with purely positional arguments
+     * @param sql SQL or named statement
+     * @param args arguments to bind positionally
+     * @return results of the query
+     */
+    public List<Map<String, Object>> select(String sql, Object... args) {
+        Query<Map<String, Object>> query = this.createQuery(sql);
+        int position = 0;
+        for (Object arg : args) {
+            query.bind(position++, arg);
+        }
+        return query.list();
+    }
+
+    /**
+     * Execute a simple update statement
+     *
+     * @param sql the update SQL
+     * @param args positional arguments
+     *
+     * @return the number of updated inserted
+     */
+    public int update(String sql, Object... args) {
+        Update stmt = createStatement(sql);
+        int position = 0;
+        for (Object arg : args) {
+            stmt.bind(position++, arg);
+        }
+        return stmt.execute();
+    }
+
+    /**
+     * Create a non-prepared (no bound parameters, but different SQL) batch statement.
+     * @return empty batch
+     * @see Handle#prepareBatch(String)
+     */
+    public Batch createBatch() {
+        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        return new Batch(batchConfig,
+                         this.connection,
+                         new StatementContext(batchConfig));
+    }
+
+    /**
+     * Prepare a batch to execute. This is for efficiently executing more than one
+     * of the same statements with different parameters bound.
+     *
+     * @param sql the batch SQL
+     * @return a batch which can have "statements" added
+     */
+    public PreparedBatch prepareBatch(String sql) {
+        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        return new PreparedBatch(batchConfig,
+                                 this,
+                                 statementBuilder,
+                                 sql,
+                                 new StatementContext(batchConfig),
+                                 Collections.<StatementCustomizer>emptyList());
+    }
+
+    /**
+     * Create a call to a stored procedure
+     *
+     * @param sql the stored procedure sql
+     *
+     * @return the Call
+     */
+    public Call createCall(String sql) {
+        JdbiConfig callConfig = JdbiConfig.copyOf(config);
+        return new Call(callConfig,
+                        this,
+                        statementBuilder,
+                        sql,
+                        new StatementContext(callConfig),
+                        Collections.<StatementCustomizer>emptyList());
+    }
+
+    /**
+     * Return a default Query instance which can be executed later, as long as this handle remains open.
+     * @param sql the select sql
+     *
+     * @return the Query
+     */
+    public Query<Map<String, Object>> createQuery(String sql) {
+        JdbiConfig queryConfig = JdbiConfig.copyOf(config);
+        return new Query<>(queryConfig,
+                new Binding(),
+                new DefaultMapper(),
+                this,
+                statementBuilder,
+                sql,
+                new StatementContext(queryConfig),
+                Collections.<StatementCustomizer>emptyList());
+    }
+
+    /**
+     * Creates an SQL script, looking for the source of the script using the
+     * current statement locator (which defaults to searching the classpath).
+     *
+     * @param name the script name (passed to the statement locator)
+     *
+     * @return the created Script.
+     */
+    public Script createScript(String name) {
+        JdbiConfig scriptConfig = JdbiConfig.copyOf(config);
+        return new Script(scriptConfig, this, name, new StatementContext(scriptConfig));
+    }
+
+    /**
+     * Create an Insert or Update statement which returns the number of rows modified.
+     *
+     * @param sql The statement sql
+     *
+     * @return the Update
+     */
+    public Update createStatement(String sql) {
+        JdbiConfig updateConfig = JdbiConfig.copyOf(config);
+        return new Update(updateConfig,
+                          this,
+                          statementBuilder,
+                          sql,
+                          new StatementContext(updateConfig));
+    }
+
+    /**
+     * @return whether the handle is in a transaction. Delegates to the underlying
+     *         {@link org.jdbi.v3.tweak.TransactionHandler}.
+     */
+    public boolean isInTransaction() {
+        return transactions.isInTransaction(this);
     }
 
     /**
@@ -204,14 +439,6 @@ public class Handle implements Closeable
     }
 
     /**
-     * @return whether the handle is in a transaction. Delegates to the underlying
-     *         {@link org.jdbi.v3.tweak.TransactionHandler}.
-     */
-    public boolean isInTransaction() {
-        return transactions.isInTransaction(this);
-    }
-
-    /**
      * Executes <code>callback</code> in a transaction, and returns the result of the callback.
      *
      * @param callback a callback which will receive an open handle, in a transaction.
@@ -224,120 +451,6 @@ public class Handle implements Closeable
      */
     public <R, X extends Exception> R inTransaction(TransactionCallback<R, X> callback) throws X {
         return transactions.inTransaction(this, callback);
-    }
-
-    /**
-     * Specify the statement builder to use for this handle.
-     * @param builder StatementBuilder to be used
-     */
-    public void setStatementBuilder(StatementBuilder builder) {
-        this.statementBuilder = builder;
-    }
-
-    /**
-     * Specify the class used to collect timing information. The default is inherited from the DBI used
-     * to create this Handle.
-     *
-     * @param timingCollector the timing collector
-     */
-    public void setTimingCollector(final TimingCollector timingCollector) {
-        if (timingCollector == null) {
-            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
-        }
-        else {
-            config.timingCollector = timingCollector;
-        }
-    }
-
-    /**
-     * Create an Insert or Update statement which returns the number of rows modified.
-     *
-     * @param sql The statement sql
-     *
-     * @return the Update
-     */
-    public Update createStatement(String sql) {
-        JdbiConfig updateConfig = JdbiConfig.copyOf(config);
-        return new Update(updateConfig,
-                          this,
-                          statementBuilder,
-                          sql,
-                          new StatementContext(updateConfig));
-    }
-
-    /**
-     * Create a call to a stored procedure
-     *
-     * @param sql the stored procedure sql
-     *
-     * @return the Call
-     */
-    public Call createCall(String sql) {
-        JdbiConfig callConfig = JdbiConfig.copyOf(config);
-        return new Call(callConfig,
-                        this,
-                        statementBuilder,
-                        sql,
-                        new StatementContext(callConfig),
-                        Collections.<StatementCustomizer>emptyList());
-    }
-
-    /**
-     * Execute a simple insert statement.
-     *
-     * @param sql the insert SQL
-     * @param args positional arguments
-     *
-     * @return the number of rows inserted
-     */
-    public int insert(String sql, Object... args) {
-        return update(sql, args);
-    }
-
-    /**
-     * Execute a simple update statement
-     *
-     * @param sql the update SQL
-     * @param args positional arguments
-     *
-     * @return the number of updated inserted
-     */
-    public int update(String sql, Object... args) {
-        Update stmt = createStatement(sql);
-        int position = 0;
-        for (Object arg : args) {
-            stmt.bind(position++, arg);
-        }
-        return stmt.execute();
-    }
-
-    /**
-     * Prepare a batch to execute. This is for efficiently executing more than one
-     * of the same statements with different parameters bound.
-     *
-     * @param sql the batch SQL
-     * @return a batch which can have "statements" added
-     */
-    public PreparedBatch prepareBatch(String sql) {
-        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
-        return new PreparedBatch(batchConfig,
-                                 this,
-                                 statementBuilder,
-                                 sql,
-                                 new StatementContext(batchConfig),
-                                 Collections.<StatementCustomizer>emptyList());
-    }
-
-    /**
-     * Create a non-prepared (no bound parameters, but different SQL) batch statement.
-     * @return empty batch
-     * @see Handle#prepareBatch(String)
-     */
-    public Batch createBatch() {
-        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
-        return new Batch(batchConfig,
-                         this.connection,
-                         new StatementContext(batchConfig));
     }
 
     /**
@@ -418,120 +531,6 @@ public class Handle implements Closeable
     }
 
     /**
-     * Convenience method which executes a select with purely positional arguments
-     * @param sql SQL or named statement
-     * @param args arguments to bind positionally
-     * @return results of the query
-     */
-    public List<Map<String, Object>> select(String sql, Object... args) {
-        Query<Map<String, Object>> query = this.createQuery(sql);
-        int position = 0;
-        for (Object arg : args) {
-            query.bind(position++, arg);
-        }
-        return query.list();
-    }
-
-    /**
-     * Allows for overriding the default statement locator. The default searches the
-     * classpath for named statements
-     *
-     * @param locator the statement locator
-     */
-    public void setStatementLocator(StatementLocator locator) {
-        config.statementLocator = locator;
-    }
-
-    /**
-     * Allows for overiding the default statement rewriter. The default handles
-     * named parameter interpolation.
-     *
-     * @param rewriter the statement rewriter.
-     */
-    public void setStatementRewriter(StatementRewriter rewriter) {
-        config.statementRewriter = rewriter;
-    }
-
-    /**
-     * Creates an SQL script, looking for the source of the script using the
-     * current statement locator (which defaults to searching the classpath).
-     *
-     * @param name the script name (passed to the statement locator)
-     *
-     * @return the created Script.
-     */
-    public Script createScript(String name) {
-        JdbiConfig scriptConfig = JdbiConfig.copyOf(config);
-        return new Script(scriptConfig, this, name, new StatementContext(scriptConfig));
-    }
-
-    /**
-     * Execute some SQL with no return value
-     * @param sql the sql to execute
-     * @param args arguments to bind to the sql
-     */
-    public void execute(String sql, Object... args) {
-        this.update(sql, args);
-    }
-
-    /**
-     * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
-     *
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * @param mapper the row mapper
-     */
-    public void registerRowMapper(RowMapper<?> mapper) {
-        config.mappingRegistry.addRowMapper(mapper);
-    }
-
-    /**
-     * Register a row mapper factory.
-     *
-     * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
-     *
-     * @param factory the row mapper factory
-     */
-    public void registerRowMapper(RowMapperFactory factory) {
-        config.mappingRegistry.addRowMapper(factory);
-    }
-
-    /**
-     * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
-     *
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * @param mapper the column mapper
-     */
-    public void registerColumnMapper(ColumnMapper<?> mapper) {
-        config.mappingRegistry.addColumnMapper(mapper);
-    }
-
-    /**
-     * Register a column mapper factory.
-     *
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * @param factory the column mapper factory
-     */
-    public void registerColumnMapper(ColumnMapperFactory factory) {
-        config.mappingRegistry.addColumnMapper(factory);
-    }
-
-    /**
-     * Create a JDBI extension object of the specified type bound to this handle. The returned extension's lifecycle is
-     * coupled to the lifecycle of this handle. Closing the handle will render the extension unusable.
-     *
-     * @param extensionType the extension class
-     * @param <T> the extension type
-     * @return the new extension object bound to this handle
-     */
-    public <T> T attach(Class<T> extensionType) {
-        return config.extensionRegistry.findExtensionFor(extensionType, () -> this)
-                .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
-    }
-
-    /**
      * Set the transaction isolation level on the underlying connection.
      *
      * @param level the isolation level to use
@@ -572,16 +571,17 @@ public class Handle implements Closeable
         }
     }
 
-    public void registerArgumentFactory(ArgumentFactory argumentFactory) {
-        config.argumentRegistry.register(argumentFactory);
-    }
-
-    public void registerCollectorFactory(CollectorFactory factory) {
-        config.collectorRegistry.register(factory);
-    }
-
-    public void registerExtension(ExtensionFactory<?> factory) {
-        config.extensionRegistry.register(factory);
+    /**
+     * Create a JDBI extension object of the specified type bound to this handle. The returned extension's lifecycle is
+     * coupled to the lifecycle of this handle. Closing the handle will render the extension unusable.
+     *
+     * @param extensionType the extension class
+     * @param <T> the extension type
+     * @return the new extension object bound to this handle
+     */
+    public <T> T attach(Class<T> extensionType) {
+        return config.extensionRegistry.findExtensionFor(extensionType, () -> this)
+                .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
     public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
