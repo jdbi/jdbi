@@ -32,7 +32,7 @@ class HashCodeHandler implements Handler
         }
         catch (NoSuchMethodException e)
         {
-            throw new IllegalStateException("JVM error");
+            throw new IllegalStateException("JVM error", e);
         }
     }
 

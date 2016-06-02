@@ -112,4 +112,11 @@ public class Binding
         b.append("}");
         return b.toString();
     }
+
+    public void clear()
+    {
+        positionals.clear();
+        named.clear();
+        namedArgumentFinder.clear();
+    }
 }

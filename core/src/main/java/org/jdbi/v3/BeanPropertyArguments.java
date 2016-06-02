@@ -24,9 +24,6 @@ import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 
-/**
- *
- */
 class BeanPropertyArguments implements NamedArgumentFinder
 {
     private final Object bean;

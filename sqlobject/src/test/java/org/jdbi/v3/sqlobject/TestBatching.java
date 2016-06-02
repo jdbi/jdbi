@@ -151,9 +151,25 @@ public class TestBatching
         b.insertBeans();
     }
 
-    @RegisterRowMapper(SomethingMapper.class)
+    @Test(timeout=5000, expected=UnableToCreateStatementException.class)
+    public void testForgotIterableInt() throws Exception
+    {
+        handle.execute("CREATE TABLE test (id int)");
+        UsesBatching b = handle.attach(UsesBatching.class);
+        b.invalidInsertInt(1);
+    }
+
+    @Test(timeout=5000, expected=UnableToCreateStatementException.class)
+    public void testForgotIterableString() throws Exception
+    {
+        handle.execute("CREATE TABLE test (id varchar)");
+        UsesBatching b = handle.attach(UsesBatching.class);
+        b.invalidInsertString("bob");
+    }
+
     @BatchChunkSize(4)
     @UseStringTemplate3StatementLocator
+    @RegisterRowMapper(SomethingMapper.class)
     public interface UsesBatching
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
@@ -177,6 +193,12 @@ public class TestBatching
 
         @SqlQuery("select count(*) from something")
         int size();
+
+        @SqlBatch("insert into test (id) values (:id)")
+        void invalidInsertInt(@Bind("id") int id);
+
+        @SqlBatch("insert into test (id) values (:id)")
+        void invalidInsertString(@Bind("id") String id);
     }
 
     interface BadBatch

@@ -1,3 +1,15 @@
+2.74
+  - cglib 3.2.2, asm 5.1; fixes codegen for new Java 8 bridge methods
+  - @UseStringTemplate3StatementLocator now caches created locators
+
+2.73
+  - Allow clearing of bindings in SQLStatement
+  - (finally!) parse Postgres CAST syntax 'value::type' properly in colon
+    prefix statements
+  - fix @SqlBatch hanging if you forget to include an Iterable-like param
+  - fix @SqlUpdate @GetGeneratedKeys to allow non-number return types
+  - Expose Foreman on StatementContext
+
 2.72
   - Support for the ability to provide a list of the column names returned
     in a prepared batch #254

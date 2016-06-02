@@ -15,7 +15,7 @@ fragment QUOTE: '\'';
 fragment ESCAPE: '\\';
 fragment ESCAPE_QUOTE: ESCAPE QUOTE;
 fragment DOUBLE_QUOTE: '"';
-fragment COLON: ':';
+fragment COLON: {input.LA(2) != ':'}?=> ':';
 fragment DOUBLE_COLON: {input.LA(2) == ':'}?=> '::';
 fragment NAME: 'a'..'z' | 'A'..'Z' | '0'..'9' | '_' | '.' | '#';
 
