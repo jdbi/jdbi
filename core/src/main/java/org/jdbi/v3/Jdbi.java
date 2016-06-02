@@ -148,6 +148,72 @@ public class Jdbi
         return create(() -> DriverManager.getConnection(url, username, password));
     }
 
+    /**
+     * Convenience method used to obtain a handle from a specific data source
+     *
+     * @param dataSource the JDBC data source.
+     *
+     * @return Handle using a Connection obtained from the provided DataSource
+     */
+    public static Handle open(DataSource dataSource)
+    {
+        return create(dataSource).open();
+    }
+
+    /**
+     * Create a Handle wrapping a particular JDBC Connection
+     *
+     * @param connection the JDBC connection
+     *
+     * @return Handle bound to connection
+     */
+    public static Handle open(final Connection connection)
+    {
+        if (connection == null) {
+            throw new IllegalArgumentException("null connection");
+        }
+        return create(() -> connection).open();
+    }
+
+    /**
+     * Obtain a handle with just a JDBC URL
+     *
+     * @param url JDBC Url
+     *
+     * @return newly opened Handle
+     */
+    public static Handle open(final String url)
+    {
+        return create(url).open();
+    }
+
+    /**
+     * Obtain a handle with just a JDBC URL
+     *
+     * @param url      JDBC Url
+     * @param username JDBC username for authentication
+     * @param password JDBC password for authentication
+     *
+     * @return newly opened Handle
+     */
+    public static Handle open(final String url, final String username, final String password)
+    {
+        return create(url, username, password).open();
+    }
+
+    /**
+     * Obtain a handle with just a JDBC URL
+     *
+     * @param url   JDBC Url
+     * @param props JDBC properties
+     *
+     * @return newly opened Handle
+     */
+    public static Handle open(final String url, final Properties props)
+    {
+        return create(url, props).open();
+    }
+
     public Jdbi installPlugins()
     {
         ServiceLoader.load(JdbiPlugin.class).forEach(this::installPlugin);
@@ -160,6 +226,25 @@ public class Jdbi
         plugin.customizeDbi(this);
         plugins.add(plugin);
         return this;
+    }
+
+    /**
+     * Allows customization of how prepared statements are created. When a Handle is created
+     * against this DBI instance the factory will be used to create a StatementBuilder for
+     * that specific handle. When the handle is closed, the StatementBuilder's close method
+     * will be invoked.
+     *
+     * @param factory the new statement builder factory.
+     */
+    public Jdbi setStatementBuilderFactory(StatementBuilderFactory factory)
+    {
+        this.statementBuilderFactory.set(factory);
+        return this;
+    }
+
+    public StatementBuilderFactory getStatementBuilderFactory()
+    {
+        return this.statementBuilderFactory.get();
     }
 
     /**
@@ -230,55 +315,46 @@ public class Jdbi
     }
 
     /**
-     * Obtain a Handle to the data source wrapped by this DBI instance
+     * Add a callback to accumulate timing information about the queries running from this
+     * data source.
      *
-     * @return an open Handle instance
+     * @param timingCollector the new timing collector
      */
-    public Handle open()
-    {
-        try {
-            final long start = System.nanoTime();
-            Connection conn = connectionFactory.openConnection();
-            final long stop = System.nanoTime();
-
-            for (JdbiPlugin p : plugins) {
-                conn = p.customizeConnection(conn);
-            }
-
-            StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new Handle(JdbiConfig.copyOf(config), transactionhandler.get(), cache, conn);
-            for (JdbiPlugin p : plugins) {
-                h = p.customizeHandle(h);
-            }
-            LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
-            return h;
+    public Jdbi setTimingCollector(final TimingCollector timingCollector) {
+        if (timingCollector == null) {
+            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
         }
-        catch (SQLException e) {
-            throw new UnableToObtainConnectionException(e);
+        else {
+            config.timingCollector = timingCollector;
         }
-    }
-
-    /**
-     * Register a row mapper which will have its parameterized type inspected to determine what it maps to
-     *
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * @param mapper the row mapper
-     */
-    public Jdbi registerRowMapper(RowMapper<?> mapper) {
-        config.mappingRegistry.addRowMapper(mapper);
         return this;
     }
 
-    /**
-     * Register a row mapper factory.
-     *
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * @param factory the row mapper factory
-     */
-    public Jdbi registerRowMapper(RowMapperFactory factory) {
-        config.mappingRegistry.addRowMapper(factory);
+    public TimingCollector getTimingCollector()
+    {
+        return config.timingCollector;
+    }
+
+    public Jdbi registerArgumentFactory(ArgumentFactory argumentFactory)
+    {
+        config.argumentRegistry.register(argumentFactory);
+        return this;
+    }
+
+    public Jdbi registerCollectorFactory(CollectorFactory collectorFactory)
+    {
+        config.collectorRegistry.register(collectorFactory);
+        return this;
+    }
+
+    public Jdbi registerExtension(ExtensionFactory<?> extensionFactory)
+    {
+        config.extensionRegistry.register(extensionFactory);
+        return this;
+    }
+
+    public <C extends ExtensionConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer) {
+        config.extensionRegistry.configure(configClass, consumer);
         return this;
     }
 
@@ -307,6 +383,30 @@ public class Jdbi
     }
 
     /**
+     * Register a row mapper which will have its parameterized type inspected to determine what it maps to
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     *
+     * @param mapper the row mapper
+     */
+    public Jdbi registerRowMapper(RowMapper<?> mapper) {
+        config.mappingRegistry.addRowMapper(mapper);
+        return this;
+    }
+
+    /**
+     * Register a row mapper factory.
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     *
+     * @param factory the row mapper factory
+     */
+    public Jdbi registerRowMapper(RowMapperFactory factory) {
+        config.mappingRegistry.addRowMapper(factory);
+        return this;
+    }
+
+    /**
      * Define an attribute on every {@link StatementContext} for every statement created
      * from a handle obtained from this DBI instance.
      *
@@ -317,6 +417,35 @@ public class Jdbi
     {
         config.statementAttributes.put(key, value);
         return this;
+    }
+
+    /**
+     * Obtain a Handle to the data source wrapped by this DBI instance
+     *
+     * @return an open Handle instance
+     */
+    public Handle open()
+    {
+        try {
+            final long start = System.nanoTime();
+            Connection conn = connectionFactory.openConnection();
+            final long stop = System.nanoTime();
+
+            for (JdbiPlugin p : plugins) {
+                conn = p.customizeConnection(conn);
+            }
+
+            StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
+            Handle h = new Handle(JdbiConfig.copyOf(config), transactionhandler.get(), cache, conn);
+            for (JdbiPlugin p : plugins) {
+                h = p.customizeHandle(h);
+            }
+            LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
+            return h;
+        }
+        catch (SQLException e) {
+            throw new UnableToObtainConnectionException(e);
+        }
     }
 
     /**
@@ -449,134 +578,5 @@ public class Jdbi
         }
 
         return OnDemandExtensions.create(this, extensionType);
-    }
-
-    /**
-     * Convenience method used to obtain a handle from a specific data source
-     *
-     * @param dataSource the JDBC data source.
-     *
-     * @return Handle using a Connection obtained from the provided DataSource
-     */
-    public static Handle open(DataSource dataSource)
-    {
-        return create(dataSource).open();
-    }
-
-    /**
-     * Create a Handle wrapping a particular JDBC Connection
-     *
-     * @param connection the JDBC connection
-     *
-     * @return Handle bound to connection
-     */
-    public static Handle open(final Connection connection)
-    {
-        if (connection == null) {
-            throw new IllegalArgumentException("null connection");
-        }
-        return create(() -> connection).open();
-    }
-
-    /**
-     * Obtain a handle with just a JDBC URL
-     *
-     * @param url JDBC Url
-     *
-     * @return newly opened Handle
-     */
-    public static Handle open(final String url)
-    {
-        return create(url).open();
-    }
-
-    /**
-     * Obtain a handle with just a JDBC URL
-     *
-     * @param url      JDBC Url
-     * @param username JDBC username for authentication
-     * @param password JDBC password for authentication
-     *
-     * @return newly opened Handle
-     */
-    public static Handle open(final String url, final String username, final String password)
-    {
-        return create(url, username, password).open();
-    }
-
-    /**
-     * Obtain a handle with just a JDBC URL
-     *
-     * @param url   JDBC Url
-     * @param props JDBC properties
-     *
-     * @return newly opened Handle
-     */
-    public static Handle open(final String url, final Properties props)
-    {
-        return create(url, props).open();
-    }
-
-    /**
-     * Allows customization of how prepared statements are created. When a Handle is created
-     * against this DBI instance the factory will be used to create a StatementBuilder for
-     * that specific handle. When the handle is closed, the StatementBuilder's close method
-     * will be invoked.
-     *
-     * @param factory the new statement builder factory.
-     */
-    public Jdbi setStatementBuilderFactory(StatementBuilderFactory factory)
-    {
-        this.statementBuilderFactory.set(factory);
-        return this;
-    }
-
-    public StatementBuilderFactory getStatementBuilderFactory()
-    {
-        return this.statementBuilderFactory.get();
-    }
-
-    /**
-     * Add a callback to accumulate timing information about the queries running from this
-     * data source.
-     *
-     * @param timingCollector the new timing collector
-     */
-    public Jdbi setTimingCollector(final TimingCollector timingCollector) {
-        if (timingCollector == null) {
-            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
-        }
-        else {
-            config.timingCollector = timingCollector;
-        }
-        return this;
-    }
-
-    public TimingCollector getTimingCollector()
-    {
-        return config.timingCollector;
-    }
-
-    public Jdbi registerArgumentFactory(ArgumentFactory argumentFactory)
-    {
-        config.argumentRegistry.register(argumentFactory);
-        return this;
-    }
-
-    public Jdbi registerCollectorFactory(CollectorFactory collectorFactory)
-    {
-        config.collectorRegistry.register(collectorFactory);
-        return this;
-    }
-
-    public Jdbi registerExtension(ExtensionFactory<?> extensionFactory)
-    {
-        config.extensionRegistry.register(extensionFactory);
-        return this;
-    }
-
-    public <C extends ExtensionConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        config.extensionRegistry.configure(configClass, consumer);
-        return this;
     }
 }

@@ -96,10 +96,13 @@ public class Handle implements Closeable
 
     /**
      * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
-     *
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
+     * The parameter must be concretely parameterized, we use the type argument T to
+     * determine if it applies to a given type.
+     *
      * @param mapper the column mapper
+     * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
      */
     public Handle registerColumnMapper(ColumnMapper<?> mapper) {
         config.mappingRegistry.addColumnMapper(mapper);
@@ -125,10 +128,13 @@ public class Handle implements Closeable
 
     /**
      * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
-     *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
+     * The parameter must be concretely parameterized, we use the type argument T to
+     * determine if it applies to a given type.
+     *
      * @param mapper the row mapper
+     * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
      */
     public Handle registerRowMapper(RowMapper<?> mapper) {
         config.mappingRegistry.addRowMapper(mapper);
@@ -138,7 +144,7 @@ public class Handle implements Closeable
     /**
      * Register a row mapper factory.
      *
-     * Will be used with {@link Query#mapTo(Class)} for registerd mappings.
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
      * @param factory the row mapper factory
      */
