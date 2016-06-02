@@ -504,27 +504,23 @@ public class Handle implements Closeable
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, TransactionCallback<R, X> callback) throws X {
-        final TransactionIsolationLevel initial = getTransactionIsolationLevel();
-        boolean failed = true;
-        try {
+        try (TransactionResetter tr = new TransactionResetter(getTransactionIsolationLevel())) {
             setTransactionIsolation(level);
-
-            R result = transactions.inTransaction(this, level, callback);
-            failed = false;
-
-            return result;
+            return transactions.inTransaction(this, level, callback);
         }
-        finally {
-            try {
-                setTransactionIsolation(initial);
-            }
-            catch (RuntimeException e) {
-                if (! failed) {
-                    throw e;
-                }
+    }
 
-                // Ignore, there was already an exceptional condition and we don't want to clobber it.
-            }
+    private class TransactionResetter implements Closeable {
+
+        private TransactionIsolationLevel initial;
+
+        TransactionResetter(TransactionIsolationLevel initial) {
+            this.initial = initial;
+        }
+
+        @Override
+        public void close() {
+            setTransactionIsolation(initial);
         }
     }
 
