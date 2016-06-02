@@ -40,7 +40,7 @@ public class TestIterator
 
     @After
     public void doTearDown() throws Exception {
-        assertTrue("Handle was not closed correctly!", ((BasicHandle)h).isClosed());
+        assertTrue("Handle was not closed correctly!", h.isClosed());
     }
 
     @Test
@@ -245,7 +245,7 @@ public class TestIterator
         assertEquals(1L, result.get("id"));
         assertEquals("eric", result.get("name"));
 
-        assertFalse(((BasicHandle) h).isClosed());
+        assertFalse(h.isClosed());
 
         // The Query created by createQuery() above just leaked a Statement and a ResultSet. It is necessary
         // to explicitly close the iterator in that case. However, as this test case is using the CachingStatementBuilder,
@@ -269,7 +269,7 @@ public class TestIterator
             assertEquals(1L, result.get("id"));
             assertEquals("eric", result.get("name"));
 
-            assertFalse(((BasicHandle) h).isClosed());
+            assertFalse(h.isClosed());
         }
     }
 }

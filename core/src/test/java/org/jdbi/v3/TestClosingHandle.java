@@ -30,11 +30,11 @@ public class TestClosingHandle
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
-    private BasicHandle h;
+    private Handle h;
 
     @Before
     public void setUp() throws Exception {
-        h = (BasicHandle) db.openHandle();
+        h = db.openHandle();
     }
 
     @After

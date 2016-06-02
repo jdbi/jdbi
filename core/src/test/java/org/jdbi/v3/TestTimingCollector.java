@@ -31,18 +31,18 @@ public class TestTimingCollector
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
-    private BasicHandle h;
+    private Handle h;
 
     private TTC tc;
 
-    protected BasicHandle openHandle() throws SQLException
+    protected Handle openHandle() throws SQLException
     {
         tc = new TTC();
 
         Connection conn = db.openHandle().getConnection();
         JdbiConfig config = new JdbiConfig();
         config.timingCollector = tc;
-        return new BasicHandle(config, new LocalTransactionHandler(), new DefaultStatementBuilder(), conn);
+        return new Handle(config, new LocalTransactionHandler(), new DefaultStatementBuilder(), conn);
     }
 
 

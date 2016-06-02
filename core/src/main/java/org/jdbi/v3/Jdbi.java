@@ -237,7 +237,7 @@ public class Jdbi
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new BasicHandle(JdbiConfig.copyOf(config), transactionhandler.get(), cache, conn);
+            Handle h = new Handle(JdbiConfig.copyOf(config), transactionhandler.get(), cache, conn);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }

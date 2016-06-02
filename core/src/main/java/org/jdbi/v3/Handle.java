@@ -15,10 +15,14 @@ package org.jdbi.v3;
 
 import java.io.Closeable;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jdbi.v3.exceptions.UnableToCloseResourceException;
+import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
@@ -28,72 +32,36 @@ import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
+import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
+import org.jdbi.v3.tweak.TransactionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This represents a connection to the database system. It usually is a wrapper around
  * a JDBC Connection object.
  */
-public interface Handle extends Closeable
+public class Handle implements Closeable
 {
+    private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
-    /**
-     * @return the JDBC Connection this Handle uses
-     */
-    Connection getConnection();
+    protected final JdbiConfig config;
+    protected StatementBuilder statementBuilder;
+    private boolean closed = false;
+    protected final TransactionHandler transactions;
+    protected final Connection connection;
 
-    /**
-     * Closes the handle, its connection, and any other database resources it is holding.
-     *
-     * @throws org.jdbi.v3.exceptions.UnableToCloseResourceException if any resources throw exception while closing
-     */
-    @Override
-    void close();
-
-    /**
-     * Define a statement attribute which will be applied to all {@link StatementContext}
-     * instances for statements created from this handle
-     *
-     * @param key Attribute name
-     * @param value Attribute value
-     */
-    void define(String key, Object value);
-
-    /**
-     * Start a transaction
-     *
-     * @return the same handle
-     */
-    Handle begin();
-
-    /**
-     * Commit a transaction
-     *
-     * @return the same handle
-     */
-    Handle commit();
-
-    /**
-     * Rollback a transaction
-     *
-     * @return the same handle
-     */
-    Handle rollback();
-
-    /**
-     * Rollback a transaction to a named checkpoint
-     *
-     * @param checkpointName the name of the checkpoint, previously declared with {@link Handle#checkpoint}
-     *
-     * @return the same handle
-     */
-    Handle rollback(String checkpointName);
-
-    /**
-     * @return whether the handle is in a transaction. Delegates to the underlying
-     *         {@link org.jdbi.v3.tweak.TransactionHandler}.
-     */
-    boolean isInTransaction();
+    Handle(JdbiConfig config,
+            TransactionHandler transactions,
+            StatementBuilder preparedStatementCache,
+            Connection connection)
+    {
+        this.config = config;
+        this.statementBuilder = preparedStatementCache;
+        this.transactions = transactions;
+        this.connection = connection;
+    }
 
     /**
      * Return a default Query instance which can be executed later, as long as this handle remains open.
@@ -101,7 +69,185 @@ public interface Handle extends Closeable
      *
      * @return the Query
      */
-    Query<Map<String, Object>> createQuery(String sql);
+    public Query<Map<String, Object>> createQuery(String sql) {
+        JdbiConfig queryConfig = JdbiConfig.copyOf(config);
+        return new Query<>(queryConfig,
+                new Binding(),
+                new DefaultMapper(),
+                this,
+                statementBuilder,
+                sql,
+                new StatementContext(queryConfig),
+                Collections.<StatementCustomizer>emptyList());
+    }
+
+    /**
+     * Get the JDBC Connection this Handle uses.
+     *
+     * @return the JDBC Connection this Handle uses
+     */
+    public Connection getConnection() {
+        return this.connection;
+    }
+
+    /**
+     * Closes the handle, its connection, and any other database resources it is holding.
+     *
+     * @throws org.jdbi.v3.exceptions.UnableToCloseResourceException if any resources throw exception while closing
+     */
+    @Override
+    public void close() {
+        if (!closed) {
+            try {
+                statementBuilder.close(getConnection());
+            } finally {
+                try {
+                    connection.close();
+                }
+                catch (SQLException e) {
+                    throw new UnableToCloseResourceException("Unable to close Connection", e);
+                } finally {
+                    LOG.trace("Handle [{}] released", this);
+                    closed = true;
+                }
+            }
+        }
+    }
+
+    protected boolean isClosed() {
+        return closed;
+    }
+
+    /**
+     * Define a statement attribute which will be applied to all {@link StatementContext}
+     * instances for statements created from this handle.
+     *
+     * @param key Attribute name
+     * @param value Attribute value
+     */
+    public void define(String key, Object value) {
+        config.statementAttributes.put(key, value);
+    }
+
+    /**
+     * Start a transaction.
+     *
+     * @return the same handle
+     */
+    public Handle begin() {
+        transactions.begin(this);
+        LOG.trace("Handle [{}] begin transaction", this);
+        return this;
+    }
+
+    /**
+     * Commit a transaction.
+     *
+     * @return the same handle
+     */
+    public Handle commit() {
+        final long start = System.nanoTime();
+        transactions.commit(this);
+        LOG.trace("Handle [{}] commit transaction in {}ms", this, (System.nanoTime() - start) / 1000000L);
+        return this;
+    }
+
+    /**
+     * Rollback a transaction.
+     *
+     * @return the same handle
+     */
+    public Handle rollback() {
+        final long start = System.nanoTime();
+        transactions.rollback(this);
+        LOG.trace("Handle [{}] rollback transaction in {}ms", this, ((System.nanoTime() - start) / 1000000L));
+        return this;
+    }
+
+    /**
+     * Rollback a transaction to a named checkpoint.
+     *
+     * @param checkpointName the name of the checkpoint, previously declared with {@link Handle#checkpoint}
+     *
+     * @return the same handle
+     */
+    public Handle rollback(String checkpointName) {
+        final long start = System.nanoTime();
+        transactions.rollback(this, checkpointName);
+        LOG.trace("Handle [{}] rollback to checkpoint \"{}\" in {}ms", this, checkpointName, ((System.nanoTime() - start) / 1000000L));
+        return this;
+    }
+
+    /**
+     * Create a transaction checkpoint (savepoint in JDBC terminology) with the name provided.
+     *
+     * @param name The name of the checkpoint
+     * @return The same handle
+     */
+    public Handle checkpoint(String name) {
+        transactions.checkpoint(this, name);
+        LOG.trace("Handle [{}] checkpoint \"{}\"", this, name);
+        return this;
+    }
+
+    /**
+     * Release a previously created checkpoint / savepoint.
+     *
+     * @param checkpointName the name of the checkpoint to release
+     *
+     * @return the same handle
+     */
+    public Handle release(String checkpointName) {
+        transactions.release(this, checkpointName);
+        LOG.trace("Handle [{}] release checkpoint \"{}\"", this, checkpointName);
+        return this;
+    }
+
+    /**
+     * @return whether the handle is in a transaction. Delegates to the underlying
+     *         {@link org.jdbi.v3.tweak.TransactionHandler}.
+     */
+    public boolean isInTransaction() {
+        return transactions.isInTransaction(this);
+    }
+
+    /**
+     * Executes <code>callback</code> in a transaction, and returns the result of the callback.
+     *
+     * @param callback a callback which will receive an open handle, in a transaction.
+     * @param <R> type returned by callback
+     * @param <X> exception type thrown by the callback, if any
+     *
+     * @return value returned from the callback
+     *
+     * @throws X any exception thrown by the callback
+     */
+    public <R, X extends Exception> R inTransaction(TransactionCallback<R, X> callback) throws X {
+        return transactions.inTransaction(this, callback);
+    }
+
+    /**
+     * Specify the statement builder to use for this handle.
+     * @param builder StatementBuilder to be used
+     */
+    public void setStatementBuilder(StatementBuilder builder) {
+        this.statementBuilder = builder;
+    }
+
+    /**
+     * Specify the class used to collect timing information. The default is inherited from the DBI used
+     * to create this Handle.
+     *
+     * @param timingCollector the timing collector
+     */
+    public void setTimingCollector(final TimingCollector timingCollector) {
+        if (timingCollector == null) {
+            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
+        }
+        else {
+            config.timingCollector = timingCollector;
+        }
+    }
 
     /**
      * Create an Insert or Update statement which returns the number of rows modified.
@@ -110,7 +256,14 @@ public interface Handle extends Closeable
      *
      * @return the Update
      */
-    Update createStatement(String sql);
+    public Update createStatement(String sql) {
+        JdbiConfig updateConfig = JdbiConfig.copyOf(config);
+        return new Update(updateConfig,
+                          this,
+                          statementBuilder,
+                          sql,
+                          new StatementContext(updateConfig));
+    }
 
     /**
      * Create a call to a stored procedure
@@ -119,18 +272,27 @@ public interface Handle extends Closeable
      *
      * @return the Call
      */
-    Call createCall(String sql);
-
+    public Call createCall(String sql) {
+        JdbiConfig callConfig = JdbiConfig.copyOf(config);
+        return new Call(callConfig,
+                        this,
+                        statementBuilder,
+                        sql,
+                        new StatementContext(callConfig),
+                        Collections.<StatementCustomizer>emptyList());
+    }
 
     /**
-     * Execute a simple insert statement
+     * Execute a simple insert statement.
      *
      * @param sql the insert SQL
      * @param args positional arguments
      *
      * @return the number of rows inserted
      */
-    int insert(String sql, Object... args);
+    public int insert(String sql, Object... args) {
+        return update(sql, args);
+    }
 
     /**
      * Execute a simple update statement
@@ -140,35 +302,43 @@ public interface Handle extends Closeable
      *
      * @return the number of updated inserted
      */
-    int update(String sql, Object... args);
+    public int update(String sql, Object... args) {
+        Update stmt = createStatement(sql);
+        int position = 0;
+        for (Object arg : args) {
+            stmt.bind(position++, arg);
+        }
+        return stmt.execute();
+    }
 
     /**
      * Prepare a batch to execute. This is for efficiently executing more than one
-     * of the same statements with different parameters bound
+     * of the same statements with different parameters bound.
+     *
      * @param sql the batch SQL
      * @return a batch which can have "statements" added
      */
-    PreparedBatch prepareBatch(String sql);
+    public PreparedBatch prepareBatch(String sql) {
+        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        return new PreparedBatch(batchConfig,
+                                 this,
+                                 statementBuilder,
+                                 sql,
+                                 new StatementContext(batchConfig),
+                                 Collections.<StatementCustomizer>emptyList());
+    }
 
     /**
-     * Create a non-prepared (no bound parameters, but different SQL, batch statement
+     * Create a non-prepared (no bound parameters, but different SQL) batch statement.
      * @return empty batch
      * @see Handle#prepareBatch(String)
      */
-    Batch createBatch();
-
-    /**
-     * Executes <code>callback</code> in a transaction, and returns the result of the callback.
-     *
-     * @param callback a callback which will receive an open handle, in a transaction.
-     * @param <R> type returned by callback
-     * @param <X> exception type thrown by the callback, if any
-     *
-     * @return value returned from the callback
-     *
-     * @throws X any exception thrown by the callback
-     */
-    <R, X extends Exception> R inTransaction(TransactionCallback<R, X> callback) throws X;
+    public Batch createBatch() {
+        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        return new Batch(batchConfig,
+                         this.connection,
+                         new StatementContext(batchConfig));
+    }
 
     /**
      * Executes <code>callback</code> in a transaction.
@@ -178,7 +348,12 @@ public interface Handle extends Closeable
      *
      * @throws X any exception thrown by the callback
      */
-    <X extends Exception> void useTransaction(TransactionConsumer<X> callback) throws X;
+    public <X extends Exception> void useTransaction(final TransactionConsumer<X> callback) throws X {
+        transactions.inTransaction(this, (handle, status) -> {
+            callback.useTransaction(handle, status);
+            return null;
+        });
+    }
 
     /**
      * Executes <code>callback</code> in a transaction, and returns the result of the callback.
@@ -197,8 +372,30 @@ public interface Handle extends Closeable
      *
      * @throws X any exception thrown by the callback
      */
-    <R, X extends Exception> R inTransaction(TransactionIsolationLevel level,
-                                             TransactionCallback<R, X> callback) throws X;
+    public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, TransactionCallback<R, X> callback) throws X {
+        final TransactionIsolationLevel initial = getTransactionIsolationLevel();
+        boolean failed = true;
+        try {
+            setTransactionIsolation(level);
+
+            R result = transactions.inTransaction(this, level, callback);
+            failed = false;
+
+            return result;
+        }
+        finally {
+            try {
+                setTransactionIsolation(initial);
+            }
+            catch (RuntimeException e) {
+                if (! failed) {
+                    throw e;
+                }
+
+                // Ignore, there was already an exceptional condition and we don't want to clobber it.
+            }
+        }
+    }
 
     /**
      * Executes <code>callback</code> in a transaction.
@@ -213,8 +410,12 @@ public interface Handle extends Closeable
      * @param <X> exception type thrown by the callback, if any
      * @throws X any exception thrown by the callback
      */
-    <X extends Exception> void useTransaction(TransactionIsolationLevel level,
-                                              TransactionConsumer<X> callback) throws X;
+    public <X extends Exception> void useTransaction(TransactionIsolationLevel level, TransactionConsumer<X> callback) throws X {
+        inTransaction(level, (handle, status) -> {
+            callback.useTransaction(handle, status);
+            return null;
+        });
+    }
 
     /**
      * Convenience method which executes a select with purely positional arguments
@@ -222,7 +423,14 @@ public interface Handle extends Closeable
      * @param args arguments to bind positionally
      * @return results of the query
      */
-    List<Map<String, Object>> select(String sql, Object... args);
+    public List<Map<String, Object>> select(String sql, Object... args) {
+        Query<Map<String, Object>> query = this.createQuery(sql);
+        int position = 0;
+        for (Object arg : args) {
+            query.bind(position++, arg);
+        }
+        return query.list();
+    }
 
     /**
      * Allows for overriding the default statement locator. The default searches the
@@ -230,7 +438,9 @@ public interface Handle extends Closeable
      *
      * @param locator the statement locator
      */
-    void setStatementLocator(StatementLocator locator);
+    public void setStatementLocator(StatementLocator locator) {
+        config.statementLocator = locator;
+    }
 
     /**
      * Allows for overiding the default statement rewriter. The default handles
@@ -238,63 +448,42 @@ public interface Handle extends Closeable
      *
      * @param rewriter the statement rewriter.
      */
-    void setStatementRewriter(StatementRewriter rewriter);
+    public void setStatementRewriter(StatementRewriter rewriter) {
+        config.statementRewriter = rewriter;
+    }
 
     /**
      * Creates an SQL script, looking for the source of the script using the
-     * current statement locator (which defaults to searching the classpath)
+     * current statement locator (which defaults to searching the classpath).
      *
      * @param name the script name (passed to the statement locator)
      *
      * @return the created Script.
      */
-    Script createScript(String name);
+    public Script createScript(String name) {
+        JdbiConfig scriptConfig = JdbiConfig.copyOf(config);
+        return new Script(scriptConfig, this, name, new StatementContext(scriptConfig));
+    }
 
     /**
      * Execute some SQL with no return value
      * @param sql the sql to execute
      * @param args arguments to bind to the sql
      */
-    void execute(String sql, Object... args);
+    public void execute(String sql, Object... args) {
+        this.update(sql, args);
+    }
 
     /**
-     * Create a transaction checkpoint (savepoint in JDBC terminology) with the name provided.
-     * @param name The name of the checkpoint
-     * @return The same handle
-     */
-    Handle checkpoint(String name);
-
-    /**
-     * Release a previously created checkpoint
-     *
-     * @param checkpointName the name of the checkpoint to release
-     *
-     * @return the same handle
-     */
-    Handle release(String checkpointName);
-
-    /**
-     * Specify the statement builder to use for this handle
-     * @param builder StatementBuilder to be used
-     */
-    void setStatementBuilder(StatementBuilder builder);
-
-    /**
-     * Specify the class used to collect timing information. The default is inherited from the DBI used
-     * to create this Handle.
-     *
-     * @param timingCollector the timing collector
-     */
-    void setTimingCollector(TimingCollector timingCollector);
-
-    /**
-     * Register a row mapper which will have its parameterized type inspected to determine what it maps to
+     * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
      *
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
      * @param mapper the row mapper
      */
-    void registerRowMapper(RowMapper<?> mapper);
+    public void registerRowMapper(RowMapper<?> mapper) {
+        config.mappingRegistry.addRowMapper(mapper);
+    }
 
     /**
      * Register a row mapper factory.
@@ -303,16 +492,20 @@ public interface Handle extends Closeable
      *
      * @param factory the row mapper factory
      */
-    void registerRowMapper(RowMapperFactory factory);
+    public void registerRowMapper(RowMapperFactory factory) {
+        config.mappingRegistry.addRowMapper(factory);
+    }
 
     /**
-     * Register a column mapper which will have its parameterized type inspected to determine what it maps to
+     * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
      *
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
      * @param mapper the column mapper
      */
-    void registerColumnMapper(ColumnMapper<?> mapper);
+    public void registerColumnMapper(ColumnMapper<?> mapper) {
+        config.mappingRegistry.addColumnMapper(mapper);
+    }
 
     /**
      * Register a column mapper factory.
@@ -321,7 +514,9 @@ public interface Handle extends Closeable
      *
      * @param factory the column mapper factory
      */
-    void registerColumnMapper(ColumnMapperFactory factory);
+    public void registerColumnMapper(ColumnMapperFactory factory) {
+        config.mappingRegistry.addColumnMapper(factory);
+    }
 
     /**
      * Create a JDBI extension object of the specified type bound to this handle. The returned extension's lifecycle is
@@ -331,34 +526,65 @@ public interface Handle extends Closeable
      * @param <T> the extension type
      * @return the new extension object bound to this handle
      */
-    <T> T attach(Class<T> extensionType) throws NoSuchExtensionException;
+    public <T> T attach(Class<T> extensionType) {
+        return config.extensionRegistry.findExtensionFor(extensionType, () -> this)
+                .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
+    }
 
     /**
-     * Set the transaction isolation level on the underlying connection
+     * Set the transaction isolation level on the underlying connection.
      *
      * @param level the isolation level to use
      */
-    void setTransactionIsolation(TransactionIsolationLevel level);
+    public void setTransactionIsolation(TransactionIsolationLevel level) {
+        setTransactionIsolation(level.intValue());
+    }
 
     /**
-     * Set the transaction isolation level on the underlying connection
+     * Set the transaction isolation level on the underlying connection.
      *
      * @param level the isolation level to use
      */
-    void setTransactionIsolation(int level);
+    public void setTransactionIsolation(int level) {
+        try {
+            if (connection.getTransactionIsolation() == level) {
+                // already set, noop
+                return;
+            }
+            connection.setTransactionIsolation(level);
+        }
+        catch (SQLException e) {
+            throw new UnableToManipulateTransactionIsolationLevelException(level, e);
+        }
+    }
 
     /**
-     * Obtain the current transaction isolation level
+     * Obtain the current transaction isolation level.
      *
      * @return the current isolation level on the underlying connection
      */
-    TransactionIsolationLevel getTransactionIsolationLevel();
+    public TransactionIsolationLevel getTransactionIsolationLevel() {
+        try {
+            return TransactionIsolationLevel.valueOf(connection.getTransactionIsolation());
+        }
+        catch (SQLException e) {
+            throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
+        }
+    }
 
-    void registerArgumentFactory(ArgumentFactory argumentFactory);
+    public void registerArgumentFactory(ArgumentFactory argumentFactory) {
+        config.argumentRegistry.register(argumentFactory);
+    }
 
-    void registerCollectorFactory(CollectorFactory factory);
+    public void registerCollectorFactory(CollectorFactory factory) {
+        config.collectorRegistry.register(factory);
+    }
 
-    void registerExtension(ExtensionFactory<?> factory);
+    public void registerExtension(ExtensionFactory<?> factory) {
+        config.extensionRegistry.register(factory);
+    }
 
-    <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer);
+    public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
+        config.extensionRegistry.configure(configClass, consumer);
+    }
 }
