@@ -43,7 +43,6 @@ import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.transaction.LocalTransactionHandler;
 import org.jdbi.v3.transaction.TransactionHandler;
-import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementBuilderFactory;
 import org.jdbi.v3.tweak.StatementLocator;
