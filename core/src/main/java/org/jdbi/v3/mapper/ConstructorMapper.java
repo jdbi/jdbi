@@ -31,8 +31,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.jdbi.v3.ColumnName;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Types;
-import org.jdbi.v3.tweak.ColumnMapper;
-import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
 
 /**

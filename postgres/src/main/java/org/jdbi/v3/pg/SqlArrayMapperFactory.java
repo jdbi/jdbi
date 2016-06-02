@@ -18,8 +18,8 @@ import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Types;
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
-import org.jdbi.v3.tweak.ColumnMapper;
 
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
 

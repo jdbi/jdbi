@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.argument.Argument;
-import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.mapper.ColumnMapper;
 
 /**
  * The statement context provides a means for passing client specific information through the

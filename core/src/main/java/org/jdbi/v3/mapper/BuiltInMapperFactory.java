@@ -37,7 +37,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.util.EnumMapper;
 
 /**

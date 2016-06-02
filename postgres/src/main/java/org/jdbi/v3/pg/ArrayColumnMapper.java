@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.mapper.ColumnMapper;
 
 public class ArrayColumnMapper implements ColumnMapper<Object> {
     private static final CopyOnWriteArraySet<Integer> UNSUPPORTED_TYPES = new CopyOnWriteArraySet<>();

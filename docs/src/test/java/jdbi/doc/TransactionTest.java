@@ -33,7 +33,7 @@ import org.jdbi.v3.pg.PostgresDbRule;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.Transaction;
-import org.jdbi.v3.tweak.transactions.SerializableTransactionRunner;
+import org.jdbi.v3.transaction.SerializableTransactionRunner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

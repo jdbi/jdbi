@@ -22,8 +22,8 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.Types;
 import org.jdbi.v3.Update;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
-import org.jdbi.v3.tweak.RowMapper;
 
 class UpdateHandler extends CustomizingStatementHandler
 {

@@ -25,9 +25,9 @@ import java.util.function.Function;
 
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.mapper.ColumnMapper;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.rewriter.RewrittenStatement;
-import org.jdbi.v3.tweak.ColumnMapper;
-import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.util.SingleColumnMapper;

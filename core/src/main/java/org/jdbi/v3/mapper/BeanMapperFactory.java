@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak;
+package org.jdbi.v3.mapper;
 
 import static org.jdbi.v3.Types.getErasedType;
 
@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.BeanMapper;
-import org.jdbi.v3.mapper.RowMapperFactory;
 
 public class BeanMapperFactory implements RowMapperFactory
 {

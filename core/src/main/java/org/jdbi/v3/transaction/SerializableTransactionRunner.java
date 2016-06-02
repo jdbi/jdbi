@@ -11,14 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak.transactions;
+package org.jdbi.v3.transaction;
 
 import java.sql.SQLException;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.TransactionCallback;
 import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.tweak.TransactionHandler;
 
 /**
  * A TransactionHandler that automatically retries transactions that fail due to

@@ -19,7 +19,6 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.RowMapper;
 
 /**
  * A generic RowMapperFactory that reflectively inspects a

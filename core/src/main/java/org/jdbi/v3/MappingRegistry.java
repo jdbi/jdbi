@@ -23,12 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.mapper.BuiltInMapperFactory;
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
 import org.jdbi.v3.mapper.InferredColumnMapperFactory;
 import org.jdbi.v3.mapper.InferredRowMapperFactory;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
-import org.jdbi.v3.tweak.ColumnMapper;
-import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.util.SingleColumnMapper;
 
 class MappingRegistry

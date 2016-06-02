@@ -27,17 +27,17 @@ import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelExcepti
 import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
+import org.jdbi.v3.mapper.CollectorFactory;
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
 import org.jdbi.v3.mapper.DefaultMapper;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.rewriter.StatementRewriter;
-import org.jdbi.v3.tweak.CollectorFactory;
-import org.jdbi.v3.tweak.ColumnMapper;
-import org.jdbi.v3.tweak.RowMapper;
+import org.jdbi.v3.transaction.TransactionHandler;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementCustomizer;
 import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.TransactionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -379,7 +379,7 @@ public class Handle implements Closeable
 
     /**
      * @return whether the handle is in a transaction. Delegates to the underlying
-     *         {@link org.jdbi.v3.tweak.TransactionHandler}.
+     *         {@link org.jdbi.v3.transaction.TransactionHandler}.
      */
     public boolean isInTransaction() {
         return transactions.isInTransaction(this);

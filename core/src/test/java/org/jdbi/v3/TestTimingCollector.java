@@ -20,7 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
+import org.jdbi.v3.transaction.LocalTransactionHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

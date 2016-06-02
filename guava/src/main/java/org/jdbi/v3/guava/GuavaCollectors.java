@@ -21,14 +21,14 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collector;
 
+import org.jdbi.v3.mapper.CollectorFactory;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-
-import org.jdbi.v3.tweak.CollectorFactory;
 
 /**
  * Provide Collector instances that create Guava collection types, especially immutable

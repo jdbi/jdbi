@@ -28,9 +28,9 @@ import org.jdbi.v3.Handle;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
-import org.jdbi.v3.tweak.RowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 

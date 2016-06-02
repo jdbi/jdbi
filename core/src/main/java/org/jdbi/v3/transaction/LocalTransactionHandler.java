@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak.transactions;
+package org.jdbi.v3.transaction;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +28,6 @@ import org.jdbi.v3.TransactionStatus;
 import org.jdbi.v3.exceptions.TransactionException;
 import org.jdbi.v3.exceptions.TransactionFailedException;
 import org.jdbi.v3.exceptions.UnableToRestoreAutoCommitStateException;
-import org.jdbi.v3.tweak.TransactionHandler;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions

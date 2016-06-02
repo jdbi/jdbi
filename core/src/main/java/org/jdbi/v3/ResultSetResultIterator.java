@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 
 import org.jdbi.v3.exceptions.NoResultsException;
 import org.jdbi.v3.exceptions.ResultSetException;
-import org.jdbi.v3.tweak.RowMapper;
+import org.jdbi.v3.mapper.RowMapper;
 
 class ResultSetResultIterator<Type> implements ResultIterator<Type>
 {

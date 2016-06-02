@@ -19,8 +19,8 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
-import org.jdbi.v3.tweak.ColumnMapper;
 
 /**
  * Produces enum column mappers, which map enums from numeric columns according to ordinal value.

@@ -19,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.junit.Test;
 
 public class StatementContextTest {

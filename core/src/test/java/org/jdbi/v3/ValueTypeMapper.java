@@ -21,8 +21,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
-import org.jdbi.v3.tweak.ColumnMapper;
 
 public class ValueTypeMapper implements ColumnMapper<ValueType> {
     public ValueTypeMapper() {}

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak.transactions;
+package org.jdbi.v3.transaction;
 
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,6 +20,7 @@ import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.TransactionIsolationLevel;
+import org.jdbi.v3.transaction.SerializableTransactionRunner;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

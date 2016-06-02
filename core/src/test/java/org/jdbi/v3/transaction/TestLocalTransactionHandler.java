@@ -11,12 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.tweak.transactions;
+package org.jdbi.v3.transaction;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.transaction.LocalTransactionHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
