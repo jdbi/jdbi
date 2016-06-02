@@ -19,6 +19,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+import javax.annotation.concurrent.GuardedBy;
 
 import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -37,13 +41,32 @@ public @interface UseStringTemplate3StatementLocator
 
     String value() default DEFAULT_VALUE;
     Class errorListener() default StringTemplateErrorListener.class;
+    boolean cacheable() default true;
 
     class LocatorFactory implements SqlStatementCustomizerFactory
     {
+        @GuardedBy("LocatorFactory.class")
+        private static final Map<Class<?>, WeakHashMap<Annotation, SqlStatementCustomizer>> CUSTOMIZER_CACHE =
+                new WeakHashMap<Class<?>, WeakHashMap<Annotation, SqlStatementCustomizer>>();
+
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class sqlObjectType)
         {
             final UseStringTemplate3StatementLocator a = (UseStringTemplate3StatementLocator) annotation;
+
+            if (a.cacheable()) {
+                synchronized (LocatorFactory.class) {
+                    WeakHashMap<Annotation, SqlStatementCustomizer> classCache = CUSTOMIZER_CACHE.get(sqlObjectType);
+                    if (classCache == null) {
+                        CUSTOMIZER_CACHE.put(sqlObjectType, classCache = new WeakHashMap<Annotation, SqlStatementCustomizer>());
+                    }
+                    SqlStatementCustomizer cachedCustomizer = classCache.get(a);
+                    if (cachedCustomizer != null) {
+                        return cachedCustomizer;
+                    }
+                }
+            }
+
             final StringTemplate3StatementLocator.Builder builder;
 
             if (DEFAULT_VALUE.equals(a.value())) {
@@ -65,7 +88,7 @@ public @interface UseStringTemplate3StatementLocator
 
             final StatementLocator l = builder.allowImplicitTemplateGroup().treatLiteralsAsTemplates().shouldCache().withErrorListener(errorListener).build();
 
-            return new SqlStatementCustomizer()
+            final SqlStatementCustomizer result = new SqlStatementCustomizer()
             {
                 @Override
                 public void apply(SQLStatement q)
@@ -73,6 +96,14 @@ public @interface UseStringTemplate3StatementLocator
                     q.setStatementLocator(l);
                 }
             };
+
+            if (a.cacheable()) {
+                synchronized (LocatorFactory.class) {
+                    CUSTOMIZER_CACHE.get(sqlObjectType).put(a, result);
+                }
+            }
+
+            return result;
         }
 
         @Override
