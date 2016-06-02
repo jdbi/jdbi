@@ -64,6 +64,7 @@ public class TestDefaultMethods
     public interface SpiffyOverride extends Spiffy
     {
         @Override
+        @UseRowMapper(SomethingMapper.class)
         @SqlQuery("select id, name from something where id = :id")
         Something insertAndReturn(@Bind int id, @Bind String name);
     }
