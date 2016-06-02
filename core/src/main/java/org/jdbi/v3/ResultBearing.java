@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jdbi.v3.util.StreamCallback;
+import org.jdbi.v3.util.StreamConsumer;
+
 public interface ResultBearing<T> extends Iterable<T>
 {
     @Override

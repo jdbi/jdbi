@@ -11,20 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.util;
 
 import java.util.stream.Stream;
 
 /**
- * Callback for use with {@link org.jdbi.v3.ResultBearing#useStream(StreamConsumer)}
+ * Callback for use with {@link org.jdbi.v3.ResultBearing#withStream(StreamCallback)}
  */
 @FunctionalInterface
-public interface StreamConsumer<T, X extends Exception> {
+public interface StreamCallback<T, R, X extends Exception> {
     /**
-     * Will be invoked with result stream. The stream will be closed when this callback returns.
+     * Will be invoked with a Stream&lt;T&gt;. The stream will be closed when this callback returns.
      *
      * @param stream stream to be used only within scope of this callback
+     * @return The return value of the callback
      * @throws X optional exception thrown by the callback
      */
-    void useStream(Stream<T> stream) throws X;
+    R withStream(Stream<T> stream) throws X;
 }
