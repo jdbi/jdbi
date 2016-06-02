@@ -18,6 +18,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.jdbi.v3.statement.StatementBuilder;
 import org.jdbi.v3.transaction.TransactionState;
@@ -30,6 +35,8 @@ import org.jdbi.v3.transaction.TransactionState;
  */
 class Cleanables
 {
+    private final Set<Cleanable> cleanables = new LinkedHashSet<>();
+
     @FunctionalInterface
     interface Cleanable extends AutoCloseable
     {
@@ -37,9 +44,8 @@ class Cleanables
         void close() throws SQLException;
     }
 
-    private Cleanables()
+    Cleanables()
     {
-        throw new AssertionError("do not instantiate");
     }
 
     static Cleanable forResultSet(final ResultSet rs)
@@ -71,5 +77,35 @@ class Cleanables
 
     static Cleanable forStatementBuilder(StatementBuilder statementBuilder, Connection conn, String sql, PreparedStatement stmt) {
         return () -> statementBuilder.close(conn, sql, stmt);
+    }
+
+    void add(Cleanable cleanable) {
+        cleanables.add(cleanable);
+    }
+
+    void clean() throws SQLException {
+        SQLException exception = null;
+        try {
+            List<Cleanable> cleanables = new ArrayList<>(this.cleanables);
+            this.cleanables.clear();
+            Collections.reverse(cleanables);
+            for (Cleanable cleanable : cleanables) {
+                try {
+                    cleanable.close();
+                }
+                catch (SQLException e) {
+                    if (exception == null) {
+                        exception = e;
+                    } else {
+                        exception.addSuppressed(e);
+                    }
+                }
+            }
+        }
+        finally {
+            if (exception != null) {
+                throw exception;
+            }
+        }
     }
 }
