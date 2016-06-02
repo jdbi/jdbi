@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.argument;
 
-import static org.jdbi.v3.Types.findGenericParameter;
-import static org.jdbi.v3.Types.getErasedType;
+import static org.jdbi.v3.util.Types.findGenericParameter;
+import static org.jdbi.v3.util.Types.getErasedType;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;

@@ -20,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.jdbi.v3.util.Types;
 import org.junit.Test;
 
 public class TypesTest {

@@ -17,9 +17,9 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.Types;
 import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.argument.ArgumentFactory;
+import org.jdbi.v3.util.Types;
 
 /**
  * Default {@code jdbi} behavior is to bind {@code Enum} subclasses as

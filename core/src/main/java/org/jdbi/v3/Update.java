@@ -25,6 +25,7 @@ import org.jdbi.v3.mapper.DefaultMapper;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.statement.StatementBuilder;
 import org.jdbi.v3.statement.StatementCustomizer;
+import org.jdbi.v3.util.GenericType;
 import org.jdbi.v3.util.SingleColumnMapper;
 
 /**

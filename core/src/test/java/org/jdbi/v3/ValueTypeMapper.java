@@ -14,7 +14,7 @@
 
 package org.jdbi.v3;
 
-import static org.jdbi.v3.Types.getErasedType;
+import static org.jdbi.v3.util.Types.getErasedType;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;

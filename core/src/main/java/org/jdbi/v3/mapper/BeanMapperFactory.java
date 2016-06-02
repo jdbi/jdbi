@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.mapper;
 
-import static org.jdbi.v3.Types.getErasedType;
+import static org.jdbi.v3.util.Types.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 import org.jdbi.v3.Call;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.OutParameters;
-import org.jdbi.v3.Types;
+import org.jdbi.v3.util.Types;
 
 class CallHandler extends CustomizingStatementHandler
 {

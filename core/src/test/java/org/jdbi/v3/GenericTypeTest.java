@@ -16,6 +16,7 @@ package org.jdbi.v3;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.jdbi.v3.util.GenericType;
 import org.junit.Test;
 
 public class GenericTypeTest {

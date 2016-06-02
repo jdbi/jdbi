@@ -22,9 +22,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.Types;
 import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.argument.ArgumentFactory;
+import org.jdbi.v3.util.Types;
 
 public class SqlArrayArgumentFactory implements ArgumentFactory {
 

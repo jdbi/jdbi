@@ -19,7 +19,7 @@ import java.util.Iterator;
 
 import org.jdbi.v3.PreparedBatchPart;
 import org.jdbi.v3.SqlStatement;
-import org.jdbi.v3.Types;
+import org.jdbi.v3.util.Types;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
 {

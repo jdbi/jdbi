@@ -22,13 +22,13 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 
-import org.jdbi.v3.GenericType;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.argument.ArgumentFactory;
+import org.jdbi.v3.util.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
