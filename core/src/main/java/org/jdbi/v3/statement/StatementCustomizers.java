@@ -11,12 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.statement;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.statement.StatementCustomizer;
+import org.jdbi.v3.Query;
+import org.jdbi.v3.SqlStatement;
+import org.jdbi.v3.StatementContext;
 
 public final class StatementCustomizers
 {

@@ -30,6 +30,7 @@ import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.statement.StatementBuilder;
 import org.jdbi.v3.statement.StatementCustomizer;
+import org.jdbi.v3.statement.StatementCustomizers;
 import org.jdbi.v3.util.GenericType;
 
 /**
