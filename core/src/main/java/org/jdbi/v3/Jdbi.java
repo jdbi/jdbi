@@ -551,7 +551,7 @@ public class Jdbi
         config.collectorRegistry.register(collectorFactory);
     }
 
-    public void registerExtensionFactory(ExtensionFactory<?> extensionFactory)
+    public void registerExtension(ExtensionFactory<?> extensionFactory)
     {
         config.extensionRegistry.register(extensionFactory);
     }
