@@ -20,8 +20,8 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
+import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.tweak.Argument;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 
 class BeanPropertyArguments implements NamedArgumentFinder

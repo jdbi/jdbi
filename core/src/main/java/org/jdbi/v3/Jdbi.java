@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
+import org.jdbi.v3.argument.ArgumentFactory;
 import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
 import org.jdbi.v3.extension.ExtensionCallback;
 import org.jdbi.v3.extension.ExtensionConfig;
@@ -37,7 +38,6 @@ import org.jdbi.v3.mapper.ColumnMapperFactory;
 import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.spi.JdbiPlugin;
-import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.ConnectionFactory;

@@ -23,11 +23,11 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.argument.ArgumentFactory;
 import org.jdbi.v3.argument.ObjectArgumentFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.tweak.ArgumentFactory;
 
 /**
  * Used to register argument factories for types which are compatible with

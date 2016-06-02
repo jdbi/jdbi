@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jdbi.v3.argument.ArgumentFactory;
 import org.jdbi.v3.exceptions.UnableToCloseResourceException;
 import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.extension.ExtensionConfig;
@@ -30,7 +31,6 @@ import org.jdbi.v3.mapper.ColumnMapperFactory;
 import org.jdbi.v3.mapper.DefaultMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.rewriter.StatementRewriter;
-import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.ColumnMapper;
 import org.jdbi.v3.tweak.RowMapper;

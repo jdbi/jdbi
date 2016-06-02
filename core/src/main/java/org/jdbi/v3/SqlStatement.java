@@ -27,6 +27,8 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
 
+import org.jdbi.v3.argument.Argument;
+import org.jdbi.v3.argument.ArgumentFactory;
 import org.jdbi.v3.argument.CharacterStreamArgument;
 import org.jdbi.v3.argument.InputStreamArgument;
 import org.jdbi.v3.argument.NullArgument;
@@ -35,8 +37,6 @@ import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.rewriter.RewrittenStatement;
 import org.jdbi.v3.rewriter.StatementRewriter;
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.CollectorFactory;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 import org.jdbi.v3.tweak.RowMapper;

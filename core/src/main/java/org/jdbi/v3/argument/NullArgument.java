@@ -17,7 +17,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.Argument;
 
 public class NullArgument implements Argument
 {

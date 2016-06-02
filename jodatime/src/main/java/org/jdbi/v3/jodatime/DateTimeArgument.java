@@ -21,8 +21,8 @@ import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.Types;
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ArgumentFactory;
+import org.jdbi.v3.argument.Argument;
+import org.jdbi.v3.argument.ArgumentFactory;
 import org.joda.time.DateTime;
 
 public class DateTimeArgument implements Argument {

@@ -15,6 +15,8 @@ package org.jdbi.v3.tweak;
 
 import java.util.Optional;
 
+import org.jdbi.v3.argument.Argument;
+
 /**
  * Returns an Argument based on a name. Used to lookup multiple properties e.g. in a Bean or a Map.
  */

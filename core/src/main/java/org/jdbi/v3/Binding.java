@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.tweak.NamedArgumentFinder;
 
 /**

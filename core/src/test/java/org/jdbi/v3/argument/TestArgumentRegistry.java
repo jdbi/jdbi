@@ -25,8 +25,6 @@ import java.util.Optional;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.JdbiAccess;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ArgumentFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;

@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.Argument;
 
 public class InputStreamArgument implements Argument
 {

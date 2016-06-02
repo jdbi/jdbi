@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 
-import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.tweak.ColumnMapper;
 
 /**

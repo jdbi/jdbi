@@ -18,7 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.Argument;
+import org.jdbi.v3.argument.Argument;
 
 public class ArrayArgument implements Argument {
 

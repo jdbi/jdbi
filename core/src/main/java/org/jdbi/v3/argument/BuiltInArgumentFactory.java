@@ -41,8 +41,6 @@ import java.util.UUID;
 
 import org.jdbi.v3.SqlStatement;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ArgumentFactory;
 
 /**
  * The BuiltInArgumentFactory provides instances of {@link Argument} for

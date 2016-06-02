@@ -21,9 +21,9 @@ import java.util.Optional;
 
 import org.jdbi.v3.Binding;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.Argument;
 
 class InternalRewrittenStatement implements RewrittenStatement {
     private final ParsedStatement stmt;

@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.argument.Argument;
+import org.jdbi.v3.argument.ArgumentFactory;
 import org.jdbi.v3.argument.BuiltInArgumentFactory;
-import org.jdbi.v3.tweak.Argument;
-import org.jdbi.v3.tweak.ArgumentFactory;
 
 class ArgumentRegistry
 {

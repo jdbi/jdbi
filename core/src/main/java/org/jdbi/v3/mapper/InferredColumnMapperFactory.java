@@ -24,7 +24,9 @@ import org.jdbi.v3.tweak.ColumnMapper;
 /**
  * A generic ColumnMapperFactory that reflectively inspects a
  * {@code ColumnMapper<T>} and maps only to columns of type
- * {@code T}.
+ * {@code T}.  The type parameter T must be accessible
+ * via reflection or an {@link UnsupportedOperationException}
+ * will be thrown.
  */
 public class InferredColumnMapperFactory implements ColumnMapperFactory
 {
