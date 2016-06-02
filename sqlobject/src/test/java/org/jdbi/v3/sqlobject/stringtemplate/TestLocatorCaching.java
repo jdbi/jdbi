@@ -11,14 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2.sqlobject.stringtemplate;
+package org.jdbi.v3.sqlobject.stringtemplate;
 
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator.LocatorFactory;
 import org.junit.Test;
-import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator.LocatorFactory;
 
 public class TestLocatorCaching {
     @Test
@@ -26,12 +26,12 @@ public class TestLocatorCaching {
         LocatorFactory lf = new LocatorFactory();
 
         SqlStatementCustomizer locator1 = lf.createForType(
-                Kombucha.class.getAnnotation(UseStringTemplate3StatementLocator.class),
-                Kombucha.class);
+                AllowCache.class.getAnnotation(UseStringTemplate3StatementLocator.class),
+                AllowCache.class);
 
         SqlStatementCustomizer locator2 = lf.createForType(
-                Kombucha.class.getAnnotation(UseStringTemplate3StatementLocator.class),
-                Kombucha.class);
+                AllowCache.class.getAnnotation(UseStringTemplate3StatementLocator.class),
+                AllowCache.class);
 
         assertSame(locator1, locator2);
     }
@@ -41,13 +41,19 @@ public class TestLocatorCaching {
         LocatorFactory lf = new LocatorFactory();
 
         SqlStatementCustomizer locator1 = lf.createForType(
-                SuperDrink.class.getAnnotation(UseStringTemplate3StatementLocator.class),
-                SuperDrink.class);
+                DisallowCache.class.getAnnotation(UseStringTemplate3StatementLocator.class),
+                DisallowCache.class);
 
         SqlStatementCustomizer locator2 = lf.createForType(
-                SuperDrink.class.getAnnotation(UseStringTemplate3StatementLocator.class),
-                SuperDrink.class);
+                DisallowCache.class.getAnnotation(UseStringTemplate3StatementLocator.class),
+                DisallowCache.class);
 
         assertNotSame(locator1, locator2);
     }
+
+    @UseStringTemplate3StatementLocator(cacheable = true)
+    public interface AllowCache { }
+
+    @UseStringTemplate3StatementLocator(cacheable = false)
+    public interface DisallowCache { }
 }
