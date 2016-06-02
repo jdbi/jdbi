@@ -32,7 +32,7 @@ import org.jdbi.v3.argument.ArgumentFactory;
 import org.jdbi.v3.argument.CharacterStreamArgument;
 import org.jdbi.v3.argument.InputStreamArgument;
 import org.jdbi.v3.argument.NullArgument;
-import org.jdbi.v3.argument.SqlTypeArgument;
+import org.jdbi.v3.argument.ObjectArgument;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
 import org.jdbi.v3.rewriter.RewrittenStatement;
@@ -1239,7 +1239,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      */
     public final SelfType bindBySqlType(String name, Object value, int sqlType)
     {
-        return bind(name, new SqlTypeArgument(value, sqlType));
+        return bind(name, new ObjectArgument(value, sqlType));
     }
 
     /**
@@ -1254,7 +1254,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      */
     public final SelfType bindBySqlType(int position, Object value, int sqlType)
     {
-        return bind(position, new SqlTypeArgument(value, sqlType));
+        return bind(position, new ObjectArgument(value, sqlType));
     }
 
     private String wrapLookup(String sql)
