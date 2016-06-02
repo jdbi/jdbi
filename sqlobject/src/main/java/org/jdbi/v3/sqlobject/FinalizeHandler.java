@@ -14,39 +14,33 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.Handle;
 
-class ToStringHandler implements Handler
+class FinalizeHandler implements Handler
 {
-    private final String className;
-
-    ToStringHandler(String className)
-    {
-        this.className = className;
-    }
-
-    @Override
-    public Object invoke(final Supplier<Handle> handle, final Object target, final Object[] args, Method method)
-    {
-        return className + '@' + Integer.toHexString(target.hashCode());
-    }
-
-    static Map<Method, Handler> handler(String className)
+    static Map<Method, Handler> handlerFor(Class<?> sqlObjectType)
     {
         try
         {
             Map<Method, Handler> handler = new HashMap<>();
-            handler.put(Object.class.getMethod("toString"), new ToStringHandler(className));
+            handler.put(sqlObjectType.getMethod("finalize"), new FinalizeHandler());
             return handler;
         }
         catch (NoSuchMethodException e)
         {
-            throw new IllegalStateException("JVM error", e);
+            // expected, no finalize() method
+            return Collections.emptyMap();
         }
     }
 
+    @Override
+    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
+    {
+        return null;
+    }
 }

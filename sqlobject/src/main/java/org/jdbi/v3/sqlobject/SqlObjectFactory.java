@@ -25,14 +25,14 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.Factory;
-import net.sf.cglib.proxy.MethodInterceptor;
-
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
+
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.MethodInterceptor;
 
 public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
     INSTANCE;
@@ -124,6 +124,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
             handlers.putAll(EqualsHandler.handler());
             handlers.putAll(ToStringHandler.handler(sqlObjectType.getName()));
             handlers.putAll(HashCodeHandler.handler());
+            handlers.putAll(FinalizeHandler.handlerFor(sqlObjectType));
 
             return handlers;
         });
