@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 
+import org.jdbi.v3.Cleanables.Cleanable;
 import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.mapper.ColumnMapper;
 

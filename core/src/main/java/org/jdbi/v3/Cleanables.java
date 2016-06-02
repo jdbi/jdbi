@@ -16,6 +16,7 @@ package org.jdbi.v3;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.jdbi.v3.statement.StatementBuilder;
@@ -29,6 +30,13 @@ import org.jdbi.v3.transaction.TransactionState;
  */
 class Cleanables
 {
+    @FunctionalInterface
+    interface Cleanable extends AutoCloseable
+    {
+        @Override
+        void close() throws SQLException;
+    }
+
     private Cleanables()
     {
         throw new AssertionError("do not instantiate");

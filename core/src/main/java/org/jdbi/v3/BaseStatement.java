@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.jdbi.v3.Cleanables.Cleanable;
 import org.jdbi.v3.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.statement.StatementCustomizer;
 
