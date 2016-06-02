@@ -35,7 +35,6 @@ class InternalRewrittenStatement implements RewrittenStatement {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void bind(Binding params, PreparedStatement statement) throws SQLException {
         if (stmt.positionalOnly) {
             // no named params, is easy

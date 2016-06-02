@@ -358,7 +358,7 @@ public interface Handle extends Closeable
 
     void registerCollectorFactory(CollectorFactory factory);
 
-    void registerExtension(ExtensionFactory factory);
+    void registerExtension(ExtensionFactory<?> factory);
 
     <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer);
 }

@@ -135,7 +135,7 @@ class CollectorFactoryRegistry {
 
         @Override
         public Collector<?, ?, ?> build(Type containerType) {
-            return Collector.<Object, OptionalBuilder, Optional<Object>>of(
+            return Collector.<Object, OptionalBuilder<Object>, Optional<Object>>of(
                     OptionalBuilder::new,
                     OptionalBuilder::set,
                     (left, right) -> left.build().isPresent() ? left : right,

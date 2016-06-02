@@ -94,7 +94,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
 
         Map<Method, Handler> handlers = buildHandlersFor(extensionType, config);
         MethodInterceptor interceptor = createMethodInterceptor(handlers, handle);
-        return (E) f.newInstance(interceptor);
+        return extensionType.cast(f.newInstance(interceptor));
     }
 
     private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType, SqlObject config) {

@@ -36,8 +36,8 @@ import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.tweak.ArgumentFactory;
 import org.jdbi.v3.tweak.CollectorFactory;
-import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.tweak.ConnectionFactory;
 import org.jdbi.v3.tweak.RowMapper;
 import org.jdbi.v3.tweak.StatementBuilder;
 import org.jdbi.v3.tweak.StatementBuilderFactory;
@@ -551,7 +551,7 @@ public class Jdbi
         config.collectorRegistry.register(collectorFactory);
     }
 
-    public void registerExtensionFactory(ExtensionFactory extensionFactory)
+    public void registerExtension(ExtensionFactory<?> extensionFactory)
     {
         config.extensionRegistry.register(extensionFactory);
     }

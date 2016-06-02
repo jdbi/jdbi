@@ -16,6 +16,8 @@ package org.jdbi.v3.extension;
 import org.jdbi.v3.exceptions.JdbiException;
 
 public class NoSuchExtensionException extends JdbiException {
+    private static final long serialVersionUID = 1L;
+
     public NoSuchExtensionException(String string, Throwable throwable) {
         super(string, throwable);
     }

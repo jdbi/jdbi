@@ -104,9 +104,10 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */
+    @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(Class<T> resultType)
     {
-        return this.mapTo((Type) resultType);
+        return (Query<T>) this.mapTo((Type) resultType);
     }
 
     /**
@@ -122,9 +123,10 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */
+    @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(GenericType<T> resultType)
     {
-        return this.mapTo(resultType.getType());
+        return (Query<T>) this.mapTo(resultType.getType());
     }
 
     /**
@@ -139,8 +141,8 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      * @see Handle#registerRowMapper(RowMapperFactory)
      * @see Handle#registerRowMapper(RowMapper)
      */
-    public Query mapTo(Type resultType) {
-        return this.map(new RegisteredRowMapper(resultType, config.mappingRegistry));
+    public Query<?> mapTo(Type resultType) {
+        return this.map(new RegisteredRowMapper<>(resultType, config.mappingRegistry));
     }
 
     public <T> Query<T> map(RowMapper<T> mapper)

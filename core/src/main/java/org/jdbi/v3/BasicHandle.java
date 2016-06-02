@@ -394,7 +394,7 @@ class BasicHandle implements Handle
     @Override
     public <T> T attach(Class<T> extensionType)
     {
-        return (T) config.extensionRegistry.findExtensionFor(extensionType, () -> this)
+        return config.extensionRegistry.findExtensionFor(extensionType, () -> this)
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
@@ -442,7 +442,7 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void registerExtension(ExtensionFactory factory) {
+    public void registerExtension(ExtensionFactory<?> factory) {
         config.extensionRegistry.register(factory);
     }
 
