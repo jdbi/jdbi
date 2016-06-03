@@ -39,11 +39,15 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
     static {
         final Map<Class<?>, String> map = new IdentityHashMap<>();
         map.put(int.class, "integer");
+        map.put(Integer.class, "integer");
         map.put(long.class, "bigint");
+        map.put(Long.class, "bigint");
         map.put(String.class, "varchar");
         map.put(UUID.class, "uuid");
         map.put(float.class, "real");
+        map.put(Float.class, "real");
         map.put(double.class, "double precision");
+        map.put(Double.class, "double precision");
         BEST_GUESS = Collections.unmodifiableMap(map);
     }
 
