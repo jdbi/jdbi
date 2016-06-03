@@ -85,6 +85,14 @@ public class TestSqlArrays {
     }
 
     @Test
+    public void testObjectArray() throws Exception {
+        ao.insertIntArray(testInts);
+        Object[] actuals = ao.fetchObjectArray();
+        Object[] expecteds = IntStream.of(testInts).mapToObj(Integer::valueOf).toArray(Object[]::new);
+        assertArrayEquals(expecteds, actuals);
+    }
+
+    @Test
     @Ignore("Inserting lists to arrays is not supported")
     public void testIntList() throws Exception {
         List<Integer> testIntList = new ArrayList<Integer>();
@@ -112,6 +120,9 @@ public class TestSqlArrays {
 
         @SqlQuery(I_SELECT)
         Integer[] fetchBoxedIntArray();
+
+        @SqlQuery(I_SELECT)
+        Object[] fetchObjectArray();
 
         @SqlUpdate(I_INSERT)
         void insertIntArray(int[] ints);

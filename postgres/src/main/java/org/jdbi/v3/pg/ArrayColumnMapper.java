@@ -43,14 +43,19 @@ public class ArrayColumnMapper implements ColumnMapper<Object> {
             return buildFromResultSet(array);
         }
         try {
-            // We can't cast Object[] to componentType, so we need to create a new array of the correct
-            // type and copy the source array content to it.
             Object[] objectArray = (Object[]) array.getArray();
-            Object componentTypeArray = java.lang.reflect.Array.newInstance(componentType, objectArray.length);
-            for (int i = 0; i < objectArray.length; i++) {
-                java.lang.reflect.Array.set(componentTypeArray, i,objectArray[i]);
+            if (componentType == Object.class) {
+                // more efficient, doesn't have to copy an unknown size array
+                return objectArray;
+            } else {
+                // We can't cast Object[] to componentType, so we need to create a new array of the correct
+                // type and copy the source array's content to it.
+                Object componentTypeArray = java.lang.reflect.Array.newInstance(componentType, objectArray.length);
+                for (int i = 0; i < objectArray.length; i++) {
+                    java.lang.reflect.Array.set(componentTypeArray, i, objectArray[i]);
+                }
+                return componentTypeArray;
             }
-            return componentTypeArray;
         } catch (SQLFeatureNotSupportedException e) {
             UNSUPPORTED_TYPES.add(array.getBaseType());
             return buildFromResultSet(array);
