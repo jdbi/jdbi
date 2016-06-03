@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -81,6 +83,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         mappers.put(LocalDateTime.class, referenceMapper(BuiltInMapperFactory::getLocalDateTime));
         mappers.put(OffsetDateTime.class, referenceMapper(BuiltInMapperFactory::getOffsetDateTime));
         mappers.put(ZonedDateTime.class, referenceMapper(BuiltInMapperFactory::getZonedDateTime));
+        mappers.put(LocalTime.class, referenceMapper(BuiltInMapperFactory::getLocalTime));
     }
 
     @Override
@@ -162,5 +165,10 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static ZonedDateTime getZonedDateTime(ResultSet r, int i) throws SQLException {
         Timestamp ts = r.getTimestamp(i);
         return ts == null ? null : ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
+    }
+
+    private static LocalTime getLocalTime(ResultSet r, int i) throws SQLException {
+        Time time = r.getTime(i);
+        return time == null ? null : time.toLocalTime();
     }
 }

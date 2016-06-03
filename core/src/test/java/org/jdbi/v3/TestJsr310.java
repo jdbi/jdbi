@@ -23,6 +23,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.LocalTime;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -87,5 +88,15 @@ public class TestJsr310 {
         ZonedDateTime dt = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("America/Denver"));
         h.insert("insert into stuff(ts) values (?)", dt);
         assertTrue(dt.isEqual(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).findOnly()));
+    }
+
+    @Test
+    public void localTime(){
+        h.execute("create table schedule (start time, end time)");
+        LocalTime start = LocalTime.of(8, 30, 0);
+        LocalTime end = LocalTime.of(10, 30, 0);
+        h.insert("insert into schedule (start, end) values (?,?)", start, end);
+        assertEquals(start, h.createQuery("select start from schedule").mapTo(LocalTime.class).findOnly());
+        assertEquals(end, h.createQuery("select end from schedule").mapTo(LocalTime.class).findOnly());
     }
 }
