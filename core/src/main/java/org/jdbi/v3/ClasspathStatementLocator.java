@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.internal.SqlScriptParser;
 import org.jdbi.v3.tweak.StatementLocator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3;
+package org.jdbi.v3.internal;
 
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.Token;
@@ -23,11 +23,11 @@ import org.jdbi.v3.internal.lexer.SqlScriptLexer;
  * <p>It performs lexical analysis of a script and generates events for semicolons.
  * As a result it returns a script without comments and newlines.</p>
  */
-class SqlScriptParser {
+public class SqlScriptParser {
 
     private final TokenHandler semicolonHandler;
 
-    SqlScriptParser(TokenHandler semicolonHandler) {
+    public SqlScriptParser(TokenHandler semicolonHandler) {
         this.semicolonHandler = semicolonHandler;
     }
 
@@ -64,7 +64,7 @@ class SqlScriptParser {
         return sb.toString();
     }
 
-    interface TokenHandler {
+    public interface TokenHandler {
         void handle(Token t, StringBuilder sb);
     }
 }
