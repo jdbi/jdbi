@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.pg;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -56,7 +57,7 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
             throw new IllegalArgumentException("not an array: " + klass);
         }
         String guess = BEST_GUESS.get(klass.getComponentType());
-        if (((Object[]) array).length == 0 || guess == null) {
+        if (Array.getLength(array) == 0 || guess == null) {
             return "varchar";
         }
         return guess;

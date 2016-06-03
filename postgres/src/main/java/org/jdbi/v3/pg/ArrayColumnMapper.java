@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.tweak.ColumnMapper;
 
-public class ArrayColumnMapper implements ColumnMapper<Object[]> {
+public class ArrayColumnMapper implements ColumnMapper<Object> {
     private static final CopyOnWriteArraySet<Integer> UNSUPPORTED_TYPES = new CopyOnWriteArraySet<>();
     private final Class<?> componentType;
     private final StatementContext ctx;
@@ -34,17 +34,23 @@ public class ArrayColumnMapper implements ColumnMapper<Object[]> {
     }
 
     @Override
-    public Object[] map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+    public Object map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         return buildArray(r.getArray(columnNumber));
     }
 
-    private Object[] buildArray(Array array) throws SQLException {
+    private Object buildArray(Array array) throws SQLException {
         if (UNSUPPORTED_TYPES.contains(array.getBaseType())) {
             return buildFromResultSet(array);
         }
         try {
-            // more efficient, doesn't have to copy an unknown size array
-            return (Object[]) array.getArray();
+            // We can't cast Object[] to componentType, so we need to create a new array of the correct
+            // type and copy the source array content to it.
+            Object[] objectArray = (Object[]) array.getArray();
+            Object componentTypeArray = java.lang.reflect.Array.newInstance(componentType, objectArray.length);
+            for (int i = 0; i < objectArray.length; i++) {
+                java.lang.reflect.Array.set(componentTypeArray, i,objectArray[i]);
+            }
+            return componentTypeArray;
         } catch (SQLFeatureNotSupportedException e) {
             UNSUPPORTED_TYPES.add(array.getBaseType());
             return buildFromResultSet(array);
