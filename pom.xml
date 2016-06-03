@@ -91,6 +91,53 @@
         <basepom.test.timeout>240</basepom.test.timeout>
     </properties>
 
+    <profiles>
+      <profile>
+        <id>toolchains</id>
+        <build>
+         <pluginManagement>
+           <plugins>
+             <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-compiler-plugin</artifactId>
+               <configuration>
+                 <compilerArguments>
+                   <parameters/>
+                 </compilerArguments>
+               </configuration>
+             </plugin>
+             <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-toolchains-plugin</artifactId>
+               <version>1.1</version>
+               <configuration>
+                 <toolchains>
+                   <jdk>
+                     <version>${project.build.targetJdk}</version>
+                     <vendor>oracle</vendor>
+                   </jdk>
+                 </toolchains>
+               </configuration>
+             </plugin>
+           </plugins>
+         </pluginManagement>
+         <plugins>
+           <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-toolchains-plugin</artifactId>
+             <executions>
+               <execution>
+                 <goals>
+                   <goal>toolchain</goal>
+                 </goals>
+               </execution>
+             </executions>
+           </plugin>
+         </plugins>
+        </build>
+      </profile>
+    </profiles>
+
     <build>
       <pluginManagement>
         <plugins>
@@ -98,39 +145,15 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
+                <source>${project.build.targetJdk}</source>
+                <target>${project.build.targetJdk}</target>
               <compilerArguments>
                 <parameters />
               </compilerArguments>
             </configuration>
           </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-toolchains-plugin</artifactId>
-            <version>1.1</version>
-            <configuration>
-              <toolchains>
-                <jdk>
-                  <version>${project.build.targetJdk}</version>
-                  <vendor>oracle</vendor>
-                </jdk>
-              </toolchains>
-            </configuration>
-          </plugin>
         </plugins>
       </pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-toolchains-plugin</artifactId>
-          <executions>
-            <execution>
-              <goals>
-                <goal>toolchain</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
     </build>
 
     <dependencyManagement>
