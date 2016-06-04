@@ -14,6 +14,7 @@
 package org.jdbi.v3.locator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.locator.ClasspathSqlLocator.findSqlOnClasspath;
 import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
@@ -34,38 +35,35 @@ public class TestClasspathSqlLocator {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    ClasspathSqlLocator sqlLocator;
-
     @Before
     public void setUp() {
-        sqlLocator = new ClasspathSqlLocator();
     }
 
     @Test
     public void testLocateNamed() throws Exception {
         Handle h = db.openHandle();
-        h.insert(sqlLocator.locate("insert-keith"));
+        h.insert(findSqlOnClasspath("insert-keith"));
         assertEquals(1, h.select("select name from something").size());
     }
 
     @Test
     public void testCommentsInExternalSql() throws Exception {
         Handle h = db.openHandle();
-        h.insert(sqlLocator.locate("insert-eric-with-comments"));
+        h.insert(findSqlOnClasspath("insert-eric-with-comments"));
         assertEquals(1, h.select("select name from something").size());
     }
 
     @Test
     public void testNamedPositionalNamedParamsInPrepared() throws Exception {
         Handle h = db.openHandle();
-        h.insert(sqlLocator.locate("insert-id-name"), 3, "Tip");
+        h.insert(findSqlOnClasspath("insert-id-name"), 3, "Tip");
         assertEquals(1, h.select("select name from something").size());
     }
 
     @Test
     public void testNamedParamsInExternal() throws Exception {
         Handle h = db.openHandle();
-        h.createStatement(sqlLocator.locate("insert-id-name"))
+        h.createStatement(findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .bind("name", "Tip")
                 .execute();
@@ -79,7 +77,7 @@ public class TestClasspathSqlLocator {
         exception.expect(StatementException.class);
         exception.expectMessage("insert into something(id, name) values (:id, :name)");
         exception.expectMessage("insert into something(id, name) values (?, ?)");
-        h.createStatement(sqlLocator.locate("insert-id-name"))
+        h.createStatement(findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .execute();
     }
@@ -89,7 +87,7 @@ public class TestClasspathSqlLocator {
         Handle h = db.openHandle();
 
         exception.expect(IllegalArgumentException.class);
-        sqlLocator.locate("this-does-not-exist");
+        findSqlOnClasspath("this-does-not-exist");
     }
 
     @Test
@@ -107,10 +105,10 @@ public class TestClasspathSqlLocator {
         });
 
         Handle h = db.openHandle();
-        sqlLocator.locate("caches-result-after-first-lookup");
+        findSqlOnClasspath("caches-result-after-first-lookup");
         assertThat(load_count.get()).isEqualTo(1);
 
-        sqlLocator.locate("caches-result-after-first-lookup");
+        findSqlOnClasspath("caches-result-after-first-lookup");
         assertThat(load_count.get()).isEqualTo(1); // has not increased since previous
 
         Thread.currentThread().setContextClassLoader(ctx_loader);
@@ -118,13 +116,13 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testLocateByMethodName() throws Exception {
-        assertThat(sqlLocator.locate(getClass(), "testLocateByMethodName"))
+        assertThat(findSqlOnClasspath(getClass(), "testLocateByMethodName"))
                 .contains("select 1");
     }
 
     @Test
     public void testSelectByExtensionMethodName() throws Exception {
-        assertThat(sqlLocator.locate(getClass(), "test-locate-by-custom-name"))
+        assertThat(findSqlOnClasspath(getClass(), "test-locate-by-custom-name"))
                 .contains("select 1");
     }
 }

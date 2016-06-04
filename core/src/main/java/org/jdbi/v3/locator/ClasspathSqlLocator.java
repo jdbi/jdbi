@@ -27,57 +27,56 @@ import org.jdbi.v3.internal.SqlScriptParser;
 /**
  * Locates SQL in <code>.sql</code> files on the classpath.
  */
-public final class ClasspathSqlLocator implements SqlLocator {
+public final class ClasspathSqlLocator {
     private static final char PACKAGE_DELIMITER = '.';
     private static final char PATH_DELIMITER = '/';
 
     private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
 
-    private final Map<String, String> locatedSql = synchronizedMap(new WeakHashMap<>());
+    private static final Map<String, String> CACHE = synchronizedMap(new WeakHashMap<>());
 
-    public ClasspathSqlLocator() {
+    private ClasspathSqlLocator() {
     }
 
     /**
      * Locates SQL for the given extension type and name. Example: Given an extension type <code>com.foo.Bar</code> and
-     * a name of <code>baz</code>, looks for a resource named <code>/com/foo/Bar/baz.sql</code> and returns its
-     * contents as a String.
+     * a name of <code>baz</code>, looks for a resource named <code>/com/foo/Bar/baz.sql</code> on the classpath and
+     * returns its contents as a String.
      *
      * @param extensionType the extension type
      * @param name          the SQL statement name (usually a method name of the extension type).
      * @return the located SQL.
      */
-    @Override
-    public String locate(Class<?> extensionType, String name) {
-        String path = getResourcePath(extensionType, name);
-        return locateByPath(extensionType.getClassLoader(), path);
+    public static String findSqlOnClasspath(Class<?> extensionType, String name) {
+        String path = resourcePathFor(extensionType, name);
+        return findSqlOnClasspath(extensionType.getClassLoader(), path);
     }
 
     /**
      * Locates SQL for the given fully-qualified SQL name. Example: Given the name <code>com.foo.Bar.baz</code>, looks
-     * for a resource named <code>/com/foo/Bar/baz.sql</code> and returns its contents as a String.
+     * for a resource named <code>/com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
      *
      * @param name fully qualified statement name.
      * @return the located SQL.
      */
-    public String locate(String name) {
-        String path = getResourcePath(name);
-        return locateByPath(selectClassLoader(), path);
+    public static String findSqlOnClasspath(String name) {
+        String path = resourcePathFor(name);
+        return findSqlOnClasspath(selectClassLoader(), path);
     }
 
-    private String getResourcePath(Class<?> extensionType, String methodName) {
-        return getResourcePath(extensionType.getCanonicalName() + "." + methodName);
+    private static String resourcePathFor(Class<?> extensionType, String methodName) {
+        return resourcePathFor(extensionType.getCanonicalName() + "." + methodName);
     }
 
-    private String getResourcePath(String fullyQualifiedName) {
+    private static String resourcePathFor(String fullyQualifiedName) {
         return fullyQualifiedName.replace(PACKAGE_DELIMITER, PATH_DELIMITER) + ".sql";
     }
 
-    private String locateByPath(ClassLoader classLoader, String path) {
-        return locatedSql.computeIfAbsent(path, p -> readResource(classLoader, p));
+    private static String findSqlOnClasspath(ClassLoader classLoader, String path) {
+        return CACHE.computeIfAbsent(path, p -> readResource(classLoader, p));
     }
 
-    private String readResource(ClassLoader classLoader, String path) {
+    private static String readResource(ClassLoader classLoader, String path) {
         try (InputStream is = openStream(classLoader, path)) {
             // strips away comments
             return SQL_SCRIPT_PARSER.parse(new ANTLRInputStream(is));
@@ -87,7 +86,7 @@ public final class ClasspathSqlLocator implements SqlLocator {
         }
     }
 
-    private InputStream openStream(ClassLoader classLoader, String path) {
+    private static InputStream openStream(ClassLoader classLoader, String path) {
         InputStream is = classLoader.getResourceAsStream(path);
         if (is == null) {
             throw new IllegalArgumentException("Cannot find classpath resource at " + path);
@@ -95,7 +94,7 @@ public final class ClasspathSqlLocator implements SqlLocator {
         return is;
     }
 
-    private ClassLoader selectClassLoader() {
+    private static ClassLoader selectClassLoader() {
         return Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElseGet(ClasspathSqlLocator.class::getClassLoader);
     }

@@ -11,7 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.locator;
+package org.jdbi.v3.sqlobject;
+
+import java.lang.reflect.Method;
 
 /**
  * Locates SQL for jdbi extension methods.
@@ -21,8 +23,8 @@ public interface SqlLocator {
      * Locates and returns the SQL for the given jdbi extension type and method.
      *
      * @param extensionType the extension type
-     * @param name          the SQL name
+     * @param method the extension method
      * @return the SQL for the given extension method.
      */
-    String locate(Class<?> extensionType, String name);
+    String locate(Class<?> extensionType, Method method);
 }
