@@ -14,8 +14,23 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.function.Predicate;
 
-class SqlAnnotations {
+import org.jdbi.v3.internal.JdbiOptionals;
+
+public class SqlAnnotations {
+    // TODO move to locator package, make package private
+    public static Optional<String> getAnnotationValue(Method method) {
+        Predicate<String> nonEmpty = s -> !s.isEmpty();
+
+        return JdbiOptionals.findFirstPresent(
+                () -> Optional.ofNullable(method.getAnnotation(SqlBatch.class)).map(SqlBatch::value).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlCall.class)).map(SqlCall::value).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlQuery.class)).map(SqlQuery::value).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlUpdate.class)).map(SqlUpdate::value).filter(nonEmpty));
+    }
+
     static String getSql(SqlCall q, Method m) {
         String value = q.value();
         if (value.isEmpty()) {
