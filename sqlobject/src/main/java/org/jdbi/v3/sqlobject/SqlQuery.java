@@ -27,15 +27,13 @@ import java.lang.reflect.Method;
 @SqlMethodAnnotation(SqlQuery.Factory.class)
 public @interface SqlQuery
 {
-    String DEFAULT_VALUE = "  $#@!!@#%  ";
-
     /**
      * The query (or query name if using a statement locator) to be executed. The default value will use
      * the method name of the method being annotated. This default behavior is only useful in conjunction
      * with a statement locator.
      * @return the SQL string (or name)
      */
-    String value() default DEFAULT_VALUE;
+    String value() default "";
 
     class Factory implements HandlerFactory {
         @Override

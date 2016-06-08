@@ -17,34 +17,38 @@ import java.lang.reflect.Method;
 
 class SqlAnnotations {
     static String getSql(SqlCall q, Method m) {
-        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
+        String value = q.value();
+        if (value.isEmpty()) {
             return m.getName();
         } else {
-            return q.value();
+            return value;
         }
     }
 
     static String getSql(SqlQuery q, Method m) {
-        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
+        String value = q.value();
+        if (value.isEmpty()) {
             return m.getName();
         } else {
-            return q.value();
+            return value;
         }
     }
 
     static String getSql(SqlUpdate q, Method m) {
-        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
+        String value = q.value();
+        if (value.isEmpty()) {
             return m.getName();
         } else {
-            return q.value();
+            return value;
         }
     }
 
     static String getSql(SqlBatch q, Method m) {
-        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
+        String value = q.value();
+        if (value.isEmpty()) {
             return m.getName();
         } else {
-            return q.value();
+            return value;
         }
     }
 }

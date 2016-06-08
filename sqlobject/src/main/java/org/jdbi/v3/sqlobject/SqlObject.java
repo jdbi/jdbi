@@ -13,11 +13,34 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.Objects;
+
 import org.jdbi.v3.extension.ExtensionConfig;
+import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
+import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 public class SqlObject implements ExtensionConfig<SqlObject> {
+    private SqlLocator sqlLocator;
+
+    SqlObject() {
+        sqlLocator = new AnnotationSqlLocator();
+    }
+
+    SqlObject(SqlObject parent) {
+        this.sqlLocator = parent.sqlLocator;
+    }
+
+    public SqlLocator getSqlLocator() {
+        return sqlLocator;
+    }
+
+    public SqlObject setSqlLocator(SqlLocator sqlLocator) {
+        this.sqlLocator = Objects.requireNonNull(sqlLocator);
+        return this;
+    }
+
     @Override
     public SqlObject createCopy() {
-        return new SqlObject();
+        return new SqlObject(this);
     }
 }

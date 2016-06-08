@@ -27,7 +27,6 @@ import org.jdbi.v3.tweak.RowMapper;
 
 class UpdateHandler extends CustomizingStatementHandler
 {
-    private final String sql;
     private final Returner returner;
 
     UpdateHandler(Class<?> sqlObjectType, Method method)
@@ -40,7 +39,6 @@ class UpdateHandler extends CustomizingStatementHandler
         if (!isGetGeneratedKeys && returnTypeIsInvalid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
         }
-        this.sql = SqlAnnotations.getSql(method.getAnnotation(SqlUpdate.class), method);
         if (isGetGeneratedKeys) {
 
             final ResultReturnThing magic = ResultReturnThing.forMethod(sqlObjectType, method);
@@ -70,6 +68,7 @@ class UpdateHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
+        String sql = SqlAnnotations.getSql(method.getAnnotation(SqlUpdate.class), method);
         Update q = handle.get().createStatement(sql);
         populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);

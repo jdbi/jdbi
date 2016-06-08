@@ -24,7 +24,6 @@ import org.jdbi.v3.Types;
 
 class CallHandler extends CustomizingStatementHandler
 {
-    private final String sql;
     private final boolean returnOutParams;
 
     CallHandler(Class<?> sqlObjectType, Method method)
@@ -40,13 +39,12 @@ class CallHandler extends CustomizingStatementHandler
         } else {
             throw new IllegalArgumentException("@SqlCall methods may only return null or OutParameters at present");
         }
-
-        this.sql = SqlAnnotations.getSql(method.getAnnotation(SqlCall.class), method);
     }
 
     @Override
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
+        String sql = SqlAnnotations.getSql(method.getAnnotation(SqlCall.class), method);
         Call call = handle.get().createCall(sql);
         populateSqlObjectData(call.getContext());
         applyCustomizers(call, args);

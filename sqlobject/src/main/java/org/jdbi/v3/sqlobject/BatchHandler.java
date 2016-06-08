@@ -32,8 +32,7 @@ import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
 class BatchHandler extends CustomizingStatementHandler
 {
-    private final String sql;
-    private final boolean transactional;
+    private final SqlBatch sqlBatch;
     private final ChunkSizeFunction batchChunkSize;
 
     BatchHandler(Class<?> sqlObjectType, Method method)
@@ -42,9 +41,7 @@ class BatchHandler extends CustomizingStatementHandler
         if(!returnTypeIsValid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
         }
-        SqlBatch anno = method.getAnnotation(SqlBatch.class);
-        this.sql = SqlAnnotations.getSql(anno, method);
-        this.transactional = anno.transactional();
+        this.sqlBatch = method.getAnnotation(SqlBatch.class);
         this.batchChunkSize = determineBatchChunkSize(sqlObjectType, method);
     }
 
@@ -116,6 +113,7 @@ class BatchHandler extends CustomizingStatementHandler
         int processed = 0;
         List<int[]> rs_parts = new ArrayList<>();
 
+        String sql = SqlAnnotations.getSql(sqlBatch, method);
         PreparedBatch batch = handle.prepareBatch(sql);
         populateSqlObjectData(batch.getContext());
         applyCustomizers(batch, args);
@@ -156,7 +154,7 @@ class BatchHandler extends CustomizingStatementHandler
 
     private int[] executeBatch(final Handle handle, final PreparedBatch batch)
     {
-        if (!handle.isInTransaction() && transactional) {
+        if (!handle.isInTransaction() && sqlBatch.transactional()) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
             return handle.inTransaction((conn, status) -> batch.execute());

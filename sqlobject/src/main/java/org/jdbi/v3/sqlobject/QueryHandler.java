@@ -21,19 +21,18 @@ import org.jdbi.v3.Query;
 
 class QueryHandler extends CustomizingStatementHandler
 {
-    private final String sql;
     private final ResultReturnThing magic;
 
     QueryHandler(Class<?> sqlObjectType, Method method, ResultReturnThing magic)
     {
         super(sqlObjectType, method);
         this.magic = magic;
-        this.sql = SqlAnnotations.getSql(method.getAnnotation(SqlQuery.class), method);
     }
 
     @Override
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
+        String sql = SqlAnnotations.getSql(method.getAnnotation(SqlQuery.class), method);
         Query<?> q = handle.get().createQuery(sql);
         populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);
