@@ -19,8 +19,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

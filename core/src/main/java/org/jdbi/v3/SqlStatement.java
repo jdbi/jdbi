@@ -31,18 +31,22 @@ import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.argument.ArgumentFactory;
 import org.jdbi.v3.argument.CharacterStreamArgument;
 import org.jdbi.v3.argument.InputStreamArgument;
+import org.jdbi.v3.argument.NamedArgumentFinder;
 import org.jdbi.v3.argument.NullArgument;
 import org.jdbi.v3.argument.ObjectArgument;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.collector.CollectorFactory;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.rewriter.RewrittenStatement;
 import org.jdbi.v3.rewriter.StatementRewriter;
-import org.jdbi.v3.tweak.CollectorFactory;
-import org.jdbi.v3.tweak.NamedArgumentFinder;
-import org.jdbi.v3.tweak.RowMapper;
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementCustomizer;
-import org.jdbi.v3.tweak.StatementLocator;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementCustomizer;
+import org.jdbi.v3.statement.StatementCustomizers;
+import org.jdbi.v3.statement.StatementLocator;
+import org.jdbi.v3.transaction.TransactionState;
+import org.jdbi.v3.util.GenericType;
+import org.jdbi.v3.util.GenericTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,8 +192,8 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     {
         // Prevent bogus signatures like Update extends SqlStatement<Query>
         // SqlStatement's generic parameter must be supertype of getClass()
-        return Types.findGenericParameter(getClass(), SqlStatement.class)
-                .map(Types::getErasedType)
+        return GenericTypes.findGenericParameter(getClass(), SqlStatement.class)
+                .map(GenericTypes::getErasedType)
                 .map(type -> type.isAssignableFrom(getClass()))
                 .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯
     }

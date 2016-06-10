@@ -21,10 +21,10 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.Query;
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.tweak.ColumnMapper;
 
 /**
  * Used to register a column mapper with either a sql object type or for a specific method.

@@ -22,9 +22,9 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jdbi.v3.exceptions.StatementException;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
-import org.jdbi.v3.tweak.StatementLocator;
+import org.jdbi.v3.exception.StatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
+import org.jdbi.v3.statement.StatementLocator;
 import org.junit.Rule;
 import org.junit.Test;
 

@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.v3.exceptions.StatementException;
+import org.jdbi.v3.exception.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 

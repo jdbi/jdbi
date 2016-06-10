@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.tweak.ConnectionFactory;
 import org.junit.Rule;
 import org.junit.Test;
 

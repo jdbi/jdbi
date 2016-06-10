@@ -28,25 +28,27 @@ import java.util.function.Consumer;
 import javax.sql.DataSource;
 
 import org.jdbi.v3.argument.ArgumentFactory;
-import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
+import org.jdbi.v3.collector.CollectorFactory;
+import org.jdbi.v3.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.extension.ExtensionCallback;
 import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionConsumer;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.spi.JdbiPlugin;
-import org.jdbi.v3.tweak.CollectorFactory;
-import org.jdbi.v3.tweak.ColumnMapper;
-import org.jdbi.v3.tweak.ConnectionFactory;
-import org.jdbi.v3.tweak.RowMapper;
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementBuilderFactory;
-import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.TransactionHandler;
-import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementBuilderFactory;
+import org.jdbi.v3.statement.StatementLocator;
+import org.jdbi.v3.transaction.LocalTransactionHandler;
+import org.jdbi.v3.transaction.TransactionCallback;
+import org.jdbi.v3.transaction.TransactionConsumer;
+import org.jdbi.v3.transaction.TransactionHandler;
+import org.jdbi.v3.transaction.TransactionIsolationLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -222,6 +224,7 @@ public class Jdbi
      * will be invoked.
      *
      * @param factory the new statement builder factory.
+     * @return this
      */
     public Jdbi setStatementBuilderFactory(StatementBuilderFactory factory)
     {
@@ -236,10 +239,11 @@ public class Jdbi
 
     /**
      * Use a non-standard StatementLocator to look up named statements for all
-     * handles created from this DBi instance.
+     * handles created from this Jdbi instance.
      *
      * @param locator StatementLocator which will be used by all Handle instances
      *                created from this DBI
+     * @return this
      */
     public Jdbi setStatementLocator(StatementLocator locator)
     {
@@ -258,6 +262,7 @@ public class Jdbi
      * created by this DBI.
      *
      * @param rewriter StatementRewriter to use on all Handle instances
+     * @return this
      */
     public Jdbi setStatementRewriter(StatementRewriter rewriter)
     {
@@ -282,6 +287,7 @@ public class Jdbi
      *
      * @param handler The TransactionHandler to use for all Handle instances obtained
      *                from this DBI
+     * @return this
      */
     public Jdbi setTransactionHandler(TransactionHandler handler)
     {
@@ -300,6 +306,7 @@ public class Jdbi
      * data source.
      *
      * @param timingCollector the new timing collector
+     * @return this
      */
     public Jdbi setTimingCollector(final TimingCollector timingCollector) {
         if (timingCollector == null) {
@@ -345,6 +352,7 @@ public class Jdbi
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
      * @param mapper the column mapper
+     * @return this
      */
     public Jdbi registerColumnMapper(ColumnMapper<?> mapper) {
         config.mappingRegistry.addColumnMapper(mapper);
@@ -357,6 +365,7 @@ public class Jdbi
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
      * @param factory the column mapper factory
+     * @return this
      */
     public Jdbi registerColumnMapper(ColumnMapperFactory factory) {
         config.mappingRegistry.addColumnMapper(factory);
@@ -369,6 +378,7 @@ public class Jdbi
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
      * @param mapper the row mapper
+     * @return this
      */
     public Jdbi registerRowMapper(RowMapper<?> mapper) {
         config.mappingRegistry.addRowMapper(mapper);
@@ -381,6 +391,7 @@ public class Jdbi
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
      * @param factory the row mapper factory
+     * @return this
      */
     public Jdbi registerRowMapper(RowMapperFactory factory) {
         config.mappingRegistry.addRowMapper(factory);
@@ -393,6 +404,7 @@ public class Jdbi
      *
      * @param key   The key for the attribute
      * @param value the value for the attribute
+     * @return this
      */
     public Jdbi define(String key, Object value)
     {

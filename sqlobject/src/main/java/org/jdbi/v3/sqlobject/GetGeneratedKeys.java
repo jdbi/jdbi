@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.tweak.RowMapper;
+import org.jdbi.v3.mapper.RowMapper;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})

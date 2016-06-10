@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.runtime.ANTLRStringStream;
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
 
 /**
  * Represents a number of SQL statements which will be executed in a batch statement.

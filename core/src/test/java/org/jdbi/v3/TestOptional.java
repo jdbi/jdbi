@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.argument.ArgumentFactory;
+import org.jdbi.v3.util.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

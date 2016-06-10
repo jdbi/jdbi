@@ -17,15 +17,12 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.argument.Argument;
-import org.jdbi.v3.tweak.ColumnMapper;
+import org.jdbi.v3.mapper.ColumnMapper;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -37,7 +34,7 @@ public final class StatementContext
 {
     private final JdbiConfig config;
 
-    private final Set<Cleanable> cleanables = new LinkedHashSet<>();
+    private final Cleanables cleanables = new Cleanables();
 
     private String            rawSql;
     private String            rewrittenSql;
@@ -227,6 +224,10 @@ public final class StatementContext
         return binding;
     }
 
+    Cleanables getCleanables() {
+        return cleanables;
+    }
+
     // TODO make default access or remove altogether
     public void setSqlObjectType(Class<?> sqlObjectType)
     {
@@ -268,11 +269,6 @@ public final class StatementContext
         this.generatedKeysColumnNames = Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
     }
 
-    public void addCleanable(Cleanable cleanable)
-    {
-        this.cleanables.add(cleanable);
-    }
-
     /**
      * Return if the statement should be concurrent updatable.
      *
@@ -301,10 +297,5 @@ public final class StatementContext
                     + "updatable and is returning generated keys.");
         }
         this.concurrentUpdatable = concurrentUpdatable;
-    }
-
-    public Collection<Cleanable> getCleanables()
-    {
-        return cleanables;
     }
 }

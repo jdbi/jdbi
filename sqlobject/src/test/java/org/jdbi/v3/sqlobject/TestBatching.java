@@ -23,7 +23,7 @@ import java.util.List;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;

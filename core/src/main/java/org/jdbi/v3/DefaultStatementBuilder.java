@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.jdbi.v3.tweak.StatementBuilder;
+import org.jdbi.v3.statement.StatementBuilder;
 
 /**
  * A StatementBuilder which will always create a new PreparedStatement

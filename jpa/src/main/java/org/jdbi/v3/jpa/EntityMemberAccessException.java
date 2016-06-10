@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.exceptions.JdbiException;
+import org.jdbi.v3.exception.JdbiException;
 
 public class EntityMemberAccessException extends JdbiException {
     private static final long serialVersionUID = 1L;

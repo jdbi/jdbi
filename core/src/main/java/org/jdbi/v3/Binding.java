@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.argument.Argument;
-import org.jdbi.v3.tweak.NamedArgumentFinder;
+import org.jdbi.v3.argument.NamedArgumentFinder;
 
 /**
  * Represents the arguments bound to a particular statement

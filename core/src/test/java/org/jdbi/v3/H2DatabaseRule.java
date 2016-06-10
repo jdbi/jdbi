@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jdbi.v3.spi.JdbiPlugin;
-import org.jdbi.v3.tweak.ConnectionFactory;
 import org.junit.rules.ExternalResource;
 
 public class H2DatabaseRule extends ExternalResource

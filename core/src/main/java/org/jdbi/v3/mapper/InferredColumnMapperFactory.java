@@ -13,13 +13,12 @@
  */
 package org.jdbi.v3.mapper;
 
-import static org.jdbi.v3.Types.findGenericParameter;
+import static org.jdbi.v3.util.GenericTypes.findGenericParameter;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ColumnMapper;
 
 /**
  * A generic ColumnMapperFactory that reflectively inspects a

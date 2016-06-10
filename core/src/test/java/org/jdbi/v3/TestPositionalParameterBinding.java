@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

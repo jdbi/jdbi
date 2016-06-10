@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.PreparedBatch;
 import org.jdbi.v3.PreparedBatchPart;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 

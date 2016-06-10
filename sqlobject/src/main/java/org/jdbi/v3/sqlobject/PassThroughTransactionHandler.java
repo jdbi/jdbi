@@ -17,9 +17,9 @@ import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.Handle;
-import org.jdbi.v3.TransactionCallback;
-import org.jdbi.v3.TransactionIsolationLevel;
-import org.jdbi.v3.exceptions.TransactionException;
+import org.jdbi.v3.exception.TransactionException;
+import org.jdbi.v3.transaction.TransactionCallback;
+import org.jdbi.v3.transaction.TransactionIsolationLevel;
 
 class PassThroughTransactionHandler implements Handler
 {
