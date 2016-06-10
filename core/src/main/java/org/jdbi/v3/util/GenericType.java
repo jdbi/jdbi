@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.util;
 
-import static org.jdbi.v3.util.Types.findGenericParameter;
+import static org.jdbi.v3.util.GenericTypes.findGenericParameter;
 
 import java.lang.reflect.Type;
 

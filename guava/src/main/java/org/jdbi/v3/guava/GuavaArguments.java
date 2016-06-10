@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.jdbi.v3.util.Types.findGenericParameter;
-import static org.jdbi.v3.util.Types.getErasedType;
+import static org.jdbi.v3.util.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.Optional;

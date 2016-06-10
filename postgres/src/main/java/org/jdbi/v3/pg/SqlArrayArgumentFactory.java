@@ -24,13 +24,13 @@ import java.util.UUID;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.argument.ArgumentFactory;
-import org.jdbi.v3.util.Types;
+import org.jdbi.v3.util.GenericTypes;
 
 public class SqlArrayArgumentFactory implements ArgumentFactory {
 
     @Override
     public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
-        return Types.getErasedType(type).isArray() ?
+        return GenericTypes.getErasedType(type).isArray() ?
                 Optional.of(ArrayArgument.fromAnyArray(guessSqlType(value), value)) :
                     Optional.empty();
     }

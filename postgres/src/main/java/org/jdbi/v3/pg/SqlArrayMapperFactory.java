@@ -19,13 +19,13 @@ import java.util.Optional;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
-import org.jdbi.v3.util.Types;
+import org.jdbi.v3.util.GenericTypes;
 
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
-        final Class<?> clazz = Types.getErasedType(type);
+        final Class<?> clazz = GenericTypes.getErasedType(type);
         return clazz.isArray() ?
                 Optional.of(new ArrayColumnMapper(clazz.getComponentType(), ctx)) : Optional.empty();
     }

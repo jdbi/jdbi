@@ -46,7 +46,7 @@ import org.jdbi.v3.statement.StatementCustomizers;
 import org.jdbi.v3.statement.StatementLocator;
 import org.jdbi.v3.transaction.TransactionState;
 import org.jdbi.v3.util.GenericType;
-import org.jdbi.v3.util.Types;
+import org.jdbi.v3.util.GenericTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,8 +192,8 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     {
         // Prevent bogus signatures like Update extends SqlStatement<Query>
         // SqlStatement's generic parameter must be supertype of getClass()
-        return Types.findGenericParameter(getClass(), SqlStatement.class)
-                .map(Types::getErasedType)
+        return GenericTypes.findGenericParameter(getClass(), SqlStatement.class)
+                .map(GenericTypes::getErasedType)
                 .map(type -> type.isAssignableFrom(getClass()))
                 .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯
     }

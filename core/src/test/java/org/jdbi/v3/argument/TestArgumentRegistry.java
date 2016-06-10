@@ -14,7 +14,7 @@
 package org.jdbi.v3.argument;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.util.Types.getErasedType;
+import static org.jdbi.v3.util.GenericTypes.getErasedType;
 import static org.mockito.Mockito.verify;
 
 import java.lang.reflect.Type;

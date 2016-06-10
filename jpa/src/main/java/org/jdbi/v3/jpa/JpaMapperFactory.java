@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.jpa;
 
-import static org.jdbi.v3.util.Types.getErasedType;
+import static org.jdbi.v3.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.Optional;

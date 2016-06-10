@@ -23,7 +23,7 @@ import org.jdbi.v3.Update;
 import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
-import org.jdbi.v3.util.Types;
+import org.jdbi.v3.util.GenericTypes;
 
 class UpdateHandler extends CustomizingStatementHandler
 {
@@ -36,7 +36,7 @@ class UpdateHandler extends CustomizingStatementHandler
 
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
-        Type returnType = Types.resolveType(method.getGenericReturnType(), sqlObjectType);
+        Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
         if (!isGetGeneratedKeys && returnTypeIsInvalid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
         }

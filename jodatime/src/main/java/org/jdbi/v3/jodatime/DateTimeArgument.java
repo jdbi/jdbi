@@ -22,7 +22,7 @@ import java.util.Optional;
 import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.argument.Argument;
 import org.jdbi.v3.argument.ArgumentFactory;
-import org.jdbi.v3.util.Types;
+import org.jdbi.v3.util.GenericTypes;
 import org.joda.time.DateTime;
 
 public class DateTimeArgument implements Argument {
@@ -45,7 +45,7 @@ public class DateTimeArgument implements Argument {
     public static class Factory implements ArgumentFactory {
         @Override
         public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
-            return (Types.getErasedType(type).equals(DateTime.class))
+            return (GenericTypes.getErasedType(type).equals(DateTime.class))
                     ? Optional.of(new DateTimeArgument((DateTime) value))
                     : Optional.empty();
         }

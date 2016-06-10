@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.ColumnName;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.util.Types;
+import org.jdbi.v3.util.GenericTypes;
 import org.jdbi.v3.util.bean.ColumnNameMappingStrategy;
 
 /**
@@ -162,7 +162,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
         return new RowMapperFactory() {
             @Override
             public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
-                return Types.getErasedType(type) == constructor.getDeclaringClass() ? Optional.of(mapper) : Optional.empty();
+                return GenericTypes.getErasedType(type) == constructor.getDeclaringClass() ? Optional.of(mapper) : Optional.empty();
             }
         };
     }

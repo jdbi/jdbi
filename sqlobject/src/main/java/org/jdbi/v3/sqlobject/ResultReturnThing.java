@@ -28,7 +28,7 @@ import org.jdbi.v3.StatementContext;
 import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
-import org.jdbi.v3.util.Types;
+import org.jdbi.v3.util.GenericTypes;
 
 abstract class ResultReturnThing
 {
@@ -51,8 +51,8 @@ abstract class ResultReturnThing
 
     static ResultReturnThing forMethod(Class<?> extensionType, Method method)
     {
-        Type returnType = Types.resolveType(method.getGenericReturnType(), extensionType);
-        Class<?> returnClass = Types.getErasedType(returnType);
+        Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
+        Class<?> returnClass = GenericTypes.getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             throw new IllegalStateException(String.format(
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
@@ -83,7 +83,7 @@ abstract class ResultReturnThing
 
         StreamReturnThing(Type returnType)
         {
-            elementType = Types.findGenericParameter(returnType, Stream.class)
+            elementType = GenericTypes.findGenericParameter(returnType, Stream.class)
                     .orElseThrow(() -> new IllegalStateException(
                             "Cannot reflect Stream<T> element type T in method return type " + returnType));
         }
@@ -137,7 +137,7 @@ abstract class ResultReturnThing
         ResultBearingResultReturnThing(Type returnType)
         {
             // extract T from Query<T>
-            elementType = Types.findGenericParameter(returnType, Query.class)
+            elementType = GenericTypes.findGenericParameter(returnType, Query.class)
                     .orElseThrow(() -> new IllegalStateException(
                             "Cannot reflect Query<T> element type T in method return type " + returnType));
         }
@@ -161,7 +161,7 @@ abstract class ResultReturnThing
 
         IteratorResultReturnThing(Type returnType)
         {
-            this.elementType = Types.findGenericParameter(returnType, Iterator.class)
+            this.elementType = GenericTypes.findGenericParameter(returnType, Iterator.class)
                     .orElseThrow(() -> new IllegalStateException(
                             "Cannot reflect Iterator<T> element type T in method return type " + returnType));
         }

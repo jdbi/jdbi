@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import com.google.common.reflect.TypeToken;
 
-public class Types {
+public class GenericTypes {
     /**
      * Returns the erased class for the given type.
      *

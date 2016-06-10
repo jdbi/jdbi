@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 import org.jdbi.v3.Call;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.OutParameters;
-import org.jdbi.v3.util.Types;
+import org.jdbi.v3.util.GenericTypes;
 
 class CallHandler extends CustomizingStatementHandler
 {
@@ -31,8 +31,8 @@ class CallHandler extends CustomizingStatementHandler
     {
         super(sqlObjectType, method);
 
-        Type returnType = Types.resolveType(method.getGenericReturnType(), sqlObjectType);
-        Class<?> returnClass = Types.getErasedType(returnType);
+        Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
+        Class<?> returnClass = GenericTypes.getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             returnOutParams = false;
         } else if (OutParameters.class.isAssignableFrom(returnClass)) {
