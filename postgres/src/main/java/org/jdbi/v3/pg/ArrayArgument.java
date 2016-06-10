@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.pg;
 
-import java.sql.Array;
+import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -23,11 +23,17 @@ import org.jdbi.v3.argument.Argument;
 public class ArrayArgument implements Argument {
 
     private final String elementType;
-    private final Object array;
+    private final Object[] array;
 
-    private ArrayArgument(String elementType, Object array) {
+    private ArrayArgument(String elementType, Object newArray) {
         this.elementType = elementType;
-        this.array = array;
+        int length = Array.getLength(newArray);
+        // We can't cast newArray to Object[], so we need to make a new array
+        // of Object[] and copy newArray's content to it
+        this.array = new Object[length];
+        for (int i = 0; i < length; i++) {
+            array[i] = Array.get(newArray, i);
+        }
     }
 
     public static ArrayArgument fromArray(String elementType, Object[] array) {
@@ -44,7 +50,7 @@ public class ArrayArgument implements Argument {
 
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-        Array sqlArray = statement.getConnection().createArrayOf(elementType, (Object[]) array);
+        java.sql.Array sqlArray = statement.getConnection().createArrayOf(elementType, array);
         statement.setArray(position, sqlArray);
     }
 }
