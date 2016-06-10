@@ -13,19 +13,13 @@
  */
 package org.jdbi.v3;
 
-import static org.jdbi.v3.util.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.util.GenericTypes.getErasedType;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
+import org.jdbi.v3.collector.BuiltInCollectorFactories;
 import org.jdbi.v3.collector.CollectorFactory;
 
 /**
@@ -37,10 +31,7 @@ class CollectorFactoryRegistry {
     private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
 
     CollectorFactoryRegistry() {
-        factories.add(new ListCollectorFactory());
-        factories.add(new SortedSetCollectorFactory());
-        factories.add(new SetCollectorFactory());
-        factories.add(new OptionalCollectorFactory());
+        factories.addAll(BuiltInCollectorFactories.get());
     }
 
     private CollectorFactoryRegistry(CollectorFactoryRegistry that) {
@@ -69,96 +60,5 @@ class CollectorFactoryRegistry {
 
     static CollectorFactoryRegistry copyOf(CollectorFactoryRegistry registry) {
         return new CollectorFactoryRegistry(registry);
-    }
-
-    private static class SortedSetCollectorFactory implements CollectorFactory {
-        @Override
-        public boolean accepts(Type containerType) {
-            return getErasedType(containerType) == SortedSet.class;
-        }
-
-        @Override
-        public Optional<Type> elementType(Type containerType) {
-            return findGenericParameter(containerType, SortedSet.class);
-        }
-
-        @Override
-        public Collector<?, ?, ?> build(Type containerType) {
-            return Collectors.toCollection(TreeSet::new);
-        }
-    }
-
-    private static class ListCollectorFactory implements CollectorFactory {
-        @Override
-        public boolean accepts(Type containerType) {
-            return getErasedType(containerType) == List.class;
-        }
-
-        @Override
-        public Optional<Type> elementType(Type containerType) {
-            return findGenericParameter(containerType, List.class);
-        }
-
-        @Override
-        public Collector<?, ?, ?> build(Type containerType) {
-            return Collectors.toList();
-        }
-    }
-
-    private static class SetCollectorFactory implements CollectorFactory {
-        @Override
-        public boolean accepts(Type containerType) {
-            return getErasedType(containerType) == Set.class;
-        }
-
-        @Override
-        public Optional<Type> elementType(Type containerType) {
-            return findGenericParameter(containerType, Set.class);
-        }
-
-        @Override
-        public Collector<?, ?, ?> build(Type containerType) {
-            return Collectors.toSet();
-        }
-    }
-
-    private static class OptionalCollectorFactory implements CollectorFactory {
-        @Override
-        public boolean accepts(Type containerType) {
-            return getErasedType(containerType) == Optional.class;
-        }
-
-        @Override
-        public Optional<Type> elementType(Type containerType) {
-            return findGenericParameter(containerType, Optional.class);
-        }
-
-        @Override
-        public Collector<?, ?, ?> build(Type containerType) {
-            return Collector.<Object, OptionalBuilder<Object>, Optional<Object>>of(
-                    OptionalBuilder::new,
-                    OptionalBuilder::set,
-                    (left, right) -> left.build().isPresent() ? left : right,
-                    OptionalBuilder::build);
-        }
-
-    }
-
-    private static class OptionalBuilder<T> {
-        private Optional<T> optional = Optional.empty();
-
-        public void set(T value) {
-            if (optional.isPresent()) {
-                throw new IllegalStateException(
-                        String.format("Multiple values for Optional type: ['%s','%s',...]",
-                                optional.get(),
-                                value));
-            }
-            optional = Optional.of(value);
-        }
-
-        public Optional<T> build() {
-            return optional;
-        }
     }
 }

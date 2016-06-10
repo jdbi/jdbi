@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 /**
- * Factory for building containers of elements.
+ * Factory for building Collectors to assemble containers of elements.
  * The collector produces only objects of the type of the container elements.
  */
 public interface CollectorFactory {
