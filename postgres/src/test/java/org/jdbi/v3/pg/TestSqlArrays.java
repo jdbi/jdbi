@@ -20,8 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
+import java.util.stream.IntStream;
 import org.jdbi.v3.Handle;
+import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.junit.Before;
@@ -29,7 +30,6 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-@Ignore // XXX: this doesn't work yet!
 public class TestSqlArrays {
     private static final String U_SELECT = "SELECT u FROM uuids";
     private static final String U_INSERT = "INSERT INTO uuids VALUES(:uuids, NULL)";
@@ -63,6 +63,7 @@ public class TestSqlArrays {
     }
 
     @Test
+    @Ignore("Inserting lists to arrays is not supported")
     public void testUuidList() throws Exception {
         ao.insertUuidList(Arrays.asList(testUuids));
         assertEquals(Arrays.asList(testUuids), ao.fetchUuidList());
@@ -71,10 +72,28 @@ public class TestSqlArrays {
     @Test
     public void testIntArray() throws Exception {
         ao.insertIntArray(testInts);
-        assertArrayEquals(testInts, ao.fetchIntArray());
+        int[] actuals = ao.fetchIntArray();
+        assertArrayEquals(testInts, actuals);
     }
 
     @Test
+    public void testBoxedIntArray() throws Exception {
+        Integer[] source = IntStream.of(testInts).mapToObj(Integer::valueOf).toArray(Integer[]::new);
+        ao.insertBoxedIntArray(source);
+        Integer[] actuals = ao.fetchBoxedIntArray();
+        assertArrayEquals(source, actuals);
+    }
+
+    @Test
+    public void testObjectArray() throws Exception {
+        ao.insertIntArray(testInts);
+        Object[] actuals = ao.fetchObjectArray();
+        Object[] expecteds = IntStream.of(testInts).mapToObj(Integer::valueOf).toArray(Object[]::new);
+        assertArrayEquals(expecteds, actuals);
+    }
+
+    @Test
+    @Ignore("Inserting lists to arrays is not supported")
     public void testIntList() throws Exception {
         List<Integer> testIntList = new ArrayList<Integer>();
         Arrays.stream(testInts).forEach(testIntList::add);
@@ -87,7 +106,7 @@ public class TestSqlArrays {
         UUID[] fetchUuidArray();
 
         @SqlUpdate(U_INSERT)
-        void insertUuidArray(UUID[] u);
+        void insertUuidArray(UUID[] uuids);
 
         @SqlQuery(U_SELECT)
         List<UUID> fetchUuidList();
@@ -102,8 +121,14 @@ public class TestSqlArrays {
         @SqlQuery(I_SELECT)
         Integer[] fetchBoxedIntArray();
 
+        @SqlQuery(I_SELECT)
+        Object[] fetchObjectArray();
+
         @SqlUpdate(I_INSERT)
-        void insertIntArray(int[] u);
+        void insertIntArray(int[] ints);
+
+        @SqlUpdate(I_INSERT)
+        void insertBoxedIntArray(Integer[] ints);
 
         @SqlQuery(I_SELECT)
         List<Integer> fetchIntList();

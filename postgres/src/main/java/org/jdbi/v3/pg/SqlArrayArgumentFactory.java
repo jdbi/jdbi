@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.pg;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -38,11 +39,15 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
     static {
         final Map<Class<?>, String> map = new IdentityHashMap<>();
         map.put(int.class, "integer");
+        map.put(Integer.class, "integer");
         map.put(long.class, "bigint");
+        map.put(Long.class, "bigint");
         map.put(String.class, "varchar");
         map.put(UUID.class, "uuid");
         map.put(float.class, "real");
+        map.put(Float.class, "real");
         map.put(double.class, "double precision");
+        map.put(Double.class, "double precision");
         BEST_GUESS = Collections.unmodifiableMap(map);
     }
 
@@ -56,7 +61,7 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
             throw new IllegalArgumentException("not an array: " + klass);
         }
         String guess = BEST_GUESS.get(klass.getComponentType());
-        if (((Object[]) array).length == 0 || guess == null) {
+        if (Array.getLength(array) == 0 || guess == null) {
             return "varchar";
         }
         return guess;
