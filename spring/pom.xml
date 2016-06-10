@@ -22,10 +22,10 @@
     </parent>
 
     <artifactId>jdbi3-spring</artifactId>
-    <name>jDBI Spring</name>
+    <name>jdbi Spring</name>
     <packaging>jar</packaging>
     <description>
-        jDBI Spring integration
+        jdbi Spring integration
     </description>
     <url>http://jdbi.org/</url>
 

@@ -22,10 +22,10 @@
     </parent>
 
     <artifactId>jdbi3-sqlobject</artifactId>
-    <name>jDBI SQLObject</name>
+    <name>jdbi SqlObject</name>
     <packaging>jar</packaging>
     <description>
-        jDBI SQLObject transforms simple annotated interfaces into
+        jdbi SqlObject transforms simple annotated interfaces into
         full-featured DAO implementations.
     </description>
     <url>http://jdbi.org/</url>
