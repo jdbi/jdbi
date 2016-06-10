@@ -22,12 +22,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.argument.ArgumentFactory;
+import org.jdbi.v3.collector.CollectorFactory;
 import org.jdbi.v3.exception.UnableToCloseResourceException;
 import org.jdbi.v3.exception.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
-import org.jdbi.v3.mapper.CollectorFactory;
 import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
 import org.jdbi.v3.mapper.DefaultMapper;

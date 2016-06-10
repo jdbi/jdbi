@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collector;
 
-import org.jdbi.v3.mapper.CollectorFactory;
+import org.jdbi.v3.collector.CollectorFactory;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;

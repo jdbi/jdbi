@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.mapper;
+package org.jdbi.v3.collector;
 
 import java.lang.reflect.Type;
 import java.util.Optional;

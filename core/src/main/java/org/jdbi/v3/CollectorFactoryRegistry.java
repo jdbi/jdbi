@@ -26,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import org.jdbi.v3.mapper.CollectorFactory;
+import org.jdbi.v3.collector.CollectorFactory;
 
 /**
  * Registry of collector factories.
