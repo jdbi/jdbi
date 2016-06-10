@@ -84,6 +84,7 @@ public class Handle implements Closeable
      *
      * @param key Attribute name
      * @param value Attribute value
+     * @return this
      */
     public Handle define(String key, Object value) {
         config.statementAttributes.put(key, value);
@@ -109,6 +110,7 @@ public class Handle implements Closeable
      *
      * @param mapper the column mapper
      * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
+     * @return this
      */
     public Handle registerColumnMapper(ColumnMapper<?> mapper) {
         config.mappingRegistry.addColumnMapper(mapper);
@@ -121,6 +123,7 @@ public class Handle implements Closeable
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
      * @param factory the column mapper factory
+     * @return this
      */
     public Handle registerColumnMapper(ColumnMapperFactory factory) {
         config.mappingRegistry.addColumnMapper(factory);
@@ -141,6 +144,7 @@ public class Handle implements Closeable
      *
      * @param mapper the row mapper
      * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
+     * @return this
      */
     public Handle registerRowMapper(RowMapper<?> mapper) {
         config.mappingRegistry.addRowMapper(mapper);
@@ -153,6 +157,7 @@ public class Handle implements Closeable
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
      * @param factory the row mapper factory
+     * @return this
      */
     public Handle registerRowMapper(RowMapperFactory factory) {
         config.mappingRegistry.addRowMapper(factory);
@@ -162,6 +167,7 @@ public class Handle implements Closeable
     /**
      * Specify the statement builder to use for this handle.
      * @param builder StatementBuilder to be used
+     * @return this
      */
     public Handle setStatementBuilder(StatementBuilder builder) {
         this.statementBuilder = builder;
@@ -173,6 +179,7 @@ public class Handle implements Closeable
      * classpath for named statements
      *
      * @param locator the statement locator
+     * @return this
      */
     public Handle setStatementLocator(StatementLocator locator) {
         config.statementLocator = locator;
@@ -184,6 +191,7 @@ public class Handle implements Closeable
      * named parameter interpolation.
      *
      * @param rewriter the statement rewriter.
+     * @return this
      */
     public Handle setStatementRewriter(StatementRewriter rewriter) {
         config.statementRewriter = rewriter;
@@ -195,6 +203,7 @@ public class Handle implements Closeable
      * to create this Handle.
      *
      * @param timingCollector the timing collector
+     * @return this
      */
     public Handle setTimingCollector(final TimingCollector timingCollector) {
         if (timingCollector == null) {
@@ -230,6 +239,9 @@ public class Handle implements Closeable
         }
     }
 
+    /**
+     * @return whether the Handle is closed
+     */
     protected boolean isClosed() {
         return closed;
     }
@@ -518,7 +530,7 @@ public class Handle implements Closeable
 
     private class TransactionResetter implements Closeable {
 
-        private TransactionIsolationLevel initial;
+        private final TransactionIsolationLevel initial;
 
         TransactionResetter(TransactionIsolationLevel initial) {
             this.initial = initial;

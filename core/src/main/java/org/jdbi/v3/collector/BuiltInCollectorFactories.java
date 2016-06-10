@@ -51,8 +51,9 @@ public class BuiltInCollectorFactories
      * Create a CollectorFactory from collection type and a collector supplier.
      * Most useful for specializing {@link Collection} types since they
      * have a single type parameter.
+     * @param <T> the type of the collection
      * @param collectionType the collection type that will eventually be produced
-     * @param factory the constructor of collectors
+     * @param collector the constructor of collectors
      * @return the CollectorFactory
      */
     public static <T> CollectorFactory fromSupplier(Class<T> collectionType, Supplier<Collector<?, ?, ?>> collector)
