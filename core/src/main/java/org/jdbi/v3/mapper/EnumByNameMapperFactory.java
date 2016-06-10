@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.util;
+package org.jdbi.v3.mapper;
 
 import static org.jdbi.v3.util.GenericTypes.getErasedType;
 
@@ -19,19 +19,17 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.ColumnMapper;
-import org.jdbi.v3.mapper.ColumnMapperFactory;
 
 /**
- * Produces enum column mappers, which map enums from numeric columns according to ordinal value.
+ * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
  */
-public class EnumByOrdinalMapperFactory implements ColumnMapperFactory {
+public class EnumByNameMapperFactory implements ColumnMapperFactory {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
         Class<?> clazz = getErasedType(type);
         return clazz.isEnum()
-                ? Optional.of(EnumMapper.byOrdinal((Class<? extends Enum>) clazz))
+                ? Optional.of(EnumMapper.byName((Class<? extends Enum>) clazz))
                 : Optional.empty();
     }
 }

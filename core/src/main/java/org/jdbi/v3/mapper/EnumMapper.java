@@ -11,13 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.util;
+package org.jdbi.v3.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.ColumnMapper;
 
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     EnumMapper() {}
