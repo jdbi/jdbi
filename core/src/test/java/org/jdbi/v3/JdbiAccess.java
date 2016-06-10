@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3;
 
-import org.jdbi.v3.tweak.transactions.LocalTransactionHandler;
+import org.jdbi.v3.transaction.LocalTransactionHandler;
 
 /**
  * Utilities for testing jdbi internal classes.

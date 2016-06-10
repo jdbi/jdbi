@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-jodatime</artifactId>
-    <name>jDBI Joda-Time Integration</name>
+    <name>jdbi Joda-Time Integration</name>
 
     <developers>
         <developer>

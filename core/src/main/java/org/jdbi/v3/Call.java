@@ -22,9 +22,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jdbi.v3.argument.Argument;
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementCustomizer;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementCustomizer;
 
 /**
  * Used for invoking stored procedures.

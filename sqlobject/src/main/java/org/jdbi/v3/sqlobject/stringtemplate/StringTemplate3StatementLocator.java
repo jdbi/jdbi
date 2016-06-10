@@ -27,7 +27,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateErrorListener;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.StatementLocator;
+import org.jdbi.v3.statement.StatementLocator;
 
 public class StringTemplate3StatementLocator implements StatementLocator
 {

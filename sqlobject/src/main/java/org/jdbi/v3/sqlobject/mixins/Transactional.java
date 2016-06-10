@@ -14,8 +14,8 @@
 package org.jdbi.v3.sqlobject.mixins;
 
 import org.jdbi.v3.sqlobject.TransactionalCallback;
-import org.jdbi.v3.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.TransactionalConsumer;
+import org.jdbi.v3.transaction.TransactionIsolationLevel;
 
 /**
  * A mixin interface to expose transaction methods on the sql object.

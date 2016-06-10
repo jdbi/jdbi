@@ -22,22 +22,25 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.argument.ArgumentFactory;
-import org.jdbi.v3.exceptions.UnableToCloseResourceException;
-import org.jdbi.v3.exceptions.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.collector.CollectorFactory;
+import org.jdbi.v3.exception.UnableToCloseResourceException;
+import org.jdbi.v3.exception.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.extension.NoSuchExtensionException;
+import org.jdbi.v3.mapper.ColumnMapper;
 import org.jdbi.v3.mapper.ColumnMapperFactory;
 import org.jdbi.v3.mapper.DefaultMapper;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.rewriter.StatementRewriter;
-import org.jdbi.v3.tweak.CollectorFactory;
-import org.jdbi.v3.tweak.ColumnMapper;
-import org.jdbi.v3.tweak.RowMapper;
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementCustomizer;
-import org.jdbi.v3.tweak.StatementLocator;
-import org.jdbi.v3.tweak.TransactionHandler;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementCustomizer;
+import org.jdbi.v3.statement.StatementLocator;
+import org.jdbi.v3.transaction.TransactionCallback;
+import org.jdbi.v3.transaction.TransactionConsumer;
+import org.jdbi.v3.transaction.TransactionHandler;
+import org.jdbi.v3.transaction.TransactionIsolationLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +84,7 @@ public class Handle implements Closeable
      *
      * @param key Attribute name
      * @param value Attribute value
+     * @return this
      */
     public Handle define(String key, Object value) {
         config.statementAttributes.put(key, value);
@@ -106,6 +110,7 @@ public class Handle implements Closeable
      *
      * @param mapper the column mapper
      * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
+     * @return this
      */
     public Handle registerColumnMapper(ColumnMapper<?> mapper) {
         config.mappingRegistry.addColumnMapper(mapper);
@@ -118,6 +123,7 @@ public class Handle implements Closeable
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
      * @param factory the column mapper factory
+     * @return this
      */
     public Handle registerColumnMapper(ColumnMapperFactory factory) {
         config.mappingRegistry.addColumnMapper(factory);
@@ -138,6 +144,7 @@ public class Handle implements Closeable
      *
      * @param mapper the row mapper
      * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
+     * @return this
      */
     public Handle registerRowMapper(RowMapper<?> mapper) {
         config.mappingRegistry.addRowMapper(mapper);
@@ -150,6 +157,7 @@ public class Handle implements Closeable
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
      * @param factory the row mapper factory
+     * @return this
      */
     public Handle registerRowMapper(RowMapperFactory factory) {
         config.mappingRegistry.addRowMapper(factory);
@@ -159,6 +167,7 @@ public class Handle implements Closeable
     /**
      * Specify the statement builder to use for this handle.
      * @param builder StatementBuilder to be used
+     * @return this
      */
     public Handle setStatementBuilder(StatementBuilder builder) {
         this.statementBuilder = builder;
@@ -170,6 +179,7 @@ public class Handle implements Closeable
      * classpath for named statements
      *
      * @param locator the statement locator
+     * @return this
      */
     public Handle setStatementLocator(StatementLocator locator) {
         config.statementLocator = locator;
@@ -181,6 +191,7 @@ public class Handle implements Closeable
      * named parameter interpolation.
      *
      * @param rewriter the statement rewriter.
+     * @return this
      */
     public Handle setStatementRewriter(StatementRewriter rewriter) {
         config.statementRewriter = rewriter;
@@ -192,6 +203,7 @@ public class Handle implements Closeable
      * to create this Handle.
      *
      * @param timingCollector the timing collector
+     * @return this
      */
     public Handle setTimingCollector(final TimingCollector timingCollector) {
         if (timingCollector == null) {
@@ -206,7 +218,7 @@ public class Handle implements Closeable
     /**
      * Closes the handle, its connection, and any other database resources it is holding.
      *
-     * @throws org.jdbi.v3.exceptions.UnableToCloseResourceException if any resources throw exception while closing
+     * @throws org.jdbi.v3.exception.UnableToCloseResourceException if any resources throw exception while closing
      */
     @Override
     public void close() {
@@ -227,6 +239,9 @@ public class Handle implements Closeable
         }
     }
 
+    /**
+     * @return whether the Handle is closed
+     */
     protected boolean isClosed() {
         return closed;
     }
@@ -379,7 +394,7 @@ public class Handle implements Closeable
 
     /**
      * @return whether the handle is in a transaction. Delegates to the underlying
-     *         {@link org.jdbi.v3.tweak.TransactionHandler}.
+     *         {@link org.jdbi.v3.transaction.TransactionHandler}.
      */
     public boolean isInTransaction() {
         return transactions.isInTransaction(this);
@@ -515,7 +530,7 @@ public class Handle implements Closeable
 
     private class TransactionResetter implements Closeable {
 
-        private TransactionIsolationLevel initial;
+        private final TransactionIsolationLevel initial;
 
         TransactionResetter(TransactionIsolationLevel initial) {
             this.initial = initial;

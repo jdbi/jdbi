@@ -28,7 +28,7 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.tweak.StatementLocator;
+import org.jdbi.v3.statement.StatementLocator;
 
 @SqlStatementCustomizingAnnotation(UseStringTemplate3StatementLocator.LocatorFactory.class)
 @Retention(RetentionPolicy.RUNTIME)

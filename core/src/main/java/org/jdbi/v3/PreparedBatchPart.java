@@ -15,8 +15,8 @@ package org.jdbi.v3;
 
 import java.util.Collections;
 
-import org.jdbi.v3.tweak.StatementBuilder;
-import org.jdbi.v3.tweak.StatementCustomizer;
+import org.jdbi.v3.statement.StatementBuilder;
+import org.jdbi.v3.statement.StatementCustomizer;
 
 /**
  * Represents a single statement in a prepared batch

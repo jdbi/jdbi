@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.jdbi.v3.Types.getErasedType;
+import static org.jdbi.v3.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -23,10 +23,10 @@ import java.util.Optional;
 
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.TestRegisterRowMapperFactory.Foo.FooMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapperFactory;
-import org.jdbi.v3.tweak.RowMapper;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

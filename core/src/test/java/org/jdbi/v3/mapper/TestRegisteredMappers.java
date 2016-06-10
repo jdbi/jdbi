@@ -22,7 +22,6 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.RowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

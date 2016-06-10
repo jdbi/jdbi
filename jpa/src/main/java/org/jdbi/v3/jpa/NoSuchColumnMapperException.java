@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.exceptions.JdbiException;
+import org.jdbi.v3.exception.JdbiException;
 
 @SuppressWarnings("serial")
 public class NoSuchColumnMapperException extends JdbiException {

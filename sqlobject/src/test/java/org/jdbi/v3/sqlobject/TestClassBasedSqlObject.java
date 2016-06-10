@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.exceptions.TransactionException;
+import org.jdbi.v3.exception.TransactionException;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;

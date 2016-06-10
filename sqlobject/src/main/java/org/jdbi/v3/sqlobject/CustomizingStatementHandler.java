@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.SqlStatement;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
 
 abstract class CustomizingStatementHandler implements Handler
 {

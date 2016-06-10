@@ -14,8 +14,8 @@
 package org.jdbi.v3.jpa;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ColumnMapper;
-import org.jdbi.v3.tweak.RowMapper;
+import org.jdbi.v3.mapper.ColumnMapper;
+import org.jdbi.v3.mapper.RowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

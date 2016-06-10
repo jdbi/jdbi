@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.RowMapper;
 
 /**
  * Factory interface used to produce row mappers.

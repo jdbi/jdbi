@@ -31,7 +31,7 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.v3.Binding;
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.internal.lexer.HashStatementLexer;
 
 /**

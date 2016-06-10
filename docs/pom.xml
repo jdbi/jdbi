@@ -29,6 +29,7 @@
     </description>
 
     <properties>
+        <basepom.check.skip-license>true</basepom.check.skip-license>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 

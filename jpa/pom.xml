@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-jpa</artifactId>
-    <name>jDBI JPA Integration</name>
+    <name>jdbi JPA Integration</name>
 
     <developers>
         <developer>

@@ -17,12 +17,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
-import org.jdbi.v3.exceptions.UnableToExecuteStatementException;
-import org.jdbi.v3.tweak.BaseStatementCustomizer;
-import org.jdbi.v3.tweak.StatementCustomizer;
+import org.jdbi.v3.Cleanables.Cleanable;
+import org.jdbi.v3.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.statement.StatementCustomizer;
 
 abstract class BaseStatement
 {
@@ -102,38 +100,16 @@ abstract class BaseStatement
 
     protected void addCleanable(final Cleanable cleanable)
     {
-        this.context.getCleanables().add(cleanable);
+        context.getCleanables().add(cleanable);
     }
 
-    class StatementCleaningCustomizer extends BaseStatementCustomizer
+    class StatementCleaningCustomizer implements StatementCustomizer
     {
         @Override
         public final void cleanup(final StatementContext ctx)
             throws SQLException
         {
-            SQLException exception = null;
-            try {
-                List<Cleanable> cleanables = new ArrayList<>(context.getCleanables());
-                Collections.reverse(cleanables);
-                for (Cleanable cleanable : cleanables) {
-                    try {
-                        cleanable.close();
-                    }
-                    catch (SQLException e) {
-                        if (exception == null) {
-                            exception = e;
-                        } else {
-                            exception.addSuppressed(e);
-                        }
-                    }
-                }
-                context.getCleanables().clear();
-            }
-            finally {
-                if (exception != null) {
-                    throw exception;
-                }
-            }
+            context.getCleanables().clean();
         }
     }
 }

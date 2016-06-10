@@ -24,7 +24,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
-import org.jdbi.v3.exceptions.UnableToObtainConnectionException;
+import org.jdbi.v3.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.After;
 import org.junit.Before;

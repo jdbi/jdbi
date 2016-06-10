@@ -17,8 +17,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.tweak.ColumnMapper;
-import org.jdbi.v3.tweak.RowMapper;
+import org.jdbi.v3.mapper.ColumnMapper;
+import org.jdbi.v3.mapper.RowMapper;
 
 /**
  * Adapts a {@link ColumnMapper} into a {@link RowMapper} by mapping a single column.

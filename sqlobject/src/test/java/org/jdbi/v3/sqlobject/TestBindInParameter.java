@@ -18,7 +18,7 @@ import java.util.UUID;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.exceptions.UnableToCreateStatementException;
+import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.unstable.BindIn;
 import org.junit.After;
 import org.junit.Before;
