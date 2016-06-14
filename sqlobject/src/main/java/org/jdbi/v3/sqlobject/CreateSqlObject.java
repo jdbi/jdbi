@@ -30,7 +30,7 @@ public @interface CreateSqlObject
 {
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config) {
+        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config) {
             return new CreateSqlObjectHandler(method.getReturnType(), config);
         }
     }

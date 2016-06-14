@@ -21,9 +21,9 @@ import org.jdbi.v3.Handle;
 class CreateSqlObjectHandler implements Handler
 {
     private final Class<?> sqlObjectTypeToCreate;
-    private final SqlObject config;
+    private final SqlObjectConfig config;
 
-    CreateSqlObjectHandler(Class<?> sqlObjectTypeToCreate, SqlObject config)
+    CreateSqlObjectHandler(Class<?> sqlObjectTypeToCreate, SqlObjectConfig config)
     {
         this.sqlObjectTypeToCreate = sqlObjectTypeToCreate;
         this.config = config;

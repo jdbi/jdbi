@@ -19,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation used to configure {@link SqlObject}. Use this to annotate an annotation.
+ * Annotation used to configure {@link SqlObjectConfig}. Use this to annotate an annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)

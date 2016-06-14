@@ -33,11 +33,11 @@ import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 class BatchHandler extends CustomizingStatementHandler
 {
     private final Class<?> sqlObjectType;
-    private final SqlObject config;
+    private final SqlObjectConfig config;
     private final SqlBatch sqlBatch;
     private final ChunkSizeFunction batchChunkSize;
 
-    BatchHandler(Class<?> sqlObjectType, Method method, SqlObject config)
+    BatchHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config)
     {
         super(sqlObjectType, method);
         this.sqlObjectType = sqlObjectType;

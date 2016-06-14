@@ -37,7 +37,7 @@ import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 
-public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
+public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     INSTANCE;
 
     private static final MethodInterceptor NO_OP = (proxy, method, args, methodProxy) -> null;
@@ -54,8 +54,8 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
     }
 
     @Override
-    public SqlObject createConfig() {
-        return new SqlObject();
+    public SqlObjectConfig createConfig() {
+        return new SqlObjectConfig();
     }
 
     @Override
@@ -79,7 +79,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
      * @return the new sql object bound to this handle
      */
     @Override
-    public <E> E attach(Class<E> extensionType, SqlObject config, Supplier<Handle> handle) {
+    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Supplier<Handle> handle) {
         Factory f = factories.computeIfAbsent(extensionType, type -> {
             Enhancer e = new Enhancer();
             e.setClassLoader(extensionType.getClassLoader());
@@ -105,13 +105,13 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
         return extensionType.cast(f.newInstance(interceptor));
     }
 
-    private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType, SqlObject config) {
+    private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType, SqlObjectConfig config) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
 
             final Map<Method, Handler> handlers = new HashMap<>();
             for (Method method : sqlObjectType.getMethods()) {
                 // FIXME will applying configurers here and caching config create problems?
-                SqlObject methodConfig = config.createCopy();
+                SqlObjectConfig methodConfig = config.createCopy();
                 forEachConfigurerFactory(method, (factory, annotation) ->
                         factory.createForMethod(annotation, sqlObjectType, method).apply(methodConfig));
 

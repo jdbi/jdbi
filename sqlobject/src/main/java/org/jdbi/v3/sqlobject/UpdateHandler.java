@@ -28,10 +28,10 @@ import org.jdbi.v3.util.GenericTypes;
 class UpdateHandler extends CustomizingStatementHandler
 {
     private final Class<?> sqlObjectType;
-    private final SqlObject config;
+    private final SqlObjectConfig config;
     private final Returner returner;
 
-    UpdateHandler(Class<?> sqlObjectType, Method method, SqlObject config)
+    UpdateHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config)
     {
         super(sqlObjectType, method);
         this.sqlObjectType = sqlObjectType;

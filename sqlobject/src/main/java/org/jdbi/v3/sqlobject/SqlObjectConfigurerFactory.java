@@ -26,7 +26,7 @@ public interface SqlObjectConfigurerFactory {
      *
      * @param annotation    the annotation
      * @param sqlObjectType the sql object type which was annotated
-     * @return a configurer which will be applied to the {@link SqlObject}.
+     * @return a configurer which will be applied to the {@link SqlObjectConfig}.
      */
     default SqlObjectConfigurer createForType(Annotation annotation, Class<?> sqlObjectType) {
         throw new UnsupportedOperationException("Not supported for type");
@@ -38,7 +38,7 @@ public interface SqlObjectConfigurerFactory {
      * @param annotation    the annotation
      * @param sqlObjectType the sql object type
      * @param method        the method which was annotated
-     * @return a configurer which will be applied to the {@link SqlObject}.
+     * @return a configurer which will be applied to the {@link SqlObjectConfig}.
      */
     default SqlObjectConfigurer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         throw new UnsupportedOperationException("Not supported for method");

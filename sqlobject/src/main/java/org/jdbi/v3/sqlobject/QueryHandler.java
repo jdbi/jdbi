@@ -22,10 +22,10 @@ import org.jdbi.v3.Query;
 class QueryHandler extends CustomizingStatementHandler
 {
     private final Class<?> sqlObjectType;
-    private final SqlObject config;
+    private final SqlObjectConfig config;
     private final ResultReturnThing magic;
 
-    QueryHandler(Class<?> sqlObjectType, Method method, SqlObject config, ResultReturnThing magic)
+    QueryHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config, ResultReturnThing magic)
     {
         super(sqlObjectType, method);
         this.sqlObjectType = sqlObjectType;

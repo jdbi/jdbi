@@ -14,14 +14,14 @@
 package org.jdbi.v3.sqlobject;
 
 /**
- * Configures a {@link SqlObject}.
+ * Configures a {@link SqlObjectConfig}.
  */
 @FunctionalInterface
 public interface SqlObjectConfigurer {
     /**
-     * Configure the {@link SqlObject}.
+     * Configure the {@link SqlObjectConfig}.
      *
      * @param config the config object.
      */
-    void apply(SqlObject config);
+    void apply(SqlObjectConfig config);
 }
