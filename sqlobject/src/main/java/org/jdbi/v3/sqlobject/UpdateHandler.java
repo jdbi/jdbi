@@ -27,11 +27,15 @@ import org.jdbi.v3.util.GenericTypes;
 
 class UpdateHandler extends CustomizingStatementHandler
 {
+    private final Class<?> sqlObjectType;
+    private final SqlObject config;
     private final Returner returner;
 
-    UpdateHandler(Class<?> sqlObjectType, Method method)
+    UpdateHandler(Class<?> sqlObjectType, Method method, SqlObject config)
     {
         super(sqlObjectType, method);
+        this.sqlObjectType = sqlObjectType;
+        this.config = config;
 
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
@@ -68,7 +72,7 @@ class UpdateHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
-        String sql = SqlAnnotations.getSql(method.getAnnotation(SqlUpdate.class), method);
+        String sql = config.getSqlLocator().locate(sqlObjectType, method);
         Update q = handle.get().createStatement(sql);
         populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);

@@ -24,11 +24,15 @@ import org.jdbi.v3.util.GenericTypes;
 
 class CallHandler extends CustomizingStatementHandler
 {
+    private final Class<?> sqlObjectType;
+    private final SqlObject config;
     private final boolean returnOutParams;
 
-    CallHandler(Class<?> sqlObjectType, Method method)
+    CallHandler(Class<?> sqlObjectType, Method method, SqlObject config)
     {
         super(sqlObjectType, method);
+        this.sqlObjectType = sqlObjectType;
+        this.config = config;
 
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
         Class<?> returnClass = GenericTypes.getErasedType(returnType);
@@ -44,7 +48,7 @@ class CallHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
     {
-        String sql = SqlAnnotations.getSql(method.getAnnotation(SqlCall.class), method);
+        String sql = config.getSqlLocator().locate(sqlObjectType, method);
         Call call = handle.get().createCall(sql);
         populateSqlObjectData(call.getContext());
         applyCustomizers(call, args);

@@ -20,11 +20,12 @@ import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestClasspathStatementLocator {
+public class TestUseClasspathSqlLocator {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -43,6 +44,7 @@ public class TestClasspathStatementLocator {
         assertThat(s.getName(), equalTo("Martin"));
     }
 
+    @UseClasspathSqlLocator
     @RegisterRowMapper(SomethingMapper.class)
     interface Cromulence {
         @SqlQuery

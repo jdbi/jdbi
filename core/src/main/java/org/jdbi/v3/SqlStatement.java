@@ -43,7 +43,6 @@ import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.statement.StatementBuilder;
 import org.jdbi.v3.statement.StatementCustomizer;
 import org.jdbi.v3.statement.StatementCustomizers;
-import org.jdbi.v3.statement.StatementLocator;
 import org.jdbi.v3.transaction.TransactionState;
 import org.jdbi.v3.util.GenericType;
 import org.jdbi.v3.util.GenericTypes;
@@ -108,18 +107,6 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     public SelfType registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         getArgumentRegistry().register(argumentFactory);
-        return typedThis;
-    }
-
-    /**
-     * Override the statement locator used for this statement
-     *
-     * @param locator the statement locator
-     *
-     * @return the same Query instance
-     */
-    public SelfType setStatementLocator(StatementLocator locator) {
-        config.statementLocator = locator;
         return typedThis;
     }
 
@@ -201,11 +188,6 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     protected StatementBuilder getStatementBuilder()
     {
         return statementBuilder;
-    }
-
-    protected StatementLocator getStatementLocator()
-    {
-        return config.statementLocator;
     }
 
     protected StatementRewriter getRewriter()
@@ -1249,21 +1231,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
         return bind(position, new ObjectArgument(value, sqlType));
     }
 
-    private String wrapLookup(String sql)
-    {
-        try {
-            return config.statementLocator.locate(sql, this.getContext());
-        }
-        catch (Exception e) {
-            throw new UnableToCreateStatementException("Exception thrown while looking for statement", e, getContext());
-        }
-    }
-
     protected PreparedStatement internalExecute()
     {
-        final String located_sql = wrapLookup(sql);
-        getContext().setLocatedSql(located_sql);
-        rewritten = config.statementRewriter.rewrite(located_sql, getParams(), getContext());
+        getContext().setLocatedSql(sql);
+        rewritten = config.statementRewriter.rewrite(sql, getParams(), getContext());
         getContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {

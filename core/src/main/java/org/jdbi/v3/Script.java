@@ -18,25 +18,19 @@ import java.util.List;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.jdbi.v3.internal.SqlScriptParser;
-import org.jdbi.v3.exception.UnableToExecuteStatementException;
 
 /**
  * Represents a number of SQL statements which will be executed in a batch statement.
  */
 public class Script
 {
-
-    private final JdbiConfig config;
     private final Handle handle;
-    private final String name;
-    private final StatementContext statementContext;
+    private final String sql;
 
-    Script(JdbiConfig config, Handle h, String name, StatementContext statementContext)
+    Script(Handle h, String sql)
     {
-        this.config = config;
         this.handle = h;
-        this.name = name;
-        this.statementContext = statementContext;
+        this.sql = sql;
     }
 
     /**
@@ -61,15 +55,7 @@ public class Script
     }
 
     private List<String> getStatements() {
-        final String script;
-
-        try {
-            script = config.statementLocator.locate(name, statementContext);
-        } catch (Exception e) {
-            throw new UnableToExecuteStatementException(String.format("Error while loading script [%s]", name), e, statementContext);
-        }
-
-        return splitToStatements(script);
+        return splitToStatements(sql);
     }
 
     private List<String> splitToStatements(String script) {

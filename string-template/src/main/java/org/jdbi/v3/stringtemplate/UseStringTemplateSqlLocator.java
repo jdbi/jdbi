@@ -11,51 +11,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.locator;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+package org.jdbi.v3.stringtemplate;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjectConfigurer;
 import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
 import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 /**
- * Configures SQL Object to locate SQL using the {@link ClasspathSqlLocator#findSqlOnClasspath(Class, String)} method.
- * If the SQL annotation (e.g. <code>@SqlQuery</code>) defines a value (e.g. <code>@SqlQuery("hello")</code>), that
- * value (<code>"hello"</code>) will be used for the <code>name</code> parameter; if undefined, the name of the SQL
+ * Configures SQL Object to locate SQL using the {@link StringTemplateSqlLocator#findStringTemplateSql(Class, String)}
+ * method. If the SQL annotation (e.g. <code>@SqlQuery</code>) defines a value (e.g. <code>@SqlQuery("hello")</code>),
+ * that value (<code>"hello"</code>) will be used for the <code>name</code> parameter; if undefined, the name of the SQL
  * object method will be used:
  *
  * <pre>
- *     &amp;UseClasspathSqlLocator
+ *     &amp;UseStringTemplateSqlLocator
  *     interface Viccini {
  *         &amp;SqlUpdate
- *         void doTheThing(long id);     // =&gt; ClasspathSqlLocator.findSqlOnClasspath(Viccini.class, "doTheThing")
+ *         void doTheThing(long id);     // =&gt; StringTemplateSqlLocator.findStringTemplateSql(Viccini.class, "doTheThing")
  *
  *         &amp;SqlUpdate("thatOtherThing")
- *         void doTheThing(String name); // =&gt; ClasspathSqlLocator.findSqlOnClasspath(Viccini.class, "thatOtherThing")
+ *         void doTheThing(String name); // =&gt; StringTemplateSqlLocator.findStringTemplateSql(Viccini.class, "thatOtherThing")
  *     }
  * </pre>
  */
-@SqlObjectConfiguringAnnotation(UseClasspathSqlLocator.Factory.class)
-@Target({TYPE, METHOD})
-@Retention(RUNTIME)
-public @interface UseClasspathSqlLocator {
+@SqlObjectConfiguringAnnotation(UseStringTemplateSqlLocator.Factory.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface UseStringTemplateSqlLocator {
     class Factory implements SqlObjectConfigurerFactory {
         private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
             String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-            return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, name);
+            return StringTemplateSqlLocator.findStringTemplateSql(sqlObjectType, name);
         };
 
-        private static SqlObjectConfigurer CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
+        private static final SqlObjectConfigurer CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
 
         @Override
         public SqlObjectConfigurer createForType(Annotation annotation, Class<?> sqlObjectType) {

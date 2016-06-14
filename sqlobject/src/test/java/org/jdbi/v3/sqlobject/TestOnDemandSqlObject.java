@@ -40,6 +40,7 @@ import org.jdbi.v3.exception.UnableToCloseResourceException;
 import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
+import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.junit.After;
@@ -194,6 +195,7 @@ public class TestOnDemandSqlObject
         void insert(@Bind("id") long id, @Bind("name") String name);
     }
 
+    @UseClasspathSqlLocator
     public interface ExternalSql extends GetHandle
     {
         @SqlQuery("all-something")

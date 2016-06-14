@@ -22,40 +22,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.locator.ClasspathSqlLocator;
-import org.jdbi.v3.sqlobject.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjectConfigurer;
 import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
 import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
 
 /**
- * Configures SQL Object to locate SQL using the {@link ClasspathSqlLocator#findSqlOnClasspath(Class, String)} method.
- * If the SQL annotation (e.g. <code>@SqlQuery</code>) defines a value (e.g. <code>@SqlQuery("hello")</code>), that
- * value (<code>"hello"</code>) will be used for the <code>name</code> parameter; if undefined, the name of the SQL
- * object method will be used:
- *
- * <pre>
- *     &amp;UseClasspathSqlLocator
- *     interface Viccini {
- *         &amp;SqlUpdate
- *         void doTheThing(long id);     // =&gt; ClasspathSqlLocator.findSqlOnClasspath(Viccini.class, "doTheThing")
- *
- *         &amp;SqlUpdate("thatOtherThing")
- *         void doTheThing(String name); // =&gt; ClasspathSqlLocator.findSqlOnClasspath(Viccini.class, "thatOtherThing")
- *     }
- * </pre>
+ * Configures SQL Object to use AnnotationSqlLocator (the default SqlLocator).
  */
-@SqlObjectConfiguringAnnotation(UseClasspathSqlLocator.Factory.class)
+@SqlObjectConfiguringAnnotation(UseAnnotationSqlLocator.Factory.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
-public @interface UseClasspathSqlLocator {
+public @interface UseAnnotationSqlLocator {
     class Factory implements SqlObjectConfigurerFactory {
-        private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
-            String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-            return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, name);
-        };
-
-        private static SqlObjectConfigurer CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
+        private static SqlObjectConfigurer CONFIGURER = config -> config.setSqlLocator(new AnnotationSqlLocator());
 
         @Override
         public SqlObjectConfigurer createForType(Annotation annotation, Class<?> sqlObjectType) {

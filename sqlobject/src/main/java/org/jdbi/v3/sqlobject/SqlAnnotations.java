@@ -20,7 +20,13 @@ import java.util.function.Predicate;
 import org.jdbi.v3.internal.JdbiOptionals;
 
 public class SqlAnnotations {
-    // TODO move to locator package, make package private
+    /**
+     * Returns the <code>value()</code> of the <code>@SqlBatch</code>, <code>@SqlCall</code>, <code>@SqlQuery</code>, or
+     * <code>@SqlUpdate</code> annotation on the given method if declared and non-empty; empty otherwise.
+     *
+     * @param method the method
+     * @return the annotation <code>value()</code>
+     */
     public static Optional<String> getAnnotationValue(Method method) {
         Predicate<String> nonEmpty = s -> !s.isEmpty();
 
@@ -29,41 +35,5 @@ public class SqlAnnotations {
                 () -> Optional.ofNullable(method.getAnnotation(SqlCall.class)).map(SqlCall::value).filter(nonEmpty),
                 () -> Optional.ofNullable(method.getAnnotation(SqlQuery.class)).map(SqlQuery::value).filter(nonEmpty),
                 () -> Optional.ofNullable(method.getAnnotation(SqlUpdate.class)).map(SqlUpdate::value).filter(nonEmpty));
-    }
-
-    static String getSql(SqlCall q, Method m) {
-        String value = q.value();
-        if (value.isEmpty()) {
-            return m.getName();
-        } else {
-            return value;
-        }
-    }
-
-    static String getSql(SqlQuery q, Method m) {
-        String value = q.value();
-        if (value.isEmpty()) {
-            return m.getName();
-        } else {
-            return value;
-        }
-    }
-
-    static String getSql(SqlUpdate q, Method m) {
-        String value = q.value();
-        if (value.isEmpty()) {
-            return m.getName();
-        } else {
-            return value;
-        }
-    }
-
-    static String getSql(SqlBatch q, Method m) {
-        String value = q.value();
-        if (value.isEmpty()) {
-            return m.getName();
-        } else {
-            return value;
-        }
     }
 }

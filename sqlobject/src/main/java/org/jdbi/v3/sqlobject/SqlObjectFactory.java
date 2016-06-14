@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,17 +24,18 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.MethodInterceptor;
 
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.Factory;
-import net.sf.cglib.proxy.MethodInterceptor;
 
 public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
     INSTANCE;
@@ -42,6 +45,8 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
     private final Map<Method, Handler> mixinHandlers = new HashMap<>();
     private final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Factory> factories = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<? extends SqlObjectConfigurerFactory>, SqlObjectConfigurerFactory>
+            configurerFactories = new ConcurrentHashMap<>();
 
     SqlObjectFactory() {
         mixinHandlers.putAll(TransactionalHelper.handlers());
@@ -92,6 +97,9 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
             return (Factory) e.create();
         });
 
+        forEachConfigurerFactory(extensionType, (factory, annotation) ->
+                factory.createForType(annotation, extensionType).apply(config));
+
         Map<Method, Handler> handlers = buildHandlersFor(extensionType, config);
         MethodInterceptor interceptor = createMethodInterceptor(handlers, handle);
         return extensionType.cast(f.newInstance(interceptor));
@@ -102,6 +110,11 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
 
             final Map<Method, Handler> handlers = new HashMap<>();
             for (Method method : sqlObjectType.getMethods()) {
+                // FIXME will applying configurers here and caching config create problems?
+                SqlObject methodConfig = config.createCopy();
+                forEachConfigurerFactory(method, (factory, annotation) ->
+                        factory.createForMethod(annotation, sqlObjectType, method).apply(methodConfig));
+
                 Optional<? extends Class<? extends HandlerFactory>> factoryClass = Stream.of(method.getAnnotations())
                         .map(a -> a.annotationType().getAnnotation(SqlMethodAnnotation.class))
                         .filter(Objects::nonNull)
@@ -110,7 +123,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
 
                 if (factoryClass.isPresent()) {
                     HandlerFactory factory = buildFactory(factoryClass.get());
-                    Handler handler = factory.buildHandler(sqlObjectType, method, config);
+                    Handler handler = factory.buildHandler(sqlObjectType, method, methodConfig);
                     handlers.put(method, handler);
                 }
                 else if (mixinHandlers.containsKey(method)) {
@@ -151,5 +164,26 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObject> {
 
             return handler.invoke(handle, proxy, args, method);
         };
+    }
+
+    public void forEachConfigurerFactory(AnnotatedElement element, BiConsumer<SqlObjectConfigurerFactory, Annotation> consumer) {
+        Stream.of(element.getAnnotations())
+                .filter(a -> a.annotationType().isAnnotationPresent(SqlObjectConfiguringAnnotation.class))
+                .forEach(a -> {
+                    SqlObjectConfiguringAnnotation meta = a.annotationType()
+                            .getAnnotation(SqlObjectConfiguringAnnotation.class);
+
+                    consumer.accept(getConfigurerFactory(meta.value()), a);
+                });
+    }
+
+    public SqlObjectConfigurerFactory getConfigurerFactory(Class<? extends SqlObjectConfigurerFactory> factoryClass) {
+        return configurerFactories.computeIfAbsent(factoryClass, c -> {
+            try {
+                return c.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new IllegalStateException("Unable to instantiate configurer factory class " + factoryClass, e);
+            }
+        });
     }
 }

@@ -346,6 +346,7 @@
     <modules>
         <module>core</module>
         <module>sqlobject</module>
+        <module>string-template</module>
         <module>guava</module>
         <module>jodatime</module>
         <module>jpa</module>

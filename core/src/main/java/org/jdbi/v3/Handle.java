@@ -36,7 +36,6 @@ import org.jdbi.v3.mapper.RowMapperFactory;
 import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.statement.StatementBuilder;
 import org.jdbi.v3.statement.StatementCustomizer;
-import org.jdbi.v3.statement.StatementLocator;
 import org.jdbi.v3.transaction.TransactionCallback;
 import org.jdbi.v3.transaction.TransactionConsumer;
 import org.jdbi.v3.transaction.TransactionHandler;
@@ -171,18 +170,6 @@ public class Handle implements Closeable
      */
     public Handle setStatementBuilder(StatementBuilder builder) {
         this.statementBuilder = builder;
-        return this;
-    }
-
-    /**
-     * Allows for overriding the default statement locator. The default searches the
-     * classpath for named statements
-     *
-     * @param locator the statement locator
-     * @return this
-     */
-    public Handle setStatementLocator(StatementLocator locator) {
-        config.statementLocator = locator;
         return this;
     }
 
@@ -364,16 +351,14 @@ public class Handle implements Closeable
     }
 
     /**
-     * Creates an SQL script, looking for the source of the script using the
-     * current statement locator (which defaults to searching the classpath).
+     * Creates a Script from the given SQL script
      *
-     * @param name the script name (passed to the statement locator)
+     * @param sql the SQL script
      *
      * @return the created Script.
      */
-    public Script createScript(String name) {
-        JdbiConfig scriptConfig = JdbiConfig.copyOf(config);
-        return new Script(scriptConfig, this, name, new StatementContext(scriptConfig));
+    public Script createScript(String sql) {
+        return new Script(this, sql);
     }
 
     /**

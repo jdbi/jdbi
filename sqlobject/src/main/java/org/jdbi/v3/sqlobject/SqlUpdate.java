@@ -38,7 +38,7 @@ public @interface SqlUpdate
     class Factory implements HandlerFactory {
         @Override
         public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config) {
-            return new UpdateHandler(sqlObjectType, method);
+            return new UpdateHandler(sqlObjectType, method, config);
         }
     }
 }

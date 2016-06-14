@@ -84,8 +84,6 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testNonExistentResource() throws Exception {
-        Handle h = db.openHandle();
-
         exception.expect(IllegalArgumentException.class);
         findSqlOnClasspath("this-does-not-exist");
     }
@@ -104,7 +102,6 @@ public class TestClasspathSqlLocator {
             }
         });
 
-        Handle h = db.openHandle();
         findSqlOnClasspath("caches-result-after-first-lookup");
         assertThat(load_count.get()).isEqualTo(1);
 

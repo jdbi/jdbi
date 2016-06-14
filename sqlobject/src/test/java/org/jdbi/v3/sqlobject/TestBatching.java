@@ -26,7 +26,6 @@ import org.jdbi.v3.Something;
 import org.jdbi.v3.exception.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
-import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -168,7 +167,6 @@ public class TestBatching
     }
 
     @BatchChunkSize(4)
-    @UseStringTemplate3StatementLocator
     @RegisterRowMapper(SomethingMapper.class)
     public interface UsesBatching
     {
@@ -188,7 +186,7 @@ public class TestBatching
         @BatchChunkSize(2)
         int[] insertChunked(@BindBean("it") Iterable<Something> its);
 
-        @SqlBatch
+        @SqlBatch("insert into something (id, name) values (:it.id, :it.name)")
         int[] insertChunked(@BatchChunkSize int size, @BindBean("it") Iterable<Something> its);
 
         @SqlQuery("select count(*) from something")

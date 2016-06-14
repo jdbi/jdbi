@@ -34,6 +34,7 @@ public final class ClasspathSqlLocator {
     private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
 
     private static final Map<String, String> CACHE = synchronizedMap(new WeakHashMap<>());
+    private static final String SQL_EXTENSION = ".sql";
 
     private ClasspathSqlLocator() {
     }
@@ -65,11 +66,11 @@ public final class ClasspathSqlLocator {
     }
 
     private static String resourcePathFor(Class<?> extensionType, String methodName) {
-        return resourcePathFor(extensionType.getCanonicalName() + "." + methodName);
+        return resourcePathFor(extensionType.getName() + "." + methodName);
     }
 
     private static String resourcePathFor(String fullyQualifiedName) {
-        return fullyQualifiedName.replace(PACKAGE_DELIMITER, PATH_DELIMITER) + ".sql";
+        return fullyQualifiedName.replace(PACKAGE_DELIMITER, PATH_DELIMITER) + SQL_EXTENSION;
     }
 
     private static String findSqlOnClasspath(ClassLoader classLoader, String path) {

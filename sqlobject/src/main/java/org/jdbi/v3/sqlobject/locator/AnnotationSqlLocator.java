@@ -17,6 +17,9 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.sqlobject.SqlAnnotations;
 
+/**
+ * Locates SQL on the SQL method annotation (e.g. <code>@SqlQuery("foo")</code>). This is the default SqlLocator.
+ */
 public class AnnotationSqlLocator implements SqlLocator {
     @Override
     public String locate(Class<?> sqlObjectType, Method method) {

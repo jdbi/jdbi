@@ -52,7 +52,7 @@ public @interface SqlBatch
     class Factory implements HandlerFactory {
         @Override
         public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config) {
-            return new BatchHandler(sqlObjectType, method);
+            return new BatchHandler(sqlObjectType, method, config);
         }
     }
 }

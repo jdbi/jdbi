@@ -32,12 +32,17 @@ import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
 class BatchHandler extends CustomizingStatementHandler
 {
+    private final Class<?> sqlObjectType;
+    private final SqlObject config;
     private final SqlBatch sqlBatch;
     private final ChunkSizeFunction batchChunkSize;
 
-    BatchHandler(Class<?> sqlObjectType, Method method)
+    BatchHandler(Class<?> sqlObjectType, Method method, SqlObject config)
     {
         super(sqlObjectType, method);
+        this.sqlObjectType = sqlObjectType;
+        this.config = config;
+
         if(!returnTypeIsValid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
         }
@@ -113,7 +118,7 @@ class BatchHandler extends CustomizingStatementHandler
         int processed = 0;
         List<int[]> rs_parts = new ArrayList<>();
 
-        String sql = SqlAnnotations.getSql(sqlBatch, method);
+        String sql = config.getSqlLocator().locate(sqlObjectType, method);
         PreparedBatch batch = handle.prepareBatch(sql);
         populateSqlObjectData(batch.getContext());
         applyCustomizers(batch, args);

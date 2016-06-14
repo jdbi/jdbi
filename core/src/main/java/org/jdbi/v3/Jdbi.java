@@ -43,7 +43,6 @@ import org.jdbi.v3.rewriter.StatementRewriter;
 import org.jdbi.v3.spi.JdbiPlugin;
 import org.jdbi.v3.statement.StatementBuilder;
 import org.jdbi.v3.statement.StatementBuilderFactory;
-import org.jdbi.v3.statement.StatementLocator;
 import org.jdbi.v3.transaction.LocalTransactionHandler;
 import org.jdbi.v3.transaction.TransactionCallback;
 import org.jdbi.v3.transaction.TransactionConsumer;
@@ -235,26 +234,6 @@ public class Jdbi
     public StatementBuilderFactory getStatementBuilderFactory()
     {
         return this.statementBuilderFactory.get();
-    }
-
-    /**
-     * Use a non-standard StatementLocator to look up named statements for all
-     * handles created from this Jdbi instance.
-     *
-     * @param locator StatementLocator which will be used by all Handle instances
-     *                created from this DBI
-     * @return this
-     */
-    public Jdbi setStatementLocator(StatementLocator locator)
-    {
-        Objects.requireNonNull(locator, "null statement locator");
-        config.statementLocator = locator;
-        return this;
-    }
-
-    public StatementLocator getStatementLocator()
-    {
-        return config.statementLocator;
     }
 
     /**
