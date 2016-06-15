@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.antlr.stringtemplate.StringTemplateGroup;
 
 /**
- * Locates SQL in <code>.sql.stg</code> StringTemplate files on the classpath.
+ * Locates SQL in <code>.sql.stg</code> StringTemplate group files on the classpath.
  */
 public class StringTemplateSqlLocator {
     private static final ConcurrentMap<Class<?>, StringTemplateGroup> CACHE = new ConcurrentHashMap<>();
@@ -33,11 +33,20 @@ public class StringTemplateSqlLocator {
     private StringTemplateSqlLocator() {
     }
 
-    public static String findStringTemplateSql(Class<?> sqlObjectType, String name) {
-        StringTemplateGroup group = CACHE.computeIfAbsent(sqlObjectType, StringTemplateSqlLocator::readGroupResource);
+    /**
+     * Locates SQL for the given extension type and name. Example: Given an extension type <code>com.foo.Bar</code> and
+     * a name of <code>baz</code>, loads a StringTemplate group file from the resource named
+     * <code>com/foo/Bar.sql.stg</code> on the classpath, and returns the template with the given name from the group.
+     *
+     * @param extensionType the extension type
+     * @param name          the template name in the StringTemplate group.
+     * @return the located SQL.
+     */
+    public static String findStringTemplateSql(Class<?> extensionType, String name) {
+        StringTemplateGroup group = CACHE.computeIfAbsent(extensionType, StringTemplateSqlLocator::readGroupResource);
 
         if (!group.isDefined(name)) {
-            throw new IllegalStateException("No StringTemplate group " + name + " for class " + sqlObjectType);
+            throw new IllegalStateException("No StringTemplate group " + name + " for class " + extensionType);
         }
         return group.getInstanceOf(name).getTemplate();
     }

@@ -19,6 +19,9 @@ import org.jdbi.v3.extension.ExtensionConfig;
 import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
+/**
+ * Configuration class for the SqlObject plugin.
+ */
 public class SqlObjectConfig implements ExtensionConfig<SqlObjectConfig> {
     private SqlLocator sqlLocator;
 
@@ -30,10 +33,19 @@ public class SqlObjectConfig implements ExtensionConfig<SqlObjectConfig> {
         this.sqlLocator = parent.sqlLocator;
     }
 
+    /**
+     * Returns the configured {@link SqlLocator}. The default SQL locator is {@link AnnotationSqlLocator}.
+     * @return the configured {@link SqlLocator}.
+     */
     public SqlLocator getSqlLocator() {
         return sqlLocator;
     }
 
+    /**
+     * Configures SqlObject to use the given {@link SqlLocator}.
+     * @param sqlLocator the new SQL locator.
+     * @return this {@link SqlObjectConfig}.
+     */
     public SqlObjectConfig setSqlLocator(SqlLocator sqlLocator) {
         this.sqlLocator = Objects.requireNonNull(sqlLocator);
         return this;

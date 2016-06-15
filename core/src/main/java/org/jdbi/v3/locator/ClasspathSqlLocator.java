@@ -41,7 +41,7 @@ public final class ClasspathSqlLocator {
 
     /**
      * Locates SQL for the given extension type and name. Example: Given an extension type <code>com.foo.Bar</code> and
-     * a name of <code>baz</code>, looks for a resource named <code>/com/foo/Bar/baz.sql</code> on the classpath and
+     * a name of <code>baz</code>, looks for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and
      * returns its contents as a String.
      *
      * @param extensionType the extension type
@@ -55,7 +55,7 @@ public final class ClasspathSqlLocator {
 
     /**
      * Locates SQL for the given fully-qualified SQL name. Example: Given the name <code>com.foo.Bar.baz</code>, looks
-     * for a resource named <code>/com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
+     * for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
      *
      * @param name fully qualified statement name.
      * @return the located SQL.

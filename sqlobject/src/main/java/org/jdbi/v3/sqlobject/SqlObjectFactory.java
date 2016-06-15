@@ -166,7 +166,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         };
     }
 
-    public void forEachConfigurerFactory(AnnotatedElement element, BiConsumer<SqlObjectConfigurerFactory, Annotation> consumer) {
+    private void forEachConfigurerFactory(AnnotatedElement element, BiConsumer<SqlObjectConfigurerFactory, Annotation> consumer) {
         Stream.of(element.getAnnotations())
                 .filter(a -> a.annotationType().isAnnotationPresent(SqlObjectConfiguringAnnotation.class))
                 .forEach(a -> {
@@ -177,7 +177,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                 });
     }
 
-    public SqlObjectConfigurerFactory getConfigurerFactory(Class<? extends SqlObjectConfigurerFactory> factoryClass) {
+    private SqlObjectConfigurerFactory getConfigurerFactory(Class<? extends SqlObjectConfigurerFactory> factoryClass) {
         return configurerFactories.computeIfAbsent(factoryClass, c -> {
             try {
                 return c.newInstance();
