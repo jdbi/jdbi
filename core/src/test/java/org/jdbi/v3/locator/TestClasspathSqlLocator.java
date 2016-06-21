@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.exception.StatementException;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,10 +33,6 @@ public class TestClasspathSqlLocator {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
-
-    @Before
-    public void setUp() {
-    }
 
     @Test
     public void testLocateNamed() throws Exception {
