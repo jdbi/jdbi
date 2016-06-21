@@ -19,9 +19,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
 import org.jdbi.v3.sqlobject.SqlAnnotations;
-import org.jdbi.v3.sqlobject.SqlObjectConfigurer;
+import org.jdbi.v3.sqlobject.SqlObjectConfig;
 import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
 import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
@@ -53,15 +54,15 @@ public @interface UseStringTemplateSqlLocator {
             return StringTemplateSqlLocator.findStringTemplateSql(sqlObjectType, name);
         };
 
-        private static final SqlObjectConfigurer CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
+        private static final Consumer<SqlObjectConfig> CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
 
         @Override
-        public SqlObjectConfigurer createForType(Annotation annotation, Class<?> sqlObjectType) {
+        public Consumer<SqlObjectConfig> createForType(Annotation annotation, Class<?> sqlObjectType) {
             return CONFIGURER;
         }
 
         @Override
-        public SqlObjectConfigurer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        public Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             return CONFIGURER;
         }
     }

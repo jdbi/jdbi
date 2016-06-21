@@ -21,10 +21,11 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
 import org.jdbi.v3.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
-import org.jdbi.v3.sqlobject.SqlObjectConfigurer;
+import org.jdbi.v3.sqlobject.SqlObjectConfig;
 import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
 import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
 
@@ -55,15 +56,15 @@ public @interface UseClasspathSqlLocator {
             return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, name);
         };
 
-        private static SqlObjectConfigurer CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
+        private static Consumer<SqlObjectConfig> CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
 
         @Override
-        public SqlObjectConfigurer createForType(Annotation annotation, Class<?> sqlObjectType) {
+        public Consumer<SqlObjectConfig> createForType(Annotation annotation, Class<?> sqlObjectType) {
             return CONFIGURER;
         }
 
         @Override
-        public SqlObjectConfigurer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        public Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             return CONFIGURER;
         }
     }

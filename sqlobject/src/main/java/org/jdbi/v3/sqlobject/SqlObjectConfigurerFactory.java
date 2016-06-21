@@ -15,9 +15,10 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
 /**
- * Generates {@link SqlObjectConfigurer} instances to satisfy the contract of a
+ * Generates {@link Consumer Consumer<SqlObjectConfig>} instances to satisfy the contract of a
  * {@link SqlObjectConfiguringAnnotation}-annotated annotation.
  */
 public interface SqlObjectConfigurerFactory {
@@ -28,7 +29,7 @@ public interface SqlObjectConfigurerFactory {
      * @param sqlObjectType the sql object type which was annotated
      * @return a configurer which will be applied to the {@link SqlObjectConfig}.
      */
-    default SqlObjectConfigurer createForType(Annotation annotation, Class<?> sqlObjectType) {
+    default Consumer<SqlObjectConfig> createForType(Annotation annotation, Class<?> sqlObjectType) {
         throw new UnsupportedOperationException("Not supported for type");
     }
 
@@ -40,7 +41,7 @@ public interface SqlObjectConfigurerFactory {
      * @param method        the method which was annotated
      * @return a configurer which will be applied to the {@link SqlObjectConfig}.
      */
-    default SqlObjectConfigurer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+    default Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         throw new UnsupportedOperationException("Not supported for method");
     }
 }

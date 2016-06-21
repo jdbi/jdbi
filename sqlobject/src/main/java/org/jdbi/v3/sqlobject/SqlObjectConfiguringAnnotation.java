@@ -26,7 +26,9 @@ import java.lang.annotation.Target;
 public @interface SqlObjectConfiguringAnnotation
 {
     /**
-     * A {@link SqlObjectConfigurerFactory} type, which will be used to create {@link SqlObjectConfigurer} instances.
+     * A {@link SqlObjectConfigurerFactory} type, which will be used to create
+     * {@link java.util.function.Consumer Consumer<SqlObjectConfig>} instances.
+     *
      * @return a factory used to crate customizers for the customizing annotation
      */
     Class<? extends SqlObjectConfigurerFactory> value();

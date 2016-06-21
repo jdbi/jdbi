@@ -98,7 +98,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         });
 
         forEachConfigurerFactory(extensionType, (factory, annotation) ->
-                factory.createForType(annotation, extensionType).apply(config));
+                factory.createForType(annotation, extensionType).accept(config));
 
         Map<Method, Handler> handlers = buildHandlersFor(extensionType, config);
         MethodInterceptor interceptor = createMethodInterceptor(handlers, handle);
@@ -113,7 +113,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                 // FIXME will applying configurers here and caching config create problems?
                 SqlObjectConfig methodConfig = config.createCopy();
                 forEachConfigurerFactory(method, (factory, annotation) ->
-                        factory.createForMethod(annotation, sqlObjectType, method).apply(methodConfig));
+                        factory.createForMethod(annotation, sqlObjectType, method).accept(methodConfig));
 
                 Optional<? extends Class<? extends HandlerFactory>> factoryClass = Stream.of(method.getAnnotations())
                         .map(a -> a.annotationType().getAnnotation(SqlMethodAnnotation.class))
