@@ -40,24 +40,25 @@ public final class ClasspathSqlLocator {
     }
 
     /**
-     * Locates SQL for the given extension type and name. Example: Given an extension type <code>com.foo.Bar</code> and
-     * a name of <code>baz</code>, looks for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and
-     * returns its contents as a String.
+     * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of
+     * <code>baz</code>, looks for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its
+     * contents as a String.
      *
-     * @param extensionType the extension type
-     * @param name          the SQL statement name (usually a method name of the extension type).
+     * @param type the type that "owns" the given SQL. Dictates the directory path to the SQL resource file on the
+     *             classpath.
+     * @param name the SQL statement name (usually a method or field name from the type).
      * @return the located SQL.
      */
-    public static String findSqlOnClasspath(Class<?> extensionType, String name) {
-        String path = resourcePathFor(extensionType, name);
-        return findSqlOnClasspath(extensionType.getClassLoader(), path);
+    public static String findSqlOnClasspath(Class<?> type, String name) {
+        String path = resourcePathFor(type, name);
+        return findSqlOnClasspath(type.getClassLoader(), path);
     }
 
     /**
-     * Locates SQL for the given fully-qualified SQL name. Example: Given the name <code>com.foo.Bar.baz</code>, looks
-     * for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
+     * Locates SQL for the given fully-qualified name. Example: Given the name <code>com.foo.Bar.baz</code>, looks for
+     * a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
      *
-     * @param name fully qualified statement name.
+     * @param name fully qualified name.
      * @return the located SQL.
      */
     public static String findSqlOnClasspath(String name) {

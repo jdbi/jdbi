@@ -34,19 +34,20 @@ public class StringTemplateSqlLocator {
     }
 
     /**
-     * Locates SQL for the given extension type and name. Example: Given an extension type <code>com.foo.Bar</code> and
-     * a name of <code>baz</code>, loads a StringTemplate group file from the resource named
-     * <code>com/foo/Bar.sql.stg</code> on the classpath, and returns the template with the given name from the group.
+     * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of
+     * <code>baz</code>, loads a StringTemplate group file from the resource named <code>com/foo/Bar.sql.stg</code> on
+     * the classpath, and returns the template with the given name from the group.
      *
-     * @param extensionType the extension type
-     * @param name          the template name in the StringTemplate group.
+     * @param type the type that "owns" the given StringTemplate group file. Dictates the filename of the
+     *             StringTemplate group file on the classpath.
+     * @param name the template name in the StringTemplate group.
      * @return the located SQL.
      */
-    public static String findStringTemplateSql(Class<?> extensionType, String name) {
-        StringTemplateGroup group = CACHE.computeIfAbsent(extensionType, StringTemplateSqlLocator::readGroupResource);
+    public static String findStringTemplateSql(Class<?> type, String name) {
+        StringTemplateGroup group = CACHE.computeIfAbsent(type, StringTemplateSqlLocator::readGroupResource);
 
         if (!group.isDefined(name)) {
-            throw new IllegalStateException("No StringTemplate group " + name + " for class " + extensionType);
+            throw new IllegalStateException("No StringTemplate group " + name + " for class " + type);
         }
         return group.getInstanceOf(name).getTemplate();
     }
