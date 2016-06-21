@@ -85,25 +85,24 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testCachesResultAfterFirstLookup() throws Exception {
-        ClassLoader ctx_loader = Thread.currentThread().getContextClassLoader();
-        final AtomicInteger load_count = new AtomicInteger(0);
-        Thread.currentThread().setContextClassLoader(new ClassLoader(ctx_loader) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final AtomicInteger loadCount = new AtomicInteger(0);
+        Thread.currentThread().setContextClassLoader(new ClassLoader(classLoader) {
             @Override
             public InputStream getResourceAsStream(String s) {
-                // will be called twice, once for raw name, once for name + .sql
                 InputStream in = super.getResourceAsStream(s);
-                load_count.incrementAndGet();
+                loadCount.incrementAndGet();
                 return in;
             }
         });
 
         findSqlOnClasspath("caches-result-after-first-lookup");
-        assertThat(load_count.get()).isEqualTo(1);
+        assertThat(loadCount.get()).isEqualTo(1);
 
         findSqlOnClasspath("caches-result-after-first-lookup");
-        assertThat(load_count.get()).isEqualTo(1); // has not increased since previous
+        assertThat(loadCount.get()).isEqualTo(1); // has not increased since previous
 
-        Thread.currentThread().setContextClassLoader(ctx_loader);
+        Thread.currentThread().setContextClassLoader(classLoader);
     }
 
     @Test
