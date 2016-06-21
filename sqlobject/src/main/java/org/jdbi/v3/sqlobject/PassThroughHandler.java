@@ -28,7 +28,7 @@ class PassThroughHandler implements Handler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
+    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         try {
             // TERRIBLE, HORRIBLE, NO GOOD, VERY BAD HACK

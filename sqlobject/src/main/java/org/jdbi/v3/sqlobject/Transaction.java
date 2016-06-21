@@ -30,7 +30,7 @@ public @interface Transaction
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config) {
+        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
             return new PassThroughTransactionHandler(method.getAnnotation(Transaction.class));
         }
     }

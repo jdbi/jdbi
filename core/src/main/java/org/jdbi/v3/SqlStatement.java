@@ -1233,7 +1233,6 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     protected PreparedStatement internalExecute()
     {
-        getContext().setLocatedSql(sql);
         rewritten = config.statementRewriter.rewrite(sql, getParams(), getContext());
         getContext().setRewrittenSql(rewritten.getSql());
         try {

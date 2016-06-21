@@ -113,11 +113,6 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    protected final void populateSqlObjectData(StatementContext q)
-    {
-        q.setSqlObjectType(sqlObjectType);
-    }
-
     protected void applyBinders(SqlStatement<?> q, Object[] args)
     {
         for (Bindifier<?> binder : binders) {

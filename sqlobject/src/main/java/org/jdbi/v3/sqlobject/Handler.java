@@ -20,5 +20,5 @@ import org.jdbi.v3.Handle;
 
 interface Handler
 {
-    Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method) throws Exception;
+    Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method) throws Exception;
 }

@@ -37,8 +37,8 @@ public @interface SqlQuery
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config) {
-            return new QueryHandler(sqlObjectType, method, config, ResultReturnThing.forMethod(sqlObjectType, method));
+        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
+            return new QueryHandler(sqlObjectType, method, ResultReturnThing.forMethod(sqlObjectType, method));
         }
     }
 }

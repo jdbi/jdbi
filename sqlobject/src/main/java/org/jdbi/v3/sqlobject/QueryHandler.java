@@ -22,23 +22,20 @@ import org.jdbi.v3.Query;
 class QueryHandler extends CustomizingStatementHandler
 {
     private final Class<?> sqlObjectType;
-    private final SqlObjectConfig config;
     private final ResultReturnThing magic;
 
-    QueryHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config, ResultReturnThing magic)
+    QueryHandler(Class<?> sqlObjectType, Method method, ResultReturnThing magic)
     {
         super(sqlObjectType, method);
         this.sqlObjectType = sqlObjectType;
-        this.config = config;
         this.magic = magic;
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
+    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         String sql = config.getSqlLocator().locate(sqlObjectType, method);
         Query<?> q = handle.get().createQuery(sql);
-        populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
 

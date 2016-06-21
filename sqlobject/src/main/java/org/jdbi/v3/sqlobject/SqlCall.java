@@ -31,8 +31,8 @@ public @interface SqlCall
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config) {
-            return new CallHandler(sqlObjectType, method, config);
+        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
+            return new CallHandler(sqlObjectType, method);
         }
     }
 }

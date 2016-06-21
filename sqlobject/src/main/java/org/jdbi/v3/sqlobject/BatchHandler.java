@@ -33,15 +33,13 @@ import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 class BatchHandler extends CustomizingStatementHandler
 {
     private final Class<?> sqlObjectType;
-    private final SqlObjectConfig config;
     private final SqlBatch sqlBatch;
     private final ChunkSizeFunction batchChunkSize;
 
-    BatchHandler(Class<?> sqlObjectType, Method method, SqlObjectConfig config)
+    BatchHandler(Class<?> sqlObjectType, Method method)
     {
         super(sqlObjectType, method);
         this.sqlObjectType = sqlObjectType;
-        this.config = config;
 
         if(!returnTypeIsValid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
@@ -86,7 +84,7 @@ class BatchHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> h, Object target, Object[] args, Method method)
+    public Object invoke(Supplier<Handle> h, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         boolean foundIterator = false;
         Handle handle = h.get();
@@ -120,7 +118,6 @@ class BatchHandler extends CustomizingStatementHandler
 
         String sql = config.getSqlLocator().locate(sqlObjectType, method);
         PreparedBatch batch = handle.prepareBatch(sql);
-        populateSqlObjectData(batch.getContext());
         applyCustomizers(batch, args);
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
@@ -134,7 +131,6 @@ class BatchHandler extends CustomizingStatementHandler
                 processed = 0;
                 rs_parts.add(executeBatch(handle, batch));
                 batch = handle.prepareBatch(sql);
-                populateSqlObjectData(batch.getContext());
                 applyCustomizers(batch, args);
             }
         }

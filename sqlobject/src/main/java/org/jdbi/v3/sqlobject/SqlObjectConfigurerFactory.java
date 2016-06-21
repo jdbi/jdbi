@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 /**
- * Generates {@link Consumer Consumer<SqlObjectConfig>} instances to satisfy the contract of a
+ * Generates {@link Consumer}&lt;{@link SqlObjectConfig}&gt; instances to satisfy the contract of a
  * {@link SqlObjectConfiguringAnnotation}-annotated annotation.
  */
 public interface SqlObjectConfigurerFactory {

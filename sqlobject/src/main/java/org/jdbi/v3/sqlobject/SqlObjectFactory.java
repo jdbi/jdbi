@@ -97,24 +97,17 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
             return (Factory) e.create();
         });
 
-        forEachConfigurerFactory(extensionType, (factory, annotation) ->
-                factory.createForType(annotation, extensionType).accept(config));
 
-        Map<Method, Handler> handlers = buildHandlersFor(extensionType, config);
-        MethodInterceptor interceptor = createMethodInterceptor(handlers, handle);
+        Map<Method, Handler> handlers = buildHandlersFor(extensionType);
+        MethodInterceptor interceptor = createMethodInterceptor(extensionType, config, handlers, handle);
         return extensionType.cast(f.newInstance(interceptor));
     }
 
-    private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType, SqlObjectConfig config) {
+    private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
 
             final Map<Method, Handler> handlers = new HashMap<>();
             for (Method method : sqlObjectType.getMethods()) {
-                // FIXME will applying configurers here and caching config create problems?
-                SqlObjectConfig methodConfig = config.createCopy();
-                forEachConfigurerFactory(method, (factory, annotation) ->
-                        factory.createForMethod(annotation, sqlObjectType, method).accept(methodConfig));
-
                 Optional<? extends Class<? extends HandlerFactory>> factoryClass = Stream.of(method.getAnnotations())
                         .map(a -> a.annotationType().getAnnotation(SqlMethodAnnotation.class))
                         .filter(Objects::nonNull)
@@ -123,7 +116,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
 
                 if (factoryClass.isPresent()) {
                     HandlerFactory factory = buildFactory(factoryClass.get());
-                    Handler handler = factory.buildHandler(sqlObjectType, method, methodConfig);
+                    Handler handler = factory.buildHandler(sqlObjectType, method);
                     handlers.put(method, handler);
                 }
                 else if (mixinHandlers.containsKey(method)) {
@@ -153,7 +146,10 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         return factory;
     }
 
-    private MethodInterceptor createMethodInterceptor(Map<Method, Handler> handlers, Supplier<Handle> handle) {
+    private MethodInterceptor createMethodInterceptor(Class<?> sqlObjectType,
+                                                      SqlObjectConfig baseConfig,
+                                                      Map<Method, Handler> handlers,
+                                                      Supplier<Handle> handle) {
         return (proxy, method, args, methodProxy) -> {
             Handler handler = handlers.get(method);
 
@@ -162,7 +158,13 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                 return methodProxy.invokeSuper(proxy, args);
             }
 
-            return handler.invoke(handle, proxy, args, method);
+            SqlObjectConfig config = baseConfig.createCopy();
+            forEachConfigurerFactory(sqlObjectType, (factory, annotation) ->
+                    factory.createForType(annotation, sqlObjectType).accept(config));
+            forEachConfigurerFactory(method, (factory, annotation) ->
+                    factory.createForMethod(annotation, sqlObjectType, method).accept(config));
+
+            return handler.invoke(handle, config, proxy, args, method);
         };
     }
 

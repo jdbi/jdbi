@@ -48,10 +48,9 @@ public abstract class StatementException extends JdbiException
             return base;
         }
         else {
-            return String.format("%s [statement:\"%s\", located:\"%s\", rewritten:\"%s\", arguments:%s]",
+            return String.format("%s [statement:\"%s\", rewritten:\"%s\", arguments:%s]",
                                  base,
                                  ctx.getRawSql(),
-                                 ctx.getLocatedSql(),
                                  ctx.getRewrittenSql(),
                                  ctx.getBinding());
         }
