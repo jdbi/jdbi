@@ -27,8 +27,6 @@ public class TestStatementContext
     public void testFoo() throws Exception
     {
         Handle h = db.openHandle();
-        h.setStatementLocator((name, ctx) ->
-                name.replaceAll("<table>", String.valueOf(ctx.getAttribute("table"))));
         final int inserted = h.createStatement("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", "Martin")

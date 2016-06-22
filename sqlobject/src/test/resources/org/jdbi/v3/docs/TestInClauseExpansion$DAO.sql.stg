@@ -1,5 +1,0 @@
-group DAO;
-
-findIdsForNames(names) ::= <<
-    select name from something where id in (<names>)
->>

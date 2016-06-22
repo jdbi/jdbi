@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3;
 
+import static org.jdbi.v3.locator.ClasspathSqlLocator.findSqlOnClasspath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -32,7 +33,7 @@ public class TestScript
     public void testScriptStuff() throws Exception
     {
         Handle h = db.openHandle();
-        Script s = h.createScript("default-data");
+        Script s = h.createScript(findSqlOnClasspath("default-data"));
         s.execute();
 
         assertEquals(2, h.select("select * from something").size());
@@ -41,7 +42,7 @@ public class TestScript
     @Test
     public void testScriptWithComments() throws Exception {
         Handle h = db.openHandle();
-        Script script = h.createScript("insert-script-with-comments");
+        Script script = h.createScript(findSqlOnClasspath("insert-script-with-comments"));
         script.execute();
 
         assertEquals(3, h.select("select * from something").size());
@@ -50,7 +51,7 @@ public class TestScript
     @Test
     public void testScriptWithStringSemicolon() throws Exception {
         Handle h = db.openHandle();
-        Script script = h.createScript("insert-with-string-semicolons");
+        Script script = h.createScript(findSqlOnClasspath("insert-with-string-semicolons"));
         script.execute();
 
         assertEquals(3, h.select("select * from something").size());
@@ -59,7 +60,7 @@ public class TestScript
     @Test
     public void testFuzzyScript() throws Exception {
         Handle h = db.openHandle();
-        Script script = h.createScript("fuzzy-script");
+        Script script = h.createScript(findSqlOnClasspath("fuzzy-script"));
         script.executeAsSeparateStatements();
 
         List<Map<String, Object>> rows = h.select("select * from something order by id");
@@ -78,7 +79,7 @@ public class TestScript
     public void testScriptAsSetOfSeparateStatements() throws Exception {
         try {
             Handle h = db.openHandle();
-            Script script = h.createScript("malformed-sql-script");
+            Script script = h.createScript(findSqlOnClasspath("malformed-sql-script"));
             script.executeAsSeparateStatements();
             fail("Should fail because the script is malformed");
         } catch (StatementException e) {

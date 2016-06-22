@@ -32,19 +32,19 @@ import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
 class BatchHandler extends CustomizingStatementHandler
 {
-    private final String sql;
-    private final boolean transactional;
+    private final Class<?> sqlObjectType;
+    private final SqlBatch sqlBatch;
     private final ChunkSizeFunction batchChunkSize;
 
     BatchHandler(Class<?> sqlObjectType, Method method)
     {
         super(sqlObjectType, method);
+        this.sqlObjectType = sqlObjectType;
+
         if(!returnTypeIsValid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
         }
-        SqlBatch anno = method.getAnnotation(SqlBatch.class);
-        this.sql = SqlAnnotations.getSql(anno, method);
-        this.transactional = anno.transactional();
+        this.sqlBatch = method.getAnnotation(SqlBatch.class);
         this.batchChunkSize = determineBatchChunkSize(sqlObjectType, method);
     }
 
@@ -84,7 +84,7 @@ class BatchHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> h, Object target, Object[] args, Method method)
+    public Object invoke(Supplier<Handle> h, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         boolean foundIterator = false;
         Handle handle = h.get();
@@ -116,8 +116,8 @@ class BatchHandler extends CustomizingStatementHandler
         int processed = 0;
         List<int[]> rs_parts = new ArrayList<>();
 
+        String sql = config.getSqlLocator().locate(sqlObjectType, method);
         PreparedBatch batch = handle.prepareBatch(sql);
-        populateSqlObjectData(batch.getContext());
         applyCustomizers(batch, args);
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
@@ -131,7 +131,6 @@ class BatchHandler extends CustomizingStatementHandler
                 processed = 0;
                 rs_parts.add(executeBatch(handle, batch));
                 batch = handle.prepareBatch(sql);
-                populateSqlObjectData(batch.getContext());
                 applyCustomizers(batch, args);
             }
         }
@@ -156,7 +155,7 @@ class BatchHandler extends CustomizingStatementHandler
 
     private int[] executeBatch(final Handle handle, final PreparedBatch batch)
     {
-        if (!handle.isInTransaction() && transactional) {
+        if (!handle.isInTransaction() && sqlBatch.transactional()) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
             return handle.inTransaction((conn, status) -> batch.execute());

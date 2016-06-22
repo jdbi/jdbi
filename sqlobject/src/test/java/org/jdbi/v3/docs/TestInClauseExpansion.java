@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.jdbi.v3.unstable.BindIn;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,10 +50,9 @@ public class TestInClauseExpansion
         assertEquals(ImmutableSet.of("Brian", "Jeff"), dao.findIdsForNames(asList(1, 2)));
     }
 
-    @UseStringTemplate3StatementLocator
     public interface DAO
     {
-        @SqlQuery
+        @SqlQuery("select name from something where id in (<names>)")
         ImmutableSet<String> findIdsForNames(@BindIn("names") List<Integer> names);
     }
 

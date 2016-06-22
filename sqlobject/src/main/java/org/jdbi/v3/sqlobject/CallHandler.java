@@ -24,12 +24,13 @@ import org.jdbi.v3.util.GenericTypes;
 
 class CallHandler extends CustomizingStatementHandler
 {
-    private final String sql;
+    private final Class<?> sqlObjectType;
     private final boolean returnOutParams;
 
     CallHandler(Class<?> sqlObjectType, Method method)
     {
         super(sqlObjectType, method);
+        this.sqlObjectType = sqlObjectType;
 
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
         Class<?> returnClass = GenericTypes.getErasedType(returnType);
@@ -40,15 +41,13 @@ class CallHandler extends CustomizingStatementHandler
         } else {
             throw new IllegalArgumentException("@SqlCall methods may only return null or OutParameters at present");
         }
-
-        this.sql = SqlAnnotations.getSql(method.getAnnotation(SqlCall.class), method);
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
+    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
+        String sql = config.getSqlLocator().locate(sqlObjectType, method);
         Call call = handle.get().createCall(sql);
-        populateSqlObjectData(call.getContext());
         applyCustomizers(call, args);
         applyBinders(call, args);
 

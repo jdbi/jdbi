@@ -23,7 +23,7 @@ class InTransactionHandler implements Handler
 {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public Object invoke(Supplier<Handle> handle, final Object target, Object[] args, Method method) throws Exception
+    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, final Object target, Object[] args, Method method) throws Exception
     {
         final TransactionalCallback callback = (TransactionalCallback) args[0];
         return handle.get().inTransaction((conn, status) -> callback.inTransaction(Transactional.class.cast(target), status));

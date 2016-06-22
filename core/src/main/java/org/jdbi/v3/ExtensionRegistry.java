@@ -45,7 +45,7 @@ class ExtensionRegistry {
         }
 
         <E> E attach(Class<E> extensionType, Supplier<Handle> handle) {
-            return factory.attach(extensionType, config, handle);
+            return factory.attach(extensionType, config.createCopy(), handle);
         }
     }
 

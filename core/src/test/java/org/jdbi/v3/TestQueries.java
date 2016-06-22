@@ -15,6 +15,7 @@ package org.jdbi.v3;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.jdbi.v3.locator.ClasspathSqlLocator.findSqlOnClasspath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -280,7 +281,7 @@ public class TestQueries
     @Test
     public void testFetchSize() throws Exception
     {
-        h.createScript("default-data").execute();
+        h.createScript(findSqlOnClasspath("default-data")).execute();
 
         Query<Something> q = h.createQuery("select id, name from something order by id").mapToBean(Something.class);
 

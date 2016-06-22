@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.rewriter.StatementRewriter;
-import org.jdbi.v3.statement.StatementLocator;
 
 class JdbiConfig {
     static JdbiConfig copyOf(JdbiConfig original) {
@@ -32,7 +31,6 @@ class JdbiConfig {
     final CollectorFactoryRegistry collectorRegistry;
     final ExtensionRegistry extensionRegistry;
 
-    volatile StatementLocator statementLocator;
     volatile StatementRewriter statementRewriter;
     volatile TimingCollector timingCollector;
 
@@ -45,7 +43,6 @@ class JdbiConfig {
         extensionRegistry = new ExtensionRegistry();
 
         statementRewriter = new ColonPrefixStatementRewriter();
-        statementLocator = new ClasspathStatementLocator();
         timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
     }
 
@@ -58,7 +55,6 @@ class JdbiConfig {
         this.extensionRegistry = ExtensionRegistry.copyOf(that.extensionRegistry);
 
         this.statementRewriter = that.statementRewriter;
-        this.statementLocator = that.statementLocator;
         this.timingCollector = that.timingCollector;
     }
 }

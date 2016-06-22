@@ -16,5 +16,5 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 
 interface HandlerFactory {
-    Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config);
+    Handler buildHandler(Class<?> sqlObjectType, Method method);
 }

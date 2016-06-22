@@ -27,12 +27,13 @@ import org.jdbi.v3.util.GenericTypes;
 
 class UpdateHandler extends CustomizingStatementHandler
 {
-    private final String sql;
+    private final Class<?> sqlObjectType;
     private final Returner returner;
 
     UpdateHandler(Class<?> sqlObjectType, Method method)
     {
         super(sqlObjectType, method);
+        this.sqlObjectType = sqlObjectType;
 
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
@@ -40,7 +41,6 @@ class UpdateHandler extends CustomizingStatementHandler
         if (!isGetGeneratedKeys && returnTypeIsInvalid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
         }
-        this.sql = SqlAnnotations.getSql(method.getAnnotation(SqlUpdate.class), method);
         if (isGetGeneratedKeys) {
 
             final ResultReturnThing magic = ResultReturnThing.forMethod(sqlObjectType, method);
@@ -68,10 +68,10 @@ class UpdateHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
+    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
+        String sql = config.getSqlLocator().locate(sqlObjectType, method);
         Update q = handle.get().createStatement(sql);
-        populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
         return this.returner.value(q, handle);

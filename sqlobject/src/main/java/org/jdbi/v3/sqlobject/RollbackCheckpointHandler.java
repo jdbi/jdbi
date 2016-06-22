@@ -21,7 +21,7 @@ import org.jdbi.v3.Handle;
 class RollbackCheckpointHandler implements Handler
 {
     @Override
-    public Object invoke(Supplier<Handle> handle, Object target, Object[] args, Method method)
+    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         handle.get().rollback(String.valueOf(args[0]));
         return null;

@@ -11,17 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.stringtemplate;
+package org.jdbi.v3.stringtemplate;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.jdbi.v3.H2DatabaseRule;
 import org.jdbi.v3.Handle;
 import org.jdbi.v3.Something;
+import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
-import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlBatch;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
@@ -32,7 +36,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestStringTemplate3Locator
+public class TestStringTemplateSqlLocator
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -97,7 +101,7 @@ public class TestStringTemplate3Locator
         assertThat(roo.findById(2L), equalTo(new Something(2, "Brian")));
     }
 
-    @UseStringTemplate3StatementLocator
+    @UseStringTemplateSqlLocator
     @RegisterRowMapper(SomethingMapper.class)
     interface Wombat
     {
@@ -107,7 +111,7 @@ public class TestStringTemplate3Locator
         @SqlQuery
         Something findById(@Bind("id") Long id);
 
-        @SqlQuery("select name from something where id = :id")
+        @SqlQuery
         String findNameFor(@Bind("id") int id);
 
         @SqlUpdate
@@ -119,5 +123,14 @@ public class TestStringTemplate3Locator
 
         @SqlBatch
         void insertBunches(@BindBean Something... somethings);
+    }
+
+    public static class SomethingMapper implements RowMapper<Something>
+    {
+        @Override
+        public Something map(ResultSet r, StatementContext ctx) throws SQLException
+        {
+            return new Something(r.getInt("id"), r.getString("name"));
+        }
     }
 }

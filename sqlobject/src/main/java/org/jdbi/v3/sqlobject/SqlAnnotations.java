@@ -14,37 +14,26 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.function.Predicate;
 
-class SqlAnnotations {
-    static String getSql(SqlCall q, Method m) {
-        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
-            return m.getName();
-        } else {
-            return q.value();
-        }
-    }
+import org.jdbi.v3.internal.JdbiOptionals;
 
-    static String getSql(SqlQuery q, Method m) {
-        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
-            return m.getName();
-        } else {
-            return q.value();
-        }
-    }
+public class SqlAnnotations {
+    /**
+     * Returns the <code>value()</code> of the <code>@SqlBatch</code>, <code>@SqlCall</code>, <code>@SqlQuery</code>, or
+     * <code>@SqlUpdate</code> annotation on the given method if declared and non-empty; empty otherwise.
+     *
+     * @param method the method
+     * @return the annotation <code>value()</code>
+     */
+    public static Optional<String> getAnnotationValue(Method method) {
+        Predicate<String> nonEmpty = s -> !s.isEmpty();
 
-    static String getSql(SqlUpdate q, Method m) {
-        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
-            return m.getName();
-        } else {
-            return q.value();
-        }
-    }
-
-    static String getSql(SqlBatch q, Method m) {
-        if (SqlQuery.DEFAULT_VALUE.equals(q.value())) {
-            return m.getName();
-        } else {
-            return q.value();
-        }
+        return JdbiOptionals.findFirstPresent(
+                () -> Optional.ofNullable(method.getAnnotation(SqlBatch.class)).map(SqlBatch::value).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlCall.class)).map(SqlCall::value).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlQuery.class)).map(SqlQuery::value).filter(nonEmpty),
+                () -> Optional.ofNullable(method.getAnnotation(SqlUpdate.class)).map(SqlUpdate::value).filter(nonEmpty));
     }
 }

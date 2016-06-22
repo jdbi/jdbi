@@ -11,13 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.sqlobject.locator;
 
-import org.jdbi.v3.extension.ExtensionConfig;
+import java.lang.reflect.Method;
 
-public class SqlObject implements ExtensionConfig<SqlObject> {
+import org.jdbi.v3.sqlobject.SqlAnnotations;
+
+/**
+ * Locates SQL on the SQL method annotation (e.g. <code>@SqlQuery("foo")</code>). This is the default SqlLocator.
+ */
+public class AnnotationSqlLocator implements SqlLocator {
     @Override
-    public SqlObject createCopy() {
-        return new SqlObject();
+    public String locate(Class<?> sqlObjectType, Method method) {
+        return SqlAnnotations.getAnnotationValue(method)
+                .orElseThrow(() -> new IllegalStateException("Sql annotation missing query"));
     }
 }

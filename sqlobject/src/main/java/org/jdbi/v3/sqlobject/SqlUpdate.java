@@ -33,11 +33,11 @@ public @interface SqlUpdate
      * with a statement locator.
      * @return the SQL string (or name)
      */
-    String value() default SqlQuery.DEFAULT_VALUE;
+    String value() default "";
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method, SqlObject config) {
+        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
             return new UpdateHandler(sqlObjectType, method);
         }
     }

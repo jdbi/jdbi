@@ -38,11 +38,9 @@ public final class StatementContext
 
     private String            rawSql;
     private String            rewrittenSql;
-    private String            locatedSql;
     private PreparedStatement statement;
     private Connection        connection;
     private Binding           binding;
-    private Class<?>          sqlObjectType;
     private boolean           returningGeneratedKeys;
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
@@ -163,24 +161,6 @@ public final class StatementContext
         return rewrittenSql;
     }
 
-    void setLocatedSql(String locatedSql)
-    {
-        this.locatedSql = locatedSql;
-    }
-
-    /**
-     * Obtain the located sql
-     * <p>
-     * Not available until until statement execution time
-     * </p>
-     *
-     * @return the sql which will be passed to the statement rewriter
-     */
-    public String getLocatedSql()
-    {
-        return locatedSql;
-    }
-
     void setStatement(PreparedStatement stmt)
     {
         statement = stmt;
@@ -226,17 +206,6 @@ public final class StatementContext
 
     Cleanables getCleanables() {
         return cleanables;
-    }
-
-    // TODO make default access or remove altogether
-    public void setSqlObjectType(Class<?> sqlObjectType)
-    {
-        this.sqlObjectType = sqlObjectType;
-    }
-
-    public Class<?> getSqlObjectType()
-    {
-        return sqlObjectType;
     }
 
     void setReturningGeneratedKeys(boolean b)

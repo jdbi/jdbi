@@ -150,15 +150,8 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
         }
 
         PreparedBatchPart current = parts.get(0);
-        final String my_sql ;
-        try {
-            my_sql = getStatementLocator().locate(getSql(), getContext());
-        }
-        catch (Exception e) {
-            throw new UnableToCreateStatementException(String.format("Exception while locating statement for [%s]",
-                                                                     getSql()), e, getContext());
-        }
-        final RewrittenStatement rewritten = getRewriter().rewrite(my_sql, current.getParams(), getContext());
+        final String rawSql = getSql();
+        final RewrittenStatement rewritten = getRewriter().rewrite(rawSql, current.getParams(), getContext());
         PreparedStatement stmt;
         try {
             try {

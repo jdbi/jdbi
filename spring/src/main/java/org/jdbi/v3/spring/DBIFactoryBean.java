@@ -23,7 +23,6 @@ import javax.sql.DataSource;
 
 import org.jdbi.v3.Jdbi;
 import org.jdbi.v3.spi.JdbiPlugin;
-import org.jdbi.v3.statement.StatementLocator;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -35,7 +34,6 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 public class DBIFactoryBean implements FactoryBean<Jdbi>
 {
     private DataSource dataSource;
-    private StatementLocator statementLocator;
     private final Map<String, Object> globalDefines = new HashMap<>();
 
     private Collection<JdbiPlugin> plugins = Collections.emptyList();
@@ -47,11 +45,6 @@ public class DBIFactoryBean implements FactoryBean<Jdbi>
         this.dataSource = dataSource;
     }
 
-    public DBIFactoryBean(DataSource dataSource, StatementLocator statementLocator) {
-        this.dataSource = dataSource;
-        this.statementLocator = statementLocator;
-    }
-
     /**
      * See {@link org.springframework.beans.factory.FactoryBean#getObject}
      */
@@ -61,10 +54,6 @@ public class DBIFactoryBean implements FactoryBean<Jdbi>
         final Jdbi dbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
 
         plugins.forEach(dbi::installPlugin);
-
-        if (statementLocator != null) {
-            dbi.setStatementLocator(statementLocator);
-        }
 
         for (Map.Entry<String, Object> entry : globalDefines.entrySet()) {
             dbi.define(entry.getKey(), entry.getValue());
@@ -102,11 +91,6 @@ public class DBIFactoryBean implements FactoryBean<Jdbi>
     public void setDataSource(DataSource dataSource)
     {
         this.dataSource = dataSource;
-    }
-
-    public void setStatementLocator(StatementLocator statementLocator)
-    {
-        this.statementLocator = statementLocator;
     }
 
     @Autowired(required=false)
