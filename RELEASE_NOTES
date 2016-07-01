@@ -1,6 +1,7 @@
 2.74
   - cglib 3.2.2, asm 5.1; fixes codegen for new Java 8 bridge methods
   - @UseStringTemplate3StatementLocator now caches created locators
+  - new @OutParameter annotation for fetching named out params on @SqlCall methods
 
 2.73
   - Allow clearing of bindings in SQLStatement
