@@ -164,6 +164,17 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-postgres</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-postgres</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -174,14 +185,8 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-postgres</artifactId>
+                <artifactId>jdbi3-string-template</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-postgres</artifactId>
-                <version>${project.version}</version>
-                <classifier>tests</classifier>
             </dependency>
 
             <dependency>
