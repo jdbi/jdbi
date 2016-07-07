@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.docs;
+package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -30,14 +30,6 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.sqlobject.BindBean;
-import org.jdbi.v3.sqlobject.SomethingMapper;
-import org.jdbi.v3.sqlobject.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Rule;
 import org.junit.Test;

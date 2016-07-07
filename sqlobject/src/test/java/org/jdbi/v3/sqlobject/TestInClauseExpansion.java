@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.docs;
+package org.jdbi.v3.sqlobject;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
@@ -22,8 +22,7 @@ import com.google.common.collect.ImmutableSet;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.unstable.BindIn;
+import org.jdbi.v3.sqlobject.unstable.BindIn;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

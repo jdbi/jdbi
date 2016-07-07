@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.unstable;
+package org.jdbi.v3.sqlobject.unstable;
 
 import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 
