@@ -16,10 +16,10 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.exception.TransactionException;
-import org.jdbi.v3.transaction.TransactionCallback;
-import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.exception.TransactionException;
+import org.jdbi.v3.core.transaction.TransactionCallback;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
 class PassThroughTransactionHandler implements Handler
 {

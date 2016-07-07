@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.jdbi.v3.PGDatabaseRule;
+import org.jdbi.v3.core.PGDatabaseRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

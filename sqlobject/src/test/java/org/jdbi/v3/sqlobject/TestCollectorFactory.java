@@ -22,9 +22,9 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.guava.GuavaCollectors;
 import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
 import org.junit.Rule;

@@ -16,9 +16,9 @@ package org.jdbi.v3.sqlobject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.Something;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.RowMapper;
 
 public class SomethingMapper implements RowMapper<Something>
 {

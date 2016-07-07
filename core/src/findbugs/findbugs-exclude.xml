@@ -13,6 +13,6 @@
 -->
 <FindBugsFilter>
     <Match>
-        <Package name="~org\.jdbi\.v3\.internal\.lexer\.*" />
+        <Package name="~org\.jdbi\.v3\.core\.internal\.lexer\.*" />
     </Match>
 </FindBugsFilter>

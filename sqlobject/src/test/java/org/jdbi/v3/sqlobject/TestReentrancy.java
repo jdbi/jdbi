@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Something;
-import org.jdbi.v3.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.After;
 import org.junit.Before;

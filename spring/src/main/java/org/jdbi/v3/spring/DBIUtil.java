@@ -16,8 +16,8 @@ package org.jdbi.v3.spring;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.Handle;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 

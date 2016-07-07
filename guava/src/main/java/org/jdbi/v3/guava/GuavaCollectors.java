@@ -13,15 +13,15 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.jdbi.v3.util.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collector;
 
-import org.jdbi.v3.collector.CollectorFactory;
+import org.jdbi.v3.core.collector.CollectorFactory;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;

@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MapWith

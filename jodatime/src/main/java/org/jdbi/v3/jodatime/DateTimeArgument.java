@@ -19,10 +19,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Optional;
 
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.argument.Argument;
-import org.jdbi.v3.argument.ArgumentFactory;
-import org.jdbi.v3.util.GenericTypes;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.util.GenericTypes;
 import org.joda.time.DateTime;
 
 public class DateTimeArgument implements Argument {

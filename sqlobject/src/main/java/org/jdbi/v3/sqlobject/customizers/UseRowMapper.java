@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
 
 /**
  * Used to specify specific row mapper on a query method.

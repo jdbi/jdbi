@@ -23,10 +23,10 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.PreparedBatch;
-import org.jdbi.v3.PreparedBatchPart;
-import org.jdbi.v3.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.PreparedBatch;
+import org.jdbi.v3.core.PreparedBatchPart;
+import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 

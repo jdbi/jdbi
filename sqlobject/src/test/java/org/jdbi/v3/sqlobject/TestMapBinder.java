@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.junit.After;
 import org.junit.Before;

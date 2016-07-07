@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;

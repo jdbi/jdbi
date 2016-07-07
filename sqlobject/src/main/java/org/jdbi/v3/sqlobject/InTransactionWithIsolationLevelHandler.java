@@ -16,9 +16,9 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
 class InTransactionWithIsolationLevelHandler implements Handler
 {

@@ -17,13 +17,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.GeneratedKeys;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Update;
-import org.jdbi.v3.exception.UnableToCreateStatementException;
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.GeneratedKeys;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Update;
+import org.jdbi.v3.core.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
-import org.jdbi.v3.util.GenericTypes;
+import org.jdbi.v3.core.util.GenericTypes;
 
 class UpdateHandler extends CustomizingStatementHandler
 {

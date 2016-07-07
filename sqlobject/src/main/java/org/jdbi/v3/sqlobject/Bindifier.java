@@ -17,7 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import org.jdbi.v3.SqlStatement;
+import org.jdbi.v3.core.SqlStatement;
 
 class Bindifier<AnnoType extends Annotation>
 {

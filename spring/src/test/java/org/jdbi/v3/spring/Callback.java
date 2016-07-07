@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.spring;
 
-import org.jdbi.v3.Jdbi;
+import org.jdbi.v3.core.Jdbi;
 
 public interface Callback
 {

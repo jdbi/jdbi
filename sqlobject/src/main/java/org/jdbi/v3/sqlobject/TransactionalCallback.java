@@ -14,7 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.transaction.TransactionStatus;
+import org.jdbi.v3.core.transaction.TransactionStatus;
 
 public interface TransactionalCallback<R, T extends Transactional<T>, X extends Exception>
 {

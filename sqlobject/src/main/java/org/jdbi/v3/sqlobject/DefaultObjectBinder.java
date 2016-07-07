@@ -17,9 +17,9 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 
-import org.jdbi.v3.PreparedBatchPart;
-import org.jdbi.v3.SqlStatement;
-import org.jdbi.v3.util.GenericTypes;
+import org.jdbi.v3.core.PreparedBatchPart;
+import org.jdbi.v3.core.SqlStatement;
+import org.jdbi.v3.core.util.GenericTypes;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
 {

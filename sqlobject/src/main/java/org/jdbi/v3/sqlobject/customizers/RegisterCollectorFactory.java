@@ -23,9 +23,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.Query;
-import org.jdbi.v3.SqlStatement;
-import org.jdbi.v3.collector.CollectorFactory;
+import org.jdbi.v3.core.Query;
+import org.jdbi.v3.core.SqlStatement;
+import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;

@@ -21,11 +21,11 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.argument.Argument;
-import org.jdbi.v3.argument.ArgumentFactory;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

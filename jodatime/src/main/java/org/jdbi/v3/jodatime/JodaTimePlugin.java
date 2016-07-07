@@ -15,8 +15,8 @@ package org.jdbi.v3.jodatime;
 
 import com.google.auto.service.AutoService;
 
-import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.spi.JdbiPlugin;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.spi.JdbiPlugin;
 
 @AutoService(JdbiPlugin.class)
 public class JodaTimePlugin implements JdbiPlugin {

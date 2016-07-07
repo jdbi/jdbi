@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
 class TransactionalHelper
 {

@@ -20,15 +20,15 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Query;
-import org.jdbi.v3.ResultBearing;
-import org.jdbi.v3.ResultIterator;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.exception.UnableToCreateStatementException;
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Query;
+import org.jdbi.v3.core.ResultBearing;
+import org.jdbi.v3.core.ResultIterator;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
-import org.jdbi.v3.util.GenericTypes;
+import org.jdbi.v3.core.util.GenericTypes;
 
 abstract class ResultReturnThing
 {

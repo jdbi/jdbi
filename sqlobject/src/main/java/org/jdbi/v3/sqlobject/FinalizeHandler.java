@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.core.Handle;
 
 class FinalizeHandler implements Handler
 {

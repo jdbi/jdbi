@@ -16,9 +16,9 @@ package org.jdbi.v3.sqlobject;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizers.Define;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;

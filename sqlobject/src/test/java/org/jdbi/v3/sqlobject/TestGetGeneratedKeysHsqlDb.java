@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.UUID;
 
-import org.jdbi.v3.Jdbi;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.Before;
 import org.junit.Test;
 

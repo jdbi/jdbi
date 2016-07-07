@@ -18,12 +18,12 @@ import static org.mockito.Mockito.verify;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 
-import org.jdbi.v3.Binding;
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.Update;
-import org.jdbi.v3.argument.ObjectArgumentFactory;
+import org.jdbi.v3.core.Binding;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.Update;
+import org.jdbi.v3.core.argument.ObjectArgumentFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
