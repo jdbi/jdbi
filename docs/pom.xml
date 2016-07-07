@@ -68,6 +68,10 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-postgres</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-spring</artifactId>
       </dependency>
       <dependency>
@@ -76,7 +80,7 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-postgres</artifactId>
+        <artifactId>jdbi3-string-template</artifactId>
       </dependency>
 
       <dependency>
