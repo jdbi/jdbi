@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.locator.ClasspathSqlLocator;
+import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjectConfig;
 import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;

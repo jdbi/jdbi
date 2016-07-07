@@ -20,8 +20,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.Query;
-import org.jdbi.v3.mapper.BeanMapperFactory;
+import org.jdbi.v3.core.Query;
+import org.jdbi.v3.core.mapper.BeanMapperFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;

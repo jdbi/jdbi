@@ -13,16 +13,16 @@
  */
 package org.jdbi.v3.jpa;
 
-import static org.jdbi.v3.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
 import javax.persistence.Entity;
 
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.RowMapper;
-import org.jdbi.v3.mapper.RowMapperFactory;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 
 public class JpaMapperFactory implements RowMapperFactory {
     @Override

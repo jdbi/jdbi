@@ -15,8 +15,8 @@ package org.jdbi.v3.spring;
 
 import javax.sql.DataSource;
 
-import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.Handle;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

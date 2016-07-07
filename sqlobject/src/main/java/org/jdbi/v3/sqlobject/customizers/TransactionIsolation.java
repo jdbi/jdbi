@@ -23,18 +23,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.SqlStatement;
-import org.jdbi.v3.StatementContext;
+import org.jdbi.v3.core.SqlStatement;
+import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.statement.StatementCustomizer;
-import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.statement.StatementCustomizer;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
 /**
  * Used to specify the transaction isolation level for an object or method (via annotating the method
  * or passing it in as an annotated param). If used on a parameter, the parameter type must be a
- * {@link org.jdbi.v3.transaction.TransactionIsolationLevel}
+ * {@link TransactionIsolationLevel}
  */
 @SqlStatementCustomizingAnnotation(TransactionIsolation.Factory.class)
 @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE})

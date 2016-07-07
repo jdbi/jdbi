@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import org.jdbi.v3.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.JdbiOptionals;
 
 public class SqlAnnotations {
     /**

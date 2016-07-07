@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.spring;
 
-import org.jdbi.v3.Jdbi;
+import org.jdbi.v3.core.Jdbi;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

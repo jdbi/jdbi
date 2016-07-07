@@ -15,8 +15,8 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Parameter;
 
-import org.jdbi.v3.SqlStatement;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.SqlStatement;
+import org.jdbi.v3.core.Something;
 
 public class SomethingBinderAgainstBind implements Binder<Bind, Something>
 {

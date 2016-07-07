@@ -19,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})

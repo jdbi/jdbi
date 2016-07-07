@@ -17,8 +17,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.ColumnMapper;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.joda.time.DateTime;
 
 public class DateTimeMapper implements ColumnMapper<DateTime> {

@@ -15,7 +15,7 @@ package org.jdbi.v3.docs;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.jdbi.v3.ExtraMatchers.equalsOneOf;
+import static org.jdbi.v3.core.ExtraMatchers.equalsOneOf;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Query;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Query;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SomethingMapper;

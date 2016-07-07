@@ -14,8 +14,8 @@
 package org.jdbi.v3.jpa;
 
 import com.google.auto.service.AutoService;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.spi.JdbiPlugin;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.spi.JdbiPlugin;
 
 @AutoService(JdbiPlugin.class)
 public class JpaPlugin implements JdbiPlugin {

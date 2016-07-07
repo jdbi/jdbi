@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.spi.JdbiPlugin;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class SqlObjectPlugin implements JdbiPlugin {
     @Override

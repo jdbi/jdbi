@@ -13,15 +13,15 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.jdbi.v3.util.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.argument.Argument;
-import org.jdbi.v3.argument.ArgumentFactory;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
 
 /**
  * Provide ArgumentFactory instances that understand Guava types.

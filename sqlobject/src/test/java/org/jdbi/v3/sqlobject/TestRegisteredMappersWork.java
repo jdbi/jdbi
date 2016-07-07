@@ -24,11 +24,11 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Something;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
 import org.junit.Rule;

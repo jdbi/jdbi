@@ -18,11 +18,11 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 
-import org.jdbi.v3.PGDatabaseRule;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.PGDatabaseRule;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

@@ -20,9 +20,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.After;
 import org.junit.Before;

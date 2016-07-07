@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.unstable;
 
-import static org.jdbi.v3.util.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;

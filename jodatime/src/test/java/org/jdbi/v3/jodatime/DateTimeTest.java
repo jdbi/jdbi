@@ -15,8 +15,8 @@ package org.jdbi.v3.jodatime;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;

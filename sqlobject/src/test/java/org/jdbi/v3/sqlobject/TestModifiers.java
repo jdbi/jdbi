@@ -15,22 +15,22 @@ package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.jdbi.v3.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
+import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizers.FetchSize;
 import org.jdbi.v3.sqlobject.customizers.MaxRows;
 import org.jdbi.v3.sqlobject.customizers.QueryTimeOut;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

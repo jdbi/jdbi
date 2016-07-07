@@ -13,7 +13,7 @@
  */
 package jdbi.doc;
 
-import org.jdbi.v3.Jdbi;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.Test;
 
 public class HelloWorldTest {

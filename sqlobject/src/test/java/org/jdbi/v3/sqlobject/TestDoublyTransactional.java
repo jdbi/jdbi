@@ -25,12 +25,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.common.collect.ImmutableSet;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.Jdbi;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Something;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

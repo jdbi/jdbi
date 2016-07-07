@@ -17,10 +17,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.Call;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.OutParameters;
-import org.jdbi.v3.util.GenericTypes;
+import org.jdbi.v3.core.Call;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.OutParameters;
+import org.jdbi.v3.core.util.GenericTypes;
 
 class CallHandler extends CustomizingStatementHandler
 {

@@ -19,11 +19,11 @@ import static org.junit.Assert.assertThat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.Something;
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SqlBatch;

@@ -32,8 +32,8 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.extension.ExtensionFactory;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 

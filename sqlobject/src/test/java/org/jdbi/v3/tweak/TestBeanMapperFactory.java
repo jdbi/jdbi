@@ -18,10 +18,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.jdbi.v3.Handle;
-import org.jdbi.v3.H2DatabaseRule;
-import org.jdbi.v3.ValueType;
-import org.jdbi.v3.ValueTypeMapper;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.ValueType;
+import org.jdbi.v3.core.ValueTypeMapper;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;

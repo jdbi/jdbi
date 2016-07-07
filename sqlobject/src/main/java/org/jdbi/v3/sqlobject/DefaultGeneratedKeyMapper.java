@@ -17,9 +17,9 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.StatementContext;
-import org.jdbi.v3.mapper.ColumnMapper;
-import org.jdbi.v3.mapper.RowMapper;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
 
 class DefaultGeneratedKeyMapper implements RowMapper<Object> {
     private final Type returnType;
