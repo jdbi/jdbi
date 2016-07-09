@@ -21,15 +21,15 @@ import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
-class PassThroughTransactionHandler implements Handler
+class TransactionDecorator implements Handler
 {
+    private final Handler delegate;
     private final TransactionIsolationLevel isolation;
-    private final PassThroughHandler delegate;
 
-    PassThroughTransactionHandler(Transaction tx)
+    TransactionDecorator(Handler delegate, Transaction tx)
     {
+        this.delegate = delegate;
         this.isolation = tx.value();
-        this.delegate = new PassThroughHandler();
     }
 
     @Override

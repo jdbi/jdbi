@@ -17,21 +17,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
-
+/**
+ * Annotation used to identify SQL method decorating annotations. Use this to annotate an annotation.
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-@SqlMethodDecoratingAnnotation(Transaction.Decorator.class)
-public @interface Transaction
-{
-    TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
-
-    class Decorator implements HandlerDecorator {
-        @Override
-        public Handler decorateHandler(Handler handler, Class<?> sqlObjectType, Method method) {
-            return new TransactionDecorator(handler, method.getAnnotation(Transaction.class));
-        }
-    }
+@Target(ElementType.ANNOTATION_TYPE)
+@interface SqlMethodDecoratingAnnotation {
+    Class<? extends HandlerDecorator> value();
 }
