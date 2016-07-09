@@ -36,8 +36,10 @@ class TransactionDecorator implements Handler
     public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method) throws Exception
     {
         Handle h = handle.get();
+
         if (h.isInTransaction()) {
-            throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
+            // Already in transaction. The outermost @Transaction method determines the transaction isolation level.
+            return delegate.invoke(handle, config, target, args, method);
         }
 
         TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(handle, config, target, args, method);

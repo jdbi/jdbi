@@ -16,17 +16,20 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TestClassBasedSqlObject
 {
@@ -90,18 +93,33 @@ public class TestClassBasedSqlObject
         assertTrue(dao.doesTransactionAnnotationWork());
     }
 
-    /**
-     * Currently, nested transactions are not supported. Make sure an appropriate exception is
-     * thrown in that case.
-     * <p>
-     *
-     * Side note: H2 does not have a problem with nested transactions - but MySQL has.
-     */
-    @Test(expected = TransactionException.class)
-    public void testNestedTransactionsThrowException()
+    @Test
+    public void testNestedTransactionsCollapseIntoSingleTransaction()
     {
-        SomethingDao dao = db.getJdbi().onDemand(SomethingDao.class);
-        dao.insertInNestedTransaction(11, "Angelina");
+        Handle handle = Mockito.spy(db.getSharedHandle());
+        Dao dao = handle.attach(Dao.class);
+
+        dao.threeNestedTransactions();
+        verify(handle, times(1)).begin();
+        verify(handle, times(1)).commit();
+
+        dao.twoNestedTransactions();
+        verify(handle, times(2)).begin();
+        verify(handle, times(2)).commit();
+    }
+
+    @Test
+    public void testSqlUpdateWithTransaction() {
+        Handle handle = Mockito.spy(db.getSharedHandle());
+        Dao dao = handle.attach(Dao.class);
+
+        dao.insert(1, "foo");
+        verify(handle, never()).begin();
+        assertThat(dao.findById(1), equalTo(new Something(1, "foo")));
+
+        dao.insertTransactional(2, "bar");
+        verify(handle, times(1)).begin();
+        assertThat(dao.findById(2), equalTo(new Something(2, "bar")));
     }
 
     @RegisterRowMapper(SomethingMapper.class)
@@ -113,11 +131,25 @@ public class TestClassBasedSqlObject
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);
 
+        @Transaction
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insertTransactional(@Bind("id") int id, @Bind("name") String name);
+
         default Something findByIdHeeHee(int id) {
             return findById(id);
         }
 
         void totallyBroken();
+
+        @Transaction
+        default void threeNestedTransactions() {
+            twoNestedTransactions();
+        }
+
+        @Transaction
+        default void twoNestedTransactions() {
+            assertTrue(doesTransactionAnnotationWork());
+        }
 
         @Transaction
         default boolean doesTransactionAnnotationWork() {
