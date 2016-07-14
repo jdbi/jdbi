@@ -14,6 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
+import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.never;
@@ -23,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
@@ -109,6 +112,24 @@ public class TestClassBasedSqlObject
     }
 
     @Test
+    public void testNestedTransactionWithSameIsolation() {
+        Handle handle = Mockito.spy(db.getSharedHandle());
+        Dao dao = handle.attach(Dao.class);
+
+        dao.nestedTransactionWithSameIsolation();
+        verify(handle, times(1)).begin();
+        verify(handle, times(1)).commit();
+    }
+
+    @Test(expected = TransactionException.class)
+    public void testNestedTransactionWithDifferentIsoltion() {
+        Handle handle = Mockito.spy(db.getSharedHandle());
+        Dao dao = handle.attach(Dao.class);
+
+        dao.nestedTransactionWithDifferentIsolation();
+    }
+
+    @Test
     public void testSqlUpdateWithTransaction() {
         Handle handle = Mockito.spy(db.getSharedHandle());
         Dao dao = handle.attach(Dao.class);
@@ -154,6 +175,21 @@ public class TestClassBasedSqlObject
         @Transaction
         default boolean doesTransactionAnnotationWork() {
             return getHandle().isInTransaction();
+        }
+
+        @Transaction(READ_UNCOMMITTED)
+        default boolean transactionWithIsolation() {
+            return getHandle().isInTransaction();
+        }
+
+        @Transaction(READ_UNCOMMITTED)
+        default void nestedTransactionWithSameIsolation() {
+            assertTrue(transactionWithIsolation());
+        }
+
+        @Transaction(READ_COMMITTED)
+        default void nestedTransactionWithDifferentIsolation() {
+            transactionWithIsolation();
         }
     }
 
