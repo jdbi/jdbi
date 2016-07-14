@@ -171,8 +171,8 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     private static HandlerFactory buildFactory(Class<? extends HandlerFactory> factoryClazz) {
         HandlerFactory factory;
         try {
-            factory = factoryClazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            factory = factoryClazz.getConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Factory class " + factoryClazz + "cannot be instantiated", e);
         }
         return factory;
@@ -181,8 +181,8 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     private static HandlerDecorator buildDecorator(Class<? extends HandlerDecorator> decoratorClass) {
         HandlerDecorator decorator;
         try {
-            decorator = decoratorClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            decorator = decoratorClass.getConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Decorator class " + decoratorClass + "cannot be instantiated", e);
         }
         return decorator;
