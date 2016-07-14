@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -68,9 +70,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
 
         return Stream.of(extensionType.getMethods())
                 .flatMap(m -> Stream.of(m.getAnnotations()))
-                .map(a -> a.annotationType())
-                .anyMatch(type -> type.isAnnotationPresent(SqlMethodAnnotation.class) ||
-                        type.isAnnotationPresent(SqlMethodDecoratingAnnotation.class));
+                .anyMatch(a -> a.annotationType().isAnnotationPresent(SqlMethodAnnotation.class));
     }
 
     /**
@@ -133,9 +133,21 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     }
 
     private Handler buildBaseHandler(Class<?> sqlObjectType, Method method) {
-        return Stream.of(method.getAnnotations())
-                .map(a -> a.annotationType().getAnnotation(SqlMethodAnnotation.class))
-                .filter(Objects::nonNull)
+        Set<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
+                .map(Annotation::annotationType)
+                .filter(type -> type.isAnnotationPresent(SqlMethodAnnotation.class))
+                .collect(toSet());
+
+        if (sqlMethodAnnotations.size() > 1) {
+            throw new IllegalStateException(
+                    String.format("Mutually exclusive annotations on method %s.%s: %s",
+                            sqlObjectType.getName(),
+                            method.getName(),
+                            sqlMethodAnnotations));
+        }
+
+        return sqlMethodAnnotations.stream()
+                .map(type -> type.getAnnotation(SqlMethodAnnotation.class))
                 .map(a -> buildFactory(a.value()))
                 .map(factory -> factory.buildHandler(sqlObjectType, method))
                 .findFirst()
