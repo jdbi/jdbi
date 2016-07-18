@@ -36,12 +36,12 @@ import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
  * object method will be used:
  *
  * <pre>
- *     &amp;UseClasspathSqlLocator
+ *     &#064;UseClasspathSqlLocator
  *     interface Viccini {
- *         &amp;SqlUpdate
+ *         &#064;SqlUpdate
  *         void doTheThing(long id);     // =&gt; ClasspathSqlLocator.findSqlOnClasspath(Viccini.class, "doTheThing")
  *
- *         &amp;SqlUpdate("thatOtherThing")
+ *         &#064;SqlUpdate("thatOtherThing")
  *         void doTheThing(String name); // =&gt; ClasspathSqlLocator.findSqlOnClasspath(Viccini.class, "thatOtherThing")
  *     }
  * </pre>

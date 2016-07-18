@@ -34,12 +34,12 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
  * object method will be used:
  *
  * <pre>
- *     &amp;UseStringTemplateSqlLocator
+ *     &#064;UseStringTemplateSqlLocator
  *     interface Viccini {
- *         &amp;SqlUpdate
+ *         &#064;SqlUpdate
  *         void doTheThing(long id);     // =&gt; StringTemplateSqlLocator.findStringTemplateSql(Viccini.class, "doTheThing")
  *
- *         &amp;SqlUpdate("thatOtherThing")
+ *         &#064;SqlUpdate("thatOtherThing")
  *         void doTheThing(String name); // =&gt; StringTemplateSqlLocator.findStringTemplateSql(Viccini.class, "thatOtherThing")
  *     }
  * </pre>
