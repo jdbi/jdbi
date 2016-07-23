@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 
 /**
@@ -32,7 +33,7 @@ import java.util.regex.Matcher;
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<String, String>());
+    private final Map<Object, String> found = Collections.synchronizedMap(new WeakHashMap<Object, String>());
 
     /**
      * Very basic sanity test to see if a string looks like it might be sql
@@ -74,20 +75,32 @@ public class ClasspathStatementLocator implements StatementLocator
     @SuppressFBWarnings("DM_STRING_CTOR")
     public String locate(String name, StatementContext ctx)
     {
-        final String cache_key;
+        final Object cache_key;
+        boolean isSqlObjectMethod = false;
         if (ctx.getSqlObjectType() != null) {
-            cache_key = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
+            if (ctx.getSqlObjectMethod() != null) {
+                isSqlObjectMethod = true;
+                cache_key = ctx.getSqlObjectMethod();
+            } else {
+                cache_key = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
+            }
         }
         else {
             cache_key = name;
         }
 
-        if (found.containsKey(cache_key)) {
-            return found.get(cache_key);
+        String cached = found.get(cache_key);
+        if (cached != null) {
+            return cached;
         }
+
 
         if (looksLikeSql(name)) {
             // No need to cache individual SQL statements that don't cause us to search the classpath
+            // But for static SQL object methods caching decreases GC pressure and not threatens memory leaks.
+            if (isSqlObjectMethod) {
+                found.put(cache_key, name);
+            }
             return name;
         }
         final ClassLoader loader = selectClassLoader();
