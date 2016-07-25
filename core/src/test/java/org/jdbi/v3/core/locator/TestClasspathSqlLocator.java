@@ -87,12 +87,12 @@ public class TestClasspathSqlLocator {
     public void testCachesResultAfterFirstLookup() throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         final AtomicInteger loadCount = new AtomicInteger(0);
+
         Thread.currentThread().setContextClassLoader(new ClassLoader(classLoader) {
             @Override
             public InputStream getResourceAsStream(String s) {
-                InputStream in = super.getResourceAsStream(s);
                 loadCount.incrementAndGet();
-                return in;
+                return super.getResourceAsStream(s);
             }
         });
 

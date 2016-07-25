@@ -22,9 +22,13 @@ import java.lang.reflect.Method;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
 /**
- * Causes the annotated method to be run in a transaction. Nested <code>@Transaction</code> annotations (e.g. one method
- * calls another method, where both methods have this annotation) are collapsed into a single transaction. The
- * transaction isolation level is the level specified out the outermost <code>@Transaction</code> annotation.
+ * Causes the annotated method to be run in a transaction.
+ *
+ * <p>
+ * Nested <code>@Transaction</code> annotations (e.g. one method calls another method, where both methods have this
+ * annotation) are collapsed into a single transaction. If the outer method annotation specifies an isolation level,
+ * then the inner method must either specify the same level, or not specify any level.
+ * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
