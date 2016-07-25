@@ -21,17 +21,26 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
+/**
+ * Causes the annotated method to be run in a transaction.
+ *
+ * <p>
+ * Nested <code>@Transaction</code> annotations (e.g. one method calls another method, where both methods have this
+ * annotation) are collapsed into a single transaction. If the outer method annotation specifies an isolation level,
+ * then the inner method must either specify the same level, or not specify any level.
+ * </p>
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(Transaction.Factory.class)
+@SqlMethodDecoratingAnnotation(Transaction.Decorator.class)
 public @interface Transaction
 {
     TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
 
-    class Factory implements HandlerFactory {
+    class Decorator implements HandlerDecorator {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new PassThroughTransactionHandler(method.getAnnotation(Transaction.class));
+        public Handler decorateHandler(Handler handler, Class<?> sqlObjectType, Method method) {
+            return new TransactionDecorator(handler, method.getAnnotation(Transaction.class));
         }
     }
 }

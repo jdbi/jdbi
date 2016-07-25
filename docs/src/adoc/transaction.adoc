@@ -26,6 +26,21 @@ Similarly, you may declare transactions with SqlObject annotations:
 include::TransactionTest.java[tags=sqlObjectTransaction]
 -------------------------------------------
 
+SQL methods with a `@Transaction` annotation may optionally specify a transaction isolation level:
+
+[source,java,indent=0]
+-------------------------------------------
+include::TransactionTest.java[tags=sqlObjectTransactionIsolation]
+-------------------------------------------
+
+If a `@Transaction` method calls another `@Transaction` method, they must specify the same isolation level, or the
+inner method must not specify anything, in which case the isolation level of the outer method is used.
+
+[source,java,indent=0]
+-------------------------------------------
+include::TransactionTest.java[tags=sqlObjectNestedTransaction]
+-------------------------------------------
+
 == Serializable Transactions
 
 For more advanced queries, sometimes serializable transactions are required.

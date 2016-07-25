@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.mapper.ConstructorMapper;
 import org.jdbi.v3.postgres.PostgresDbRule;
 import org.jdbi.v3.sqlobject.SqlQuery;
@@ -34,15 +35,21 @@ import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.TransactionStatus;
+import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import jdbi.doc.ResultsTest.User;
 
 public class TransactionTest {
     @Rule
     public PostgresDbRule db = new PostgresDbRule();
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     private Handle handle;
     private Jdbi jdbi;
 
@@ -90,6 +97,62 @@ public class TransactionTest {
         Optional<User> findUserById(int id);
     }
     // end::sqlObjectTransaction[]
+
+    @Test
+    public void sqlObjectTransactionIsolation() {
+        UserDao2 dao = handle.attach(UserDao2.class);
+        dao.insertUser("Echo");
+        assertEquals("Echo", handle.attach(UserDao.class).findUserById(5).get().name);
+    }
+
+    public interface UserDao2 extends UserDao {
+        // tag::sqlObjectTransactionIsolation[]
+        @SqlUpdate("INSERT INTO USERS (name) VALUES (:name)")
+        @Transaction(TransactionIsolationLevel.READ_COMMITTED)
+        void insertUser(String name);
+        // end::sqlObjectTransactionIsolation[]
+    }
+
+    @Test
+    public void sqlObjectNestedTransactions() {
+        NestedTransactionDao dao = handle.attach(NestedTransactionDao.class);
+        dao.outerMethodCallsInnerWithSameLevel();
+        dao.outerMethodWithLevelCallsInnerMethodWithNoLevel();
+
+        exception.expect(TransactionException.class);
+        dao.outerMethodWithOneLevelCallsInnerMethodWithAnotherLevel();
+    }
+
+    public interface NestedTransactionDao extends GetHandle {
+        // tag::sqlObjectNestedTransaction[]
+        @Transaction(TransactionIsolationLevel.READ_UNCOMMITTED)
+        default void outerMethodCallsInnerWithSameLevel() {
+            // this works: isolation levels agree
+            innerMethodSameLevel();
+        }
+
+        @Transaction(TransactionIsolationLevel.READ_UNCOMMITTED)
+        default void innerMethodSameLevel() {}
+
+        @Transaction(TransactionIsolationLevel.READ_COMMITTED)
+        default void outerMethodWithLevelCallsInnerMethodWithNoLevel() {
+            // this also works: inner method doesn't specify a level, so the outer method controls.
+            innerMethodWithNoLevel();
+        }
+
+        @Transaction
+        default void innerMethodWithNoLevel() {}
+
+        @Transaction(TransactionIsolationLevel.REPEATABLE_READ)
+        default void outerMethodWithOneLevelCallsInnerMethodWithAnotherLevel() throws TransactionException {
+            // error! inner method specifies a different isolation level.
+            innerMethodWithADifferentLevel();
+        }
+
+        @Transaction(TransactionIsolationLevel.SERIALIZABLE)
+        default void innerMethodWithADifferentLevel() {}
+        // end::sqlObjectNestedTransaction[]
+    }
 
     // tag::serializable[]
     public interface IntListDao {

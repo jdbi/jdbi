@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -21,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -105,45 +108,84 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
 
     private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
-
             final Map<Method, Handler> handlers = new HashMap<>();
-            for (Method method : sqlObjectType.getMethods()) {
-                Optional<? extends Class<? extends HandlerFactory>> factoryClass = Stream.of(method.getAnnotations())
-                        .map(a -> a.annotationType().getAnnotation(SqlMethodAnnotation.class))
-                        .filter(Objects::nonNull)
-                        .map(a -> a.value())
-                        .findFirst();
-
-                if (factoryClass.isPresent()) {
-                    HandlerFactory factory = buildFactory(factoryClass.get());
-                    Handler handler = factory.buildHandler(sqlObjectType, method);
-                    handlers.put(method, handler);
-                }
-                else if (mixinHandlers.containsKey(method)) {
-                    handlers.put(method, mixinHandlers.get(method));
-                }
-                else {
-                    handlers.put(method, new PassThroughHandler());
-                }
-            }
 
             handlers.putAll(EqualsHandler.handler());
             handlers.putAll(ToStringHandler.handler(sqlObjectType.getName()));
             handlers.putAll(HashCodeHandler.handler());
             handlers.putAll(FinalizeHandler.handlerFor(sqlObjectType));
 
+            for (Method method : sqlObjectType.getMethods()) {
+                handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m));
+            }
+
             return handlers;
         });
     }
 
-    private HandlerFactory buildFactory(Class<? extends HandlerFactory> factoryClazz) {
+    private Handler buildMethodHandler(Class<?> sqlObjectType, Method method) {
+        if (mixinHandlers.containsKey(method)) {
+            return mixinHandlers.get(method);
+        }
+
+        Handler handler = buildBaseHandler(sqlObjectType, method);
+        return addDecorators(handler, sqlObjectType, method);
+    }
+
+    private Handler buildBaseHandler(Class<?> sqlObjectType, Method method) {
+        Set<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
+                .map(Annotation::annotationType)
+                .filter(type -> type.isAnnotationPresent(SqlMethodAnnotation.class))
+                .collect(toSet());
+
+        if (sqlMethodAnnotations.size() > 1) {
+            throw new IllegalStateException(
+                    String.format("Mutually exclusive annotations on method %s.%s: %s",
+                            sqlObjectType.getName(),
+                            method.getName(),
+                            sqlMethodAnnotations));
+        }
+
+        return sqlMethodAnnotations.stream()
+                .map(type -> type.getAnnotation(SqlMethodAnnotation.class))
+                .map(a -> buildFactory(a.value()))
+                .map(factory -> factory.buildHandler(sqlObjectType, method))
+                .findFirst()
+                .orElseGet(PassThroughHandler::new);
+    }
+
+    private Handler addDecorators(Handler handler, Class<?> sqlObjectType, Method method) {
+        List<HandlerDecorator> decorators = Stream.of(method.getAnnotations())
+                .map(a -> a.annotationType().getAnnotation(SqlMethodDecoratingAnnotation.class))
+                .filter(Objects::nonNull)
+                .map(a -> buildDecorator(a.value()))
+                .collect(toList());
+
+        for (HandlerDecorator decorator : decorators) {
+            handler = decorator.decorateHandler(handler, sqlObjectType, method);
+        }
+
+        return handler;
+    }
+
+    private static HandlerFactory buildFactory(Class<? extends HandlerFactory> factoryClazz) {
         HandlerFactory factory;
         try {
-            factory = factoryClazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            factory = factoryClazz.getConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Factory class " + factoryClazz + "cannot be instantiated", e);
         }
         return factory;
+    }
+
+    private static HandlerDecorator buildDecorator(Class<? extends HandlerDecorator> decoratorClass) {
+        HandlerDecorator decorator;
+        try {
+            decorator = decoratorClass.getConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Decorator class " + decoratorClass + "cannot be instantiated", e);
+        }
+        return decorator;
     }
 
     private MethodInterceptor createMethodInterceptor(Class<?> sqlObjectType,

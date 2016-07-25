@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.INVALID_LEVEL;
+
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
@@ -21,28 +23,37 @@ import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
-class PassThroughTransactionHandler implements Handler
+class TransactionDecorator implements Handler
 {
+    private final Handler delegate;
     private final TransactionIsolationLevel isolation;
-    private final PassThroughHandler delegate;
 
-    PassThroughTransactionHandler(Transaction tx)
+    TransactionDecorator(Handler delegate, Transaction tx)
     {
+        this.delegate = delegate;
         this.isolation = tx.value();
-        this.delegate = new PassThroughHandler();
     }
 
     @Override
     public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method) throws Exception
     {
         Handle h = handle.get();
+
         if (h.isInTransaction()) {
-            throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
+            TransactionIsolationLevel currentLevel = h.getTransactionIsolationLevel();
+            if (currentLevel == isolation || isolation == INVALID_LEVEL) {
+                // Already in transaction. The outermost @Transaction method determines the transaction isolation level.
+                return delegate.invoke(handle, config, target, args, method);
+            }
+            else {
+                throw new TransactionException("Tried to execute nested @Transaction(" + isolation+ "), " +
+                        "but already running in a transaction with isolation level " + currentLevel + ".");
+            }
         }
 
         TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(handle, config, target, args, method);
 
-        if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
+        if (isolation == INVALID_LEVEL) {
             return h.inTransaction(callback);
         }
         else {
