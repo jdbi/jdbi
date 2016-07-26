@@ -38,6 +38,7 @@ public class TestClasspathStatementLocator {
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
+        handle.execute("insert into something (id, name) values (6, 'Martin')");
     }
 
     @After
@@ -48,10 +49,24 @@ public class TestClasspathStatementLocator {
 
     @Test
     public void testBam() throws Exception {
-        handle.execute("insert into something (id, name) values (6, 'Martin')");
-
         Something s = handle.attach(Cromulence.class).findById(6L);
         assertThat(s.getName(), equalTo("Martin"));
+    }
+
+    @Test
+    public void testOverride() throws Exception {
+        Something s = handle.attach(SubCromulence.class).findById(6L);
+        assertThat(s.getName(), equalTo("overridden"));
+    }
+
+    @Test
+    public void testCachedOverride() throws Exception {
+        Something s = handle.attach(Cromulence.class).findById(6L);
+        assertThat(s.getName(), equalTo("Martin"));
+
+        // and now make sure we don't accidentally cache the statement from above
+        s = handle.attach(SubCromulence.class).findById(6L);
+        assertThat(s.getName(), equalTo("overridden"));
     }
 
     @RegisterMapper(SomethingMapper.class)
@@ -59,4 +74,7 @@ public class TestClasspathStatementLocator {
         @SqlQuery
         public Something findById(@Bind("id") Long id);
     }
+
+    @RegisterMapper(SomethingMapper.class)
+    static interface SubCromulence extends Cromulence { }
 }
