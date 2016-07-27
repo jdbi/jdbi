@@ -39,7 +39,7 @@ public class ClasspathStatementLocator implements StatementLocator
         final Class<?> sqlObjectType;
         final Method sqlObjectMethod;
 
-        public CacheKey(String name, Class<?> sqlObjectType, Method sqlObjectMethod) {
+        CacheKey(String name, Class<?> sqlObjectType, Method sqlObjectMethod) {
             this.name = name;
             this.sqlObjectType = sqlObjectType;
             this.sqlObjectMethod = sqlObjectMethod;
@@ -47,14 +47,21 @@ public class ClasspathStatementLocator implements StatementLocator
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             CacheKey cacheKey = (CacheKey) o;
 
-            if (name != null ? !name.equals(cacheKey.name) : cacheKey.name != null) return false;
-            if (sqlObjectType != null ? !sqlObjectType.equals(cacheKey.sqlObjectType) : cacheKey.sqlObjectType != null)
+            if (name != null ? !name.equals(cacheKey.name) : cacheKey.name != null) {
                 return false;
+            }
+            if (sqlObjectType != null ? !sqlObjectType.equals(cacheKey.sqlObjectType) : cacheKey.sqlObjectType != null) {
+                return false;
+            }
             return sqlObjectMethod != null ? sqlObjectMethod.equals(cacheKey.sqlObjectMethod) : cacheKey.sqlObjectMethod == null;
 
         }
