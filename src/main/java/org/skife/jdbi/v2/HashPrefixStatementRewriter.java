@@ -74,7 +74,7 @@ public class HashPrefixStatementRewriter implements StatementRewriter
     ParsedStatement parseString(final String sql) throws IllegalArgumentException
     {
         ParsedStatement stmt = new ParsedStatement();
-        StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder(sql.length());
         HashStatementLexer lexer = new HashStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != HashStatementLexer.EOF) {
