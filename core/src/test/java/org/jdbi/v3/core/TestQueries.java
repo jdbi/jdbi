@@ -303,6 +303,14 @@ public class TestQueries
     }
 
     @Test
+    public void testNullValueInColumn() throws Exception
+    {
+        h.insert("insert into something (id, name) values (?, ?)", 1, null);
+        Optional<String> s = h.createQuery("select name from something where id=1").mapTo(String.class).findFirst();
+        assertFalse(s.isPresent());
+    }
+
+    @Test
     public void testListWithMaxRows() throws Exception
     {
         h.prepareBatch("insert into something (id, name) values (:id, :name)")

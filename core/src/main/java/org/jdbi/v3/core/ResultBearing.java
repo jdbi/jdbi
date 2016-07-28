@@ -56,7 +56,7 @@ public interface ResultBearing<T> extends Iterable<T>
      */
     default Optional<T> findFirst() {
         try (ResultIterator<T> iter = iterator()) {
-            return iter.hasNext() ? Optional.of(iter.next()) : Optional.empty();
+            return iter.hasNext() ? Optional.ofNullable(iter.next()) : Optional.empty();
         }
     }
 
