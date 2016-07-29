@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.SqlStatement;
 
@@ -110,6 +111,11 @@ abstract class CustomizingStatementHandler implements Handler
                 binders.add(new Bindifier<>(method, null, paramIndex, new DefaultObjectBinder()));
             }
         }
+    }
+
+    protected final void populateSqlObjectData(StatementContext q) {
+        q.setExtensionMethod(method);
+        q.setExtensionType(sqlObjectType);
     }
 
     protected void applyBinders(SqlStatement<?> q, Object[] args)
