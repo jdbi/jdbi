@@ -18,13 +18,19 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
+import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
+import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjectConfig;
 import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
 import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 /**
@@ -44,11 +50,14 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
  *     }
  * </pre>
  */
-@SqlObjectConfiguringAnnotation(UseStringTemplateSqlLocator.Factory.class)
+@SqlObjectConfiguringAnnotation(UseStringTemplateSqlLocator.LocatorFactory.class)
+@SqlStatementCustomizingAnnotation(UseStringTemplateSqlLocator.RewriterFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseStringTemplateSqlLocator {
-    class Factory implements SqlObjectConfigurerFactory {
+    Class<? extends StatementRewriter> value() default ColonPrefixStatementRewriter.class;
+
+    class LocatorFactory implements SqlObjectConfigurerFactory {
         private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
             String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
             return StringTemplateSqlLocator.findStringTemplateSql(sqlObjectType, name);
@@ -64,6 +73,32 @@ public @interface UseStringTemplateSqlLocator {
         @Override
         public Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             return CONFIGURER;
+        }
+    }
+
+    class RewriterFactory implements SqlStatementCustomizerFactory {
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
+            return create((UseStringTemplateSqlLocator) annotation);
+        }
+
+        @Override
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+            return create((UseStringTemplateSqlLocator) annotation);
+        }
+
+        private SqlStatementCustomizer create(UseStringTemplateSqlLocator annotation) {
+            StatementRewriter delegate = createDelegate(annotation.value());
+            StatementRewriter rewriter = new StringTemplateStatementRewriter(delegate);
+            return q -> q.setStatementRewriter(rewriter);
+        }
+
+        private StatementRewriter createDelegate(Class<? extends StatementRewriter> type) {
+            try {
+                return type.getConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new IllegalStateException("Error instantiating delegate statement rewriter: " + type, e);
+            }
         }
     }
 }
