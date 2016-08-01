@@ -122,11 +122,25 @@ public class Batch extends BaseStatement
             }
             catch (SQLException e)
             {
-                throw new UnableToExecuteStatementException(e, getContext());
+                throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
             }
         }
         finally {
             cleanup();
         }
+    }
+
+    /**
+     * SQLExceptions thrown from batch executions have errors
+     * in a {@link SQLException#getNextException()} chain, which
+     * doesn't print out when you log them.  Convert them to be
+     * {@link Throwable#addSuppressed(Throwable)} exceptions,
+     * which do print out with common logging frameworks.
+     */
+    static SQLException mungeBatchException(SQLException e) {
+        for (SQLException next = e.getNextException(); next != null; next = next.getNextException()) {
+            e.addSuppressed(next);
+        }
+        return e;
     }
 }

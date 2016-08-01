@@ -196,7 +196,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
                 return generateKeys ? munger.apply(stmt) : rs;
             }
             catch (SQLException e) {
-                throw new UnableToExecuteStatementException(e, getContext());
+                throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), getContext());
             }
         }
         finally {
