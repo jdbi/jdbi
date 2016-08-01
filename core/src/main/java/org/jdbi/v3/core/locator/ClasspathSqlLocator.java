@@ -13,13 +13,18 @@
  */
 package org.jdbi.v3.core.locator;
 
-import static java.util.Collections.synchronizedMap;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.AbstractMap;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.WeakHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.jdbi.v3.core.internal.SqlScriptParser;
@@ -33,7 +38,10 @@ public final class ClasspathSqlLocator {
 
     private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
 
-    private static final Map<String, String> CACHE = synchronizedMap(new WeakHashMap<>());
+    private static final Cache<Entry<ClassLoader, String>, String> CACHE = CacheBuilder.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .build();
+
     private static final String SQL_EXTENSION = ".sql";
 
     private ClasspathSqlLocator() {
@@ -75,7 +83,11 @@ public final class ClasspathSqlLocator {
     }
 
     private static String findSqlOnClasspath(ClassLoader classLoader, String path) {
-        return CACHE.computeIfAbsent(path, p -> readResource(classLoader, p));
+        try {
+            return CACHE.get(new AbstractMap.SimpleEntry<>(classLoader, path), () -> readResource(classLoader, path));
+        } catch (UncheckedExecutionException | ExecutionException e) {
+            throw Throwables.propagate(e.getCause());
+        }
     }
 
     private static String readResource(ClassLoader classLoader, String path) {
