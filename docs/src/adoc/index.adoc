@@ -29,6 +29,7 @@ Read about the core APIs:
 * <<results#,Result Mapping>>
 * <<transaction#,Transactions>>
 * <<sqlobject#,SQLObject>>
+* <<batch#,Batch Updates>>
 * <<spring#,Spring Integration>>
 * link:apidocs/index.html[Javadoc]
 
