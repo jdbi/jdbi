@@ -54,7 +54,7 @@ include::TransactionTest.java[tags=serializable]
 -------------------------------------------
 
 The above test is designed to run two transactions in lock step.
-Each attemptes to read the sum of all rows in the table, and then
+Each attempts to read the sum of all rows in the table, and then
 insert a new row with that sum.  We seed the table with the values
 10 and 20.
 
