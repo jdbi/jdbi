@@ -15,7 +15,7 @@ SQL _you_ write and simple tabular data structures.
 include::HelloWorldTest.java[tags=frontPage]
 -------------------------------------------
 
-*jdbi* is easy to include in your Java project - with a
+*jdbi* is easy to include in your Java project - with an
 link:https://groups.google.com/group/jdbi[Apache 2.0] license,
 no external dependencies, and JARs distributed through
 link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jdbi%22[Maven Central],
