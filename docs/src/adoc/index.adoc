@@ -38,3 +38,10 @@ http://www.jdbi.org[jdbi2] is still the stable release.
 *jdbi3* should generously be considered alpha quality.
 We love feedback and early testing, but be prepared to
 find a few bugs!
+
+*jdbi* uses GitHub for collaboration.  Please check out the
+link:https://github.com/jdbi/jdbi[project page] for more
+information.  If you have a question, we have a
+link:https://groups.google.com/forum/?fromgroups#!forum/jdbi[Google Group mailing list]
+and users sometimes hang out on
+link:irc://irc.freenode.net/#jdbi[IRC in #jdbi on Freenode]
