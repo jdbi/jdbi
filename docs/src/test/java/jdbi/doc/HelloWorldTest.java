@@ -32,8 +32,8 @@ public class HelloWorldTest {
         List<User> users = dbi.inTransaction((handle, status) -> {
             handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
             handle.createStatement("INSERT INTO user(id, name) VALUES (:id, :name)")
-                .bind("id", 0)   // Bind arguments by 0-indexed position
-                .bind(1, "You!") // Or by name
+                .bind("id", 0)   // Bind arguments by name
+                .bind(1, "You!") // Or by 0-indexed position
                 .execute();
 
             handle.createStatement("INSERT INTO user(id, name) VALUES (:id, :name)")
