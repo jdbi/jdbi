@@ -48,6 +48,9 @@ public interface Handle extends Closeable
      */
     void close();
 
+    /** @return true if this handle is closed */
+    boolean isClosed();
+
     /**
      * Define a statement attribute which will be applied to all {@link StatementContext}
      * instances for statements created from this handle
