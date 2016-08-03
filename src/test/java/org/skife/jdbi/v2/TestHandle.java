@@ -21,10 +21,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-/**
- *
- */
 public class TestHandle extends DBITestCase
 {
     @Test
@@ -76,5 +75,14 @@ public class TestHandle extends DBITestCase
         });
 
         assertEquals("Keith", value);
+    }
+
+    @Test
+    public void testIsClosed() throws Exception
+    {
+        Handle h = this.openHandle();
+        assertFalse(h.isClosed());
+        h.close();
+        assertTrue(h.isClosed());
     }
 }

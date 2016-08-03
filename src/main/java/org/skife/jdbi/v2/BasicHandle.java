@@ -131,7 +131,8 @@ class BasicHandle implements Handle
         }
     }
 
-    boolean isClosed()
+    @Override
+    public boolean isClosed()
     {
         return closed;
     }
