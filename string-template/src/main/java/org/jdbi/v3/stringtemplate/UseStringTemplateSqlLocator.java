@@ -23,8 +23,11 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -64,7 +67,10 @@ public @interface UseStringTemplateSqlLocator {
     Class<? extends StatementRewriter> value() default ColonPrefixStatementRewriter.class;
 
     class LocatorFactory implements SqlObjectConfigurerFactory {
-        private static final Map<String, Class<?>> TYPE_CACHE = new ConcurrentHashMap<>();
+        private static final Map<String, Class<?>> TYPE_CACHE = ExpiringMap.builder()
+                .expiration(10, TimeUnit.MINUTES)
+                .expirationPolicy(ExpirationPolicy.ACCESSED)
+                .build();
 
         private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
             String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
