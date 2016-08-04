@@ -34,14 +34,29 @@ public class TestUseClasspathSqlLocator {
     @Before
     public void setUp() throws Exception {
         handle = db.getSharedHandle();
+        handle.execute("insert into something (id, name) values (6, 'Martin')");
     }
 
     @Test
     public void testBam() throws Exception {
-        handle.execute("insert into something (id, name) values (6, 'Martin')");
-
         Something s = handle.attach(Cromulence.class).findById(6L);
         assertThat(s.getName(), equalTo("Martin"));
+    }
+
+    @Test
+    public void testOverride() throws Exception {
+        Something s = handle.attach(SubCromulence.class).findById(6L);
+        assertThat(s.getName(), equalTo("overridden"));
+    }
+
+    @Test
+    public void testCachedOverride() throws Exception {
+        Something s = handle.attach(Cromulence.class).findById(6L);
+        assertThat(s.getName(), equalTo("Martin"));
+
+        // and now make sure we don't accidentally cache the statement from above
+        s = handle.attach(SubCromulence.class).findById(6L);
+        assertThat(s.getName(), equalTo("overridden"));
     }
 
     @UseClasspathSqlLocator
@@ -50,4 +65,8 @@ public class TestUseClasspathSqlLocator {
         @SqlQuery
         Something findById(@Bind("id") Long id);
     }
+
+    @RegisterRowMapper(SomethingMapper.class)
+    @UseClasspathSqlLocator
+    static interface SubCromulence extends Cromulence { }
 }

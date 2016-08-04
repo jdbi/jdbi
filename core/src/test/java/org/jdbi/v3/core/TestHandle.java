@@ -14,6 +14,8 @@
 package org.jdbi.v3.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,5 +49,15 @@ public class TestHandle
                         handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
 
         assertEquals("Keith", value);
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    public void testIsClosed() throws Exception
+    {
+        Handle h = db.openHandle();
+        assertFalse(h.isClosed());
+        h.close();
+        assertTrue(h.isClosed());
     }
 }

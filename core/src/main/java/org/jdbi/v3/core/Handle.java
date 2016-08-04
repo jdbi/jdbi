@@ -229,7 +229,7 @@ public class Handle implements Closeable
     /**
      * @return whether the Handle is closed
      */
-    protected boolean isClosed() {
+    public boolean isClosed() {
         return closed;
     }
 
