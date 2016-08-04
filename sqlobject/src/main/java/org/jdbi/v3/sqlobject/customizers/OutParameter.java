@@ -35,13 +35,11 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
  *
  * Example usage, using PostgreSQL call syntax:
  * <pre>
- * {@code
- *   handle.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam \\:= 100; END; $$ LANGUAGE plpgsql");
+ *   handle.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam := 100; END; $$ LANGUAGE plpgsql");
  *
- *   @SqlCall("{call myStoredProc(:outparam)}")
- *   @OutParameter(name="outparam", sqlType = Types.INTEGER)
+ *   {@literal @}SqlCall("{call myStoredProc(:outparam)}")
+ *   {@literal @}OutParameter(name="outparam", sqlType = Types.INTEGER)
  *   OutParameters callStoredProc();
- * }
  * </pre>
  */
 @SqlStatementCustomizingAnnotation(OutParameter.Factory.class)
