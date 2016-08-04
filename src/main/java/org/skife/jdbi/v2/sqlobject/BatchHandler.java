@@ -32,6 +32,7 @@ import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.UnableToCreateSqlObjectException;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.BatchChunkSize;
+import org.skife.jdbi.v2.util.IntegerColumnMapper;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
 
@@ -42,6 +43,7 @@ class BatchHandler extends CustomizingStatementHandler
     private final String  sql;
     private final boolean transactional;
     private final ChunkSizeFunction batchChunkSize;
+    private final Returner returner;
 
     BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
     {
@@ -54,6 +56,38 @@ class BatchHandler extends CustomizingStatementHandler
         this.sql = SqlObject.getSql(anno, raw_method);
         this.transactional = anno.transactional();
         this.batchChunkSize = determineBatchChunkSize(sqlObjectType, raw_method);
+        final GetGeneratedKeys getGeneratedKeys = raw_method.getAnnotation(GetGeneratedKeys.class);
+        if (getGeneratedKeys == null) {
+            returner = new Returner()
+            {
+                @Override
+                public int[] value(PreparedBatch batch)
+                {
+                    return batch.execute();
+                }
+            };
+        }
+        else if (getGeneratedKeys.columnName().isEmpty()) {
+            returner = new Returner()
+            {
+                @Override
+                public int[] value(PreparedBatch batch)
+                {
+                    return toPrimitiveArray(batch.executeAndGenerateKeys(IntegerColumnMapper.PRIMITIVE).list());
+                }
+            };
+        }
+        else {
+            returner = new Returner()
+            {
+                @Override
+                public int[] value(PreparedBatch batch)
+                {
+                    String columnName = getGeneratedKeys.columnName();
+                    return toPrimitiveArray(batch.executeAndGenerateKeys(IntegerColumnMapper.PRIMITIVE, columnName).list());
+                }
+            };
+        }
     }
 
     private ChunkSizeFunction determineBatchChunkSize(Class<?> sqlObjectType, Method raw_method)
@@ -197,13 +231,23 @@ class BatchHandler extends CustomizingStatementHandler
                 @Override
                 public int[] inTransaction(Handle conn, TransactionStatus status) throws Exception
                 {
-                    return batch.execute();
+                    return returner.value(batch);
                 }
             });
         }
         else {
-            return batch.execute();
+            return returner.value(batch);
         }
+    }
+
+    private static int[] toPrimitiveArray(List<Integer> list)
+    {
+        int[] array = new int[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            array[i] = list.get(i);
+        }
+
+        return array;
     }
 
     private static Object[] next(List<Iterator> args)
@@ -218,6 +262,11 @@ class BatchHandler extends CustomizingStatementHandler
             }
         }
         return rs.toArray();
+    }
+
+    private interface Returner
+    {
+        int[] value(PreparedBatch batch);
     }
 
     private interface ChunkSizeFunction
