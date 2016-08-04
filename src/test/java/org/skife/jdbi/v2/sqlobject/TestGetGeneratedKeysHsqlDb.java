@@ -20,6 +20,8 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.sqlobject.mixins.CloseMe;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -46,6 +48,10 @@ public class TestGetGeneratedKeysHsqlDb {
         @GetGeneratedKeys
         public long insert(@Bind String name);
 
+        @SqlBatch("insert into something (name) values (:it)")
+        @GetGeneratedKeys
+        public int[] insert(@Bind List<String> names);
+
         @SqlQuery("select name from something where id = :it")
         public String findNameById(@Bind long id);
     }
@@ -59,6 +65,19 @@ public class TestGetGeneratedKeysHsqlDb {
 
         assertThat(dao.findNameById(brian_id), equalTo("Brian"));
         assertThat(dao.findNameById(keith_id), equalTo("Keith"));
+
+        dao.close();
+    }
+
+    @Test
+    public void testBatch() throws Exception
+    {
+        DAO dao = dbi.open(DAO.class);
+
+        int[] ids = dao.insert(Arrays.asList("Burt", "Macklin"));
+
+        assertThat(dao.findNameById(ids[0]), equalTo("Burt"));
+        assertThat(dao.findNameById(ids[1]), equalTo("Macklin"));
 
         dao.close();
     }
