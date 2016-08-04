@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class TestOutParameterAnnotation {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule();
+    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Jdbi dbi;
 
@@ -35,7 +35,7 @@ public class TestOutParameterAnnotation {
     public void setUp() throws Exception {
         dbi = db.getDbi();
         dbi.useHandle(h ->
-            h.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam \\:= 100; END; $$ LANGUAGE plpgsql"));
+            h.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam := 100; END; $$ LANGUAGE plpgsql"));
     }
 
     @Test
