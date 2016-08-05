@@ -55,9 +55,10 @@ class ExtensionRegistry {
         this.factories = new CopyOnWriteArrayList<>();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"}) // working around https://bugs.eclipse.org/bugs/show_bug.cgi?id=499197
     ExtensionRegistry(List<Entry<? extends ExtensionConfig<?>>> factories) {
-        this.factories = factories.stream()
-                .map(Entry::copyOf)
+        this.factories = (List) factories.stream()
+                .map(e -> Entry.copyOf((Entry)e))
                 .collect(toCollection(CopyOnWriteArrayList::new));
     }
 
