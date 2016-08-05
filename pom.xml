@@ -219,6 +219,12 @@
             </dependency>
 
             <dependency>
+                <groupId>net.jodah</groupId>
+                <artifactId>expiringmap</artifactId>
+                <version>0.5.6</version>
+            </dependency>
+
+            <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
                 <version>3.2.2</version>

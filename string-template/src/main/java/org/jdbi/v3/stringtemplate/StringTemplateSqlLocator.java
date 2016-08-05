@@ -17,8 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 
 import org.antlr.stringtemplate.StringTemplateGroup;
 
@@ -26,7 +29,12 @@ import org.antlr.stringtemplate.StringTemplateGroup;
  * Locates SQL in <code>.sql.stg</code> StringTemplate group files on the classpath.
  */
 public class StringTemplateSqlLocator {
-    private static final ConcurrentMap<Class<?>, StringTemplateGroup> CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, StringTemplateGroup> CACHE = ExpiringMap.builder()
+            .expiration(10, TimeUnit.MINUTES)
+            .expirationPolicy(ExpirationPolicy.ACCESSED)
+            .entryLoader(o -> readStringTemplateGroup((Class) o))
+            .build();
+
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private static final String TEMPLATE_GROUP_EXTENSION = ".sql.stg";
 
@@ -44,18 +52,31 @@ public class StringTemplateSqlLocator {
      * @return the located SQL.
      */
     public static String findStringTemplateSql(Class<?> type, String name) {
-        StringTemplateGroup group = CACHE.computeIfAbsent(type, StringTemplateSqlLocator::readGroupResource);
+        StringTemplateGroup group = findStringTemplateGroup(type);
 
         if (!group.isDefined(name)) {
             throw new IllegalStateException("No StringTemplate group " + name + " for class " + type);
         }
+
         return group.getInstanceOf(name).getTemplate();
     }
 
-    private static StringTemplateGroup readGroupResource(Class<?> sqlObjectType) {
-        String path = resourcePathFor(sqlObjectType);
+    /**
+     * Loads the StringTemplateGroup for the given type. Example: Given a type <code>com.foo.Bar</code>, returns a
+     * StringTemplateGroup loaded from the resource named <code>com/foo/Bar.sql.stg</code> on the classpath.
+     *
+     * @param type the type that "owns" the given StringTemplate group file. Dictates the filename of the
+     *             StringTemplate group file on the classpath.
+     * @return the loaded StringTemplateGroup.
+     */
+    public static StringTemplateGroup findStringTemplateGroup(Class<?> type) {
+        return CACHE.get(type);
+    }
 
-        try (InputStream is = openStream(sqlObjectType.getClassLoader(), path)) {
+    private static StringTemplateGroup readStringTemplateGroup(Class<?> type) {
+        String path = resourcePathFor(type);
+
+        try (InputStream is = openStream(type.getClassLoader(), path)) {
             InputStreamReader reader = new InputStreamReader(is, UTF_8);
             return new StringTemplateGroup(reader);
         }

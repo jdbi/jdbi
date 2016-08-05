@@ -16,15 +16,13 @@ package org.jdbi.v3.core.locator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.base.Throwables;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.util.concurrent.UncheckedExecutionException;
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.jdbi.v3.core.internal.SqlScriptParser;
@@ -38,8 +36,13 @@ public final class ClasspathSqlLocator {
 
     private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
 
-    private static final Cache<Entry<ClassLoader, String>, String> CACHE = CacheBuilder.newBuilder()
-            .expireAfterAccess(10, TimeUnit.MINUTES)
+    private static final Map<Entry<ClassLoader, String>, String> CACHE = ExpiringMap.builder()
+            .expiration(10, TimeUnit.MINUTES)
+            .expirationPolicy(ExpirationPolicy.ACCESSED)
+            .entryLoader(obj -> {
+                Entry<ClassLoader, String> entry = (Entry) obj;
+                return readResource(entry.getKey(), entry.getValue());
+            })
             .build();
 
     private static final String SQL_EXTENSION = ".sql";
@@ -83,11 +86,7 @@ public final class ClasspathSqlLocator {
     }
 
     private static String findSqlOnClasspath(ClassLoader classLoader, String path) {
-        try {
-            return CACHE.get(new AbstractMap.SimpleEntry<>(classLoader, path), () -> readResource(classLoader, path));
-        } catch (UncheckedExecutionException | ExecutionException e) {
-            throw Throwables.propagate(e.getCause());
-        }
+        return CACHE.get(new AbstractMap.SimpleEntry<>(classLoader, path));
     }
 
     private static String readResource(ClassLoader classLoader, String path) {

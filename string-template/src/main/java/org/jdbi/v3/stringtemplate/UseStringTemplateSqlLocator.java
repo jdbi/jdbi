@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.stringtemplate;
 
+import static org.jdbi.v3.stringtemplate.StringTemplateSqlLocator.findStringTemplateGroup;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -20,8 +22,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
+
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
@@ -58,9 +67,23 @@ public @interface UseStringTemplateSqlLocator {
     Class<? extends StatementRewriter> value() default ColonPrefixStatementRewriter.class;
 
     class LocatorFactory implements SqlObjectConfigurerFactory {
+        private static final Map<String, Class<?>> TYPE_CACHE = ExpiringMap.builder()
+                .expiration(10, TimeUnit.MINUTES)
+                .expirationPolicy(ExpirationPolicy.ACCESSED)
+                .build();
+
         private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
             String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-            return StringTemplateSqlLocator.findStringTemplateSql(sqlObjectType, name);
+            StringTemplateGroup group = findStringTemplateGroup(sqlObjectType);
+            if (!group.isDefined(name)) {
+                throw new IllegalStateException("No StringTemplate group " + name + " for class " + sqlObjectType);
+            }
+
+            String typeName = sqlObjectType.getName();
+            TYPE_CACHE.putIfAbsent(typeName, sqlObjectType);
+
+            // Hash character # should never appear in class names.. right?
+            return typeName + "#" + name;
         };
 
         private static final Consumer<SqlObjectConfig> CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
@@ -89,8 +112,19 @@ public @interface UseStringTemplateSqlLocator {
 
         private SqlStatementCustomizer create(UseStringTemplateSqlLocator annotation) {
             StatementRewriter delegate = createDelegate(annotation.value());
-            StatementRewriter rewriter = new StringTemplateStatementRewriter(delegate);
-            return q -> q.setStatementRewriter(rewriter);
+            StatementRewriter locatingRewriter = (sql, params, ctx) -> {
+                int delimiterIndex = sql.indexOf('#');
+                String typeName = sql.substring(0, delimiterIndex);
+                String templateName = sql.substring(delimiterIndex + 1);
+
+                Class<?> type = LocatorFactory.TYPE_CACHE.get(typeName);
+                StringTemplateGroup group = findStringTemplateGroup(type);
+                StringTemplate template = group.getInstanceOf(templateName, ctx.getAttributes());
+                String rewritten = template.toString();
+
+                return delegate.rewrite(rewritten, params, ctx);
+            };
+            return q -> q.setStatementRewriter(locatingRewriter);
         }
 
         private StatementRewriter createDelegate(Class<? extends StatementRewriter> type) {
