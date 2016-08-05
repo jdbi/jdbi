@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -35,6 +36,7 @@ class BatchHandler extends CustomizingStatementHandler
     private final Class<?> sqlObjectType;
     private final SqlBatch sqlBatch;
     private final ChunkSizeFunction batchChunkSize;
+    private final Function<PreparedBatch, int[]> returner;
 
     BatchHandler(Class<?> sqlObjectType, Method method)
     {
@@ -44,8 +46,21 @@ class BatchHandler extends CustomizingStatementHandler
         if(!returnTypeIsValid(method.getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
         }
+
         this.sqlBatch = method.getAnnotation(SqlBatch.class);
         this.batchChunkSize = determineBatchChunkSize(sqlObjectType, method);
+        final GetGeneratedKeys getGeneratedKeys = method.getAnnotation(GetGeneratedKeys.class);
+        if (getGeneratedKeys == null) {
+            returner = PreparedBatch::execute;
+        }
+        else if (getGeneratedKeys.columnName().isEmpty()) {
+            returner = batch -> toPrimitiveArray(
+                    batch.executeAndGenerateKeys(int.class).list());
+        }
+        else {
+            returner = batch -> toPrimitiveArray(
+                    batch.executeAndGenerateKeys(int.class, getGeneratedKeys.columnName()).list());
+        }
     }
 
     private ChunkSizeFunction determineBatchChunkSize(Class<?> sqlObjectType, Method method)
@@ -158,11 +173,21 @@ class BatchHandler extends CustomizingStatementHandler
         if (!handle.isInTransaction() && sqlBatch.transactional()) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
-            return handle.inTransaction((conn, status) -> batch.execute());
+            return handle.inTransaction((conn, status) -> returner.apply(batch));
         }
         else {
-            return batch.execute();
+            return returner.apply(batch);
         }
+    }
+
+    private static int[] toPrimitiveArray(List<Integer> list)
+    {
+        int[] array = new int[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            array[i] = list.get(i);
+        }
+
+        return array;
     }
 
     private static Object[] next(List<Iterator<?>> args)
@@ -177,6 +202,11 @@ class BatchHandler extends CustomizingStatementHandler
             }
         }
         return rs.toArray();
+    }
+
+    private interface Returner
+    {
+        int[] value(PreparedBatch batch);
     }
 
     private interface ChunkSizeFunction

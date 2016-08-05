@@ -16,6 +16,9 @@ package org.jdbi.v3.sqlobject;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.jdbi.v3.core.PGDatabaseRule;
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +51,10 @@ public class TestGetGeneratedKeysPostgres
         @GetGeneratedKeys(columnName = "id")
         long insert(@Bind("name") String name);
 
+        @SqlBatch("insert into something (name) values (:name)")
+        @GetGeneratedKeys(columnName = "id")
+        int[] insert(@Bind("name") List<String> names);
+
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind long id);
     }
@@ -60,6 +67,15 @@ public class TestGetGeneratedKeysPostgres
 
             assertThat(dao.findNameById(brian_id), equalTo("Brian"));
             assertThat(dao.findNameById(keith_id), equalTo("Keith"));
+        });
+    }
+
+    @Test
+    public void testBatch() throws Exception {
+        db.getDbi().useExtension(DAO.class, dao -> {
+            int[] ids = dao.insert(Arrays.asList("Burt", "Macklin"));
+            assertThat(dao.findNameById(ids[0]), equalTo("Burt"));
+            assertThat(dao.findNameById(ids[1]), equalTo("Macklin"));
         });
     }
 }
