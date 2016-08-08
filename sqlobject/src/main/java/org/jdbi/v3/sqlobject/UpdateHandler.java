@@ -19,7 +19,6 @@ import java.lang.reflect.Type;
 import org.jdbi.v3.core.GeneratedKeys;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Update;
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.util.GenericTypes;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
@@ -40,18 +39,8 @@ class UpdateHandler extends CustomizingStatementHandler
         if (isGetGeneratedKeys) {
             final ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
             final GetGeneratedKeys ggk = method.getAnnotation(GetGeneratedKeys.class);
-            final RowMapper<?> mapper;
-            if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
-                mapper = new DefaultGeneratedKeyMapper(returnType, ggk.columnName());
-            }
-            else {
-                try {
-                    mapper = ggk.value().newInstance();
-                }
-                catch (Exception e) {
-                    throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
-                }
-            }
+            final RowMapper<?> mapper = ResultReturner.rowMapperFor(ggk, returnType);
+
             this.returner = (update, handle) -> {
                 GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
                 return magic.result(o, handle);

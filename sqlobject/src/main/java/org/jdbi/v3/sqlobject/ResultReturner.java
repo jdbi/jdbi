@@ -26,8 +26,8 @@ import org.jdbi.v3.core.ResultIterator;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 
 abstract class ResultReturner
 {
@@ -73,6 +73,20 @@ abstract class ResultReturner
     }
 
     protected abstract Object result(ResultBearing<?> q, HandleSupplier handle);
+
+    static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType) {
+        if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
+            return new DefaultGeneratedKeyMapper(returnType, ggk.columnName());
+        }
+        else {
+            try {
+                return ggk.value().newInstance();
+            }
+            catch (Exception e) {
+                throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
+            }
+        }
+    }
 
     protected abstract Type elementType(StatementContext ctx);
 
