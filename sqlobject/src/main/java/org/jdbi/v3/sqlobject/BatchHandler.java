@@ -43,23 +43,24 @@ class BatchHandler extends CustomizingStatementHandler
         super(sqlObjectType, method);
         this.sqlObjectType = sqlObjectType;
 
-        if(!returnTypeIsValid(method.getReturnType()) ) {
-            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
-        }
-
         this.sqlBatch = method.getAnnotation(SqlBatch.class);
         this.batchChunkSize = determineBatchChunkSize(sqlObjectType, method);
         final GetGeneratedKeys getGeneratedKeys = method.getAnnotation(GetGeneratedKeys.class);
+
         if (getGeneratedKeys == null) {
+            if (!returnTypeIsValid(method.getReturnType()) ) {
+                throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
+            }
             returner = PreparedBatch::execute;
         }
-        else if (getGeneratedKeys.columnName().isEmpty()) {
-            returner = batch -> toPrimitiveArray(
-                    batch.executeAndGenerateKeys(int.class).list());
-        }
         else {
-            returner = batch -> toPrimitiveArray(
-                    batch.executeAndGenerateKeys(int.class, getGeneratedKeys.columnName()).list());
+            if (getGeneratedKeys.columnName().isEmpty()) {
+                returner = batch -> toPrimitiveArray(
+                        batch.executeAndGenerateKeys(int.class).list());
+            } else {
+                returner = batch -> toPrimitiveArray(
+                        batch.executeAndGenerateKeys(int.class, getGeneratedKeys.columnName()).list());
+            }
         }
     }
 
