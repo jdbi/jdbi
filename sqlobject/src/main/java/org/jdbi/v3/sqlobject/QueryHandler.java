@@ -38,6 +38,6 @@ class QueryHandler extends CustomizingStatementHandler
         applyCustomizers(q, args);
         applyBinders(q, args);
 
-        return magic.map(method, q, handle);
+        return magic.map(method, q);
     }
 }

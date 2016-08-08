@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.ResultBearing;
 import org.jdbi.v3.core.ResultIterator;
@@ -31,7 +30,7 @@ import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 
 abstract class ResultReturner
 {
-    public Object map(Method method, Query<?> q, HandleSupplier handle)
+    public Object map(Method method, Query<?> q)
     {
         if (method.isAnnotationPresent(UseRowMapper.class)) {
             final RowMapper<?> mapper;
@@ -41,10 +40,10 @@ abstract class ResultReturner
             catch (Exception e) {
                 throw new UnableToCreateStatementException("unable to access mapper", e, null);
             }
-            return result(q.map(mapper), handle);
+            return result(q.map(mapper));
         }
         else {
-            return result(q.mapTo(elementType(q.getContext())), handle);
+            return result(q.mapTo(elementType(q.getContext())));
         }
     }
 
@@ -72,7 +71,7 @@ abstract class ResultReturner
         }
     }
 
-    protected abstract Object result(ResultBearing<?> q, HandleSupplier handle);
+    protected abstract Object result(ResultBearing<?> q);
 
     static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType) {
         if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
@@ -102,7 +101,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, HandleSupplier handle) {
+        protected Object result(ResultBearing<?> q) {
             return q.stream();
         }
 
@@ -123,7 +122,7 @@ abstract class ResultReturner
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        protected Object result(ResultBearing<?> q, HandleSupplier handle)
+        protected Object result(ResultBearing<?> q)
         {
             if (q instanceof Query) {
                 Collector collector = ((Query)q).getContext().findCollectorFor(returnType).orElse(null);
@@ -156,7 +155,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, HandleSupplier handle)
+        protected Object result(ResultBearing<?> q)
         {
             return q;
         }
@@ -180,7 +179,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, final HandleSupplier handle)
+        protected Object result(ResultBearing<?> q)
         {
             final ResultIterator<?> itty = q.iterator();
 
