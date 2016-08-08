@@ -21,9 +21,9 @@ import org.jdbi.v3.core.Query;
 class QueryHandler extends CustomizingStatementHandler
 {
     private final Class<?> sqlObjectType;
-    private final ResultReturnThing magic;
+    private final ResultReturner magic;
 
-    QueryHandler(Class<?> sqlObjectType, Method method, ResultReturnThing magic)
+    QueryHandler(Class<?> sqlObjectType, Method method, ResultReturner magic)
     {
         super(sqlObjectType, method);
         this.sqlObjectType = sqlObjectType;
