@@ -106,7 +106,7 @@ public class TestClasspathStatementLocator extends DBITestCase
     {
         ClassLoader ctx_loader = Thread.currentThread().getContextClassLoader();
         final AtomicInteger load_count = new AtomicInteger(0);
-        Thread.currentThread().setContextClassLoader(new AbstractClassLoader(ctx_loader, ctx_loader, new AllClassFilter())
+        Thread.currentThread().setContextClassLoader(new AbstractClassLoader(ctx_loader, ctx_loader, new NoClassFilter())
         {
             @Override
             public InputStream getResourceAsStream(String s)
@@ -187,11 +187,11 @@ public class TestClasspathStatementLocator extends DBITestCase
         assertEquals(input, located); // second time reads from cache
     }
 
-    static class AllClassFilter implements ClassFilter
+    static class NoClassFilter implements ClassFilter
     {
         @Override
         public boolean accept(String className) {
-            return true;
+            return false;
         }
     }
 }
