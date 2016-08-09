@@ -37,7 +37,11 @@ import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.InferredRowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.core.statement.StatementBuilder;
@@ -107,6 +111,30 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     public SelfType registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         getArgumentRegistry().register(argumentFactory);
+        return typedThis;
+    }
+
+    public SelfType registerRowMapper(RowMapper<?> m)
+    {
+        config.mappingRegistry.addRowMapper(new InferredRowMapperFactory(m));
+        return typedThis;
+    }
+
+    public SelfType registerRowMapper(RowMapperFactory m)
+    {
+        config.mappingRegistry.addRowMapper(m);
+        return typedThis;
+    }
+
+    public SelfType registerColumnMapper(ColumnMapper<?> m)
+    {
+        config.mappingRegistry.addColumnMapper(m);
+        return typedThis;
+    }
+
+    public SelfType registerColumnMapper(ColumnMapperFactory m)
+    {
+        config.mappingRegistry.addColumnMapper(m);
         return typedThis;
     }
 

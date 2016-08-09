@@ -19,8 +19,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
-import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -62,20 +62,11 @@ public @interface RegisterColumnMapperFactory
                 for (int i = 0; i < mcs.length; i++) {
                     m[i] = mcs[i].newInstance();
                 }
-
             }
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified column mapper factory", e);
             }
-            return statement -> {
-                if (statement instanceof Query) {
-                    Query<?> q = (Query<?>) statement;
-                    for (ColumnMapperFactory factory : m) {
-                        q.registerColumnMapper(factory);
-                    }
-
-                }
-            };
+            return stmt -> Arrays.asList(m).forEach(stmt::registerColumnMapper);
         }
     }
 }

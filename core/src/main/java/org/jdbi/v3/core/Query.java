@@ -23,9 +23,6 @@ import java.util.Locale;
 
 import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.mapper.BeanMapper;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.mapper.InferredRowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.statement.StatementBuilder;
@@ -242,25 +239,5 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
     public Query<ResultType> concurrentUpdatable() {
         getContext().setConcurrentUpdatable(true);
         return this;
-    }
-
-    public void registerRowMapper(RowMapper<?> m)
-    {
-        config.mappingRegistry.addRowMapper(new InferredRowMapperFactory(m));
-    }
-
-    public void registerRowMapper(RowMapperFactory m)
-    {
-        config.mappingRegistry.addRowMapper(m);
-    }
-
-    public void registerColumnMapper(ColumnMapper<?> m)
-    {
-        config.mappingRegistry.addColumnMapper(m);
-    }
-
-    public void registerColumnMapper(ColumnMapperFactory m)
-    {
-        config.mappingRegistry.addColumnMapper(m);
     }
 }

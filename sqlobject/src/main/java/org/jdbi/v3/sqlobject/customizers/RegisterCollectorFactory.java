@@ -70,10 +70,7 @@ public @interface RegisterCollectorFactory {
 
         @Override
         public void apply(SqlStatement<?> q) throws SQLException {
-            if (q instanceof Query) {
-                Query<?> query = (Query<?>) q;
-                factories.forEach(query::registerCollectorFactory);
-            }
+            factories.forEach(q::registerCollectorFactory);
         }
     }
 }

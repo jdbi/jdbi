@@ -19,8 +19,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
-import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -63,15 +63,7 @@ public @interface RegisterRowMapperFactory
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified row mapper factory", e);
             }
-            return statement -> {
-                if (statement instanceof Query) {
-                    Query<?> q = (Query<?>) statement;
-                    for (RowMapperFactory factory : m) {
-                        q.registerRowMapper(factory);
-                    }
-
-                }
-            };
+            return stmt -> Arrays.asList(m).forEach(stmt::registerRowMapper);
         }
     }
 }

@@ -19,8 +19,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
-import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -65,14 +65,7 @@ public @interface RegisterRowMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified row mapper", e);
             }
-            return statement -> {
-                if (statement instanceof Query) {
-                    Query<?> q = (Query<?>) statement;
-                    for (RowMapper<?> mapper : m) {
-                        q.registerRowMapper(mapper);
-                    }
-                }
-            };
+            return stmt -> Arrays.asList(m).forEach(stmt::registerRowMapper);
         }
     }
 }
