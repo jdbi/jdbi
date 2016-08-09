@@ -133,6 +133,7 @@ class BatchHandler extends CustomizingStatementHandler
 
         String sql = config.getSqlLocator().locate(sqlObjectType, method);
         PreparedBatch batch = handle.prepareBatch(sql);
+        populateSqlObjectData(batch.getContext());
         applyCustomizers(batch, args);
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
@@ -146,6 +147,7 @@ class BatchHandler extends CustomizingStatementHandler
                 processed = 0;
                 rs_parts.add(executeBatch(handle, batch));
                 batch = handle.prepareBatch(sql);
+                populateSqlObjectData(batch.getContext());
                 applyCustomizers(batch, args);
             }
         }

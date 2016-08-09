@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,6 +42,8 @@ public final class StatementContext
     private PreparedStatement statement;
     private Connection        connection;
     private Binding           binding;
+    private Method            extensionMethod;
+    private Class<?>          extensionType;
     private boolean           returningGeneratedKeys;
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
@@ -206,6 +209,26 @@ public final class StatementContext
 
     Cleanables getCleanables() {
         return cleanables;
+    }
+
+    public Method getExtensionMethod()
+    {
+        return extensionMethod;
+    }
+
+    public void setExtensionMethod(Method extensionMethod)
+    {
+        this.extensionMethod = extensionMethod;
+    }
+
+    public Class<?> getExtensionType()
+    {
+        return extensionType;
+    }
+
+    public void setExtensionType(Class<?> extensionType)
+    {
+        this.extensionType = extensionType;
     }
 
     void setReturningGeneratedKeys(boolean b)
