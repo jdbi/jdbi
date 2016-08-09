@@ -53,22 +53,19 @@ public class ClasspathStatementLocator implements StatementLocator
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
+            CacheKey that = (CacheKey) o;
+            return eq(this.name, that.name)
+                    && eq(this.sqlObjectType, that.sqlObjectType)
+                    && eq(this.sqlObjectMethod, that.sqlObjectMethod);
+        }
 
-            CacheKey cacheKey = (CacheKey) o;
-
-            if (name != null ? !name.equals(cacheKey.name) : cacheKey.name != null) {
-                return false;
-            }
-            if (sqlObjectType != null ? !sqlObjectType.equals(cacheKey.sqlObjectType) : cacheKey.sqlObjectType != null) {
-                return false;
-            }
-            return sqlObjectMethod != null ? sqlObjectMethod.equals(cacheKey.sqlObjectMethod) : cacheKey.sqlObjectMethod == null;
-
+        private boolean eq(Object left, Object right) {
+            return left == null ? right == null : left.equals(right);
         }
 
         @Override
         public int hashCode() {
-            int result = name != null ? name.hashCode() : 0;
+            int result = name == null ? 0 : name.hashCode();
             result = 31 * result + (sqlObjectType != null ? sqlObjectType.hashCode() : 0);
             result = 31 * result + (sqlObjectMethod != null ? sqlObjectMethod.hashCode() : 0);
             return result;
