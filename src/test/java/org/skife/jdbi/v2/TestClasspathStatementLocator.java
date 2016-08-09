@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.cglib.transform.AbstractClassLoader;
+import net.sf.cglib.transform.ClassFilter;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.TestingStatementContext;
 import org.skife.jdbi.v2.tweak.StatementLocator;
 
@@ -105,7 +106,7 @@ public class TestClasspathStatementLocator extends DBITestCase
     {
         ClassLoader ctx_loader = Thread.currentThread().getContextClassLoader();
         final AtomicInteger load_count = new AtomicInteger(0);
-        Thread.currentThread().setContextClassLoader(new AbstractClassLoader(ctx_loader, ctx_loader, null)
+        Thread.currentThread().setContextClassLoader(new AbstractClassLoader(ctx_loader, ctx_loader, new AllClassFilter())
         {
             @Override
             public InputStream getResourceAsStream(String s)
@@ -184,5 +185,13 @@ public class TestClasspathStatementLocator extends DBITestCase
         located = statementLocator.locate(input, statementContext);
 
         assertEquals(input, located); // second time reads from cache
+    }
+
+    static class AllClassFilter implements ClassFilter
+    {
+        @Override
+        public boolean accept(String className) {
+            return true;
+        }
     }
 }
