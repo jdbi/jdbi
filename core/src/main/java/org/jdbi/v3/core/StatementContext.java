@@ -24,6 +24,7 @@ import java.util.stream.Collector;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -97,11 +98,22 @@ public final class StatementContext
      * Obtain a column mapper for the given type in this context.
      *
      * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or null if no column mapper is registered for the given type.
+     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type)
     {
         return config.mappingRegistry.findColumnMapperFor(type, this);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    public Optional<RowMapper<?>> findRowMapperFor(Type type)
+    {
+        return config.mappingRegistry.findRowMapperFor(type, this);
     }
 
     /**
