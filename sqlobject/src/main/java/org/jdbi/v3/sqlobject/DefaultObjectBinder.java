@@ -37,7 +37,6 @@ class DefaultObjectBinder implements BinderFactory<Bind, Object>
             Type type = param.getParameterizedType();
 
             if (q instanceof PreparedBatchPart) {
-                // FIXME BatchHandler should extract the iterable/iterator element type and pass it to the binder
                 Class<?> erasedType = GenericTypes.getErasedType(type);
                 if (Iterable.class.isAssignableFrom(erasedType)) {
                     type = GenericTypes.findGenericParameter(type, Iterable.class).get();
@@ -45,6 +44,12 @@ class DefaultObjectBinder implements BinderFactory<Bind, Object>
                 else if (Iterator.class.isAssignableFrom(erasedType)) {
                     type = GenericTypes.findGenericParameter(type, Iterator.class).get();
                 }
+                else if (GenericTypes.isArray(type)) {
+                    type = ((Class<?>) type).getComponentType();
+                }
+            }
+            else if (GenericTypes.isArray(type)) {
+                type = ((Class<?>)type).getComponentType();
             }
 
             q.bindByType(index, arg, type);

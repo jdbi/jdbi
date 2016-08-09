@@ -81,4 +81,11 @@ public class GenericTypes {
                 .resolveType(type)
                 .getType();
     }
+
+    /**
+     * @return whether a {@code Type} is an Array type.
+     */
+    public static boolean isArray(Type type) {
+        return type instanceof Class<?> && ((Class<?>) type).isArray();
+    }
 }
