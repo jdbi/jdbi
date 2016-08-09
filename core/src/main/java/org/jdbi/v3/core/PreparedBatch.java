@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
@@ -67,6 +68,29 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
      */
     public int[] execute() {
         return (int[]) internalBatchExecute(null, null);
+    }
+
+    public ResultBearing<Integer> executeAndGetModCount() {
+        final int[] modCount = execute();
+        return () -> new ResultIterator<Integer>() {
+            int pos = 0;
+            @Override
+            public boolean hasNext() {
+                return pos < modCount.length;
+            }
+
+            @Override
+            public Integer next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return modCount[pos++];
+            }
+
+            @Override
+            public void close() {
+            }
+        };
     }
 
     @SuppressWarnings("unchecked")
