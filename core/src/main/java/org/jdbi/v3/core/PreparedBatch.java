@@ -88,6 +88,11 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
             }
 
             @Override
+            public StatementContext getContext() {
+                throw new UnsupportedOperationException("TODO XXX");
+            }
+
+            @Override
             public void close() {
             }
         };

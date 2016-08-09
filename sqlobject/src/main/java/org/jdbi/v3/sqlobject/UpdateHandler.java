@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.GeneratedKeys;
 import org.jdbi.v3.core.HandleSupplier;
@@ -26,7 +27,7 @@ import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 class UpdateHandler extends CustomizingStatementHandler
 {
     private final Class<?> sqlObjectType;
-    private final Returner returner;
+    private final Function<Update, Object> returner;
 
     UpdateHandler(Class<?> sqlObjectType, Method method)
     {
@@ -61,13 +62,7 @@ class UpdateHandler extends CustomizingStatementHandler
         Update update = handle.getHandle().createUpdate(sql);
         applyCustomizers(update, args);
         applyBinders(update, args);
-        return this.returner.value(update);
-    }
-
-
-    private interface Returner
-    {
-        Object value(Update update);
+        return this.returner.apply(update);
     }
 
     private boolean isNumeric(Class<?> type) {

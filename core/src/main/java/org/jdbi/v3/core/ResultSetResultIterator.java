@@ -103,6 +103,12 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     }
 
     @Override
+    public StatementContext getContext()
+    {
+        return context;
+    }
+
+    @Override
     public void remove()
     {
         throw new UnsupportedOperationException("Deleting from a result set iterator is not yet supported");

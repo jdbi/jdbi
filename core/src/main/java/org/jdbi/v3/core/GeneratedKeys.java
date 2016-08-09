@@ -72,7 +72,7 @@ public class GeneratedKeys<T> implements ResultBearing<T>
     public ResultIterator<T> iterator()
     {
         if (results == null) {
-            return new EmptyResultIterator<>();
+            return new EmptyResultIterator<>(context);
         }
         return new ResultSetResultIterator<>(mapper, results, context);
     }

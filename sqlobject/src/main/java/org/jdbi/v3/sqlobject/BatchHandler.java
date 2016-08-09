@@ -150,6 +150,11 @@ class BatchHandler extends CustomizingStatementHandler
             }
 
             @Override
+            public StatementContext getContext() {
+                return batchResult.getContext();
+            }
+
+            @Override
             public void close() {
                 batchResult.close();
             }

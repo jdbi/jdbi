@@ -36,4 +36,9 @@ public interface ResultIterator<Type> extends Iterator<Type>, Closeable
      */
     @Override
     void close();
+
+    /**
+     * @return the current statement context
+     */
+    StatementContext getContext();
 }

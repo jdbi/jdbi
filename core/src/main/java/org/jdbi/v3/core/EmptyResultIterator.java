@@ -17,6 +17,13 @@ import java.util.NoSuchElementException;
 
 class EmptyResultIterator<T> implements ResultIterator<T>
 {
+    private final StatementContext context;
+
+    EmptyResultIterator(StatementContext context)
+    {
+        this.context = context;
+    }
+
     @Override
     public boolean hasNext()
     {
@@ -27,6 +34,12 @@ class EmptyResultIterator<T> implements ResultIterator<T>
     public T next()
     {
         throw new NoSuchElementException();
+    }
+
+    @Override
+    public StatementContext getContext()
+    {
+        return context;
     }
 
     @Override
