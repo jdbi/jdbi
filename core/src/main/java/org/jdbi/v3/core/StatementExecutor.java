@@ -23,7 +23,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
  * potentially wrapped in a container object.
  */
 @FunctionalInterface
-interface StatementExecutor<T, R>
+public interface StatementExecutor<T, R>
 {
     /**
      * Produce a statement result.

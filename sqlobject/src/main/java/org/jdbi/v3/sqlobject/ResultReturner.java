@@ -13,15 +13,16 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.ResultBearing;
-import org.jdbi.v3.core.ResultIterator;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -47,6 +48,24 @@ abstract class ResultReturner
         }
     }
 
+    static ResultReturner forOptionalReturn(Class<?> extensionType, Method method)
+    {
+        if (method.getReturnType() == void.class) {
+            return new ResultReturner() {
+                @Override
+                protected Object result(ResultBearing<?> bearer) {
+                    bearer.stream().forEach(i -> {}); // Make sure to consume the result
+                    return null;
+                }
+                @Override
+                protected Type elementType(StatementContext ctx) {
+                    return null;
+                }
+            };
+        }
+        return forMethod(extensionType, method);
+    }
+
     static ResultReturner forMethod(Class<?> extensionType, Method method)
     {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
@@ -66,12 +85,15 @@ abstract class ResultReturner
         else if (Iterator.class.isAssignableFrom(returnClass)) {
             return new IteratorResultReturner(returnType);
         }
+        else if (returnClass.isArray()) {
+            return new ArrayResultReturner(returnClass.getComponentType());
+        }
         else {
             return new DefaultResultReturner(method, returnType);
         }
     }
 
-    protected abstract Object result(ResultBearing<?> q);
+    protected abstract Object result(ResultBearing<?> bearer);
 
     static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType) {
         if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
@@ -101,8 +123,8 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> q) {
-            return q.stream();
+        protected Stream<?> result(ResultBearing<?> bearer) {
+            return bearer.stream();
         }
 
         @Override
@@ -122,15 +144,14 @@ abstract class ResultReturner
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        protected Object result(ResultBearing<?> q)
+        protected Object result(ResultBearing<?> bearer)
         {
-            if (q instanceof Query) {
-                Collector collector = ((Query)q).getContext().findCollectorFor(returnType).orElse(null);
-                if (collector != null) {
-                    return q.collect(collector);
-                }
+            StreamReturner delegate = new StreamReturner();
+            Collector collector = bearer.getContext().findCollectorFor(returnType).orElse(null);
+            if (collector != null) {
+                return delegate.result(bearer).collect(collector);
             }
-            return q.findFirst().orElse(null);
+            return bearer.findFirst().orElse(null);
         }
 
         @Override
@@ -155,9 +176,9 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> q)
+        protected Object result(ResultBearing<?> bearer)
         {
-            return q;
+            return bearer;
         }
 
         @Override
@@ -179,72 +200,39 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> q)
+        protected Object result(ResultBearing<?> bearer)
         {
-            final ResultIterator<?> itty = q.iterator();
-
-            final boolean isEmpty = !itty.hasNext();
-            if (isEmpty) {
-                itty.close();
-            }
-
-            return new ResultIterator<Object>()
-            {
-                private boolean closed = isEmpty;
-                private boolean hasNext = !isEmpty;
-
-                @Override
-                public void close()
-                {
-                    if (!closed) {
-                        closed = true;
-                        itty.close();
-                    }
-                }
-
-                @Override
-                public boolean hasNext()
-                {
-                    return hasNext;
-                }
-
-                @Override
-                public Object next()
-                {
-                    Object rs;
-                    try {
-                        rs = itty.next();
-                        hasNext = itty.hasNext();
-                    }
-                    catch (RuntimeException e) {
-                        closeIgnoreException();
-                        throw e;
-                    }
-                    if (!hasNext) {
-                        close();
-                    }
-                    return rs;
-                }
-
-                @SuppressWarnings("PMD.EmptyCatchBlock")
-                public void closeIgnoreException() {
-                    try {
-                        close();
-                    } catch (RuntimeException ex) {}
-                }
-
-                @Override
-                public void remove()
-                {
-                    itty.remove();
-                }
-            };
+            return bearer.iterator();
         }
 
         @Override
         protected Type elementType(StatementContext ctx)
         {
             return elementType;
+        }
+    }
+
+    static class ArrayResultReturner extends ResultReturner
+    {
+        private final Class<?> componentType;
+
+        ArrayResultReturner(Class<?> componentType) {
+            this.componentType = componentType;
+        }
+
+        @Override
+        protected Object result(ResultBearing<?> bearer) {
+            final List<?> list = bearer.list();
+            Object result = Array.newInstance(componentType, list.size());
+            for (int i = 0; i < list.size(); i++) {
+                Array.set(result, i, list.get(i));
+            }
+            return result;
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return componentType;
         }
     }
 }

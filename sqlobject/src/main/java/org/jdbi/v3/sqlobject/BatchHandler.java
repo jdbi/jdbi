@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -26,8 +27,12 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.PreparedBatch;
-import org.jdbi.v3.core.PreparedBatchPart;
+import org.jdbi.v3.core.ResultBearing;
+import org.jdbi.v3.core.ResultIterator;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.StatementExecutor;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
@@ -36,7 +41,8 @@ class BatchHandler extends CustomizingStatementHandler
     private final Class<?> sqlObjectType;
     private final SqlBatch sqlBatch;
     private final ChunkSizeFunction batchChunkSize;
-    private final Function<PreparedBatch, int[]> returner;
+    private final Function<PreparedBatch, ResultBearing<?>> batchIntermediate;
+    private final ResultReturner magic;
 
     BatchHandler(Class<?> sqlObjectType, Method method)
     {
@@ -51,15 +57,16 @@ class BatchHandler extends CustomizingStatementHandler
             if (!returnTypeIsValid(method.getReturnType()) ) {
                 throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
             }
-            returner = PreparedBatch::execute;
+            batchIntermediate = PreparedBatch::executeAndGetModCount;
+            magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
         }
         else {
+            magic = ResultReturner.forMethod(sqlObjectType, method);
+            final Function<StatementContext, RowMapper<?>> mapper = ctx -> ResultReturner.rowMapperFor(getGeneratedKeys, magic.elementType(ctx));
             if (getGeneratedKeys.columnName().isEmpty()) {
-                returner = batch -> toPrimitiveArray(
-                        batch.executeAndGenerateKeys(int.class).list());
+                batchIntermediate = batch -> batch.executeAndGenerateKeys(mapper.apply(batch.getContext()));
             } else {
-                returner = batch -> toPrimitiveArray(
-                        batch.executeAndGenerateKeys(int.class, getGeneratedKeys.columnName()).list());
+                batchIntermediate = batch -> batch.executeAndGenerateKeys(mapper.apply(batch.getContext()), getGeneratedKeys.columnName());
             }
         }
     }
@@ -102,9 +109,74 @@ class BatchHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier h)
     {
-        boolean foundIterator = false;
-        Handle handle = h.getHandle();
+        final Handle handle = h.getHandle();
+        final String sql = handle.getConfig().get(SqlObjects.class)
+                .getSqlLocator().locate(sqlObjectType, method);
+        final int chunkSize = batchChunkSize.call(args);
+        final Iterator<Object[]> batchArgs = zipArgs(args);
 
+        ResultIterator<Object> result = new ResultIterator<Object>() {
+            ResultIterator<?> batchResult;
+            @Override
+            public boolean hasNext() {
+                // first, any elements already buffered?
+                if (batchResult != null) {
+                    if (batchResult.hasNext()) {
+                        return true;
+                    }
+                    // no more in this chunk, release resources
+                    batchResult.close();
+                }
+                // more chunks?
+                if (!batchArgs.hasNext()) {
+                    return false;
+                }
+                // execute a single chunk and buffer
+                PreparedBatch batch = handle.prepareBatch(sql);
+                applyCustomizers(batch, args);
+                for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
+                    applyBinders(batch.add(), batchArgs.next());
+                }
+                batchResult = executeBatch(handle, batch).iterator();
+                return hasNext(); // recurse to ensure we actually got elements
+            }
+
+            @Override
+            public Object next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return batchResult.next();
+            }
+
+            @Override
+            public void close() {
+                batchResult.close();
+            }
+        };
+
+
+        return magic.result(new ResultBearing<Object>() {
+            @Override
+            public <R> R execute(StatementExecutor<Object, R> executor) {
+                throw new UnsupportedOperationException(
+                        "@SqlBatch currently does not support custom execution modes like reduce");
+            }
+
+            @Override
+            public ResultIterator<Object> iterator() {
+                return result;
+            }
+
+            @Override
+            public StatementContext getContext() {
+                return result.getContext();
+            }
+        });
+    }
+
+    private Iterator<Object[]> zipArgs(Object[] args) {
+        boolean foundIterator = false;
         List<Iterator<?>> extras = new ArrayList<>();
         for (final Object arg : args) {
             if (arg instanceof Iterable) {
@@ -129,85 +201,38 @@ class BatchHandler extends CustomizingStatementHandler
                     + " did you mean @SqlQuery?", null, null);
         }
 
-        int processed = 0;
-        List<int[]> rs_parts = new ArrayList<>();
-
-        String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
-        PreparedBatch batch = handle.prepareBatch(sql);
-        applyCustomizers(batch, args);
-        Object[] _args;
-        int chunk_size = batchChunkSize.call(args);
-
-        while ((_args = next(extras)) != null) {
-            PreparedBatchPart part = batch.add();
-            applyBinders(part, _args);
-
-            if (++processed == chunk_size) {
-                // execute this chunk
-                processed = 0;
-                rs_parts.add(executeBatch(handle, batch));
-                batch = handle.prepareBatch(sql);
-                applyCustomizers(batch, args);
+        final Object[] sharedArg = new Object[args.length];
+        return new Iterator<Object[]>() {
+            @Override
+            public boolean hasNext() {
+                for (Iterator<?> extra : extras) {
+                    if (!extra.hasNext()) {
+                        return false;
+                    }
+                }
+                return true;
             }
-        }
 
-        //execute the rest
-        rs_parts.add(executeBatch(handle, batch));
-
-        // combine results
-        int end_size = 0;
-        for (int[] rs_part : rs_parts) {
-            end_size += rs_part.length;
-        }
-        int[] rs = new int[end_size];
-        int offset = 0;
-        for (int[] rs_part : rs_parts) {
-            System.arraycopy(rs_part, 0, rs, offset, rs_part.length);
-            offset += rs_part.length;
-        }
-
-        return rs;
+            @Override
+            public Object[] next() {
+                for (int i = 0; i < extras.size(); i++) {
+                    sharedArg[i] = extras.get(i).next();
+                }
+                return sharedArg;
+            }
+        };
     }
 
-    private int[] executeBatch(final Handle handle, final PreparedBatch batch)
+    private ResultBearing<?> executeBatch(final Handle handle, final PreparedBatch batch)
     {
         if (!handle.isInTransaction() && sqlBatch.transactional()) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
-            return handle.inTransaction((conn, status) -> returner.apply(batch));
+            return handle.inTransaction((conn, status) -> batchIntermediate.apply(batch));
         }
         else {
-            return returner.apply(batch);
+            return batchIntermediate.apply(batch);
         }
-    }
-
-    private static int[] toPrimitiveArray(List<Integer> list)
-    {
-        int[] array = new int[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            array[i] = list.get(i);
-        }
-
-        return array;
-    }
-
-    private static Object[] next(List<Iterator<?>> args)
-    {
-        List<Object> rs = new ArrayList<>();
-        for (Iterator<?> arg : args) {
-            if (arg.hasNext()) {
-                rs.add(arg.next());
-            }
-            else {
-                return null;
-            }
-        }
-        return rs.toArray();
-    }
-
-    private interface Returner
-    {
-        int[] value(PreparedBatch batch);
     }
 
     private interface ChunkSizeFunction

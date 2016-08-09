@@ -20,8 +20,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.PGDatabaseRule;
+import org.jdbi.v3.core.PgDatabaseRule;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
@@ -31,7 +32,7 @@ import org.junit.Test;
 public class TestBatchGeneratedKeys
 {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
     private UsesBatching b;
 
