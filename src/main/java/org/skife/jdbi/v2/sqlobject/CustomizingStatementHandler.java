@@ -33,7 +33,7 @@ abstract class CustomizingStatementHandler implements Handler
     private final Class<?> sqlObjectType;
     private final Method method;
 
-    CustomizingStatementHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    CustomizingStatementHandler(Class<?> sqlObjectType, ResolvedMethod method, ParameterBinderRegistry binderRegistry)
     {
         this.sqlObjectType = sqlObjectType;
         this.method = method.getRawMember();
@@ -110,7 +110,7 @@ abstract class CustomizingStatementHandler implements Handler
             if (!thereBindingAnnotation) {
                 // If there is no binding annotation on a parameter,
                 // then add a positional parameter binder
-                binders.add(new Bindifier(null, param_idx, new PositionalBinder(param_idx)));
+                binders.add(new Bindifier(null, param_idx, binderRegistry.binderFor(method.getRawMember().getDeclaringClass(), method.getRawMember(), param_idx)));
             }
         }
     }

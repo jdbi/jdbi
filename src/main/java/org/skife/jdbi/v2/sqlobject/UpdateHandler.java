@@ -27,9 +27,9 @@ class UpdateHandler extends CustomizingStatementHandler
     private final String sql;
     private final Returner returner;
 
-    UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    UpdateHandler(Class<?> sqlObjectType, ResolvedMethod method, ParameterBinderRegistry binderRegistry)
     {
-        super(sqlObjectType, method);
+        super(sqlObjectType, method, binderRegistry);
 
         boolean isGetGeneratedKeys = method.getRawMember().isAnnotationPresent(GetGeneratedKeys.class);
 

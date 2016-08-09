@@ -45,9 +45,9 @@ class BatchHandler extends CustomizingStatementHandler
     private final ChunkSizeFunction batchChunkSize;
     private final Returner returner;
 
-    BatchHandler(Class<?> sqlObjectType, ResolvedMethod method)
+    BatchHandler(Class<?> sqlObjectType, ResolvedMethod method, ParameterBinderRegistry binderRegistry)
     {
-        super(sqlObjectType, method);
+        super(sqlObjectType, method, binderRegistry);
         if(!returnTypeIsValid(method.getRawMember().getReturnType()) ) {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
         }
