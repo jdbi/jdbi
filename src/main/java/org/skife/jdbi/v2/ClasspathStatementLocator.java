@@ -22,9 +22,11 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 
 /**
@@ -32,7 +34,45 @@ import java.util.regex.Matcher;
  */
 public class ClasspathStatementLocator implements StatementLocator
 {
-    private final Map<String, String> found = Collections.synchronizedMap(new WeakHashMap<String, String>());
+    private static class CacheKey {
+        final String name;
+        final Class<?> sqlObjectType;
+        final Method sqlObjectMethod;
+
+        CacheKey(String name, Class<?> sqlObjectType, Method sqlObjectMethod) {
+            this.name = name;
+            this.sqlObjectType = sqlObjectType;
+            this.sqlObjectMethod = sqlObjectMethod;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            CacheKey that = (CacheKey) o;
+            return eq(this.name, that.name)
+                    && eq(this.sqlObjectType, that.sqlObjectType)
+                    && eq(this.sqlObjectMethod, that.sqlObjectMethod);
+        }
+
+        private boolean eq(Object left, Object right) {
+            return left == null ? right == null : left.equals(right);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name == null ? 0 : name.hashCode();
+            result = 31 * result + (sqlObjectType != null ? sqlObjectType.hashCode() : 0);
+            result = 31 * result + (sqlObjectMethod != null ? sqlObjectMethod.hashCode() : 0);
+            return result;
+        }
+    }
+
+    private final Map<CacheKey, String> found = Collections.synchronizedMap(new WeakHashMap<CacheKey, String>());
 
     /**
      * Very basic sanity test to see if a string looks like it might be sql
@@ -74,20 +114,22 @@ public class ClasspathStatementLocator implements StatementLocator
     @SuppressFBWarnings("DM_STRING_CTOR")
     public String locate(String name, StatementContext ctx)
     {
-        final String cache_key;
-        if (ctx.getSqlObjectType() != null) {
-            cache_key = '/' + mungify(ctx.getSqlObjectType().getName() + '.' + name) + ".sql";
-        }
-        else {
-            cache_key = name;
+        final CacheKey cache_key = new CacheKey(name, ctx.getSqlObjectType(), ctx.getSqlObjectMethod());
+        boolean isSqlObjectMethod = ctx.getSqlObjectType() != null && ctx.getSqlObjectMethod() != null;
+
+
+        String cached = found.get(cache_key);
+        if (cached != null) {
+            return cached;
         }
 
-        if (found.containsKey(cache_key)) {
-            return found.get(cache_key);
-        }
 
         if (looksLikeSql(name)) {
             // No need to cache individual SQL statements that don't cause us to search the classpath
+            // But for static SQL object methods caching decreases GC pressure and not threatens memory leaks.
+            if (isSqlObjectMethod) {
+                found.put(cache_key, name);
+            }
             return name;
         }
         final ClassLoader loader = selectClassLoader();
@@ -109,7 +151,7 @@ public class ClasspathStatementLocator implements StatementLocator
             if (in_stream == null) {
                 // Ensure we don't store an identity map entry which has a hard reference
                 // to the key (through the value) by copying the value, avoids potential memory leak.
-                found.put(cache_key, name == cache_key ? new String(name) : name);
+                found.put(cache_key, isSqlObjectMethod ? name : new String(name));
                 return name;
             }
             String sql;

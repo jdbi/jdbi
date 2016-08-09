@@ -75,7 +75,7 @@ public class ColonPrefixNamedParamStatementRewriter implements StatementRewriter
     ParsedStatement parseString(final String sql) throws IllegalArgumentException
     {
         ParsedStatement stmt = new ParsedStatement();
-        StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder(sql.length());
         ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != ColonStatementLexer.EOF) {

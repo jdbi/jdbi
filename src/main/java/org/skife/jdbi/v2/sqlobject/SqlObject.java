@@ -210,8 +210,9 @@ class SqlObject
         }
 
         Throwable doNotMask = null;
+        String methodName = method.toString();
         try {
-            ding.retain(method.toString());
+            ding.retain(methodName);
             return handler.invoke(ding, proxy, args, mp);
         }
         catch (Throwable e) {
@@ -220,7 +221,7 @@ class SqlObject
         }
         finally {
             try {
-                ding.release(method.toString());
+                ding.release(methodName);
             }
             catch (Throwable e) {
                 if (doNotMask==null) {

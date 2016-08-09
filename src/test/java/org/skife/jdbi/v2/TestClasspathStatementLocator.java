@@ -18,6 +18,7 @@ import org.skife.jdbi.v2.exceptions.StatementException;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -136,6 +137,42 @@ public class TestClasspathStatementLocator extends DBITestCase
             @Override
             public Class<?> getSqlObjectType() {
                 return TestClasspathStatementLocator.class;
+            }
+
+            @Override
+            public Method getSqlObjectMethod() {
+                return null;
+            }
+        };
+
+        String input = "missing query";
+        String located = statementLocator.locate(input, statementContext);
+
+        assertEquals(input, located); // first time just caches it
+
+        located = statementLocator.locate(input, statementContext);
+
+        assertEquals(input, located); // second time reads from cache
+    }
+
+    @Test
+    public void testCachesOriginalQueryByMethodWhenNotFound() throws Exception
+    {
+        StatementLocator statementLocator = new ClasspathStatementLocator();
+        StatementContext statementContext = new TestingStatementContext(new HashMap<String, Object>()) {
+
+            @Override
+            public Class<?> getSqlObjectType() {
+                return TestClasspathStatementLocator.class;
+            }
+
+            @Override
+            public Method getSqlObjectMethod() {
+                try {
+                    return TestClasspathStatementLocator.class.getMethod("testCachesOriginalQueryByMethodWhenNotFound");
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
 
