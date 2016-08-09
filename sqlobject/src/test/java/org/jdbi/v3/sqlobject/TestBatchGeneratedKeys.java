@@ -19,8 +19,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.PGDatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
@@ -31,14 +31,15 @@ import org.junit.Test;
 public class TestBatchGeneratedKeys
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
     private UsesBatching b;
 
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = db.openHandle();
+        handle.execute("create table something (id serial primary key, name varchar)");
         b = handle.attach(UsesBatching.class);
     }
 
@@ -46,7 +47,7 @@ public class TestBatchGeneratedKeys
     public void testReturnKey() throws Exception
     {
         long[] ids = b.insertNames("a", "b", "c", "d", "e");
-        assertArrayEquals(new long[] { 0, 1, 2, 3, 4, 5 }, ids);
+        assertArrayEquals(new long[] { 1, 2, 3, 4, 5 }, ids);
     }
 
     @Test
@@ -55,8 +56,8 @@ public class TestBatchGeneratedKeys
         Something[] people = b.insertNamesToBean(Arrays.asList("a", "b", "c", "d", "e"));
         assertEquals(5, people.length);
         for (int i = 0; i < people.length; i++) {
-            assertEquals(i, people[i].getId());
-            assertEquals(String.valueOf('a' + i), people[i].getName());
+            assertEquals(i + 1, people[i].getId());
+            assertEquals(String.valueOf((char)('a' + i)), people[i].getName());
         }
     }
 
@@ -66,13 +67,13 @@ public class TestBatchGeneratedKeys
         List<Something> people = b.insertVarargs("a", "b", "c", "d", "e");
         assertEquals(5, people.size());
         for (int i = 0; i < people.size(); i++) {
-            assertEquals(i, people.get(i).getId());
-            assertEquals(String.valueOf('a' + i), people.get(i).getName());
+            assertEquals(i + 1, people.get(i).getId());
+            assertEquals(String.valueOf((char)('a' + i)), people.get(i).getName());
         }
     }
 
 
-    @BatchChunkSize(4)
+    @BatchChunkSize(2)
     @RegisterRowMapper(SomethingMapper.class)
     public interface UsesBatching
     {
@@ -82,10 +83,10 @@ public class TestBatchGeneratedKeys
 
         @SqlBatch("insert into something (name) values (:name)")
         @GetGeneratedKeys
-        Something[] insertNamesToBean(@BindBean Iterable<String> names);
+        Something[] insertNamesToBean(@Bind("name") Iterable<String> names);
 
         @SqlBatch("insert into something (name) values (:name)")
         @GetGeneratedKeys
-        List<Something> insertVarargs(String... names);
+        List<Something> insertVarargs(@Bind("name") String... names);
     }
 }
