@@ -16,6 +16,7 @@ package org.jdbi.v3.core.argument;
 import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.Inet4Address;
@@ -35,7 +36,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -172,13 +172,13 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     static final class BuiltInArgument<T> implements Argument {
         private final T value;
-        private final boolean isArray;
+        private final Class<T> klass;
         private final int type;
         private final StatementBinder<T> binder;
 
         private BuiltInArgument(Class<T> klass, int type, StatementBinder<T> binder, T value) {
             this.binder = binder;
-            this.isArray = klass.isArray();
+            this.klass = klass;
             this.type = type;
             this.value = value;
         }
@@ -194,8 +194,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
         @Override
         public String toString() {
-            if (isArray) {
-                return Arrays.toString((Object[]) value);
+            if (klass.isArray()) {
+                return String.format("{array of %s length %s}", klass.getComponentType(), Array.getLength(value));
             }
             return String.valueOf(value);
         }
