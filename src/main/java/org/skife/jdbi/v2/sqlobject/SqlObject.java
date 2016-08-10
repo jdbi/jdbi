@@ -168,13 +168,13 @@ class SqlObject
                 // no handler for finalize()
             }
             else if (raw_method.isAnnotationPresent(Transaction.class)) {
-                handlers.put(raw_method, new PassThroughTransactionHandler(raw_method, raw_method.getAnnotation(Transaction.class)));
+                handlers.put(raw_method, new PassThroughTransactionHandler(sqlObjectType, raw_method, raw_method.getAnnotation(Transaction.class)));
             }
             else if (mixinHandlers.containsKey(raw_method)) {
                 handlers.put(raw_method, mixinHandlers.get(raw_method));
             }
             else {
-                handlers.put(raw_method, new PassThroughHandler(raw_method));
+                handlers.put(raw_method, new PassThroughHandler(sqlObjectType, raw_method));
             }
         }
 
