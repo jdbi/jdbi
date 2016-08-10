@@ -90,3 +90,9 @@ We also provide basic support for beans:
 -------------------------------------------
 include::ResultsTest.java[tags=beanMapper]
 -------------------------------------------
+
+== Annotations
+
+You can register mappers declaratively on SqlObjects using e.g.
+`@RegisterRowMapper`, `@RegisterColumnMapper`, `@RegisterConstructorMapper`,
+and so on.

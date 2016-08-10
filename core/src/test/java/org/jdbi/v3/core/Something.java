@@ -15,9 +15,6 @@ package org.jdbi.v3.core;
 
 import java.util.Objects;
 
-/**
- *
- */
 public class Something
 {
     private int id;
