@@ -13,14 +13,7 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.COMMENT;
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.EOF;
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.ESCAPED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.LITERAL;
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.NAMED_PARAM;
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.POSITIONAL_PARAM;
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.QUOTED_TEXT;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.*;
 import static org.jdbi.v3.core.rewriter.DefinedAttributeRewriter.rewriteDefines;
 
 import java.util.Collections;
@@ -62,7 +55,7 @@ public class HashPrefixStatementRewriter implements StatementRewriter {
 
     ParsedStatement rewriteNamedParameters(final String sql) throws IllegalArgumentException {
         ParsedStatement stmt = new ParsedStatement();
-        StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder(sql.length());
         HashStatementLexer lexer = new HashStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {

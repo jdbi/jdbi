@@ -13,14 +13,7 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.COMMENT;
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.EOF;
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.ESCAPED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.LITERAL;
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.NAMED_PARAM;
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.POSITIONAL_PARAM;
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.QUOTED_TEXT;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*;
 import static org.jdbi.v3.core.rewriter.DefinedAttributeRewriter.rewriteDefines;
 
 import java.util.Collections;
@@ -65,7 +58,7 @@ public class ColonPrefixStatementRewriter implements StatementRewriter {
 
     ParsedStatement rewriteNamedParameters(String sql) throws IllegalArgumentException {
         ParsedStatement stmt = new ParsedStatement();
-        StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder(sql.length());
         ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
