@@ -25,7 +25,7 @@ you can just include the relevant artifacts in your POM:
 -------------------------------------------
 <dependency>
   <groupId>org.jdbi</groupId>
-  <artifactId>jdbi3-core</artifactId>
+  <artifactId>jdbi3</artifactId>
   <version>${jdbi3.version}</version>
 </dependency>
 -------------------------------------------
