@@ -18,12 +18,12 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 
-import org.jdbi.v3.core.PGDatabaseRule;
+import org.jdbi.v3.core.PgDatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import org.junit.Test;
 public class TestPostgresBugs
 {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void setUp() throws Exception

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.core.PGDatabaseRule;
+import org.jdbi.v3.core.PgDatabaseRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,7 +28,7 @@ import org.junit.Test;
 public class TestGetGeneratedKeysPostgres
 {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void setUp() throws Exception {

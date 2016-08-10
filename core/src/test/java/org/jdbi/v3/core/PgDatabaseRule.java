@@ -24,10 +24,10 @@ import org.junit.runners.model.Statement;
 import com.opentable.db.postgres.junit.EmbeddedPostgresRules;
 import com.opentable.db.postgres.junit.PreparedDbRule;
 
-public class PGDatabaseRule extends ExternalResource
+public class PgDatabaseRule extends ExternalResource implements DatabaseRule
 {
     private Jdbi jdbi;
-    private List<JdbiPlugin> plugins = new ArrayList<>();
+    private final List<JdbiPlugin> plugins = new ArrayList<>();
     private JdbiPreparer preparer;
     private PreparedDbRule innerRule;
 
@@ -53,6 +53,7 @@ public class PGDatabaseRule extends ExternalResource
         jdbi = null;
     }
 
+    @Override
     public Jdbi getJdbi()
     {
         return jdbi;
@@ -63,12 +64,12 @@ public class PGDatabaseRule extends ExternalResource
         return getJdbi().open();
     }
 
-    public PGDatabaseRule withPlugin(JdbiPlugin plugin) {
+    public PgDatabaseRule withPlugin(JdbiPlugin plugin) {
         plugins.add(plugin);
         return this;
     }
 
-    public PGDatabaseRule withPreparer(JdbiPreparer preparer) {
+    public PgDatabaseRule withPreparer(JdbiPreparer preparer) {
         this.preparer = preparer;
         return this;
     }

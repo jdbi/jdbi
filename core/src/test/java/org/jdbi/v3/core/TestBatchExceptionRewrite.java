@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class TestBatchExceptionRewrite
 {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule();
+    public PgDatabaseRule db = new PgDatabaseRule();
 
     @Before
     public void createTable() {

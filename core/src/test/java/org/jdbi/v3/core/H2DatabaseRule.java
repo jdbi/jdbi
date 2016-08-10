@@ -24,14 +24,14 @@ import java.util.UUID;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
 
-public class H2DatabaseRule extends ExternalResource
+public class H2DatabaseRule extends ExternalResource implements DatabaseRule
 {
     private final String uri = "jdbc:h2:mem:" + UUID.randomUUID();
     private Connection con;
     private Jdbi dbi;
     private Handle sharedHandle;
     private boolean installPlugins = false;
-    private List<JdbiPlugin> plugins = new ArrayList<>(); 
+    private final List<JdbiPlugin> plugins = new ArrayList<>();
 
     @Override
     protected void before() throws Throwable
@@ -69,12 +69,13 @@ public class H2DatabaseRule extends ExternalResource
         plugins.add(plugin);
         return this;
     }
-    
+
     public String getConnectionString()
     {
         return uri;
     }
 
+    @Override
     public Jdbi getJdbi()
     {
         return dbi;

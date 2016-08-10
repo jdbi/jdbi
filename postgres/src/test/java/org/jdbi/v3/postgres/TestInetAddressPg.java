@@ -13,19 +13,16 @@
  */
 package org.jdbi.v3.postgres;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.PgDatabaseRule;
+import org.jdbi.v3.core.argument.TestInetAddressH2;
 
-public class PostgresJdbiPlugin implements JdbiPlugin {
+public class TestInetAddressPg extends TestInetAddressH2
+{
+    { db = new PgDatabaseRule().withPlugin(new PostgresJdbiPlugin()); }
+
     @Override
-    public void customizeDbi(Jdbi db) {
-        db.registerArgumentFactory(new SqlArrayArgumentFactory());
-        db.registerArgumentFactory(new TypedEnumArgumentFactory());
-        db.registerColumnMapper(new SqlArrayMapperFactory());
-
-        db.registerColumnMapper(new Jsr310MapperFactory());
-        db.registerArgumentFactory(new Jsr310ArgumentFactory());
-
-        db.registerArgumentFactory(new InetArgumentFactory());
+    protected String getInetType()
+    {
+        return "INET";
     }
 }
