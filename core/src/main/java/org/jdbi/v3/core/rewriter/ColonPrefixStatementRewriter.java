@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*;
+import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*; // SUPPRESS CHECKSTYLE WARNING
 import static org.jdbi.v3.core.rewriter.DefinedAttributeRewriter.rewriteDefines;
 
 import java.util.Collections;

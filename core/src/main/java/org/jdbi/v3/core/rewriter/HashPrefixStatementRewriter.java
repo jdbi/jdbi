@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.*;
+import static org.jdbi.v3.core.internal.lexer.HashStatementLexer.*; // SUPPRESS CHECKSTYLE WARNING
 import static org.jdbi.v3.core.rewriter.DefinedAttributeRewriter.rewriteDefines;
 
 import java.util.Collections;
