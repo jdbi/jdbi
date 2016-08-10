@@ -19,7 +19,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
@@ -52,18 +53,18 @@ public @interface RegisterRowMapperFactory
         }
 
         private SqlStatementCustomizer create(RegisterRowMapperFactory ma) {
-            final RowMapperFactory[] m = new RowMapperFactory[ma.value().length];
+            final List<RowMapperFactory> m = new ArrayList<RowMapperFactory>(ma.value().length);
             try {
                 Class<? extends RowMapperFactory>[] mcs = ma.value();
                 for (int i = 0; i < mcs.length; i++) {
-                    m[i] = mcs[i].newInstance();
+                    m.add(mcs[i].newInstance());
                 }
 
             }
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified row mapper factory", e);
             }
-            return stmt -> Arrays.asList(m).forEach(stmt::registerRowMapper);
+            return stmt -> m.forEach(stmt::registerRowMapper);
         }
     }
 }
