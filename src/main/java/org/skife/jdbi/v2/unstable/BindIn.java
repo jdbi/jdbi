@@ -13,6 +13,7 @@
  */
 package org.skife.jdbi.v2.unstable;
 
+import org.skife.jdbi.v2.ClasspathStatementLocator;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.sqlobject.Binder;
 import org.skife.jdbi.v2.sqlobject.BinderFactory;
@@ -20,6 +21,8 @@ import org.skife.jdbi.v2.sqlobject.BindingAnnotation;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator.LocatorFactory;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocatorImpl;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
@@ -55,7 +58,7 @@ public @interface BindIn
 
         @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class sqlObjectType,
+                                                         final Class sqlObjectType,
                                                          Method method,
                                                          Object arg)
         {
@@ -82,6 +85,9 @@ public @interface BindIn
                 public void apply(SQLStatement q) throws SQLException
                 {
                     q.define(key, ns);
+                    if (q.getStatementLocator() instanceof ClasspathStatementLocator) {
+                        new LocatorFactory().createForType(UseStringTemplate3StatementLocatorImpl.defaultInstance(), sqlObjectType).apply(q);
+                    }
                 }
             };
         }

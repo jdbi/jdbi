@@ -13,10 +13,13 @@
  */
 package org.skife.jdbi.v2.sqlobject.customizers;
 
+import org.skife.jdbi.v2.ClasspathStatementLocator;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizer;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizerFactory;
 import org.skife.jdbi.v2.sqlobject.SqlStatementCustomizingAnnotation;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator.LocatorFactory;
+import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocatorImpl;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -24,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 
 /**
  * Used to set attributes on the StatementContext for the statement generated for this method.
@@ -54,16 +58,19 @@ public @interface Define
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class sqlObjectType, Method method, final Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, final Class sqlObjectType, Method method, final Object arg)
         {
             Define d = (Define) annotation;
             final String key = d.value();
             return new SqlStatementCustomizer()
             {
                 @Override
-                public void apply(SQLStatement q)
+                public void apply(SQLStatement q) throws SQLException
                 {
                     q.define(key, arg);
+                    if (q.getStatementLocator() instanceof ClasspathStatementLocator) {
+                        new LocatorFactory().createForType(UseStringTemplate3StatementLocatorImpl.defaultInstance(), sqlObjectType).apply(q);
+                    }
                 }
             };
         }
