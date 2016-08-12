@@ -215,7 +215,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
         return statementBuilder;
     }
 
-    protected StatementLocator getStatementLocator()
+    public StatementLocator getStatementLocator()
     {
         return this.locator;
     }

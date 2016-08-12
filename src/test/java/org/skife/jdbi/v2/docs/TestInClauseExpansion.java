@@ -67,7 +67,6 @@ public class TestInClauseExpansion
         assertThat(dao.findIdsForNames(asList(1, 2)), equalTo(ImmutableSet.of("Brian", "Jeff")));
     }
 
-    @UseStringTemplate3StatementLocator
     @RegisterContainerMapper(ImmutableSetContainerFactory.class)
     public static interface DAO
     {
