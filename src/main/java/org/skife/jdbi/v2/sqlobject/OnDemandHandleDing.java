@@ -15,6 +15,7 @@ package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.IDBI;
+import org.skife.jdbi.v2.SqlObjectContext;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +24,12 @@ class OnDemandHandleDing implements HandleDing
 {
     private final IDBI dbi;
     private final ThreadLocal<LocalDing> threadDing = new ThreadLocal<LocalDing>();
+    private final ThreadLocal<SqlObjectContext> threadContext = new ThreadLocal<SqlObjectContext>() {
+        @Override
+        protected SqlObjectContext initialValue() {
+            return new SqlObjectContext();
+        }
+    };
 
     OnDemandHandleDing(IDBI dbi)
     {
@@ -30,19 +37,40 @@ class OnDemandHandleDing implements HandleDing
     }
 
     @Override
+    public SqlObjectContext setContext(SqlObjectContext context) {
+        LocalDing ding = threadDing.get();
+        if (ding == null) {
+            SqlObjectContext oldContext = threadContext.get();
+            threadContext.set(context);
+            return oldContext;
+        }
+        else {
+            return ding.setContext(context);
+        }
+    }
+
+    @Override
     public Handle getHandle()
     {
-        if (threadDing.get() == null) {
-            threadDing.set(new LocalDing(dbi.open()));
-        }
-        return threadDing.get().getHandle();
+        return getOrCreateLocalDing().getHandle();
     }
 
     @Override
     public void retain(String name)
     {
-        getHandle(); // need to ensure the local ding has been created as this is called before getHandle sometimes.
-        threadDing.get().retain(name);
+        // need to ensure the local ding has been created as this is called before getHandle sometimes.
+        getOrCreateLocalDing().retain(name);
+    }
+
+    private LocalDing getOrCreateLocalDing() {
+        if (threadDing.get() == null) {
+            Handle handle = dbi.open();
+            SqlObjectContext context = threadContext.get();
+            handle.setSqlObjectContext(context == null ? new SqlObjectContext() : context);
+            threadContext.remove();
+            threadDing.set(new LocalDing(handle));
+        }
+        return threadDing.get();
     }
 
     @Override
@@ -67,6 +95,13 @@ class OnDemandHandleDing implements HandleDing
         }
 
         @Override
+        public SqlObjectContext setContext(SqlObjectContext context) {
+            SqlObjectContext oldContext = handle.getSqlObjectContext();
+            handle.setSqlObjectContext(context);
+            return oldContext;
+        }
+
+        @Override
         public Handle getHandle()
         {
             return handle;
@@ -78,6 +113,7 @@ class OnDemandHandleDing implements HandleDing
             retentions.remove(name);
             if (retentions.isEmpty()) {
                 threadDing.set(null);
+                threadContext.set(handle.getSqlObjectContext());
                 handle.close();
             }
         }

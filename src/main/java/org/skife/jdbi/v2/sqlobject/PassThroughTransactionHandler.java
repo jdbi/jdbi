@@ -20,18 +20,12 @@ import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 
-import java.lang.reflect.Method;
-
 class PassThroughTransactionHandler implements Handler
 {
-    private final Class<?> type;
-    private final Method method;
     private final TransactionIsolationLevel isolation;
 
-    PassThroughTransactionHandler(Class<?> type, Method method, Transaction tx)
+    PassThroughTransactionHandler(Transaction tx)
     {
-        this.type = type;
-        this.method = method;
         this.isolation = tx.value();
     }
 
@@ -46,55 +40,45 @@ class PassThroughTransactionHandler implements Handler
                 throw new TransactionException("Nested @Transaction detected - this is currently not supported.");
             }
 
-            Class<?> oldType = h.getSqlObjectType();
-            Method oldMethod = h.getSqlObjectMethod();
-
-            try {
-                h.setSqlObjectContext(type, method);
-
-                if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
-                    return h.inTransaction(new TransactionCallback<Object>()
+            if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
+                return h.inTransaction(new TransactionCallback<Object>()
+                {
+                    @Override
+                    public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
                     {
-                        @Override
-                        public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
-                        {
-                            try {
-                                return mp.invokeSuper(target, args);
+                        try {
+                            return mp.invokeSuper(target, args);
+                        }
+                        catch (Throwable throwable) {
+                            if (throwable instanceof Exception) {
+                                throw (Exception) throwable;
                             }
-                            catch (Throwable throwable) {
-                                if (throwable instanceof Exception) {
-                                    throw (Exception) throwable;
-                                }
-                                else {
-                                    throw new RuntimeException(throwable);
-                                }
+                            else {
+                                throw new RuntimeException(throwable);
                             }
                         }
-                    });
-                }
-                else {
-                    return h.inTransaction(isolation, new TransactionCallback<Object>()
-                    {
-                        @Override
-                        public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
-                        {
-                            try {
-                                return mp.invokeSuper(target, args);
-                            }
-                            catch (Throwable throwable) {
-                                if (throwable instanceof Exception) {
-                                    throw (Exception) throwable;
-                                }
-                                else {
-                                    throw new RuntimeException(throwable);
-                                }
-                            }
-                        }
-                    });
-                }
+                    }
+                });
             }
-            finally {
-                h.setSqlObjectContext(oldType, oldMethod);
+            else {
+                return h.inTransaction(isolation, new TransactionCallback<Object>()
+                {
+                    @Override
+                    public Object inTransaction(Handle conn, TransactionStatus status) throws Exception
+                    {
+                        try {
+                            return mp.invokeSuper(target, args);
+                        }
+                        catch (Throwable throwable) {
+                            if (throwable instanceof Exception) {
+                                throw (Exception) throwable;
+                            }
+                            else {
+                                throw new RuntimeException(throwable);
+                            }
+                        }
+                    }
+                });
             }
         }
 

@@ -24,6 +24,7 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.ResultIterator;
 import org.skife.jdbi.v2.Something;
+import org.skife.jdbi.v2.SqlObjectContext;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 import org.skife.jdbi.v2.exceptions.UnableToCloseResourceException;
 import org.skife.jdbi.v2.StatementContext;
@@ -135,6 +136,10 @@ public class TestOnDemandSqlObject
             @Override
             public Handle open() {
                 Handle h = EasyMock.createMock(Handle.class);
+                h.getSqlObjectContext();
+                EasyMock.expectLastCall().andReturn(new SqlObjectContext());
+                h.setSqlObjectContext(EasyMock.anyObject(SqlObjectContext.class));
+                EasyMock.expectLastCall().anyTimes();
                 h.createStatement(EasyMock.anyString());
                 EasyMock.expectLastCall()
                     .andThrow(new TransactionException("connection reset"));

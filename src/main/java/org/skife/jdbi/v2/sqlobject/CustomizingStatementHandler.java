@@ -14,7 +14,6 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
-import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 
@@ -113,12 +112,6 @@ abstract class CustomizingStatementHandler implements Handler
                 binders.add(new Bindifier(null, param_idx, new PositionalBinder(param_idx)));
             }
         }
-    }
-
-    protected final void populateSqlObjectData(ConcreteStatementContext q)
-    {
-        q.setSqlObjectMethod(method);
-        q.setSqlObjectType(sqlObjectType);
     }
 
     protected void applyBinders(SQLStatement<?> q, Object[] args)

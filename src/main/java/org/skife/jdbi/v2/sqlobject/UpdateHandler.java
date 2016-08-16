@@ -75,7 +75,6 @@ class UpdateHandler extends CustomizingStatementHandler
     public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
     {
         Update q = h.getHandle().createStatement(sql);
-        populateSqlObjectData((ConcreteStatementContext)q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
         return this.returner.value(q, h);

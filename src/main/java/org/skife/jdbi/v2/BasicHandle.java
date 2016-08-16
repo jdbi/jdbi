@@ -27,7 +27,6 @@ import org.skife.jdbi.v2.tweak.StatementLocator;
 import org.skife.jdbi.v2.tweak.StatementRewriter;
 import org.skife.jdbi.v2.tweak.TransactionHandler;
 
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -53,8 +52,12 @@ class BasicHandle implements Handle
     private final TransactionHandler       transactions;
     private final Connection               connection;
 
-    private Class<?> sqlObjectType;
-    private Method sqlObjectMethod;
+    private final ThreadLocal<SqlObjectContext> sqlObjectContext = new ThreadLocal<SqlObjectContext>() {
+        @Override
+        protected SqlObjectContext initialValue() {
+            return new SqlObjectContext();
+        }
+    };
 
     BasicHandle(TransactionHandler transactions,
                 StatementLocator statementLocator,
@@ -93,7 +96,7 @@ class BasicHandle implements Handle
                                               this,
                                               statementBuilder,
                                               sql,
-                                              new ConcreteStatementContext(globalStatementAttributes, queryRegistry, sqlObjectType, sqlObjectMethod),
+                                              new ConcreteStatementContext(globalStatementAttributes, queryRegistry, sqlObjectContext.get()),
                                               log,
                                               timingCollector,
                                               Collections.<StatementCustomizer>emptyList(),
@@ -261,7 +264,7 @@ class BasicHandle implements Handle
                           statementRewriter,
                           statementBuilder,
                           sql,
-                          new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectType, sqlObjectMethod),
+                          new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectContext.get()),
                           log,
                           timingCollector,
                           foreman,
@@ -276,7 +279,7 @@ class BasicHandle implements Handle
                         statementRewriter,
                         statementBuilder,
                         sql,
-                        new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectType, sqlObjectMethod),
+                        new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectContext.get()),
                         log,
                         timingCollector,
                         Collections.<StatementCustomizer>emptyList(),
@@ -309,7 +312,7 @@ class BasicHandle implements Handle
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectType, sqlObjectMethod),
+                                 new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectContext.get()),
                                  log,
                                  timingCollector,
                                  Collections.<StatementCustomizer>emptyList(),
@@ -322,7 +325,7 @@ class BasicHandle implements Handle
     {
         return new Batch(this.statementRewriter,
                          this.connection,
-                         new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectType, sqlObjectMethod),
+                         new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectContext.get()),
                          log,
                          timingCollector,
                          foreman.createChild());
@@ -410,7 +413,7 @@ class BasicHandle implements Handle
     @Override
     public Script createScript(String name)
     {
-        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectType, sqlObjectMethod));
+        return new Script(this, statementLocator, name, new ConcreteStatementContext(globalStatementAttributes, new MappingRegistry(mappingRegistry), sqlObjectContext.get()));
     }
 
     @Override
@@ -492,18 +495,15 @@ class BasicHandle implements Handle
     }
 
     @Override
-    public void setSqlObjectContext(Class<?> sqlObjectType, Method sqlObjectMethod) {
-        this.sqlObjectType = sqlObjectType;
-        this.sqlObjectMethod = sqlObjectMethod;
+    public void setSqlObjectContext(SqlObjectContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+        this.sqlObjectContext.set(context);
     }
 
     @Override
-    public Class<?> getSqlObjectType() {
-        return sqlObjectType;
-    }
-
-    @Override
-    public Method getSqlObjectMethod() {
-        return sqlObjectMethod;
+    public SqlObjectContext getSqlObjectContext() {
+        return sqlObjectContext.get();
     }
 }

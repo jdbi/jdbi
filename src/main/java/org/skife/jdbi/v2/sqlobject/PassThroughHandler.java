@@ -17,30 +17,20 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 
-import org.skife.jdbi.v2.Handle;
-
 class PassThroughHandler implements Handler
 {
 
-    private final Class<?> type;
     private final Method method;
 
-    PassThroughHandler(Class<?> type, Method method)
+    PassThroughHandler(Method method)
     {
-        this.type = type;
         this.method = method;
     }
 
     @Override
     public Object invoke(HandleDing ding, Object target, Object[] args, MethodProxy mp)
     {
-        Handle h = ding.getHandle();
-        Class<?> oldType = h.getSqlObjectType();
-        Method oldMethod = h.getSqlObjectMethod();
-
         try {
-            h.setSqlObjectContext(type, method);
-
             return mp.invokeSuper(target, args);
         }
         catch (AbstractMethodError e) {
@@ -60,9 +50,6 @@ class PassThroughHandler implements Handler
             else {
                 throw new RuntimeException(throwable);
             }
-        }
-        finally {
-            h.setSqlObjectContext(oldType, oldMethod);
         }
     }
 }

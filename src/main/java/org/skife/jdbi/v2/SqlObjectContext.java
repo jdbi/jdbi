@@ -11,23 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.skife.jdbi.v2.sqlobject;
+package org.skife.jdbi.v2;
 
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.SqlObjectContext;
+import java.lang.reflect.Method;
 
-interface HandleDing
-{
-    /**
-     * Sets a new sql object context and returns the old one
-     * @param context the new context
-     * @return the previous context
-     */
-    SqlObjectContext setContext(SqlObjectContext context);
+public class SqlObjectContext {
+    public final Class<?> type;
+    public final Method method;
 
-    Handle getHandle();
+    public SqlObjectContext() {
+        this(null, null);
+    }
 
-    void release(String name);
-
-    void retain(String name);
+    public SqlObjectContext(Class<?> type, Method method) {
+        this.type = type;
+        this.method = method;
+    }
 }

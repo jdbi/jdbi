@@ -45,18 +45,17 @@ public final class ConcreteStatementContext implements StatementContext
     private Foreman           foreman;
 
     ConcreteStatementContext() {
-        this(new HashMap<String, Object>(), new MappingRegistry(), null, null);
+        this(new HashMap<String, Object>(), new MappingRegistry(), new SqlObjectContext());
     }
 
     ConcreteStatementContext(Map<String, Object> globalAttributes,
                              MappingRegistry mappingRegistry,
-                             Class<?> sqlObjectType,
-                             Method sqlObjectMethod)
+                             SqlObjectContext sqlObjectContext)
     {
         attributes.putAll(globalAttributes);
         this.mappingRegistry = mappingRegistry;
-        this.sqlObjectType = sqlObjectType;
-        this.sqlObjectMethod = sqlObjectMethod;
+        this.sqlObjectType = sqlObjectContext.type;
+        this.sqlObjectMethod = sqlObjectContext.method;
     }
 
     /**

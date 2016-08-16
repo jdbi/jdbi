@@ -22,7 +22,6 @@ import java.util.List;
 
 import net.sf.cglib.proxy.MethodProxy;
 
-import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.PreparedBatchPart;
@@ -184,7 +183,6 @@ class BatchHandler extends CustomizingStatementHandler
         List<int[]> rs_parts = new ArrayList<int[]>();
 
         PreparedBatch batch = handle.prepareBatch(sql);
-        populateSqlObjectData((ConcreteStatementContext) batch.getContext());
         applyCustomizers(batch, args);
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
@@ -198,7 +196,6 @@ class BatchHandler extends CustomizingStatementHandler
                 processed = 0;
                 rs_parts.add(executeBatch(handle, batch));
                 batch = handle.prepareBatch(sql);
-                populateSqlObjectData((ConcreteStatementContext) batch.getContext());
                 applyCustomizers(batch, args);
             }
         }
