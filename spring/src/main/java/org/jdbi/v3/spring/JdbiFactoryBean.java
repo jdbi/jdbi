@@ -88,9 +88,10 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      *
      * @param dataSource the data source.
      */
-    public void setDataSource(DataSource dataSource)
+    public JdbiFactoryBean setDataSource(DataSource dataSource)
     {
         this.dataSource = dataSource;
+        return this;
     }
 
     @Autowired(required=false)
