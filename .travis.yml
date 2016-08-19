@@ -9,6 +9,9 @@ cache:
   directories:
     - '$HOME/.m2/repository'
 
+before_script:
+    - echo "MAVEN_OPTS='-Xmx1g'" > ~/.mavenrc
+
 before_install:
     - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
 
