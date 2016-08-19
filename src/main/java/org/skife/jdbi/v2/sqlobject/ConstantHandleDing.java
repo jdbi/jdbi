@@ -14,6 +14,7 @@
 package org.skife.jdbi.v2.sqlobject;
 
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.SqlObjectContext;
 
 class ConstantHandleDing implements HandleDing
 {
@@ -22,6 +23,13 @@ class ConstantHandleDing implements HandleDing
 
     ConstantHandleDing(Handle handle) {
         this.handle = handle;
+    }
+
+    @Override
+    public SqlObjectContext setContext(SqlObjectContext context) {
+        SqlObjectContext oldContext = handle.getSqlObjectContext();
+        handle.setSqlObjectContext(context);
+        return oldContext;
     }
 
     @Override

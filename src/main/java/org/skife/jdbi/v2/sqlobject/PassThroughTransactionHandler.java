@@ -20,13 +20,11 @@ import org.skife.jdbi.v2.TransactionIsolationLevel;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.skife.jdbi.v2.exceptions.TransactionException;
 
-import java.lang.reflect.Method;
-
 class PassThroughTransactionHandler implements Handler
 {
     private final TransactionIsolationLevel isolation;
 
-    PassThroughTransactionHandler(Method m, Transaction tx)
+    PassThroughTransactionHandler(Transaction tx)
     {
         this.isolation = tx.value();
     }
@@ -81,7 +79,6 @@ class PassThroughTransactionHandler implements Handler
                         }
                     }
                 });
-
             }
         }
 

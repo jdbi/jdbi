@@ -28,7 +28,7 @@ class PassThroughHandler implements Handler
     }
 
     @Override
-    public Object invoke(HandleDing h, Object target, Object[] args, MethodProxy mp)
+    public Object invoke(HandleDing ding, Object target, Object[] args, MethodProxy mp)
     {
         try {
             return mp.invokeSuper(target, args);

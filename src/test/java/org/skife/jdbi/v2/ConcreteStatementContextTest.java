@@ -28,8 +28,7 @@ public class ConcreteStatementContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
-        final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), new MappingRegistry());
+        final ConcreteStatementContext context = new ConcreteStatementContext();
 
         context.setReturningGeneratedKeys(true);
         context.setConcurrentUpdatable(true);
@@ -37,8 +36,7 @@ public class ConcreteStatementContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
-        final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), new MappingRegistry());
+        final ConcreteStatementContext context = new ConcreteStatementContext();
 
         context.setConcurrentUpdatable(true);
         context.setReturningGeneratedKeys(true);
@@ -67,7 +65,7 @@ public class ConcreteStatementContextTest {
         registry.addColumnMapper(mapper);
 
         final ConcreteStatementContext context =
-                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry);
+                new ConcreteStatementContext(Collections.<String, Object>emptyMap(), registry, new SqlObjectContext());
 
         assertThat(context.columnMapperFor(Foo.class), equalTo(mapper));
     }

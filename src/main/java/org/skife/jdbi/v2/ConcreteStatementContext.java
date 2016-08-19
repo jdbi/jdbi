@@ -44,10 +44,18 @@ public final class ConcreteStatementContext implements StatementContext
     private String[]          generatedKeysColumnNames;
     private Foreman           foreman;
 
-    ConcreteStatementContext(Map<String, Object> globalAttributes, MappingRegistry mappingRegistry)
+    ConcreteStatementContext() {
+        this(new HashMap<String, Object>(), new MappingRegistry(), new SqlObjectContext());
+    }
+
+    ConcreteStatementContext(Map<String, Object> globalAttributes,
+                             MappingRegistry mappingRegistry,
+                             SqlObjectContext sqlObjectContext)
     {
         attributes.putAll(globalAttributes);
         this.mappingRegistry = mappingRegistry;
+        this.sqlObjectType = sqlObjectContext.type;
+        this.sqlObjectMethod = sqlObjectContext.method;
     }
 
     /**

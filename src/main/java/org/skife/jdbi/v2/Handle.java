@@ -310,4 +310,8 @@ public interface Handle extends Closeable
     void registerArgumentFactory(ArgumentFactory argumentFactory);
 
     void registerContainerFactory(ContainerFactory<?> factory);
+
+    void setSqlObjectContext(SqlObjectContext context);
+
+    SqlObjectContext getSqlObjectContext();
 }

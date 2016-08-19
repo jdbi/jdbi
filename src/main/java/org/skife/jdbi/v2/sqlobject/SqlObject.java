@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.skife.jdbi.v2.SqlObjectContext;
+
 class SqlObject
 {
     private static final TypeResolver                                  typeResolver  = new TypeResolver();
@@ -77,7 +79,7 @@ class SqlObject
                 e.setSuperclass(sqlObjectType);
             }
             e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
-            final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
+            final SqlObject so = new SqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), handle);
 
             e.setCallbackFilter(new CallbackFilter() {
 
@@ -119,7 +121,7 @@ class SqlObject
             f = (Factory) actual;
         }
 
-        final SqlObject so = new SqlObject(buildHandlersFor(sqlObjectType), handle);
+        final SqlObject so = new SqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), handle);
         return (T) f.newInstance(new Callback[] {
                 new MethodInterceptor() {
                     @Override
@@ -168,7 +170,7 @@ class SqlObject
                 // no handler for finalize()
             }
             else if (raw_method.isAnnotationPresent(Transaction.class)) {
-                handlers.put(raw_method, new PassThroughTransactionHandler(raw_method, raw_method.getAnnotation(Transaction.class)));
+                handlers.put(raw_method, new PassThroughTransactionHandler(raw_method.getAnnotation(Transaction.class)));
             }
             else if (mixinHandlers.containsKey(raw_method)) {
                 handlers.put(raw_method, mixinHandlers.get(raw_method));
@@ -190,12 +192,13 @@ class SqlObject
         return handlers;
     }
 
-
+    private final Class<?>             sqlObjectType;
     private final Map<Method, Handler> handlers;
     private final HandleDing           ding;
 
-    SqlObject(Map<Method, Handler> handlers, HandleDing ding)
+    SqlObject(Class<?> sqlObjectType, Map<Method, Handler> handlers, HandleDing ding)
     {
+        this.sqlObjectType = sqlObjectType;
         this.handlers = handlers;
         this.ding = ding;
     }
@@ -211,6 +214,7 @@ class SqlObject
 
         Throwable doNotMask = null;
         String methodName = method.toString();
+        SqlObjectContext oldContext = ding.setContext(new SqlObjectContext(sqlObjectType, method));
         try {
             ding.retain(methodName);
             return handler.invoke(ding, proxy, args, mp);
@@ -220,6 +224,7 @@ class SqlObject
             throw e;
         }
         finally {
+            ding.setContext(oldContext);
             try {
                 ding.release(methodName);
             }
