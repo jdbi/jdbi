@@ -28,7 +28,7 @@
         <property name="url" value="jdbc:h2:mem:testing;INIT=create table if not exists something ( id integer, name varchar(50), integerValue integer, intValue integer )" />
     </bean>
 
-    <bean id="dbi" class="org.jdbi.v3.spring.DBIFactoryBean">
+    <bean id="dbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
         <property name="dataSource" ref="db"/>
     </bean>
 

@@ -24,7 +24,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 /**
  * Utility for working with jDBI and Spring transaction bound resources
  */
-public class DBIUtil
+public class JdbiUtil
 {
     private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<>();
 
