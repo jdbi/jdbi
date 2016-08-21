@@ -20,11 +20,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.PreparedBatch;
 import org.jdbi.v3.core.PreparedBatchPart;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
@@ -99,7 +99,7 @@ class BatchHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> h, SqlObjectConfig config, Object target, Object[] args, Method method)
+    public Object invoke(HandleSupplier h, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         boolean foundIterator = false;
         Handle handle = h.get();
@@ -133,7 +133,6 @@ class BatchHandler extends CustomizingStatementHandler
 
         String sql = config.getSqlLocator().locate(sqlObjectType, method);
         PreparedBatch batch = handle.prepareBatch(sql);
-        populateSqlObjectData(batch.getContext());
         applyCustomizers(batch, args);
         Object[] _args;
         int chunk_size = batchChunkSize.call(args);
@@ -147,7 +146,6 @@ class BatchHandler extends CustomizingStatementHandler
                 processed = 0;
                 rs_parts.add(executeBatch(handle, batch));
                 batch = handle.prepareBatch(sql);
-                populateSqlObjectData(batch.getContext());
                 applyCustomizers(batch, args);
             }
         }

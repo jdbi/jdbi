@@ -504,7 +504,7 @@ public class Jdbi
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws NoSuchExtensionException, X
     {
-        try (LazyHandle handle = new LazyHandle(this)) {
+        try (LazyHandleSupplier handle = new LazyHandleSupplier(this)) {
             E extension = config.extensionRegistry.findExtensionFor(extensionType, handle)
                     .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
 

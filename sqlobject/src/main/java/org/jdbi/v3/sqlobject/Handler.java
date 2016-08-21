@@ -14,11 +14,10 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
-import java.util.function.Supplier;
 
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 
 interface Handler
 {
-    Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method) throws Exception;
+    Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method) throws Exception;
 }

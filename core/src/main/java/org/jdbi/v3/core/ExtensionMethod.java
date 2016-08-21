@@ -11,18 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.core;
+
+import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.HandleSupplier;
+public final class ExtensionMethod {
+    private final Class<?> type;
+    private final Method method;
 
-class CheckpointHandler implements Handler
-{
-    @Override
-    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
-    {
-        handle.get().checkpoint(String.valueOf(args[0]));
-        return null;
+    public ExtensionMethod(Class<?> type, Method method) {
+        this.type = requireNonNull(type);
+        this.method = requireNonNull(method);
+    }
+
+    public Class<?> getType() {
+        return type;
+    }
+
+    public Method getMethod() {
+        return method;
     }
 }

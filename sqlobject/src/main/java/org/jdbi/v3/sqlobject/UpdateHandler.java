@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 
 import org.jdbi.v3.core.GeneratedKeys;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Update;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -68,11 +69,10 @@ class UpdateHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method)
+    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         String sql = config.getSqlLocator().locate(sqlObjectType, method);
         Update q = handle.get().createStatement(sql);
-        populateSqlObjectData(q.getContext());
         applyCustomizers(q, args);
         applyBinders(q, args);
         return this.returner.value(q, handle);

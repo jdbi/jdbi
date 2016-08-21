@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -56,6 +58,8 @@ public class Handle implements Closeable
     private boolean closed = false;
     protected final TransactionHandler transactions;
     protected final Connection connection;
+
+    private ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
 
     Handle(JdbiConfig config,
             TransactionHandler transactions,
@@ -295,7 +299,7 @@ public class Handle implements Closeable
         JdbiConfig batchConfig = JdbiConfig.copyOf(config);
         return new Batch(batchConfig,
                          this.connection,
-                         new StatementContext(batchConfig));
+                         new StatementContext(batchConfig, extensionMethod.get()));
     }
 
     /**
@@ -311,7 +315,7 @@ public class Handle implements Closeable
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new StatementContext(batchConfig),
+                                 new StatementContext(batchConfig, extensionMethod.get()),
                                  Collections.<StatementCustomizer>emptyList());
     }
 
@@ -328,7 +332,7 @@ public class Handle implements Closeable
                         this,
                         statementBuilder,
                         sql,
-                        new StatementContext(callConfig),
+                        new StatementContext(callConfig, extensionMethod.get()),
                         Collections.<StatementCustomizer>emptyList());
     }
 
@@ -346,7 +350,7 @@ public class Handle implements Closeable
                 this,
                 statementBuilder,
                 sql,
-                new StatementContext(queryConfig),
+                new StatementContext(queryConfig, extensionMethod.get()),
                 Collections.<StatementCustomizer>emptyList());
     }
 
@@ -374,7 +378,7 @@ public class Handle implements Closeable
                           this,
                           statementBuilder,
                           sql,
-                          new StatementContext(updateConfig));
+                          new StatementContext(updateConfig, extensionMethod.get()));
     }
 
     /**
@@ -597,11 +601,24 @@ public class Handle implements Closeable
      * @return the new extension object bound to this handle
      */
     public <T> T attach(Class<T> extensionType) {
-        return config.extensionRegistry.findExtensionFor(extensionType, () -> this)
+        return config.extensionRegistry.findExtensionFor(extensionType, ConstantHandleSupplier.of(this))
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
     public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
         config.extensionRegistry.configure(configClass, consumer);
+    }
+
+    public ExtensionMethod getExtensionMethod() {
+        return extensionMethod.get();
+    }
+
+    public void setExtensionMethod(ExtensionMethod extensionMethod) {
+        this.extensionMethod.set(extensionMethod);
+    }
+
+    /* package private */
+    void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
+        this.extensionMethod = requireNonNull(extensionMethod);
     }
 }

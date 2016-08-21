@@ -44,7 +44,7 @@ class ExtensionRegistry {
             this.config = config;
         }
 
-        <E> E attach(Class<E> extensionType, Supplier<Handle> handle) {
+        <E> E attach(Class<E> extensionType, HandleSupplier handle) {
             return factory.attach(extensionType, config.createCopy(), handle);
         }
     }
@@ -71,7 +71,7 @@ class ExtensionRegistry {
                 .anyMatch(entry -> entry.factory.accepts(extensionType));
     }
 
-    <E> Optional<E> findExtensionFor(Class<E> extensionType, Supplier<Handle> handle) {
+    <E> Optional<E> findExtensionFor(Class<E> extensionType, HandleSupplier handle) {
         return factories.stream()
                 .filter(entry -> entry.factory.accepts(extensionType))
                 .map(entry -> extensionType.cast(entry.attach(extensionType, handle)))

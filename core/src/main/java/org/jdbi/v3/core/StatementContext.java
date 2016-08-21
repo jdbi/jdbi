@@ -13,7 +13,8 @@
  */
 package org.jdbi.v3.core;
 
-import java.lang.reflect.Method;
+import static java.util.Objects.requireNonNull;
+
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -35,6 +36,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
 public final class StatementContext
 {
     private final JdbiConfig config;
+    private final ExtensionMethod extensionMethod;
 
     private final Cleanables cleanables = new Cleanables();
 
@@ -43,8 +45,6 @@ public final class StatementContext
     private PreparedStatement statement;
     private Connection        connection;
     private Binding           binding;
-    private Method            extensionMethod;
-    private Class<?>          extensionType;
     private boolean           returningGeneratedKeys;
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
@@ -55,7 +55,13 @@ public final class StatementContext
 
     StatementContext(JdbiConfig config)
     {
-        this.config = config;
+        this(config, null);
+    }
+
+    StatementContext(JdbiConfig config, ExtensionMethod extensionMethod)
+    {
+        this.config = requireNonNull(config);
+        this.extensionMethod = extensionMethod;
     }
 
     /**
@@ -223,24 +229,9 @@ public final class StatementContext
         return cleanables;
     }
 
-    public Method getExtensionMethod()
+    public ExtensionMethod getExtensionMethod()
     {
         return extensionMethod;
-    }
-
-    public void setExtensionMethod(Method extensionMethod)
-    {
-        this.extensionMethod = extensionMethod;
-    }
-
-    public Class<?> getExtensionType()
-    {
-        return extensionType;
-    }
-
-    public void setExtensionType(Class<?> extensionType)
-    {
-        this.extensionType = extensionType;
     }
 
     void setReturningGeneratedKeys(boolean b)

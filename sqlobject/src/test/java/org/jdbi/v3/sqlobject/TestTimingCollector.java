@@ -15,7 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.hamcrest.CoreMatchers;
+
 import org.jdbi.v3.core.*;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.junit.Before;
@@ -123,11 +123,14 @@ public class TestTimingCollector {
     private static class SqlObjectStrategy {
 
         String getStatementName(StatementContext statementContext) {
-            Method method = statementContext.getExtensionMethod();
-            if (method != null) {
-                Class<?> clazz = statementContext.getExtensionType();
-                String group = clazz.getPackage().getName();
-                String name = clazz.getSimpleName();
+            ExtensionMethod extensionMethod = statementContext.getExtensionMethod();
+            if (extensionMethod != null) {
+                Class<?> type = extensionMethod.getType();
+                Method method = extensionMethod.getMethod();
+
+                String group = type.getPackage().getName();
+                String name = type.getSimpleName();
+
                 return group + "." + name + "." + method.getName();
             } else {
                 return "sql.raw." + statementContext.getRawSql();
