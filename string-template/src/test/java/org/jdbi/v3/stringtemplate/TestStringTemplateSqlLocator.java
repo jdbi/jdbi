@@ -103,7 +103,7 @@ public class TestStringTemplateSqlLocator
 
     @UseStringTemplateSqlLocator
     @RegisterRowMapper(SomethingMapper.class)
-    interface Wombat
+    public interface Wombat
     {
         @SqlUpdate
         void insert(@BindBean Something s);

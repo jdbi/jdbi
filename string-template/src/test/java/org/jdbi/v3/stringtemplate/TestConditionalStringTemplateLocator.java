@@ -63,7 +63,7 @@ public class TestConditionalStringTemplateLocator {
         assertThat(ids).containsExactly(1, 2, 3);
     }
 
-    interface Dao {
+    public interface Dao {
         @SqlQuery
         @UseStringTemplateSqlLocator
         List<Integer> findLocated(@Define("sort") boolean sort, @Define("sortBy") String sortBy);

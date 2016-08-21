@@ -110,7 +110,7 @@ public class TestMapBinder
         return map;
     }
 
-    interface Spiffy
+    public interface Spiffy
     {
         @SqlUpdate("insert into something (id, a, b, c) values (:id, :a, :b, :c)")
         int insert(@BindMap Map<String, Object> bindings);
@@ -126,7 +126,7 @@ public class TestMapBinder
         Result load(@Bind("id") int id);
     }
 
-    static class ResultMapper implements RowMapper<Result>
+    public static class ResultMapper implements RowMapper<Result>
     {
         @Override
         public Result map(ResultSet r, StatementContext ctx)
@@ -141,7 +141,7 @@ public class TestMapBinder
         }
     }
 
-    static class Result
+    public static class Result
     {
         String a, c;
         int id, b;

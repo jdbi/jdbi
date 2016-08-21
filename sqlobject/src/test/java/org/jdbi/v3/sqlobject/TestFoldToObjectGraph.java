@@ -87,7 +87,7 @@ public class TestFoldToObjectGraph
         assertThat(dao.findAllTeams(), equalTo(expected));
     }
 
-    public static abstract class Dao
+    public interface Dao
     {
         @SqlQuery("select t.name as teamName, " +
                   "       t.mascot as mascot, " +
@@ -95,9 +95,9 @@ public class TestFoldToObjectGraph
                   "       p.role as role " +
                   "from team t inner join person p on (t.name = p.team)")
         @RegisterBeanMapper(TeamPersonJoinRow.class)
-        public abstract Iterator<TeamPersonJoinRow> findAllTeamsAndPeople();
+        Iterator<TeamPersonJoinRow> findAllTeamsAndPeople();
 
-        public Map<String, Team> findAllTeams()
+        default Map<String, Team> findAllTeams()
         {
             Iterator<TeamPersonJoinRow> i = findAllTeamsAndPeople();
             Map<String, Team> acc = new HashMap<>();

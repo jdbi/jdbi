@@ -199,7 +199,7 @@ public class TestBatching
         void invalidInsertString(@Bind("id") String id);
     }
 
-    interface BadBatch
+    public interface BadBatch
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         int[] insertBeans(@BindBean Something elements); // whoops, no Iterable!

@@ -61,7 +61,7 @@ public class JpaTest {
         public void setName(String name) { this.name = name; }
     }
 
-    interface EntityThingDao {
+    public interface EntityThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
         void insert(@BindJpa EntityThing thing);
 
@@ -101,7 +101,7 @@ public class JpaTest {
         public void setName(String name) { this.name = name; }
     }
 
-    interface FieldThingDao {
+    public interface FieldThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
         void insert(@BindJpa FieldThing thing);
 
@@ -141,7 +141,7 @@ public class JpaTest {
         public void setName(String name) { this.name = name; }
     }
 
-    interface NamedFieldThingDao {
+    public interface NamedFieldThingDao {
         @SqlUpdate(INSERT_BY_ANNOTATION_NAME)
         void insert(@BindJpa NamedFieldThing thing);
 
@@ -181,7 +181,7 @@ public class JpaTest {
         public void setName(String name) { this.name = name; }
     }
 
-    interface GetterThingDao {
+    public interface GetterThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
         void insert(@BindJpa GetterThing thing);
 
@@ -221,7 +221,7 @@ public class JpaTest {
         public void setName(String name) { this.name = name; }
     }
 
-    interface NamedGetterThingDao {
+    public interface NamedGetterThingDao {
         @SqlUpdate(INSERT_BY_ANNOTATION_NAME)
         void insert(@BindJpa NamedGetterThing thing);
 
@@ -261,7 +261,7 @@ public class JpaTest {
         @Column public void setName(String name) { this.name = name; }
     }
 
-    interface SetterThingDao {
+    public interface SetterThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
         void insert(@BindJpa SetterThing thing);
 
@@ -301,7 +301,7 @@ public class JpaTest {
         @Column(name = "bar") public void setName(String name) { this.name = name; }
     }
 
-    interface NamedSetterThingDao {
+    public interface NamedSetterThingDao {
         @SqlUpdate(INSERT_BY_ANNOTATION_NAME)
         void insert(@BindJpa NamedSetterThing thing);
 
@@ -343,7 +343,7 @@ public class JpaTest {
         public void setName(String name) { this.name = name; }
     }
 
-    interface MappedSuperclassThingDao {
+    public interface MappedSuperclassThingDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
         void insert(@BindJpa ExtendsMappedSuperclassThing thing);
 
@@ -383,7 +383,7 @@ public class JpaTest {
         @Column(name = "ignored") public void setName(String name) { this.name = name; }
     }
 
-    interface AnnotationPriorityThingDao {
+    public interface AnnotationPriorityThingDao {
         @SqlUpdate(INSERT_BY_ANNOTATION_NAME)
         void insert(@BindJpa AnnotationPriorityThing thing);
 
@@ -409,7 +409,7 @@ public class JpaTest {
         assertThingEquals(keith, rs.get(1));
     }
 
-    interface SuperfluousColumnDao {
+    public interface SuperfluousColumnDao {
         @SqlUpdate(INSERT_BY_PROPERTY_NAME)
         void insert(@BindJpa FieldThing thing);
 
@@ -434,7 +434,7 @@ public class JpaTest {
         assertThingEquals(keith, rs.get(1));
     }
 
-    interface MissingColumnDao {
+    public interface MissingColumnDao {
         @SqlUpdate("insert into something(id) values (:id)")
         void insert(@BindJpa FieldThing thing);
 
@@ -479,7 +479,7 @@ public class JpaTest {
         @Override @Column(name = "meow") public int getId() { return super.getId(); }
     }
 
-    interface OverridingSubclassThingDao {
+    public interface OverridingSubclassThingDao {
         @SqlUpdate("insert into something(id, name) values (:meow, :bar)")
         void insert(@BindJpa OverridingSubclassThing thing);
 

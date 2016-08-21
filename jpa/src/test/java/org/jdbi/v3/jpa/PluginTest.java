@@ -43,7 +43,7 @@ public class PluginTest {
         public void setName(String name) { this.name = name; }
     }
 
-    interface ThingDao {
+    public interface ThingDao {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindJpa Thing thing);
 

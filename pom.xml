@@ -225,12 +225,6 @@
             </dependency>
 
             <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib</artifactId>
-                <version>3.2.2</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr-runtime</artifactId>
                 <version>${dep.antlr.version}</version>
@@ -305,12 +299,6 @@
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
                 <version>0.7.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>5.1</version>
             </dependency>
 
             <dependency>

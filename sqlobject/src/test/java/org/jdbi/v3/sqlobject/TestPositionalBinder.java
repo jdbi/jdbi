@@ -81,7 +81,7 @@ public class TestPositionalBinder {
         assertEquals(row.get("code"), 21);
     }
 
-    interface SomethingDao {
+    public interface SomethingDao {
 
         @SqlQuery("select name from something where something_id=:0")
         String findNameById(int i);

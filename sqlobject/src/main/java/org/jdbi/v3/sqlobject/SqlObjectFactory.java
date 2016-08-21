@@ -18,8 +18,10 @@ import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +33,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.Factory;
-import net.sf.cglib.proxy.MethodInterceptor;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
@@ -43,11 +41,24 @@ import org.jdbi.v3.sqlobject.mixins.Transactional;
 public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     INSTANCE;
 
-    private static final MethodInterceptor NO_OP = (proxy, method, args, methodProxy) -> null;
+    private static final Object[] NO_ARGS = new Object[0];
+    private static final Method EQUALS_METHOD;
+    private static final Method HASHCODE_METHOD;
+    private static final Method TOSTRING_METHOD;
+
+    static {
+        try {
+            EQUALS_METHOD = Object.class.getMethod("equals", Object.class);
+            HASHCODE_METHOD = Object.class.getMethod("hashCode");
+            TOSTRING_METHOD = Object.class.getMethod("toString");
+        }
+        catch (NoSuchMethodException wat) {
+            throw new IllegalStateException("JVM error", wat);
+        }
+    }
 
     private final Map<Method, Handler> mixinHandlers = new HashMap<>();
     private final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Class<?>, Factory> factories = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends SqlObjectConfigurerFactory>, SqlObjectConfigurerFactory>
             configurerFactories = new ConcurrentHashMap<>();
 
@@ -63,6 +74,14 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
 
     @Override
     public boolean accepts(Class<?> extensionType) {
+        if (!extensionType.isInterface()) {
+            throw new IllegalArgumentException("SQL Objects are only supported for interfaces.");
+        }
+
+        if (!Modifier.isPublic(extensionType.getModifiers())) {
+            throw new IllegalArgumentException("SQL Object types must be public.");
+        }
+
         if (GetHandle.class.isAssignableFrom(extensionType) ||
                 Transactional.class.isAssignableFrom(extensionType)) {
             return true;
@@ -83,30 +102,17 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
      */
     @Override
     public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Supplier<Handle> handle) {
-        Factory f = factories.computeIfAbsent(extensionType, type -> {
-            Enhancer e = new Enhancer();
-            e.setClassLoader(extensionType.getClassLoader());
+        Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
-            List<Class<?>> interfaces = new ArrayList<>();
-            if (extensionType.isInterface()) {
-                interfaces.add(extensionType);
-            }
-            else {
-                e.setSuperclass(extensionType);
-            }
-            e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
-            e.setCallback(NO_OP);
-
-            return (Factory) e.create();
-        });
-
-
-        Map<Method, Handler> handlers = buildHandlersFor(extensionType);
-        MethodInterceptor interceptor = createMethodInterceptor(extensionType, config, handlers, handle);
-        return extensionType.cast(f.newInstance(interceptor));
+        InvocationHandler invocationHandler = createInvocationHandler(extensionType, config, handlers, handle);
+        return extensionType.cast(
+                Proxy.newProxyInstance(
+                        extensionType.getClassLoader(),
+                        new Class[]{extensionType},
+                        invocationHandler));
     }
 
-    private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType) {
+    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
             final Map<Method, Handler> handlers = new HashMap<>();
 
@@ -188,17 +194,24 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         return decorator;
     }
 
-    private MethodInterceptor createMethodInterceptor(Class<?> sqlObjectType,
+    private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,
                                                       SqlObjectConfig baseConfig,
                                                       Map<Method, Handler> handlers,
                                                       Supplier<Handle> handle) {
-        return (proxy, method, args, methodProxy) -> {
-            Handler handler = handlers.get(method);
-
-            // If there is no handler, pretend we are just an Object and don't open a connection (Issue #82)
-            if (handler == null) {
-                return methodProxy.invokeSuper(proxy, args);
+        return (proxy, method, args) -> {
+            if (EQUALS_METHOD.equals(method)) {
+                return proxy == args[0];
             }
+
+            if (HASHCODE_METHOD.equals(method)) {
+                return System.identityHashCode(proxy);
+            }
+
+            if (TOSTRING_METHOD.equals(method)) {
+                return sqlObjectType + "@" + Integer.toHexString(System.identityHashCode(proxy));
+            }
+
+            Handler handler = handlers.get(method);
 
             SqlObjectConfig config = baseConfig.createCopy();
             forEachConfigurerFactory(sqlObjectType, (factory, annotation) ->
@@ -206,7 +219,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
             forEachConfigurerFactory(method, (factory, annotation) ->
                     factory.createForMethod(annotation, sqlObjectType, method).accept(config));
 
-            return handler.invoke(handle, config, proxy, args, method);
+            return handler.invoke(handle, config, proxy, args == null ? NO_ARGS : args, method);
         };
     }
 

@@ -31,10 +31,9 @@ public class TestObjectMethodBehavior
     private Jdbi    dbi;
     private UselessDao dao;
 
-    public interface UselessDao extends Cloneable, GetHandle
+    public interface UselessDao extends GetHandle
     {
         void finalize();
-        Object clone();
     }
 
     /**
@@ -50,23 +49,17 @@ public class TestObjectMethodBehavior
     }
 
     @Test
-    public void testClone() throws Exception
-    {
-        assertNotSame(dao, dao.clone());
-    }
-
-    @Test
     public void testEquals() throws Exception
     {
         assertEquals(dao, dao);
-        assertNotEquals(dao, dao.clone());
+        assertNotEquals(dao, dbi.onDemand(UselessDao.class));
     }
 
     @Test
     public void testHashCode() throws Exception
     {
         assertEquals(dao.hashCode(), dao.hashCode());
-        assertNotEquals(dao.hashCode(), dao.clone().hashCode());
+        assertNotEquals(dao.hashCode(), dbi.onDemand(UselessDao.class).hashCode());
     }
 
     @Test

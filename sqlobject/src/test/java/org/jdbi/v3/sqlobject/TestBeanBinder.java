@@ -57,7 +57,7 @@ public class TestBeanBinder
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    interface Spiffy {
+    public interface Spiffy {
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@BindBean Something s);

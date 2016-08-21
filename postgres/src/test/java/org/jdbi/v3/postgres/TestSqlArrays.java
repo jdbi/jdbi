@@ -100,7 +100,7 @@ public class TestSqlArrays {
         assertEquals(testIntList, ao.fetchIntList());
     }
 
-    interface ArrayObject {
+    public interface ArrayObject {
         @SqlQuery(U_SELECT)
         UUID[] fetchUuidArray();
 

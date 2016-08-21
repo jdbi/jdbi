@@ -97,12 +97,12 @@ public class TestCreateSqlObjectAnnotation
         }
     }
 
-    public static abstract class Bar
+    public interface Bar
     {
         @SqlQuery("select id, name from something where id = :id")
-        public abstract Something findById(@Bind("id") int id);
+        Something findById(@Bind("id") int id);
 
-        public Something explode()
+        default Something explode()
         {
             throw new RuntimeException();
         }

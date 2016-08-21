@@ -38,7 +38,7 @@ public class TestSqlMethodAnnotations
         handle.attach(DAO.class);
     }
 
-    interface DAO {
+    public interface DAO {
         @SqlQuery
         @SqlUpdate
         void bogus();
