@@ -16,9 +16,8 @@ package org.jdbi.v3.sqlobject;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.function.Supplier;
 
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 
 class PassThroughHandler implements Handler
 {
@@ -28,7 +27,7 @@ class PassThroughHandler implements Handler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method)
+    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         try {
             // TERRIBLE, HORRIBLE, NO GOOD, VERY BAD HACK

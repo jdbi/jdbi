@@ -14,16 +14,15 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
-import java.util.function.Supplier;
 
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 
 class InTransactionHandler implements Handler
 {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, final Object target, Object[] args, Method method) throws Exception
+    public Object invoke(HandleSupplier handle, SqlObjectConfig config, final Object target, Object[] args, Method method) throws Exception
     {
         final TransactionalCallback callback = (TransactionalCallback) args[0];
         return handle.get().inTransaction((conn, status) -> callback.inTransaction(Transactional.class.cast(target), status));

@@ -30,10 +30,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.ExtensionMethod;
+import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
@@ -101,7 +101,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
      * @return the new sql object bound to this handle
      */
     @Override
-    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Supplier<Handle> handle) {
+    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, HandleSupplier handle) {
         Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
         InvocationHandler invocationHandler = createInvocationHandler(extensionType, config, handlers, handle);
@@ -197,7 +197,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,
                                                       SqlObjectConfig baseConfig,
                                                       Map<Method, Handler> handlers,
-                                                      Supplier<Handle> handle) {
+                                                      HandleSupplier handle) {
         return (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];
@@ -211,15 +211,23 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                 return sqlObjectType + "@" + Integer.toHexString(System.identityHashCode(proxy));
             }
 
-            Handler handler = handlers.get(method);
+            ExtensionMethod oldMethod = handle.getExtensionMethod();
+            handle.setExtensionMethod(new ExtensionMethod(sqlObjectType, method));
 
-            SqlObjectConfig config = baseConfig.createCopy();
-            forEachConfigurerFactory(sqlObjectType, (factory, annotation) ->
-                    factory.createForType(annotation, sqlObjectType).accept(config));
-            forEachConfigurerFactory(method, (factory, annotation) ->
-                    factory.createForMethod(annotation, sqlObjectType, method).accept(config));
+            try {
+                Handler handler = handlers.get(method);
 
-            return handler.invoke(handle, config, proxy, args == null ? NO_ARGS : args, method);
+                SqlObjectConfig config = baseConfig.createCopy();
+                forEachConfigurerFactory(sqlObjectType, (factory, annotation) ->
+                        factory.createForType(annotation, sqlObjectType).accept(config));
+                forEachConfigurerFactory(method, (factory, annotation) ->
+                        factory.createForMethod(annotation, sqlObjectType, method).accept(config));
+
+                return handler.invoke(handle, config, proxy, args == null ? NO_ARGS : args, method);
+            }
+            finally {
+                handle.setExtensionMethod(oldMethod);
+            }
         };
     }
 

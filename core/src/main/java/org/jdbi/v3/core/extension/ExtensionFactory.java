@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.core.extension;
 
-import java.util.function.Supplier;
-
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 
 /**
  * Factory interface used to produce JDBI extension objects.
@@ -47,5 +45,5 @@ public interface ExtensionFactory<C extends ExtensionConfig<C>> {
      * @throws IllegalArgumentException if the extension type is not supported by this factory.
      * @see org.jdbi.v3.core.Jdbi#onDemand(Class)
      */
-    <E> E attach(Class<E> extensionType, C config, Supplier<Handle> handle);
+    <E> E attach(Class<E> extensionType, C config, HandleSupplier handle);
 }

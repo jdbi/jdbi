@@ -11,18 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.core;
 
-import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
-import org.jdbi.v3.core.HandleSupplier;
+/**
+ * A handle supplier used by extension implementors.
+ */
+public interface HandleSupplier extends Supplier<Handle> {
+    /**
+     * Returns the extension method currently being called with this handle.
+     */
+    ExtensionMethod getExtensionMethod();
 
-class CheckpointHandler implements Handler
-{
-    @Override
-    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
-    {
-        handle.get().checkpoint(String.valueOf(args[0]));
-        return null;
-    }
+    /**
+     * Sets the extension method currently being called with this handle.
+     * @param extensionMethod the extension method
+     */
+    void setExtensionMethod(ExtensionMethod extensionMethod);
 }

@@ -14,9 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
-import java.util.function.Supplier;
 
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
@@ -24,7 +23,7 @@ class InTransactionWithIsolationLevelHandler implements Handler
 {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, final Object target, Object[] args, Method method) throws Exception
+    public Object invoke(HandleSupplier handle, SqlObjectConfig config, final Object target, Object[] args, Method method) throws Exception
     {
         final TransactionalCallback callback = (TransactionalCallback) args[1];
         final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];

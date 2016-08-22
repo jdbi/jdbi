@@ -31,17 +31,17 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
  * Utility class which constructs an {@link Jdbi} instance which can conveniently participate
  * in Spring's transaction management system.
  */
-public class DBIFactoryBean implements FactoryBean<Jdbi>
+public class JdbiFactoryBean implements FactoryBean<Jdbi>
 {
     private DataSource dataSource;
     private final Map<String, Object> globalDefines = new HashMap<>();
 
     private Collection<JdbiPlugin> plugins = Collections.emptyList();
 
-    public DBIFactoryBean() {
+    public JdbiFactoryBean() {
     }
 
-    public DBIFactoryBean(DataSource dataSource) {
+    public JdbiFactoryBean(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -88,13 +88,14 @@ public class DBIFactoryBean implements FactoryBean<Jdbi>
      *
      * @param dataSource the data source.
      */
-    public void setDataSource(DataSource dataSource)
+    public JdbiFactoryBean setDataSource(DataSource dataSource)
     {
         this.dataSource = dataSource;
+        return this;
     }
 
     @Autowired(required=false)
-    public DBIFactoryBean setPlugins(Collection<JdbiPlugin> plugins)
+    public JdbiFactoryBean setPlugins(Collection<JdbiPlugin> plugins)
     {
         this.plugins = plugins;
         return this;

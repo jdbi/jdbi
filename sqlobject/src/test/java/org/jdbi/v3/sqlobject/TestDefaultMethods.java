@@ -15,9 +15,11 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jdbi.v3.core.ExtensionMethod;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
+import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -74,6 +76,23 @@ public class TestDefaultMethods
         @Override
         default Something insertAndReturn(int id, String name) {
             return new Something(-6, "what");
+        }
+    }
+
+    @Test
+    public void testHandleHasExtensionMethodSet() throws Exception {
+        db.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
+    }
+
+    public interface StatementContextExtensionMethodDao extends GetHandle {
+        default void check() throws Exception {
+            ExtensionMethod extensionMethod = getHandle().getExtensionMethod();
+            assertEquals(extensionMethod.getType(), StatementContextExtensionMethodDao.class);
+            assertEquals(extensionMethod.getMethod(), StatementContextExtensionMethodDao.class.getMethod("check"));
+
+            extensionMethod = getHandle().createQuery("select * from something").getContext().getExtensionMethod();
+            assertEquals(extensionMethod.getType(), StatementContextExtensionMethodDao.class);
+            assertEquals(extensionMethod.getMethod(), StatementContextExtensionMethodDao.class.getMethod("check"));
         }
     }
 }

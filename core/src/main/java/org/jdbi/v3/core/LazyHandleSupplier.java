@@ -13,16 +13,26 @@
  */
 package org.jdbi.v3.core;
 
-import java.util.function.Supplier;
-
-class LazyHandle implements Supplier<Handle>, AutoCloseable {
+class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
     private final Jdbi dbi;
+
+    private final ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
 
     private volatile Handle handle;
     private volatile boolean closed = false;
 
-    LazyHandle(Jdbi dbi) {
+    LazyHandleSupplier(Jdbi dbi) {
         this.dbi = dbi;
+    }
+
+    @Override
+    public ExtensionMethod getExtensionMethod() {
+        return extensionMethod.get();
+    }
+
+    @Override
+    public void setExtensionMethod(ExtensionMethod extensionMethod) {
+        this.extensionMethod.set(extensionMethod);
     }
 
     public Handle get() {
@@ -37,7 +47,13 @@ class LazyHandle implements Supplier<Handle>, AutoCloseable {
             if (closed) {
                 throw new IllegalStateException("Handle is closed");
             }
-            handle = dbi.open();
+
+            Handle handle = dbi.open();
+            // share extension method thread local with handle,
+            // so extension methods set in other threads are preserved
+            handle.setExtensionMethodThreadLocal(extensionMethod);
+
+            this.handle = handle;
         }
     }
 
