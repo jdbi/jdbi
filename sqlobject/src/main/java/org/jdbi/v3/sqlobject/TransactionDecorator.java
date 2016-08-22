@@ -16,9 +16,9 @@ package org.jdbi.v3.sqlobject;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.INVALID_LEVEL;
 
 import java.lang.reflect.Method;
-import java.util.function.Supplier;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
@@ -35,7 +35,7 @@ class TransactionDecorator implements Handler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method) throws Exception
+    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method) throws Exception
     {
         Handle h = handle.get();
 

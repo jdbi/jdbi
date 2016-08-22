@@ -17,9 +17,8 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 
 class FinalizeHandler implements Handler
 {
@@ -39,7 +38,7 @@ class FinalizeHandler implements Handler
     }
 
     @Override
-    public Object invoke(Supplier<Handle> handle, SqlObjectConfig config, Object target, Object[] args, Method method)
+    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
     {
         return null;
     }

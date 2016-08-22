@@ -28,14 +28,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.ExtensionMethod;
+import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
@@ -82,7 +82,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
      * @return the new sql object bound to this handle
      */
     @Override
-    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, Supplier<Handle> handle) {
+    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, HandleSupplier handle) {
         Factory f = factories.computeIfAbsent(extensionType, type -> {
             Enhancer e = new Enhancer();
             e.setClassLoader(extensionType.getClassLoader());
@@ -191,22 +191,30 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     private MethodInterceptor createMethodInterceptor(Class<?> sqlObjectType,
                                                       SqlObjectConfig baseConfig,
                                                       Map<Method, Handler> handlers,
-                                                      Supplier<Handle> handle) {
+                                                      HandleSupplier handle) {
         return (proxy, method, args, methodProxy) -> {
-            Handler handler = handlers.get(method);
+            ExtensionMethod oldMethod = handle.getExtensionMethod();
+            handle.setExtensionMethod(new ExtensionMethod(sqlObjectType, method));
 
-            // If there is no handler, pretend we are just an Object and don't open a connection (Issue #82)
-            if (handler == null) {
-                return methodProxy.invokeSuper(proxy, args);
+            try {
+                Handler handler = handlers.get(method);
+
+                // If there is no handler, pretend we are just an Object and don't open a connection (Issue #82)
+                if (handler == null) {
+                    return methodProxy.invokeSuper(proxy, args);
+                }
+
+                SqlObjectConfig config = baseConfig.createCopy();
+                forEachConfigurerFactory(sqlObjectType, (factory, annotation) ->
+                        factory.createForType(annotation, sqlObjectType).accept(config));
+                forEachConfigurerFactory(method, (factory, annotation) ->
+                        factory.createForMethod(annotation, sqlObjectType, method).accept(config));
+
+                return handler.invoke(handle, config, proxy, args, method);
             }
-
-            SqlObjectConfig config = baseConfig.createCopy();
-            forEachConfigurerFactory(sqlObjectType, (factory, annotation) ->
-                    factory.createForType(annotation, sqlObjectType).accept(config));
-            forEachConfigurerFactory(method, (factory, annotation) ->
-                    factory.createForMethod(annotation, sqlObjectType, method).accept(config));
-
-            return handler.invoke(handle, config, proxy, args, method);
+            finally {
+                handle.setExtensionMethod(oldMethod);
+            }
         };
     }
 
