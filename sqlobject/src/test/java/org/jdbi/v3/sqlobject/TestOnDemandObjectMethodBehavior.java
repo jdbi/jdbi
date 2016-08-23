@@ -15,7 +15,6 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,14 +25,33 @@ import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestObjectMethodBehavior
+public class TestOnDemandObjectMethodBehavior
 {
     private Jdbi    dbi;
     private UselessDao dao;
+    private UselessDao anotherDao;
 
     public interface UselessDao extends GetHandle
     {
         void finalize();
+    }
+
+    @Before
+    public void setUp() throws Exception
+    {
+        final JdbcDataSource ds = new JdbcDataSource() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Connection getConnection() throws SQLException
+            {
+                throw new UnsupportedOperationException();
+            }
+        };
+        dbi = Jdbi.create(ds);
+        dbi.installPlugin(new SqlObjectPlugin());
+        dao = dbi.onDemand(UselessDao.class);
+        anotherDao = dbi.onDemand(UselessDao.class);
     }
 
     /**
@@ -52,36 +70,19 @@ public class TestObjectMethodBehavior
     public void testEquals() throws Exception
     {
         assertEquals(dao, dao);
-        assertNotEquals(dao, dbi.onDemand(UselessDao.class));
+        assertNotEquals(dao, anotherDao);
     }
 
     @Test
     public void testHashCode() throws Exception
     {
         assertEquals(dao.hashCode(), dao.hashCode());
-        assertNotEquals(dao.hashCode(), dbi.onDemand(UselessDao.class).hashCode());
+        assertNotEquals(dao.hashCode(), anotherDao.hashCode());
     }
 
     @Test
     public void testToStringDoesntConnect() throws Exception
     {
         dao.toString();
-    }
-
-    @Before
-    public void setUp() throws Exception
-    {
-        final JdbcDataSource ds = new JdbcDataSource() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Connection getConnection() throws SQLException
-            {
-                throw new UnsupportedOperationException();
-            }
-        };
-        dbi = Jdbi.create(ds);
-        dbi.installPlugin(new SqlObjectPlugin());
-        dao = dbi.onDemand(UselessDao.class);
     }
 }

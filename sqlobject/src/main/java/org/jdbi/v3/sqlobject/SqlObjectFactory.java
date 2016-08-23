@@ -42,20 +42,6 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     INSTANCE;
 
     private static final Object[] NO_ARGS = new Object[0];
-    private static final Method EQUALS_METHOD;
-    private static final Method HASHCODE_METHOD;
-    private static final Method TOSTRING_METHOD;
-
-    static {
-        try {
-            EQUALS_METHOD = Object.class.getMethod("equals", Object.class);
-            HASHCODE_METHOD = Object.class.getMethod("hashCode");
-            TOSTRING_METHOD = Object.class.getMethod("toString");
-        }
-        catch (NoSuchMethodException wat) {
-            throw new IllegalStateException("JVM error", wat);
-        }
-    }
 
     private final Map<Method, Handler> mixinHandlers = new HashMap<>();
     private final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<>();
@@ -199,18 +185,6 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                                                       Map<Method, Handler> handlers,
                                                       HandleSupplier handle) {
         return (proxy, method, args) -> {
-            if (EQUALS_METHOD.equals(method)) {
-                return proxy == args[0];
-            }
-
-            if (HASHCODE_METHOD.equals(method)) {
-                return System.identityHashCode(proxy);
-            }
-
-            if (TOSTRING_METHOD.equals(method)) {
-                return sqlObjectType + "@" + Integer.toHexString(System.identityHashCode(proxy));
-            }
-
             ExtensionMethod oldMethod = handle.getExtensionMethod();
             handle.setExtensionMethod(new ExtensionMethod(sqlObjectType, method));
 
