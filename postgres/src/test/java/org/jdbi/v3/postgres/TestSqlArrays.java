@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
@@ -73,6 +74,12 @@ public class TestSqlArrays {
         ao.insertIntArray(testInts);
         int[] actuals = ao.fetchIntArray();
         assertArrayEquals(testInts, actuals);
+    }
+
+    @Test
+    public void testEmptyIntArray() throws Exception {
+        ao.insertIntArray(new int[0]);
+        assertEquals(0, ao.fetchIntArray().length);
     }
 
     @Test
