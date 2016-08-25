@@ -100,9 +100,12 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
             return (Factory) e.create();
         });
 
+        SqlObjectConfig instanceConfig = config.createCopy();
+        forEachConfigurerFactory(extensionType, (factory, annotation) ->
+                factory.createForType(annotation, extensionType).accept(instanceConfig));
 
         Map<Method, Handler> handlers = buildHandlersFor(extensionType);
-        MethodInterceptor interceptor = createMethodInterceptor(extensionType, config, handlers, handle);
+        MethodInterceptor interceptor = createMethodInterceptor(extensionType, instanceConfig, handlers, handle);
         return extensionType.cast(f.newInstance(interceptor));
     }
 
@@ -189,7 +192,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     }
 
     private MethodInterceptor createMethodInterceptor(Class<?> sqlObjectType,
-                                                      SqlObjectConfig baseConfig,
+                                                      SqlObjectConfig instanceConfig,
                                                       Map<Method, Handler> handlers,
                                                       HandleSupplier handle) {
         return (proxy, method, args, methodProxy) -> {
@@ -204,13 +207,11 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                     return methodProxy.invokeSuper(proxy, args);
                 }
 
-                SqlObjectConfig config = baseConfig.createCopy();
-                forEachConfigurerFactory(sqlObjectType, (factory, annotation) ->
-                        factory.createForType(annotation, sqlObjectType).accept(config));
+                SqlObjectConfig config = instanceConfig.createCopy();
                 forEachConfigurerFactory(method, (factory, annotation) ->
                         factory.createForMethod(annotation, sqlObjectType, method).accept(config));
 
-                return handler.invoke(handle, config, proxy, args, method);
+                return handler.invoke(proxy, method, args, config, handle);
             }
             finally {
                 handle.setExtensionMethod(oldMethod);

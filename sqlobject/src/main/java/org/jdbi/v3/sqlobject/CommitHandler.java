@@ -20,7 +20,7 @@ import org.jdbi.v3.core.HandleSupplier;
 class CommitHandler implements Handler
 {
     @Override
-    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
+    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
         handle.get().commit();
         return null;

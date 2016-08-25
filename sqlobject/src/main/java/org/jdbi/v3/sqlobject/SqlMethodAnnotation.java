@@ -23,6 +23,10 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-@interface SqlMethodAnnotation {
+public @interface SqlMethodAnnotation {
+    /**
+     * Factory class that produces {@link Handler} instances for methods annotated with the associated annotation.
+     * Must have a zero-argument constructor.
+     */
     Class<? extends HandlerFactory> value();
 }

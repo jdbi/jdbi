@@ -39,8 +39,8 @@ public @interface Transaction
 
     class Decorator implements HandlerDecorator {
         @Override
-        public Handler decorateHandler(Handler handler, Class<?> sqlObjectType, Method method) {
-            return new TransactionDecorator(handler, method.getAnnotation(Transaction.class));
+        public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
+            return new TransactionDecorator(base, method.getAnnotation(Transaction.class));
         }
     }
 }
