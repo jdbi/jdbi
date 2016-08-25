@@ -13,6 +13,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.junit.Before;
@@ -35,12 +42,37 @@ public class TestSqlMethodAnnotations
     @Test(expected = IllegalStateException.class)
     public void testMutuallyExclusiveAnnotations()
     {
-        handle.attach(DAO.class);
+        handle.attach(Broken.class);
     }
 
-    interface DAO {
+    interface Broken {
         @SqlQuery
         @SqlUpdate
         void bogus();
+    }
+
+    @Test
+    public void testCustomAnnotation() {
+        Dao dao = handle.attach(Dao.class);
+
+        assertThat(dao.foo(), equalTo("foo"));
+    }
+
+    public interface Dao {
+        @Foo
+        String foo();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @SqlMethodAnnotation(Foo.Factory.class)
+    public @interface Foo {
+        class Factory implements HandlerFactory {
+            @Override
+            public Handler buildHandler(Class<?> sqlObjectType, Method method) {
+                return (obj, m, args, config, handle) -> {
+                    return "foo";
+                };
+            }
+        }
     }
 }
