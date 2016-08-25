@@ -20,14 +20,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
+import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 import net.sf.cglib.proxy.Enhancer;
@@ -158,9 +160,18 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     }
 
     private Handler addDecorators(Handler handler, Class<?> sqlObjectType, Method method) {
-        List<HandlerDecorator> decorators = Stream.of(method.getAnnotations())
-                .map(a -> a.annotationType().getAnnotation(SqlMethodDecoratingAnnotation.class))
-                .filter(Objects::nonNull)
+        List<Class<? extends Annotation>> annotationTypes = Stream.of(method.getAnnotations())
+                .map(Annotation::annotationType)
+                .filter(type -> type.isAnnotationPresent(SqlMethodDecoratingAnnotation.class))
+                .collect(toList());
+
+        DecoratorOrder order = method.getAnnotation(DecoratorOrder.class);
+        if (order != null) {
+            annotationTypes.sort(createDecoratorComparator(order));
+        }
+
+        List<HandlerDecorator> decorators = annotationTypes.stream()
+                .map(type -> type.getAnnotation(SqlMethodDecoratingAnnotation.class))
                 .map(a -> buildDecorator(a.value()))
                 .collect(toList());
 
@@ -169,6 +180,17 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         }
 
         return handler;
+    }
+
+    private Comparator<Class<? extends Annotation>> createDecoratorComparator(DecoratorOrder order) {
+        List<Class<? extends Annotation>> ordering = Arrays.asList(order.value());
+
+        ToIntFunction<Class<? extends Annotation>> indexOf = type -> {
+            int index = ordering.indexOf(type);
+            return index == -1 ? ordering.size() : index;
+        };
+
+        return (l, r) -> indexOf.applyAsInt(l) - indexOf.applyAsInt(r);
     }
 
     private static HandlerFactory buildFactory(Class<? extends HandlerFactory> factoryClazz) {
