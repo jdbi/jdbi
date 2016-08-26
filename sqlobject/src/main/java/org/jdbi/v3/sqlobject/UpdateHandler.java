@@ -69,7 +69,7 @@ class UpdateHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
+    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
         String sql = config.getSqlLocator().locate(sqlObjectType, method);
         Update q = handle.get().createStatement(sql);

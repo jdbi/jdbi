@@ -13,20 +13,22 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation used to identify SQL method annotations. Use this to annotate an annotation.
+ * Determines the order in which SQL method decorators are invoked. If this annotation is absent, the decorator order
+ * is undefined. A <code>@DecoratorOrder</code> annotation on a method takes precedence over an annotation on a type.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
-public @interface SqlMethodAnnotation {
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface DecoratorOrder {
     /**
-     * Factory class that produces {@link Handler} instances for methods annotated with the associated annotation.
-     * Must have a zero-argument constructor.
+     * The order that decorator annotations will be applied, from outermost to innermost. Decorator order is undefined
+     * for any decorating annotation present on the SQL method but not on this annotation.
      */
-    Class<? extends HandlerFactory> value();
+    Class<? extends Annotation>[] value();
 }

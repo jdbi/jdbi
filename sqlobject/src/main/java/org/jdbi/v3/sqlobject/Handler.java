@@ -17,7 +17,20 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.HandleSupplier;
 
-interface Handler
-{
-    Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method) throws Exception;
+/**
+ * Implements the contract of a SQL Object method.
+ */
+public interface Handler {
+    /**
+     * Executes a SQL Object method, and returns the result.
+     *
+     * @param target the SQL Object instance being invoked
+     * @param method the method being invoked on the SQL Object.
+     * @param args   the arguments that were passed to the method.
+     * @param config the SQL Object configuration.
+     * @param handle a (possibly lazy) Handle supplier.
+     * @return the method return value, or null if the method has a void return type.
+     * @throws Exception any exception thrown by the method.
+     */
+    Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle) throws Exception;
 }

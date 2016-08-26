@@ -23,6 +23,10 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-@interface SqlMethodDecoratingAnnotation {
+public @interface SqlMethodDecoratingAnnotation {
+    /**
+     * Factory class that decorates {@link Handler} instances for methods annotated with the associated annotation.
+     * Must have a zero-argument constructor.
+     */
     Class<? extends HandlerDecorator> value();
 }
