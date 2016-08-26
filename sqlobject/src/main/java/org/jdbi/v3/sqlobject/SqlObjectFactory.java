@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -165,10 +166,13 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                 .filter(type -> type.isAnnotationPresent(SqlMethodDecoratingAnnotation.class))
                 .collect(toList());
 
-        DecoratorOrder order = method.getAnnotation(DecoratorOrder.class);
-        if (order != null) {
-            annotationTypes.sort(createDecoratorComparator(order));
-        }
+        Stream.of(method, sqlObjectType)
+                .map(e -> e.getAnnotation(DecoratorOrder.class))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .ifPresent(order -> {
+                    annotationTypes.sort(createDecoratorComparator(order).reversed());
+                });
 
         List<HandlerDecorator> decorators = annotationTypes.stream()
                 .map(type -> type.getAnnotation(SqlMethodDecoratingAnnotation.class))

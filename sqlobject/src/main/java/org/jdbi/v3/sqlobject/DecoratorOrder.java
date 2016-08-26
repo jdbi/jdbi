@@ -21,10 +21,10 @@ import java.lang.annotation.Target;
 
 /**
  * Determines the order in which SQL method decorators are invoked. If this annotation is absent, the decorator order
- * is undefined.
+ * is undefined. A <code>@DecoratorOrder</code> annotation on a method takes precedence over an annotation on a type.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface DecoratorOrder {
     /**
      * The order that decorator annotations will be applied, from outermost to innermost. Decorator order is undefined

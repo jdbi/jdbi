@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.hasItems;
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,7 +26,6 @@ import java.util.List;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,69 +42,109 @@ public class TestSqlMethodDecoratingAnnotations {
 
     private static final ThreadLocal<List<String>> invocations = ThreadLocal.withInitial(ArrayList::new);
 
-    private Dao dao;
-
     @Before
     public void setUp() throws Exception {
         handle = db.getSharedHandle();
         invocations.get().clear();
-        dao = handle.attach(Dao.class);
     }
 
     @Test
     public void testUnordered() throws Exception {
+        Dao dao = handle.attach(Dao.class);
         dao.unordered();
 
-        List<String> invocations = TestSqlMethodDecoratingAnnotations.invocations.get();
-        assertTrue(invocations.contains("foo"));
-        assertTrue(invocations.indexOf("foo") < 2);
-
-        assertTrue(invocations.contains("bar"));
-        assertTrue(invocations.indexOf("bar") < 2);
-
-        assertTrue(invocations.indexOf("method") == 2);
+        assertThat(invocations.get(), anyOf(
+                equalTo(asList("foo", "bar", "method")),
+                equalTo(asList("bar", "foo", "method"))));
     }
 
     @Test
     public void testOrderedFooBar() throws Exception {
+        Dao dao = handle.attach(Dao.class);
         dao.orderedFooBar();
 
-        List<String> invocations = TestSqlMethodDecoratingAnnotations.invocations.get();
-        assertThat(invocations, hasItems("foo", "bar", "method"));
+        assertThat(invocations.get(),
+                equalTo(asList("foo", "bar", "method")));
     }
 
     @Test
     public void testOrderedBarFoo() throws Exception {
+        Dao dao = handle.attach(Dao.class);
         dao.orderedBarFoo();
 
-        List<String> invocations = TestSqlMethodDecoratingAnnotations.invocations.get();
-        assertThat(invocations, hasItems("bar", "foo", "method"));
+        assertThat(invocations.get(),
+                equalTo(asList("bar", "foo", "method")));
+    }
+
+    @Test
+    public void testOrderedFooBarOnType() {
+        OrderedOnType dao = handle.attach(OrderedOnType.class);
+        dao.orderedFooBarOnType();
+
+        assertThat(invocations.get(),
+                equalTo(asList("foo", "bar", "method")));
+    }
+
+    @Test
+    public void testOrderedFooBarOnTypeOverriddenToBarFooOnMethod() {
+        OrderedOnType dao = handle.attach(OrderedOnType.class);
+        dao.orderedBarFooOnMethod();
+
+        assertThat(invocations.get(),
+                equalTo(asList("bar", "foo", "method")));
+    }
+
+    @Test
+    public void testAbortingDecorator() {
+        Dao dao = handle.attach(Dao.class);
+        dao.abortingDecorator();
+
+        assertThat(invocations.get(),
+                equalTo(asList("foo", "abort")));
     }
 
     static void invoked(String value) {
         invocations.get().add(value);
     }
 
-    public interface Dao extends GetHandle {
+    public interface Dao {
         @Foo
         @Bar
-        default void unordered() {
-            invoked("method");
-        }
+        @CustomSqlMethod
+        void unordered();
 
         @Foo
         @Bar
+        @CustomSqlMethod
         @DecoratorOrder({Foo.class, Bar.class})
-        default void orderedFooBar() {
-            invoked("method");
-        }
+        void orderedFooBar();
 
         @Foo
         @Bar
+        @CustomSqlMethod
         @DecoratorOrder({Bar.class, Foo.class})
-        default void orderedBarFoo() {
-            invoked("method");
-        }
+        void orderedBarFoo();
+
+        @Foo
+        @Abort
+        @Bar
+        @CustomSqlMethod
+        @DecoratorOrder({Foo.class, Abort.class, Bar.class})
+        void abortingDecorator();
+    }
+
+    @DecoratorOrder({Foo.class, Bar.class})
+    public interface OrderedOnType {
+        @Foo
+        @Bar
+        @CustomSqlMethod
+        void orderedFooBarOnType();
+
+        @Foo
+        @Bar
+        @CustomSqlMethod
+        @DecoratorOrder({Bar.class, Foo.class})
+        void orderedBarFooOnMethod();
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -131,6 +171,34 @@ public class TestSqlMethodDecoratingAnnotations {
                 return (obj, m, args, config, handle) -> {
                     invoked("bar");
                     return base.invoke(obj, m, args, config, handle);
+                };
+            }
+        }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @SqlMethodDecoratingAnnotation(Abort.Factory.class)
+    public @interface Abort {
+        class Factory implements HandlerDecorator {
+            @Override
+            public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
+                return (obj, m, args, config, handle) -> {
+                    invoked("abort");
+                    return null;
+                };
+            }
+        }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @SqlMethodAnnotation(CustomSqlMethod.Factory.class)
+    public @interface CustomSqlMethod {
+        class Factory implements HandlerFactory {
+            @Override
+            public Handler buildHandler(Class<?> sqlObjectType, Method method) {
+                return (obj, m, args, config, handle) -> {
+                    invoked("method");
+                    return null;
                 };
             }
         }
