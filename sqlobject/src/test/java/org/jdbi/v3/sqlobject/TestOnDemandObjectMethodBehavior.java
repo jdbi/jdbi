@@ -26,15 +26,15 @@ import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestObjectMethodBehavior
+public class TestOnDemandObjectMethodBehavior
 {
     private Jdbi    dbi;
     private UselessDao dao;
+    private UselessDao anotherDao;
 
-    public interface UselessDao extends Cloneable, GetHandle
+    public interface UselessDao extends GetHandle
     {
         void finalize();
-        Object clone();
     }
 
     /**
@@ -50,23 +50,17 @@ public class TestObjectMethodBehavior
     }
 
     @Test
-    public void testClone() throws Exception
-    {
-        assertNotSame(dao, dao.clone());
-    }
-
-    @Test
     public void testEquals() throws Exception
     {
         assertEquals(dao, dao);
-        assertNotEquals(dao, dao.clone());
+        assertNotEquals(dao, anotherDao);
     }
 
     @Test
     public void testHashCode() throws Exception
     {
         assertEquals(dao.hashCode(), dao.hashCode());
-        assertNotEquals(dao.hashCode(), dao.clone().hashCode());
+        assertNotEquals(dao.hashCode(), anotherDao.hashCode());
     }
 
     @Test
@@ -90,5 +84,6 @@ public class TestObjectMethodBehavior
         dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
         dao = dbi.onDemand(UselessDao.class);
+        anotherDao = dbi.onDemand(UselessDao.class);
     }
 }
