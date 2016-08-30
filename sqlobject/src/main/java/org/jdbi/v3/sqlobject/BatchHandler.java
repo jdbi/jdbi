@@ -102,7 +102,7 @@ class BatchHandler extends CustomizingStatementHandler
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier h)
     {
         boolean foundIterator = false;
-        Handle handle = h.get();
+        Handle handle = h.getHandle();
 
         List<Iterator<?>> extras = new ArrayList<>();
         for (final Object arg : args) {

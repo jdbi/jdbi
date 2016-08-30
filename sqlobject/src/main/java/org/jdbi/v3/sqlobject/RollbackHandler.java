@@ -22,7 +22,7 @@ class RollbackHandler implements Handler
     @Override
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
-        handle.get().rollback();
+        handle.getHandle().rollback();
         return null;
     }
 }

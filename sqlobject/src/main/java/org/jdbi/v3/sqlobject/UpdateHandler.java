@@ -15,10 +15,8 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.function.Supplier;
 
 import org.jdbi.v3.core.GeneratedKeys;
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Update;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
@@ -72,7 +70,7 @@ class UpdateHandler extends CustomizingStatementHandler
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
         String sql = config.getSqlLocator().locate(sqlObjectType, method);
-        Update q = handle.get().createStatement(sql);
+        Update q = handle.getHandle().createStatement(sql);
         applyCustomizers(q, args);
         applyBinders(q, args);
         return this.returner.value(q, handle);
@@ -81,7 +79,7 @@ class UpdateHandler extends CustomizingStatementHandler
 
     private interface Returner
     {
-        Object value(Update update, Supplier<Handle> handle);
+        Object value(Update update, HandleSupplier handle);
     }
 
     private boolean returnTypeIsInvalid(Class<?> type) {

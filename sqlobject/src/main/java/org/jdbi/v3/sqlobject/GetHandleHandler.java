@@ -22,6 +22,6 @@ class GetHandleHandler implements Handler
     @Override
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
-        return handle.get();
+        return handle.getHandle();
     }
 }

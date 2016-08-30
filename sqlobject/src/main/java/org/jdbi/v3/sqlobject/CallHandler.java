@@ -46,7 +46,7 @@ class CallHandler extends CustomizingStatementHandler
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
         String sql = config.getSqlLocator().locate(sqlObjectType, method);
-        Call call = handle.get().createCall(sql);
+        Call call = handle.getHandle().createCall(sql);
         applyCustomizers(call, args);
         applyBinders(call, args);
 

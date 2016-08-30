@@ -22,7 +22,7 @@ class RollbackCheckpointHandler implements Handler
     @Override
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
-        handle.get().rollback(String.valueOf(args[0]));
+        handle.getHandle().rollback(String.valueOf(args[0]));
         return null;
     }
 }

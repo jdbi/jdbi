@@ -22,7 +22,7 @@ class CommitHandler implements Handler
     @Override
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
-        handle.get().commit();
+        handle.getHandle().commit();
         return null;
     }
 }
