@@ -13,9 +13,12 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.Something;
@@ -32,6 +35,9 @@ public class TestClassBasedSqlObject
 {
     private DBI    dbi;
     private Handle handle;
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception
@@ -60,10 +66,14 @@ public class TestClassBasedSqlObject
         assertThat(c, equalTo(new Something(3, "Cora")));
     }
 
-    @Test(expected = AbstractMethodError.class)
+    @Test
     public void testUnimplementedMethod() throws Exception
     {
         Dao dao = handle.attach(Dao.class);
+
+        exception.expect(AbstractMethodError.class);
+        exception.expectCause(CoreMatchers.<Throwable>instanceOf(AbstractMethodError.class));
+
         dao.totallyBroken();
     }
 

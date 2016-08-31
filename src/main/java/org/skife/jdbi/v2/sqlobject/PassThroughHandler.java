@@ -34,8 +34,11 @@ class PassThroughHandler implements Handler
             return mp.invokeSuper(target, args);
         }
         catch (AbstractMethodError e) {
-            throw new AbstractMethodError("Method " + method.getDeclaringClass().getName() + "#" + method.getName() +
-                                               " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
+            AbstractMethodError error = new AbstractMethodError(
+                "Method " + method.getDeclaringClass().getName() + "#" + method.getName()
+                    + " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
+            error.initCause(e);
+            throw error;
         }
         catch (Throwable throwable) {
             /*
