@@ -42,7 +42,7 @@ public class TestSqlObjectMethodBehavior {
             }
 
             @Override
-            public Handle get() {
+            public Handle getHandle() {
                 throw new UnsupportedOperationException();
             }
         };

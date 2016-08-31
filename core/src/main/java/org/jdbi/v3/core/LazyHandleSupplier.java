@@ -35,7 +35,7 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
         this.extensionMethod.set(extensionMethod);
     }
 
-    public Handle get() {
+    public Handle getHandle() {
         if (handle == null) {
             initHandle();
         }

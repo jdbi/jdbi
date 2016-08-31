@@ -22,7 +22,7 @@ class ReleaseCheckpointHandler implements Handler
     @Override
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
-        handle.get().release(String.valueOf(args[0]));
+        handle.getHandle().release(String.valueOf(args[0]));
         return null;
     }
 }

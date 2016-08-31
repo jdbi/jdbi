@@ -37,7 +37,7 @@ class TransactionDecorator implements Handler
     @Override
     public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle) throws Exception
     {
-        Handle h = handle.get();
+        Handle h = handle.getHandle();
 
         if (h.isInTransaction()) {
             TransactionIsolationLevel currentLevel = h.getTransactionIsolationLevel();
