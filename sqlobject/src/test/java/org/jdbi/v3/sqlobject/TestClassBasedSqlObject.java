@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
 import static org.junit.Assert.assertThat;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.hamcrest.CoreMatchers;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -32,12 +34,17 @@ import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 public class TestClassBasedSqlObject
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     private Handle handle;
 
     @Before
@@ -57,10 +64,14 @@ public class TestClassBasedSqlObject
         assertThat(c, equalTo(new Something(3, "Cora")));
     }
 
-    @Test(expected = AbstractMethodError.class)
+    @Test
     public void testUnimplementedMethod() throws Exception
     {
         Dao dao = handle.attach(Dao.class);
+
+        exception.expect(AbstractMethodError.class);
+        exception.expectCause(instanceOf(AbstractMethodError.class));
+
         dao.totallyBroken();
     }
 
