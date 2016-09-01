@@ -64,15 +64,17 @@ public class ConstructorMapper<T> implements RowMapper<T>
             columnNames.add(metadata.getColumnLabel(i));
         }
 
-        ObjectCreator<T> creator = creatorCache.computeIfAbsent(columnNames, c -> createCreator(c, metadata, ctx));
+        ObjectCreator<T> creator = creatorCache.computeIfAbsent(columnNames, c -> createCreator(c, ctx));
         return creator.create(rs);
     }
 
-    private ObjectCreator<T> createCreator(List<String> columnNames, ResultSetMetaData metadata, StatementContext ctx) {
-        final int length = columnNames.size();
+    private ObjectCreator<T> createCreator(List<String> columnNames, StatementContext ctx) {
+        final int length = constructor.getParameterCount();
 
-        if (length != constructor.getParameterCount()) {
-            throw new IllegalStateException(length + " columns in result set, but constructor takes " + constructor.getParameterCount());
+        if (length > columnNames.size()) {
+            throw new IllegalStateException(columnNames.size() +
+                    " columns in result set, but constructor takes " +
+                    constructor.getParameterCount());
         }
 
         final int[] columnMap = new int[length];
@@ -80,21 +82,20 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
         for (int i = 0; i < length; i++) {
             final Type type = constructor.getGenericParameterTypes()[i];
-            final int paramIndex = parameterIndexForColumn(columnNames.get(i));
+            final String paramName = paramName(constructor.getParameters()[i]);
+            final int columnIndex = columnIndexForParameter(columnNames, paramName);
 
-            if (mappers[paramIndex] != null) {
-                throw new IllegalArgumentException("Column named " + columnNames.get(i) + " maps to multiple parameters");
-            }
-
-            mappers[paramIndex] = ctx.findColumnMapperFor(type).orElseThrow(() ->
-                new IllegalArgumentException("Could not find column mapper for type '" + type + "' of parameter for constructor " + constructor));
-            columnMap[i] = paramIndex;
+            mappers[i] = ctx.findColumnMapperFor(type).orElseThrow(() ->
+                new IllegalArgumentException(String.format(
+                        "Could not find column mapper for type '%s' of parameter " +
+                        "'%s' for constructor '%s'", type, paramName, constructor)));
+            columnMap[i] = columnIndex;
         }
 
         return rs -> {
             final Object[] params = new Object[length];
             for (int i = 0; i < length; i++) {
-                params[columnMap[i]] = mappers[i].map(rs, i + 1, ctx);
+                params[i] = mappers[i].map(rs, columnMap[i] + 1, ctx);
             }
             try {
                 return constructor.newInstance(params);
@@ -110,18 +111,33 @@ public class ConstructorMapper<T> implements RowMapper<T>
         };
     }
 
-    private int parameterIndexForColumn(String columnName)
+    private int columnIndexForParameter(List<String> columnNames, String parameterName)
     {
-        for (int i = 0; i < constructor.getParameterCount(); i++) {
+        int result = -1;
+        for (int i = 0; i < columnNames.size(); i++) {
             for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                if (strategy.nameMatches(paramName(constructor.getParameters()[i]), columnName)) {
-                    return i;
+                if (strategy.nameMatches(parameterName, columnNames.get(i))) {
+                    if (result >= 0) {
+                        throw new IllegalArgumentException(String.format(
+                                "Constructor '%s' parameter '%s' matches multiple " +
+                                "columns: '%s' (%d) and '%s' (%d)", constructor,
+                                parameterName, columnNames.get(result), result,
+                                columnNames.get(i), i));
+                    }
+                    result = i;
+                    break;
                 }
             }
         }
-        throw new IllegalArgumentException("Constructor '" + constructor + "' has no argument name for '" + columnName +
-                "'.  Verify that the Java compiler is confiured to emit parameter names, " +
-                "or annotate the names explicitly with @Bean");
+        if (result >= 0) {
+            return result;
+        }
+        throw new IllegalArgumentException("Constructor '" + constructor + "' parameter '" +
+                parameterName +
+                "' has no column in the result set.  Verify that the Java " +
+                "compiler is configured to emit parameter names, " +
+                "that your result set has the columns expected, " +
+                "or annotate the parameter names explicitly with @ColumnName");
     }
 
     private static String paramName(Parameter parameter) {
