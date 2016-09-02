@@ -33,7 +33,11 @@
     <bean id="derby" factory-bean="derbyFactory" factory-method="getDataSource" />
 
     <bean id="dbi" class="org.skife.jdbi.v2.spring.DBIFactoryBean">
-        <property name="dataSource" ref="derby"/>
+        <property name="dataSource">
+            <bean class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+                <constructor-arg ref="derby"/>
+            </bean>
+        </property>
     </bean>
 
     <!--suppress SpringBeanConstructorArgInspection -->
