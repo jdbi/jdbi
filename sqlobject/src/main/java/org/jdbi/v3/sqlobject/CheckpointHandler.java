@@ -20,9 +20,9 @@ import org.jdbi.v3.core.HandleSupplier;
 class CheckpointHandler implements Handler
 {
     @Override
-    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
+    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
-        handle.get().checkpoint(String.valueOf(args[0]));
+        handle.getHandle().checkpoint(String.valueOf(args[0]));
         return null;
     }
 }

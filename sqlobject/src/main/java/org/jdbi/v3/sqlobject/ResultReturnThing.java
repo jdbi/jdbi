@@ -16,11 +16,10 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Iterator;
-import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.ResultBearing;
 import org.jdbi.v3.core.ResultIterator;
@@ -32,7 +31,7 @@ import org.jdbi.v3.core.util.GenericTypes;
 
 abstract class ResultReturnThing
 {
-    public Object map(Method method, Query<?> q, Supplier<Handle> handle)
+    public Object map(Method method, Query<?> q, HandleSupplier handle)
     {
         if (method.isAnnotationPresent(UseRowMapper.class)) {
             final RowMapper<?> mapper;
@@ -73,7 +72,7 @@ abstract class ResultReturnThing
         }
     }
 
-    protected abstract Object result(ResultBearing<?> q, Supplier<Handle> handle);
+    protected abstract Object result(ResultBearing<?> q, HandleSupplier handle);
 
     protected abstract Type elementType(StatementContext ctx);
 
@@ -89,7 +88,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, Supplier<Handle> handle) {
+        protected Object result(ResultBearing<?> q, HandleSupplier handle) {
             return q.stream();
         }
 
@@ -110,7 +109,7 @@ abstract class ResultReturnThing
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
+        protected Object result(ResultBearing<?> q, HandleSupplier handle)
         {
             if (q instanceof Query) {
                 Collector collector = ((Query)q).getContext().findCollectorFor(returnType).orElse(null);
@@ -143,7 +142,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, Supplier<Handle> handle)
+        protected Object result(ResultBearing<?> q, HandleSupplier handle)
         {
             return q;
         }
@@ -167,7 +166,7 @@ abstract class ResultReturnThing
         }
 
         @Override
-        protected Object result(ResultBearing<?> q, final Supplier<Handle> handle)
+        protected Object result(ResultBearing<?> q, final HandleSupplier handle)
         {
             final ResultIterator<?> itty = q.iterator();
 

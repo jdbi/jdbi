@@ -27,7 +27,7 @@ class PassThroughHandler implements Handler
     }
 
     @Override
-    public Object invoke(HandleSupplier handle, SqlObjectConfig config, Object target, Object[] args, Method method)
+    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
     {
         try {
             // TERRIBLE, HORRIBLE, NO GOOD, VERY BAD HACK
@@ -54,8 +54,11 @@ class PassThroughHandler implements Handler
                     .invokeWithArguments(args);
         }
         catch (AbstractMethodError e) {
-            throw new AbstractMethodError("Method " + method.getDeclaringClass().getName() + "#" + method.getName() +
-                                               " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
+            AbstractMethodError error = new AbstractMethodError(
+                    "Method " + method.getDeclaringClass().getName() + "#" + method.getName()
+                            + " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
+            error.initCause(e);
+            throw error;
         }
         catch (Throwable throwable) {
             if (throwable instanceof RuntimeException) {

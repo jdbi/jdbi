@@ -25,7 +25,7 @@ class ConstantHandleSupplier implements HandleSupplier {
     }
 
     @Override
-    public Handle get() {
+    public Handle getHandle() {
         return handle;
     }
 

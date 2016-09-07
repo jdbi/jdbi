@@ -13,12 +13,10 @@
  */
 package org.jdbi.v3.core;
 
-import java.util.function.Supplier;
-
 /**
- * A handle supplier used by extension implementors.
+ * A handle supplier for extension implementors.
  */
-public interface HandleSupplier extends Supplier<Handle> {
+public interface HandleSupplier {
     /**
      * Returns the extension method currently being called with this handle.
      */
@@ -26,7 +24,14 @@ public interface HandleSupplier extends Supplier<Handle> {
 
     /**
      * Sets the extension method currently being called with this handle.
+     *
      * @param extensionMethod the extension method
      */
     void setExtensionMethod(ExtensionMethod extensionMethod);
+
+    /**
+     * Returns a handle, possibly creating it lazily. A Handle holds a database connection, so extensions should only
+     * call this method in order to interact with the database.
+     */
+    Handle getHandle();
 }

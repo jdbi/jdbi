@@ -119,8 +119,9 @@ public class ConstructorMapper<T> implements RowMapper<T>
                 }
             }
         }
-        throw new IllegalArgumentException("Constructor " + constructor + " has no parameter for '" + columnName +
-                "'. Are parameter names compiled into your class?");
+        throw new IllegalArgumentException("Constructor '" + constructor + "' has no argument name for '" + columnName +
+                "'.  Verify that the Java compiler is confiured to emit parameter names, " +
+                "or annotate the names explicitly with @Bean");
     }
 
     private static String paramName(Parameter parameter) {

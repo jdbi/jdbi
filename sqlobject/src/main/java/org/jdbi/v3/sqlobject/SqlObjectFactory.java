@@ -22,6 +22,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
+import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.ExtensionMethod;
@@ -90,7 +94,11 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     public <E> E attach(Class<E> extensionType, SqlObjectConfig config, HandleSupplier handle) {
         Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
-        InvocationHandler invocationHandler = createInvocationHandler(extensionType, config, handlers, handle);
+        SqlObjectConfig instanceConfig = config.createCopy();
+        forEachConfigurerFactory(extensionType, (factory, annotation) ->
+                factory.createForType(annotation, extensionType).accept(instanceConfig));
+
+        InvocationHandler invocationHandler = createInvocationHandler(extensionType, instanceConfig, handlers, handle);
         return extensionType.cast(
                 Proxy.newProxyInstance(
                         extensionType.getClassLoader(),
@@ -147,9 +155,21 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     }
 
     private Handler addDecorators(Handler handler, Class<?> sqlObjectType, Method method) {
-        List<HandlerDecorator> decorators = Stream.of(method.getAnnotations())
-                .map(a -> a.annotationType().getAnnotation(SqlMethodDecoratingAnnotation.class))
+        List<Class<? extends Annotation>> annotationTypes = Stream.of(method.getAnnotations())
+                .map(Annotation::annotationType)
+                .filter(type -> type.isAnnotationPresent(SqlMethodDecoratingAnnotation.class))
+                .collect(toList());
+
+        Stream.of(method, sqlObjectType)
+                .map(e -> e.getAnnotation(DecoratorOrder.class))
                 .filter(Objects::nonNull)
+                .findFirst()
+                .ifPresent(order -> {
+                    annotationTypes.sort(createDecoratorComparator(order).reversed());
+                });
+
+        List<HandlerDecorator> decorators = annotationTypes.stream()
+                .map(type -> type.getAnnotation(SqlMethodDecoratingAnnotation.class))
                 .map(a -> buildDecorator(a.value()))
                 .collect(toList());
 
@@ -158,6 +178,17 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         }
 
         return handler;
+    }
+
+    private Comparator<Class<? extends Annotation>> createDecoratorComparator(DecoratorOrder order) {
+        List<Class<? extends Annotation>> ordering = Arrays.asList(order.value());
+
+        ToIntFunction<Class<? extends Annotation>> indexOf = type -> {
+            int index = ordering.indexOf(type);
+            return index == -1 ? ordering.size() : index;
+        };
+
+        return (l, r) -> indexOf.applyAsInt(l) - indexOf.applyAsInt(r);
     }
 
     private static HandlerFactory buildFactory(Class<? extends HandlerFactory> factoryClazz) {
@@ -181,7 +212,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     }
 
     private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,
-                                                      SqlObjectConfig baseConfig,
+                                                      SqlObjectConfig instanceConfig,
                                                       Map<Method, Handler> handlers,
                                                       HandleSupplier handle) {
         return (proxy, method, args) -> {
@@ -191,13 +222,11 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
             try {
                 Handler handler = handlers.get(method);
 
-                SqlObjectConfig config = baseConfig.createCopy();
-                forEachConfigurerFactory(sqlObjectType, (factory, annotation) ->
-                        factory.createForType(annotation, sqlObjectType).accept(config));
+                SqlObjectConfig config = instanceConfig.createCopy();
                 forEachConfigurerFactory(method, (factory, annotation) ->
                         factory.createForMethod(annotation, sqlObjectType, method).accept(config));
 
-                return handler.invoke(handle, config, proxy, args == null ? NO_ARGS : args, method);
+                return handler.invoke(proxy, method, args == null ? NO_ARGS : args, config, handle);
             }
             finally {
                 handle.setExtensionMethod(oldMethod);

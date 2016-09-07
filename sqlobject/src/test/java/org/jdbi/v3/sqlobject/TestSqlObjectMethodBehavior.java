@@ -34,19 +34,17 @@ public class TestSqlObjectMethodBehavior
     public void setUp() throws Exception
     {
         HandleSupplier handleSupplier = new HandleSupplier() {
-            private ExtensionMethod extensionMethod;
             @Override
             public ExtensionMethod getExtensionMethod() {
-                return extensionMethod;
+                return null;
             }
 
             @Override
             public void setExtensionMethod(ExtensionMethod extensionMethod) {
-                this.extensionMethod = extensionMethod;
             }
 
             @Override
-            public Handle get() {
+            public Handle getHandle() {
                 throw new UnsupportedOperationException();
             }
         };

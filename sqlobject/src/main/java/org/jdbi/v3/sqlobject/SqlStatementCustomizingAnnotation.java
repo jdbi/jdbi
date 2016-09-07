@@ -29,7 +29,7 @@ public @interface SqlStatementCustomizingAnnotation
     /**
      * Specify a sql statement customizer factory which will be used to create
      * sql statement customizers.
-     * @return a factory used to crate customizers for the customizing annotation
+     * @return a factory used to create customizers for the customizing annotation
      */
     Class<? extends SqlStatementCustomizerFactory> value();
 }

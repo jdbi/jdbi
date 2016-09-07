@@ -29,7 +29,7 @@ class ToStringHandler implements Handler
     }
 
     @Override
-    public Object invoke(final HandleSupplier handle, SqlObjectConfig config, final Object target, final Object[] args, Method method)
+    public Object invoke(final Object target, Method method, final Object[] args, SqlObjectConfig config, final HandleSupplier handle)
     {
         return className + '@' + Integer.toHexString(target.hashCode());
     }
