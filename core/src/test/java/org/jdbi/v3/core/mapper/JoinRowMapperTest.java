@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.H2DatabaseRule;
@@ -69,38 +70,6 @@ public class JoinRowMapperTest
         // end::mapperSetup[]
     }
 
-    public static class User
-    {
-        int uid;
-        String name;
-
-        public User(int uid, String name) { this.uid = uid; this.name = name; }
-        @Override
-        public int hashCode() { return uid; }
-        @Override
-        public boolean equals(Object obj)
-        {
-            User o = (User)obj;
-            return uid == o.uid && name.equals(o.name);
-        }
-    }
-
-    public static class Article
-    {
-        int aid;
-        String title;
-
-        public Article(int aid, String title) { this.aid = aid; this.title = title; }
-        @Override
-        public int hashCode() { return aid; }
-        @Override
-        public boolean equals(Object obj)
-        {
-            Article o = (Article)obj;
-            return aid == o.aid && title.equals(o.title);
-        }
-    }
-
     @Test
     public void testCartesianProduct() throws Exception
     {
@@ -146,4 +115,49 @@ public class JoinRowMapperTest
     private static Article a(int aid) {
         return new Article(aid, "a" + aid);
     }
+
+    public static class User
+    {
+        private final int uid;
+        private final String name;
+
+        public User(int uid, String name) { this.uid = uid; this.name = name; }
+
+        @Override
+        public int hashCode() { return Objects.hash(uid, name); }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if(obj instanceof User)
+            {
+                User that = (User) obj;
+                return Objects.equals(uid, that.uid) && Objects.equals(name, that.name);
+            }
+            return false;
+        }
+    }
+
+    public static class Article
+    {
+        private final int aid;
+        private final String title;
+
+        public Article(int aid, String title) { this.aid = aid; this.title = title; }
+
+        @Override
+        public int hashCode() { return Objects.hash(aid, title); }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if(obj instanceof Article)
+            {
+                Article that = (Article) obj;
+                return Objects.equals(aid, that.aid) && Objects.equals(title, that.title);
+            }
+            return false;
+        }
+    }
+
 }
