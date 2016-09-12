@@ -1,4 +1,5 @@
 2.76
+  - SPRING BREAKING CHANGE: move from Spring 2 to Spring 3, how timely of us
   - SQL lookups in the context of a SqlObject method now also find according
     to the same rules as annotation
 
