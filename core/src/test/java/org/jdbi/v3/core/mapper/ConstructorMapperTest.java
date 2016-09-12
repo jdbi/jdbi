@@ -52,7 +52,15 @@ public class ConstructorMapperTest {
         assertEquals(2, bean.i);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
+    public void testExtra() throws Exception {
+        ConstructorBean bean = db.getSharedHandle().createQuery("SELECT 1 as ignored, i, s FROM bean").mapTo(ConstructorBean.class).findOnly();
+
+        assertEquals("3", bean.s);
+        assertEquals(2, bean.i);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testDuplicate() throws Exception {
         db.getSharedHandle().createQuery("SELECT i, s, s FROM bean").mapTo(ConstructorBean.class).findOnly();
     }

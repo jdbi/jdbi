@@ -1,0 +1,46 @@
+= Join Mapping
+
+Joining multiple tables together is a very common database
+task.  It is also where the mismatch between the relational
+model and Java's object model starts to rear its ugly head.
+
+Here we present a couple of strategies for retrieving
+results from more complicated rows.
+
+== JoinRowMapper
+
+The JoinRowMapper takes a set of types to extract from each row.
+It uses the mapping registry to determine how to map each given
+type, and presents you with a JoinRow that holds all of the resulting
+values.
+
+Let's consider two simple types, User and Article, with a join
+table named Author.  Guava provides a Multimap class which is very
+handy for representing joined tables like this.
+Assuming we have mappers already registered:
+
+[source,java,indent=0]
+-------------------------------------------
+include::../../../../../../core/src/test/java/org/jdbi/v3/core/mapper/JoinRowMapperTest.java[tags=mapperSetup]
+-------------------------------------------
+
+we can then easily populate a Multimap with the mapping
+from the database:
+
+[source,java,indent=0]
+-------------------------------------------
+include::../../../../../../core/src/test/java/org/jdbi/v3/core/mapper/JoinRowMapperTest.java[tags=multimap]
+-------------------------------------------
+
+NOTE: While this approach is easy to read and write, it
+can be inefficient for certain patterns of data.
+Consider performance requirements when deciding whether
+to use high level mapping or more direct low level access
+with handwritten mappers.
+
+You can also use it with SqlObject:
+
+[source,java,indent=0]
+-------------------------------------------
+include::../../../../../../core/src/test/java/org/jdbi/v3/core/mapper/JoinRowMapperTest.java[tags=sqlobject-joinrow]
+-------------------------------------------
