@@ -27,7 +27,7 @@ import java.util.Map;
  * Utility class which constructs an IDBI instance which can conveniently participate
  * in Spring's transaction management system.
  */
-public class DBIFactoryBean implements FactoryBean, InitializingBean
+public class DBIFactoryBean implements FactoryBean<IDBI>, InitializingBean
 {
     private DataSource dataSource;
     private StatementLocator statementLocator;
@@ -49,7 +49,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
      * See org.springframework.beans.factory.FactoryBean#getObject
      */
     @Override
-    public Object getObject() throws Exception
+    public IDBI getObject() throws Exception
     {
         final DBI dbi = new DBI(new SpringDataSourceConnectionFactory(dataSource));
         if (statementLocator != null) {
@@ -67,7 +67,7 @@ public class DBIFactoryBean implements FactoryBean, InitializingBean
      * See org.springframework.beans.factory.FactoryBean#getObjectType
      */
     @Override
-    public Class<?> getObjectType()
+    public Class<IDBI> getObjectType()
     {
         return IDBI.class;
     }
