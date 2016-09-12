@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -23,7 +25,7 @@ import java.lang.annotation.Target;
  * Specify the binding or mapping name for a property or parameter explicitly.
  */
 @Retention(RUNTIME)
-@Target(PARAMETER)
+@Target({PARAMETER, FIELD, METHOD})
 public @interface ColumnName {
     String value();
 }

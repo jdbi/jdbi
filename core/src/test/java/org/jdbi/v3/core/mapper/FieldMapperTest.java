@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -23,7 +24,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.DerivedBean;
+import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiAccess;
 import org.jdbi.v3.core.SampleBean;
@@ -42,6 +45,9 @@ public class FieldMapperTest {
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Mock
     ResultSet resultSet;
@@ -188,5 +194,26 @@ public class FieldMapperTest {
         when(resultSet.wasNull()).thenReturn(false);
 
         mapper.map(resultSet, ctx);
+    }
+
+    static class ColumnNameThing {
+        @ColumnName("id")
+        int i;
+
+        @ColumnName("name")
+        String s;
+    }
+
+    @Test
+    public void testColumnNameAnnotation() {
+        Handle handle = db.getSharedHandle();
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+
+        ColumnNameThing thing = handle.createQuery("select * from something")
+                .map(new FieldMapper<>(ColumnNameThing.class))
+                .findOnly();
+
+        assertThat(thing.i).isEqualTo(1);
+        assertThat(thing.s).isEqualTo("foo");
     }
 }
