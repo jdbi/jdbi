@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -21,10 +22,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
+import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 
@@ -107,8 +111,9 @@ public class FieldMapper<T> implements RowMapper<T>
         Class<?> aClass = type;
         while(aClass != null) {
             for (Field field : aClass.getDeclaredFields()) {
+                String paramName = paramName(field);
                 for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                    if (strategy.nameMatches(field.getName(), columnName)) {
+                    if (strategy.nameMatches(paramName, columnName)) {
                         return Optional.of(field);
                     }
                 }
@@ -116,6 +121,13 @@ public class FieldMapper<T> implements RowMapper<T>
             aClass = aClass.getSuperclass();
         }
         return Optional.empty();
+    }
+
+    private String paramName(Field field)
+    {
+        return Optional.ofNullable(field.getAnnotation(ColumnName.class))
+                .map(ColumnName::value)
+                .orElseGet(field::getName);
     }
 }
 

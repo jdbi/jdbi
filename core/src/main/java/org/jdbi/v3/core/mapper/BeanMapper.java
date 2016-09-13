@@ -26,13 +26,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
+import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 import org.jdbi.v3.core.util.bean.CaseInsensitiveColumnNameStrategy;
+import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 import org.jdbi.v3.core.util.bean.SnakeCaseColumnNameStrategy;
 
 /**
@@ -133,13 +136,25 @@ public class BeanMapper<T> implements RowMapper<T>
     private Optional<PropertyDescriptor> descriptorForColumn(String columnName)
     {
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
+            String paramName = paramName(descriptor);
             for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                if (strategy.nameMatches(descriptor.getName(), columnName)) {
+                if (strategy.nameMatches(paramName, columnName)) {
                     return Optional.of(descriptor);
                 }
             }
         }
         return Optional.empty();
+    }
+
+    private String paramName(PropertyDescriptor descriptor)
+    {
+        return Stream.of(descriptor.getReadMethod(), descriptor.getWriteMethod())
+                .filter(Objects::nonNull)
+                .map(method -> method.getAnnotation(ColumnName.class))
+                .filter(Objects::nonNull)
+                .map(ColumnName::value)
+                .findFirst()
+                .orElseGet(descriptor::getName);
     }
 }
 
