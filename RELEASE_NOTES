@@ -1,6 +1,7 @@
 2.76
   - SQL lookups in the context of a SqlObject method now also find according
     to the same rules as annotation
+  - Improved BindIn functionality: can now process Iterables and arrays/varargs of any type (largely through reflection), and has configurable handling for a null/empty argument. Check the source code comments or your IDE hints for details.
 
 2.75
   - simple @GetGeneratedKeys @SqlBatch support (only int keys for now)

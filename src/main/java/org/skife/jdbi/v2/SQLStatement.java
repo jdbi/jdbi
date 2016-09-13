@@ -398,7 +398,7 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, String value)
+    public SelfType bind(String name, String value)
     {
         return bind(name, getForeman().createArgument(String.class, value, getContext()));
     }
