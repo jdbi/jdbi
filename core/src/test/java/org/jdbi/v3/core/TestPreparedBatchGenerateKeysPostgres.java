@@ -40,7 +40,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
 
     @Before
     public void getHandle() {
-        h = pgdb.getDbi().open();
+        h = pgdb.getJdbi().open();
     }
 
     @After

@@ -53,14 +53,14 @@ public class PGDatabaseRule extends ExternalResource
         jdbi = null;
     }
 
-    public Jdbi getDbi()
+    public Jdbi getJdbi()
     {
         return jdbi;
     }
 
     public Handle openHandle()
     {
-        return getDbi().open();
+        return getJdbi().open();
     }
 
     public PGDatabaseRule withPlugin(JdbiPlugin plugin) {
