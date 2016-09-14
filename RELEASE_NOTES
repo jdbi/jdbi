@@ -3,6 +3,7 @@
   - SQL lookups in the context of a SqlObject method now also find according
     to the same rules as annotation
   - DefaultMapper now has option to disable case folding
+  - Fix AbstractMethodError swallowing in SqlObject methods
 
 2.75
   - simple @GetGeneratedKeys @SqlBatch support (only int keys for now)
