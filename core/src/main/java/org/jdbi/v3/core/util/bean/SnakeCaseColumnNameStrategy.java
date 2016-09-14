@@ -30,23 +30,7 @@ public class SnakeCaseColumnNameStrategy implements ColumnNameMappingStrategy {
 
     @Override
     public boolean nameMatches(String propertyName, String sqlColumnName) {
-        // Convert the property name from camel-case to underscores syntax. Freely adapted from Spring
-        // BeanPropertyRowMapper.
-        StringBuilder propertyNameWithUnderscores = new StringBuilder();
-        propertyNameWithUnderscores.append(propertyName.substring(0, 1));
-        for (int i = 1; i < propertyName.length(); i++) {
-            // Do case comparison using strings rather than chars (avoid to deal with non-BMP char handling).
-            String s = propertyName.substring(i, i + 1);
-            String slc = s.toLowerCase(locale);
-            if (!s.equals(slc)) {
-                // Different cases: tokenize.
-                propertyNameWithUnderscores.append("_").append(slc);
-            }
-            else {
-                propertyNameWithUnderscores.append(s);
-            }
-        }
-        return propertyNameWithUnderscores.toString().equals(sqlColumnName.toLowerCase(locale));
+        return sqlColumnName.replace("_", "").toLowerCase(locale).equals(propertyName.toLowerCase(locale));
     }
 
     @Override
