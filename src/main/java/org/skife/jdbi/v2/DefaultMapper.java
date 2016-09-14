@@ -24,10 +24,20 @@ import java.util.Map;
 
 public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
 {
+    private boolean foldCase;
+
+    public DefaultMapper(){
+        this(true);
+    }
+
+    public DefaultMapper(boolean foldCase) {
+        this.foldCase = foldCase;
+    }
+
     @Override
     public Map<String, Object> map(int index, ResultSet r, StatementContext ctx)
     {
-        Map<String, Object> row = new DefaultResultMap();
+        Map<String, Object> row = foldCase ? new DefaultResultMap() : new HashMap<String, Object>();
         ResultSetMetaData m;
         try
         {
