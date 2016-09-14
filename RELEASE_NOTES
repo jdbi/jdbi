@@ -2,6 +2,7 @@
   - SPRING BREAKING CHANGE: move from Spring 2 to Spring 3, how timely of us
   - SQL lookups in the context of a SqlObject method now also find according
     to the same rules as annotation
+  - DefaultMapper now has option to disable case folding
 
 2.75
   - simple @GetGeneratedKeys @SqlBatch support (only int keys for now)

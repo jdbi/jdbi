@@ -24,9 +24,9 @@ import java.util.Map;
 
 public class DefaultMapper implements ResultSetMapper<Map<String, Object>>
 {
-    private boolean foldCase;
+    private final boolean foldCase;
 
-    public DefaultMapper(){
+    public DefaultMapper() {
         this(true);
     }
 
