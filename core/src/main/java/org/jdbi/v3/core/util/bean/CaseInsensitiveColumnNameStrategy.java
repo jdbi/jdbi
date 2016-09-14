@@ -13,29 +13,17 @@
  */
 package org.jdbi.v3.core.util.bean;
 
-import java.util.Locale;
-
 public class CaseInsensitiveColumnNameStrategy implements ColumnNameMappingStrategy {
 
     public static final CaseInsensitiveColumnNameStrategy INSTANCE = new CaseInsensitiveColumnNameStrategy();
 
-    private final Locale locale;
-
-    public CaseInsensitiveColumnNameStrategy() {
-        this(Locale.ROOT);
-    }
-
-    public CaseInsensitiveColumnNameStrategy(Locale locale) {
-        this.locale = locale;
-    }
-
     @Override
     public boolean nameMatches(String propertyName, String columnName) {
-        return propertyName.toLowerCase(locale).equals(columnName.toLowerCase(locale));
+        return propertyName.equalsIgnoreCase(columnName);
     }
 
     @Override
     public String toString() {
-        return "LowercaseColumnNamingStrategy" + (locale != Locale.ROOT ? " (" + locale + ")" : "");
+        return "LowercaseColumnNamingStrategy";
     }
 }

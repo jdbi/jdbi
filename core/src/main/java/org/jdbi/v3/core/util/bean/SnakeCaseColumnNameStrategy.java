@@ -13,28 +13,16 @@
  */
 package org.jdbi.v3.core.util.bean;
 
-import java.util.Locale;
-
 public class SnakeCaseColumnNameStrategy implements ColumnNameMappingStrategy {
     public static final SnakeCaseColumnNameStrategy INSTANCE = new SnakeCaseColumnNameStrategy();
 
-    private final Locale locale;
-
-    public SnakeCaseColumnNameStrategy() {
-        this(Locale.ROOT);
-    }
-
-    public SnakeCaseColumnNameStrategy(Locale locale) {
-        this.locale = locale;
-    }
-
     @Override
     public boolean nameMatches(String propertyName, String sqlColumnName) {
-        return sqlColumnName.replace("_", "").toLowerCase(locale).equals(propertyName.toLowerCase(locale));
+        return sqlColumnName.replace("_", "").equalsIgnoreCase(propertyName);
     }
 
     @Override
     public String toString() {
-        return "SnakeCaseColumnNamingStrategy" + (locale != Locale.ROOT ? " (" + locale + ")" : "");
+        return "SnakeCaseColumnNamingStrategy";
     }
 }
