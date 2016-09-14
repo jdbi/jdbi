@@ -32,7 +32,7 @@ public class TestBatchExceptionRewrite
 
     @Before
     public void createTable() {
-        db.getDbi().useHandle(h -> h.execute("create table something ( id int primary key, name varchar(50), integerValue integer, intValue integer )"));
+        db.getJdbi().useHandle(h -> h.execute("create table something ( id int primary key, name varchar(50), integerValue integer, intValue integer )"));
     }
 
     @Test
