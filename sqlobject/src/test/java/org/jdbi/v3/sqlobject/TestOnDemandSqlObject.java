@@ -38,6 +38,7 @@ import org.jdbi.v3.core.exception.JdbiException;
 import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;

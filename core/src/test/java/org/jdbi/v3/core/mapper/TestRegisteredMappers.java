@@ -15,13 +15,9 @@ package org.jdbi.v3.core.mapper;
 
 import static org.junit.Assert.assertEquals;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.StatementContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,14 +48,5 @@ public class TestRegisteredMappers
         });
 
         assertEquals("Sam", sam.getName());
-    }
-}
-
-class SomethingMapper implements RowMapper<Something>
-{
-    @Override
-    public Something map(ResultSet r, StatementContext ctx) throws SQLException
-    {
-        return new Something(r.getInt("id"), r.getString("name"));
     }
 }

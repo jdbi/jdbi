@@ -14,8 +14,8 @@
 package org.jdbi.v3.sqlobject.subpackage;
 
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.Bind;
-import org.jdbi.v3.sqlobject.SomethingMapper;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.jdbi.v3.sqlobject.Transaction;

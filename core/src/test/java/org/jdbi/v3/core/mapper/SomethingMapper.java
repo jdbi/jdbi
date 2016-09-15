@@ -11,14 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.core.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.mapper.RowMapper;
 
 public class SomethingMapper implements RowMapper<Something>
 {
@@ -28,4 +27,3 @@ public class SomethingMapper implements RowMapper<Something>
         return new Something(r.getInt("id"), r.getString("name"));
     }
 }
-
