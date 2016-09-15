@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.jdbi.v3.core.PGDatabaseRule;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
@@ -35,7 +36,7 @@ public class TestPostgresBugs
     @Before
     public void setUp() throws Exception
     {
-        db.getDbi().useHandle(handle -> {
+        db.getJdbi().useHandle(handle -> {
             handle.execute("create table if not exists something (id int primary key, name varchar(100))");
             handle.execute("delete from something");
         });
@@ -44,7 +45,7 @@ public class TestPostgresBugs
     @Test
     public void testConnected() throws Exception
     {
-        int four = db.getDbi().withHandle(handle ->
+        int four = db.getJdbi().withHandle(handle ->
                 handle.createQuery("select 2 + 2").mapTo(Integer.class).findOnly());
 
         assertThat(four, equalTo(4));
@@ -53,7 +54,7 @@ public class TestPostgresBugs
     @Test
     public void testTransactions() throws Exception
     {
-        Dao dao = db.getDbi().onDemand(Dao.class);
+        Dao dao = db.getJdbi().onDemand(Dao.class);
 
         Something s = dao.insertAndFetch(1, "Brian");
         assertThat(s, equalTo(new Something(1, "Brian")));
@@ -62,7 +63,7 @@ public class TestPostgresBugs
     @Test
     public void testExplicitTransaction() throws Exception
     {
-        Dao dao = db.getDbi().onDemand(Dao.class);
+        Dao dao = db.getJdbi().onDemand(Dao.class);
 
         Something s = dao.inTransaction((transactional, status) -> {
             transactional.insert(1, "Brian");

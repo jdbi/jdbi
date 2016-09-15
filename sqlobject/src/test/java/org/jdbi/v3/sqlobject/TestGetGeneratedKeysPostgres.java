@@ -32,7 +32,7 @@ public class TestGetGeneratedKeysPostgres
 
     @Before
     public void setUp() throws Exception {
-        db.getDbi().useHandle(handle -> {
+        db.getJdbi().useHandle(handle -> {
             handle.execute("create sequence id_sequence INCREMENT 1 START WITH 100");
             handle.execute("create table if not exists something (name text, id int DEFAULT nextval('id_sequence'), CONSTRAINT something_id PRIMARY KEY ( id ));");
         });
@@ -40,7 +40,7 @@ public class TestGetGeneratedKeysPostgres
 
     @After
     public void tearDown() throws Exception {
-        db.getDbi().useHandle(handle -> {
+        db.getJdbi().useHandle(handle -> {
             handle.execute("drop table something");
             handle.execute("drop sequence id_sequence");
         });
@@ -61,7 +61,7 @@ public class TestGetGeneratedKeysPostgres
 
     @Test
     public void testFoo() throws Exception {
-        db.getDbi().useExtension(DAO.class, dao -> {
+        db.getJdbi().useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
@@ -72,7 +72,7 @@ public class TestGetGeneratedKeysPostgres
 
     @Test
     public void testBatch() throws Exception {
-        db.getDbi().useExtension(DAO.class, dao -> {
+        db.getJdbi().useExtension(DAO.class, dao -> {
             int[] ids = dao.insert(Arrays.asList("Burt", "Macklin"));
             assertThat(dao.findNameById(ids[0]), equalTo("Burt"));
             assertThat(dao.findNameById(ids[1]), equalTo("Macklin"));

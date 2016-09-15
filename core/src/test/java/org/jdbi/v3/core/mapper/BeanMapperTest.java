@@ -14,6 +14,7 @@
 
 package org.jdbi.v3.core.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -24,7 +25,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.DerivedBean;
+import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiAccess;
 import org.jdbi.v3.core.SampleBean;
@@ -42,6 +45,9 @@ public class BeanMapperTest {
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+    @Rule
+    public H2DatabaseRule db = new H2DatabaseRule();
 
     @Mock
     ResultSet resultSet;
@@ -239,5 +245,43 @@ public class BeanMapperTest {
         when(resultSet.wasNull()).thenReturn(false);
 
         mapper.map(resultSet, ctx);
+    }
+
+    static class ColumnNameBean {
+        int i;
+        String s;
+
+        @ColumnName("id")
+        public int getI() {
+            return i;
+        }
+
+        public void setI(int i) {
+            this.i = i;
+        }
+
+        public String getS() {
+            return s;
+        }
+
+        @ColumnName("name")
+        public void setS(String s) {
+            this.s = s;
+        }
+    }
+
+    @Test
+    public void testColumnNameAnnotation() {
+        Handle handle = db.getSharedHandle();
+        handle.registerRowMapper(new BeanMapperFactory(ColumnNameBean.class));
+
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+
+        ColumnNameBean bean = handle.createQuery("select * from something")
+                .mapTo(ColumnNameBean.class)
+                .findOnly();
+
+        assertThat(bean.getI()).isEqualTo(1);
+        assertThat(bean.getS()).isEqualTo("foo");
     }
 }
