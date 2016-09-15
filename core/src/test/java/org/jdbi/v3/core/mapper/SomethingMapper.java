@@ -18,6 +18,7 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.RowMapper;
 
 public class SomethingMapper implements RowMapper<Something>
 {

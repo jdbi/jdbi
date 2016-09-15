@@ -16,10 +16,14 @@ package org.jdbi.v3.stringtemplate;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.Bind;
 import org.jdbi.v3.sqlobject.BindBean;
 import org.jdbi.v3.sqlobject.SqlBatch;
@@ -119,5 +123,14 @@ public class TestStringTemplateSqlLocator
 
         @SqlBatch
         void insertBunches(@BindBean Something... somethings);
+    }
+
+    public static class SomethingMapper implements RowMapper<Something>
+    {
+        @Override
+        public Something map(ResultSet r, StatementContext ctx) throws SQLException
+        {
+            return new Something(r.getInt("id"), r.getString("name"));
+        }
     }
 }
