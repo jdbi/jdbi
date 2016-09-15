@@ -172,6 +172,7 @@ public class ClasspathStatementLocator implements StatementLocator
             }
             catch (IOException e) {
                 // nothing we can do here :-(
+                e.printStackTrace();
             }
         }
     }
