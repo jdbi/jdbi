@@ -17,11 +17,11 @@ import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.THROW;
 import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.VOID;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
+import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -31,23 +31,24 @@ import org.jdbi.v3.stringtemplate.UseStringTemplateStatementRewriter;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 public class BindInTest
 {
     private static Handle handle;
 
+    @ClassRule
+    public static final H2DatabaseRule db = new H2DatabaseRule();
+
     @BeforeClass
     public static void init()
     {
-        final JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        final Jdbi dbi = Jdbi.create(ds);
+        final Jdbi dbi = db.getJdbi();
         dbi.installPlugin(new SqlObjectPlugin());
         dbi.registerRowMapper(new SomethingMapper());
         handle = dbi.open();
 
-        handle.execute("create table something (id int primary key, name varchar(100))");
         handle.execute("insert into something(id, name) values(1, '1')");
         handle.execute("insert into something(id, name) values(2, '2')");
 
@@ -58,7 +59,6 @@ public class BindInTest
     @AfterClass
     public static void exit()
     {
-        handle.execute("drop table something");
         handle.close();
     }
 
@@ -157,10 +157,7 @@ public class BindInTest
             @Override
             public Iterator<Integer> iterator()
             {
-                final List<Integer> out = new ArrayList<Integer>();
-                out.add(1);
-                out.add(2);
-                return out.iterator();
+                return Arrays.asList(1, 2).iterator();
             }
         });
 
@@ -208,11 +205,7 @@ public class BindInTest
     {
         final SomethingByIteratorHandleDefault s = handle.attach(SomethingByIteratorHandleDefault.class);
 
-        final List<Integer> in = new ArrayList<Integer>();
-        in.add(1);
-        in.add(2);
-
-        s.get(in.iterator());
+        s.get(Arrays.asList(1, 2).iterator());
     }
 
     @UseStringTemplateStatementRewriter

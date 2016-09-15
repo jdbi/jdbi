@@ -18,11 +18,10 @@ import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.VOID;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.hamcrest.CoreMatchers;
 import org.jdbi.v3.core.Binding;
+import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -35,6 +34,7 @@ import org.jdbi.v3.stringtemplate.UseStringTemplateStatementRewriter;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 public class BindInNullTest
@@ -42,17 +42,17 @@ public class BindInNullTest
     private static final String SPY = "__test_spy";
     private static Handle handle;
 
+    @ClassRule
+    public static final H2DatabaseRule db = new H2DatabaseRule();
+
     @BeforeClass
     public static void init()
     {
-        final JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        final Jdbi dbi = Jdbi.create(ds);
+        final Jdbi dbi = db.getJdbi();
         dbi.registerRowMapper(new SomethingMapper());
         dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
 
-        handle.execute("create table something (id int primary key, name varchar(100))");
         handle.execute("insert into something(id, name) values(1, null)");
         handle.execute("insert into something(id, name) values(2, null)");
         handle.execute("insert into something(id, name) values(3, null)");
@@ -66,7 +66,6 @@ public class BindInNullTest
     @AfterClass
     public static void exit()
     {
-        handle.execute("drop table something");
         handle.close();
     }
 
