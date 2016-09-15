@@ -66,7 +66,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
      * See {@link org.springframework.beans.factory.FactoryBean#getObjectType}
      */
     @Override
-    public Class<?> getObjectType()
+    public Class<Jdbi> getObjectType()
     {
         return Jdbi.class;
     }

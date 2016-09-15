@@ -24,6 +24,7 @@ import java.util.Set;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.junit.Before;
 import org.junit.Rule;

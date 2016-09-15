@@ -54,7 +54,7 @@
             <artifactId>jdbi3-sqlobject</artifactId>
             <optional>true</optional>
         </dependency>
-        
+
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>stringtemplate</artifactId>

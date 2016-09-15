@@ -25,6 +25,16 @@ import org.jdbi.v3.core.exception.ResultSetException;
 
 public class DefaultMapper implements RowMapper<Map<String, Object>>
 {
+    private final boolean foldCase;
+
+    public DefaultMapper() {
+        this(true);
+    }
+
+    public DefaultMapper(boolean foldCase) {
+        this.foldCase = foldCase;
+    }
+
     @Override
     public Map<String, Object> map(ResultSet r, StatementContext ctx)
     {
@@ -46,7 +56,17 @@ public class DefaultMapper implements RowMapper<Map<String, Object>>
                 String key = m.getColumnName(i);
                 String alias = m.getColumnLabel(i);
                 Object value = r.getObject(i);
-                row.put((alias == null ? key : alias).toLowerCase(Locale.ROOT), value);
+
+                if (alias == null)
+                {
+                    alias = key;
+                }
+                if (foldCase)
+                {
+                    alias = alias.toLowerCase(Locale.ROOT);
+                }
+
+                row.put(alias, value);
             }
         }
         catch (SQLException e)
