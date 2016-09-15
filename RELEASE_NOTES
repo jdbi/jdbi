@@ -1,3 +1,8 @@
+2.77
+  - Improved BindIn functionality: can now process Iterables and arrays/varargs 
+    of any type, and has configurable handling for a null/empty argument.
+    Check the source code comments or your IDE hints for details.
+
 2.76
   - SPRING BREAKING CHANGE: move from Spring 2 to Spring 3, how timely of us
   - SQL lookups in the context of a SqlObject method now also find according
