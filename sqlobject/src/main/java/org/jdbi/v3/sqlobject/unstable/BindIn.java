@@ -61,7 +61,7 @@ public @interface BindIn
     {
 
         @Override
-        public SqlStatementCustomizer createForParameter(final Annotation annotation, final Class sqlObjectType, final Method method, final Object arg)
+        public SqlStatementCustomizer createForParameter(final Annotation annotation, final Class<?> sqlObjectType, final Method method, final Object arg)
         {
             final BindIn bindIn = (BindIn) annotation;
 
@@ -154,7 +154,7 @@ public @interface BindIn
                     Type elementType = findGenericParameter(parameterType, Iterable.class)
                             .orElse(Object.class);
                     // replace placeholders with actual values
-                    final Iterator it = Util.toIterator(arg);
+                    final Iterator<?> it = Util.toIterator(arg);
                     for (int i = 0; it.hasNext(); i++)
                     {
                         q.bindByType("__" + key + "_" + i, it.next(), elementType);
@@ -170,7 +170,7 @@ public @interface BindIn
         {
         }
 
-        static Iterator toIterator(final Object obj)
+        static Iterator<?> toIterator(final Object obj)
         {
             if (obj == null)
             {
@@ -179,7 +179,7 @@ public @interface BindIn
 
             if (obj instanceof Iterable)
             {
-                return ((Iterable) obj).iterator();
+                return ((Iterable<?>) obj).iterator();
             }
 
             if (obj.getClass().isArray())
@@ -205,12 +205,12 @@ public @interface BindIn
 
             if (obj instanceof Collection)
             {
-                return ((Collection) obj).size();
+                return ((Collection<?>) obj).size();
             }
 
             if (obj instanceof Iterable)
             {
-                final Iterable<?> iterable = (Iterable) obj;
+                final Iterable<?> iterable = (Iterable<?>) obj;
 
                 int size = 0;
                 for (final Object x : iterable)
@@ -229,7 +229,7 @@ public @interface BindIn
             throw new IllegalArgumentException(getTypeWarning(obj.getClass()));
         }
 
-        private static String getTypeWarning(final Class type)
+        private static String getTypeWarning(final Class<?> type)
         {
             return "argument must be one of the following: Iterable, or an array/varargs (primitive or complex type); was " + type.getName() + " instead";
         }
