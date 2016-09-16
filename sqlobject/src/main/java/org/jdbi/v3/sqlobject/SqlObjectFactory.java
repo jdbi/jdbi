@@ -18,7 +18,10 @@ import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -33,10 +36,6 @@ import java.util.function.BiConsumer;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.Factory;
-import net.sf.cglib.proxy.MethodInterceptor;
-
 import org.jdbi.v3.core.ExtensionMethod;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.extension.ExtensionFactory;
@@ -46,11 +45,10 @@ import org.jdbi.v3.sqlobject.mixins.Transactional;
 public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     INSTANCE;
 
-    private static final MethodInterceptor NO_OP = (proxy, method, args, methodProxy) -> null;
+    private static final Object[] NO_ARGS = new Object[0];
 
     private final Map<Method, Handler> mixinHandlers = new HashMap<>();
     private final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Class<?>, Factory> factories = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends SqlObjectConfigurerFactory>, SqlObjectConfigurerFactory>
             configurerFactories = new ConcurrentHashMap<>();
 
@@ -66,6 +64,14 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
 
     @Override
     public boolean accepts(Class<?> extensionType) {
+        if (!extensionType.isInterface()) {
+            throw new IllegalArgumentException("SQL Objects are only supported for interfaces.");
+        }
+
+        if (!Modifier.isPublic(extensionType.getModifiers())) {
+            throw new IllegalArgumentException("SQL Object types must be public.");
+        }
+
         if (GetHandle.class.isAssignableFrom(extensionType) ||
                 Transactional.class.isAssignableFrom(extensionType)) {
             return true;
@@ -86,33 +92,21 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
      */
     @Override
     public <E> E attach(Class<E> extensionType, SqlObjectConfig config, HandleSupplier handle) {
-        Factory f = factories.computeIfAbsent(extensionType, type -> {
-            Enhancer e = new Enhancer();
-            e.setClassLoader(extensionType.getClassLoader());
-
-            List<Class<?>> interfaces = new ArrayList<>();
-            if (extensionType.isInterface()) {
-                interfaces.add(extensionType);
-            }
-            else {
-                e.setSuperclass(extensionType);
-            }
-            e.setInterfaces(interfaces.toArray(new Class[interfaces.size()]));
-            e.setCallback(NO_OP);
-
-            return (Factory) e.create();
-        });
+        Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
         SqlObjectConfig instanceConfig = config.createCopy();
         forEachConfigurerFactory(extensionType, (factory, annotation) ->
                 factory.createForType(annotation, extensionType).accept(instanceConfig));
 
-        Map<Method, Handler> handlers = buildHandlersFor(extensionType);
-        MethodInterceptor interceptor = createMethodInterceptor(extensionType, instanceConfig, handlers, handle);
-        return extensionType.cast(f.newInstance(interceptor));
+        InvocationHandler invocationHandler = createInvocationHandler(extensionType, instanceConfig, handlers, handle);
+        return extensionType.cast(
+                Proxy.newProxyInstance(
+                        extensionType.getClassLoader(),
+                        new Class[]{extensionType},
+                        invocationHandler));
     }
 
-    private Map<Method, Handler> buildHandlersFor(Class<?> sqlObjectType) {
+    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
             final Map<Method, Handler> handlers = new HashMap<>();
 
@@ -217,27 +211,22 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         return decorator;
     }
 
-    private MethodInterceptor createMethodInterceptor(Class<?> sqlObjectType,
+    private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,
                                                       SqlObjectConfig instanceConfig,
                                                       Map<Method, Handler> handlers,
                                                       HandleSupplier handle) {
-        return (proxy, method, args, methodProxy) -> {
+        return (proxy, method, args) -> {
             ExtensionMethod oldMethod = handle.getExtensionMethod();
             handle.setExtensionMethod(new ExtensionMethod(sqlObjectType, method));
 
             try {
                 Handler handler = handlers.get(method);
 
-                // If there is no handler, pretend we are just an Object and don't open a connection (Issue #82)
-                if (handler == null) {
-                    return methodProxy.invokeSuper(proxy, args);
-                }
-
                 SqlObjectConfig config = instanceConfig.createCopy();
                 forEachConfigurerFactory(method, (factory, annotation) ->
                         factory.createForMethod(annotation, sqlObjectType, method).accept(config));
 
-                return handler.invoke(proxy, method, args, config, handle);
+                return handler.invoke(proxy, method, args == null ? NO_ARGS : args, config, handle);
             }
             finally {
                 handle.setExtensionMethod(oldMethod);

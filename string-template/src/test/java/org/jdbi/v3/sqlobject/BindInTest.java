@@ -75,7 +75,7 @@ public class BindInTest
     }
 
     @UseStringTemplateStatementRewriter
-    private interface SomethingByVarargsHandleDefault
+    public interface SomethingByVarargsHandleDefault
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindIn("ids") int... ids);
@@ -114,7 +114,7 @@ public class BindInTest
     }
 
     @UseStringTemplateStatementRewriter
-    private interface SomethingByArrayHandleVoid
+    public interface SomethingByArrayHandleVoid
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindIn(value = "ids", onEmpty = VOID) int[] ids);
@@ -175,7 +175,7 @@ public class BindInTest
     }
 
     @UseStringTemplateStatementRewriter
-    private interface SomethingByIterableHandleDefault
+    public interface SomethingByIterableHandleDefault
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
         List<Something> get(@BindIn(value = "ids", onEmpty = VOID) Iterable<Integer> ids);

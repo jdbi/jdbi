@@ -45,7 +45,7 @@ public class TestSqlMethodAnnotations
         handle.attach(Broken.class);
     }
 
-    interface Broken {
+    public interface Broken {
         @SqlQuery
         @SqlUpdate
         void bogus();

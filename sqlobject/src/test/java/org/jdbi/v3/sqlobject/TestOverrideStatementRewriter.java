@@ -60,7 +60,7 @@ public class TestOverrideStatementRewriter
 
     @OverrideStatementRewriterWith(HashPrefixStatementRewriter.class)
     @RegisterRowMapper(SomethingMapper.class)
-    interface Hashed
+    public interface Hashed
     {
         @SqlUpdate("insert into something (id, name) values (#id, #name)")
         void insert(@BindBean Something s);

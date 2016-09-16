@@ -15,7 +15,6 @@ package org.jdbi.v3.sqlobject;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,6 +34,24 @@ public class TestOnDemandObjectMethodBehavior
     public interface UselessDao extends GetHandle
     {
         void finalize();
+    }
+
+    @Before
+    public void setUp() throws Exception
+    {
+        final JdbcDataSource ds = new JdbcDataSource() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Connection getConnection() throws SQLException
+            {
+                throw new UnsupportedOperationException();
+            }
+        };
+        dbi = Jdbi.create(ds);
+        dbi.installPlugin(new SqlObjectPlugin());
+        dao = dbi.onDemand(UselessDao.class);
+        anotherDao = dbi.onDemand(UselessDao.class);
     }
 
     /**
@@ -67,23 +84,5 @@ public class TestOnDemandObjectMethodBehavior
     public void testToStringDoesntConnect() throws Exception
     {
         dao.toString();
-    }
-
-    @Before
-    public void setUp() throws Exception
-    {
-        final JdbcDataSource ds = new JdbcDataSource() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Connection getConnection() throws SQLException
-            {
-                throw new UnsupportedOperationException();
-            }
-        };
-        dbi = Jdbi.create(ds);
-        dbi.installPlugin(new SqlObjectPlugin());
-        dao = dbi.onDemand(UselessDao.class);
-        anotherDao = dbi.onDemand(UselessDao.class);
     }
 }

@@ -95,7 +95,7 @@ public class BindInNullTest
     }
 
     @UseStringTemplateStatementRewriter
-    private interface SomethingByIterableHandleNull
+    public interface SomethingByIterableHandleNull
     {
         @SqlQuery("select id, name from something where name in (<names>)")
         List<Something> get(@BindIn(value = "names", onEmpty = NULL) Iterable<Object> ids);
@@ -132,7 +132,7 @@ public class BindInNullTest
     }
 
     @UseStringTemplateStatementRewriter(SpyingRewriter.class)
-    private interface SomethingByIterableHandleVoid
+    public interface SomethingByIterableHandleVoid
     {
         @SqlQuery("select id, name from something where id in (<ids>);")
         List<Something> get(@BindIn(value = "ids", onEmpty = VOID) Iterable<Object> ids);

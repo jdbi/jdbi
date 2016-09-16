@@ -62,12 +62,12 @@ public class TestUseClasspathSqlLocator {
 
     @UseClasspathSqlLocator
     @RegisterRowMapper(SomethingMapper.class)
-    interface Cromulence {
+    public interface Cromulence {
         @SqlQuery
         Something findById(@Bind("id") Long id);
     }
 
     @RegisterRowMapper(SomethingMapper.class)
     @UseClasspathSqlLocator
-    static interface SubCromulence extends Cromulence { }
+    public interface SubCromulence extends Cromulence { }
 }

@@ -50,7 +50,7 @@ public class TestRegisterConstructorMapper {
     }
 
     @RegisterConstructorMapper(SubSomething.class)
-    interface Dao {
+    public interface Dao {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 

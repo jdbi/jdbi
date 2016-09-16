@@ -61,7 +61,7 @@ public class TestDefineParameter
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    interface HoneyBadger
+    public interface HoneyBadger
     {
         @SqlUpdate("insert into <table> (id, name) values (:id, :name)")
         void insert(@Define("table") String table, @BindBean Something s);
