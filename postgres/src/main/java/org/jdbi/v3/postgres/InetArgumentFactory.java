@@ -14,24 +14,25 @@
 package org.jdbi.v3.postgres;
 
 import java.lang.reflect.Type;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
+import java.net.InetAddress;
+import java.sql.Types;
 import java.util.Optional;
 
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
 
-public class Jsr310MapperFactory implements ColumnMapperFactory {
+/**
+ * Postgres version of argument factory for {@code InetAddress}.
+ */
+public class InetArgumentFactory implements ArgumentFactory
+{
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
-        if (type == LocalDate.class
-                || type == LocalTime.class
-                || type == LocalDateTime.class
-                || type == OffsetDateTime.class) {
-            return Optional.of((r, i, c) -> r.getObject(i, (Class) type));
+    public Optional<Argument> build(Type type, Object value, StatementContext ctx)
+    {
+        if (value instanceof InetAddress)
+        {
+            return Optional.of((i, p, cx) -> p.setObject(i, ((InetAddress)value).getHostAddress(), Types.OTHER));
         }
         return Optional.empty();
     }

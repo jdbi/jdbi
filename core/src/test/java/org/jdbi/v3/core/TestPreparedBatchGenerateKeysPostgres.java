@@ -29,7 +29,7 @@ import org.junit.Test;
 public class TestPreparedBatchGenerateKeysPostgres {
 
     @Rule
-    public PGDatabaseRule pgdb = new PGDatabaseRule().withPreparer(new JdbiPreparer() {
+    public PgDatabaseRule pgdb = new PgDatabaseRule().withPreparer(new JdbiPreparer() {
         @Override
         protected void prepare(Handle handle) {
             handle.execute("create table something (id serial, name varchar(50), create_time timestamp default now())");

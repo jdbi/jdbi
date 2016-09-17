@@ -19,7 +19,7 @@ import java.sql.Types;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.OutParameters;
-import org.jdbi.v3.core.PGDatabaseRule;
+import org.jdbi.v3.core.PgDatabaseRule;
 import org.jdbi.v3.sqlobject.customizers.OutParameter;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class TestOutParameterAnnotation {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Jdbi dbi;
 

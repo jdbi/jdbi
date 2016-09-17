@@ -14,7 +14,6 @@
 package org.jdbi.v3.postgres;
 
 import java.lang.reflect.Type;
-import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,27 +21,18 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.ObjectArgument;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
-public class Jsr310ArgumentFactory implements ArgumentFactory {
-
+public class JavaTimeMapperFactory implements ColumnMapperFactory {
     @Override
-    public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
-        if (type == LocalDate.class) {
-            return Optional.of(new ObjectArgument(value, Types.DATE));
-        }
-        if (type == LocalTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIME));
-        }
-        if (type == LocalDateTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIMESTAMP));
-        }
-        if (type == OffsetDateTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIMESTAMP_WITH_TIMEZONE));
+    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
+        if (type == LocalDate.class
+                || type == LocalTime.class
+                || type == LocalDateTime.class
+                || type == OffsetDateTime.class) {
+            return Optional.of((r, i, c) -> r.getObject(i, (Class<?>) type));
         }
         return Optional.empty();
     }
-
 }

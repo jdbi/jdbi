@@ -17,9 +17,11 @@ import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -27,16 +29,17 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 
 /**
  * Column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
@@ -71,6 +74,8 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         mappers.put(byte[].class, referenceMapper(ResultSet::getBytes));
 
         mappers.put(Timestamp.class, referenceMapper(ResultSet::getTimestamp));
+
+        mappers.put(InetAddress.class, BuiltInMapperFactory::getInetAddress);
 
         mappers.put(URL.class, referenceMapper(ResultSet::getURL));
         mappers.put(URI.class, referenceMapper(BuiltInMapperFactory::getURI));
@@ -168,5 +173,14 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static LocalTime getLocalTime(ResultSet r, int i) throws SQLException {
         Time time = r.getTime(i);
         return time == null ? null : time.toLocalTime();
+    }
+
+    private static InetAddress getInetAddress(ResultSet r, int i, StatementContext ctx) throws SQLException {
+        String hostname = r.getString(i);
+        try {
+            return hostname == null ? null : InetAddress.getByName(hostname);
+        } catch (UnknownHostException e) {
+            throw new UnableToExecuteStatementException("Could not map InetAddress", e, ctx);
+        }
     }
 }

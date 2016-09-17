@@ -18,6 +18,8 @@ import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.URI;
 import java.net.URL;
 import java.sql.Blob;
@@ -30,9 +32,9 @@ import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -86,6 +88,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, double.class, Types.DOUBLE, PreparedStatement::setDouble);
         register(map, Float.class, Types.FLOAT, PreparedStatement::setFloat);
         register(map, float.class, Types.FLOAT, PreparedStatement::setFloat);
+        register(map, Inet4Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
+        register(map, Inet6Address.class, Types.OTHER, (p, i, v) -> p.setString(i, v.getHostAddress()));
         register(map, Integer.class, Types.INTEGER, PreparedStatement::setInt);
         register(map, int.class, Types.INTEGER, PreparedStatement::setInt);
         register(map, java.util.Date.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, new Timestamp(v.getTime())));
