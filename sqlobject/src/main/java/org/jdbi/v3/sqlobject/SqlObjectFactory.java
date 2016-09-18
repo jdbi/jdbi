@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -145,13 +144,25 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                             method.getName(),
                             sqlMethodAnnotations));
         }
+        if (method.isDefault()) {
+            if (!sqlMethodAnnotations.isEmpty()) {
+                throw new IllegalStateException(String.format(
+                        "Method %s.%s has mutually exclusive default implementation and a SQL method annotation (must be one or the other)",
+                        sqlObjectType.getSimpleName(),
+                        method.getName()));
+            }
+            return new DefaultMethodHandler();
+        }
 
         return sqlMethodAnnotations.stream()
                 .map(type -> type.getAnnotation(SqlMethodAnnotation.class))
                 .map(a -> buildFactory(a.value()))
                 .map(factory -> factory.buildHandler(sqlObjectType, method))
                 .findFirst()
-                .orElseGet(PassThroughHandler::new);
+                .orElseThrow(() -> new AbstractMethodError(String.format(
+                        "Method %s.%s must be default or be annotated with a SQL method annotation.",
+                        sqlObjectType.getSimpleName(),
+                        method.getName())));
     }
 
     private Handler addDecorators(Handler handler, Class<?> sqlObjectType, Method method) {

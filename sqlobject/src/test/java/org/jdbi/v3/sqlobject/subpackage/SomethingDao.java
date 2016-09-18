@@ -34,9 +34,6 @@ public interface SomethingDao
         return findById(id);
     }
 
-    void totallyBroken();
-
-
     @Transaction
     default void insertInSingleTransaction(final int id, final String name)
     {

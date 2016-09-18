@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
 import static org.junit.Assert.assertThat;
@@ -23,7 +22,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.hamcrest.CoreMatchers;
+import java.util.List;
+
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -31,6 +31,7 @@ import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
+import org.jdbi.v3.sqlobject.subpackage.BrokenDao;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,15 +66,16 @@ public class TestSqlObject
         assertThat(c, equalTo(new Something(3, "Cora")));
     }
 
-    @Test
+    @Test(expected = AbstractMethodError.class)
     public void testUnimplementedMethod() throws Exception
     {
-        Dao dao = handle.attach(Dao.class);
+        handle.attach(UnimplementedDao.class);
+    }
 
-        exception.expect(AbstractMethodError.class);
-        exception.expectCause(instanceOf(AbstractMethodError.class));
-
-        dao.totallyBroken();
+    @Test(expected = IllegalStateException.class)
+    public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() throws Exception
+    {
+        handle.attach(RedundantDao.class);
     }
 
     @Test
@@ -89,8 +91,7 @@ public class TestSqlObject
     @Test(expected = AbstractMethodError.class)
     public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception
     {
-        SomethingDao dao = handle.attach(SomethingDao.class);
-        dao.totallyBroken();
+        BrokenDao dao = handle.attach(BrokenDao.class);
     }
 
     @Test
@@ -172,8 +173,6 @@ public class TestSqlObject
             return findById(id);
         }
 
-        void totallyBroken();
-
         @Transaction
         default void threeNestedTransactions() {
             twoNestedTransactions();
@@ -205,4 +204,20 @@ public class TestSqlObject
         }
     }
 
+    public interface UnimplementedDao extends GetHandle
+    {
+        void totallyBroken();
+    }
+
+    public interface RedundantDao extends GetHandle
+    {
+        @SqlQuery("select * from something")
+        @RegisterRowMapper(SomethingMapper.class)
+        default List<Something> list()
+        {
+            return getHandle().createQuery("select * from something")
+                    .map(new SomethingMapper())
+                    .list();
+        }
+    }
 }
