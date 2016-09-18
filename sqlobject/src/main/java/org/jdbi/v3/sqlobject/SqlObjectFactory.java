@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -132,10 +131,10 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     }
 
     private Handler buildBaseHandler(Class<?> sqlObjectType, Method method) {
-        Set<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
+        List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
                 .map(Annotation::annotationType)
                 .filter(type -> type.isAnnotationPresent(SqlMethodAnnotation.class))
-                .collect(toSet());
+                .collect(toList());
 
         if (sqlMethodAnnotations.size() > 1) {
             throw new IllegalStateException(
@@ -147,9 +146,11 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         if (method.isDefault()) {
             if (!sqlMethodAnnotations.isEmpty()) {
                 throw new IllegalStateException(String.format(
-                        "Method %s.%s has mutually exclusive default implementation and a SQL method annotation (must be one or the other)",
+                        "Method %s.%s has mutually exclusive default implementation and a SQL method annotation %s " +
+                                "(must be one or the other)",
                         sqlObjectType.getSimpleName(),
-                        method.getName()));
+                        method.getName(),
+                        sqlMethodAnnotations.get(0).getName()));
             }
             return new DefaultMethodHandler();
         }
