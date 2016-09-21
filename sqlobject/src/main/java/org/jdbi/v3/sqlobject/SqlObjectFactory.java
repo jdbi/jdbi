@@ -146,11 +146,11 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
         if (method.isDefault()) {
             if (!sqlMethodAnnotations.isEmpty()) {
                 throw new IllegalStateException(String.format(
-                        "Method %s.%s has mutually exclusive default implementation and a SQL method annotation %s " +
-                                "(must be one or the other)",
+                        "Default method %s.%s has @%s annotation. " +
+                                "SQL object methods may be default, or have a SQL method annotation, but not both.",
                         sqlObjectType.getSimpleName(),
                         method.getName(),
-                        sqlMethodAnnotations.get(0).getName()));
+                        sqlMethodAnnotations.get(0).getSimpleName()));
             }
             return new DefaultMethodHandler();
         }
@@ -160,7 +160,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                 .map(a -> buildFactory(a.value()))
                 .map(factory -> factory.buildHandler(sqlObjectType, method))
                 .findFirst()
-                .orElseThrow(() -> new AbstractMethodError(String.format(
+                .orElseThrow(() -> new IllegalStateException(String.format(
                         "Method %s.%s must be default or be annotated with a SQL method annotation.",
                         sqlObjectType.getSimpleName(),
                         method.getName())));

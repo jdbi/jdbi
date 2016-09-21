@@ -66,15 +66,21 @@ public class TestSqlObject
         assertThat(c, equalTo(new Something(3, "Cora")));
     }
 
-    @Test(expected = AbstractMethodError.class)
+    @Test
     public void testUnimplementedMethod() throws Exception
     {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Method UnimplementedDao.totallyBroken must be default " +
+                "or be annotated with a SQL method annotation.");
         handle.attach(UnimplementedDao.class);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() throws Exception
     {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Default method RedundantDao.list has @SqlQuery annotation. " +
+                "SQL object methods may be default, or have a SQL method annotation, but not both.");
         handle.attach(RedundantDao.class);
     }
 
@@ -88,7 +94,7 @@ public class TestSqlObject
         assertThat(c, equalTo(new Something(3, "Cora")));
     }
 
-    @Test(expected = AbstractMethodError.class)
+    @Test(expected = IllegalStateException.class)
     public void testUnimplementedMethodWithDaoInAnotherPackage() throws Exception
     {
         BrokenDao dao = handle.attach(BrokenDao.class);
