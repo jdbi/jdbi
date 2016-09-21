@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -22,7 +21,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -133,10 +131,10 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     }
 
     private Handler buildBaseHandler(Class<?> sqlObjectType, Method method) {
-        Set<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
+        List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
                 .map(Annotation::annotationType)
                 .filter(type -> type.isAnnotationPresent(SqlMethodAnnotation.class))
-                .collect(toSet());
+                .collect(toList());
 
         if (sqlMethodAnnotations.size() > 1) {
             throw new IllegalStateException(
@@ -145,13 +143,27 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                             method.getName(),
                             sqlMethodAnnotations));
         }
+        if (method.isDefault()) {
+            if (!sqlMethodAnnotations.isEmpty()) {
+                throw new IllegalStateException(String.format(
+                        "Default method %s.%s has @%s annotation. " +
+                                "SQL object methods may be default, or have a SQL method annotation, but not both.",
+                        sqlObjectType.getSimpleName(),
+                        method.getName(),
+                        sqlMethodAnnotations.get(0).getSimpleName()));
+            }
+            return new DefaultMethodHandler();
+        }
 
         return sqlMethodAnnotations.stream()
                 .map(type -> type.getAnnotation(SqlMethodAnnotation.class))
                 .map(a -> buildFactory(a.value()))
                 .map(factory -> factory.buildHandler(sqlObjectType, method))
                 .findFirst()
-                .orElseGet(PassThroughHandler::new);
+                .orElseThrow(() -> new IllegalStateException(String.format(
+                        "Method %s.%s must be default or be annotated with a SQL method annotation.",
+                        sqlObjectType.getSimpleName(),
+                        method.getName())));
     }
 
     private Handler addDecorators(Handler handler, Class<?> sqlObjectType, Method method) {

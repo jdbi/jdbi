@@ -19,10 +19,9 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.HandleSupplier;
 
-class PassThroughHandler implements Handler
+class DefaultMethodHandler implements Handler
 {
-
-    PassThroughHandler()
+    DefaultMethodHandler()
     {
     }
 
@@ -52,13 +51,6 @@ class PassThroughHandler implements Handler
                     .unreflectSpecial(method, declaringClass)
                     .bindTo(target)
                     .invokeWithArguments(args);
-        }
-        catch (AbstractMethodError e) {
-            AbstractMethodError error = new AbstractMethodError(
-                    "Method " + method.getDeclaringClass().getName() + "#" + method.getName()
-                            + " doesn't make sense -- it probably needs a @Sql* annotation of some kind.");
-            error.initCause(e);
-            throw error;
         }
         catch (Throwable throwable) {
             if (throwable instanceof RuntimeException) {
