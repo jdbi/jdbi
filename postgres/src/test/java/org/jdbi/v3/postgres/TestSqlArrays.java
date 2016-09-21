@@ -25,10 +25,7 @@ import java.util.stream.IntStream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 public class TestSqlArrays {
     private static final String U_SELECT = "SELECT u FROM uuids";
@@ -36,15 +33,19 @@ public class TestSqlArrays {
     private static final String I_SELECT = "SELECT i FROM uuids";
     private static final String I_INSERT = "INSERT INTO uuids VALUES(NULL, :ints)";
 
-    @Rule
-    public PostgresDbRule db = new PostgresDbRule();
+    @ClassRule
+    public static PostgresDbRule db = new PostgresDbRule();
+
     private Handle h;
     private ArrayObject ao;
 
     @Before
     public void setUp() {
         h = db.getSharedHandle();
-        h.execute("CREATE TABLE uuids (u UUID[], i INT[])");
+        h.useTransaction((th, status) -> {
+            th.execute("DROP TABLE IF EXISTS uuids");
+            th.execute("CREATE TABLE uuids (u UUID[], i INT[])");
+        });
         ao = h.attach(ArrayObject.class);
     }
 
