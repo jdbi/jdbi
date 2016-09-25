@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -370,13 +371,12 @@ public class TestQueries
             h.createStatement("insert into something (id, name) values (:id, :name)")
              .bind("name", "brian")
              .bind(7, 8)
-             .bindFromMap(new HandyMapThing<String>().add("one", "two"))
-             .bindFromProperties(new Object())
+             .bindMap(new HandyMapThing<String>().add("one", "two"))
+             .bindBean(new Object())
              .execute();
         }
         catch (StatementException e) {
-            assertTrue(e.getMessage()
-                        .contains("arguments:{ positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean proprty arguments \"java.lang.Object"));
+            assertThat(e.getMessage()).contains("arguments:{ positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean property arguments \"java.lang.Object");
         }
     }
 

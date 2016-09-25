@@ -26,53 +26,54 @@ import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 
 class BeanPropertyArguments implements NamedArgumentFinder
 {
+    private final String prefix;
     private final Object bean;
     private final StatementContext ctx;
-    private final ArgumentRegistry argumentRegistry;
     private BeanInfo info;
 
-    BeanPropertyArguments(Object bean, StatementContext ctx, ArgumentRegistry argumentRegistry)
+    BeanPropertyArguments(String prefix, Object bean, StatementContext ctx)
     {
+        this.prefix = (prefix == null || prefix.isEmpty()) ? "" : prefix + ".";
         this.bean = bean;
         this.ctx = ctx;
-        this.argumentRegistry = argumentRegistry;
         try
         {
             this.info = Introspector.getBeanInfo(bean.getClass());
         }
         catch (IntrospectionException e)
         {
-            throw new UnableToCreateStatementException("Failed to introspect object which is supposed ot be used to" +
-                                                       " set named args for a statement via JavaBean properties", e, ctx);
+            throw new UnableToCreateStatementException("Failed to introspect object which is supposed to be used to " +
+                                                       "set named args for a statement via JavaBean properties", e, ctx);
         }
-
     }
 
     @Override
     public Optional<Argument> find(String name)
     {
-        for (PropertyDescriptor descriptor : info.getPropertyDescriptors())
-        {
-            if (descriptor.getName().equals(name))
+        if (name.startsWith(prefix)) {
+            String propertyName = name.substring(prefix.length());
+            for (PropertyDescriptor descriptor : info.getPropertyDescriptors())
             {
-                try
+                if (propertyName.equals(descriptor.getName()))
                 {
-                    return argumentRegistry.findArgumentFor(
-                            descriptor.getReadMethod().getGenericReturnType(),
-                            descriptor.getReadMethod().invoke(bean),
-                            ctx);
-                }
-                catch (IllegalAccessException e)
-                {
-                    throw new UnableToCreateStatementException(String.format("Access excpetion invoking getter for " +
-                                                                             "bean property [%s] on [%s]",
-                                                                             name, bean), e, ctx);
-                }
-                catch (InvocationTargetException e)
-                {
-                    throw new UnableToCreateStatementException(String.format("Invocation target exception invoking " +
-                                                                             "getter for bean property [%s] on [%s]",
-                                                                             name, bean), e, ctx);
+                    try
+                    {
+                        return ctx.findArgumentFor(
+                                descriptor.getReadMethod().getGenericReturnType(),
+                                descriptor.getReadMethod().invoke(bean));
+                    }
+                    catch (IllegalAccessException e)
+                    {
+                        throw new UnableToCreateStatementException(String.format("Access exception invoking getter for " +
+                                        "bean property [%s] on [%s]",
+                                propertyName, bean), e, ctx);
+                    }
+                    catch (InvocationTargetException e)
+                    {
+                        throw new UnableToCreateStatementException(String.format("Invocation target exception invoking " +
+                                        "getter for bean property [%s] on [%s]",
+                                propertyName, bean), e, ctx);
+                    }
                 }
             }
         }
@@ -81,6 +82,6 @@ class BeanPropertyArguments implements NamedArgumentFinder
 
     @Override
     public String toString() {
-        return "{lazy bean proprty arguments \"" + bean + "\"";
+        return "{lazy bean property arguments \"" + bean + "\"";
     }
 }

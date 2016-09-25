@@ -17,34 +17,63 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Bind a {@code Map<String, Object>}
+ * Binds the entries of a {@code Map<String, Object>} to a SQL statement.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@BindingAnnotation(BindMapFactory.class)
+@BindingAnnotation(BindMap.Factory.class)
 public @interface BindMap
 {
     /**
-     * The list of allowed map keys to bind.
-     * If not specified, to binds all provided {@code Map} entries.  Any missing parameters will cause an exception.
-     * If specified, binds all provided keys.  Missing entries are bound with a SQL {@code NULL}.
+     * Prefix to apply to each map key. If specified, map keys will be bound as {@code prefix.key}.
+     */
+    String value() default "";
+
+    /**
+     * The set of map keys to bind. If specified, binds only the specified keys; any keys present in this property but
+     * absent from the map will be bound as {@code null}. If not specified, all map entries are bound.
      * @return the map keys to bind.
      */
-    String[] value() default {};
+    String[] keys() default {};
 
     /**
-     * If specified, key {@code key} will be bound as {@code prefix.key}.
-     * @return the map key prefix
-     */
-    String prefix() default BindBean.BARE_BINDING;
-
-    /**
-     * Specify key handling.
+     * Whether to automatically convert map keys to strings.
      * If false, {@code Map} keys must be strings, or an exception is thrown.
      * If true, any object may be the key, and it will be converted with {@link Object#toString()}.
      * @return whether keys will be implicitly converted to Strings.
      */
-    boolean implicitKeyStringConversion() default false;
+    boolean convertKeys() default false;
+
+    class Factory implements BinderFactory<BindMap, Map<?, ?>>
+    {
+        @Override
+        public Binder<BindMap, Map<?, ?>> build(BindMap annotation)
+        {
+            List<String> keys = Arrays.asList(annotation.keys());
+            String prefix = annotation.value().isEmpty() ? "" : annotation.value() + ".";
+
+            return (statement, param, index, bind, map) -> {
+                Map<String, Object> m = new HashMap<>();
+                map.forEach((k, v) -> {
+                  if (annotation.convertKeys() || k instanceof String) {
+                      String key = k.toString();
+                      if (keys.isEmpty() || keys.contains(key)) {
+                          m.put(prefix + key, v);
+                      }
+                  }
+                  else {
+                      throw new IllegalArgumentException("Key " + k + " (of " + k.getClass() + ") must be a String");
+                  }
+                });
+                keys.forEach(key -> m.putIfAbsent(prefix + key, null));
+                statement.bindMap(m);
+            };
+        }
+    }
 }

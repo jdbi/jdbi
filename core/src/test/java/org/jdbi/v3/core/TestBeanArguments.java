@@ -18,8 +18,6 @@ import static org.mockito.Mockito.verify;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
-import java.util.Collections;
-import java.util.Map;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,7 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class TestMapArguments
+public class TestBeanArguments
 {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
@@ -38,20 +36,47 @@ public class TestMapArguments
     StatementContext ctx = new StatementContext();
 
     @Test
-    public void testBind() throws Exception
+    public void testBindBare() throws Exception
     {
-        Map<String, Object> args = Collections.singletonMap("foo", BigDecimal.ONE);
-        new MapArguments(args, ctx).find("foo").get().apply(5, stmt, null);
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public BigDecimal getFoo() {
+                return BigDecimal.ONE;
+            }
+        };
+
+        new BeanPropertyArguments("", bean, ctx).find("foo").get().apply(5, stmt, null);
 
         verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
 
     @Test
-    public void testNullBinding() throws Exception
+    public void testBindNull() throws Exception
     {
-        Map<String, Object> args = Collections.singletonMap("foo", null);
-        new MapArguments(args, ctx).find("foo").get().apply(3, stmt, null);
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public BigDecimal getFoo() {
+                return null;
+            }
+        };
 
-        verify(stmt).setNull(3, Types.NULL);
+        new BeanPropertyArguments("", bean, ctx).find("foo").get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.NUMERIC);
+    }
+
+    @Test
+    public void testBindPrefix() throws Exception
+    {
+        Object bean = new Object() {
+            @SuppressWarnings("unused")
+            public String getBar() {
+                return "baz";
+            }
+        };
+
+        new BeanPropertyArguments("foo", bean, ctx).find("foo.bar").get().apply(3, stmt, null);
+
+        verify(stmt).setString(3, "baz");
     }
 }

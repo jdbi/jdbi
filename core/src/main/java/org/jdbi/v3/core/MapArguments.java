@@ -21,17 +21,15 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 
 /**
- * Binds all fields of a map as arguments.
+ * Binds all entries of a map as arguments.
  */
 class MapArguments implements NamedArgumentFinder
 {
-    private final ArgumentRegistry argumentRegistry;
-    private final StatementContext ctx;
     private final Map<String, ?> args;
+    private final StatementContext ctx;
 
-    MapArguments(ArgumentRegistry argumentRegistry, StatementContext ctx, Map<String, ?> args)
+    MapArguments(Map<String, ?> args, StatementContext ctx)
     {
-        this.argumentRegistry = argumentRegistry;
         this.ctx = ctx;
         this.args = args;
     }
@@ -44,7 +42,7 @@ class MapArguments implements NamedArgumentFinder
             final Object argument = args.get(name);
             final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();
-            return argumentRegistry.findArgumentFor(argumentClass, argument, ctx);
+            return ctx.findArgumentFor(argumentClass, argument);
         }
         return Optional.empty();
     }
