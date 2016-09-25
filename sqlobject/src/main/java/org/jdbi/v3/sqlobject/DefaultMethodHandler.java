@@ -13,55 +13,65 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.HandleSupplier;
 
-class DefaultMethodHandler implements Handler
-{
-    DefaultMethodHandler()
-    {
+class DefaultMethodHandler implements Handler {
+    private static final Map<Class<?>, MethodHandles.Lookup> privateLookups = new ConcurrentHashMap<>();
+
+    private static MethodHandles.Lookup lookupFor(Class<?> clazz) {
+        return privateLookups.computeIfAbsent(clazz, type -> {
+            try {
+                // TERRIBLE, HORRIBLE, NO GOOD, VERY BAD HACK
+                // Courtesy of:
+                // https://rmannibucau.wordpress.com/2014/03/27/java-8-default-interface-methods-and-jdk-dynamic-proxies/
+
+                // We can use MethodHandles to look up and invoke the super method, but since this class is not an
+                // implementation of method.getDeclaringClass(), MethodHandles.Lookup will throw an exception since
+                // this class doesn't have access to the super method, according to Java's access rules. This horrible,
+                // awful workaround allows us to directly invoke MethodHandles.Lookup's private constructor, bypassing
+                // the usual access checks.
+
+                // We should get rid of this workaround as soon as a viable alternative exists.
+
+                final Constructor<MethodHandles.Lookup> constructor =
+                        MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+                if (!constructor.isAccessible()) {
+                    constructor.setAccessible(true);
+                }
+                return constructor.newInstance(type, MethodHandles.Lookup.PRIVATE);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private final MethodHandle methodHandle;
+
+    DefaultMethodHandler(Method method) {
+        try {
+            Class<?> declaringClass = method.getDeclaringClass();
+
+            methodHandle = lookupFor(declaringClass).unreflectSpecial(method, declaringClass);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
-    {
+    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle) {
         try {
-            // TERRIBLE, HORRIBLE, NO GOOD, VERY BAD HACK
-            // Courtesy of:
-            // https://rmannibucau.wordpress.com/2014/03/27/java-8-default-interface-methods-and-jdk-dynamic-proxies/
-
-            // We can use MethodHandles to look up and invoke the super method, but since this class is not an
-            // implementation of method.getDeclaringClass(), MethodHandles.Lookup will throw an exception since
-            // this class doesn't have access to the super method, according to Java's access rules. This horrible,
-            // awful workaround allows us to directly invoke MethodHandles.Lookup's private constructor, bypassing
-            // the usual access checks.
-
-            // We should get rid of this workaround as soon as a viable alternative exists.
-
-            final Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
-            if (!constructor.isAccessible()) {
-                constructor.setAccessible(true);
-            }
-
-            Class<?> declaringClass = method.getDeclaringClass();
-            return constructor.newInstance(declaringClass, MethodHandles.Lookup.PRIVATE) // *shudder*
-                    .unreflectSpecial(method, declaringClass)
-                    .bindTo(target)
-                    .invokeWithArguments(args);
-        }
-        catch (Throwable throwable) {
-            if (throwable instanceof RuntimeException) {
-                throw (RuntimeException) throwable;
-            }
-            else if (throwable instanceof Error) {
-                throw (Error) throwable;
-            }
-            else {
-                throw new RuntimeException(throwable);
-            }
+            return methodHandle.bindTo(target).invokeWithArguments(args);
+        } catch (RuntimeException | Error e) {
+            throw e;
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
         }
     }
 }
