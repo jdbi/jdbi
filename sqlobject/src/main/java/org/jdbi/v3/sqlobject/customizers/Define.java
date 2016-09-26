@@ -19,6 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -37,15 +38,27 @@ public @interface Define
      * The key for the attribute to set. The value will be the value passed to the annotated argument
      * @return the attribute key
      */
-    String value();
+    String value() default "";
 
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, final Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, final Object arg)
         {
-            Define d = (Define) annotation;
-            final String key = d.value();
+            Define define = (Define) annotation;
+
+            String name = define.value();
+            if (name.isEmpty()) {
+                if (param.isNamePresent()) {
+                    name = param.getName();
+                } else {
+                    throw new UnsupportedOperationException("A @Define parameter was not given a name, "
+                            + "and parameter name data is not present in the class file, for: "
+                            + param.getDeclaringExecutable() + " :: " + param);
+                }
+            }
+
+            final String key = name;
             return q -> q.define(key, arg);
         }
     }

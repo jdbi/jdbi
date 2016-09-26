@@ -64,9 +64,9 @@ public class TestDefineParameter
     public interface HoneyBadger
     {
         @SqlUpdate("insert into <table> (id, name) values (:id, :name)")
-        void insert(@Define("table") String table, @BindBean Something s);
+        void insert(@Define("table") String ermahgerd, @BindBean Something s);
 
         @SqlQuery("select id, name from <table> where id = :id")
-        Something findById(@Define("table") String table, @Bind("id") long id);
+        Something findById(@Define String table, @Bind("id") long id);
     }
 }
