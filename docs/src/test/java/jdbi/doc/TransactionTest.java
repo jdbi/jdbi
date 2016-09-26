@@ -37,6 +37,7 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.TransactionStatus;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,8 +45,9 @@ import org.junit.rules.ExpectedException;
 import jdbi.doc.ResultsTest.User;
 
 public class TransactionTest {
-    @Rule
-    public PostgresDbRule db = new PostgresDbRule();
+
+    @ClassRule
+    public static PostgresDbRule db = new PostgresDbRule();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -62,10 +64,13 @@ public class TransactionTest {
 
     @Before
     public void setUp() throws Exception {
-        handle.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)");
-        for (String name : Arrays.asList("Alice", "Bob", "Charlie", "Data")) {
-            handle.execute("INSERT INTO users(name) VALUES (?)", name);
-        }
+        handle.useTransaction((th, status) -> {
+            th.execute("DROP TABLE IF EXISTS users");
+            th.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)");
+            for (String name : Arrays.asList("Alice", "Bob", "Charlie", "Data")) {
+                th.execute("INSERT INTO users(name) VALUES (?)", name);
+            }
+        });
     }
 
     @Test

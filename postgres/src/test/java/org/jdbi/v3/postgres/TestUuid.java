@@ -22,21 +22,22 @@ import java.util.UUID;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 public class TestUuid {
-    @Rule
-    public PostgresDbRule db = new PostgresDbRule();
+
+    @ClassRule
+    public static PostgresDbRule db = new PostgresDbRule();
 
     public Handle h;
 
     @Before
     public void setupDbi() throws Exception {
         h = db.getJdbi().open();
-        h.execute("CREATE TABLE foo (bar UUID)");
+        h.useTransaction((th, status) -> {
+            th.execute("DROP TABLE IF EXISTS foo");
+            th.execute("CREATE TABLE foo (bar UUID)");
+        });
     }
 
     @After

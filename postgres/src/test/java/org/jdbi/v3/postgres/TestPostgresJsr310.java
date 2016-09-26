@@ -24,19 +24,23 @@ import java.time.ZoneOffset;
 
 import org.jdbi.v3.core.Handle;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 public class TestPostgresJsr310 {
-    @Rule
-    public PostgresDbRule db = new PostgresDbRule();
+
+    @ClassRule
+    public static PostgresDbRule db = new PostgresDbRule();
 
     Handle h;
 
     @Before
     public void setUp() {
         h = db.getSharedHandle();
-        h.execute("create table stuff (ts timestamp, d date)");
+        h.useTransaction((th, status) -> {
+            th.execute("drop table if exists stuff");
+            th.execute("create table stuff (ts timestamp, d date)");
+        });
     }
 
     @Test
