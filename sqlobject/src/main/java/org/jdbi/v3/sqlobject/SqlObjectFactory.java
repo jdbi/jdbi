@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -152,7 +151,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                         method.getName(),
                         sqlMethodAnnotations.get(0).getSimpleName()));
             }
-            return new DefaultMethodHandler();
+            return new DefaultMethodHandler(method);
         }
 
         return sqlMethodAnnotations.stream()
