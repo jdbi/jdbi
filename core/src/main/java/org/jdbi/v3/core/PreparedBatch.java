@@ -252,7 +252,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
     public PreparedBatchPart add(Map<String, ?> args)
     {
         PreparedBatchPart part = add();
-        part.bindFromMap(args);
+        part.bindMap(args);
         return part;
     }
 

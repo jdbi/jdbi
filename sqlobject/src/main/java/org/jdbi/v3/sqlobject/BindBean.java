@@ -18,11 +18,32 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Binds the properties of a JavaBean to a SQL statement.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@BindingAnnotation(BindBeanFactory.class)
+@BindingAnnotation(BindBean.Factory.class)
 public @interface BindBean
 {
-    String BARE_BINDING = "___jdbi_bare___";
-    String value() default BARE_BINDING;
+    /**
+     * Prefix to apply to each bean property name. If specified, properties will be bound as
+     * {@code prefix.propertyName}.
+     */
+    String value() default "";
+
+    class Factory implements BinderFactory<BindBean, Object> {
+        @Override
+        public Binder<BindBean, Object> build(BindBean annotation) {
+            return (statement, param, index, bind, bean) -> {
+                String prefix = bind.value();
+                if (prefix.isEmpty()) {
+                    statement.bindBean(bean);
+                }
+                else {
+                    statement.bindBean(prefix, bean);
+                }
+            };
+        }
+    }
 }

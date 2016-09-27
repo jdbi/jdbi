@@ -37,7 +37,7 @@ public class HelloWorldTest {
                 .execute();
 
             handle.createStatement("INSERT INTO user(id, name) VALUES (:id, :name)")
-                .bindFromProperties(new User(1, "Me")) // You can also bind custom types
+                .bindBean(new User(1, "Me")) // You can also bind custom types
                 .execute();
 
             // Easy mapping to your types

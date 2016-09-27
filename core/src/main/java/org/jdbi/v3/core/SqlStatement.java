@@ -308,31 +308,43 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     }
 
     /**
-     * Binds named parameters from JavaBean properties on o.
+     * Binds named parameters from JavaBean properties on the argument.
      *
-     * @param o source of named parameter values to use as arguments
+     * @param bean source of named parameter values to use as arguments
      *
      * @return modified statement
      */
-    public SelfType bindFromProperties(Object o)
+    public SelfType bindBean(Object bean)
     {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(o, getContext(), getArgumentRegistry()));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(null, bean, getContext()));
+    }
+
+    /**
+     * Binds named parameters from JavaBean properties on the bean argument, with the given prefix.
+     *
+     * Example: the prefix {@code foo} applied to a bean property {@code bar} will be bound as {@code foo.bar}.
+     *
+     * @param prefix a prefix to apply to all property names.
+     * @param bean source of named parameter values to use as arguments
+     *
+     * @return modified statement
+     */
+    public SelfType bindBean(String prefix, Object bean)
+    {
+        return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean, getContext()));
     }
 
     /**
      * Binds named parameters from a map of String to Object instances
      *
-     * @param args map where keys are matched to named parameters in order to bind arguments.
-     *             Can be null, in this case, the binding has no effect.
+     * @param map map where keys are matched to named parameters in order to bind arguments.
+     *            Can be null, in which case the binding has no effect.
      *
      * @return modified statement
      */
-    public SelfType bindFromMap(Map<String, ?> args)
+    public SelfType bindMap(Map<String, ?> map)
     {
-        if (args != null) {
-            bindNamedArgumentFinder(new MapArguments(getArgumentRegistry(), getContext(), args));
-        }
-        return typedThis;
+        return map == null ? typedThis : bindNamedArgumentFinder(new MapArguments(map, getContext()));
     }
 
     /**
