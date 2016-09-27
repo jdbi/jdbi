@@ -20,6 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,7 +62,7 @@ public @interface BindIn
     {
 
         @Override
-        public SqlStatementCustomizer createForParameter(final Annotation annotation, final Class<?> sqlObjectType, final Method method, final Object arg)
+        public SqlStatementCustomizer createForParameter(final Annotation annotation, final Class<?> sqlObjectType, final Method method, Parameter param, final Object arg)
         {
             final BindIn bindIn = (BindIn) annotation;
 

@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +25,10 @@ import org.jdbi.v3.core.SqlStatement;
 
 abstract class CustomizingStatementHandler implements Handler
 {
-    private final List<Bindifier<?>>                 binders                        = new ArrayList<>();
-    private final List<FactoryAnnotationPair>        typeBasedCustomizerFactories   = new ArrayList<>();
-    private final List<FactoryAnnotationPair>        methodBasedCustomizerFactories = new ArrayList<>();
-    private final List<FactoryAnnotationIndexTriple> paramBasedCustomizerFactories  = new ArrayList<>();
+    private final List<Bindifier<?>>                    binders                        = new ArrayList<>();
+    private final List<FactoryAnnotationPair>           typeBasedCustomizerFactories   = new ArrayList<>();
+    private final List<FactoryAnnotationPair>           methodBasedCustomizerFactories = new ArrayList<>();
+    private final List<FactoryAnnotationParameterIndex> paramBasedCustomizerFactories  = new ArrayList<>();
     private final Class<?> sqlObjectType;
     private final Method method;
 
@@ -71,6 +72,7 @@ abstract class CustomizingStatementHandler implements Handler
         }
 
         final Annotation[][] paramAnnotations = method.getParameterAnnotations();
+        final Parameter[] parameters = method.getParameters();
         for (int paramIndex = 0; paramIndex < paramAnnotations.length; paramIndex++) {
             boolean thereBindingAnnotation = false;
             for (final Annotation annotation : paramAnnotations[paramIndex]) {
@@ -100,7 +102,7 @@ abstract class CustomizingStatementHandler implements Handler
                     catch (Exception e) {
                         throw new IllegalStateException("unable to instantiate sql statement customizer factory", e);
                     }
-                    paramBasedCustomizerFactories.add(new FactoryAnnotationIndexTriple(f, annotation, paramIndex));
+                    paramBasedCustomizerFactories.add(new FactoryAnnotationParameterIndex(f, annotation, parameters[paramIndex], paramIndex));
                     thereBindingAnnotation = true;
                 }
             }
@@ -140,10 +142,10 @@ abstract class CustomizingStatementHandler implements Handler
         }
 
         if (args != null) {
-            for (FactoryAnnotationIndexTriple triple : paramBasedCustomizerFactories) {
+            for (FactoryAnnotationParameterIndex param : paramBasedCustomizerFactories) {
                 try {
-                    triple.factory
-                        .createForParameter(triple.annotation, sqlObjectType, method, args[triple.index])
+                    param.factory
+                        .createForParameter(param.annotation, sqlObjectType, method, param.parameter, args[param.index])
                         .apply(q);
                 }
                 catch (SQLException e) {
@@ -165,16 +167,21 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    private static class FactoryAnnotationIndexTriple
+    private static class FactoryAnnotationParameterIndex
     {
         private final SqlStatementCustomizerFactory factory;
         private final Annotation                    annotation;
+        private final Parameter                     parameter;
         private final int                           index;
 
-        FactoryAnnotationIndexTriple(SqlStatementCustomizerFactory factory, Annotation annotation, int index)
+        FactoryAnnotationParameterIndex(SqlStatementCustomizerFactory factory,
+                                        Annotation annotation,
+                                        Parameter parameter,
+                                        int index)
         {
             this.factory = factory;
             this.annotation = annotation;
+            this.parameter = parameter;
             this.index = index;
         }
     }

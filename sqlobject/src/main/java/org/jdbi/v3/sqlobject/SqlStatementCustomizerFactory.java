@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 /**
  * Interface used in conjunction with {@link SqlStatementCustomizingAnnotation} to generate
@@ -53,10 +54,11 @@ public interface SqlStatementCustomizerFactory
      * @param annotation the annotation which lead to the method being called
      * @param sqlObjectType sql object class (interface)
      * @param method the method which was annotated
+     * @param param the parameter which was annotated
      * @param arg the argument value for the annotated parameter
      * @return the customizer which will be applied to the generated statement
      */
-    default SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg)
+    default SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, Object arg)
     {
         throw new UnsupportedOperationException("Not supported for parameter");
     }

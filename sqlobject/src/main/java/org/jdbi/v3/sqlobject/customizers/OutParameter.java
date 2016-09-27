@@ -19,6 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.Call;
@@ -68,7 +69,7 @@ public @interface OutParameter {
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, @SuppressWarnings("rawtypes") Class sqlObjectType, Method method, final Object arg) {
+        public SqlStatementCustomizer createForParameter(Annotation annotation, @SuppressWarnings("rawtypes") Class sqlObjectType, Method method, Parameter param, final Object arg) {
             throw new UnsupportedOperationException("Not defined for parameter");
         }
     }

@@ -19,6 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
@@ -64,6 +65,7 @@ public @interface FetchDirection
         public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
+                                                         Parameter param,
                                                          Object arg)
         {
             return create((Integer) arg);

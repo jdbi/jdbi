@@ -21,6 +21,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
@@ -71,6 +72,7 @@ public class TestBindExpression
             public SqlStatementCustomizer createForParameter(Annotation annotation,
                                                              Class<?> sqlObjectType,
                                                              Method method,
+                                                             Parameter param,
                                                              final Object root)
             {
                 final String root_name = ((BindRoot) annotation).value();
