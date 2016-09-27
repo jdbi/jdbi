@@ -16,8 +16,10 @@ package org.jdbi.v3.sqlobject.unstable;
 import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -44,6 +46,7 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
  *  ids = [1, 2, 3] -{@literal >} SELECT * FROM THINGS WHERE ID IN (1,2,3)
  */
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.PARAMETER})
 @SqlStatementCustomizingAnnotation(BindIn.CustomizerFactory.class)
 @BindingAnnotation(BindIn.BindingFactory.class)
 public @interface BindIn
