@@ -13,11 +13,10 @@
  */
 package org.jdbi.v3.core;
 
-import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPreparedBatchGenerateKeys {
 
@@ -34,13 +33,13 @@ public class TestPreparedBatchGenerateKeys {
             batch.add("Thom");
             List<Integer> ids = batch.executeAndGenerateKeys(int.class).list();
 
-            Assert.assertEquals(Arrays.asList(10000, 10001), ids);
+            assertThat(ids).containsExactly(10000, 10001);
 
             List<Something> somethings = h.createQuery("select id, name from something")
                     .mapToBean(Something.class)
                     .list();
 
-            Assert.assertEquals(Arrays.asList(new Something(10000, "Brian"), new Something(10001, "Thom")), somethings);
+            assertThat(somethings).containsExactly(new Something(10000, "Brian"), new Something(10001, "Thom"));
         }
     }
 }

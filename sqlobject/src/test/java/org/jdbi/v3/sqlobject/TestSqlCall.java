@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,7 +61,7 @@ public class TestSqlCall
 //                                  .invoke();
         dao.insert(1, "Jeff");
 
-        assertThat(handle.attach(Dao.class).findById(1), equalTo(new Something(1, "Jeff")));
+        assertThat(handle.attach(Dao.class).findById(1)).isEqualTo(new Something(1, "Jeff"));
     }
 
     public interface Dao

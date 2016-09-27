@@ -14,9 +14,6 @@
 package org.jdbi.v3.core.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -76,7 +73,7 @@ public class FieldMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, sampleBean.getLongField());
+        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
     }
 
     @Test
@@ -85,7 +82,7 @@ public class FieldMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertNotNull(sampleBean);
+        assertThat(sampleBean).isNotNull();
     }
 
     @Test
@@ -99,7 +96,7 @@ public class FieldMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, sampleBean.getLongField());
+        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
 
     }
 
@@ -113,8 +110,7 @@ public class FieldMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertNull(sampleBean.getLongField());
-
+        assertThat(sampleBean.getLongField()).isNull();
     }
 
     @Test
@@ -137,10 +133,10 @@ public class FieldMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, sampleBean.getLongField());
-        assertEquals(aBigDecimal, sampleBean.getPrivateBigDecimalField());
-        assertEquals(aIntVal, sampleBean.getPackagePrivateIntField());
-        assertEquals(aStringVal, sampleBean.getProtectedStringField());
+        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
+        assertThat(sampleBean.getPrivateBigDecimalField()).isEqualTo(aBigDecimal);
+        assertThat(sampleBean.getPackagePrivateIntField()).isEqualTo(aIntVal);
+        assertThat(sampleBean.getProtectedStringField()).isEqualTo(aStringVal);
     }
 
     @Test
@@ -160,8 +156,8 @@ public class FieldMapperTest {
 
         DerivedBean derivedBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, derivedBean.getLongField());
-        assertEquals(bLongVal, derivedBean.getBlongField());
+        assertThat(derivedBean.getLongField()).isEqualTo(aLongVal);
+        assertThat(derivedBean.getBlongField()).isEqualTo(bLongVal);
     }
 
     @Test
@@ -179,8 +175,8 @@ public class FieldMapperTest {
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         Long expected = 123L;
-        assertEquals(expected, sampleBean.getLongField());
-        assertEquals(ValueType.valueOf("foo"), sampleBean.getValueTypeField());
+        assertThat(sampleBean.getLongField()).isEqualTo(expected);
+        assertThat(sampleBean.getValueTypeField()).isEqualTo(ValueType.valueOf("foo"));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.Map;
@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jdbi.v3.core.Binding;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,42 +53,42 @@ public class TestColonStatementRewriter
     public void testNewlinesOkay() throws Exception
     {
         RewrittenStatement rws = rewrite("select * from something\n where id = :id");
-        assertEquals("select * from something\n where id = ?", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select * from something\n where id = ?");
     }
 
     @Test
     public void testOddCharacters() throws Exception
     {
         RewrittenStatement rws = rewrite("~* :boo ':nope' _%&^& *@ :id");
-        assertEquals("~* ? ':nope' _%&^& *@ ?", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("~* ? ':nope' _%&^& *@ ?");
     }
 
     @Test
     public void testNumbers() throws Exception
     {
         RewrittenStatement rws = rewrite(":bo0 ':nope' _%&^& *@ :id");
-        assertEquals("? ':nope' _%&^& *@ ?", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("? ':nope' _%&^& *@ ?");
     }
 
     @Test
     public void testDollarSignOkay() throws Exception
     {
         RewrittenStatement rws = rewrite("select * from v$session");
-        assertEquals("select * from v$session", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select * from v$session");
     }
 
     @Test
     public void testHashInColumnNameOkay() throws Exception
     {
        RewrittenStatement rws = rewrite("select column# from thetable where id = :id");
-       assertEquals("select column# from thetable where id = ?", rws.getSql());
+       assertThat(rws.getSql()).isEqualTo("select column# from thetable where id = ?");
     }
 
     @Test
     public void testBacktickOkay() throws Exception
     {
         RewrittenStatement rws = rewrite("select * from `v$session");
-        assertEquals("select * from `v$session", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select * from `v$session");
     }
 
     @Test
@@ -97,14 +96,13 @@ public class TestColonStatementRewriter
     {
         final String doubleColon = "select 1::int";
         RewrittenStatement rws = rewrite(doubleColon);
-        assertEquals(doubleColon, rws.getSql());
+        assertThat(rws.getSql()).isEqualTo(doubleColon);
     }
 
     @Test(expected = UnableToCreateStatementException.class)
     public void testBailsOutOnInvalidInput() throws Exception
     {
         rewrite("select * from something\n where id = :\u0087\u008e\u0092\u0097\u009c");
-        Assert.fail("Expected 'UnableToCreateStatementException' but got none");
     }
 
     @Test
@@ -114,7 +112,7 @@ public class TestColonStatementRewriter
                 "column", "foo",
                 "table", "bar");
         RewrittenStatement rws = rewrite("select <column> from <table> where <column> = :someValue", attributes);
-        assertEquals("select foo from bar where foo = ?", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
     @Test(expected = UnableToCreateStatementException.class)
@@ -127,14 +125,14 @@ public class TestColonStatementRewriter
     public void testLeaveEnquotedTokensIntact() throws Exception
     {
         String sql = "select '<foo>' foo, \"<bar>\" bar from something";
-        assertEquals(sql, rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp")).getSql());
+        assertThat(rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp")).getSql()).isEqualTo(sql);
     }
 
     @Test
     public void testIgnoreAngleBracketsNotPartOfToken() throws Exception
     {
         String sql = "select * from foo where end_date < ? and start_date > ?";
-        assertEquals(sql, rewrite(sql).getSql());
+        assertThat(rewrite(sql).getSql()).isEqualTo(sql);
     }
 
     @Test
@@ -153,17 +151,17 @@ public class TestColonStatementRewriter
 
         rewrite("insert into something (id, name) values (:id, :name)");
 
-        assertEquals(1, ctr.get());
+        assertThat(ctr.get()).isEqualTo(1);
 
         rewrite("insert into something (id, name) values (:id, :name)");
 
-        assertEquals(1, ctr.get());
+        assertThat(ctr.get()).isEqualTo(1);
     }
 
     @Test
     public void testCommentQuote() throws Exception
     {
         String sql = "select 1 /* ' \" <foo> */";
-        assertEquals(sql, rewrite(sql).getSql());
+        assertThat(rewrite(sql).getSql()).isEqualTo(sql);
     }
 }

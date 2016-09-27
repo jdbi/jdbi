@@ -13,30 +13,30 @@
  */
 package org.jdbi.v3.core;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.exception.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestScript
-{
+public class TestScript {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
-    public void testScriptStuff() throws Exception
-    {
+    public void testScriptStuff() throws Exception {
         Handle h = db.openHandle();
         Script s = h.createScript(findSqlOnClasspath("default-data"));
         s.execute();
 
-        assertEquals(2, h.select("select * from something").size());
+        assertThat(h.select("select * from something")).hasSize(2);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class TestScript
         Script script = h.createScript(findSqlOnClasspath("insert-script-with-comments"));
         script.execute();
 
-        assertEquals(3, h.select("select * from something").size());
+        assertThat(h.select("select * from something")).hasSize(3);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class TestScript
         Script script = h.createScript(findSqlOnClasspath("insert-with-string-semicolons"));
         script.execute();
 
-        assertEquals(3, h.select("select * from something").size());
+        assertThat(h.select("select * from something")).hasSize(3);
     }
 
     @Test
@@ -63,28 +63,23 @@ public class TestScript
         Script script = h.createScript(findSqlOnClasspath("fuzzy-script"));
         script.executeAsSeparateStatements();
 
-        List<Map<String, Object>> rows = h.select("select * from something order by id");
-        assertEquals(4, rows.size());
-        assertEquals(rows.get(0).get("id"), 1L);
-        assertEquals(rows.get(0).get("name"), "eric");
-        assertEquals(rows.get(1).get("id"), 2L);
-        assertEquals(rows.get(1).get("name"), "sally;ann");
-        assertEquals(rows.get(2).get("id"), 3L);
-        assertEquals(rows.get(2).get("name"), "bob");
-        assertEquals(rows.get(3).get("id"), 12L);
-        assertEquals(rows.get(3).get("name"), "sally;ann;junior");
+        List<Map<String, Object>> rows = h.select("select id, name from something order by id");
+        assertThat(rows).isEqualTo(ImmutableList.of(
+                ImmutableMap.of("id", 1L, "name", "eric"),
+                ImmutableMap.of("id", 2L, "name", "sally;ann"),
+                ImmutableMap.of("id", 3L, "name", "bob"),
+                ImmutableMap.of("id", 12L, "name", "sally;ann;junior")));
     }
 
     @Test
     public void testScriptAsSetOfSeparateStatements() throws Exception {
-        try {
-            Handle h = db.openHandle();
-            Script script = h.createScript(findSqlOnClasspath("malformed-sql-script"));
-            script.executeAsSeparateStatements();
-            fail("Should fail because the script is malformed");
-        } catch (StatementException e) {
-            StatementContext context = e.getStatementContext();
-            assertEquals("insert into something(id, name) values (2, eric)", context.getRawSql().trim());
-        }
+        assertThatExceptionOfType(StatementException.class)
+                .isThrownBy(() -> {
+                    Handle h = db.openHandle();
+                    Script script = h.createScript(findSqlOnClasspath("malformed-sql-script"));
+                    script.executeAsSeparateStatements();
+                })
+                .satisfies(e -> assertThat(e.getStatementContext().getRawSql().trim())
+                        .isEqualTo("insert into something(id, name) values (2, eric)"));
     }
 }

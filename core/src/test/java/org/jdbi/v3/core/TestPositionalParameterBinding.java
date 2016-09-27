@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.junit.Before;
@@ -46,7 +44,7 @@ public class TestPositionalParameterBinding
                 .mapToBean(Something.class)
                 .list()
                 .get(0);
-        assertEquals(1, eric.getId());
+        assertThat(eric.getId()).isEqualTo(1);
     }
 
     @Test
@@ -59,52 +57,26 @@ public class TestPositionalParameterBinding
                 .bind(0, 1)
                 .mapToBean(Something.class)
                 .list().get(0);
-        assertEquals(1, eric.getId());
+        assertThat(eric.getId()).isEqualTo(1);
     }
 
-    @Test
+    @Test(expected = UnableToExecuteStatementException.class)
     public void testBehaviorOnBadBinding1() throws Exception
     {
-        Query<Something> q = h.createQuery("select * from something where id = ? and name = ?")
+        h.createQuery("select * from something where id = ? and name = ?")
                 .bind(0, 1)
-                .mapToBean(Something.class);
-
-        try
-        {
-            q.list();
-            fail("should have thrown exception");
-        }
-        catch (UnableToExecuteStatementException e)
-        {
-            assertTrue("Execution goes through here", true);
-        }
-        catch (Exception e)
-        {
-            fail("Threw an incorrect exception type " + e.getMessage());
-        }
+                .mapToBean(Something.class)
+                .list();
     }
 
-    @Test
+    @Test(expected = UnableToExecuteStatementException.class)
     public void testBehaviorOnBadBinding2() throws Exception
     {
-        Query<Something> q = h.createQuery("select * from something where id = ?")
+        h.createQuery("select * from something where id = ?")
                 .bind(1, 1)
                 .bind(2, "Hi")
-                .mapToBean(Something.class);
-
-        try
-        {
-            q.list();
-            fail("should have thrown exception");
-        }
-        catch (UnableToExecuteStatementException e)
-        {
-            assertTrue("Execution goes through here", true);
-        }
-        catch (Exception e)
-        {
-            fail("Threw an incorrect exception type");
-        }
+                .mapToBean(Something.class)
+                .list();
     }
 
     @Test
@@ -114,7 +86,7 @@ public class TestPositionalParameterBinding
                 .bind(0, 1)
                 .execute();
 
-        assertEquals(1, count);
+        assertThat(count).isEqualTo(1);
     }
 
     @Test
@@ -122,6 +94,6 @@ public class TestPositionalParameterBinding
     {
         int count = h.insert("insert into something (id, name) values (?, ?)", 1, "eric");
 
-        assertEquals(1, count);
+        assertThat(count).isEqualTo(1);
     }
 }

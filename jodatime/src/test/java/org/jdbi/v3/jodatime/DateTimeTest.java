@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.jodatime;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -33,6 +33,6 @@ public class DateTimeTest {
         DateTime dt = new DateTime();
         h.insert("insert into stuff(ts) values (?)", dt);
 
-        assertEquals(dt, h.createQuery("select ts from stuff").mapTo(DateTime.class).findOnly());
+        assertThat(h.createQuery("select ts from stuff").mapTo(DateTime.class).findOnly()).isEqualTo(dt);
     }
 }

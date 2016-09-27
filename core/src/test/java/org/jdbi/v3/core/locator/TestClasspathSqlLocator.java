@@ -15,7 +15,7 @@ package org.jdbi.v3.core.locator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,21 +38,21 @@ public class TestClasspathSqlLocator {
     public void testLocateNamed() throws Exception {
         Handle h = db.openHandle();
         h.insert(findSqlOnClasspath("insert-keith"));
-        assertEquals(1, h.select("select name from something").size());
+        assertThat(h.select("select name from something")).hasSize(1);
     }
 
     @Test
     public void testCommentsInExternalSql() throws Exception {
         Handle h = db.openHandle();
         h.insert(findSqlOnClasspath("insert-eric-with-comments"));
-        assertEquals(1, h.select("select name from something").size());
+        assertThat(h.select("select name from something")).hasSize(1);
     }
 
     @Test
     public void testNamedPositionalNamedParamsInPrepared() throws Exception {
         Handle h = db.openHandle();
         h.insert(findSqlOnClasspath("insert-id-name"), 3, "Tip");
-        assertEquals(1, h.select("select name from something").size());
+        assertThat(h.select("select name from something")).hasSize(1);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class TestClasspathSqlLocator {
                 .bind("id", 1)
                 .bind("name", "Tip")
                 .execute();
-        assertEquals(1, h.select("select name from something").size());
+        assertThat(h.select("select name from something")).hasSize(1);
     }
 
     @Test

@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,8 +24,6 @@ import org.jdbi.v3.core.DatabaseRule;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableSet;
 
 public class TestInetAddressH2
 {
@@ -51,7 +50,7 @@ public class TestInetAddressH2
             Set<InetAddress> addrs = h.createQuery("SELECT * FROM addrs")
                     .mapTo(InetAddress.class)
                     .collect(Collectors.toSet());
-            assertEquals(ImmutableSet.of(ipv4, ipv6), addrs);
+            assertThat(addrs).containsOnly(ipv4, ipv6);
         });
     }
 

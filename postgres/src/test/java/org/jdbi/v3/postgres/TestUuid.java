@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -52,29 +52,25 @@ public class TestUuid {
             .bind("uuid", u)
             .execute();
 
-        assertEquals(u, h.createQuery("SELECT * FROM foo").mapTo(UUID.class).findOnly());
+        assertThat(h.createQuery("SELECT * FROM foo").mapTo(UUID.class).findOnly()).isEqualTo(u);
     }
 
     @Test
     public void testUuidObject() throws Exception {
-        final Set<UUID> expected = new HashSet<>();
         final UuidObject uo = h.attach(UuidObject.class);
 
-        assertEquals(expected, uo.getUuids());
+        assertThat(uo.getUuids()).isEmpty();
 
         UUID u = UUID.randomUUID();
         uo.insert(u);
-        expected.add(u);
-
-        assertEquals(expected, uo.getUuids());
+        assertThat(uo.getUuids()).containsOnly(u);
 
         uo.insert(u);
-        assertEquals(expected, uo.getUuids());
+        assertThat(uo.getUuids()).containsOnly(u);
 
-        u = UUID.randomUUID();
-        uo.insert(u);
-        expected.add(u);
-        assertEquals(expected, uo.getUuids());
+        UUID u1 = UUID.randomUUID();
+        uo.insert(u1);
+        assertThat(uo.getUuids()).containsOnly(u, u1);
     }
 
     public interface UuidObject {

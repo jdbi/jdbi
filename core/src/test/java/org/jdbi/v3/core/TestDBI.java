@@ -13,10 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -35,7 +32,7 @@ public class TestDBI
     {
         Jdbi dbi = Jdbi.create(db.getConnectionString());
         try (Handle h = dbi.open()) {
-            assertNotNull(h);
+            assertThat(h).isNotNull();
         }
     }
 
@@ -53,26 +50,18 @@ public class TestDBI
             }
         });
         try (Handle h = dbi.open()) {
-            assertNotNull(h);
+            assertThat(h).isNotNull();
         }
     }
 
-    @Test
+    @Test(expected = UnableToObtainConnectionException.class)
     public void testCorrectExceptionOnSQLException() throws Exception
     {
         Jdbi dbi = Jdbi.create(() -> {
             throw new SQLException();
         });
 
-        try
-        {
-            dbi.open();
-            fail("Should have raised an exception");
-        }
-        catch (UnableToObtainConnectionException e)
-        {
-            assertTrue(true);
-        }
+        dbi.open();
     }
 
     @Test
@@ -83,7 +72,7 @@ public class TestDBI
             handle.insert("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
         });
-        assertEquals("Brian", value);
+        assertThat(value).isEqualTo("Brian");
     }
 
     @Test
@@ -93,7 +82,7 @@ public class TestDBI
         dbi.useHandle(handle -> {
             handle.insert("insert into something (id, name) values (1, 'Brian')");
             String value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
-            assertEquals("Brian", value);
+            assertThat(value).isEqualTo("Brian");
         });
     }
 }

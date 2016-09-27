@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
 
@@ -72,15 +71,15 @@ public class TestSqlObjectMethodBehavior
     @Test
     public void testEquals() throws Exception
     {
-        assertEquals(dao, dao);
-        assertNotEquals(dao, anotherDao);
+        assertThat(dao).isEqualTo(dao);
+        assertThat(dao).isNotEqualTo(anotherDao);
     }
 
     @Test
     public void testHashCode() throws Exception
     {
-        assertEquals(dao.hashCode(), dao.hashCode());
-        assertNotEquals(dao.hashCode(), anotherDao.hashCode());
+        assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
+        assertThat(dao.hashCode()).isNotEqualTo(anotherDao.hashCode());
     }
 
     @Test

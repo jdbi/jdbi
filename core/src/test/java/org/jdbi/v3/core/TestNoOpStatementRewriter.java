@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.rewriter.NoOpStatementRewriter;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class TestNoOpStatementRewriter
                 .mapToBean(Something.class)
                 .findOnly()
                 .getName();
-        assertEquals("Keith", name);
+        assertThat(name).isEqualTo("Keith");
     }
 
     @Test
@@ -60,7 +60,7 @@ public class TestNoOpStatementRewriter
                 .mapToBean(Something.class)
                 .findOnly()
                 .getName();
-        assertEquals("Keith", name);
+        assertThat(name).isEqualTo("Keith");
     }
 
     @Test

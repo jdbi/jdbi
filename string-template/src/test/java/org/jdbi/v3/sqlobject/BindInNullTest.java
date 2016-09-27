@@ -13,13 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.NULL;
 import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.VOID;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.hamcrest.CoreMatchers;
 import org.jdbi.v3.core.Binding;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -32,7 +31,6 @@ import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.sqlobject.unstable.BindIn;
 import org.jdbi.v3.stringtemplate.UseStringTemplateStatementRewriter;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -81,7 +79,7 @@ public class BindInNullTest
 
         final List<Something> out = s.get(null);
 
-        Assert.assertEquals(0, out.size());
+        assertThat(out).isEmpty();
     }
 
     @Test
@@ -91,7 +89,7 @@ public class BindInNullTest
 
         final List<Something> out = s.get(new ArrayList<Object>());
 
-        Assert.assertEquals(0, out.size());
+        assertThat(out).isEmpty();
     }
 
     @UseStringTemplateStatementRewriter
@@ -112,9 +110,8 @@ public class BindInNullTest
 
         final List<Something> out = s.get(null);
 
-        Assert.assertEquals(0, out.size());
-        Assert.assertEquals(1, log.size());
-        Assert.assertThat(log.get(0), CoreMatchers.containsString(" where id in ();"));
+        assertThat(out).isEmpty();
+        assertThat(log).hasSize(1).allMatch(e -> e.contains(" where id in ();"));
     }
 
     @Test
@@ -126,9 +123,8 @@ public class BindInNullTest
 
         final List<Something> out = s.get(new ArrayList<Object>());
 
-        Assert.assertEquals(0, out.size());
-        Assert.assertEquals(1, log.size());
-        Assert.assertThat(log.get(0), CoreMatchers.containsString(" where id in ();"));
+        assertThat(out).isEmpty();
+        assertThat(log).hasSize(1).allMatch(e -> e.contains(" where id in ();"));
     }
 
     @UseStringTemplateStatementRewriter(SpyingRewriter.class)

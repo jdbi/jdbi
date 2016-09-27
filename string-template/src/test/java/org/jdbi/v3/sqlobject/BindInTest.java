@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.THROW;
 import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.VOID;
 
@@ -29,7 +30,6 @@ import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.unstable.BindIn;
 import org.jdbi.v3.stringtemplate.UseStringTemplateStatementRewriter;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -71,7 +71,7 @@ public class BindInTest
 
         final List<Something> out = s.get(1, 2);
 
-        Assert.assertEquals(2, out.size());
+        assertThat(out).hasSize(2);
     }
 
     @UseStringTemplateStatementRewriter
@@ -90,7 +90,7 @@ public class BindInTest
 
         final List<Something> out = s.get(new int[]{1, 2});
 
-        Assert.assertEquals(2, out.size());
+        assertThat(out).hasSize(2);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class BindInTest
 
         final List<Something> out = s.get(new int[]{});
 
-        Assert.assertEquals(0, out.size());
+        assertThat(out).isEmpty();
     }
 
     @Test
@@ -110,7 +110,7 @@ public class BindInTest
 
         final List<Something> out = s.get(null);
 
-        Assert.assertEquals(0, out.size());
+        assertThat(out).isEmpty();
     }
 
     @UseStringTemplateStatementRewriter
@@ -161,7 +161,7 @@ public class BindInTest
             }
         });
 
-        Assert.assertEquals(2, out.size());
+        assertThat(out).hasSize(2);
     }
 
     @Test
@@ -171,7 +171,7 @@ public class BindInTest
 
         final List<Something> out = s.get(new ArrayList<Integer>());
 
-        Assert.assertEquals(0, out.size());
+        assertThat(out).isEmpty();
     }
 
     @UseStringTemplateStatementRewriter

@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
@@ -27,7 +28,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.TestRegisterRowMapperFactory.Foo.FooMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapperFactory;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -42,14 +42,12 @@ public class TestRegisterRowMapperFactory
         FooDao fooDao = db.getJdbi().onDemand(FooDao.class);
 
         List<Foo> foos = fooDao.select();
-        Assert.assertNotNull(foos);
-        Assert.assertEquals(0, foos.size());
+        assertThat(foos).isEmpty();
 
         fooDao.insert(1, "John Doe");
         fooDao.insert(2, "Jane Doe");
         List<Foo> foos2 = fooDao.select();
-        Assert.assertNotNull(foos2);
-        Assert.assertEquals(2, foos2.size());
+        assertThat(foos2).hasSize(2);
 
     }
 

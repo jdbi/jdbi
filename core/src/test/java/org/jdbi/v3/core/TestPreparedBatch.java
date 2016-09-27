@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,8 +41,8 @@ public class TestPreparedBatch
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertEquals(3, r.size());
-        assertEquals("Keith", r.get(2).getName());
+        assertThat(r).hasSize(3);
+        assertThat(r.get(2).getName()).isEqualTo("Keith");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class TestPreparedBatch
 
         int row_count = h.createQuery("select count(id) from something").mapTo(int.class).findOnly();
 
-        assertEquals(count, row_count);
+        assertThat(row_count).isEqualTo(count);
     }
 
     @Test
@@ -77,8 +77,8 @@ public class TestPreparedBatch
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertEquals(3, r.size());
-        assertEquals("Brian", r.get(2).getName());
+        assertThat(r).hasSize(3);
+        assertThat(r.get(2).getName()).isEqualTo("Brian");
     }
 
     @Test
@@ -95,8 +95,8 @@ public class TestPreparedBatch
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertEquals(3, r.size());
-        assertEquals("Brian", r.get(2).getName());
+        assertThat(r).hasSize(3);
+        assertThat(r.get(2).getName()).isEqualTo("Brian");
     }
 
     @Test
@@ -110,8 +110,7 @@ public class TestPreparedBatch
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertEquals(1, r.size());
-        assertEquals("Keith", r.get(0).getName());
+        assertThat(r).extracting(Something::getName).containsExactly("Keith");
     }
 
     @Test
@@ -123,8 +122,7 @@ public class TestPreparedBatch
         b.add().bind(0, 0).bind(1, "Keith").submit().execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertEquals(1, r.size());
-        assertEquals("Keith", r.get(0).getName());
+        assertThat(r).extracting(Something::getName).containsExactly("Keith");
     }
 
     @Test
@@ -143,9 +141,8 @@ public class TestPreparedBatch
 
         b.execute();
 
-        assertEquals(h.createQuery("select name from something order by id").mapTo(String.class).list(),
-                     Arrays.asList("Jeff", "Tom"));
-
+        assertThat(h.createQuery("select name from something order by id").mapTo(String.class).list())
+                .containsExactly("Jeff", "Tom");
     }
 
     @Test
@@ -162,7 +159,7 @@ public class TestPreparedBatch
 
         b.execute();
 
-        assertEquals(h.createQuery("select name from something order by id").mapTo(String.class).list(),
-                     Arrays.asList("Jeff", "Tom"));
+        assertThat(h.createQuery("select name from something order by id").mapTo(String.class).list())
+                .containsExactly("Jeff", "Tom");
     }
 }

@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.junit.Rule;
@@ -46,8 +46,8 @@ public class TestGetGeneratedKeys
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
-            assertThat(dao.findNameById(brian_id), equalTo("Brian"));
-            assertThat(dao.findNameById(keith_id), equalTo("Keith"));
+            assertThat(dao.findNameById(brian_id)).isEqualTo("Brian");
+            assertThat(dao.findNameById(keith_id)).isEqualTo("Keith");
         });
     }
 }

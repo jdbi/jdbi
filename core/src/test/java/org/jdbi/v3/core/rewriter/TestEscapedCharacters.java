@@ -13,8 +13,9 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestEscapedCharacters
 {
@@ -28,18 +29,20 @@ public class TestEscapedCharacters
     @Test
     public void testSimpleString()
     {
-        Assert.assertEquals("hello, world", parseString("hello, world"));
+        assertThat(parseString("hello, world")).isEqualTo("hello, world");
     }
 
     @Test
     public void testSimpleSql()
     {
-        Assert.assertEquals("insert into foo (xyz) values (?)", parseString("insert into foo (xyz) values (:bar)"));
+        assertThat(parseString("insert into foo (xyz) values (:bar)"))
+                .isEqualTo("insert into foo (xyz) values (?)");
     }
 
     @Test
     public void testEscapedSql()
     {
-        Assert.assertEquals("insert into foo (xyz) values (?::some_strange_type)", parseString("insert into foo (xyz) values (:bar\\:\\:some_strange_type)"));
+        assertThat(parseString("insert into foo (xyz) values (:bar\\:\\:some_strange_type)"))
+        .isEqualTo("insert into foo (xyz) values (?::some_strange_type)");
     }
 }

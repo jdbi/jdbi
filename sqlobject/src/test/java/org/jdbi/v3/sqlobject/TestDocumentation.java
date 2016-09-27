@@ -14,21 +14,17 @@
 package org.jdbi.v3.sqlobject;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.jdbi.v3.core.ExtraMatchers.equalsOneOf;
-import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.H2DatabaseRule;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Query;
-import org.jdbi.v3.core.Something;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import org.jdbi.v3.core.*;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
@@ -51,7 +47,7 @@ public class TestDocumentation
                 .bind("id", 1)
                 .mapTo(String.class)
                 .findOnly();
-            assertThat(name, equalTo("Brian"));
+            assertThat(name).isEqualTo("Brian");
         }
     }
 
@@ -72,7 +68,7 @@ public class TestDocumentation
 
             String name = dao.findNameById(2);
 
-            assertThat(name, equalTo("Aaron"));
+            assertThat(name).isEqualTo("Aaron");
         });
     }
 
@@ -97,12 +93,8 @@ public class TestDocumentation
             h.execute("insert into something (id, name) values (?, ?)", 3, "Patrick");
 
             List<Map<String, Object>> rs = h.select("select id, name from something");
-            assertThat(rs.size(), equalTo(1));
-
-            Map<String, Object> row = rs.get(0);
-            assertThat(row.get("id"), equalTo(3L));
-            assertThat(row.get("name"), equalTo("Patrick"));
-        }
+            assertThat(rs).containsExactlyElementsOf(ImmutableList.of(ImmutableMap.of("id", 3L, "name", "Patrick")));
+         }
     }
 
     @Test
@@ -127,9 +119,9 @@ public class TestDocumentation
                 .mapTo(String.class)
                 .iterator();
 
-            assertThat(rs.next(), equalTo("Brian"));
-            assertThat(rs.next(), equalTo("Keith"));
-            assertThat(rs.hasNext(), equalTo(false));
+            assertThat(rs.next()).isEqualTo("Brian");
+            assertThat(rs.next()).isEqualTo("Keith");
+            assertThat(rs.hasNext()).isFalse();
         }
     }
 
@@ -140,9 +132,8 @@ public class TestDocumentation
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
-            for (String name : h.createQuery("select name from something order by id").mapTo(String.class)) {
-                assertThat(name, equalsOneOf("Brian", "Keith"));
-            }
+            Query<String> names = h.createQuery("select name from something order by id").mapTo(String.class);
+            assertThat(names.iterator()).containsExactly("Brian", "Keith");
         }
     }
 
@@ -186,15 +177,11 @@ public class TestDocumentation
                 .submit().execute();
 
             SomeQueries sq = h.attach(SomeQueries.class);
-            assertThat(sq.findName(2), equalTo("Robert"));
-            assertThat(sq.findNamesBetween(1, 4), equalTo(Arrays.asList("Robert", "Patrick")));
+            assertThat(sq.findName(2)).isEqualTo("Robert");
+            assertThat(sq.findNamesBetween(1, 4)).containsExactly("Robert", "Patrick");
 
             Iterator<String> names = sq.findAllNames();
-            assertThat(names.next(), equalTo("Brian"));
-            assertThat(names.next(), equalTo("Robert"));
-            assertThat(names.next(), equalTo("Patrick"));
-            assertThat(names.next(), equalTo("Maniax"));
-            assertThat(names.hasNext(), equalTo(false));
+            assertThat(names).containsExactly("Brian", "Robert", "Patrick", "Maniax");
         }
     }
 
@@ -229,8 +216,8 @@ public class TestDocumentation
             AnotherQuery aq = h.attach(AnotherQuery.class);
             YetAnotherQuery yaq = h.attach(YetAnotherQuery.class);
 
-            assertThat(yaq.findById(3), equalTo(new Something(3, "Patrick")));
-            assertThat(aq.findById(2), equalTo(new Something(2, "Robert")));
+            assertThat(yaq.findById(3)).isEqualTo(new Something(3, "Patrick"));
+            assertThat(aq.findById(2)).isEqualTo(new Something(2, "Robert"));
         }
     }
 
@@ -252,7 +239,7 @@ public class TestDocumentation
 
             Query<String> q = qrq.findById(1);
             q.setMaxFieldSize(100);
-            assertThat(q.findOnly(), equalTo("Brian"));
+            assertThat(q.findOnly()).isEqualTo("Brian");
         }
     }
 
@@ -276,7 +263,7 @@ public class TestDocumentation
             String name = h.createQuery("select name from something where id = 17")
                 .mapTo(String.class)
                 .findOnly();
-            assertThat(name, equalTo("David P."));
+            assertThat(name).isEqualTo("David P.");
         }
     }
 
@@ -303,11 +290,11 @@ public class TestDocumentation
 
             b.insertFamily(ids, first_names, "McCallister");
 
-            assertThat(b.findNameById(1), equalTo("Tip McCallister"));
-            assertThat(b.findNameById(2), equalTo("Jane McCallister"));
-            assertThat(b.findNameById(3), equalTo("Brian McCallister"));
-            assertThat(b.findNameById(4), equalTo("Keith McCallister"));
-            assertThat(b.findNameById(5), equalTo("Eric McCallister"));
+            assertThat(b.findNameById(1)).isEqualTo("Tip McCallister");
+            assertThat(b.findNameById(2)).isEqualTo("Jane McCallister");
+            assertThat(b.findNameById(3)).isEqualTo("Brian McCallister");
+            assertThat(b.findNameById(4)).isEqualTo("Keith McCallister");
+            assertThat(b.findNameById(5)).isEqualTo("Eric McCallister");
         }
     }
 

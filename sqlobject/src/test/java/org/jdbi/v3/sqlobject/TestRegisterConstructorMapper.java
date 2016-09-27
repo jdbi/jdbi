@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
@@ -38,8 +38,8 @@ public class TestRegisterConstructorMapper {
     public void testMapperRegistered() {
         dao.insert(1, "brain");
         Something brain = dao.getById(1);
-        assertEquals(1, brain.getId());
-        assertEquals("brain", brain.getName());
+        assertThat(brain.getId()).isEqualTo(1);
+        assertThat(brain.getName()).isEqualTo("brain");
     }
 
     // subclassing just to hide Something() constructor

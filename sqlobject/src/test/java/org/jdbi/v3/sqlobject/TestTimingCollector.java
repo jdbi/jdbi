@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-
 import org.jdbi.v3.core.*;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.junit.Before;
@@ -31,8 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTimingCollector {
 
@@ -57,13 +53,13 @@ public class TestTimingCollector {
     public void testInsert() {
         dao.insert(1, "Brian");
         dao.insert(2, "Jeff");
-        assertThat(timingCollector.statementNames, equalTo(ImmutableSet.of("org.jdbi.v3.sqlobject.DAO.insert")));
+        assertThat(timingCollector.statementNames).containsExactly("org.jdbi.v3.sqlobject.DAO.insert");
     }
 
     @Test
     public void testInsertBatch() {
         dao.insertBatch(Arrays.asList(1, 2, 3), Arrays.asList("Mary", "David", "Kate"));
-        assertThat(timingCollector.statementNames, equalTo(ImmutableSet.of("org.jdbi.v3.sqlobject.DAO.insertBatch")));
+        assertThat(timingCollector.statementNames).containsOnly("org.jdbi.v3.sqlobject.DAO.insertBatch");
     }
 
     @Test
@@ -71,7 +67,7 @@ public class TestTimingCollector {
         dao.customInsert(1, "Robb");
         dao.customInsert(2, "Greg");
 
-        assertThat(timingCollector.statementNames, equalTo(ImmutableSet.of("org.jdbi.v3.sqlobject.DAO.customInsert")));
+        assertThat(timingCollector.statementNames).containsOnly("org.jdbi.v3.sqlobject.DAO.customInsert");
     }
 
     @Test
@@ -79,9 +75,10 @@ public class TestTimingCollector {
         AdvancedDAO advancedDAO = jdbi.onDemand(AdvancedDAO.class);
         advancedDAO.insertBatch(Arrays.asList(1, 2, 3), Arrays.asList("Mary", "David", "Kate"));
         String name = advancedDAO.findNameById(3);
-        assertThat(name, equalTo("Kate"));
-        assertThat(timingCollector.statementNames, equalTo(ImmutableSet.of("org.jdbi.v3.sqlobject.AdvancedDAO.insertBatch",
-                        "org.jdbi.v3.sqlobject.AdvancedDAO.findNameById")));
+        assertThat(name).isEqualTo("Kate");
+        assertThat(timingCollector.statementNames).containsOnly(
+                "org.jdbi.v3.sqlobject.AdvancedDAO.insertBatch",
+                "org.jdbi.v3.sqlobject.AdvancedDAO.findNameById");
     }
 
     @Test
@@ -96,10 +93,10 @@ public class TestTimingCollector {
         List<String> names = jdbi.withHandle(h -> h.createQuery("select name from something order by name")
                 .mapTo(String.class)
                 .list());
-        assertThat(names, equalTo(ImmutableList.of("David", "Kate", "Mary")));
-        assertThat(timingCollector.statementNames, equalTo(ImmutableSet.of(
+        assertThat(names).containsExactly("David", "Kate", "Mary");
+        assertThat(timingCollector.statementNames).containsOnly(
                 "sql.raw.insert into something (id, name) values (?, ?)",
-                "sql.raw.select name from something order by name")));
+                "sql.raw.select name from something order by name");
     }
 
     public static int customInsert(Connection conn, int id, String name) throws SQLException {

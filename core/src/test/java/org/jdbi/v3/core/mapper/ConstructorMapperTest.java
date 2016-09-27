@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.H2DatabaseRule;
@@ -40,24 +40,24 @@ public class ConstructorMapperTest {
     public void testSimple() throws Exception {
         ConstructorBean bean = db.getSharedHandle().createQuery("SELECT s, i FROM bean").mapTo(ConstructorBean.class).findOnly();
 
-        assertEquals("3", bean.s);
-        assertEquals(2, bean.i);
+        assertThat(bean.s).isEqualTo("3");
+        assertThat(bean.i).isEqualTo(2);
     }
 
     @Test
     public void testReversed() throws Exception {
         ConstructorBean bean = db.getSharedHandle().createQuery("SELECT i, s FROM bean").mapTo(ConstructorBean.class).findOnly();
 
-        assertEquals("3", bean.s);
-        assertEquals(2, bean.i);
+        assertThat(bean.s).isEqualTo("3");
+        assertThat(bean.i).isEqualTo(2);
     }
 
     @Test
     public void testExtra() throws Exception {
         ConstructorBean bean = db.getSharedHandle().createQuery("SELECT 1 as ignored, i, s FROM bean").mapTo(ConstructorBean.class).findOnly();
 
-        assertEquals("3", bean.s);
-        assertEquals(2, bean.i);
+        assertThat(bean.s).isEqualTo("3");
+        assertThat(bean.i).isEqualTo(2);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -74,7 +74,7 @@ public class ConstructorMapperTest {
     public void testName() throws Exception {
         NamedParameterBean nb = db.getSharedHandle().createQuery("SELECT 3 AS xyz")
                 .mapTo(NamedParameterBean.class).findOnly();
-        assertEquals(3, nb.i);
+        assertThat(nb.i).isEqualTo(3);
     }
 
     static class ConstructorBean {

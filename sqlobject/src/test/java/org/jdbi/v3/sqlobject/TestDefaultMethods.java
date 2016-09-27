@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.ExtensionMethod;
 import org.jdbi.v3.core.H2DatabaseRule;
@@ -24,6 +24,8 @@ import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+
 public class TestDefaultMethods
 {
     @Rule
@@ -33,20 +35,19 @@ public class TestDefaultMethods
     public void testDefaultMethod() throws Exception {
         Spiffy dao = db.getJdbi().onDemand(Spiffy.class);
         Something test = dao.insertAndReturn(3, "test");
-        assertEquals(3, test.getId());
-        assertEquals("test", test.getName());
+        assertThat(test).isEqualTo(new Something(3, "test"));
     }
 
     @Test
     public void testOverride() throws Exception {
         SpiffyOverride dao = db.getJdbi().onDemand(SpiffyOverride.class);
-        assertEquals(null, dao.insertAndReturn(123, "fake"));
+        assertThat(dao.insertAndReturn(123, "fake")).isNull();
     }
 
     @Test
     public void testOverrideWithDefault() throws Exception {
         SpiffyOverrideWithDefault dao = db.getJdbi().onDemand(SpiffyOverrideWithDefault.class);
-        assertEquals(-6, dao.insertAndReturn(123, "fake").getId());
+        assertThat(dao.insertAndReturn(123, "fake").getId()).isEqualTo(-6);
     }
 
     public interface Spiffy
@@ -87,13 +88,16 @@ public class TestDefaultMethods
 
     public interface StatementContextExtensionMethodDao extends GetHandle {
         default void check() throws Exception {
+            Class<StatementContextExtensionMethodDao> extensionMethodDaoClass = StatementContextExtensionMethodDao.class;
+            Method checkMethod = extensionMethodDaoClass.getMethod("check");
+
             ExtensionMethod extensionMethod = getHandle().getExtensionMethod();
-            assertEquals(extensionMethod.getType(), StatementContextExtensionMethodDao.class);
-            assertEquals(extensionMethod.getMethod(), StatementContextExtensionMethodDao.class.getMethod("check"));
+            assertThat(extensionMethod.getType()).isEqualTo(extensionMethodDaoClass);
+            assertThat(extensionMethod.getMethod()).isEqualTo(checkMethod);
 
             extensionMethod = getHandle().createQuery("select * from something").getContext().getExtensionMethod();
-            assertEquals(extensionMethod.getType(), StatementContextExtensionMethodDao.class);
-            assertEquals(extensionMethod.getMethod(), StatementContextExtensionMethodDao.class.getMethod("check"));
+            assertThat(extensionMethod.getType()).isEqualTo(extensionMethodDaoClass);
+            assertThat(extensionMethod.getMethod()).isEqualTo(checkMethod);
         }
     }
 }

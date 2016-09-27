@@ -25,9 +25,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestOptional {
     private static final String SELECT_BY_NAME = "select * from something " +
@@ -56,8 +54,7 @@ public class TestOptional {
                 .mapToBean(Something.class)
                 .findOnly();
 
-        assertEquals(1, result.getId());
-        assertEquals("eric", result.getName());
+        assertThat(result).isEqualTo(new Something(1, "eric"));
     }
 
     @Test
@@ -67,13 +64,7 @@ public class TestOptional {
                 .mapToBean(Something.class)
                 .list();
 
-        assertThat(result.size(), equalTo(2));
-
-        assertEquals(1, result.get(0).getId());
-        assertEquals("eric", result.get(0).getName());
-
-        assertEquals(2, result.get(1).getId());
-        assertEquals("brian", result.get(1).getName());
+        assertThat(result).containsExactly(new Something(1, "eric"), new Something(2, "brian"));
     }
 
     @Test
@@ -101,8 +92,7 @@ public class TestOptional {
                 .mapToBean(Something.class)
                 .findOnly();
 
-        assertEquals(2, result.getId());
-        assertEquals("brian", result.getName());
+        assertThat(result).isEqualTo(new Something(2, "brian"));
     }
 
     @Test
@@ -112,13 +102,7 @@ public class TestOptional {
                 .mapToBean(Something.class)
                 .list();
 
-        assertThat(result.size(), equalTo(2));
-
-        assertEquals(1, result.get(0).getId());
-        assertEquals("eric", result.get(0).getName());
-
-        assertEquals(2, result.get(1).getId());
-        assertEquals("brian", result.get(1).getName());
+        assertThat(result).containsExactly(new Something(1, "eric"), new Something(2, "brian"));
     }
 
     @Test
@@ -129,10 +113,7 @@ public class TestOptional {
                 .mapToBean(Something.class)
                 .list();
 
-        assertThat(result.size(), equalTo(1));
-
-        assertEquals(1, result.get(0).getId());
-        assertEquals("eric", result.get(0).getName());
+        assertThat(result).containsExactly(new Something(1, "eric"));
     }
 
     @Test

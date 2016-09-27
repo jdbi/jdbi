@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.Map;
@@ -53,42 +53,42 @@ public class TestHashPrefixStatementRewriter
     public void testNewlinesOkay() throws Exception
     {
         RewrittenStatement rws = rewrite("select * from something\n where id = #id");
-        assertEquals("select * from something\n where id = ?", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select * from something\n where id = ?");
     }
 
     @Test
     public void testOddCharacters() throws Exception
     {
         RewrittenStatement rws = rewrite("~* #boo '#nope' _%&^& *@ #id");
-        assertEquals("~* ? '#nope' _%&^& *@ ?", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("~* ? '#nope' _%&^& *@ ?");
     }
 
     @Test
     public void testNumbers() throws Exception
     {
         RewrittenStatement rws = rewrite("#bo0 '#nope' _%&^& *@ #id");
-        assertEquals("? '#nope' _%&^& *@ ?", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("? '#nope' _%&^& *@ ?");
     }
 
     @Test
     public void testDollarSignOkay() throws Exception
     {
         RewrittenStatement rws = rewrite("select * from v$session");
-        assertEquals("select * from v$session", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select * from v$session");
     }
 
     @Test
     public void testColonIsLiteral() throws Exception
     {
         RewrittenStatement rws = rewrite("select * from foo where id = :id");
-        assertEquals("select * from foo where id = :id", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select * from foo where id = :id");
     }
 
     @Test
     public void testBacktickOkay() throws Exception
     {
         RewrittenStatement rws = rewrite("select * from `v$session");
-        assertEquals("select * from `v$session", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select * from `v$session");
     }
 
     @Test(expected = UnableToCreateStatementException.class)
@@ -104,7 +104,7 @@ public class TestHashPrefixStatementRewriter
                 "column", "foo",
                 "table", "bar");
         RewrittenStatement rws = rewrite("select <column> from <table> where <column> = #someValue", attributes);
-        assertEquals("select foo from bar where foo = ?", rws.getSql());
+        assertThat(rws.getSql()).isEqualTo("select foo from bar where foo = ?");
     }
 
     @Test(expected = UnableToCreateStatementException.class)
@@ -117,20 +117,20 @@ public class TestHashPrefixStatementRewriter
     public void testLeaveEnquotedTokensIntact() throws Exception
     {
         String sql = "select '<foo>' foo, \"<bar>\" bar from something";
-        assertEquals(sql, rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp")).getSql());
+        assertThat(rewrite(sql, ImmutableMap.of("foo", "no", "bar", "stahp")).getSql()).isEqualTo(sql);
     }
 
     @Test
     public void testIgnoreAngleBracketsNotPartOfToken() throws Exception
     {
         String sql = "select * from foo where end_date < ? and start_date > ?";
-        assertEquals(sql, rewrite(sql).getSql());
+        assertThat(rewrite(sql).getSql()).isEqualTo(sql);
     }
 
     @Test
     public void testCommentQuote() throws Exception
     {
         String sql = "select 1 /* ' \" <foo> */";
-        assertEquals(sql, rewrite(sql).getSql());
+        assertThat(rewrite(sql).getSql()).isEqualTo(sql);
     }
 }

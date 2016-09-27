@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -58,7 +55,7 @@ public class TestModifiers
         s.insert(16, "Sunny");
 
         List<Something> things = s.findAll(1);
-        assertEquals(3, things.size());
+        assertThat(things).hasSize(3);
     }
 
     @Test
@@ -70,7 +67,7 @@ public class TestModifiers
         s.insert(16, "Sunny");
 
         List<Something> things = s.findAll();
-        assertEquals(3, things.size());
+        assertThat(things).hasSize(3);
     }
 
     @Test
@@ -82,7 +79,7 @@ public class TestModifiers
         s.insert(16, "Sunny");
 
         List<Something> things = s.findAllWithMaxRows();
-        assertEquals(1, things.size());
+        assertThat(things).hasSize(1);
     }
 
     @Test
@@ -94,7 +91,7 @@ public class TestModifiers
         s.insert(16, "Sunny");
 
         List<Something> things = s.findAllWithMaxRows(2);
-        assertEquals(2, things.size());
+        assertThat(things).hasSize(2);
     }
 
     @Test
@@ -106,7 +103,7 @@ public class TestModifiers
         s.insert(16, "Sunny");
 
         List<Something> things = s.findAllWithQueryTimeOut();
-        assertEquals(3, things.size());
+        assertThat(things).hasSize(3);
     }
 
     @Test
@@ -118,7 +115,7 @@ public class TestModifiers
         s.insert(16, "Sunny");
 
         List<Something> things = s.findAllWithQueryTimeOut(2);
-        assertEquals(3, things.size());
+        assertThat(things).hasSize(3);
     }
 
 
@@ -131,12 +128,12 @@ public class TestModifiers
                 spiffy.insert(1, "Tom");
 
                 Something tom = iso.findById(1);
-                assertThat(tom, notNullValue());
+                assertThat(tom).isNotNull();
 
                 spiffy.rollback();
 
                 Something not_tom = iso.findById(1);
-                assertThat(not_tom, nullValue());
+                assertThat(not_tom).isNull();
             });
         });
     }
@@ -150,12 +147,12 @@ public class TestModifiers
                 spiffy.insert(1, "Tom");
 
                 Something tom = iso.findById(1, READ_UNCOMMITTED);
-                assertThat(tom, notNullValue());
+                assertThat(tom).isNotNull();
 
                 spiffy.rollback();
 
                 Something not_tom = iso.findById(1);
-                assertThat(not_tom, nullValue());
+                assertThat(not_tom).isNull();
             });
         });
     }

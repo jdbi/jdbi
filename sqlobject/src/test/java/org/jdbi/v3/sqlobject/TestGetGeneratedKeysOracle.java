@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -83,8 +83,8 @@ public class TestGetGeneratedKeysOracle {
             Long fooId = dao.insert("Foo");
             long barId = dao.insert("Bar");
 
-            assertThat(dao.findNameById(fooId), equalTo("Foo"));
-            assertThat(dao.findNameById(barId), equalTo("Bar"));
+            assertThat(dao.findNameById(fooId)).isEqualTo("Foo");
+            assertThat(dao.findNameById(barId)).isEqualTo("Bar");
         });
     }
 }

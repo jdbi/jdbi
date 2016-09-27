@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -51,11 +51,8 @@ public class TestBatching
         List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeans(to_insert);
 
-        assertThat(counts.length, equalTo(2));
-        assertThat(counts[0], equalTo(1));
-        assertThat(counts[1], equalTo(1));
-
-        assertThat(b.size(), equalTo(2));
+        assertThat(counts).containsExactly(1, 1);
+        assertThat(b.size()).isEqualTo(2);
     }
 
     @Test
@@ -65,11 +62,8 @@ public class TestBatching
         List<Something> to_insert = Arrays.asList(new Something(1, "Tom"), new Something(2, "Tatu"));
         int[] counts = b.insertBeansNoTx(to_insert.iterator());
 
-        assertThat(counts.length, equalTo(2));
-        assertThat(counts[0], equalTo(1));
-        assertThat(counts[1], equalTo(1));
-
-        assertThat(b.size(), equalTo(2));
+        assertThat(counts).containsExactly(1, 1);
+        assertThat(b.size()).isEqualTo(2);
     }
 
     @Test
@@ -80,12 +74,12 @@ public class TestBatching
 
         b.withConstantValue(ids, "Johan");
 
-        assertThat(b.size(), equalTo(5));
+        assertThat(b.size()).isEqualTo(5);
 
         List<String> names = handle.createQuery("select distinct name from something")
                                    .mapTo(String.class)
                                    .list();
-        assertThat(names, equalTo(Arrays.asList("Johan")));
+        assertThat(names).containsExactly("Johan");
     }
 
     @Test
@@ -97,12 +91,12 @@ public class TestBatching
 
         b.zipArgumentsTogether(ids, names);
 
-        assertThat(b.size(), equalTo(3));
+        assertThat(b.size()).isEqualTo(3);
 
         List<String> ins_names = handle.createQuery("select distinct name from something order by name")
                                        .mapTo(String.class)
                                        .list();
-        assertThat(ins_names, equalTo(Arrays.asList("David", "Mike", "Tim")));
+        assertThat(ins_names).containsExactly("David", "Mike", "Tim");
     }
 
     @Test
@@ -115,10 +109,7 @@ public class TestBatching
                                                new Something(4, "Robert"),
                                                new Something(5, "Maniax"));
         int[] counts = b.insertChunked(things);
-        assertThat(counts.length, equalTo(5));
-        for (int count : counts) {
-            assertThat(count, equalTo(1));
-        }
+        assertThat(counts).hasSize(5).containsOnly(1);
     }
 
     @Test
@@ -131,10 +122,7 @@ public class TestBatching
                                                new Something(4, "Robert"),
                                                new Something(5, "Maniax"));
         int[] counts = b.insertChunked(3, things);
-        assertThat(counts.length, equalTo(5));
-        for (int count : counts) {
-            assertThat(count, equalTo(1));
-        }
+        assertThat(counts).hasSize(5).containsOnly(1);
     }
 
     @Test(expected = UnableToCreateStatementException.class, timeout=5000)

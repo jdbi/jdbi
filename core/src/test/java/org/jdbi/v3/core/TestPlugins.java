@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.Connection;
@@ -37,7 +37,7 @@ public class TestPlugins {
             }
         });
 
-        assertSame(h, db.getJdbi().open());
+        assertThat(h).isSameAs(db.getJdbi().open());
     }
 
     @Test
@@ -51,6 +51,6 @@ public class TestPlugins {
             }
         });
 
-        assertSame(c, db.getJdbi().open().getConnection());
+        assertThat(c).isSameAs(db.getJdbi().open().getConnection());
     }
 }

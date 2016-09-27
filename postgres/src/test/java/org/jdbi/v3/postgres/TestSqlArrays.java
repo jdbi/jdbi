@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,27 +59,27 @@ public class TestSqlArrays {
     @Test
     public void testUuidArray() throws Exception {
         ao.insertUuidArray(testUuids);
-        assertArrayEquals(testUuids, ao.fetchUuidArray());
+        assertThat(ao.fetchUuidArray()).containsExactly(testUuids);
     }
 
     @Test
     @Ignore("Inserting lists to arrays is not supported")
     public void testUuidList() throws Exception {
         ao.insertUuidList(Arrays.asList(testUuids));
-        assertEquals(Arrays.asList(testUuids), ao.fetchUuidList());
+        assertThat(ao.fetchUuidList()).containsExactly(testUuids);
     }
 
     @Test
     public void testIntArray() throws Exception {
         ao.insertIntArray(testInts);
         int[] actuals = ao.fetchIntArray();
-        assertArrayEquals(testInts, actuals);
+        assertThat(actuals).containsExactly(testInts);
     }
 
     @Test
     public void testEmptyIntArray() throws Exception {
         ao.insertIntArray(new int[0]);
-        assertEquals(0, ao.fetchIntArray().length);
+        assertThat(ao.fetchIntArray()).isEmpty();
     }
 
     @Test
@@ -88,7 +87,7 @@ public class TestSqlArrays {
         Integer[] source = IntStream.of(testInts).mapToObj(Integer::valueOf).toArray(Integer[]::new);
         ao.insertBoxedIntArray(source);
         Integer[] actuals = ao.fetchBoxedIntArray();
-        assertArrayEquals(source, actuals);
+        assertThat(actuals).containsExactly(actuals);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class TestSqlArrays {
         ao.insertIntArray(testInts);
         Object[] actuals = ao.fetchObjectArray();
         Object[] expecteds = IntStream.of(testInts).mapToObj(Integer::valueOf).toArray(Object[]::new);
-        assertArrayEquals(expecteds, actuals);
+        assertThat(actuals).containsExactly(expecteds);
     }
 
     @Test
@@ -105,7 +104,7 @@ public class TestSqlArrays {
         List<Integer> testIntList = new ArrayList<Integer>();
         Arrays.stream(testInts).forEach(testIntList::add);
         ao.insertIntList(testIntList);
-        assertEquals(testIntList, ao.fetchIntList());
+        assertThat(ao.fetchIntList()).isEqualTo(testIntList);
     }
 
     public interface ArrayObject {

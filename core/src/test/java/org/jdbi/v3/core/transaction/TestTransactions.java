@@ -13,10 +13,8 @@
  */
 package org.jdbi.v3.core.transaction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +22,6 @@ import java.util.List;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.exception.JdbiException;
 import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.exception.TransactionFailedException;
 import org.junit.Rule;
@@ -42,7 +39,7 @@ public class TestTransactions
 
         String woot = h.inTransaction((handle, status) -> "Woot!");
 
-        assertEquals("Woot!", woot);
+        assertThat(woot).isEqualTo("Woot!");
     }
 
     @Test
@@ -58,13 +55,13 @@ public class TestTransactions
     public void testDoubleOpen() throws Exception
     {
         Handle h = db.openHandle();
-        assertTrue(h.getConnection().getAutoCommit());
+        assertThat(h.getConnection().getAutoCommit()).isTrue();
 
         h.begin();
         h.begin();
-        assertFalse(h.getConnection().getAutoCommit());
+        assertThat(h.getConnection().getAutoCommit()).isFalse();
         h.commit();
-        assertTrue(h.getConnection().getAutoCommit());
+        assertThat(h.getConnection().getAutoCommit()).isTrue();
     }
 
     @Test
@@ -72,42 +69,29 @@ public class TestTransactions
     {
         Handle h = db.openHandle();
 
-        try
-        {
-            h.inTransaction((handle, status) -> {
-                handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
-
-                throw new IOException();
-            });
-            fail("Should have thrown exception");
-        }
-        catch (IOException expected) {
-        }
+        assertThatExceptionOfType(IOException.class).isThrownBy(() ->
+                h.inTransaction((handle, status) -> {
+                    handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
+                    throw new IOException();
+                }));
 
         List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
-        assertEquals(0, r.size());
+        assertThat(r).isEmpty();
     }
 
     @Test
     public void testRollbackOnlyAbortsTransaction() throws Exception
     {
         Handle h = db.openHandle();
-
-        try
-        {
-            h.inTransaction((handle, status) -> {
-                handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
-                status.setRollbackOnly();
-                return "Hi";
-            });
-            fail("Should have thrown exception");
-        }
-        catch (TransactionFailedException expected)
-        {
-        }
+        assertThatExceptionOfType(TransactionFailedException.class).isThrownBy(() ->
+                h.inTransaction((handle, status) -> {
+                    handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
+                    status.setRollbackOnly();
+                    return "Hi";
+                }));
 
         List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
-        assertEquals(0, r.size());
+        assertThat(r).isEmpty();
     }
 
     @Test
@@ -119,11 +103,14 @@ public class TestTransactions
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
         h.checkpoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 2, "Martin");
-        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly());
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+                .isEqualTo(Integer.valueOf(2));
         h.rollback("first");
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly());
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+                .isEqualTo(Integer.valueOf(1));
         h.commit();
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly());
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+                .isEqualTo(Integer.valueOf(1));
     }
 
     @Test
@@ -136,34 +123,15 @@ public class TestTransactions
 
         h.release("first");
 
-        try {
-            h.rollback("first");
-            fail("Should have thrown an exception of some kind");
-        }
-        catch (TransactionException e) {
-            h.rollback();
-            assertTrue(true);
-        }
+        assertThatExceptionOfType(TransactionException.class)
+                .isThrownBy(() -> h.rollback("first"));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testThrowingRuntimeExceptionPercolatesOriginal() throws Exception
     {
-        Handle h = db.openHandle();
-        try {
-            h.inTransaction((handle, status) -> {
-                throw new IllegalArgumentException();
-            });
-        }
-        catch (JdbiException e) {
-            fail("Should have thrown a straight RuntimeException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertEquals("Go here", 2, 1 + 1);
-        }
-        catch (Exception e) {
-            fail("Should have been caught at IllegalArgumentException");
-        }
+        db.openHandle().inTransaction((handle, status) -> {
+            throw new IllegalArgumentException();
+        });
     }
 }
