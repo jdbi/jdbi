@@ -18,6 +18,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
@@ -56,11 +57,17 @@ class BeanPropertyArguments implements NamedArgumentFinder
             {
                 if (propertyName.equals(descriptor.getName()))
                 {
+                    Method getter = descriptor.getReadMethod();
+                    if (getter == null)
+                    {
+                        throw new UnableToCreateStatementException(String.format("No getter method found for " +
+                                        "bean property [%s] on [%s]",
+                                propertyName, bean), ctx);
+                    }
+
                     try
                     {
-                        return ctx.findArgumentFor(
-                                descriptor.getReadMethod().getGenericReturnType(),
-                                descriptor.getReadMethod().invoke(bean));
+                        return ctx.findArgumentFor(getter.getGenericReturnType(), getter.invoke(bean));
                     }
                     catch (IllegalAccessException e)
                     {

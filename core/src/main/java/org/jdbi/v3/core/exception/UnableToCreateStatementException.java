@@ -24,6 +24,11 @@ public class UnableToCreateStatementException extends StatementException
         super(string, throwable, ctx);
     }
 
+    public UnableToCreateStatementException(String string, StatementContext ctx)
+    {
+        super(string, ctx);
+    }
+
     public UnableToCreateStatementException(Exception e, StatementContext ctx)
     {
         super(e, ctx);
