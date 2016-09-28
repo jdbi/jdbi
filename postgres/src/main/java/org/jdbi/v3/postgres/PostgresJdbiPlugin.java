@@ -27,5 +27,8 @@ public class PostgresJdbiPlugin implements JdbiPlugin {
         db.registerArgumentFactory(new JavaTimeArgumentFactory());
 
         db.registerArgumentFactory(new InetArgumentFactory());
+
+        db.registerColumnMapper(new HStoreColumnMapper());
+        db.registerArgumentFactory(new HStoreArgumentFactory());
     }
 }
