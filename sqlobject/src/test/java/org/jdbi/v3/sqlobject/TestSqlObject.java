@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
@@ -29,6 +30,8 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.sqlobject.customizers.Define;
+import org.jdbi.v3.sqlobject.customizers.MaxRows;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.subpackage.BrokenDao;
@@ -162,6 +165,30 @@ public class TestSqlObject
         assertThat(dao.findById(2), equalTo(new Something(2, "bar")));
     }
 
+    @Test
+    public void testRedundantMethodCustomizingAnnotation() {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Statement customizing annotations don't work on default methods.");
+
+        handle.attach(RedundantMethodStatementCustomizingAnnotation.class);
+    }
+
+    @Test
+    public void testRedundantParameterCustomizingAnnotation() {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Statement customizing annotations don't work on default methods.");
+
+        handle.attach(RedundantParameterStatementCustomizingAnnotation.class);
+    }
+
+    @Test
+    public void testRedundantParameterBindingAnnotation() {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Binding annotations don't work on default methods.");
+
+        handle.attach(RedundantParameterBindingAnnotation.class);
+    }
+
     @RegisterRowMapper(SomethingMapper.class)
     public interface Dao extends GetHandle
     {
@@ -224,6 +251,25 @@ public class TestSqlObject
             return getHandle().createQuery("select * from something")
                     .map(new SomethingMapper())
                     .list();
+        }
+    }
+
+    public interface RedundantMethodStatementCustomizingAnnotation extends GetHandle {
+        @MaxRows(10)
+        default List<String> broken() {
+            return emptyList();
+        }
+    }
+
+    public interface RedundantParameterStatementCustomizingAnnotation extends GetHandle {
+        default List<String> broken(@Define int wut) {
+            return emptyList();
+        }
+    }
+
+    public interface RedundantParameterBindingAnnotation extends GetHandle {
+        default String broken(@Bind int wat) {
+            return "foo";
         }
     }
 }

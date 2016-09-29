@@ -20,6 +20,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -142,6 +143,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                             method.getName(),
                             sqlMethodAnnotations));
         }
+
         if (method.isDefault()) {
             if (!sqlMethodAnnotations.isEmpty()) {
                 throw new IllegalStateException(String.format(
@@ -151,6 +153,49 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
                         method.getName(),
                         sqlMethodAnnotations.get(0).getSimpleName()));
             }
+
+            Stream.of(method.getAnnotations()).map(Annotation::annotationType)
+                    .filter(type -> type.isAnnotationPresent(SqlStatementCustomizingAnnotation.class))
+                    .findFirst()
+                    .ifPresent(type -> {
+                        throw new IllegalStateException(String.format(
+                                "Default method %s.%s has @%s annotation. Statement customizing annotations don't " +
+                                        "work on default methods.",
+                                sqlObjectType.getSimpleName(),
+                                method.getName(),
+                                type.getSimpleName()));
+                    });
+
+            for (Parameter parameter : method.getParameters()) {
+                Stream.of(parameter.getAnnotations())
+                        .map(Annotation::annotationType)
+                        .filter(type -> type.isAnnotationPresent(SqlStatementCustomizingAnnotation.class))
+                        .findFirst()
+                        .ifPresent(type -> {
+                            throw new IllegalStateException(String.format(
+                                    "Default method %s.%s parameter %s has @%s annotation. Statement customizing " +
+                                            "annotations don't work on default methods.",
+                                    sqlObjectType.getSimpleName(),
+                                    parameter.getName(),
+                                    method.getName(),
+                                    type.getSimpleName()));
+                        });
+
+                Stream.of(parameter.getAnnotations())
+                        .map(Annotation::annotationType)
+                        .filter(type -> type.isAnnotationPresent(BindingAnnotation.class))
+                        .findFirst()
+                        .ifPresent(type -> {
+                            throw new IllegalStateException(String.format(
+                                    "Default method %s.%s parameter %s has @%s annotation. Binding annotations " +
+                                            "don't work on default methods.",
+                                    sqlObjectType.getSimpleName(),
+                                    parameter.getName(),
+                                    method.getName(),
+                                    type.getSimpleName()));
+                        });
+            }
+
             return new DefaultMethodHandler(method);
         }
 
