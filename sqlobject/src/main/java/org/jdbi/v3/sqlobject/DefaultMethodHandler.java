@@ -13,17 +13,19 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static java.util.Collections.synchronizedMap;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 
 import org.jdbi.v3.core.HandleSupplier;
 
 class DefaultMethodHandler implements Handler {
-    private static final Map<Class<?>, MethodHandles.Lookup> privateLookups = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, MethodHandles.Lookup> privateLookups = synchronizedMap(new WeakHashMap<>());
 
     private static MethodHandles.Lookup lookupFor(Class<?> clazz) {
         return privateLookups.computeIfAbsent(clazz, type -> {
