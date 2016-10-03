@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.jpa;
 
+import static java.util.Collections.synchronizedMap;
+import static java.util.Collections.unmodifiableList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +33,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 import java.util.stream.Stream;
-
-import static java.util.Collections.unmodifiableList;
 
 class JpaClass<C> {
 
-    private static final Map<Class<?>, JpaClass<?>> cache = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, JpaClass<?>> cache = synchronizedMap(new WeakHashMap<>());
 
     @SuppressWarnings("unchecked")
     public static <C> JpaClass<C> get(Class<C> clazz) {

@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.annotation.Annotation;
@@ -28,8 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
@@ -46,9 +46,9 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     private static final Object[] NO_ARGS = new Object[0];
 
     private final Map<Method, Handler> mixinHandlers = new HashMap<>();
-    private final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Class<? extends SqlObjectConfigurerFactory>, SqlObjectConfigurerFactory>
-            configurerFactories = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Map<Method, Handler>> handlersCache = synchronizedMap(new WeakHashMap<>());
+    private final Map<Class<? extends SqlObjectConfigurerFactory>, SqlObjectConfigurerFactory>
+            configurerFactories = synchronizedMap(new WeakHashMap<>());
 
     SqlObjectFactory() {
         mixinHandlers.putAll(TransactionalHelper.handlers());
