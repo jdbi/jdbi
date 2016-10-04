@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import com.google.common.collect.ImmutableList;
+import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
@@ -58,6 +59,12 @@ public class TestOptional {
     @Test
     public void testOptionalReturnAbsent() {
         assertThat(dao.findNameById(3), equalTo(Optional.empty()));
+    }
+
+    @Test
+    public void testNullReturnsAbsent() {
+        dao.insert(3, null);
+        Assertions.assertThat(dao.findNameById(3)).isEmpty();
     }
 
     @Test(expected = IllegalStateException.class)

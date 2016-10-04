@@ -25,7 +25,7 @@ class OptionalBuilder<T> {
                             optional.get(),
                             value));
         }
-        optional = Optional.of(value);
+        optional = Optional.ofNullable(value);
     }
 
     public Optional<T> build() {
