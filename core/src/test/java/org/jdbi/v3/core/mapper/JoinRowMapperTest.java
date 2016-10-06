@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -83,7 +82,7 @@ public class JoinRowMapperTest
             IntStream.rangeClosed(1, 3).forEach(a ->
                 expected.put(u(u), a(a))));
 
-        assertThat(product, is(expected));
+        assertThat(product).isEqualTo(expected);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class JoinRowMapperTest
             .forEach(jr -> joined.put(jr.get(User.class), jr.get(Article.class)));
        // end::multimap[]
 
-        assertThat(joined, is(getExpected()));
+        assertThat(joined).isEqualTo(getExpected());
     }
 
     public static Multimap<User, Article> getExpected()

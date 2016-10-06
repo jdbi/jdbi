@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.sql.Connection;
 import java.util.UUID;
@@ -66,11 +66,11 @@ public class TestNewApiOnDbiAndHandle
             spiffy.insert(new Something(1, "Tim"));
             spiffy.insert(new Something(2, "Diego"));
 
-            assertEquals("Diego", spiffy.findNameById(2));
+            assertThat(spiffy.findNameById(2)).isEqualTo("Diego");
             c.set(spiffy.getHandle().getConnection());
         });
 
-        assertTrue(c.get().isClosed());
+        assertThat(c.get().isClosed()).isTrue();
     }
 
     @Test
@@ -81,7 +81,7 @@ public class TestNewApiOnDbiAndHandle
         spiffy.insert(new Something(1, "Tim"));
         spiffy.insert(new Something(2, "Diego"));
 
-        assertEquals("Diego", spiffy.findNameById(2));
+        assertThat(spiffy.findNameById(2)).isEqualTo("Diego");
     }
 
     @Test
@@ -92,7 +92,7 @@ public class TestNewApiOnDbiAndHandle
         spiffy.insert(new Something(1, "Tim"));
         spiffy.insert(new Something(2, "Diego"));
 
-        assertEquals("Diego", spiffy.findNameById(2));
+        assertThat(spiffy.findNameById(2)).isEqualTo("Diego");
     }
 
     @Test(expected = UnableToObtainConnectionException.class)

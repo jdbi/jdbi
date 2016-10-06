@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
@@ -48,7 +48,7 @@ public class TestPostgresBugs
         int four = db.getJdbi().withHandle(handle ->
                 handle.createQuery("select 2 + 2").mapTo(Integer.class).findOnly());
 
-        assertThat(four, equalTo(4));
+        assertThat(four).isEqualTo(4);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class TestPostgresBugs
         Dao dao = db.getJdbi().onDemand(Dao.class);
 
         Something s = dao.insertAndFetch(1, "Brian");
-        assertThat(s, equalTo(new Something(1, "Brian")));
+        assertThat(s).isEqualTo(new Something(1, "Brian"));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TestPostgresBugs
             return transactional.findById(1);
         });
 
-        assertThat(s, equalTo(new Something(1, "Brian")));
+        assertThat(s).isEqualTo(new Something(1, "Brian"));
     }
 
 

@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+
+
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class TestHandle
             handle.insert("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
         });
-        assertEquals("Brian", value);
+        assertThat(value).isEqualTo("Brian");
     }
 
     @Test
@@ -48,7 +48,7 @@ public class TestHandle
                 handle.inTransaction((handle1, status) ->
                         handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
 
-        assertEquals("Keith", value);
+        assertThat(value).isEqualTo("Keith");
     }
 
     @SuppressWarnings("resource")
@@ -56,8 +56,8 @@ public class TestHandle
     public void testIsClosed() throws Exception
     {
         Handle h = db.openHandle();
-        assertFalse(h.isClosed());
+        assertThat(h.isClosed()).isFalse();
         h.close();
-        assertTrue(h.isClosed());
+        assertThat(h.isClosed()).isTrue();
     }
 }

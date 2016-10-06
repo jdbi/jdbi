@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.H2DatabaseRule;
@@ -54,7 +54,7 @@ public class TestOverrideStatementRewriter
         Hashed h = handle.attach(Hashed.class);
         h.insert(new Something(1, "Joy"));
         Something s = h.findById(1);
-        assertThat(s.getName(), equalTo("Joy"));
+        assertThat(s.getName()).isEqualTo("Joy");
     }
 
 

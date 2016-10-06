@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
@@ -48,10 +46,9 @@ public class TestClosingHandle
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
 
         List<Map<String, Object>> results = h.createQuery("select * from something order by id").list();
-        assertEquals(2, results.size());
-        Map<String, Object> first_row = results.get(0);
-        assertEquals("eric", first_row.get("name"));
-        assertFalse(h.isClosed());
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0)).containsEntry("name", "eric");
+        assertThat(h.isClosed()).isFalse();
     }
 
     @Test
@@ -63,10 +60,9 @@ public class TestClosingHandle
             .cleanupHandle()
             .list();
 
-        assertEquals(2, results.size());
-        Map<String, Object> first_row = results.get(0);
-        assertEquals("eric", first_row.get("name"));
-        assertTrue(h.isClosed());
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0)).containsEntry("name", "eric");
+        assertThat(h.isClosed()).isTrue();
     }
 
     @Test
@@ -77,14 +73,8 @@ public class TestClosingHandle
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .iterator();
 
-        int cnt = 0;
-        while(it.hasNext()) {
-            cnt++;
-            it.next();
-        }
-
-        assertEquals(2, cnt);
-        assertFalse(h.isClosed());
+        assertThat(it).hasSize(2);
+        assertThat(h.isClosed()).isFalse();
     }
 
     @Test
@@ -96,14 +86,8 @@ public class TestClosingHandle
             .cleanupHandle()
             .iterator();
 
-        int cnt = 0;
-        while(it.hasNext()) {
-            cnt++;
-            it.next();
-        }
-
-        assertEquals(2, cnt);
-        assertTrue(h.isClosed());
+        assertThat(it).hasSize(2);
+        assertThat(h.isClosed()).isTrue();
     }
 
     @Test
@@ -116,17 +100,17 @@ public class TestClosingHandle
             .cleanupHandle()
             .iterator();
 
-        assertTrue(it.hasNext());
-        assertFalse(h.isClosed());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(h.isClosed()).isFalse();
         it.next();
-        assertTrue(it.hasNext());
-        assertFalse(h.isClosed());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(h.isClosed()).isFalse();
         it.next();
-        assertTrue(it.hasNext());
-        assertFalse(h.isClosed());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(h.isClosed()).isFalse();
         it.next();
-        assertFalse(it.hasNext());
-        assertTrue(h.isClosed());
+        assertThat(it.hasNext()).isFalse();
+        assertThat(h.isClosed()).isTrue();
     }
 
     @Test
@@ -139,15 +123,15 @@ public class TestClosingHandle
             .cleanupHandle()
             .iterator();
 
-        assertTrue(it.hasNext());
-        assertFalse(h.isClosed());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(h.isClosed()).isFalse();
         it.next();
-        assertTrue(it.hasNext());
-        assertFalse(h.isClosed());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(h.isClosed()).isFalse();
 
         it.close();
-        assertFalse(it.hasNext());
-        assertTrue(h.isClosed());
+        assertThat(it.hasNext()).isFalse();
+        assertThat(h.isClosed()).isTrue();
     }
 }
 

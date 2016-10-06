@@ -13,13 +13,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertSame;
-
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestEnumMapping
 {
@@ -34,8 +34,8 @@ public class TestEnumMapping
         int bobId = spiffy.addCoolName(CoolName.BOB);
         int joeId = spiffy.addCoolName(CoolName.JOE);
 
-        assertSame(CoolName.BOB, spiffy.findById(bobId));
-        assertSame(CoolName.JOE, spiffy.findById(joeId));
+        assertThat(spiffy.findById(bobId)).isSameAs(CoolName.BOB);
+        assertThat(spiffy.findById(joeId)).isSameAs(CoolName.JOE);
     }
 
     @RegisterRowMapper(SomethingMapper.class)

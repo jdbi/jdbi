@@ -13,9 +13,8 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.sql.SQLException;
 
@@ -41,12 +40,9 @@ public class TestBatchExceptionRewrite
         Batch b = db.openHandle().createBatch();
         b.add("insert into something (id, name) values (0, 'Keith')");
         b.add("insert into something (id, name) values (0, 'Keith')");
-        try {
-            b.execute();
-            fail();
-        } catch (UnableToExecuteStatementException e) {
-            assertSuppressions(e.getCause());
-        }
+        assertThatExceptionOfType(UnableToExecuteStatementException.class)
+                .isThrownBy(b::execute)
+                .satisfies(e -> assertSuppressions(e.getCause()));
     }
 
     @Test
@@ -55,19 +51,17 @@ public class TestBatchExceptionRewrite
         PreparedBatch b = db.openHandle().prepareBatch("insert into something (id, name) values (?,?)");
         b.add(0, "a");
         b.add(0, "a");
-        try {
-            b.execute();
-            fail();
-        } catch (UnableToExecuteStatementException e) {
-            assertSuppressions(e.getCause());
-        }
+        assertThatExceptionOfType(UnableToExecuteStatementException.class)
+                .isThrownBy(b::execute)
+                .satisfies(e->assertSuppressions(e.getCause()));
     }
 
     private void assertSuppressions(Throwable cause) {
         LoggerFactory.getLogger(TestBatchExceptionRewrite.class).info("exception", cause);
         SQLException e = (SQLException) cause;
-        assertEquals(e.getNextException(), e.getSuppressed()[0]);
-        assertNull(e.getNextException().getNextException());
-        assertEquals(1, e.getSuppressed().length);
+        SQLException nextException = e.getNextException();
+        assertThat((Exception) nextException).isEqualTo(e.getSuppressed()[0]);
+        assertThat((Exception) nextException.getNextException()).isNull();
+        assertThat(e.getSuppressed()).hasSize(1);
     }
 }

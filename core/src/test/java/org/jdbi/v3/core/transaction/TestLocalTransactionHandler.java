@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.core.transaction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Handle;
 import org.junit.Rule;
@@ -42,9 +41,9 @@ public class TestLocalTransactionHandler {
             new LocalTransactionHandler().inTransaction(h,
                 (h, txn) -> { throw outer; });
         } catch (RuntimeException e) {
-            assertSame(outer, e);
-            assertEquals(1, e.getSuppressed().length);
-            assertSame(inner, e.getSuppressed()[0]);
+            assertThat(e).isSameAs(outer);
+            assertThat(e.getSuppressed()).hasSize(1);
+            assertThat(e.getSuppressed()[0]).isSameAs(inner);
         }
     }
 }

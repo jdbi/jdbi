@@ -21,8 +21,9 @@ import org.junit.Test;
 
 import javax.persistence.Entity;
 import java.util.List;
+import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginTest {
     @Rule
@@ -41,6 +42,20 @@ public class PluginTest {
 
         public void setId(int id) { this.id = id; }
         public void setName(String name) { this.name = name; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof Thing) {
+                Thing thing = (Thing) o;
+                return id == thing.id && Objects.equals(name, thing.name);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
     }
 
     public interface ThingDao {
@@ -62,13 +77,6 @@ public class PluginTest {
 
         List<Thing> rs = dao.list();
 
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
-    }
-
-    public static void assertThingEquals(Thing one, Thing two) {
-        assertEquals(one.getId(), two.getId());
-        assertEquals(one.getName(), two.getName());
+        assertThat(rs).containsOnlyOnce(brian, keith);
     }
 }

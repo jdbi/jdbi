@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,14 +43,14 @@ public class TestStatements
     public void testStatement() throws Exception
     {
         int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        assertEquals(1, rows);
+        assertThat(rows).isEqualTo(1);
     }
 
     @Test
     public void testSimpleInsert() throws Exception
     {
         int c = h.insert("insert into something (id, name) values (1, 'eric')");
-        assertEquals(1, c);
+        assertThat(c).isEqualTo(1);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class TestStatements
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.createStatement("update something set name = 'ERIC' where id = 1").execute();
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
-        assertEquals("ERIC", eric.getName());
+        assertThat(eric.getName()).isEqualTo("ERIC");
     }
 
     @Test
@@ -68,6 +68,6 @@ public class TestStatements
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.update("update something set name = 'cire' where id = 1");
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
-        assertEquals("cire", eric.getName());
+        assertThat(eric.getName()).isEqualTo("cire");
     }
 }

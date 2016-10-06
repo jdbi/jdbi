@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,8 +65,8 @@ public class TestGetGeneratedKeysPostgres
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
-            assertThat(dao.findNameById(brian_id), equalTo("Brian"));
-            assertThat(dao.findNameById(keith_id), equalTo("Keith"));
+            assertThat(dao.findNameById(brian_id)).isEqualTo("Brian");
+            assertThat(dao.findNameById(keith_id)).isEqualTo("Keith");
         });
     }
 
@@ -74,8 +74,8 @@ public class TestGetGeneratedKeysPostgres
     public void testBatch() throws Exception {
         db.getJdbi().useExtension(DAO.class, dao -> {
             int[] ids = dao.insert(Arrays.asList("Burt", "Macklin"));
-            assertThat(dao.findNameById(ids[0]), equalTo("Burt"));
-            assertThat(dao.findNameById(ids[1]), equalTo("Macklin"));
+            assertThat(dao.findNameById(ids[0])).isEqualTo("Burt");
+            assertThat(dao.findNameById(ids[1])).isEqualTo("Macklin");
         });
     }
 }

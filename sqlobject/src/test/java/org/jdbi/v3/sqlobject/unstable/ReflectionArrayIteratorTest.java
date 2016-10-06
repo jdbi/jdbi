@@ -13,36 +13,28 @@
  */
 package org.jdbi.v3.sqlobject.unstable;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Iterator;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReflectionArrayIteratorTest
 {
     @Test
     public void testIntArray()
     {
-        final Iterator it = new ReflectionArrayIterator(new int[]{1, 2, 3});
+        final Iterator<Object> it = new ReflectionArrayIterator(new int[]{1, 2, 3});
 
-        Assert.assertTrue(it.hasNext());
-        Assert.assertEquals(1, it.next());
-
-        Assert.assertTrue(it.hasNext());
-        Assert.assertEquals(2, it.next());
-
-        Assert.assertTrue(it.hasNext());
-        Assert.assertEquals(3, it.next());
-
-        Assert.assertFalse(it.hasNext());
+        assertThat(it).containsExactly(1, 2, 3);
     }
 
     @Test
     public void testEmptyArray()
     {
-        final Iterator it = new ReflectionArrayIterator(new int[]{});
+        final Iterator<Object> it = new ReflectionArrayIterator(new int[]{});
 
-        Assert.assertFalse(it.hasNext());
+        assertThat(it).isEmpty();
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)
@@ -50,8 +42,8 @@ public class ReflectionArrayIteratorTest
     {
         final Iterator it = new ReflectionArrayIterator(new int[]{1});
 
-        Assert.assertTrue(it.hasNext());
-        Assert.assertEquals(1, it.next());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.next()).isEqualTo(1);
 
         it.next();
     }

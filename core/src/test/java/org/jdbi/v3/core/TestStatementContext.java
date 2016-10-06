@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +32,6 @@ public class TestStatementContext
                 .bind("name", "Martin")
                 .define("table", "something")
                 .execute();
-        assertEquals(1, inserted);
+        assertThat(inserted).isEqualTo(1);
     }
 }

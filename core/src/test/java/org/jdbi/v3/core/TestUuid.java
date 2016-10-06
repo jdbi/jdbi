@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 
@@ -49,6 +49,6 @@ public class TestUuid {
             .bind("uuid", u)
             .execute();
 
-        assertEquals(u, h.createQuery("SELECT * FROM foo").mapTo(UUID.class).findOnly());
+        assertThat(h.createQuery("SELECT * FROM foo").mapTo(UUID.class).findOnly()).isEqualTo(u);
     }
 }

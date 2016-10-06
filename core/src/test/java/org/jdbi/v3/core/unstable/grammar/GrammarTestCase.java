@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.unstable.grammar;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Token;
@@ -25,8 +25,8 @@ public abstract class GrammarTestCase
         Lexer lexer = createLexer(s);
         for (int token : tokens) {
             Token t = lexer.nextToken();
-            assertEquals(String.format("Expected %s, got %s, with '%s'", nameOf(token), nameOf(t.getType()), t.getText()),
-                         token, t.getType());
+            assertThat(t.getType()).isEqualTo(token)
+                    .withFailMessage("Expected %s, got %s, with '%s'", nameOf(token), nameOf(t.getType()), t.getText());
         }
     }
 

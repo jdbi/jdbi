@@ -13,11 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -49,7 +45,7 @@ public class TestVariousOddities
         s.insert(new Something(14, "Tom"));
 
         Something tom = s.byId(14);
-        assertEquals("Tom", tom.getName());
+        assertThat(tom.getName()).isEqualTo("Tom");
     }
 
     @Test
@@ -57,9 +53,9 @@ public class TestVariousOddities
     {
         Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
         Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
-        assertEquals(s1, s1);
-        assertNotSame(s1, s2);
-        assertFalse(s1.equals(s2));
+        assertThat(s1).isEqualTo(s1);
+        assertThat(s1).isNotSameAs(s2);
+        assertThat(s1).isNotEqualTo(s2);
     }
 
     @Test
@@ -67,9 +63,9 @@ public class TestVariousOddities
     {
         Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
         Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
-        assertNotNull(s1.toString());
-        assertNotNull(s2.toString());
-        assertTrue(s1.toString() != s2.toString());
+        assertThat(s1.toString()).isNotNull();
+        assertThat(s2.toString()).isNotNull();
+        assertThat(s1.toString()).isNotEqualTo(s2.toString());
     }
 
     @Test
@@ -77,9 +73,9 @@ public class TestVariousOddities
     {
         Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
         Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
-        assertFalse(0 == s1.hashCode());
-        assertFalse(0 == s2.hashCode());
-        assertTrue(s1.hashCode() != s2.hashCode());
+        assertThat(s1.hashCode()).isNotZero();
+        assertThat(s2.hashCode()).isNotZero();
+        assertThat(s1.hashCode()).isNotEqualTo(s2.hashCode());
     }
 
     @Test
@@ -91,11 +87,13 @@ public class TestVariousOddities
         ExecutorService pool = Executors.newFixedThreadPool(2);
         Future<SpiffyConcurrent> f1 = pool.submit(callable);
         Future<SpiffyConcurrent> f2 = pool.submit(callable);
+        pool.shutdown();
         SpiffyConcurrent s1 = f1.get();
         SpiffyConcurrent s2 = f2.get();
-        assertFalse(0 == s1.hashCode());
-        assertFalse(0 == s2.hashCode());
-        assertTrue(s1.hashCode() != s2.hashCode());
+
+        assertThat(s1.hashCode()).isNotZero();
+        assertThat(s2.hashCode()).isNotZero();
+        assertThat(s1.hashCode()).isNotEqualTo(s2.hashCode());
     }
 
     @Test

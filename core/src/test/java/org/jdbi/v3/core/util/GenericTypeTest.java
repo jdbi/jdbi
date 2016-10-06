@@ -13,16 +13,15 @@
  */
 package org.jdbi.v3.core.util;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericTypeTest {
 
     @Test
     public void generic() {
-        assertThat(new GenericType<String>() {}.getType(), equalTo(String.class));
+        assertThat(new GenericType<String>() {}.getType()).isEqualTo(String.class);
     }
 
     @SuppressWarnings("rawtypes")

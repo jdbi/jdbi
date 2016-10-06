@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.stringtemplate;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,7 +58,7 @@ public class TestStringTemplateSqlLocator
                             .mapTo(String.class)
                             .findOnly();
 
-        assertThat(name, equalTo("Henning"));
+        assertThat(name).isEqualTo("Henning");
     }
 
     @Test
@@ -68,7 +67,7 @@ public class TestStringTemplateSqlLocator
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
         Something s = handle.attach(Wombat.class).findById(6L);
-        assertThat(s.getName(), equalTo("Martin"));
+        assertThat(s.getName()).isEqualTo("Martin");
     }
 
     @Test
@@ -76,7 +75,7 @@ public class TestStringTemplateSqlLocator
     {
         handle.execute("insert into something (id, name) values (2, 'Bean')");
         Wombat w = handle.attach(Wombat.class);
-        assertThat(w.findNameFor(2), equalTo("Bean"));
+        assertThat(w.findNameFor(2)).isEqualTo("Bean");
     }
 
     @Test
@@ -88,7 +87,7 @@ public class TestStringTemplateSqlLocator
                             .mapTo(String.class)
                             .findOnly();
 
-        assertThat(name, equalTo("Bouncer"));
+        assertThat(name).isEqualTo("Bouncer");
     }
 
     @Test
@@ -97,8 +96,8 @@ public class TestStringTemplateSqlLocator
         Wombat roo = handle.attach(Wombat.class);
         roo.insertBunches(new Something(1, "Jeff"), new Something(2, "Brian"));
 
-        assertThat(roo.findById(1L), equalTo(new Something(1, "Jeff")));
-        assertThat(roo.findById(2L), equalTo(new Something(2, "Brian")));
+        assertThat(roo.findById(1L)).isEqualTo(new Something(1, "Jeff"));
+        assertThat(roo.findById(2L)).isEqualTo(new Something(2, "Brian"));
     }
 
     @UseStringTemplateSqlLocator

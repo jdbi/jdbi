@@ -18,9 +18,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestNull {
 
@@ -37,17 +35,17 @@ public class TestNull {
     }
     @Test
     public void testNotNullResult() {
-        assertThat(dao.findNameById(1), equalTo("brian"));
+        assertThat(dao.findNameById(1)).isEqualTo("brian");
     }
 
     @Test
     public void testNullResult() {
-        assertThat(dao.findNameById(2), nullValue());
+        assertThat(dao.findNameById(2)).isNull();
     }
 
     @Test
     public void testNoResult() {
-        assertThat(dao.findNameById(3), nullValue());
+        assertThat(dao.findNameById(3)).isNull();
     }
 
     public interface DAO {

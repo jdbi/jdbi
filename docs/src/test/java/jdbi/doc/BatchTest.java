@@ -1,7 +1,6 @@
 package jdbi.doc;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,12 +38,12 @@ public class BatchTest {
         batch.add("INSERT INTO fruit VALUES(1, 'banana')");
 
         int[] rowsModified = batch.execute();
-        assertArrayEquals(new int[] {1, 1}, rowsModified);
-        assertEquals(2,
-                handle.createQuery("SELECT count(1) FROM fruit")
+        assertThat(rowsModified).containsExactly(1, 1);
+        assertThat(handle.createQuery("SELECT count(1) FROM fruit")
                 .mapTo(int.class)
                 .findOnly()
-                .intValue());
+                .intValue())
+                .isEqualTo(2);
     }
     // end::simpleBatch[]
 
@@ -62,12 +61,12 @@ public class BatchTest {
         batch.add();
 
         int[] rowsModified = batch.execute();
-        assertArrayEquals(new int[] {1, 1}, rowsModified);
-        assertEquals(2,
-                handle.createQuery("SELECT count(1) FROM fruit")
+        assertThat(rowsModified).containsExactly(1, 1);
+        assertThat(handle.createQuery("SELECT count(1) FROM fruit")
                 .mapTo(int.class)
                 .findOnly()
-                .intValue());
+                .intValue())
+                .isEqualTo(2);
     }
     // end::preparedBatch[]
 
@@ -80,8 +79,8 @@ public class BatchTest {
                 new Fruit(0, "apple"),
                 new Fruit(1, "banana")));
 
-        assertArrayEquals(new int[] {1, 1}, rowsModified);
-        assertEquals(2, basket.countFruit());
+        assertThat(rowsModified).containsExactly(1, 1);
+        assertThat(basket.countFruit()).isEqualTo(2);
     }
 
     public interface BasketOfFruit {

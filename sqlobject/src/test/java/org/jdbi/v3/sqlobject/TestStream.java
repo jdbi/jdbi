@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,12 +44,10 @@ public class TestStream
         dao.insert(thr);
         dao.insert(two);
 
-        final List<Something> results;
         try (final Stream<Something> stream = dao.stream()) {
-            results = stream.collect(Collectors.toList());
+            assertThat(stream).containsExactly(thr, two, one);
         }
 
-        assertEquals(ImmutableList.of(thr, two, one), results);
     }
 
     public interface Spiffy

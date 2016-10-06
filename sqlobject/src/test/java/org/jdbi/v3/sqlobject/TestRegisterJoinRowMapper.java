@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
 
@@ -51,7 +50,7 @@ public class TestRegisterJoinRowMapper
         Multimap<User, Article> joined = HashMultimap.create();
         dao.getAuthorship()
             .forEach(jr -> joined.put(jr.get(User.class), jr.get(Article.class)));
-        assertThat(joined, is(JoinRowMapperTest.getExpected()));
+        assertThat(joined).isEqualTo(JoinRowMapperTest.getExpected());
     }
 
     public interface UserArticleDao

@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -42,7 +42,7 @@ public class TestBindAutomaticNames
     {
         Spiffy spiffy = handle.attach(Spiffy.class);
         Something s = spiffy.findById(7);
-        assertEquals("Tim", s.getName());
+        assertThat(s.getName()).isEqualTo("Tim");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class TestBindAutomaticNames
     {
         Spiffy spiffy = db.getSharedHandle().attach(Spiffy.class);
         Something s = spiffy.findByIdNoAnnotation(7);
-        assertEquals("Tim", s.getName());
+        assertThat(s.getName()).isEqualTo("Tim");
     }
 
     @RegisterRowMapper(SomethingMapper.class)

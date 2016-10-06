@@ -13,7 +13,7 @@
  */
 package jdbi.doc;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -47,10 +47,8 @@ public class HelloWorldTest {
                 .list();
         });
         // end::frontPage[]
-        assertEquals(0, users.get(0).getId());
-        assertEquals(1, users.get(1).getId());
-        assertEquals("You!", users.get(0).getName());
-        assertEquals("Me",   users.get(1).getName());
+        assertThat(users).extracting(User::getId).containsExactly(0, 1);
+        assertThat(users).extracting(User::getName).containsExactly("You!", "Me");
     }
 
     public static class User {

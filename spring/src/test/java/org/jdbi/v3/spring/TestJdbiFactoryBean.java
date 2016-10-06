@@ -25,10 +25,8 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/org/jdbi/v3/spring/test-context.xml")
@@ -53,13 +51,13 @@ public class TestJdbiFactoryBean {
     @Test
     public void testServiceIsActuallySet() throws Exception
     {
-        assertNotNull(service);
+        assertThat(service).isNotNull();
     }
 
     @Test
     public void testFailsViaException() throws Exception
     {
-        try {
+        assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
             service.inPropagationRequired(dbi -> {
                 Handle h = JdbiUtil.getHandle(dbi);
                 final int count = h.insert("insert into something (id, name) values (7, 'ignored')");
@@ -70,82 +68,64 @@ public class TestJdbiFactoryBean {
                     throw new RuntimeException("!ZABAK");
                 }
             });
-        }
-        catch (ForceRollback e) {
-            assertTrue(true);
-        }
-        catch (RuntimeException e) {
-            e.printStackTrace();
-            fail("unexpected exception");
-        }
+        });
 
         try (final Handle h = Jdbi.open(ds)) {
             int count = h.createQuery("select count(*) from something").mapTo(int.class).findOnly();
-            assertEquals(0, count);
+            assertThat(count).isEqualTo(0);
         }
     }
 
     @Test
     public void testNested() throws Exception
     {
-        try {
+        assertThatExceptionOfType(ForceRollback.class).isThrownBy(()->{
             service.inPropagationRequired(outer -> {
                 final Handle h = JdbiUtil.getHandle(outer);
                 h.insert("insert into something (id, name) values (7, 'ignored')");
 
-                try {
+                assertThatExceptionOfType(ForceRollback.class).isThrownBy(()-> {
                     service.inNested(inner -> {
                         final Handle h1 = JdbiUtil.getHandle(inner);
                         h1.insert("insert into something (id, name) values (8, 'ignored again')");
 
                         int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                        assertEquals(2, count);
+                        assertThat(count).isEqualTo(2);
                         throw new ForceRollback();
                     });
-                    fail("should have thrown an exception");
-                }
-                catch (ForceRollback e) {
-                    assertTrue(true);
-                }
+                });
                 int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                assertEquals(1, count);
+                assertThat(count).isEqualTo(1);
                 throw new ForceRollback();
             });
-            fail("should have thrown an exception");
-        }
-        catch (ForceRollback e) {
-            assertTrue(true);
-        }
-
+        });
         service.inPropagationRequired(dbi -> {
             final Handle h = JdbiUtil.getHandle(dbi);
             int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-            assertEquals(0, count);
+            assertThat(count).isEqualTo(0);
         });
     }
 
     @Test
     public void testRequiresNew() throws Exception
     {
+
         service.inPropagationRequired(outer -> {
             final Handle h = JdbiUtil.getHandle(outer);
             h.insert("insert into something (id, name) values (7, 'ignored')");
 
-            try {
+            assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
                 service.inRequiresNewReadUncommitted(inner -> {
                     final Handle h1 = JdbiUtil.getHandle(inner);
                     int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-                    assertEquals(1, count);
+                    assertThat(count).isEqualTo(1);
                     h1.insert("insert into something (id, name) values (8, 'ignored again')");
                     throw new ForceRollback();
                 });
-            }
-            catch (ForceRollback e) {
-                assertTrue(true);
-            }
+            });
 
             int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
-            assertEquals(1, count);
+            assertThat(count).isEqualTo(1);
         });
     }
 }

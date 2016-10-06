@@ -14,7 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class TestInClauseExpansion
 
         DAO dao = handle.attach(DAO.class);
 
-        assertEquals(ImmutableSet.of("Brian", "Jeff"), dao.findIdsForNames(asList(1, 2)));
+        assertThat(dao.findIdsForNames(asList(1, 2))).containsExactly("Brian", "Jeff");
     }
 
     public interface DAO

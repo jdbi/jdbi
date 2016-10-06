@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,7 +50,7 @@ public class TestReturningQueryResults
 
         db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findById(7);
-            assertEquals("Tim", s.getName());
+            assertThat(s.getName()).isEqualTo("Tim");
         });
     }
 
@@ -62,14 +62,7 @@ public class TestReturningQueryResults
 
         db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Iterator<Something> itty = spiffy.findByIdRange(2, 10);
-            Set<Something> all = new HashSet<>();
-            while (itty.hasNext()) {
-                all.add(itty.next());
-            }
-
-            assertEquals(2, all.size());
-            assertTrue(all.contains(new Something(7, "Tim")));
-            assertTrue(all.contains(new Something(3, "Diego")));
+            assertThat(itty).containsOnlyOnce(new Something(7, "Tim"), new Something(3, "Diego"));
         });
     }
 
@@ -82,10 +75,7 @@ public class TestReturningQueryResults
 
         db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             List<Something> all = spiffy.findTwoByIds(3, 7);
-
-            assertEquals(2, all.size());
-            assertTrue(all.contains(new Something(7, "Tim")));
-            assertTrue(all.contains(new Something(3, "Diego")));
+            assertThat(all).containsOnlyOnce(new Something(7, "Tim"), new Something(3, "Diego"));
         });
     }
 

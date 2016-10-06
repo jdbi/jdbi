@@ -13,10 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -43,14 +40,14 @@ public class TestObjectMethods
     public void testToString() throws Exception
     {
         DAO dao = handle.attach(DAO.class);
-        assertThat(dao.toString(), containsString(DAO.class.getName()));
+        assertThat(dao.toString()).contains(DAO.class.getName());
     }
 
     @Test
     public void testEquals() throws Exception
     {
         DAO dao = handle.attach(DAO.class);
-        assertThat(dao, equalTo(dao));
+        assertThat(dao).isEqualTo(dao);
     }
 
     @Test
@@ -58,7 +55,7 @@ public class TestObjectMethods
     {
         DAO dao = handle.attach(DAO.class);
         DAO oad = handle.attach(DAO.class);
-        assertThat(dao, not(equalTo(oad)));
+        assertThat(dao).isNotEqualTo(oad);
     }
 
     @Test
@@ -66,14 +63,14 @@ public class TestObjectMethods
     {
         DAO dao = handle.attach(DAO.class);
         DAO oad = handle.attach(DAO.class);
-        assertThat(dao.hashCode(), not(equalTo(oad.hashCode())));
+        assertThat(dao.hashCode()).isNotEqualTo(oad.hashCode());
     }
 
     @Test
     public void testHashCodeMatch() throws Exception
     {
         DAO dao = handle.attach(DAO.class);
-        assertThat(dao.hashCode(), equalTo(dao.hashCode()));
+        assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
     }
 
 

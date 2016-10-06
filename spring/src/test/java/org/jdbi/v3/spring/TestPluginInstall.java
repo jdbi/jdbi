@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.spring;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
@@ -70,8 +69,8 @@ public class TestPluginInstall {
 
     @Test
     public void testPluginsInstalled() {
-        assertNotNull(dbi);
-        assertTrue(config.pluginACalled);
-        assertTrue(config.pluginBCalled);
+        assertThat(dbi).isNotNull();
+        assertThat(config.pluginACalled).isTrue();
+        assertThat(config.pluginBCalled).isTrue();
     }
 }

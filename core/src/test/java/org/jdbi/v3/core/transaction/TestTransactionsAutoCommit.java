@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.transaction;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -51,14 +52,12 @@ public class TestTransactionsAutoCommit
         doThrow(new SQLException("infrastructure error")).when(connection).commit();
 
         h.begin();
-        try {
+        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
             h.insert(SAMPLE_SQL, 1L, "Tom");
 
             // throws exception on commit
             h.commit();
-        } catch (final Exception exception) {
-            // ignore
-        }
+        });
 
         // expected behaviour chain:
         // 1. store initial auto-commit state

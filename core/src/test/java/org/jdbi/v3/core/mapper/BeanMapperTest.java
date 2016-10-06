@@ -15,9 +15,6 @@
 package org.jdbi.v3.core.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -76,7 +73,7 @@ public class BeanMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, sampleBean.getLongField());
+        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
     }
 
     @Test
@@ -90,7 +87,7 @@ public class BeanMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, sampleBean.getLongField());
+        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
     }
 
     @Test
@@ -104,7 +101,7 @@ public class BeanMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, sampleBean.getLongField());
+        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
     }
 
     @Test
@@ -113,7 +110,7 @@ public class BeanMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertNotNull(sampleBean);
+        assertThat(sampleBean).isNotNull();
     }
 
     @Test
@@ -126,8 +123,7 @@ public class BeanMapperTest {
         when(resultSet.wasNull()).thenReturn(false);
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, sampleBean.getLongField());
-
+        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
     }
 
     @Test
@@ -140,8 +136,7 @@ public class BeanMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertNull(sampleBean.getLongField());
-
+        assertThat(sampleBean.getLongField()).isNull();
     }
 
     @Test
@@ -155,7 +150,7 @@ public class BeanMapperTest {
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        assertEquals(expected, sampleBean.getLongField());
+        assertThat(sampleBean.getLongField()).isEqualTo(expected);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -211,8 +206,8 @@ public class BeanMapperTest {
 
         DerivedBean derivedBean = mapper.map(resultSet, ctx);
 
-        assertEquals(aLongVal, derivedBean.getLongField());
-        assertEquals(bLongVal, derivedBean.getBlongField());
+        assertThat(derivedBean.getLongField()).isEqualTo(aLongVal);
+        assertThat(derivedBean.getBlongField()).isEqualTo(bLongVal);
     }
 
     @Test
@@ -230,8 +225,8 @@ public class BeanMapperTest {
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         Long expected = 123L;
-        assertEquals(expected, sampleBean.getLongField());
-        assertEquals(ValueType.valueOf("foo"), sampleBean.getValueTypeField());
+        assertThat(sampleBean.getLongField()).isEqualTo(expected);
+        assertThat(sampleBean.getValueTypeField()).isEqualTo(ValueType.valueOf("foo"));
     }
 
     @Test(expected = IllegalArgumentException.class)

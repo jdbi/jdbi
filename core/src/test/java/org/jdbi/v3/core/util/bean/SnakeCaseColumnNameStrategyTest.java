@@ -13,10 +13,9 @@
  */
 package org.jdbi.v3.core.util.bean;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SnakeCaseColumnNameStrategyTest {
 
@@ -24,21 +23,21 @@ public class SnakeCaseColumnNameStrategyTest {
 
     @Test
     public void testSimple() {
-        assertTrue(snake.nameMatches("testPropertyWithCheese", "test_property_with_cheese"));
+        assertThat(snake.nameMatches("testPropertyWithCheese", "test_property_with_cheese")).isTrue();
     }
 
     @Test
     public void testWithoutCheese() {
-        assertFalse(snake.nameMatches("testPropertyWithoutCheese", "test_property_with_cheese"));
+        assertThat(snake.nameMatches("testPropertyWithoutCheese", "test_property_with_cheese")).isFalse();
     }
 
     @Test
     public void testBeanNumbers() {
-        assertTrue(snake.nameMatches("testProperty2", "test_property_2"));
+        assertThat(snake.nameMatches("testProperty2", "test_property_2")).isTrue();
     }
 
     @Test
     public void testNumbersDontMatch() {
-        assertFalse(snake.nameMatches("testProperty3", "test_property_2"));
+        assertThat(snake.nameMatches("testProperty3", "test_property_2")).isFalse();
     }
 }

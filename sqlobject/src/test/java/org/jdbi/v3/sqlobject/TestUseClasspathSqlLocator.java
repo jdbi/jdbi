@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -41,23 +41,23 @@ public class TestUseClasspathSqlLocator {
     @Test
     public void testBam() throws Exception {
         Something s = handle.attach(Cromulence.class).findById(6L);
-        assertThat(s.getName(), equalTo("Martin"));
+        assertThat(s.getName()).isEqualTo("Martin");
     }
 
     @Test
     public void testOverride() throws Exception {
         Something s = handle.attach(SubCromulence.class).findById(6L);
-        assertThat(s.getName(), equalTo("overridden"));
+        assertThat(s.getName()).isEqualTo("overridden");
     }
 
     @Test
     public void testCachedOverride() throws Exception {
         Something s = handle.attach(Cromulence.class).findById(6L);
-        assertThat(s.getName(), equalTo("Martin"));
+        assertThat(s.getName()).isEqualTo("Martin");
 
         // and now make sure we don't accidentally cache the statement from above
         s = handle.attach(SubCromulence.class).findById(6L);
-        assertThat(s.getName(), equalTo("overridden"));
+        assertThat(s.getName()).isEqualTo("overridden");
     }
 
     @UseClasspathSqlLocator
