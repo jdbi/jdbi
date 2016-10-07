@@ -33,7 +33,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
  * to all statement customizers. This makes it possible to parameterize the processing of
  * the tweakable parts of the statement processing cycle.
  */
-public final class StatementContext
+public class StatementContext
 {
     private final JdbiConfig config;
     private final ExtensionMethod extensionMethod;
