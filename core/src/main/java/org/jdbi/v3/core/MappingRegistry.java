@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.argument.SqlArrayMapperFactory;
 import org.jdbi.v3.core.mapper.BuiltInMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
@@ -41,6 +42,7 @@ class MappingRegistry
 
     MappingRegistry() {
         columnFactories.add(new BuiltInMapperFactory());
+        columnFactories.add(new SqlArrayMapperFactory());
     }
 
     private MappingRegistry(MappingRegistry that) {
@@ -87,10 +89,24 @@ class MappingRegistry
     }
 
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type, StatementContext ctx) {
-        return Optional.ofNullable(columnCache.computeIfAbsent(type, t ->
-                columnFactories.stream()
-                        .flatMap(factory -> toStream(factory.build(t, ctx)))
-                        .findFirst()
-                        .orElse(null)));
+        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
+        // Since column mappers can wrap other column mappers, we have to populate the cache the old fashioned way.
+        ColumnMapper<?> mapper = columnCache.get(type);
+
+        if (mapper != null) {
+            return Optional.of(mapper);
+        }
+
+        mapper = columnFactories.stream()
+                .flatMap(factory -> toStream(factory.build(type, ctx)))
+                .findFirst()
+                .orElse(null);
+
+        if (mapper != null) {
+            columnCache.put(type, mapper);
+            return Optional.of(mapper);
+        }
+
+        return Optional.empty();
     }
 }

@@ -11,9 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.core.StatementContext;
@@ -26,7 +27,14 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
         final Class<?> clazz = GenericTypes.getErasedType(type);
-        return clazz.isArray() ?
-                Optional.of(new ArrayColumnMapper(clazz.getComponentType(), ctx)) : Optional.empty();
+        if (clazz.isArray()) {
+            return Optional.of(new ArrayColumnMapper(clazz.getComponentType()));
+        }
+        if (List.class.isAssignableFrom(clazz)) {
+            return GenericTypes.findGenericParameter(type, List.class)
+                    .flatMap(elementType -> ctx.findColumnMapperFor(elementType))
+                    .map(ListColumnMapper::new);
+        }
+        return Optional.empty();
     }
 }

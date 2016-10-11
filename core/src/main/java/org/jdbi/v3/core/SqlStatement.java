@@ -26,10 +26,14 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.ArrayElementMapper;
+import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
+import org.jdbi.v3.core.argument.InferredArrayElementMapperFactory;
 import org.jdbi.v3.core.argument.InputStreamArgument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
@@ -111,6 +115,34 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     public SelfType registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         getArgumentRegistry().register(argumentFactory);
+        return typedThis;
+    }
+
+    public <T> SelfType registerArrayElementType(Class<T> type, String sqlTypeName)
+    {
+        return registerArrayElementType((Type) type, sqlTypeName);
+    }
+
+    public <T> SelfType registerArrayElementType(GenericType<T> type, String sqlTypeName)
+    {
+        return registerArrayElementType(type.getType(), sqlTypeName);
+    }
+
+    private <T> SelfType registerArrayElementType(Type type, String sqlTypeName)
+    {
+        ArrayElementMapper<T> mapper = new IdentityArrayElementMapper<>(sqlTypeName);
+        return registerArrayElementMapper((t, ctx) ->
+                type.equals(t) ? Optional.of(mapper) : Optional.empty());
+    }
+
+    public SelfType registerArrayElementMapper(ArrayElementMapper<?> mapper)
+    {
+        return registerArrayElementMapper(new InferredArrayElementMapperFactory(mapper));
+    }
+
+    public SelfType registerArrayElementMapper(ArrayElementMapperFactory factory)
+    {
+        getArgumentRegistry().register(factory);
         return typedThis;
     }
 

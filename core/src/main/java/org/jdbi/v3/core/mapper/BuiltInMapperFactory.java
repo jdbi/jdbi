@@ -87,6 +87,8 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         mappers.put(OffsetDateTime.class, referenceMapper(BuiltInMapperFactory::getOffsetDateTime));
         mappers.put(ZonedDateTime.class, referenceMapper(BuiltInMapperFactory::getZonedDateTime));
         mappers.put(LocalTime.class, referenceMapper(BuiltInMapperFactory::getLocalTime));
+
+        mappers.put(Object.class, referenceMapper(ResultSet::getObject));
     }
 
     @Override

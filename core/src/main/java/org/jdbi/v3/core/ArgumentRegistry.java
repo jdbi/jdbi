@@ -22,36 +22,52 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.ArrayElementMapper;
+import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
 import org.jdbi.v3.core.argument.BuiltInArgumentFactory;
+import org.jdbi.v3.core.argument.SqlArrayArgumentFactory;
 
 class ArgumentRegistry
 {
 
     static ArgumentRegistry copyOf(ArgumentRegistry registry) {
-        return new ArgumentRegistry(registry.factories);
+        return new ArgumentRegistry(registry);
     }
 
-    private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
+    private final List<ArrayElementMapperFactory> arrayElementMapperFactories = new CopyOnWriteArrayList<>();
 
     ArgumentRegistry()
     {
-        factories.add(BuiltInArgumentFactory.INSTANCE);
+        argumentFactories.add(BuiltInArgumentFactory.INSTANCE);
+        argumentFactories.add(new SqlArrayArgumentFactory());
     }
 
-    ArgumentRegistry(List<ArgumentFactory> factories)
+    ArgumentRegistry(ArgumentRegistry that)
     {
-        this.factories.addAll(factories);
+        this.argumentFactories.addAll(that.argumentFactories);
+        this.arrayElementMapperFactories.addAll(that.arrayElementMapperFactories);
     }
 
     Optional<Argument> findArgumentFor(Type expectedType, Object it, StatementContext ctx)
     {
-        return factories.stream()
+        return argumentFactories.stream()
                 .flatMap(factory -> toStream(factory.build(expectedType, it, ctx)))
                 .findFirst();
     }
 
-    void register(ArgumentFactory argumentFactory)
+    Optional<ArrayElementMapper<?>> findArrayElementMapperFor(Type expectedType, StatementContext ctx) {
+        return arrayElementMapperFactories.stream()
+                .flatMap(factory -> toStream(factory.build(expectedType, ctx)))
+                .findFirst();
+    }
+
+    void register(ArgumentFactory factory)
     {
-        factories.add(0, argumentFactory);
+        argumentFactories.add(0, factory);
+    }
+
+    void register(ArrayElementMapperFactory factory) {
+        arrayElementMapperFactories.add(0, factory);
     }
 }

@@ -15,10 +15,12 @@ package org.jdbi.v3.core;
 
 
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,6 +30,9 @@ import java.util.function.Consumer;
 import javax.sql.DataSource;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.ArrayElementMapper;
+import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
+import org.jdbi.v3.core.argument.InferredArrayElementMapperFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.core.extension.ExtensionCallback;
@@ -48,6 +53,7 @@ import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionConsumer;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.util.GenericType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -305,6 +311,34 @@ public class Jdbi
     public Jdbi registerArgumentFactory(ArgumentFactory argumentFactory)
     {
         config.argumentRegistry.register(argumentFactory);
+        return this;
+    }
+
+    public <T> Jdbi registerArrayElementTypeName(Class<T> type, String sqlTypeName)
+    {
+        return registerArrayElementTypeName((Type) type, sqlTypeName);
+    }
+
+    public <T> Jdbi registerArrayElementTypeName(GenericType<T> type, String sqlTypeName)
+    {
+        return registerArrayElementTypeName(type.getType(), sqlTypeName);
+    }
+
+    private <T> Jdbi registerArrayElementTypeName(Type type, String sqlTypeName)
+    {
+        ArrayElementMapper<T> mapper = new IdentityArrayElementMapper<>(sqlTypeName);
+        return registerArrayElementMapper((t, ctx) ->
+                type.equals(t) ? Optional.of(mapper) : Optional.empty());
+    }
+
+    public Jdbi registerArrayElementMapper(ArrayElementMapper<?> mapper)
+    {
+        return registerArrayElementMapper(new InferredArrayElementMapperFactory(mapper));
+    }
+
+    public Jdbi registerArrayElementMapper(ArrayElementMapperFactory factory)
+    {
+        config.argumentRegistry.register(factory);
         return this;
     }
 

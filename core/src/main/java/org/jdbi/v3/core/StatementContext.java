@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArrayElementMapper;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 
@@ -130,6 +131,15 @@ public final class StatementContext
      */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
         return config.argumentRegistry.findArgumentFor(type, value, this);
+    }
+
+    /**
+     * Obtain an array element mapper for the given element type.
+     * @param type
+     * @return
+     */
+    public Optional<ArrayElementMapper<?>> findArrayElementMapperFor(Type type) {
+        return config.argumentRegistry.findArrayElementMapperFor(type, this);
     }
 
     /**

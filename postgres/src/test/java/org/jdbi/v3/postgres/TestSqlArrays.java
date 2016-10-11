@@ -18,13 +18,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class TestSqlArrays {
     private static final String U_SELECT = "SELECT u FROM uuids";
@@ -48,7 +51,7 @@ public class TestSqlArrays {
         ao = h.attach(ArrayObject.class);
     }
 
-    private final UUID[] testUuids = new UUID[] {
+    private final UUID[] testUids = new UUID[] {
         UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()
     };
 
@@ -58,15 +61,14 @@ public class TestSqlArrays {
 
     @Test
     public void testUuidArray() throws Exception {
-        ao.insertUuidArray(testUuids);
-        assertThat(ao.fetchUuidArray()).containsExactly(testUuids);
+        ao.insertUuidArray(testUids);
+        assertThat(ao.fetchUuidArray()).containsExactly(testUids);
     }
 
     @Test
-    @Ignore("Inserting lists to arrays is not supported")
     public void testUuidList() throws Exception {
-        ao.insertUuidList(Arrays.asList(testUuids));
-        assertThat(ao.fetchUuidList()).containsExactly(testUuids);
+        ao.insertUuidList(Arrays.asList(testUids));
+        assertThat(ao.fetchUuidList()).contains(Arrays.asList(testUids));
     }
 
     @Test
@@ -99,12 +101,11 @@ public class TestSqlArrays {
     }
 
     @Test
-    @Ignore("Inserting lists to arrays is not supported")
     public void testIntList() throws Exception {
         List<Integer> testIntList = new ArrayList<Integer>();
         Arrays.stream(testInts).forEach(testIntList::add);
         ao.insertIntList(testIntList);
-        assertThat(ao.fetchIntList()).isEqualTo(testIntList);
+        assertThat(ao.fetchIntList()).contains(testIntList);
     }
 
     public interface ArrayObject {
@@ -115,7 +116,8 @@ public class TestSqlArrays {
         void insertUuidArray(UUID[] uuids);
 
         @SqlQuery(U_SELECT)
-        List<UUID> fetchUuidList();
+        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
+        Optional<List<UUID>> fetchUuidList();
 
         @SqlUpdate(U_INSERT)
         void insertUuidList(List<UUID> u);
@@ -137,7 +139,8 @@ public class TestSqlArrays {
         void insertBoxedIntArray(Integer[] ints);
 
         @SqlQuery(I_SELECT)
-        List<Integer> fetchIntList();
+        // Wrap in an Optional container, so SQL object knows that the row type is List<Integer>, not Integer
+        Optional<List<Integer>> fetchIntList();
 
         @SqlUpdate(I_INSERT)
         void insertIntList(List<Integer> u);
