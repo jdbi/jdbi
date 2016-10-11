@@ -341,6 +341,13 @@
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-guava</artifactId>
                 <version>3.0.0</version>
+                <!-- XXX: https://github.com/joel-costigliola/assertj-guava/issues/33 -->
+                <exclusions>
+                  <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                  </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
