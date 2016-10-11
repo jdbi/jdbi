@@ -44,7 +44,7 @@ import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 public class ConstructorMapper<T> implements RowMapper<T>
 {
     private final Constructor<T> constructor;
-    private final ConcurrentMap<List<String>, ObjectCreator<T>> creatorCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<List<String>, Factory<T>> factoryCache = new ConcurrentHashMap<>();
     private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
     private ConstructorMapper(Constructor<T> constructor, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
@@ -64,23 +64,26 @@ public class ConstructorMapper<T> implements RowMapper<T>
             columnNames.add(metadata.getColumnLabel(i));
         }
 
-        ObjectCreator<T> creator = creatorCache.computeIfAbsent(columnNames, c -> createCreator(c, ctx));
-        return creator.create(rs);
+        Factory<T> factory = factoryCache.computeIfAbsent(columnNames, c -> createFactory(c, ctx));
+        return factory.create(rs);
     }
 
-    private ObjectCreator<T> createCreator(List<String> columnNames, StatementContext ctx) {
-        final int length = constructor.getParameterCount();
+    /**
+     * Compute a memoized mapping from ResultSet column labels to Constructor argument position.
+     */
+    private Factory<T> createFactory(List<String> columnNames, StatementContext ctx) {
+        final int columns = constructor.getParameterCount();
 
-        if (length > columnNames.size()) {
+        if (columns > columnNames.size()) {
             throw new IllegalStateException(columnNames.size() +
                     " columns in result set, but constructor takes " +
                     constructor.getParameterCount());
         }
 
-        final int[] columnMap = new int[length];
-        final ColumnMapper<?>[] mappers = new ColumnMapper<?>[length];
+        final int[] columnMap = new int[columns];
+        final ColumnMapper<?>[] mappers = new ColumnMapper<?>[columns];
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < columns; i++) {
             final Type type = constructor.getGenericParameterTypes()[i];
             final String paramName = paramName(constructor.getParameters()[i]);
             final int columnIndex = columnIndexForParameter(columnNames, paramName);
@@ -93,8 +96,8 @@ public class ConstructorMapper<T> implements RowMapper<T>
         }
 
         return rs -> {
-            final Object[] params = new Object[length];
-            for (int i = 0; i < length; i++) {
+            final Object[] params = new Object[columns];
+            for (int i = 0; i < columns; i++) {
                 params[i] = mappers[i].map(rs, columnMap[i] + 1, ctx);
             }
             try {
@@ -148,13 +151,13 @@ public class ConstructorMapper<T> implements RowMapper<T>
         return parameter.getName();
     }
 
-    interface ObjectCreator<T> {
+    interface Factory<T> {
         T create(ResultSet rs) throws SQLException;
     }
 
 
     @SuppressWarnings("unchecked")
-    private static <T> Constructor<T> guessConstructor(Class<T> type) {
+    private static <T> Constructor<T> findOnlyConstructor(Class<T> type) {
         final Constructor<?>[] constructors = type.getDeclaredConstructors();
         if (constructors.length != 1) {
             throw new IllegalArgumentException(type + " must have exactly one constructor, or specify it explicitly");
@@ -162,20 +165,32 @@ public class ConstructorMapper<T> implements RowMapper<T>
         return (Constructor<T>) constructors[0];
     }
 
-    public static RowMapperFactory factoryFor(Constructor<?> constructor) {
-        return factoryFor(constructor, BeanMapper.DEFAULT_STRATEGIES);
+    /**
+     * Use a {@code Constructor<T>} to map its declaring type.
+     */
+    public static RowMapperFactory of(Constructor<?> constructor) {
+        return of(constructor, BeanMapper.DEFAULT_STRATEGIES);
     }
 
-    public static RowMapperFactory factoryFor(Class<?> clazz) {
-        return factoryFor(clazz, BeanMapper.DEFAULT_STRATEGIES);
+    /**
+     * Use the only declared constructor to map a class.
+     */
+    public static RowMapperFactory of(Class<?> clazz) {
+        return of(clazz, BeanMapper.DEFAULT_STRATEGIES);
     }
 
-    public static RowMapperFactory factoryFor(Class<?> clazz, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
-        return factoryFor(guessConstructor(clazz), nameMappingStrategies);
+    /**
+     * Use the only declared constructor to map a class, and specify the name mapping strategy.
+     */
+    public static RowMapperFactory of(Class<?> clazz, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
+        return of(findOnlyConstructor(clazz), nameMappingStrategies);
     }
 
-    public static RowMapperFactory factoryFor(Constructor<?> constructor, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
-        final ConstructorMapper<?> mapper = new ConstructorMapper<>(constructor, nameMappingStrategies);
+    /**
+     * Use a {@code Constructor<T>} to map its declaring type, and specify the name mapping strategy.
+     */
+    public static RowMapperFactory of(Constructor<?> constructor, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
+        final RowMapper<?> mapper = new ConstructorMapper<>(constructor, nameMappingStrategies);
         return new RowMapperFactory() {
             @Override
             public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
