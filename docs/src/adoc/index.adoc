@@ -44,6 +44,7 @@ Read about the core APIs:
 
 * <<tour#,5-Minute Tour>>
 * <<core#,Jdbi and Handle>>
+* <<statements#,Statements>>
 * <<arguments#,Arguments and Binding>>
 * <<results#,Result Mapping>>
 ** <<joins#,Join Mapping>>
