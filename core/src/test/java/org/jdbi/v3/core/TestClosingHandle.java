@@ -42,8 +42,8 @@ public class TestClosingHandle
 
     @Test
     public void testNotClosing() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         List<Map<String, Object>> results = h.createQuery("select * from something order by id").list();
         assertThat(results).hasSize(2);
@@ -53,8 +53,8 @@ public class TestClosingHandle
 
     @Test
     public void testClosing() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         List<Map<String, Object>> results = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -67,8 +67,8 @@ public class TestClosingHandle
 
     @Test
     public void testIterateKeepHandle() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .iterator();
@@ -79,8 +79,8 @@ public class TestClosingHandle
 
     @Test
     public void testIterateAllTheWay() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -92,9 +92,9 @@ public class TestClosingHandle
 
     @Test
     public void testIteratorBehaviour() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -115,9 +115,9 @@ public class TestClosingHandle
 
     @Test
     public void testIteratorClose() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()

@@ -39,11 +39,11 @@ public class TestInetAddressH2
             InetAddress ipv4 = InetAddress.getByName("1.2.3.4");
             InetAddress ipv6 = InetAddress.getByName("fe80::226:8ff:fefa:d1e3");
 
-            h.createStatement(insert)
+            h.createUpdate(insert)
                 .bind(0, ipv4)
                 .execute();
 
-            h.createStatement(insert)
+            h.createUpdate(insert)
                 .bind(0, ipv6)
                 .execute();
 

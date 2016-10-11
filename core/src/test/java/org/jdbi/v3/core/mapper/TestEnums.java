@@ -63,8 +63,8 @@ public class TestEnums
     public void testMapEnumValues() throws Exception
     {
         Handle h = db.openHandle();
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         List<SomethingElse> results = h.createQuery("select * from something order by id")
                                    .mapToBean(SomethingElse.class)
@@ -76,8 +76,8 @@ public class TestEnums
     public void testMapToEnum() throws Exception
     {
         Handle h = db.openHandle();
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         List<SomethingElse.Name> results = h.createQuery("select name from something order by id")
                                    .mapTo(SomethingElse.Name.class)
@@ -89,7 +89,7 @@ public class TestEnums
     public void testMapInvalidEnumValue() throws SQLException
     {
         Handle h = db.openHandle();
-        h.createStatement("insert into something (id, name) values (1, 'joe')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'joe')").execute();
 
         h.createQuery("select * from something order by id")
                 .mapToBean(SomethingElse.class)

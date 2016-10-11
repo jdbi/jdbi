@@ -27,7 +27,7 @@ public class TestStatementContext
     public void testFoo() throws Exception
     {
         Handle h = db.openHandle();
-        final int inserted = h.createStatement("insert into <table> (id, name) values (:id, :name)")
+        final int inserted = h.createUpdate("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", "Martin")
                 .define("table", "something")
