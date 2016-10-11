@@ -282,7 +282,7 @@ public class Handle implements Closeable
      * @return the number of updated inserted
      */
     public int update(String sql, Object... args) {
-        Update stmt = createStatement(sql);
+        Update stmt = createUpdate(sql);
         int position = 0;
         for (Object arg : args) {
             stmt.bind(position++, arg);
@@ -372,7 +372,7 @@ public class Handle implements Closeable
      *
      * @return the Update
      */
-    public Update createStatement(String sql) {
+    public Update createUpdate(String sql) {
         JdbiConfig updateConfig = JdbiConfig.copyOf(config);
         return new Update(updateConfig,
                           this,

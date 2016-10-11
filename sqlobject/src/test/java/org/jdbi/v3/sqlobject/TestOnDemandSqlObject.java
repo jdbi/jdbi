@@ -92,7 +92,7 @@ public class TestOnDemandSqlObject
             @Override
             public Handle customizeHandle(Handle handle) {
                 Handle h = spy(handle);
-                when(h.createStatement(anyString())).thenThrow(new TransactionException("connection reset"));
+                when(h.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
                 doThrow(new UnableToCloseResourceException("already closed", null)).when(h).close();
                 return h;
             }

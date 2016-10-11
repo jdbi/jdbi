@@ -37,7 +37,7 @@ public class TestBindInParameter {
         dbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
         dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
-        handle.createStatement(
+        handle.createUpdate(
                 "create table foo (id int, bar varchar(100) default null);")
                 .execute();
         dao = dbi.onDemand(MyDAO.class);

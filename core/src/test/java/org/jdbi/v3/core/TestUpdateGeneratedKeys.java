@@ -43,13 +43,13 @@ public class TestUpdateGeneratedKeys
     {
         Handle h = db.openHandle();
 
-        Update insert1 = h.createStatement("insert into something_else (name) values (:name)");
+        Update insert1 = h.createUpdate("insert into something_else (name) values (:name)");
         insert1.bind("name", "Brian");
         Long id1 = insert1.executeAndReturnGeneratedKeys(long.class).findOnly();
 
         assertThat(id1).isNotNull();
 
-        Update insert2 = h.createStatement("insert into something_else (name) values (:name)");
+        Update insert2 = h.createUpdate("insert into something_else (name) values (:name)");
         insert2.bind("name", "Tom");
         Long id2 = insert2.executeAndReturnGeneratedKeys(long.class).findOnly();
 
@@ -62,13 +62,13 @@ public class TestUpdateGeneratedKeys
     {
         Handle h = db.openHandle();
 
-        Update insert = h.createStatement("insert into something_else (name) values (:name)");
+        Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
         Long id1 = insert.executeAndReturnGeneratedKeys(long.class).findOnly();
 
         assertThat(id1).isNotNull();
 
-        Update update = h.createStatement("update something_else set name = :name where id = :id");
+        Update update = h.createUpdate("update something_else set name = :name where id = :id");
         update.bind("id", id1);
         update.bind("name", "Tom");
         Optional<Long> id2 = update.executeAndReturnGeneratedKeys(long.class).findFirst();
@@ -81,13 +81,13 @@ public class TestUpdateGeneratedKeys
     {
         Handle h = db.openHandle();
 
-        Update insert = h.createStatement("insert into something_else (name) values (:name)");
+        Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
         Long id1 = insert.executeAndReturnGeneratedKeys(long.class).findOnly();
 
         assertThat(id1).isNotNull();
 
-        Update delete = h.createStatement("delete from something_else where id = :id");
+        Update delete = h.createUpdate("delete from something_else where id = :id");
         delete.bind("id", id1);
         Optional<Long> id2 = delete.executeAndReturnGeneratedKeys(long.class).findFirst();
 

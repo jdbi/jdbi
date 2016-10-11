@@ -31,12 +31,12 @@ public class HelloWorldTest {
         // Easy scope-based transactions
         List<User> users = dbi.inTransaction((handle, status) -> {
             handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
-            handle.createStatement("INSERT INTO user(id, name) VALUES (:id, :name)")
+            handle.createUpdate("INSERT INTO user(id, name) VALUES (:id, :name)")
                 .bind("id", 0)   // Bind arguments by name
                 .bind(1, "You!") // Or by 0-indexed position
                 .execute();
 
-            handle.createStatement("INSERT INTO user(id, name) VALUES (:id, :name)")
+            handle.createUpdate("INSERT INTO user(id, name) VALUES (:id, :name)")
                 .bindBean(new User(1, "Me")) // You can also bind custom types
                 .execute();
 

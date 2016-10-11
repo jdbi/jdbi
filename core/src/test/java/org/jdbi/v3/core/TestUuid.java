@@ -45,7 +45,7 @@ public class TestUuid {
     @Test
     public void testUuid() throws Exception {
         UUID u = UUID.randomUUID();
-        h.createStatement("INSERT INTO foo VALUES (:uuid)")
+        h.createUpdate("INSERT INTO foo VALUES (:uuid)")
             .bind("uuid", u)
             .execute();
 

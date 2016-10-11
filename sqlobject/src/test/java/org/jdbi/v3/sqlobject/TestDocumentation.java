@@ -101,7 +101,7 @@ public class TestDocumentation
     public void testFluentUpdate() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            h.createStatement("insert into something(id, name) values (:id, :name)")
+            h.createUpdate("insert into something(id, name) values (:id, :name)")
                 .bind("id", 4)
                 .bind("name", "Martin")
                 .execute();

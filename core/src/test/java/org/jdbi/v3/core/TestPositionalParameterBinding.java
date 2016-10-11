@@ -82,7 +82,7 @@ public class TestPositionalParameterBinding
     @Test
     public void testInsertParamBinding() throws Exception
     {
-        int count = h.createStatement("insert into something (id, name) values (?, 'eric')")
+        int count = h.createUpdate("insert into something (id, name) values (?, 'eric')")
                 .bind(0, 1)
                 .execute();
 

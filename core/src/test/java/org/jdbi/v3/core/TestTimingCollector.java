@@ -61,7 +61,7 @@ public class TestTimingCollector
     @Test
     public void testStatement() throws Exception
     {
-        int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         assertThat(rows).isEqualTo(1);
     }
 
@@ -84,7 +84,7 @@ public class TestTimingCollector
         String stmt3 = "select * from something where id = 1";
 
         h.insert(stmt1);
-        h.createStatement(stmt2).execute();
+        h.createUpdate(stmt2).execute();
         Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
         assertThat(eric.getName()).isEqualTo("ERIC");
 

@@ -31,7 +31,7 @@ public class TestNamedParams
     public void testInsert() throws Exception
     {
         Handle h = db.openHandle();
-        Update insert = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Update insert = h.createUpdate("insert into something (id, name) values (:id, :name)");
         insert.bind("id", 1);
         insert.bind("name", "Brian");
         int count = insert.execute();
@@ -42,7 +42,7 @@ public class TestNamedParams
     public void testDemo() throws Exception
     {
         Handle h = db.getSharedHandle();
-        h.createStatement("insert into something (id, name) values (:id, :name)")
+        h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1)
                 .bind("name", "Brian")
                 .execute();
@@ -63,7 +63,7 @@ public class TestNamedParams
     public void testBeanPropertyBinding() throws Exception
     {
         Handle h = db.openHandle();
-        Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         s.bindBean(new Something(0, "Keith"));
         int insert_count = s.execute();
         assertThat(insert_count).isEqualTo(1);
@@ -73,7 +73,7 @@ public class TestNamedParams
     public void testMapKeyBinding() throws Exception
     {
         Handle h = db.openHandle();
-        Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
         args.put("name", "Keith");
@@ -86,7 +86,7 @@ public class TestNamedParams
     public void testCascadedLazyArgs() throws Exception
     {
         Handle h = db.openHandle();
-        Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
+        Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
         s.bindMap(args);

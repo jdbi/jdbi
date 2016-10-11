@@ -75,18 +75,18 @@ public class TestBeanMapperFactory
     @Before
     public void createTable() throws Exception {
         h = db.openHandle();
-        h.createStatement("create table testBean (valueType varchar(50))").execute();
+        h.createUpdate("create table testBean (valueType varchar(50))").execute();
         dao = h.attach(TestDao.class);
     }
 
     @After
     public void dropTable() {
-        h.createStatement("drop table testBean").execute();
+        h.createUpdate("drop table testBean").execute();
     }
 
     @Test
     public void testMapBean() {
-        h.createStatement("insert into testBean (valueType) values ('foo')").execute();
+        h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
 
         List<TestBean> beans = dao.listBeans();
         assertThat(beans).extracting(TestBean::getValueType).containsExactly(ValueType.valueOf("foo"));
@@ -94,7 +94,7 @@ public class TestBeanMapperFactory
 
     @Test
     public void testBuiltInColumnMappers() {
-        h.createStatement("insert into testBean (valueType) values ('foo')").execute();
+        h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
 
         List<String> strings = dao.listStrings();
         assertThat(strings).containsExactly("foo");
@@ -105,7 +105,7 @@ public class TestBeanMapperFactory
 
     @Test
     public void testCustomColumnMapper() {
-        h.createStatement("insert into testBean (valueType) values ('foo')").execute();
+        h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
 
         List<ValueType> valueTypes = dao.listValueTypes();
         assertThat(valueTypes).containsExactly(ValueType.valueOf("foo"));
