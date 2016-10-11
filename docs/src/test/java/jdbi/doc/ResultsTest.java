@@ -74,9 +74,11 @@ public class ResultsTest {
     }
 
     public Optional<User> findUserById(long id) {
+        RowMapper<User> userMapper =
+                (rs, ctx) -> new User(rs.getInt("id"), rs.getString("name"));
         return handle.createQuery("SELECT * FROM user WHERE id=:id")
             .bind("id", id)
-            .map((rs, ctx) -> new User(rs.getInt("id"), rs.getString("name")))
+            .map(userMapper)
             .findFirst();
     }
     // end::headlineExample[]

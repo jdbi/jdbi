@@ -2,18 +2,20 @@
 
 After executing a database query, you need to interpret the results.
 JDBC provides the *ResultSet* class which can do simple mapping to
-Java primitives and built in classes, but the API leaves a lot
-to be desired.  *jdbi* provides more configurable mapping, including
+Java primitives and built in classes, but the API is often cumbersome
+to use.  *jdbi* provides configurable mapping, including
 the ability to register custom mappers for rows and columns.
 
-The mapper is selected based on the type that your query is declared to return.
-If a mapper for the entire row is configured, it will directly convert
-each row into a domain object.  Failing that, if the type represents a single
-value, the column mappers are consulted.
+A *RowMapper* converts a row of a *ResultSet* into a result object.
 
-*jdbi* handles the tedium of iterating over the rows in the ResultSet and
-presenting the results to you in a container such as a *List*, *Stream*,
-*Optional*, or *Iterator*.
+A *ColumnMapper* converts a single column's value into a Java object.
+It can be used as a *RowMapper* if there is only one column present,
+or it can be used to build more complex *RowMapper*s.
+
+The mapper is selected based on the declared result type of your query.
+
+*jdbi* iterates over the rows in the ResultSet and presents the mapped results
+to you in a container such as a *List*, *Stream*, *Optional*, or *Iterator*.
 
 [source,java,indent=0]
 -------------------------------------------
@@ -22,11 +24,11 @@ include::ResultsTest.java[tags=headlineExample]
 
 == Row Mapper
 
-The above example introduces a row mapper.  As you might assume, the row mapper
-is called once for every row found as *jdbi* iterates through the result set.
+The row mapper is called once for every row as *jdbi* iterates
+through the result set.
 
-Row mappers are either directly registered to handle a specific query, or
-can be driven by the return type:
+Row mappers are either configured on a fluent query, or
+can be registered to handle a type:
 
 [source,java,indent=0]
 -------------------------------------------
