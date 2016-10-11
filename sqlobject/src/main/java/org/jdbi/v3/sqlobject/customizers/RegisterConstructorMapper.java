@@ -56,7 +56,7 @@ public @interface RegisterConstructorMapper
 
         private SqlStatementCustomizer create(RegisterConstructorMapper rcm) {
             List<RowMapperFactory> mappers = Arrays.stream(rcm.value())
-                    .map(ConstructorMapper::factoryFor)
+                    .map(ConstructorMapper::of)
                     .collect(Collectors.toList());
 
             return stmt -> mappers.forEach(stmt::registerRowMapper);
