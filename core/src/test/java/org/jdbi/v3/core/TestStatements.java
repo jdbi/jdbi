@@ -42,7 +42,7 @@ public class TestStatements
     @Test
     public void testStatement() throws Exception
     {
-        int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        int rows = h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         assertThat(rows).isEqualTo(1);
     }
 
@@ -57,7 +57,7 @@ public class TestStatements
     public void testUpdate() throws Exception
     {
         h.insert("insert into something (id, name) values (1, 'eric')");
-        h.createStatement("update something set name = 'ERIC' where id = 1").execute();
+        h.createUpdate("update something set name = 'ERIC' where id = 1").execute();
         Something eric = h.createQuery("select * from something where id = 1").mapToBean(Something.class).list().get(0);
         assertThat(eric.getName()).isEqualTo("ERIC");
     }

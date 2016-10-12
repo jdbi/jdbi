@@ -30,7 +30,7 @@ public class TestUri
     public void testUri() throws Exception
     {
         Handle h = db.openHandle();
-        h.createStatement("insert into something (id, name) values (1, :uri)")
+        h.createUpdate("insert into something (id, name) values (1, :uri)")
             .bind("uri", TEST_URI).execute();
 
         assertThat(h.createQuery("SELECT name FROM something")

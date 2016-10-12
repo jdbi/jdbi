@@ -42,9 +42,9 @@ public class TestIterator
 
     @Test
     public void testSimple() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -70,9 +70,9 @@ public class TestIterator
 
     @Test
     public void testHasNext() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -97,9 +97,9 @@ public class TestIterator
 
     @Test
     public void testNext() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -114,9 +114,9 @@ public class TestIterator
 
     @Test
     public void testJustNext() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -129,9 +129,9 @@ public class TestIterator
 
     @Test
     public void testTwoTwo() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -148,9 +148,9 @@ public class TestIterator
 
     @Test
     public void testTwoOne() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -166,9 +166,9 @@ public class TestIterator
 
     @Test(expected = IllegalStateException.class)
     public void testExplodeIterator() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
-        h.createStatement("insert into something (id, name) values (3, 'john')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (3, 'john')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
@@ -202,7 +202,7 @@ public class TestIterator
 
     @Test
     public void testNonPathologicalJustNext() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
 
         // Yes, you *should* use first(). But sometimes, an iterator is passed 17 levels deep and then
         // used in this way (Hello Jackson!).
@@ -217,8 +217,8 @@ public class TestIterator
 
     @Test
     public void testStillLeakingJustNext() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         // Yes, you *should* use first(). But sometimes, an iterator is passed 17 levels deep and then
         // used in this way (Hello Jackson!).
@@ -243,8 +243,8 @@ public class TestIterator
 
     @Test
     public void testLessLeakingJustNext() throws Exception {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         try (final ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
                 .cleanupHandle()

@@ -60,8 +60,8 @@ public class TestQueries
     @Test
     public void testCreateQueryObject() throws Exception
     {
-        h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         List<Map<String, Object>> results = h.createQuery("select * from something order by id").list();
         assertThat(results).hasSize(2);
@@ -346,7 +346,7 @@ public class TestQueries
         expectedException.expect(StatementException.class);
         expectedException.expectMessage("arguments:{ positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean property arguments \"java.lang.Object");
 
-        h.createStatement("insert into something (id, name) values (:id, :name)")
+        h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("name", "brian")
                 .bind(7, 8)
                 .bindMap(new HandyMapThing<String>().add("one", "two"))

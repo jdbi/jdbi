@@ -35,7 +35,7 @@ public class TestArgumentFactory
         final Jdbi dbi = db.getJdbi();
         dbi.registerArgumentFactory(new NameAF());
         try (Handle h = dbi.open()) {
-            h.createStatement("insert into something (id, name) values (:id, :name)")
+            h.createUpdate("insert into something (id, name) values (:id, :name)")
               .bind("id", 7)
               .bind("name", new Name("Brian", "McCallister"))
               .execute();
@@ -51,7 +51,7 @@ public class TestArgumentFactory
     {
         try (Handle h = db.openHandle()) {
             h.registerArgumentFactory(new NameAF());
-            h.createStatement("insert into something (id, name) values (:id, :name)")
+            h.createUpdate("insert into something (id, name) values (:id, :name)")
              .bind("id", 7)
              .bind("name", new Name("Brian", "McCallister"))
              .execute();
@@ -65,7 +65,7 @@ public class TestArgumentFactory
     @Test
     public void testRegisterOnStatement() throws Exception
     {
-        db.getSharedHandle().createStatement("insert into something (id, name) values (:id, :name)")
+        db.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
          .registerArgumentFactory(new NameAF())
          .bind("id", 1)
          .bind("name", new Name("Brian", "McCallister"))

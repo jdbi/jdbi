@@ -27,14 +27,14 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.mapper.ConstructorMapper;
-import org.jdbi.v3.postgres.PostgresDbRule;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.jdbi.v3.sqlobject.Transaction;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.TransactionStatus;
+import org.jdbi.v3.postgres.PostgresDbRule;
+import org.jdbi.v3.sqlobject.SqlQuery;
+import org.jdbi.v3.sqlobject.SqlUpdate;
+import org.jdbi.v3.sqlobject.Transaction;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -59,7 +59,7 @@ public class TransactionTest {
     public void getHandle() {
         jdbi = db.getJdbi();
         handle = db.getSharedHandle();
-        handle.registerRowMapper(ConstructorMapper.factoryFor(User.class));
+        handle.registerRowMapper(ConstructorMapper.of(User.class));
     }
 
     @Before
@@ -173,7 +173,7 @@ public class TransactionTest {
 
     static class SumAndInsert implements Callable<Integer>, TransactionCallback<Integer, Exception> {
         private final Jdbi jdbi;
-        private CountDownLatch latch;
+        private final CountDownLatch latch;
 
         public SumAndInsert(CountDownLatch latch, Jdbi jdbi) {
             this.latch = latch;

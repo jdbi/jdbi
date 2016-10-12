@@ -58,7 +58,7 @@ public class TestClasspathSqlLocator {
     @Test
     public void testNamedParamsInExternal() throws Exception {
         Handle h = db.openHandle();
-        h.createStatement(findSqlOnClasspath("insert-id-name"))
+        h.createUpdate(findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .bind("name", "Tip")
                 .execute();
@@ -72,7 +72,7 @@ public class TestClasspathSqlLocator {
         exception.expect(StatementException.class);
         exception.expectMessage("insert into something(id, name) values (:id, :name)");
         exception.expectMessage("insert into something(id, name) values (?, ?)");
-        h.createStatement(findSqlOnClasspath("insert-id-name"))
+        h.createUpdate(findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .execute();
     }

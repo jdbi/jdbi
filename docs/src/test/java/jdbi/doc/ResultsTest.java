@@ -128,7 +128,7 @@ public class ResultsTest {
     // tag::constructorMapper[]
     @Test
     public void constructorMapper() {
-        handle.registerRowMapper(ConstructorMapper.factoryFor(User.class));
+        handle.registerRowMapper(ConstructorMapper.of(User.class));
         Set<User> userSet = handle.createQuery(SELECT_ALL_USERS)
             .mapTo(User.class)
             .collect(Collectors.toSet());
@@ -168,7 +168,7 @@ public class ResultsTest {
     @Test
     public void columnMapper() {
         handle.registerColumnMapper(new UserNameColumnMapperFactory());
-        handle.registerRowMapper(ConstructorMapper.factoryFor(NamedUser.class));
+        handle.registerRowMapper(ConstructorMapper.of(NamedUser.class));
 
         NamedUser bob = handle.createQuery("SELECT id, name FROM user WHERE name = :name")
             .bind("name", "Bob")

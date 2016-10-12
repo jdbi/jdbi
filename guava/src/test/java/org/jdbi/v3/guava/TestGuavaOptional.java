@@ -46,8 +46,8 @@ public class TestGuavaOptional {
     @Before
     public void createTestData() {
         handle = db.openHandle();
-        handle.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        handle.createStatement("insert into something (id, name) values (2, 'brian')").execute();
+        handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
+        handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
     }
 
     @Test
