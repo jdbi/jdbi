@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jdbi.v3.core.argument.SqlArrayMapperFactory;
 import org.jdbi.v3.core.mapper.BuiltInMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;

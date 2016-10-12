@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core;
 
 import java.lang.reflect.Array;
 import java.sql.ResultSet;
@@ -21,15 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 
-public class ArrayColumnMapper implements ColumnMapper<Object> {
+class ArrayColumnMapper implements ColumnMapper<Object> {
     private static final CopyOnWriteArraySet<Integer> UNSUPPORTED_TYPES = new CopyOnWriteArraySet<>();
 
     private final Class<?> componentType;
 
-    public ArrayColumnMapper(Class<?> componentType) {
+    ArrayColumnMapper(Class<?> componentType) {
         this.componentType = componentType;
     }
 

@@ -25,7 +25,6 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.ArrayElementMapper;
 import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
 import org.jdbi.v3.core.argument.BuiltInArgumentFactory;
-import org.jdbi.v3.core.argument.SqlArrayArgumentFactory;
 
 class ArgumentRegistry
 {
@@ -39,8 +38,8 @@ class ArgumentRegistry
 
     ArgumentRegistry()
     {
-        argumentFactories.add(BuiltInArgumentFactory.INSTANCE);
-        argumentFactories.add(new SqlArrayArgumentFactory());
+        register(BuiltInArgumentFactory.INSTANCE);
+        register(new SqlArrayArgumentFactory());
     }
 
     ArgumentRegistry(ArgumentRegistry that)

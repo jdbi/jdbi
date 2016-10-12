@@ -33,7 +33,6 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.ArrayElementMapper;
 import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
-import org.jdbi.v3.core.argument.InferredArrayElementMapperFactory;
 import org.jdbi.v3.core.argument.InputStreamArgument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;

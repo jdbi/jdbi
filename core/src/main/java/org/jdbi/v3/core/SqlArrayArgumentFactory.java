@@ -11,29 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core;
 
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.util.GenericTypes;
 
-public class SqlArrayMapperFactory implements ColumnMapperFactory {
-
+class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
-        final Class<?> clazz = GenericTypes.getErasedType(type);
-        if (clazz.isArray()) {
-            return Optional.of(new ArrayColumnMapper(clazz.getComponentType()));
+    public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
+        Class<?> erasedType = GenericTypes.getErasedType(type);
+        if (erasedType.isArray()) {
+            Class<?> elementType = erasedType.getComponentType();
+            return ctx.findArrayElementMapperFor(elementType)
+                    .map(mapper -> new SqlArrayArgument(mapper, value));
         }
-        if (List.class.isAssignableFrom(clazz)) {
+        if (List.class.isAssignableFrom(erasedType)) {
             return GenericTypes.findGenericParameter(type, List.class)
-                    .flatMap(elementType -> ctx.findColumnMapperFor(elementType))
-                    .map(ListColumnMapper::new);
+                    .flatMap(ctx::findArrayElementMapperFor)
+                    .map(mapper -> new SqlArrayArgument(mapper, (List) value));
         }
         return Optional.empty();
     }

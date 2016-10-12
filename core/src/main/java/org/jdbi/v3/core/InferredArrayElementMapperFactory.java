@@ -11,14 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core;
 
 import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.argument.ArrayElementMapper;
+import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
 
 /**
  * A generic {@code ArrayElementMapperFactory} that reflectively inspects an
@@ -26,11 +27,11 @@ import org.jdbi.v3.core.StatementContext;
  * {@code T}.  The type parameter T must be accessible via reflection or an
  * {@link UnsupportedOperationException} will be thrown.
  */
-public class InferredArrayElementMapperFactory implements ArrayElementMapperFactory {
+class InferredArrayElementMapperFactory implements ArrayElementMapperFactory {
     private final Type maps;
     private final ArrayElementMapper<?> mapper;
 
-    public InferredArrayElementMapperFactory(ArrayElementMapper<?> mapper) {
+    InferredArrayElementMapperFactory(ArrayElementMapper<?> mapper) {
         this.maps = findGenericParameter(mapper.getClass(), ArrayElementMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here"));
         this.mapper = mapper;

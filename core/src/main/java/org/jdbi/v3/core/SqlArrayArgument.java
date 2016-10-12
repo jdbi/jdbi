@@ -11,21 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core;
 
 import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArrayElementMapper;
 
-public class SqlArrayArgument<T> implements Argument {
+class SqlArrayArgument<T> implements Argument {
 
     private final String typeName;
     private final Object[] array;
 
-    public SqlArrayArgument(ArrayElementMapper<T> elementMapper, Object newArray) {
+    @SuppressWarnings("unchecked")
+    SqlArrayArgument(ArrayElementMapper<T> elementMapper, Object newArray) {
         this.typeName = elementMapper.getTypeName();
         int length = Array.getLength(newArray);
         this.array = new Object[length];
@@ -34,7 +36,7 @@ public class SqlArrayArgument<T> implements Argument {
         }
     }
 
-    public SqlArrayArgument(ArrayElementMapper<T> elementMapper, List<T> list) {
+    SqlArrayArgument(ArrayElementMapper<T> elementMapper, List<T> list) {
         this.typeName = elementMapper.getTypeName();
         this.array = list.stream().map(elementMapper::mapArrayElement).toArray();
     }
@@ -42,7 +44,7 @@ public class SqlArrayArgument<T> implements Argument {
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
         java.sql.Array sqlArray = statement.getConnection().createArrayOf(typeName, array);
+        ctx.getCleanables().add(sqlArray::free);
         statement.setArray(position, sqlArray);
-        // TODO register cleanable to close array after statement execution
     }
 }

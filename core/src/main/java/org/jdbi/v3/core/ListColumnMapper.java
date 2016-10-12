@@ -11,20 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 
-public class ListColumnMapper<T> implements ColumnMapper<List<T>> {
+class ListColumnMapper<T> implements ColumnMapper<List<T>> {
     private final ColumnMapper<T> elementMapper;
 
-    public ListColumnMapper(ColumnMapper<T> elementMapper) {
+    ListColumnMapper(ColumnMapper<T> elementMapper) {
         this.elementMapper = elementMapper;
     }
 
