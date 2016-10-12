@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,7 +84,7 @@ public class TestFoldToObjectGraph
     public void testSqlObjectApi() throws Exception
     {
         Dao dao = handle.attach(Dao.class);
-        assertThat(dao.findAllTeams(), equalTo(expected));
+        assertThat(dao.findAllTeams()).isEqualTo(expected);
     }
 
     public interface Dao

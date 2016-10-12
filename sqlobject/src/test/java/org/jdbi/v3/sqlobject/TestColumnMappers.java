@@ -14,7 +14,7 @@
 
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.util.List;
@@ -150,8 +150,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (primitiveInt) values (15)").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(15, beans.get(0).getPrimitiveInt());
+        assertThat(beans).extracting(SomeBean::getPrimitiveInt).containsExactly(15);
     }
 
     @Test
@@ -159,8 +158,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (primitiveInt) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(0, beans.get(0).getPrimitiveInt());
+        assertThat(beans).extracting(SomeBean::getPrimitiveInt).containsExactly(0);
     }
 
     @Test
@@ -168,8 +166,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (primitiveChar) values ('c')").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals('c', beans.get(0).getPrimitiveChar());
+        assertThat(beans).extracting(SomeBean::getPrimitiveChar).containsExactly('c');
     }
 
     @Test
@@ -177,8 +174,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (primitiveChar) values ('')").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals('\000', beans.get(0).getPrimitiveChar());
+        assertThat(beans).extracting(SomeBean::getPrimitiveChar).containsExactly('\000');
     }
 
     @Test
@@ -186,8 +182,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (primitiveChar) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals('\000', beans.get(0).getPrimitiveChar());
+        assertThat(beans).extracting(SomeBean::getPrimitiveChar).containsExactly('\000');
     }
 
     @Test
@@ -195,8 +190,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (wrappedChar) values ('c')").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(Character.valueOf('c'), beans.get(0).getWrappedChar());
+        assertThat(beans).extracting(SomeBean::getWrappedChar).containsExactly('c');
     }
 
     @Test
@@ -204,8 +198,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (wrappedChar) values ('')").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(null, beans.get(0).getWrappedChar());
+        assertThat(beans).extracting(SomeBean::getWrappedChar).hasSize(1).containsNull();
     }
 
     @Test
@@ -213,8 +206,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (wrappedChar) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(null, beans.get(0).getWrappedChar());
+        assertThat(beans).extracting(SomeBean::getWrappedChar).hasSize(1).containsNull();
     }
 
     @Test
@@ -222,8 +214,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (wrapperLong) values (20)").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(Long.valueOf(20), beans.get(0).getWrapperLong());
+        assertThat(beans).extracting(SomeBean::getWrapperLong).containsExactly(20L);
     }
 
     @Test
@@ -231,8 +222,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (wrapperLong) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(null, beans.get(0).getWrapperLong());
+        assertThat(beans).extracting(SomeBean::getWrapperLong).hasSize(1).containsNull();
     }
 
     @Test
@@ -240,8 +230,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (string) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals("foo", beans.get(0).getString());
+        assertThat(beans).extracting(SomeBean::getString).containsExactly("foo");
     }
 
     @Test
@@ -249,8 +238,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (string) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(null, beans.get(0).getString());
+        assertThat(beans).extracting(SomeBean::getString).hasSize(1).containsNull();
     }
 
     @Test
@@ -258,8 +246,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (valueType) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(ValueType.valueOf("foo"), beans.get(0).getValueType());
+        assertThat(beans).extracting(SomeBean::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 
     @Test
@@ -267,8 +254,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (valueType) values (null)").execute();
 
         List<SomeBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(null, beans.get(0).getValueType());
+        assertThat(beans).extracting(SomeBean::getValueType).hasSize(1).containsNull();
     }
 
     @Test
@@ -276,8 +262,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (valueType) values ('foo')").execute();
 
         List<SomeBean> beans = dao.listBeansFactoryMapped();
-        assertEquals(1, beans.size());
-        assertEquals(ValueType.valueOf("foo"), beans.get(0).getValueType());
+        assertThat(beans).extracting(SomeBean::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 
     @Test
@@ -285,8 +270,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (valueType) values ('foo')").execute();
 
         List<ValueType> list = dao.listValueTypes();
-        assertEquals(1, list.size());
-        assertEquals(ValueType.valueOf("foo"), list.get(0));
+        assertThat(list).containsExactly(ValueType.valueOf("foo"));
     }
 
     @Test
@@ -294,8 +278,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (valueType) values ('foo')").execute();
 
         List<ValueType> list = dao.listValueTypesFactoryMapped();
-        assertEquals(1, list.size());
-        assertEquals(ValueType.valueOf("foo"), list.get(0));
+        assertThat(list).containsExactly(ValueType.valueOf("foo"));
     }
 
     @Test
@@ -303,8 +286,7 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (uri) values ('urn:foo')").execute();
 
         List<SomeBean> list = dao.listBeans();
-        assertEquals(1, list.size());
-        assertEquals(new URI("urn:foo"), list.get(0).getUri());
+        assertThat(list).extracting(SomeBean::getUri).containsExactly(new URI("urn:foo"));
     }
 
     @Test
@@ -312,7 +294,6 @@ public class TestColumnMappers
         h.createStatement("insert into someBean (uri) values (null)").execute();
 
         List<SomeBean> list = dao.listBeans();
-        assertEquals(1, list.size());
-        assertEquals(null, list.get(0).getUri());
+        assertThat(list).extracting(SomeBean::getUri).hasSize(1).containsNull();
     }
 }

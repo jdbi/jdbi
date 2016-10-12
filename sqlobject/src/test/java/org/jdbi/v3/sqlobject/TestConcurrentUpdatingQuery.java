@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -52,6 +52,6 @@ public class TestConcurrentUpdatingQuery
                 .mapTo(String.class)
                 .findOnly();
 
-        assertEquals("Tom", name);
+        assertThat(name).isEqualTo("Tom");
     }
 }

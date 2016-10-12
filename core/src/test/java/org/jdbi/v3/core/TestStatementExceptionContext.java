@@ -13,25 +13,22 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jdbi.v3.core.exception.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestStatementExceptionContext
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+public class TestStatementExceptionContext {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
     public void testFoo() throws Exception {
-        Handle h = db.openHandle();
-        try {
-            h.insert("WOOF", 7, "Tom");
-        }
-        catch (StatementException e) {
-           assertEquals(e.getStatementContext().getRawSql(), "WOOF");
-        }
+
+        assertThatExceptionOfType(StatementException.class)
+                .isThrownBy(()-> db.openHandle().insert("WOOF", 7, "Tom"))
+                .satisfies(e -> assertThat(e.getStatementContext().getRawSql()).isEqualTo("WOOF"));
     }
 }

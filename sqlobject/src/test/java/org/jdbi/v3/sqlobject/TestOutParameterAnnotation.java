@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Types;
 
@@ -44,7 +44,7 @@ public class TestOutParameterAnnotation {
 
         OutParameters outParameters = myDao.callStoredProc();
 
-        assertEquals(Integer.valueOf(100), outParameters.getInt("outparam"));
+        assertThat(outParameters.getInt("outparam")).isEqualTo(100);
     }
 
     public interface MyDao {

@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -47,7 +47,7 @@ public class TestReturningQuery
         db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findById(7).findOnly();
 
-            assertEquals("Tim", s.getName());
+            assertThat(s.getName()).isEqualTo("Tim");
         });
     }
 
@@ -59,7 +59,7 @@ public class TestReturningQuery
         db.getJdbi().useExtension(Spiffy2.class, spiffy -> {
             Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
 
-            assertEquals("Tim", s.getName());
+            assertThat(s.getName()).isEqualTo("Tim");
         });
     }
 

@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.sql.Types;
 
+import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -48,28 +48,18 @@ public class TestCallable
 
         // JDBI oddity : register or bind is 0-indexed, which JDBC is 1-indexed.
         Double expected = Math.toDegrees(100.0d);
-        assertEquals(expected, ret.getDouble(1));
-        assertEquals(expected.longValue(), ret.getLong(1).longValue());
-        assertEquals(expected.shortValue(), ret.getShort(1).shortValue());
-        assertEquals(expected.intValue(), ret.getInt(1).intValue());
-        assertEquals(expected.floatValue(), ret.getFloat(1), 0.001);
+        assertThat(ret.getDouble(1)).isEqualTo(expected, Offset.offset(0.001));
+        assertThat(ret.getLong(1).longValue()).isEqualTo(expected.longValue());
+        assertThat(ret.getShort(1).shortValue()).isEqualTo(expected.shortValue());
+        assertThat(ret.getInt(1).intValue()).isEqualTo(expected.intValue());
+        assertThat(ret.getFloat(1).floatValue()).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
 
-        try {
+        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
             ret.getDate(1);
-            fail("didn't throw exception !");
-        }
-        catch (Exception e) {
-            //e.printStackTrace();
-        }
-
-        try {
+        });
+        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
             ret.getDate(2);
-            fail("didn't throw exception !");
-        }
-        catch (Exception e) {
-            //e.printStackTrace();
-        }
-
+        });
     }
 
     @Test
@@ -80,27 +70,18 @@ public class TestCallable
                 .invoke();
 
         Double expected = Math.toDegrees(100.0d);
-        assertEquals(expected, ret.getDouble("x"));
-        assertEquals(expected.longValue(), ret.getLong("x").longValue());
-        assertEquals(expected.shortValue(), ret.getShort("x").shortValue());
-        assertEquals(expected.intValue(), ret.getInt("x").intValue());
-        assertEquals(expected.floatValue(), ret.getFloat("x"), 0.001);
+        assertThat(ret.getDouble("x")).isEqualTo(expected, Offset.offset(0.001));
+        assertThat(ret.getLong("x").longValue()).isEqualTo(expected.longValue());
+        assertThat(ret.getShort("x").shortValue()).isEqualTo(expected.shortValue());
+        assertThat(ret.getInt("x").intValue()).isEqualTo(expected.intValue());
+        assertThat(ret.getFloat("x")).isEqualTo(expected.floatValue());
 
-        try {
+        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
             ret.getDate("x");
-            fail("didn't throw exception !");
-        }
-        catch (Exception e) {
-            //e.printStackTrace();
-        }
-
-        try {
+        });
+        assertThatExceptionOfType(Exception.class).isThrownBy(()->{
             ret.getDate("y");
-            fail("didn't throw exception !");
-        }
-        catch (Exception e) {
-            assertTrue(true);
-        }
+        });
     }
 
     @Test
@@ -113,7 +94,7 @@ public class TestCallable
 
         // JDBI oddity : register or bind is 0-indexed, which JDBC is 1-indexed.
         String out = ret.getString(2);
-        assertEquals(out, null);
+        assertThat(out).isNull();
     }
 
     @Test
@@ -125,7 +106,7 @@ public class TestCallable
                 .invoke();
 
         String out = ret.getString("y");
-        assertEquals(out, null);
+        assertThat(out).isNull();
     }
 
     public static void testProcedure(String in, String[] out) {

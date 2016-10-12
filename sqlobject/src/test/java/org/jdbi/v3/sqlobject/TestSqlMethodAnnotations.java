@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,6 +23,8 @@ import org.jdbi.v3.core.Handle;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlMethodAnnotations
 {
@@ -55,7 +55,7 @@ public class TestSqlMethodAnnotations
     public void testCustomAnnotation() {
         Dao dao = handle.attach(Dao.class);
 
-        assertThat(dao.foo(), equalTo("foo"));
+        assertThat(dao.foo()).isEqualTo("foo");
     }
 
     public interface Dao {

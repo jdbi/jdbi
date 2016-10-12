@@ -13,7 +13,7 @@
  */
 package jdbi.doc;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
@@ -44,11 +44,11 @@ public class ArgumentsTest {
     @Test
     // tag::bindValue[]
     public void bindInt() {
-        assertEquals(3, handle.createQuery("SELECT :id")
+        assertThat(handle.createQuery("SELECT :id")
             .bind("id", 3)
             .mapTo(Integer.class)
             .findOnly()
-            .intValue());
+            .intValue()).isEqualTo(3);
     }
     // end::bindValue[]
 
@@ -70,10 +70,10 @@ public class ArgumentsTest {
     @Test
     public void uuidArgument() {
         UUID u = UUID.randomUUID();
-        assertEquals(u.toString(), handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
+        assertThat(handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
             .bind("uuid", new UUIDArgument(u))
             .mapTo(String.class)
-            .findOnly());
+            .findOnly()).isEqualTo(u.toString());
     }
     // end::uuidArgument[]
 
@@ -91,10 +91,10 @@ public class ArgumentsTest {
     public void uuidArgumentFactory() {
         UUID u = UUID.randomUUID();
         handle.registerArgumentFactory(new UUIDArgumentFactory());
-        assertEquals(u.toString(), handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
+        assertThat(handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
             .bind("uuid", u)
             .mapTo(String.class)
-            .findOnly());
+            .findOnly()).isEqualTo(u.toString());
     }
     // end::uuidArgumentFactory[]
 }

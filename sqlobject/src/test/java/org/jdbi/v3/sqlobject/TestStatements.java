@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.junit.Rule;
@@ -34,8 +33,8 @@ public class TestStatements
 
             String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
 
-            assertEquals(1, rows_affected);
-            assertEquals("Diego", name);
+            assertThat(rows_affected).isEqualTo(1);
+            assertThat(name).isEqualTo("Diego");
         });
     }
 
@@ -48,14 +47,14 @@ public class TestStatements
 
             String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
 
-            assertEquals("Diego", name);
+            assertThat(name).isEqualTo("Diego");
         });
     }
 
     @Test
     public void testDoubleArgumentBind() throws Exception
     {
-        db.getJdbi().useExtension(Doubler.class, d -> assertTrue(d.doubleTest("wooooot")));
+        db.getJdbi().useExtension(Doubler.class, d -> assertThat(d.doubleTest("wooooot")).isTrue());
     }
 
     public interface Inserter

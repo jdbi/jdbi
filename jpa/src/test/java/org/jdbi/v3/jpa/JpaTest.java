@@ -13,8 +13,11 @@
  */
 package org.jdbi.v3.jpa;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
+import org.assertj.core.api.AbstractListAssert;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
@@ -27,7 +30,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JpaTest {
     private static final String INSERT_BY_PROPERTY_NAME = "insert into something(id, name) values (:id, :name)";
@@ -40,7 +43,7 @@ public class JpaTest {
 
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
-    
+
     interface Thing {
         int getId();
         String getName();
@@ -50,7 +53,7 @@ public class JpaTest {
     static class EntityThing implements Thing {
         private int id;
         private String name;
-        
+
         public EntityThing() {}
         public EntityThing(int id, String name) { setId(id); setName(name); }
 
@@ -81,16 +84,14 @@ public class JpaTest {
 
         List<EntityThing> rs = dao.list();
 
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     @Entity
     static class FieldThing implements Thing {
         @Column private int id;
         @Column private String name;
-        
+
         public FieldThing() {}
         public FieldThing(int id, String name) { setId(id); setName(name); }
 
@@ -120,10 +121,7 @@ public class JpaTest {
         dao.insert(keith);
 
         List<FieldThing> rs = dao.list();
-
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     @Entity
@@ -161,9 +159,7 @@ public class JpaTest {
 
         List<NamedFieldThing> rs = dao.list();
 
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     @Entity
@@ -201,9 +197,7 @@ public class JpaTest {
 
         List<GetterThing> rs = dao.list();
 
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     @Entity
@@ -241,9 +235,7 @@ public class JpaTest {
 
         List<NamedGetterThing> rs = dao.list();
 
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     @Entity
@@ -281,9 +273,7 @@ public class JpaTest {
 
         List<SetterThing> rs = dao.list();
 
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     @Entity
@@ -320,10 +310,7 @@ public class JpaTest {
         dao.insert(keith);
 
         List<NamedSetterThing> rs = dao.list();
-
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     @MappedSuperclass
@@ -362,10 +349,7 @@ public class JpaTest {
         dao.insert(keith);
 
         List<ExtendsMappedSuperclassThing> rs = dao.list();
-
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     @Entity
@@ -403,10 +387,7 @@ public class JpaTest {
         dao.insert(keith);
 
         List<AnnotationPriorityThing> rs = dao.list();
-
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     public interface SuperfluousColumnDao {
@@ -417,7 +398,7 @@ public class JpaTest {
         @RegisterRowMapperFactory(JpaMapperFactory.class)
         List<FieldThing> list();
     }
-    
+
     @Test
     public void testMapWithSuperfluousColumn() {
         FieldThing brian = new FieldThing(1, "Brian");
@@ -428,10 +409,7 @@ public class JpaTest {
         dao.insert(keith);
 
         List<FieldThing> rs = dao.list();
-
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
     public interface MissingColumnDao {
@@ -453,10 +431,7 @@ public class JpaTest {
         dao.insert(keith);
 
         List<FieldThing> rs = dao.list();
-
-        assertEquals(2, rs.size());
-        assertThingEquals(new FieldThing(1, null), rs.get(0));
-        assertThingEquals(new FieldThing(2, null), rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(new FieldThing(1, null), new FieldThing(2, null));
     }
 
     @MappedSuperclass
@@ -502,13 +477,15 @@ public class JpaTest {
 
         List<OverridingSubclassThing> rs = dao.list();
 
-        assertEquals(2, rs.size());
-        assertThingEquals(brian, rs.get(0));
-        assertThingEquals(keith, rs.get(1));
+        assertThatThing(rs).containsOnlyOnce(brian, keith);
     }
 
-    public static void assertThingEquals(Thing one, Thing two) {
-        assertEquals(one.getId(), two.getId());
-        assertEquals(one.getName(), two.getName());
+    private static <T extends Thing> AbstractListAssert<?, ? extends List<? extends T>, T, ?> assertThatThing(List<T> rs) {
+        return assertThat(rs).usingElementComparator((Comparator<T>) (left, right) -> {
+            if (left.getId() == right.getId()) {
+                return Objects.toString(left.getName(), "").compareTo(Objects.toString(right.getName(), ""));
+            }
+            return left.getId() < right.getId() ? -1 : 1;
+        });
     }
 }

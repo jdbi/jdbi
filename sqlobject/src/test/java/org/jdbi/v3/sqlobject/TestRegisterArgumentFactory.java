@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
@@ -47,7 +47,7 @@ public class TestRegisterArgumentFactory
         dbi.useExtension(Waffle.class, w -> {
             w.insert(1, new Name("Brian", "McCallister"));
 
-            assertThat(w.findName(1), equalTo("Brian McCallister"));
+            assertThat(w.findName(1)).isEqualTo("Brian McCallister");
         });
     }
 

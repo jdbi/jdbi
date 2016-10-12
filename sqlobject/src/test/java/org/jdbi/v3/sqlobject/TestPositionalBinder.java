@@ -13,11 +13,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.junit.Before;
@@ -47,13 +49,13 @@ public class TestPositionalBinder {
     @Test
     public void testOnePositionalParameter() {
         String name = somethingDao.findNameById(2);
-        assertEquals("Keith", name);
+        assertThat(name).isEqualTo("Keith");
     }
 
     @Test
     public void testManyPositionalParameters() {
         Integer id = somethingDao.getIdByNameAndCode("Coda", 14);
-        assertEquals(3, id.intValue());
+        assertThat(id).isEqualTo(3);
     }
 
     @Test
@@ -61,24 +63,16 @@ public class TestPositionalBinder {
         somethingDao.insertSomething(4, "Dave", 90);
 
         List<Map<String, Object>> rows = handle.select("select * from something where something_id=?", 4);
-        assertEquals(rows.size(), 1);
-
-        Map<String, Object> row = rows.get(0);
-        assertEquals(row.get("something_id"), 4);
-        assertEquals(row.get("name"), "Dave");
-        assertEquals(row.get("code"), 90);
+        assertThat(rows).containsExactlyElementsOf(ImmutableList.of(
+                ImmutableMap.of("something_id", 4, "name", "Dave", "code", 90)));
     }
 
     @Test
     public void testInsertWithDefaultParams(){
         somethingDao.insertWithDefaultParams("Greg",21);
         List<Map<String, Object>> rows = handle.select("select * from something where something_id=?", 19);
-        assertEquals(rows.size(), 1);
-
-        Map<String, Object> row = rows.get(0);
-        assertEquals(row.get("something_id"), 19);
-        assertEquals(row.get("name"), "Greg");
-        assertEquals(row.get("code"), 21);
+        assertThat(rows).containsExactlyElementsOf(ImmutableList.of(
+                ImmutableMap.of("something_id", 19, "name", "Greg", "code", 21)));
     }
 
     public interface SomethingDao {

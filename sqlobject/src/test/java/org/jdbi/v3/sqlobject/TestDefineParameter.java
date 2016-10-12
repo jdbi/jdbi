@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -53,11 +53,11 @@ public class TestDefineParameter
         badass.insert("stuff", ted);
         badass.insert("junk", fred);
 
-        assertEquals(badass.findById("stuff", 1), ted);
-        assertNull(badass.findById("junk", 1));
+        assertThat(badass.findById("stuff", 1)).isEqualTo(ted);
+        assertThat(badass.findById("junk", 1)).isNull();
 
-        assertNull(badass.findById("stuff", 2));
-        assertEquals(badass.findById("junk", 2), fred);
+        assertThat(badass.findById("stuff", 2)).isNull();
+        assertThat(badass.findById("junk", 2)).isEqualTo(fred);
     }
 
     @RegisterRowMapper(SomethingMapper.class)

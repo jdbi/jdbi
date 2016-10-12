@@ -13,14 +13,13 @@
  */
 package org.jdbi.v3.core;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatementContextTest {
 
@@ -60,6 +59,6 @@ public class StatementContextTest {
 
         final StatementContext context = new StatementContext(config);
 
-        assertThat(context.findColumnMapperFor(Foo.class).get(), equalTo(mapper));
+        assertThat(context.findColumnMapperFor(Foo.class)).contains(mapper);
     }
 }

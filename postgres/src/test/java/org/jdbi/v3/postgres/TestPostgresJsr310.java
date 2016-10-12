@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,28 +46,28 @@ public class TestPostgresJsr310 {
     public void localDate() {
         LocalDate d = LocalDate.now();
         h.insert("insert into stuff(d) values (?)", d);
-        assertEquals(d, h.createQuery("select d from stuff").mapTo(LocalDate.class).findOnly());
+        assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).findOnly()).isEqualTo(d);
     }
 
     @Test
     public void localDateTime() {
         LocalDateTime d = LocalDateTime.now();
         h.insert("insert into stuff(ts) values (?)", d);
-        assertEquals(d, h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).findOnly());
+        assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).findOnly()).isEqualTo(d);
     }
 
     @Test
     public void offsetDateTime() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC);
         h.insert("insert into stuff(ts) values (?)", dt);
-        assertEquals(dt, h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly());
+        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()).isEqualTo(dt);
     }
 
     @Test
     public void offsetDateTimeLosesOffset() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.ofHours(-7));
         h.insert("insert into stuff(ts) values (?)", dt);
-        assertTrue(dt.isEqual(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()));
+        assertThat(dt.isEqual(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly())).isTrue();
     }
 
     @Test
@@ -77,7 +76,7 @@ public class TestPostgresJsr310 {
         LocalTime start = LocalTime.of(8, 30, 0);
         LocalTime stop = LocalTime.of(10, 30, 0);
         h.insert("insert into schedule (start, stop) values (?,?)", start, stop);
-        assertEquals(start, h.createQuery("select start from schedule").mapTo(LocalTime.class).findOnly());
-        assertEquals(stop, h.createQuery("select stop from schedule").mapTo(LocalTime.class).findOnly());
+        assertThat(h.createQuery("select start from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(start);
+        assertThat(h.createQuery("select stop from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(stop);
     }
 }

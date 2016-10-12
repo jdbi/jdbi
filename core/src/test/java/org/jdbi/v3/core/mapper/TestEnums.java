@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -70,8 +69,7 @@ public class TestEnums
         List<SomethingElse> results = h.createQuery("select * from something order by id")
                                    .mapToBean(SomethingElse.class)
                                    .list();
-        assertEquals(SomethingElse.Name.eric, results.get(0).name);
-        assertEquals(SomethingElse.Name.brian, results.get(1).name);
+        assertThat(results).extracting(se -> se.name).containsExactly(SomethingElse.Name.eric, SomethingElse.Name.brian);
     }
 
     @Test
@@ -84,24 +82,17 @@ public class TestEnums
         List<SomethingElse.Name> results = h.createQuery("select name from something order by id")
                                    .mapTo(SomethingElse.Name.class)
                                    .list();
-        assertEquals(SomethingElse.Name.eric, results.get(0));
-        assertEquals(SomethingElse.Name.brian, results.get(1));
+        assertThat(results).containsExactly(SomethingElse.Name.eric, SomethingElse.Name.brian);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testMapInvalidEnumValue() throws SQLException
     {
         Handle h = db.openHandle();
         h.createStatement("insert into something (id, name) values (1, 'joe')").execute();
 
-        try {
-            h.createQuery("select * from something order by id")
-             .mapToBean(SomethingElse.class)
-             .findFirst();
-            fail("Expected IllegalArgumentException was not thrown");
-        }
-        catch (IllegalArgumentException e) {
-            assertEquals("flow control goes here", 2 + 2, 4);
-        }
+        h.createQuery("select * from something order by id")
+                .mapToBean(SomethingElse.class)
+                .findFirst();
     }
 }

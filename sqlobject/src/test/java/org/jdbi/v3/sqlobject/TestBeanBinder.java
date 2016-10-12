@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -45,7 +45,7 @@ public class TestBeanBinder
         s.insert(new Something(2, "Bean"));
 
         String name = handle.createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
-        assertEquals("Bean", name);
+        assertThat(name).isEqualTo("Bean");
     }
 
     @Test
@@ -54,7 +54,7 @@ public class TestBeanBinder
         Spiffy s = handle.attach(Spiffy.class);
         handle.insert("insert into something (id, name) values (17, 'Phil')");
         Something phil = s.findByEqualsOnBothFields(new Something(17, "Phil"));
-        assertEquals("Phil", phil.getName());
+        assertThat(phil.getName()).isEqualTo("Phil");
     }
 
     @RegisterRowMapper(SomethingMapper.class)
@@ -74,7 +74,7 @@ public class TestBeanBinder
     public void testBindingPrivateTypeUsingPublicInterface() throws Exception
     {
         Spiffy s = handle.attach(Spiffy.class);
-        assertEquals("IShouldBind", s.selectPublicInterfaceValue(PrivateImplementationFactory.create()));
+        assertThat(s.selectPublicInterfaceValue(PrivateImplementationFactory.create())).isEqualTo("IShouldBind");
     }
 
     public interface PublicInterface {

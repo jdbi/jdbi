@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
@@ -57,7 +55,7 @@ public class TestBindExpression
         DB db = dbRule.getSharedHandle().attach(DB.class);
         db.insert(new Something(1, "syrup"), new Something(2, "whipped cream"));
         Something with_syrup = db.findByBreakfast(new Breakfast());
-        assertThat(with_syrup, equalTo(new Something(1, "syrup")));
+        assertThat(with_syrup).isEqualTo(new Something(1, "syrup"));
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -116,8 +114,7 @@ public class TestBindExpression
         JexlEngine engine = new JexlEngine();
         Object topping = engine.createExpression("breakfast.waffle.topping")
                                .evaluate(new MapContext(ImmutableMap.<String, Object>of("breakfast", new Breakfast())));
-        assertThat(topping, instanceOf(String.class));
-        assertThat(topping, equalTo("syrup"));
+        assertThat(topping).isEqualTo("syrup");
     }
 
 

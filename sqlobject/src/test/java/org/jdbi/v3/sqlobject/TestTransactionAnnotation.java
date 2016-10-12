@@ -13,10 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -56,7 +54,7 @@ public class TestTransactionAnnotation
     {
         Dao dao = handle.attach(Dao.class);
         Something s = dao.insertAndFetch(1, "Ian");
-        assertThat(s, equalTo(new Something(1, "Ian")));
+        assertThat(s).isEqualTo(new Something(1, "Ian"));
     }
 
     @Test
@@ -69,7 +67,7 @@ public class TestTransactionAnnotation
             dao.failed(1, "Ian");
         }
         finally {
-            assertThat(dao.findById(1), nullValue());
+            assertThat(dao.findById(1)).isNull();
         }
     }
 
@@ -85,7 +83,7 @@ public class TestTransactionAnnotation
 
         // fetch from another connection
         Something fetched = two.findById(1);
-        assertThat(fetched, equalTo(inserted));
+        assertThat(fetched).isEqualTo(inserted);
     }
 
     @Test
@@ -117,7 +115,7 @@ public class TestTransactionAnnotation
                 committed.await();
 
                 Something s2 = o.find(1);
-                assertThat(s2, equalTo(new Something(1, "diwaker")));
+                assertThat(s2).isEqualTo(new Something(1, "diwaker"));
                 return null;
             }
             catch (Exception e) {

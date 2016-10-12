@@ -13,7 +13,7 @@
  */
 package jdbi.doc;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -76,24 +76,24 @@ public class TransactionTest {
     @Test
     public void inTransaction() {
         User u = findUserById(2).orElseThrow(() -> new AssertionError("No user found"));
-        assertEquals(2, u.id);
-        assertEquals("Bob", u.name);
+        assertThat(u.id).isEqualTo(2);
+        assertThat(u.name).isEqualTo("Bob");
     }
 
     // tag::simpleTransaction[]
     public Optional<User> findUserById(long id) {
         return handle.inTransaction((h, status) ->
-            h.createQuery("SELECT * FROM users WHERE id=:id")
-                .bind("id", id)
-                .mapTo(User.class)
-                .findFirst());
+                h.createQuery("SELECT * FROM users WHERE id=:id")
+                        .bind("id", id)
+                        .mapTo(User.class)
+                        .findFirst());
     }
     // end::simpleTransaction[]
 
     // tag::sqlObjectTransaction[]
     @Test
     public void sqlObjectTransaction() {
-        assertEquals("Charlie", handle.attach(UserDao.class).findUserById(3).get().name);
+        assertThat(handle.attach(UserDao.class).findUserById(3).map(u -> u.name)).contains("Charlie");
     }
 
     public interface UserDao {
@@ -107,7 +107,7 @@ public class TransactionTest {
     public void sqlObjectTransactionIsolation() {
         UserDao2 dao = handle.attach(UserDao2.class);
         dao.insertUser("Echo");
-        assertEquals("Echo", handle.attach(UserDao.class).findUserById(5).get().name);
+        assertThat(handle.attach(UserDao.class).findUserById(5).map(u -> u.name)).contains("Echo");
     }
 
     public interface UserDao2 extends UserDao {
@@ -224,7 +224,7 @@ public class TransactionTest {
 
         // One of them gets 30, the other gets 10 + 20 + 30 = 60
         // This assertion fails under any isolation level below SERIALIZABLE!
-        assertEquals(30 + 60, result1.get() + result2.get());
+        assertThat(result1.get() + result2.get()).isEqualTo(30 + 60);
 
         executor.shutdown();
     }

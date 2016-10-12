@@ -14,9 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -53,9 +51,7 @@ public class TestSqlMethodDecoratingAnnotations {
         Dao dao = handle.attach(Dao.class);
         dao.unordered();
 
-        assertThat(invocations.get(), anyOf(
-                equalTo(asList("foo", "bar", "method")),
-                equalTo(asList("bar", "foo", "method"))));
+        assertThat(invocations.get()).isIn(asList("foo", "bar", "method"), asList("bar", "foo", "method"));
     }
 
     @Test
@@ -63,8 +59,7 @@ public class TestSqlMethodDecoratingAnnotations {
         Dao dao = handle.attach(Dao.class);
         dao.orderedFooBar();
 
-        assertThat(invocations.get(),
-                equalTo(asList("foo", "bar", "method")));
+        assertThat(invocations.get()).containsExactly("foo", "bar", "method");
     }
 
     @Test
@@ -72,8 +67,7 @@ public class TestSqlMethodDecoratingAnnotations {
         Dao dao = handle.attach(Dao.class);
         dao.orderedBarFoo();
 
-        assertThat(invocations.get(),
-                equalTo(asList("bar", "foo", "method")));
+        assertThat(invocations.get()).containsExactly("bar", "foo", "method");
     }
 
     @Test
@@ -81,8 +75,7 @@ public class TestSqlMethodDecoratingAnnotations {
         OrderedOnType dao = handle.attach(OrderedOnType.class);
         dao.orderedFooBarOnType();
 
-        assertThat(invocations.get(),
-                equalTo(asList("foo", "bar", "method")));
+        assertThat(invocations.get()).containsExactly("foo", "bar", "method");
     }
 
     @Test
@@ -90,8 +83,7 @@ public class TestSqlMethodDecoratingAnnotations {
         OrderedOnType dao = handle.attach(OrderedOnType.class);
         dao.orderedBarFooOnMethod();
 
-        assertThat(invocations.get(),
-                equalTo(asList("bar", "foo", "method")));
+        assertThat(invocations.get()).containsExactly("bar", "foo", "method");
     }
 
     @Test
@@ -99,8 +91,7 @@ public class TestSqlMethodDecoratingAnnotations {
         Dao dao = handle.attach(Dao.class);
         dao.abortingDecorator();
 
-        assertThat(invocations.get(),
-                equalTo(asList("foo", "abort")));
+        assertThat(invocations.get()).containsExactly("foo", "abort");
     }
 
     static void invoked(String value) {

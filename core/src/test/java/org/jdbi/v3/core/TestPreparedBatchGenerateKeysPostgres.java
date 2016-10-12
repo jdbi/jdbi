@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,12 +52,12 @@ public class TestPreparedBatchGenerateKeysPostgres {
         batch.add("Thom");
 
         List<Integer> ids = batch.executeAndGenerateKeys(Integer.class, "id").list();
-        assertEquals(Arrays.asList(1, 2), ids);
+        assertThat(ids).containsExactly(1, 2);
 
         List<Something> somethings = h.createQuery("select id, name from something")
                 .mapToBean(Something.class)
                 .list();
-        assertEquals(Arrays.asList(new Something(1, "Brian"), new Something(2, "Thom")), somethings);
+        assertThat(somethings).containsExactly(new Something(1, "Brian"), new Something(2, "Thom"));
     }
 
     @Test
@@ -73,11 +70,9 @@ public class TestPreparedBatchGenerateKeysPostgres {
             return new IdCreateTime(r.getInt("id"), r.getDate("create_time"));
         }, "id", "create_time").list();
 
-        assertEquals(ids.size(), 2);
-        assertTrue(ids.get(0).id == 1);
-        assertTrue(ids.get(1).id == 2);
-        assertNotNull(ids.get(0).createTime);
-        assertNotNull(ids.get(1).createTime);
+        assertThat(ids).hasSize(2);
+        assertThat(ids).extracting(ic -> ic.id).containsExactly(1, 2);
+        assertThat(ids).extracting(ic -> ic.createTime).doesNotContainNull();
     }
 
     private static class IdCreateTime {

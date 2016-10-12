@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -62,7 +62,7 @@ public class TestTimingCollector
     public void testStatement() throws Exception
     {
         int rows = h.createStatement("insert into something (id, name) values (1, 'eric')").execute();
-        assertEquals(1, rows);
+        assertThat(rows).isEqualTo(1);
     }
 
     @Test
@@ -70,11 +70,10 @@ public class TestTimingCollector
     {
         String statement = "insert into something (id, name) values (1, 'eric')";
         int c = h.insert(statement);
-        assertEquals(1, c);
+        assertThat(c).isEqualTo(1);
 
         final List<String> statements = tc.getStatements();
-        assertEquals(1, statements.size());
-        assertEquals(statement, statements.get(0));
+        assertThat(statements).containsExactly(statement);
     }
 
     @Test
@@ -87,13 +86,10 @@ public class TestTimingCollector
         h.insert(stmt1);
         h.createStatement(stmt2).execute();
         Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
-        assertEquals("ERIC", eric.getName());
+        assertThat(eric.getName()).isEqualTo("ERIC");
 
         final List<String> statements = tc.getStatements();
-        assertEquals(3, statements.size());
-        assertEquals(stmt1, statements.get(0));
-        assertEquals(stmt2, statements.get(1));
-        assertEquals(stmt3, statements.get(2));
+        assertThat(statements).containsExactly(stmt1, stmt2, stmt3);
     }
 
     @Test
@@ -106,13 +102,10 @@ public class TestTimingCollector
         h.insert(stmt1);
         h.update(stmt2);
         Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
-        assertEquals("cire", eric.getName());
+        assertThat(eric.getName()).isEqualTo("cire");
 
         final List<String> statements = tc.getStatements();
-        assertEquals(3, statements.size());
-        assertEquals(stmt1, statements.get(0));
-        assertEquals(stmt2, statements.get(1));
-        assertEquals(stmt3, statements.get(2));
+        assertThat(statements).containsExactly(stmt1, stmt2, stmt3);
     }
 
     private static class TTC implements TimingCollector

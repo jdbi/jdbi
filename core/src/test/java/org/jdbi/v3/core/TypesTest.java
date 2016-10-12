@@ -14,8 +14,7 @@
 package org.jdbi.v3.core;
 
 import static java.util.Optional.empty;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
@@ -35,12 +34,12 @@ public class TypesTest {
 
     @Test
     public void getErasedTypeOfRaw() throws Exception {
-        assertThat(GenericTypes.getErasedType(methodReturnType("raw")), equalTo(Foo.class));
+        assertThat(GenericTypes.getErasedType(methodReturnType("raw"))).isEqualTo(Foo.class);
     }
 
     @Test
     public void findGenericParameterOfRaw() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("raw"), Foo.class), equalTo(empty()));
+        assertThat(GenericTypes.findGenericParameter(methodReturnType("raw"), Foo.class)).isEqualTo(empty());
     }
 
     Foo<String> generic() {
@@ -49,13 +48,13 @@ public class TypesTest {
 
     @Test
     public void getErasedTypeOfGeneric() throws Exception {
-        assertThat(GenericTypes.getErasedType(methodReturnType("generic")), equalTo(Foo.class));
+        assertThat(GenericTypes.getErasedType(methodReturnType("generic"))).isEqualTo(Foo.class);
     }
 
     @Test
     public void findGenericParameterOfGeneric() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("generic"), Foo.class),
-                equalTo(Optional.of(String.class)));
+        assertThat(GenericTypes.findGenericParameter(methodReturnType("generic"), Foo.class))
+                .contains(String.class);
     }
 
     Foo<Foo<String>> nestedGeneric() {
@@ -64,13 +63,13 @@ public class TypesTest {
 
     @Test
     public void getErasedTypeOfNestedGeneric() throws Exception {
-        assertThat(GenericTypes.getErasedType(methodReturnType("nestedGeneric")), equalTo(Foo.class));
+        assertThat(GenericTypes.getErasedType(methodReturnType("nestedGeneric"))).isEqualTo(Foo.class);
     }
 
     @Test
     public void findGenericParameterOfNestedGeneric() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("nestedGeneric"), Foo.class),
-                equalTo(Optional.of(methodReturnType("generic"))));
+        assertThat(GenericTypes.findGenericParameter(methodReturnType("nestedGeneric"), Foo.class))
+                .contains(methodReturnType("generic"));
     }
 
     class Bar<T> extends Foo<T> {
@@ -82,8 +81,8 @@ public class TypesTest {
 
     @Test
     public void findGenericParameterOfSuperClass() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("subTypeGeneric"), Foo.class),
-                equalTo(Optional.of(Integer.class)));
+        assertThat(GenericTypes.findGenericParameter(methodReturnType("subTypeGeneric"), Foo.class))
+                .isEqualTo(Optional.of(Integer.class));
     }
 
     class Baz<T> extends Bar<T> {
@@ -95,8 +94,8 @@ public class TypesTest {
 
     @Test
     public void findGenericParameterOfAncestorClass() throws Exception {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType("descendentTypeGeneric"), Foo.class),
-                equalTo(Optional.of(String.class)));
+        assertThat(GenericTypes.findGenericParameter(methodReturnType("descendentTypeGeneric"), Foo.class))
+                .contains(String.class);
     }
 
     private Type methodReturnType(String methodName) throws NoSuchMethodException {
@@ -112,8 +111,8 @@ public class TypesTest {
         abstract class B extends A<String> {
         }
 
-        assertThat(GenericTypes.resolveType(A.class.getDeclaredMethod("a").getGenericReturnType(), B.class),
-                equalTo(String.class));
+        assertThat(GenericTypes.resolveType(A.class.getDeclaredMethod("a").getGenericReturnType(), B.class))
+                .isEqualTo(String.class);
     }
 
     @Test
@@ -128,6 +127,6 @@ public class TypesTest {
         }
 
         Type t = A1.class.getDeclaredMethod("a").getGenericReturnType();
-        assertThat(GenericTypes.resolveType(t, B.class), equalTo(t));
+        assertThat(GenericTypes.resolveType(t, B.class)).isEqualTo(t);
     }
 }

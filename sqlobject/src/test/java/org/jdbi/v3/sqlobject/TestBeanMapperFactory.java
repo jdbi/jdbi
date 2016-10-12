@@ -14,7 +14,7 @@
 
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -89,8 +89,7 @@ public class TestBeanMapperFactory
         h.createStatement("insert into testBean (valueType) values ('foo')").execute();
 
         List<TestBean> beans = dao.listBeans();
-        assertEquals(1, beans.size());
-        assertEquals(ValueType.valueOf("foo"), beans.get(0).getValueType());
+        assertThat(beans).extracting(TestBean::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 
     @Test
@@ -98,12 +97,10 @@ public class TestBeanMapperFactory
         h.createStatement("insert into testBean (valueType) values ('foo')").execute();
 
         List<String> strings = dao.listStrings();
-        assertEquals(1, strings.size());
-        assertEquals("foo", strings.get(0));
+        assertThat(strings).containsExactly("foo");
 
         List<TestEnum> enums = dao.listEnums();
-        assertEquals(1, enums.size());
-        assertEquals(TestEnum.foo, enums.get(0));
+        assertThat(enums).containsExactly(TestEnum.foo);
     }
 
     @Test
@@ -111,7 +108,6 @@ public class TestBeanMapperFactory
         h.createStatement("insert into testBean (valueType) values ('foo')").execute();
 
         List<ValueType> valueTypes = dao.listValueTypes();
-        assertEquals(1, valueTypes.size());
-        assertEquals(ValueType.valueOf("foo"), valueTypes.get(0));
+        assertThat(valueTypes).containsExactly(ValueType.valueOf("foo"));
     }
 }

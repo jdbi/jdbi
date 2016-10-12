@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -45,49 +45,49 @@ public class TestJsr310 {
     public void instant() {
         Instant i = Instant.now();
         h.insert("insert into stuff(ts) values (?)", i);
-        assertEquals(i, h.createQuery("select ts from stuff").mapTo(Instant.class).findOnly());
+        assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).findOnly()).isEqualTo(i);
     }
 
     @Test
     public void localDate() {
         LocalDate d = LocalDate.now();
         h.insert("insert into stuff(d) values (?)", d);
-        assertEquals(d, h.createQuery("select d from stuff").mapTo(LocalDate.class).findOnly());
+        assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).findOnly()).isEqualTo(d);
     }
 
     @Test
     public void localDateTime() {
         LocalDateTime d = LocalDateTime.now();
         h.insert("insert into stuff(ts) values (?)", d);
-        assertEquals(d, h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).findOnly());
+        assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).findOnly()).isEqualTo(d);
     }
 
     @Test
     public void offsetDateTime() {
         OffsetDateTime dt = OffsetDateTime.now();
         h.insert("insert into stuff(ts) values (?)", dt);
-        assertEquals(dt, h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly());
+        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()).isEqualTo(dt);
     }
 
     @Test
     public void offsetDateTimeLosesOffset() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.ofHours(-7));
         h.insert("insert into stuff(ts) values (?)", dt);
-        assertTrue(dt.isEqual(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()));
+        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly().isEqual(dt)).isTrue();
     }
 
     @Test
     public void zonedDateTime() {
         ZonedDateTime dt = ZonedDateTime.now();
         h.insert("insert into stuff(ts) values (?)", dt);
-        assertEquals(dt, h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).findOnly());
+        assertThat(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).findOnly()).isEqualTo(dt);
     }
 
     @Test
     public void zonedDateTimeLosesZone() {
         ZonedDateTime dt = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("America/Denver"));
         h.insert("insert into stuff(ts) values (?)", dt);
-        assertTrue(dt.isEqual(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).findOnly()));
+        assertThat(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).findOnly().isEqual(dt)).isTrue();
     }
 
     @Test
@@ -96,7 +96,7 @@ public class TestJsr310 {
         LocalTime start = LocalTime.of(8, 30, 0);
         LocalTime end = LocalTime.of(10, 30, 0);
         h.insert("insert into schedule (start, end) values (?,?)", start, end);
-        assertEquals(start, h.createQuery("select start from schedule").mapTo(LocalTime.class).findOnly());
-        assertEquals(end, h.createQuery("select end from schedule").mapTo(LocalTime.class).findOnly());
+        assertThat(h.createQuery("select start from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(start);
+        assertThat(h.createQuery("select end from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(end);
     }
 }

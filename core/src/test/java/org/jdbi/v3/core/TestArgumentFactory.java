@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -43,7 +42,7 @@ public class TestArgumentFactory
 
             String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
-            assertThat(full_name, equalTo("Brian McCallister"));
+            assertThat(full_name).isEqualTo("Brian McCallister");
         }
     }
 
@@ -59,7 +58,7 @@ public class TestArgumentFactory
 
             String full_name = h.createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
-            assertThat(full_name, equalTo("Brian McCallister"));
+            assertThat(full_name).isEqualTo("Brian McCallister");
         }
     }
 
@@ -88,8 +87,8 @@ public class TestArgumentFactory
                            .mapTo(String.class)
                            .list();
 
-        assertThat(rs.get(0), equalTo("Brian McCallister"));
-        assertThat(rs.get(1), equalTo("Henning S"));
+        assertThat(rs.get(0)).isEqualTo("Brian McCallister");
+        assertThat(rs.get(1)).isEqualTo("Henning S");
     }
 
     public static class NameAF implements ArgumentFactory

@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
@@ -33,7 +33,7 @@ public class TestCustomBinder
         db.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
         db.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findSame(new Something(2, "Unknown"));
-            assertEquals("Martin", s.getName());
+            assertThat(s.getName()).isEqualTo("Martin");
         });
     }
 
@@ -44,7 +44,7 @@ public class TestCustomBinder
 
         s.insert(new Something(2, "Keith"));
 
-        assertEquals("Keith", s.findNameById(2));
+        assertThat(s.findNameById(2)).isEqualTo("Keith");
     }
 
     public interface Spiffy

@@ -13,9 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,19 +40,13 @@ public class TestReentrancy
         int insert(@BindBean Something something);
     }
 
-    @Test
+    @Test(expected = UnableToCreateStatementException.class)
     public void testGetHandleProvidesSeperateHandle() throws Exception
     {
         final TheBasics dao = dbi.onDemand(TheBasics.class);
         Handle h = dao.getHandle();
 
-        try {
-            h.execute("insert into something (id, name) values (1, 'Stephen')");
-            fail("should have raised exception, connection will be closed at this point");
-        }
-        catch (UnableToCreateStatementException e) {
-            // happy path
-        }
+        h.execute("insert into something (id, name) values (1, 'Stephen')");
     }
 
     @Test
@@ -83,7 +75,7 @@ public class TestReentrancy
                 List<String> rs = conn.createQuery("select name from something where id = 1")
                         .mapTo(String.class)
                         .list();
-                assertThat(rs.size(), equalTo(1));
+                assertThat(rs).hasSize(1);
 
                 conn.createQuery("SELECT 1").list();
             });

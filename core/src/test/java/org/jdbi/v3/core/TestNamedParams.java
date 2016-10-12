@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +35,7 @@ public class TestNamedParams
         insert.bind("id", 1);
         insert.bind("name", "Brian");
         int count = insert.execute();
-        assertEquals(1, count);
+        assertThat(count).isEqualTo(1);
     }
 
     @Test
@@ -56,9 +56,7 @@ public class TestNamedParams
                 .mapToBean(Something.class)
                 .list();
 
-        assertEquals(2, r.size());
-        assertEquals(2, r.get(0).getId());
-        assertEquals(3, r.get(1).getId());
+        assertThat(r).extracting(Something::getId).containsExactly(2, 3);
     }
 
     @Test
@@ -68,7 +66,7 @@ public class TestNamedParams
         Update s = h.createStatement("insert into something (id, name) values (:id, :name)");
         s.bindBean(new Something(0, "Keith"));
         int insert_count = s.execute();
-        assertEquals(1, insert_count);
+        assertThat(insert_count).isEqualTo(1);
     }
 
     @Test
@@ -81,7 +79,7 @@ public class TestNamedParams
         args.put("name", "Keith");
         s.bindMap(args);
         int insert_count = s.execute();
-        assertEquals(1, insert_count);
+        assertThat(insert_count).isEqualTo(1);
     }
 
     @Test
@@ -98,9 +96,8 @@ public class TestNamedParams
             public String getName() { return "Keith"; }
         });
         int insert_count = s.execute();
-        assertEquals(1, insert_count);
+        assertThat(insert_count).isEqualTo(1);
         Something something = h.createQuery("select id, name from something").mapToBean(Something.class).findOnly();
-        assertEquals("Keith", something.getName());
-        assertEquals(0, something.getId());
+        assertThat(something).isEqualTo(new Something(0, "Keith"));
     }
 }

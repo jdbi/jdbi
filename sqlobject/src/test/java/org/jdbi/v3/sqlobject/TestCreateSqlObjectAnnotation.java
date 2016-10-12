@@ -13,13 +13,10 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
-
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -52,7 +49,7 @@ public class TestCreateSqlObjectAnnotation
         Foo foo = handle.attach(Foo.class);
         foo.insert(1, "Stephane");
         Something s = foo.createBar().findById(1);
-        assertThat(s, equalTo(new Something(1, "Stephane")));
+        assertThat(s).isEqualTo(new Something(1, "Stephane"));
     }
 
     @Test
@@ -60,7 +57,7 @@ public class TestCreateSqlObjectAnnotation
     {
         Foo foo = handle.attach(Foo.class);
         Something s = foo.insertAndFind(1, "Stephane");
-        assertThat(s, equalTo(new Something(1, "Stephane")));
+        assertThat(s).isEqualTo(new Something(1, "Stephane"));
     }
 
     @Test
@@ -68,13 +65,10 @@ public class TestCreateSqlObjectAnnotation
     {
         Foo foo = db.getJdbi().open().attach(Foo.class);
 
-        try {
-            foo.insertAndFail(1, "Jeff");
-            fail("should have raised an exception");
-        }
-        catch (Exception e){}
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> foo.insertAndFail(1, "Jeff"));
+
         Something n = foo.createBar().findById(1);
-        assertThat(n, nullValue());
+        assertThat(n).isNull();
     }
 
     public interface Foo

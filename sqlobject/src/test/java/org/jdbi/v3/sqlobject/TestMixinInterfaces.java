@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 
@@ -28,7 +27,6 @@ import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,7 +60,7 @@ public class TestMixinInterfaces
         WithGetHandle g = handle.attach(WithGetHandle.class);
         Handle h = g.getHandle();
 
-        assertSame(handle, h);
+        assertThat(h).isSameAs(handle);
     }
 
     @Test
@@ -75,7 +73,7 @@ public class TestMixinInterfaces
             return handle1.createQuery("select name from something where id = 8").mapTo(String.class).findOnly();
         });
 
-        assertEquals("Mike", name);
+        assertThat(name).isEqualTo("Mike");
     }
 
     @Test
@@ -84,7 +82,10 @@ public class TestMixinInterfaces
         WithGetHandle g = handle.attach(WithGetHandle.class);
         g.useHandle(handle -> handle.execute("insert into something(id, name) values (9, 'James')"));
 
-        assertEquals("James", handle.createQuery("select name from something where id = 9").mapTo(String.class).findOnly());
+        assertThat(handle.createQuery("select name from something where id = 9")
+                .mapTo(String.class)
+                .findOnly())
+                .isEqualTo("James");
     }
 
     @Test
@@ -96,11 +97,10 @@ public class TestMixinInterfaces
 
         txl.begin();
         txl.updateName(8, "Miker");
-        assertEquals("Miker", txl.byId(8).getName());
+        assertThat(txl.byId(8).getName()).isEqualTo("Miker");
         txl.rollback();
 
-        assertEquals("Mike", txl.byId(8).getName());
-
+        assertThat(txl.byId(8).getName()).isEqualTo("Mike");
     }
 
     @Test
@@ -111,7 +111,7 @@ public class TestMixinInterfaces
 
         Something s = txl.inTransaction((conn, status) -> conn.byId(7));
 
-        assertEquals("Keith", s.getName());
+        assertThat(s.getName()).isEqualTo("Keith");
     }
 
     @Test
@@ -121,11 +121,12 @@ public class TestMixinInterfaces
         txl.insert(7, "Keith");
 
         Something s = txl.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (conn, status) -> {
-            Assert.assertEquals(TransactionIsolationLevel.SERIALIZABLE, conn.getHandle().getTransactionIsolationLevel());
+            assertThat(conn.getHandle().getTransactionIsolationLevel())
+                    .isEqualTo(TransactionIsolationLevel.SERIALIZABLE);
             return conn.byId(7);
         });
 
-        assertEquals("Keith", s.getName());
+        assertThat(s.getName()).isEqualTo("Keith");
     }
 
     @Test
@@ -138,12 +139,12 @@ public class TestMixinInterfaces
             txl.begin();
 
             txl.updateName(8, "Miker");
-            assertEquals("Miker", txl.byId(8).getName());
-            assertEquals("Mike", tx2.byId(8).getName());
+            assertThat(txl.byId(8).getName()).isEqualTo("Miker");
+            assertThat(tx2.byId(8).getName()).isEqualTo("Mike");
 
             txl.commit();
 
-            assertEquals("Miker", tx2.byId(8).getName());
+            assertThat(tx2.byId(8).getName()).isEqualTo("Miker");
         });
     }
 
@@ -157,7 +158,10 @@ public class TestMixinInterfaces
             h1.begin();
             h1.execute("update something set name = 'Miker' where id = 8");
 
-            assertEquals("Mike", h2.createQuery("select name from something where id = 8").mapTo(String.class).findOnly());
+            assertThat(h2.createQuery("select name from something where id = 8")
+                    .mapTo(String.class)
+                    .findOnly())
+                    .isEqualTo("Mike");
             h1.commit();
         }
     }

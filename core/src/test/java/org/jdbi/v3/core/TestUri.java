@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 
@@ -33,8 +33,8 @@ public class TestUri
         h.createStatement("insert into something (id, name) values (1, :uri)")
             .bind("uri", TEST_URI).execute();
 
-        assertEquals(TEST_URI, h.createQuery("SELECT name FROM something")
+        assertThat(h.createQuery("SELECT name FROM something")
             .mapTo(URI.class)
-            .findOnly());
+            .findOnly()).isEqualTo(TEST_URI);
     }
 }

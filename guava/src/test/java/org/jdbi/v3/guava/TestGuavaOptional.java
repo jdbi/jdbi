@@ -13,15 +13,11 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
 import java.util.List;
-
 import com.google.common.base.Optional;
-
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -60,9 +56,7 @@ public class TestGuavaOptional {
                 .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .findOnly();
-
-        assertEquals(1, result.getId());
-        assertEquals("eric", result.getName());
+        assertThat(result).isEqualTo(new Something(1, "eric"));
     }
 
     @Test
@@ -72,13 +66,7 @@ public class TestGuavaOptional {
                 .mapToBean(Something.class)
                 .list();
 
-        assertThat(result.size(), equalTo(2));
-
-        assertEquals(1, result.get(0).getId());
-        assertEquals("eric", result.get(0).getName());
-
-        assertEquals(2, result.get(1).getId());
-        assertEquals("brian", result.get(1).getName());
+        assertThat(result).containsExactly(new Something(1, "eric"), new Something(2, "brian"));
     }
 
     @Test
@@ -106,8 +94,7 @@ public class TestGuavaOptional {
                 .mapToBean(Something.class)
                 .findOnly();
 
-        assertEquals(2, result.getId());
-        assertEquals("brian", result.getName());
+        assertThat(result).isEqualTo(new Something(2, "brian"));
     }
 
     @Test
@@ -117,13 +104,7 @@ public class TestGuavaOptional {
                 .mapToBean(Something.class)
                 .list();
 
-        assertThat(result.size(), equalTo(2));
-
-        assertEquals(1, result.get(0).getId());
-        assertEquals("eric", result.get(0).getName());
-
-        assertEquals(2, result.get(1).getId());
-        assertEquals("brian", result.get(1).getName());
+        assertThat(result).containsExactly(new Something(1, "eric"), new Something(2, "brian"));
     }
 
     @Test
@@ -134,10 +115,7 @@ public class TestGuavaOptional {
                 .mapToBean(Something.class)
                 .list();
 
-        assertThat(result.size(), equalTo(1));
-
-        assertEquals(1, result.get(0).getId());
-        assertEquals("eric", result.get(0).getName());
+        assertThat(result).containsExactly(new Something(1, "eric"));
     }
 
     @Test

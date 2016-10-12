@@ -14,16 +14,14 @@
 package org.jdbi.v3.sqlobject.unstable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.hamcrest.CoreMatchers;
-import org.jdbi.v3.sqlobject.unstable.BindIn;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BindInUtilTest
 {
@@ -61,16 +59,14 @@ public class BindInUtilTest
     public void testEmptyArrayToIterator()
     {
         final Object[] out = toArray(BindIn.Util.toIterator(new int[]{}));
-
-        Assert.assertEquals(0, out.length);
+        assertThat(out).isEmpty();
     }
 
     @Test
     public void testEmptyListToIterator()
     {
         final Object[] out = toArray(BindIn.Util.toIterator(new ArrayList<Integer>()));
-
-        Assert.assertEquals(0, out.length);
+        assertThat(out).isEmpty();
     }
 
     @Test
@@ -82,8 +78,7 @@ public class BindInUtilTest
 
         final Object[] out = toArray(BindIn.Util.toIterator(in));
 
-        Assert.assertEquals(in.size(), out.length);
-        Assert.assertThat(Arrays.asList(out), CoreMatchers.hasItems((Object) "1", "2"));
+        assertThat(out).containsExactly("1", "2");
     }
 
     @Test
@@ -95,8 +90,7 @@ public class BindInUtilTest
 
         final Object[] out = toArray(BindIn.Util.toIterator(in));
 
-        Assert.assertEquals(in.size(), out.length);
-        Assert.assertThat(Arrays.asList(out), CoreMatchers.hasItems((Object) "1", "2"));
+        assertThat(out).containsExactly("1", "2");
     }
 
     @Test
@@ -117,8 +111,7 @@ public class BindInUtilTest
 
         final Object[] out = toArray(BindIn.Util.toIterator(in));
 
-        Assert.assertEquals(2, out.length);
-        Assert.assertThat(Arrays.asList(out), CoreMatchers.hasItems((Object) "1", "2"));
+        assertThat(out).containsExactly("1", "2");
     }
 
     @Test
@@ -128,8 +121,7 @@ public class BindInUtilTest
 
         final Object[] out = toArray(BindIn.Util.toIterator(in));
 
-        Assert.assertEquals(in.length, out.length);
-        Assert.assertThat(Arrays.asList(out), CoreMatchers.hasItems((Object) "1", "2"));
+        assertThat(out).containsExactly("1", "2");
     }
 
     @Test
@@ -139,8 +131,7 @@ public class BindInUtilTest
 
         final Object[] out = toArray(BindIn.Util.toIterator(in));
 
-        Assert.assertEquals(in.length, out.length);
-        Assert.assertThat(Arrays.asList(out), CoreMatchers.hasItems((Object) 1, 2));
+        assertThat(out).containsExactly(1, 2);
     }
 
     private static Object[] toArray(final Iterator iterator)
@@ -156,25 +147,25 @@ public class BindInUtilTest
     @Test
     public void testSizePrimitiveArray()
     {
-        Assert.assertEquals(3, BindIn.Util.size(new int[]{1, 2, 3}));
+        assertThat(BindIn.Util.size(new int[]{1, 2, 3})).isEqualTo(3);
     }
 
     @Test
     public void testSizeEmptyPrimitiveArray()
     {
-        Assert.assertEquals(0, BindIn.Util.size(new int[]{}));
+        assertThat(BindIn.Util.size(new int[]{})).isEqualTo(0);
     }
 
     @Test
     public void testSizeObjectArray()
     {
-        Assert.assertEquals(3, BindIn.Util.size(new Object[]{"1", "2", "3"}));
+        assertThat(BindIn.Util.size(new Object[]{"1", "2", "3"})).isEqualTo(3);
     }
 
     @Test
     public void testSizeEmptyObjectArray()
     {
-        Assert.assertEquals(0, BindIn.Util.size(new Object[]{}));
+        assertThat(BindIn.Util.size(new Object[]{})).isEqualTo(0);
     }
 
     @Test
@@ -185,13 +176,13 @@ public class BindInUtilTest
         in.add("2");
         in.add("3");
 
-        Assert.assertEquals(3, BindIn.Util.size(in));
+        assertThat(BindIn.Util.size(in)).isEqualTo(3);
     }
 
     @Test
     public void testSizeEmptyList()
     {
-        Assert.assertEquals(0, BindIn.Util.size(new ArrayList<String>()));
+        assertThat(BindIn.Util.size(new ArrayList<String>())).isEqualTo(0);
     }
 
     @Test(expected = IllegalArgumentException.class)

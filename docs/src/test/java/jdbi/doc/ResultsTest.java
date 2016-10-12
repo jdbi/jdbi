@@ -13,7 +13,7 @@
  */
 package jdbi.doc;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -69,8 +69,8 @@ public class ResultsTest {
     @Test
     public void findBob() {
         User u = findUserById(2).orElseThrow(() -> new AssertionError("No user found"));
-        assertEquals(2, u.id);
-        assertEquals("Bob", u.name);
+        assertThat(u.id).isEqualTo(2);
+        assertThat(u.name).isEqualTo("Bob");
     }
 
     public Optional<User> findUserById(long id) {
@@ -97,8 +97,8 @@ public class ResultsTest {
             .map(new UserMapper())
             .list();
 
-        assertEquals(4, users.size());
-        assertEquals("Data", users.get(3).name);
+        assertThat(users).hasSize(4);
+        assertThat(users.get(3).name).isEqualTo("Data");
     }
     // end::rowMapper[]
 
@@ -118,10 +118,9 @@ public class ResultsTest {
             .mapTo(User.class)
             .stream())
         {
-            assertEquals("Charlie", s.filter(u -> u.id > 2)
+            assertThat(s.filter(u -> u.id > 2)
                 .map(u -> u.name)
-                .findFirst()
-                .get());
+                .findFirst()).contains("Charlie");
         }
     }
     // end::rowMapperFactory[]
@@ -134,7 +133,7 @@ public class ResultsTest {
             .mapTo(User.class)
             .collect(Collectors.toSet());
 
-        assertEquals(4, userSet.size());
+        assertThat(userSet).hasSize(4);
     }
     // end::constructorMapper[]
 
@@ -176,7 +175,7 @@ public class ResultsTest {
             .mapTo(NamedUser.class)
             .findOnly();
 
-        assertEquals("Bob", bob.name.name);
+        assertThat(bob.name.name).isEqualTo("Bob");
     }
     // end::columnMapper[]
 
@@ -206,7 +205,7 @@ public class ResultsTest {
             .mapToBean(UserBean.class)
             .findOnly();
 
-        assertEquals("Charlie", charlie.getName());
+        assertThat(charlie.getName()).isEqualTo("Charlie");
     }
     // end::beanMapper[]
 }

@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import com.google.common.collect.ImmutableList;
-import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
@@ -25,8 +24,8 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestOptional {
     @Rule
@@ -43,28 +42,28 @@ public class TestOptional {
 
     @Test
     public void testOptionalParameterPresent() {
-        assertThat(dao.findIds(Optional.of("brian")), equalTo(ImmutableList.of(1)));
+        assertThat(dao.findIds(Optional.of("brian"))).containsExactly(1);
     }
 
     @Test
     public void testOptionalPresentAbsent() {
-        assertThat(dao.findIds(Optional.empty()), equalTo(ImmutableList.of(1, 2)));
+        assertThat(dao.findIds(Optional.empty())).containsExactly(1, 2);
     }
 
     @Test
     public void testOptionalReturnPresent() {
-        assertThat(dao.findNameById(1), equalTo(Optional.of("brian")));
+        assertThat(dao.findNameById(1)).contains("brian");
     }
 
     @Test
     public void testOptionalReturnAbsent() {
-        assertThat(dao.findNameById(3), equalTo(Optional.empty()));
+        assertThat(dao.findNameById(3)).isEmpty();
     }
 
     @Test
     public void testNullReturnsAbsent() {
         dao.insert(3, null);
-        Assertions.assertThat(dao.findNameById(3)).isEmpty();
+        assertThat(dao.findNameById(3)).isEmpty();
     }
 
     @Test(expected = IllegalStateException.class)

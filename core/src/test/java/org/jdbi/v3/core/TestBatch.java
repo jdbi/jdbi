@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -37,6 +37,6 @@ public class TestBatch
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertEquals(3, r.size());
+        assertThat(r).hasSize(3);
     }
 }
