@@ -23,6 +23,7 @@ import org.jdbi.v3.core.util.GenericTypes;
 
 class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         if (erasedType.isArray()) {

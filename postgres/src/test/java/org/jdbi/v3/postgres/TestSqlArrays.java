@@ -17,9 +17,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
@@ -51,7 +53,7 @@ public class TestSqlArrays {
         ao = h.attach(ArrayObject.class);
     }
 
-    private final UUID[] testUids = new UUID[] {
+    private final UUID[] testUuids = new UUID[] {
         UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()
     };
 
@@ -61,14 +63,36 @@ public class TestSqlArrays {
 
     @Test
     public void testUuidArray() throws Exception {
-        ao.insertUuidArray(testUids);
-        assertThat(ao.fetchUuidArray()).containsExactly(testUids);
+        ao.insertUuidArray(testUuids);
+        assertThat(ao.fetchUuidArray()).containsExactly(testUuids);
     }
 
     @Test
     public void testUuidList() throws Exception {
-        ao.insertUuidList(Arrays.asList(testUids));
-        assertThat(ao.fetchUuidList()).contains(Arrays.asList(testUids));
+        ao.insertUuidList(Arrays.asList(testUuids));
+        assertThat(ao.fetchUuidList())
+                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+    }
+
+    @Test
+    public void testUuidArrayList() throws Exception {
+        ao.insertUuidList(Arrays.asList(testUuids));
+        assertThat(ao.fetchUuidArrayList())
+                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+    }
+
+    @Test
+    public void testUuidLinkedList() throws Exception {
+        ao.insertUuidList(Arrays.asList(testUuids));
+        assertThat(ao.fetchUuidLinkedList())
+                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+    }
+
+    @Test
+    public void testUuidCopyOnWriteArrayList() throws Exception {
+        ao.insertUuidList(Arrays.asList(testUuids));
+        assertThat(ao.fetchUuidCopyOnWriteArrayList())
+                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
     }
 
     @Test
@@ -119,9 +143,20 @@ public class TestSqlArrays {
         // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
         Optional<List<UUID>> fetchUuidList();
 
+        @SqlQuery(U_SELECT)
+        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
+        Optional<ArrayList<UUID>> fetchUuidArrayList();
+
+        @SqlQuery(U_SELECT)
+        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
+        Optional<LinkedList<UUID>> fetchUuidLinkedList();
+
+        @SqlQuery(U_SELECT)
+        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
+        Optional<CopyOnWriteArrayList<UUID>> fetchUuidCopyOnWriteArrayList();
+
         @SqlUpdate(U_INSERT)
         void insertUuidList(List<UUID> u);
-
 
         @SqlQuery(I_SELECT)
         int[] fetchIntArray();

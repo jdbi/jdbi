@@ -15,16 +15,19 @@ package org.jdbi.v3.core;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.core.mapper.ColumnMapper;
 
 class ListColumnMapper<T> implements ColumnMapper<List<T>> {
     private final ColumnMapper<T> elementMapper;
+    private final Supplier<List<T>> listSupplier;
 
-    ListColumnMapper(ColumnMapper<T> elementMapper) {
+    ListColumnMapper(ColumnMapper<T> elementMapper,
+                     Supplier<List<T>> listSupplier) {
         this.elementMapper = elementMapper;
+        this.listSupplier = listSupplier;
     }
 
     @Override
@@ -38,7 +41,7 @@ class ListColumnMapper<T> implements ColumnMapper<List<T>> {
     }
 
     private List<T> buildFromResultSet(java.sql.Array array, StatementContext ctx) throws SQLException {
-        List<T> list = new ArrayList<>();
+        List<T> list = listSupplier.get();
 
         try (ResultSet rs = array.getResultSet()) {
             while (rs.next()) {

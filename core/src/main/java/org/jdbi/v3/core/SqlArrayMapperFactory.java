@@ -14,25 +14,45 @@
 package org.jdbi.v3.core;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.util.GenericTypes;
 
 class SqlArrayMapperFactory implements ColumnMapperFactory {
+    private final Map<Class<?>, Supplier<List<?>>> listSuppliers = new HashMap<>();
+
+    SqlArrayMapperFactory() {
+        listSuppliers.put(List.class, ArrayList::new);
+        listSuppliers.put(ArrayList.class, ArrayList::new);
+        listSuppliers.put(LinkedList.class, LinkedList::new);
+        listSuppliers.put(CopyOnWriteArrayList.class, CopyOnWriteArrayList::new);
+    }
+
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
-        final Class<?> clazz = GenericTypes.getErasedType(type);
-        if (clazz.isArray()) {
-            return Optional.of(new ArrayColumnMapper(clazz.getComponentType()));
+        final Class<?> erasedType = GenericTypes.getErasedType(type);
+
+        if (erasedType.isArray()) {
+            return Optional.of(new ArrayColumnMapper(erasedType.getComponentType()));
         }
-        if (List.class.isAssignableFrom(clazz)) {
+
+        Supplier<List<?>> supplier = listSuppliers.get(erasedType);
+        if (supplier != null) {
             return GenericTypes.findGenericParameter(type, List.class)
-                    .flatMap(elementType -> ctx.findColumnMapperFor(elementType))
-                    .map(ListColumnMapper::new);
+                    .flatMap(ctx::findColumnMapperFor)
+                    .map(elementMapper -> new ListColumnMapper(elementMapper, supplier));
         }
+
         return Optional.empty();
     }
 }
