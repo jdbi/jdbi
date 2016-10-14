@@ -23,7 +23,7 @@ import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
 
 /**
  * A generic {@code ArrayElementMapperFactory} that reflectively inspects an
- * {@code ArrayElementMapper<T>} and maps only to array elements of type
+ * {@code ArrayElementMapper<T>} and maps only array elements of type
  * {@code T}.  The type parameter T must be accessible via reflection or an
  * {@link UnsupportedOperationException} will be thrown.
  */

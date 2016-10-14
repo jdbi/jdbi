@@ -134,9 +134,9 @@ public final class StatementContext
     }
 
     /**
-     * Obtain an array element mapper for the given element type.
-     * @param type
-     * @return
+     * Obtain an array element mapper for the given element type in this context
+     * @param type the element type of the array-type argument.
+     * @return an {@link ArrayElementMapper} for the given type.
      */
     public Optional<ArrayElementMapper<?>> findArrayElementMapperFor(Type type) {
         return config.argumentRegistry.findArrayElementMapperFor(type, this);

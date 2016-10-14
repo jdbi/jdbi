@@ -66,6 +66,14 @@ class ArgumentRegistry
         argumentFactories.add(0, factory);
     }
 
+    void registerArrayElementTypeName(Class<?> type, String sqlTypeName) {
+        register(IdentityArrayElementMapper.factory(type, sqlTypeName));
+    }
+
+    void register(ArrayElementMapper<?> mapper) {
+        register(new InferredArrayElementMapperFactory(mapper));
+    }
+
     void register(ArrayElementMapperFactory factory) {
         arrayElementMapperFactories.add(0, factory);
     }

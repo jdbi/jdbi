@@ -15,7 +15,6 @@ package org.jdbi.v3.core;
 
 
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -52,7 +51,6 @@ import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionConsumer;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
-import org.jdbi.v3.core.util.GenericType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -313,28 +311,45 @@ public class Jdbi
         return this;
     }
 
-    public <T> Jdbi registerArrayElementTypeName(Class<T> type, String sqlTypeName)
+    /**
+     * Register the given type as an array element type supported by the JDBC driver.
+     *
+     * @param type        the supported type
+     * @param sqlTypeName the type name to provide to JDBC when creating an array of this type. This value must be
+     *                    suitable for passing to {@link java.sql.Connection#createArrayOf(String, Object[])}.
+     * @return this
+     */
+    public Jdbi registerArrayElementTypeName(Class<?> type, String sqlTypeName)
     {
-        return registerArrayElementTypeName((Type) type, sqlTypeName);
+        config.argumentRegistry.registerArrayElementTypeName(type, sqlTypeName);
+        return this;
     }
 
-    public <T> Jdbi registerArrayElementTypeName(GenericType<T> type, String sqlTypeName)
-    {
-        return registerArrayElementTypeName(type.getType(), sqlTypeName);
-    }
-
-    private <T> Jdbi registerArrayElementTypeName(Type type, String sqlTypeName)
-    {
-        ArrayElementMapper<T> mapper = new IdentityArrayElementMapper<>(sqlTypeName);
-        return registerArrayElementMapper((t, ctx) ->
-                type.equals(t) ? Optional.of(mapper) : Optional.empty());
-    }
-
+    /**
+     * Register an array element mapper which will have its parameterized type inspected to determine which type it
+     * maps from. Array element mappers are used to map elements of Java containers, such as arrays or lists, into
+     * types supported by a particular JDBC driver within SQL array columns.
+     * <p>
+     * The parameter must be concretely parameterized, we use the type argument T to
+     * determine if it applies to a given parameter type.
+     *
+     * @param mapper the array element mapper
+     * @return this
+     * @throws UnsupportedOperationException if the ArrayElementMapper is not a concretely parameterized type
+     */
     public Jdbi registerArrayElementMapper(ArrayElementMapper<?> mapper)
     {
-        return registerArrayElementMapper(new InferredArrayElementMapperFactory(mapper));
+        config.argumentRegistry.register(mapper);
+        return this;
     }
 
+    /**
+     * Register an array element mapper factory. A factory is provided types and, if it supports array elements of that
+     * type, provides an array element mapper for it.
+     *
+     * @param factory the factory
+     * @return this
+     */
     public Jdbi registerArrayElementMapper(ArrayElementMapperFactory factory)
     {
         config.argumentRegistry.register(factory);

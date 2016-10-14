@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.ArrayElementMapper;
+import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
@@ -96,6 +98,51 @@ public class Handle implements Closeable
 
     public Handle registerArgumentFactory(ArgumentFactory argumentFactory) {
         config.argumentRegistry.register(argumentFactory);
+        return this;
+    }
+
+    /**
+     * Register the given type as an array element type supported by the JDBC driver.
+     *
+     * @param type        the supported type
+     * @param sqlTypeName the type name to provide to JDBC when creating an array of this type. This value must be
+     *                    suitable for passing to {@link java.sql.Connection#createArrayOf(String, Object[])}.
+     * @return this
+     */
+    public Handle registerArrayElementTypeName(Class<?> type, String sqlTypeName)
+    {
+        config.argumentRegistry.registerArrayElementTypeName(type, sqlTypeName);
+        return this;
+    }
+
+    /**
+     * Register an array element mapper which will have its parameterized type inspected to determine which type it
+     * maps from. Array element mappers are used to map elements of Java containers, such as arrays or lists, into
+     * types supported by a particular JDBC driver within SQL array columns.
+     * <p>
+     * The parameter must be concretely parameterized, we use the type argument T to
+     * determine if it applies to a given parameter type.
+     *
+     * @param mapper the array element mapper
+     * @return this
+     * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
+     */
+    public Handle registerArrayElementMapper(ArrayElementMapper<?> mapper)
+    {
+        config.argumentRegistry.register(mapper);
+        return this;
+    }
+
+    /**
+     * Register an array element mapper factory. A factory is provided types and, if it supports array elements of that
+     * type, provides an array element mapper for it.
+     *
+     * @param factory the factory
+     * @return this
+     */
+    public Handle registerArrayElementMapper(ArrayElementMapperFactory factory)
+    {
+        config.argumentRegistry.register(factory);
         return this;
     }
 

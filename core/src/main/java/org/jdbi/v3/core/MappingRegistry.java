@@ -90,6 +90,7 @@ class MappingRegistry
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type, StatementContext ctx) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can wrap other column mappers, we have to populate the cache the old fashioned way.
+        // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
         ColumnMapper<?> mapper = columnCache.get(type);
 
         if (mapper != null) {

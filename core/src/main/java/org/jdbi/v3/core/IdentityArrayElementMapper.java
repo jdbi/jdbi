@@ -13,9 +13,17 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.Optional;
+
 import org.jdbi.v3.core.argument.ArrayElementMapper;
+import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
 
 class IdentityArrayElementMapper<T> implements ArrayElementMapper<T> {
+    static <T> ArrayElementMapperFactory factory(Class<T> type, String sqlTypeName) {
+        ArrayElementMapper<T> mapper = new IdentityArrayElementMapper<>(sqlTypeName);
+        return (t, ctx) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
+    }
+
     private final String typeName;
 
     IdentityArrayElementMapper(String typeName) {
