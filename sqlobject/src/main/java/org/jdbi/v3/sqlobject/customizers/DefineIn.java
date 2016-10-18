@@ -36,8 +36,8 @@ import java.util.List;
  * <blockquote>
  * <pre>
  * <code>
- * {@literal @}SqlUpdate("insert into <table> (<columns>) values (<values>)")
- * int insert(@Define String table, @DefineIn List<String> columns, @BindIn("values") List<Object> values);
+ * {@literal @}SqlUpdate("insert into {@literal <}table{@literal >} ({@literal <}columns{@literal >}) values ({@literal <}values{@literal >})")
+ * int insert(@Define String table, @DefineIn List{@literal <}String{@literal >} columns, @BindIn("values") List{@literal <}Object{@literal >} values);
  * </code>
  * </pre>
  * </blockquote>
@@ -45,8 +45,8 @@ import java.util.List;
  * <blockquote>
  * <pre>
  * <code>
- * {@literal @}SqlQuery("select <columns> from <table> where id = :id")
- * ResultSet select(@DefineIn("columns") List<String> columns, @Define("table") String table, @Bind("id") long id);
+ * {@literal @}SqlQuery("select {@literal <}columns{@literal >} from {@literal <}table{@literal >} where id = :id")
+ * ResultSet select(@DefineIn("columns") List{@literal <}String{@literal >} columns, @Define("table") String table, @Bind("id") long id);
  * </code>
  * </pre>
  * </blockquote>
