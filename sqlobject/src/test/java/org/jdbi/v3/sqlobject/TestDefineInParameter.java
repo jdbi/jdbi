@@ -51,14 +51,6 @@ public class TestDefineInParameter
         testColumns.add("name");
     }
 
-    @After
-    public void tearDown() throws Exception
-    {
-        handle.execute("drop table test");
-        handle.execute("drop table testNullable");
-        handle.close();
-    }
-
     @Test
     public void testWithBindIn() throws Exception
     {
@@ -103,25 +95,25 @@ public class TestDefineInParameter
         assertThat(testDao.findById(testColumns, "testNullable", 2)).isEqualTo(nothing);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testIllegalArray()
+    @Test
+    public void testArray()
     {
         TestDao testDao = handle.attach(TestDao.class);
         String[] columnsArray = {"id", "name"};
         List<Object> values = new ArrayList<>();
         values.add(1);
         values.add("Some Pig");
-        testDao.badInsert("test", columnsArray, values);
+        testDao.insert("test", columnsArray, values);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedInsert()
+    @Test
+    public void testDefaultedNameInsert()
     {
         TestDao testDao = handle.attach(TestDao.class);
         List<Object> values = new ArrayList<>();
         values.add(1);
         values.add("Some Pig");
-        testDao.unsupportedInsert("test", testColumns, values);
+        testDao.defaultedInsert("test", testColumns, values);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -143,10 +135,10 @@ public class TestDefineInParameter
         void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindBean Something s);
 
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void badInsert(@Define("table") String table, @DefineIn("columns") Object columns, @BindIn("values") List<Object> values);
+        void insert(@Define("table") String table, @DefineIn("columns") Object[] columns, @BindIn("values") List<Object> values);
 
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void unsupportedInsert(@Define("table") String table, @DefineIn List<String> columns, @BindIn("values") List<Object> values);
+        void defaultedInsert(@Define("table") String table, @DefineIn List<String> columns, @BindIn("values") List<Object> values);
 
         @SqlQuery("select <columns> from <table> where id = :id")
         Something findById(@DefineIn("columns") List<String> columns, @Define("table") String table, @Bind("id") long id);
