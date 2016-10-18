@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
+
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -111,7 +112,7 @@ public class TestCreateSqlObjectAnnotation
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlUpdate() throws Exception {
         expectedException.expect(UnableToCreateSqlObjectException.class);
         expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate " +
-                "so should return void or Number but is returning: java.util.List<java.lang.String>");
+                "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>");
 
         db.getJdbi().open().attach(BogusSqlUpdateDao.class);
     }
