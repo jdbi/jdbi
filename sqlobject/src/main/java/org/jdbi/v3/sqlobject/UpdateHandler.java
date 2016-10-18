@@ -21,8 +21,8 @@ import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Update;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
 class UpdateHandler extends CustomizingStatementHandler
 {
@@ -37,11 +37,7 @@ class UpdateHandler extends CustomizingStatementHandler
         boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
-        if (!isGetGeneratedKeys && returnTypeIsInvalid(method.getReturnType()) ) {
-            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
-        }
         if (isGetGeneratedKeys) {
-
             final ResultReturnThing magic = ResultReturnThing.forMethod(sqlObjectType, method);
             final GetGeneratedKeys ggk = method.getAnnotation(GetGeneratedKeys.class);
             final RowMapper<?> mapper;
@@ -60,9 +56,12 @@ class UpdateHandler extends CustomizingStatementHandler
                 GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
                 return magic.result(o, handle);
             };
-        }
-        else {
+        } else if (isNumeric(method.getReturnType())) {
             this.returner = (update, handle) -> update.execute();
+        } else if (isBoolean(method.getReturnType())) {
+            this.returner = (update, handle) -> update.execute() > 0;
+        } else {
+            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
         }
     }
 
@@ -82,16 +81,21 @@ class UpdateHandler extends CustomizingStatementHandler
         Object value(Update update, HandleSupplier handle);
     }
 
-    private boolean returnTypeIsInvalid(Class<?> type) {
-        return !Number.class.isAssignableFrom(type) &&
-                !type.equals(Integer.TYPE) &&
-                !type.equals(Long.TYPE) &&
-                !type.equals(Void.TYPE);
+    private boolean isNumeric(Class<?> type) {
+        return Number.class.isAssignableFrom(type) ||
+               type.equals(int.class) ||
+               type.equals(long.class) ||
+               type.equals(void.class);
+    }
+
+    private boolean isBoolean(Class<?> type) {
+        return type.equals(boolean.class) ||
+               type.equals(Boolean.class);
     }
 
     private String invalidReturnTypeMessage(Method method, Type returnType) {
         return method.getDeclaringClass().getSimpleName() + "." + method.getName() +
-                " method is annotated with @SqlUpdate so should return void or Number but is returning: " +
+                " method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: " +
                 returnType;
     }
 }
