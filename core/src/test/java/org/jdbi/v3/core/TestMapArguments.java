@@ -35,7 +35,7 @@ public class TestMapArguments
     @Mock
     PreparedStatement stmt;
 
-    StatementContext ctx = new StatementContext();
+    StatementContext ctx = new ConcreteStatementContext();
 
     @Test
     public void testBind() throws Exception

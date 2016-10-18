@@ -26,7 +26,7 @@ public class StatementContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
-        final StatementContext context = new StatementContext();
+        final ConcreteStatementContext context = new ConcreteStatementContext();
 
         context.setReturningGeneratedKeys(true);
         context.setConcurrentUpdatable(true);
@@ -34,7 +34,7 @@ public class StatementContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
-        final StatementContext context = new StatementContext();
+        final ConcreteStatementContext context = new ConcreteStatementContext();
 
         context.setConcurrentUpdatable(true);
         context.setReturningGeneratedKeys(true);
@@ -57,7 +57,7 @@ public class StatementContextTest {
         JdbiConfig config = new JdbiConfig();
         config.mappingRegistry.addColumnMapper(mapper);
 
-        final StatementContext context = new StatementContext(config);
+        final StatementContext context = new ConcreteStatementContext(config);
 
         assertThat(context.findColumnMapperFor(Foo.class)).contains(mapper);
     }

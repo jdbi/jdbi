@@ -80,7 +80,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
                  Handle handle,
                  StatementBuilder statementBuilder,
                  String sql,
-                 StatementContext ctx,
+                 ConcreteStatementContext ctx,
                  Collection<StatementCustomizer> statementCustomizers) {
         super(config, ctx);
         assert verifyOurNastyDowncastIsOkay();

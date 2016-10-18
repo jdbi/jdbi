@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Binding;
+import org.jdbi.v3.core.ConcreteStatementContext;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.junit.Before;
@@ -43,7 +44,7 @@ public class TestColonStatementRewriter
     }
 
     private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
-        StatementContext ctx = new StatementContext();
+        StatementContext ctx = new ConcreteStatementContext();
         attributes.forEach(ctx::setAttribute);
 
         return rw.rewrite(sql, new Binding(), ctx);
@@ -80,8 +81,8 @@ public class TestColonStatementRewriter
     @Test
     public void testHashInColumnNameOkay() throws Exception
     {
-       RewrittenStatement rws = rewrite("select column# from thetable where id = :id");
-       assertThat(rws.getSql()).isEqualTo("select column# from thetable where id = ?");
+        RewrittenStatement rws = rewrite("select column# from thetable where id = :id");
+        assertThat(rws.getSql()).isEqualTo("select column# from thetable where id = ?");
     }
 
     @Test

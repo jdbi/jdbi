@@ -37,7 +37,7 @@ public class Update extends SqlStatement<Update>
            Handle handle,
            StatementBuilder statementBuilder,
            String sql,
-           StatementContext ctx)
+           ConcreteStatementContext ctx)
     {
         super(config, new Binding(), handle, statementBuilder, sql, ctx, Collections.<StatementCustomizer>emptyList());
     }
