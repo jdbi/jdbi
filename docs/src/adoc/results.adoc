@@ -98,3 +98,45 @@ include::ResultsTest.java[tags=beanMapper]
 You can register mappers declaratively on SqlObjects using e.g.
 `@RegisterRowMapper`, `@RegisterColumnMapper`, `@RegisterConstructorMapper`,
 and so on.
+
+
+
+= ResultBearing
+
+The *ResultBearing* interface determines how the statement results
+are gathered and returned to you.  The methods are designed to
+interact well with the new Java 8 *@FunctionalInterface*s and
+*Stream* library.  Given a type T that can be mapped by the registered
+mappers,
+
+== Find a Single Result
+
+*ResultBearing#findOnly* returns the only row in the result set.  If zero
+or multiple rows are encountered, it will throw *IllegalStateException*.
+
+*#findFirst* returns an *Optional<T>* with the first row, if any.
+
+== Stream
+
+*#stream* returns a *Stream<T>*.  You should then process the stream and
+produce a result.  This stream must be closed to release any database
+resources held, so we recommend using a *try-with-resources* block to
+ensure that no resources are leaked.
+
+*#withStream* and *#useStream* handle closing the stream for you.  You
+provide a *StreamCallback* that produces a result or a *StreamConsumer*
+that produces no result, respectively.
+
+== Collections
+
+*#list* emits a *List<T>*.  This necessarily buffers all results in memory.
+
+*#collect* takes a *Collector<T, ? , R>* that builds a resulting collection
+*R<T>*.  The *java.util.stream.Collectors* class has a number of interesting
+*Collector*s to start with.
+
+== Reduction
+
+*#reduce* provides a simplified *Stream#reduce*.  Given an identity
+starting value and a *BiFunction<U, T, U>* it will repeatedly combine
+*U*s until only a single remains, and then return that.
