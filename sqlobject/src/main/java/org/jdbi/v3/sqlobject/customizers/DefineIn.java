@@ -33,15 +33,23 @@ import java.util.List;
  * Used to dynamically set {@link List} or array arguments as attributes on the StatementContext for the statement
  * generated for this method. For example:
  * <p>
- * {@code
- * @SqlUpdate("insert into <table> (<columns>) values (<values>)")
+ * <blockquote>
+ * <pre>
+ * <code>
+ * {@literal @}SqlUpdate("insert into <table> (<columns>) values (<values>)")
  * int insert(@Define String table, @DefineIn List<String> columns, @BindIn("values") List<Object> values);
- * }
+ * </code>
+ * </pre>
+ * </blockquote>
  * <p>
- * {@code
- * @SqlQuery("select <columns> from <table> where id = :id")
+ * <blockquote>
+ * <pre>
+ * <code>
+ * {@literal @}SqlQuery("select <columns> from <table> where id = :id")
  * ResultSet select(@DefineIn("columns") List<String> columns, @Define("table") String table, @Bind("id") long id);
- * }
+ * </code>
+ * </pre>
+ * </blockquote>
  * <p>
  * A {@code List} argument passed to {@code @DefineIn} will be converted to a comma-separated String and set as a whole
  * as a single specified attribute. Duplicate members in the {@code List} may cause SQL exceptions. An empty
