@@ -14,10 +14,9 @@
 package org.jdbi.v3.sqlobject;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -159,7 +158,7 @@ public class TestSqlObject
         verify(handle, never()).begin();
         assertThat(dao.findById(1)).isEqualTo(new Something(1, "foo"));
 
-        dao.insertTransactional(2, "bar");
+        assertThat(dao.insertTransactional(2, "bar")).isEqualTo(1);
         verify(handle, times(1)).begin();
         assertThat(dao.findById(2)).isEqualTo(new Something(2, "bar"));
     }
@@ -188,18 +187,29 @@ public class TestSqlObject
         handle.attach(RedundantParameterBindingAnnotation.class);
     }
 
+    @Test
+    public void testBooleanReturn() {
+        Dao dao = handle.attach(Dao.class);
+        assertThat(dao.insert(1, "a")).isTrue();
+        assertThat(dao.update(2, "b")).isFalse();
+    }
+
     @RegisterRowMapper(SomethingMapper.class)
     public interface Dao extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        void insert(@Bind("id") int id, @Bind("name") String name);
+        boolean insert(@Bind("id") int id, @Bind("name") String name);
+
+        @SqlUpdate("update something set name=:name where id=:id")
+        boolean update(int id, String name);
+
 
         @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);
 
         @Transaction
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        void insertTransactional(@Bind("id") int id, @Bind("name") String name);
+        Integer insertTransactional(@Bind("id") int id, @Bind("name") String name);
 
         default Something findByIdHeeHee(int id) {
             return findById(id);
