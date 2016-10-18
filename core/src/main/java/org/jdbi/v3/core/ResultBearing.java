@@ -17,6 +17,7 @@ import static java.util.Spliterators.spliteratorUnknownSize;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -139,4 +140,20 @@ public interface ResultBearing<T> extends Iterable<T>
         }
     }
 
+    /**
+     * Reduce the results.  Using a {@code BiFunction<U, T, U>}, repeatedly
+     * combine query results until only a single value remains.
+     *
+     * @param identity the {@code U} to combine with the first result
+     * @param accumulator the function to apply repeatedly
+     * @return the final {@code U}
+     */
+    default <U> U reduce(U identity, BiFunction<U, T, U> accumulator) {
+        try (Stream<T> stream = stream()) {
+            return stream.reduce(identity, accumulator,
+                (u, v) -> {
+                    throw new UnsupportedOperationException("parallel operation not supported");
+                });
+        }
+    }
 }
