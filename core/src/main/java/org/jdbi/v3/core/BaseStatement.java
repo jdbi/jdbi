@@ -26,9 +26,9 @@ abstract class BaseStatement
 {
     final JdbiConfig config;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
-    private final StatementContext context;
+    private final ConcreteStatementContext context;
 
-    BaseStatement(JdbiConfig config, StatementContext context)
+    BaseStatement(JdbiConfig config, ConcreteStatementContext context)
     {
         this.config = config;
         this.context = context;
@@ -42,7 +42,7 @@ abstract class BaseStatement
     /**
      * @return the statement context associated with this statement
      */
-    public final StatementContext getContext()
+    public final ConcreteStatementContext getContext()
     {
         return context;
     }

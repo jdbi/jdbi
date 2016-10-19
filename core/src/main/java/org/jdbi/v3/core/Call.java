@@ -37,7 +37,7 @@ public class Call extends SqlStatement<Call>
          Handle handle,
          StatementBuilder cache,
          String sql,
-         StatementContext ctx,
+         ConcreteStatementContext ctx,
          Collection<StatementCustomizer> customizers)
     {
         super(config, new Binding(), handle, cache, sql, ctx, customizers);

@@ -299,7 +299,7 @@ public class Handle implements Closeable
         JdbiConfig batchConfig = JdbiConfig.copyOf(config);
         return new Batch(batchConfig,
                          this.connection,
-                         new StatementContext(batchConfig, extensionMethod.get()));
+                         new ConcreteStatementContext(batchConfig, extensionMethod.get()));
     }
 
     /**
@@ -315,7 +315,7 @@ public class Handle implements Closeable
                                  this,
                                  statementBuilder,
                                  sql,
-                                 new StatementContext(batchConfig, extensionMethod.get()),
+                                 new ConcreteStatementContext(batchConfig, extensionMethod.get()),
                                  Collections.<StatementCustomizer>emptyList());
     }
 
@@ -332,7 +332,7 @@ public class Handle implements Closeable
                         this,
                         statementBuilder,
                         sql,
-                        new StatementContext(callConfig, extensionMethod.get()),
+                        new ConcreteStatementContext(callConfig, extensionMethod.get()),
                         Collections.<StatementCustomizer>emptyList());
     }
 
@@ -350,7 +350,7 @@ public class Handle implements Closeable
                 this,
                 statementBuilder,
                 sql,
-                new StatementContext(queryConfig, extensionMethod.get()),
+                new ConcreteStatementContext(queryConfig, extensionMethod.get()),
                 Collections.<StatementCustomizer>emptyList());
     }
 
@@ -378,7 +378,7 @@ public class Handle implements Closeable
                           this,
                           statementBuilder,
                           sql,
-                          new StatementContext(updateConfig, extensionMethod.get()));
+                          new ConcreteStatementContext(updateConfig, extensionMethod.get()));
     }
 
     /**

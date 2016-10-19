@@ -49,7 +49,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
           Handle handle,
           StatementBuilder cache,
           String sql,
-          StatementContext ctx,
+          ConcreteStatementContext ctx,
           Collection<StatementCustomizer> customizers)
     {
         super(config, params, handle, cache, sql, ctx, customizers);

@@ -38,7 +38,7 @@ public class TestBeanArguments
     @Mock
     PreparedStatement stmt;
 
-    StatementContext ctx = new StatementContext();
+    StatementContext ctx = new ConcreteStatementContext();
 
     @Test
     public void testBindBare() throws Exception

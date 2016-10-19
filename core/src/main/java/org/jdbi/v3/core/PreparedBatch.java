@@ -52,7 +52,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
                   Handle handle,
                   StatementBuilder statementBuilder,
                   String sql,
-                  StatementContext ctx,
+                  ConcreteStatementContext ctx,
                   Collection<StatementCustomizer> statementCustomizers)
     {
         super(config, new Binding(), handle, statementBuilder, sql, ctx, statementCustomizers);
