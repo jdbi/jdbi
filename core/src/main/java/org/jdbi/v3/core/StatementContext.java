@@ -32,8 +32,11 @@ import org.jdbi.v3.core.mapper.RowMapper;
  * evaluation of a statement. The context is not used by jDBI internally, but will be passed
  * to all statement customizers. This makes it possible to parameterize the processing of
  * the tweakable parts of the statement processing cycle.
+ *
+ * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
+ * mock tools to create a mock object of this class in the user code.
  */
-public final class StatementContext
+public class StatementContext
 {
     private final JdbiConfig config;
     private final ExtensionMethod extensionMethod;
@@ -49,7 +52,7 @@ public final class StatementContext
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
 
-    public StatementContext() {
+    StatementContext() {
         this(new JdbiConfig());
     }
 
