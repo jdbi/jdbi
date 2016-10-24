@@ -15,7 +15,6 @@ package org.skife.jdbi.v2.sqlobject;
 
 import com.fasterxml.classmate.members.ResolvedMethod;
 import net.sf.cglib.proxy.MethodProxy;
-import org.skife.jdbi.v2.ConcreteStatementContext;
 import org.skife.jdbi.v2.GeneratedKeys;
 import org.skife.jdbi.v2.Update;
 import org.skife.jdbi.v2.exceptions.UnableToCreateSqlObjectException;

@@ -19,8 +19,6 @@ import org.junit.Test;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.tweak.RewrittenStatement;
 
-import java.util.HashMap;
-
 import static org.junit.Assert.assertEquals;
 
 /**
