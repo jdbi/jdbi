@@ -23,7 +23,6 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.Something;
-import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SomethingMapper;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
@@ -39,7 +38,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
 

@@ -17,8 +17,6 @@ import org.skife.jdbi.v2.exceptions.CallbackFailedException;
 import org.skife.jdbi.v2.tweak.HandleCallback;
 import org.skife.jdbi.v2.tweak.HandleConsumer;
 
-import java.util.concurrent.Callable;
-
 /**
  * An interface for {@link DBI} instances for systems which like
  * to work with interfaces.
