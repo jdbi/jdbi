@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
+import org.mockito.Mockito;
 
 public class TestColonStatementRewriter
 {
@@ -43,8 +44,10 @@ public class TestColonStatementRewriter
     }
 
     private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
-        StatementContext ctx = new StatementContext();
-        attributes.forEach(ctx::setAttribute);
+        StatementContext ctx = Mockito.mock(StatementContext.class);
+        for (Map.Entry<String, Object> e : attributes.entrySet()) {
+            Mockito.when(ctx.getAttribute(e.getKey())).thenReturn(e.getValue());
+        }
 
         return rw.rewrite(sql, new Binding(), ctx);
     }
