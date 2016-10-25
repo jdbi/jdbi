@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Locale;
 
 import org.jdbi.v3.core.exception.ResultSetException;
+import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.BeanMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
@@ -60,21 +61,32 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      * Obtain a forward-only result set iterator. Note that you must explicitely close
      * the iterator to close the underlying resources.
      */
+    @SuppressWarnings("resource")
     @Override
-    public ResultIterator<ResultType> iterator()
+    public <R> R execute(
+            StatementExecutor<ResultType, R> executor)
     {
         final PreparedStatement stmt = internalExecute();
+        final ResultSet rs;
         try {
-            return new ResultSetResultIterator<>(mapper,
-                    stmt.getResultSet(),
-                    getContext());
+            rs = stmt.getResultSet();
         } catch (SQLException e) {
             try {
-                stmt.close();
-            } catch (SQLException e1) {
+                close();
+            } catch (Exception e1) {
                 e.addSuppressed(e1);
             }
             throw new ResultSetException("Could not get result set", e, getContext());
+        }
+        try {
+            return executor.execute(mapper, rs, getContext());
+        } catch (SQLException e) {
+            try {
+                close();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
+            throw new UnableToExecuteStatementException(e, getContext());
         }
     }
 

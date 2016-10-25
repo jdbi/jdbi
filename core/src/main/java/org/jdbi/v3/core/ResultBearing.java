@@ -28,8 +28,28 @@ import org.jdbi.v3.core.util.StreamConsumer;
 
 public interface ResultBearing<T> extends Iterable<T>
 {
+    /**
+     * Execute the statement.  The given {@code StatementExecutor}
+     * decides the execution strategy and return type.
+     *
+     * Most users will not use this method directly.
+     *
+     * @param executor the StatementExecutor to use
+     * @return the produced results
+     */
+    <R> R execute(StatementExecutor<T, R> executor);
+
+    /**
+     * Stream all the rows of the result set out
+     * with an {@code Iterator}.  The {@code Iterator} must be
+     * closed to release database resources.
+     * @return the results as a streaming Iterator
+     */
     @Override
-    ResultIterator<T> iterator();
+    default ResultIterator<T> iterator()
+    {
+        return execute(ResultSetResultIterator<T>::new);
+    }
 
     /**
      * Get the only row in the result set.
@@ -155,5 +175,42 @@ public interface ResultBearing<T> extends Iterable<T>
                     throw new UnsupportedOperationException("parallel operation not supported");
                 });
         }
+    }
+
+    /**
+     * Reduce the results.  Using a {@code BiFunction<U, RowView, U>}, repeatedly
+     * combine query results until only a single value remains.
+     *
+     * @param seed the {@code U} to combine with the first result
+     * @param accumulator the function to apply repeatedly
+     * @return the final {@code U}
+     */
+    default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
+        return execute((mapper, rs, ctx) -> {
+            RowView rv = new RowView(rs, ctx);
+            U result = seed;
+            while (rs.next()) {
+                result = accumulator.apply(result, rv);
+            }
+            return result;
+        });
+    }
+
+    /**
+     * Reduce the results.  Using a {@code ResultSetAccumulator}, repeatedly
+     * combine query results until only a single value remains.
+     *
+     * @param seed the {@code U} to combine with the first result
+     * @param accumulator the function to apply repeatedly
+     * @return the final {@code U}
+     */
+    default <U> U reduceResultSet(U seed, ResultSetAccumulator<U> accumulator) {
+        return execute((mapper, rs, ctx) -> {
+            U result = seed;
+            while (rs.next()) {
+                result = accumulator.apply(result, rs, ctx);
+            }
+            return result;
+        });
     }
 }
