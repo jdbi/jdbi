@@ -43,7 +43,7 @@ public class TestVendorArrays {
                     .bind(2, new Integer[]{42, 51, 50})
                     .execute();
 
-            String[] seasons = handle.createQuery("select seasons from player_stats")
+            String[] seasons = handle.createQuery("select seasons from player_stats where name=:name")
                     .bind("name", "Jack Johnson")
                     .mapTo(String[].class)
                     .findOnly();
