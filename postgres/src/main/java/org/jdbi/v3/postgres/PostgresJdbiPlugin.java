@@ -30,5 +30,8 @@ public class PostgresJdbiPlugin implements JdbiPlugin {
 
         db.registerColumnMapper(new HStoreColumnMapper());
         db.registerArgumentFactory(new HStoreArgumentFactory());
+
+        db.registerColumnMapper(new EnumSetMapperFactory());
+        db.registerArgumentFactory(new EnumSetArgumentFactory());
     }
 }
