@@ -46,6 +46,12 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-sqlobject</artifactId>
+        <classifier>tests</classifier>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-postgres</artifactId>
         <classifier>tests</classifier>
         <scope>test</scope>

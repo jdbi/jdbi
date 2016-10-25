@@ -17,7 +17,7 @@ include::HelloWorldTest.java[tags=frontPage]
 
 *jdbi* is easy to include in your Java project - with an
 link:https://groups.google.com/group/jdbi[Apache 2.0] license,
-no external dependencies, and JARs distributed through
+few external dependencies, and JARs distributed through
 link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jdbi%22[Maven Central],
 you can just include the relevant artifacts in your POM:
 
@@ -32,7 +32,7 @@ you can just include the relevant artifacts in your POM:
 
 *jdbi3* is an update which sports a cleaned up API,
 a stronger resource ownership model, and leverages
-the power of the new Java 8 APIs.
+the power of new Java 8 features.
 
 WARNING: *jdbi3* is currently under active development.
 http://www.jdbi.org[jdbi2] is still the stable release.
