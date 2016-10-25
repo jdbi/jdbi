@@ -54,7 +54,7 @@ public class Update extends SqlStatement<Update>
             throw new UnableToExecuteStatementException("Could not get update count", e, getContext());
         }
         finally {
-            cleanup();
+            close();
         }
     }
 

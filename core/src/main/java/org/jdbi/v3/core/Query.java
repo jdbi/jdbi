@@ -66,8 +66,6 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
         final PreparedStatement stmt = internalExecute();
         try {
             return new ResultSetResultIterator<>(mapper,
-                    Query.this,
-                    stmt,
                     stmt.getResultSet(),
                     getContext());
         } catch (SQLException e) {

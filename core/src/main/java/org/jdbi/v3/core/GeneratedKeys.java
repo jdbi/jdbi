@@ -75,7 +75,7 @@ public class GeneratedKeys<T> implements ResultBearing<T>
         if (results == null) {
             return new EmptyResultIterator<>();
         }
-        return new ResultSetResultIterator<>(mapper, jdbiStatement, stmt, results, context);
+        return new ResultSetResultIterator<>(mapper, results, context);
     }
 
 }

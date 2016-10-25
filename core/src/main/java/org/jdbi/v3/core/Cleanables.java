@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.transaction.TransactionState;
 
@@ -33,7 +35,7 @@ import org.jdbi.v3.core.transaction.TransactionState;
  *
  * Resources managed by JDBI are {@link ResultSet}, {@link Statement}, {@link Handle} and {@link StatementBuilder} for historical reasons.
  */
-class Cleanables
+class Cleanables implements Closeable
 {
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
@@ -83,7 +85,8 @@ class Cleanables
         cleanables.add(cleanable);
     }
 
-    void clean() throws SQLException {
+    @Override
+    public void close() {
         SQLException exception = null;
         try {
             List<Cleanable> cleanables = new ArrayList<>(this.cleanables);
@@ -104,7 +107,7 @@ class Cleanables
         }
         finally {
             if (exception != null) {
-                throw exception;
+                throw new UnableToCloseResourceException("Exception thrown while cleaning StatementContext", exception);
             }
         }
     }
