@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.jdbi.v3.core.exception.ResultSetException;
+import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
 
 /**
@@ -29,7 +30,6 @@ public class GeneratedKeys<T> implements ResultBearing<T>
 {
     private final RowMapper<T>             mapper;
     private final SqlStatement<?>          jdbiStatement;
-    private final Statement                stmt;
     private final ResultSet                results;
     private final StatementContext         context;
 
@@ -49,7 +49,6 @@ public class GeneratedKeys<T> implements ResultBearing<T>
     {
         this.mapper = mapper;
         this.jdbiStatement = jdbiStatement;
-        this.stmt = stmt;
         try {
             this.results = stmt.getGeneratedKeys();
         } catch (SQLException e) {
@@ -75,7 +74,16 @@ public class GeneratedKeys<T> implements ResultBearing<T>
         if (results == null) {
             return new EmptyResultIterator<>();
         }
-        return new ResultSetResultIterator<>(mapper, jdbiStatement, stmt, results, context);
+        return new ResultSetResultIterator<>(mapper, results, context);
     }
 
+    @Override
+    public <R> R execute(StatementExecutor<T, R> executor)
+    {
+        try {
+            return executor.execute(mapper, results, context);
+        } catch (SQLException e) {
+            throw new UnableToExecuteStatementException(e, context);
+        }
+    }
 }

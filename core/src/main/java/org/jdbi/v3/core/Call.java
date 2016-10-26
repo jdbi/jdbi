@@ -110,7 +110,7 @@ public class Call extends SqlStatement<Call>
             return out;
         }
         finally {
-            cleanup();
+            close();
         }
     }
 

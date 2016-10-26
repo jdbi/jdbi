@@ -42,12 +42,4 @@ public interface StatementCustomizer
      * @throws SQLException go ahead and percolate it for jDBI to handle
      */
     default void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException { }
-
-    /**
-     * Invoked at cleanup time to clean resources used by this statement.
-     *
-     * @param ctx Statement context associated with the statement being customized
-     * @throws SQLException go ahead and percolate it for jDBI to handle
-     */
-    default void cleanup(StatementContext ctx) throws SQLException { }
 }
