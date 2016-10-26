@@ -20,8 +20,8 @@ import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 
 class VendorSupportedArrayType<T> implements SqlArrayType<T> {
     static <T> SqlArrayTypeFactory factory(Class<T> type, String sqlTypeName) {
-        SqlArrayType<T> mapper = new VendorSupportedArrayType<>(sqlTypeName);
-        return (t, ctx) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
+        SqlArrayType<T> arrayType = new VendorSupportedArrayType<>(sqlTypeName);
+        return (t, ctx) -> t.equals(type) ? Optional.of(arrayType) : Optional.empty();
     }
 
     private final String typeName;

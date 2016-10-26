@@ -29,7 +29,7 @@ public interface SqlArrayTypeFactory {
      * @param elementType the array element type
      * @param ctx the statement context.
      * @return an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
-     * @see StatementContext#findColumnMapperFor(Type)
+     * @see StatementContext#findArrayTypeFor(Type)
      */
     Optional<SqlArrayType<?>> build(Type elementType, StatementContext ctx);
 }
