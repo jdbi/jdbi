@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.SqlArrayType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 
@@ -134,6 +135,15 @@ public class StatementContext implements Closeable
      */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
         return config.argumentRegistry.findArgumentFor(type, value, this);
+    }
+
+    /**
+     * Obtain an {@link SqlArrayType} for the given array element type in this context
+     * @param elementType the array element type.
+     * @return an {@link SqlArrayType} for the given element type.
+     */
+    public Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType) {
+        return config.argumentRegistry.findArrayTypeFor(elementType, this);
     }
 
     /**

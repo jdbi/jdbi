@@ -11,22 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.util.GenericTypes;
 
-public class SqlArrayMapperFactory implements ColumnMapperFactory {
-
-    @Override
-    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
-        final Class<?> clazz = GenericTypes.getErasedType(type);
-        return clazz.isArray() ?
-                Optional.of(new ArrayColumnMapper(clazz.getComponentType(), ctx)) : Optional.empty();
-    }
+/**
+ * Factory interface to produce {@link SqlArrayType} instances.
+ */
+@FunctionalInterface
+public interface SqlArrayTypeFactory {
+    /**
+     * Returns an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
+     *
+     * @param elementType the array element type
+     * @param ctx the statement context.
+     * @return an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
+     * @see StatementContext#findArrayTypeFor(Type)
+     */
+    Optional<SqlArrayType<?>> build(Type elementType, StatementContext ctx);
 }

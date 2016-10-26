@@ -41,6 +41,7 @@ class MappingRegistry
 
     MappingRegistry() {
         columnFactories.add(new BuiltInMapperFactory());
+        columnFactories.add(new SqlArrayMapperFactory());
     }
 
     private MappingRegistry(MappingRegistry that) {
@@ -66,14 +67,25 @@ class MappingRegistry
     }
 
     public Optional<RowMapper<?>> findRowMapperFor(Type type, StatementContext ctx) {
-        return Optional.ofNullable(rowCache.computeIfAbsent(type, t ->
-                findFirstPresent(
-                        () -> rowFactories.stream()
-                                .flatMap(factory -> toStream(factory.build(t, ctx)))
-                                .findFirst(),
-                        () -> findColumnMapperFor(t, ctx)
-                                .map(c -> new SingleColumnMapper<>(c)))
-                        .orElse(null)));
+        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
+        // Since row mappers can decorate other row mappers, we have to populate the cache the old fashioned way.
+        // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
+        RowMapper<?> cached = rowCache.get(type);
+
+        if (cached != null) {
+            return Optional.of(cached);
+        }
+
+        Optional<RowMapper<?>> mapper = findFirstPresent(
+                () -> rowFactories.stream()
+                        .flatMap(factory -> toStream(factory.build(type, ctx)))
+                        .findFirst(),
+                () -> findColumnMapperFor(type, ctx)
+                        .map(c -> new SingleColumnMapper<>(c)));
+
+        mapper.ifPresent(m -> rowCache.put(type, m));
+
+        return mapper;
     }
 
     public void addColumnMapper(ColumnMapper<?> mapper)
@@ -87,10 +99,21 @@ class MappingRegistry
     }
 
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type, StatementContext ctx) {
-        return Optional.ofNullable(columnCache.computeIfAbsent(type, t ->
-                columnFactories.stream()
-                        .flatMap(factory -> toStream(factory.build(t, ctx)))
-                        .findFirst()
-                        .orElse(null)));
+        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
+        // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
+        // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
+        ColumnMapper<?> cached = columnCache.get(type);
+
+        if (cached != null) {
+            return Optional.of(cached);
+        }
+
+        Optional<ColumnMapper<?>> mapper = columnFactories.stream()
+                .flatMap(factory -> toStream(factory.build(type, ctx)))
+                .findFirst();
+
+        mapper.ifPresent(m -> columnCache.put(type, m));
+
+        return mapper;
     }
 }

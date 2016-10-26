@@ -22,36 +22,59 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.SqlArrayType;
+import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.argument.BuiltInArgumentFactory;
 
 class ArgumentRegistry
 {
 
     static ArgumentRegistry copyOf(ArgumentRegistry registry) {
-        return new ArgumentRegistry(registry.factories);
+        return new ArgumentRegistry(registry);
     }
 
-    private final List<ArgumentFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
+    private final List<SqlArrayTypeFactory> arrayTypeFactories = new CopyOnWriteArrayList<>();
 
     ArgumentRegistry()
     {
-        factories.add(BuiltInArgumentFactory.INSTANCE);
+        register(BuiltInArgumentFactory.INSTANCE);
+        register(new SqlArrayArgumentFactory());
     }
 
-    ArgumentRegistry(List<ArgumentFactory> factories)
+    ArgumentRegistry(ArgumentRegistry that)
     {
-        this.factories.addAll(factories);
+        this.argumentFactories.addAll(that.argumentFactories);
+        this.arrayTypeFactories.addAll(that.arrayTypeFactories);
     }
 
     Optional<Argument> findArgumentFor(Type expectedType, Object it, StatementContext ctx)
     {
-        return factories.stream()
+        return argumentFactories.stream()
                 .flatMap(factory -> toStream(factory.build(expectedType, it, ctx)))
                 .findFirst();
     }
 
-    void register(ArgumentFactory argumentFactory)
+    void register(ArgumentFactory factory)
     {
-        factories.add(0, argumentFactory);
+        argumentFactories.add(0, factory);
+    }
+
+    Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType, StatementContext ctx) {
+        return arrayTypeFactories.stream()
+                .flatMap(factory -> toStream(factory.build(elementType, ctx)))
+                .findFirst();
+    }
+
+    void registerArrayType(Class<?> elementType, String sqlTypeName) {
+        registerArrayType(VendorSupportedArrayType.factory(elementType, sqlTypeName));
+    }
+
+    void registerArrayType(SqlArrayType<?> arrayType) {
+        registerArrayType(new InferredSqlArrayTypeFactory(arrayType));
+    }
+
+    void registerArrayType(SqlArrayTypeFactory factory) {
+        arrayTypeFactories.add(0, factory);
     }
 }

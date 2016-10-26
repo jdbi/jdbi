@@ -13,15 +13,15 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.util.UUID;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class PostgresJdbiPlugin implements JdbiPlugin {
     @Override
     public void customizeDbi(Jdbi db) {
-        db.registerArgumentFactory(new SqlArrayArgumentFactory());
         db.registerArgumentFactory(new TypedEnumArgumentFactory());
-        db.registerColumnMapper(new SqlArrayMapperFactory());
 
         db.registerColumnMapper(new JavaTimeMapperFactory());
         db.registerArgumentFactory(new JavaTimeArgumentFactory());
@@ -30,5 +30,16 @@ public class PostgresJdbiPlugin implements JdbiPlugin {
 
         db.registerColumnMapper(new HStoreColumnMapper());
         db.registerArgumentFactory(new HStoreArgumentFactory());
+
+        db.registerArrayType(int.class, "integer");
+        db.registerArrayType(Integer.class, "integer");
+        db.registerArrayType(long.class, "bigint");
+        db.registerArrayType(Long.class, "bigint");
+        db.registerArrayType(String.class, "varchar");
+        db.registerArrayType(UUID.class, "uuid");
+        db.registerArrayType(float.class, "real");
+        db.registerArrayType(Float.class, "real");
+        db.registerArrayType(double.class, "double precision");
+        db.registerArrayType(Double.class, "double precision");
     }
 }

@@ -23,6 +23,7 @@ public class GuavaPlugin implements JdbiPlugin {
     public Handle customizeHandle(Handle handle) {
         handle.registerArgumentFactory(GuavaArguments.factory());
         handle.registerCollectorFactory(GuavaCollectors.factory());
+        handle.registerColumnMapper(GuavaMappers.columnFactory());
         return handle;
     }
 }

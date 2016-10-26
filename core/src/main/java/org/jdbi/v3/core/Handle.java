@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.SqlArrayType;
+import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
@@ -96,6 +98,50 @@ public class Handle implements Closeable
 
     public Handle registerArgumentFactory(ArgumentFactory argumentFactory) {
         config.argumentRegistry.register(argumentFactory);
+        return this;
+    }
+
+    /**
+     * Register an array element type that is supported by the JDBC vendor.
+     *
+     * @param elementType the array element type
+     * @param sqlTypeName the vendor-specific SQL type name for the array type.  This value will be passed to
+     *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
+     * @return this
+     */
+    public Handle registerArrayType(Class<?> elementType, String sqlTypeName)
+    {
+        config.argumentRegistry.registerArrayType(elementType, sqlTypeName);
+        return this;
+    }
+
+    /**
+     * Register a {@link SqlArrayType} which will have its parameterized type inspected to determine which element type
+     * it supports. {@link SqlArrayType SQL array types} are used to convert array-like arguments into SQL arrays.
+     * <p>
+     * The parameter must be concretely parameterized; we use the type argument {@code T} to determine if it applies to
+     * a given element type.
+     *
+     * @param arrayType the {@link SqlArrayType}
+     * @return this
+     * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
+     */
+    public Handle registerArrayType(SqlArrayType<?> arrayType)
+    {
+        config.argumentRegistry.registerArrayType(arrayType);
+        return this;
+    }
+
+    /**
+     * Register a {@link SqlArrayTypeFactory}. A factory is provided element types and, if it supports it, provides an
+     * {@link SqlArrayType} for it.
+     *
+     * @param factory the factory
+     * @return this
+     */
+    public Handle registerArrayType(SqlArrayTypeFactory factory)
+    {
+        config.argumentRegistry.registerArrayType(factory);
         return this;
     }
 

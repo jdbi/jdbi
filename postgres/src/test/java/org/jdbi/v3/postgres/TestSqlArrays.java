@@ -17,14 +17,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class TestSqlArrays {
     private static final String U_SELECT = "SELECT u FROM uuids";
@@ -63,10 +68,31 @@ public class TestSqlArrays {
     }
 
     @Test
-    @Ignore("Inserting lists to arrays is not supported")
     public void testUuidList() throws Exception {
         ao.insertUuidList(Arrays.asList(testUuids));
-        assertThat(ao.fetchUuidList()).containsExactly(testUuids);
+        assertThat(ao.fetchUuidList())
+                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+    }
+
+    @Test
+    public void testUuidArrayList() throws Exception {
+        ao.insertUuidList(Arrays.asList(testUuids));
+        assertThat(ao.fetchUuidArrayList())
+                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+    }
+
+    @Test
+    public void testUuidLinkedList() throws Exception {
+        ao.insertUuidList(Arrays.asList(testUuids));
+        assertThat(ao.fetchUuidLinkedList())
+                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+    }
+
+    @Test
+    public void testUuidCopyOnWriteArrayList() throws Exception {
+        ao.insertUuidList(Arrays.asList(testUuids));
+        assertThat(ao.fetchUuidCopyOnWriteArrayList())
+                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
     }
 
     @Test
@@ -99,12 +125,11 @@ public class TestSqlArrays {
     }
 
     @Test
-    @Ignore("Inserting lists to arrays is not supported")
     public void testIntList() throws Exception {
         List<Integer> testIntList = new ArrayList<Integer>();
         Arrays.stream(testInts).forEach(testIntList::add);
         ao.insertIntList(testIntList);
-        assertThat(ao.fetchIntList()).isEqualTo(testIntList);
+        assertThat(ao.fetchIntList()).contains(testIntList);
     }
 
     public interface ArrayObject {
@@ -115,11 +140,23 @@ public class TestSqlArrays {
         void insertUuidArray(UUID[] uuids);
 
         @SqlQuery(U_SELECT)
-        List<UUID> fetchUuidList();
+        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
+        Optional<List<UUID>> fetchUuidList();
+
+        @SqlQuery(U_SELECT)
+        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
+        Optional<ArrayList<UUID>> fetchUuidArrayList();
+
+        @SqlQuery(U_SELECT)
+        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
+        Optional<LinkedList<UUID>> fetchUuidLinkedList();
+
+        @SqlQuery(U_SELECT)
+        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
+        Optional<CopyOnWriteArrayList<UUID>> fetchUuidCopyOnWriteArrayList();
 
         @SqlUpdate(U_INSERT)
         void insertUuidList(List<UUID> u);
-
 
         @SqlQuery(I_SELECT)
         int[] fetchIntArray();
@@ -137,7 +174,8 @@ public class TestSqlArrays {
         void insertBoxedIntArray(Integer[] ints);
 
         @SqlQuery(I_SELECT)
-        List<Integer> fetchIntList();
+        // Wrap in an Optional container, so SQL object knows that the row type is List<Integer>, not Integer
+        Optional<List<Integer>> fetchIntList();
 
         @SqlUpdate(I_INSERT)
         void insertIntList(List<Integer> u);
