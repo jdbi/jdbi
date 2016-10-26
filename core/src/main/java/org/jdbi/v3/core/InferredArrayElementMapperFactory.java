@@ -33,7 +33,7 @@ class InferredArrayElementMapperFactory implements ArrayElementMapperFactory {
 
     InferredArrayElementMapperFactory(ArrayElementMapper<?> mapper) {
         this.maps = findGenericParameter(mapper.getClass(), ArrayElementMapper.class)
-                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here"));
+                .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ArrayElementMapper here"));
         this.mapper = mapper;
     }
 

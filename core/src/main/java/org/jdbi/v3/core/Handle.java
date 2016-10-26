@@ -125,7 +125,7 @@ public class Handle implements Closeable
      *
      * @param mapper the array element mapper
      * @return this
-     * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
+     * @throws UnsupportedOperationException if the ArrayElementMapper is not a concretely parameterized type
      */
     public Handle registerArrayElementMapper(ArrayElementMapper<?> mapper)
     {
