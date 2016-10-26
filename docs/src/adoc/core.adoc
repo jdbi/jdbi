@@ -23,9 +23,10 @@ final Optional<MyUser> foundUser = userDatabase.withHandle(h ->
 );
 ----
 
-*Handle* provides a fluent query and update API that can map <<arguments#,arguments>>
-and <<results#,result sets>> to and from regular Java objects.
-You may register mappings for arguments 
+*Handle* provides a fluent <<statements#,Statement>> API that can map
+<<arguments#,arguments>> and <<results#,result sets>>
+to and from regular Java objects.
+You may register mappings for arguments
 <<arguments#argument-factory,manually>> or use 
 <<arguments#bean-argument,Java Bean conventions>>.
 

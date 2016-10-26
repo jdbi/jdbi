@@ -82,9 +82,11 @@
     <properties>
         <project.build.targetJdk>1.8</project.build.targetJdk>
         <basepom.maven.version>3.2.5</basepom.maven.version>
+
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <dep.slf4j.version>1.7.21</dep.slf4j.version>
+
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
         <basepom.test.fork-count>4</basepom.test.fork-count>
@@ -206,6 +208,12 @@
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-sqlobject</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-sqlobject</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
@@ -340,14 +348,7 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-guava</artifactId>
-                <version>3.0.0</version>
-                <!-- XXX: https://github.com/joel-costigliola/assertj-guava/issues/33 -->
-                <exclusions>
-                  <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                  </exclusion>
-                </exclusions>
+                <version>3.1.0</version>
             </dependency>
 
             <dependency>
