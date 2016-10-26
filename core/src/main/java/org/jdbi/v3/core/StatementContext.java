@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.Closeable;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,7 +38,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
  * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
  * mock tools to create a mock object of this class in the user code.
  */
-public class StatementContext
+public class StatementContext implements Closeable
 {
     private final JdbiConfig config;
     private final ExtensionMethod extensionMethod;
@@ -238,8 +239,15 @@ public class StatementContext
         return binding;
     }
 
-    Cleanables getCleanables() {
+    Cleanables getCleanables()
+    {
         return cleanables;
+    }
+
+    @Override
+    public void close()
+    {
+        cleanables.close();
     }
 
     public ExtensionMethod getExtensionMethod()

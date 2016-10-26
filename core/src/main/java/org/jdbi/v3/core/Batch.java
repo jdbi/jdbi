@@ -126,7 +126,7 @@ public class Batch extends BaseStatement
             }
         }
         finally {
-            cleanup();
+            close();
         }
     }
 

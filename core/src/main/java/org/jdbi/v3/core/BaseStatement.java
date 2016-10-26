@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.io.Closeable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import org.jdbi.v3.core.Cleanables.Cleanable;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 
-abstract class BaseStatement
+abstract class BaseStatement implements Closeable
 {
     final JdbiConfig config;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
@@ -32,7 +33,6 @@ abstract class BaseStatement
     {
         this.config = config;
         this.context = context;
-        addCustomizer(new StatementCleaningCustomizer());
     }
 
     final ArgumentRegistry getArgumentRegistry() {
@@ -45,6 +45,11 @@ abstract class BaseStatement
     public final StatementContext getContext()
     {
         return context;
+    }
+
+    protected void addCleanable(Cleanable cleanable)
+    {
+        getContext().getCleanables().add(cleanable);
     }
 
     protected void addCustomizers(final Collection<StatementCustomizer> customizers)
@@ -86,31 +91,10 @@ abstract class BaseStatement
         }
     }
 
-    protected final void cleanup()
+    @Override
+    public void close()
     {
-        for (StatementCustomizer customizer : customizers) {
-            try {
-                customizer.cleanup(context);
-            }
-            catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Could not clean up", e, context);
-            }
-        }
-    }
-
-    protected void addCleanable(final Cleanable cleanable)
-    {
-        context.getCleanables().add(cleanable);
-    }
-
-    class StatementCleaningCustomizer implements StatementCustomizer
-    {
-        @Override
-        public final void cleanup(final StatementContext ctx)
-            throws SQLException
-        {
-            context.getCleanables().clean();
-        }
+        getContext().close();
     }
 }
 

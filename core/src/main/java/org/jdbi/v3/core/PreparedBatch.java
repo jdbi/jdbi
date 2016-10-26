@@ -202,7 +202,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
         finally {
             try {
                 if (!generateKeys) {
-                    cleanup();
+                    close();
                 }
             }
             finally {

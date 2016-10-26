@@ -15,7 +15,6 @@ package org.jdbi.v3.core;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.NoSuchElementException;
 
 import org.jdbi.v3.core.exception.NoResultsException;
@@ -25,7 +24,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 class ResultSetResultIterator<Type> implements ResultIterator<Type>
 {
     private final RowMapper<Type> mapper;
-    private final SqlStatement<?> jdbiStatement;
     private final ResultSet results;
     private final StatementContext context;
 
@@ -34,31 +32,25 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private volatile boolean closed = false;
 
     ResultSetResultIterator(RowMapper<Type> mapper,
-                            SqlStatement<?> jdbiStatement,
-                            Statement stmt,
                             ResultSet results,
                             StatementContext context)
     {
         this.mapper = mapper;
         this.context = context;
-        this.jdbiStatement = jdbiStatement;
         this.results = results;
 
         if (results == null) {
             throw new NoResultsException("No results to iterate over", context);
         }
 
-        this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
+        this.context.getCleanables().add(Cleanables.forResultSet(results));
     }
 
     @Override
     public void close()
     {
-        if (closed) {
-            return;
-        }
         closed = true;
-        jdbiStatement.cleanup();
+        context.close();
     }
 
     @Override
