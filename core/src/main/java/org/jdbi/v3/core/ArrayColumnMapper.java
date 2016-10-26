@@ -26,9 +26,12 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 class ArrayColumnMapper implements ColumnMapper<Object> {
     private static final CopyOnWriteArraySet<Integer> UNSUPPORTED_TYPES = new CopyOnWriteArraySet<>();
 
+    private final ColumnMapper<?> elementMapper;
     private final Class<?> componentType;
 
-    ArrayColumnMapper(Class<?> componentType) {
+    ArrayColumnMapper(ColumnMapper<?> elementMapper,
+                      Class<?> componentType) {
+        this.elementMapper = elementMapper;
         this.componentType = componentType;
     }
 
@@ -61,13 +64,10 @@ class ArrayColumnMapper implements ColumnMapper<Object> {
     }
 
     private Object buildFromResultSet(java.sql.Array array, StatementContext ctx) throws SQLException {
-        final ColumnMapper<?> mapper = ctx.findColumnMapperFor(componentType)
-                .orElseThrow(() -> new IllegalArgumentException("Unable to find column mapper for " + componentType));
-
         List<Object> list = new ArrayList<>();
         try (ResultSet rs = array.getResultSet()) {
             while (rs.next()) {
-                list.add(mapper.map(rs, 2, ctx));
+                list.add(elementMapper.map(rs, 2, ctx));
             }
         }
 

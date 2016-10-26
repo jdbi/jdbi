@@ -35,7 +35,8 @@ class ListColumnMapper<T> implements ColumnMapper<List<T>> {
         java.sql.Array array = r.getArray(columnNumber);
         try {
             return buildFromResultSet(array, ctx);
-        } finally {
+        }
+        finally {
             array.free();
         }
     }

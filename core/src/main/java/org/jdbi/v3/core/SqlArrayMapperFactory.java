@@ -43,16 +43,28 @@ class SqlArrayMapperFactory implements ColumnMapperFactory {
         final Class<?> erasedType = GenericTypes.getErasedType(type);
 
         if (erasedType.isArray()) {
-            return Optional.of(new ArrayColumnMapper(erasedType.getComponentType()));
+            Class<?> elementType = erasedType.getComponentType();
+            return elementTypeMapper(elementType, ctx)
+                    .map(elementMapper -> new ArrayColumnMapper(elementMapper, elementType));
         }
 
         Supplier<List<?>> supplier = listSuppliers.get(erasedType);
         if (supplier != null) {
             return GenericTypes.findGenericParameter(type, List.class)
-                    .flatMap(ctx::findColumnMapperFor)
+                    .flatMap(elementType -> elementTypeMapper(elementType, ctx))
                     .map(elementMapper -> new ListColumnMapper(elementMapper, supplier));
         }
 
         return Optional.empty();
+    }
+
+    private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, StatementContext ctx) {
+        Optional<ColumnMapper<?>> mapper = ctx.findColumnMapperFor(elementType);
+
+        if (!mapper.isPresent() && elementType == Object.class) {
+            return Optional.of((rs, num, context) -> rs.getObject(num));
+        }
+
+        return mapper;
     }
 }
