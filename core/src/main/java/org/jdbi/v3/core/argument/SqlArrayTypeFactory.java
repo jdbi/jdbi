@@ -19,19 +19,17 @@ import java.util.Optional;
 import org.jdbi.v3.core.StatementContext;
 
 /**
- * Factory interface to produce array element mappers.
+ * Factory interface to produce {@link SqlArrayType} instances.
  */
 @FunctionalInterface
-public interface ArrayElementMapperFactory {
+public interface SqlArrayTypeFactory {
     /**
-     * Supplies an array element mapper which will map array elements from {@code type} to a driver-supported type,
-     * if the factory supports it; empty otherwise.
+     * Returns an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
      *
-     * @param type the element type to map from
-     * @param ctx  the statement context.
-     * @return an array element mapper for the given element type if this factory supports it, or
-     * <code>Optional.empty()</code> otherwise.
+     * @param elementType the array element type
+     * @param ctx the statement context.
+     * @return an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
      * @see StatementContext#findColumnMapperFor(Type)
      */
-    Optional<ArrayElementMapper<?>> build(Type type, StatementContext ctx);
+    Optional<SqlArrayType<?>> build(Type elementType, StatementContext ctx);
 }

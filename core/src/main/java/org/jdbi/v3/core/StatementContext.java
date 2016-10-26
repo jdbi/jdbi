@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArrayElementMapper;
+import org.jdbi.v3.core.argument.SqlArrayType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 
@@ -137,12 +137,12 @@ public class StatementContext
     }
 
     /**
-     * Obtain an array element mapper for the given element type in this context
-     * @param type the element type of the array-type argument.
-     * @return an {@link ArrayElementMapper} for the given type.
+     * Obtain an {@link SqlArrayType} for the given array element type in this context
+     * @param elementType the array element type.
+     * @return an {@link SqlArrayType} for the given element type.
      */
-    public Optional<ArrayElementMapper<?>> findArrayElementMapperFor(Type type) {
-        return config.argumentRegistry.findArrayElementMapperFor(type, this);
+    public Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType) {
+        return config.argumentRegistry.findArrayTypeFor(elementType, this);
     }
 
     /**

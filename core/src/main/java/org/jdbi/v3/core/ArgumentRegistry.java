@@ -22,8 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.ArrayElementMapper;
-import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
+import org.jdbi.v3.core.argument.SqlArrayType;
+import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.argument.BuiltInArgumentFactory;
 
 class ArgumentRegistry
@@ -34,7 +34,7 @@ class ArgumentRegistry
     }
 
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
-    private final List<ArrayElementMapperFactory> arrayElementMapperFactories = new CopyOnWriteArrayList<>();
+    private final List<SqlArrayTypeFactory> arrayTypeFactories = new CopyOnWriteArrayList<>();
 
     ArgumentRegistry()
     {
@@ -45,7 +45,7 @@ class ArgumentRegistry
     ArgumentRegistry(ArgumentRegistry that)
     {
         this.argumentFactories.addAll(that.argumentFactories);
-        this.arrayElementMapperFactories.addAll(that.arrayElementMapperFactories);
+        this.arrayTypeFactories.addAll(that.arrayTypeFactories);
     }
 
     Optional<Argument> findArgumentFor(Type expectedType, Object it, StatementContext ctx)
@@ -55,26 +55,26 @@ class ArgumentRegistry
                 .findFirst();
     }
 
-    Optional<ArrayElementMapper<?>> findArrayElementMapperFor(Type expectedType, StatementContext ctx) {
-        return arrayElementMapperFactories.stream()
-                .flatMap(factory -> toStream(factory.build(expectedType, ctx)))
-                .findFirst();
-    }
-
     void register(ArgumentFactory factory)
     {
         argumentFactories.add(0, factory);
     }
 
-    void registerArrayElementTypeName(Class<?> type, String sqlTypeName) {
-        register(IdentityArrayElementMapper.factory(type, sqlTypeName));
+    Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType, StatementContext ctx) {
+        return arrayTypeFactories.stream()
+                .flatMap(factory -> toStream(factory.build(elementType, ctx)))
+                .findFirst();
     }
 
-    void register(ArrayElementMapper<?> mapper) {
-        register(new InferredArrayElementMapperFactory(mapper));
+    void registerArrayType(Class<?> elementType, String sqlTypeName) {
+        registerArrayType(VendorSupportedArrayType.factory(elementType, sqlTypeName));
     }
 
-    void register(ArrayElementMapperFactory factory) {
-        arrayElementMapperFactories.add(0, factory);
+    void registerArrayType(SqlArrayType<?> arrayType) {
+        registerArrayType(new InferredSqlArrayTypeFactory(arrayType));
+    }
+
+    void registerArrayType(SqlArrayTypeFactory factory) {
+        arrayTypeFactories.add(0, factory);
     }
 }

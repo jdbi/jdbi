@@ -15,18 +15,18 @@ package org.jdbi.v3.core;
 
 import java.util.Optional;
 
-import org.jdbi.v3.core.argument.ArrayElementMapper;
-import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
+import org.jdbi.v3.core.argument.SqlArrayType;
+import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 
-class IdentityArrayElementMapper<T> implements ArrayElementMapper<T> {
-    static <T> ArrayElementMapperFactory factory(Class<T> type, String sqlTypeName) {
-        ArrayElementMapper<T> mapper = new IdentityArrayElementMapper<>(sqlTypeName);
+class VendorSupportedArrayType<T> implements SqlArrayType<T> {
+    static <T> SqlArrayTypeFactory factory(Class<T> type, String sqlTypeName) {
+        SqlArrayType<T> mapper = new VendorSupportedArrayType<>(sqlTypeName);
         return (t, ctx) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
     }
 
     private final String typeName;
 
-    IdentityArrayElementMapper(String typeName) {
+    VendorSupportedArrayType(String typeName) {
         this.typeName = typeName;
     }
 
@@ -36,7 +36,7 @@ class IdentityArrayElementMapper<T> implements ArrayElementMapper<T> {
     }
 
     @Override
-    public Object mapArrayElement(T element) {
+    public Object convertArrayElement(T element) {
         return element;
     }
 }

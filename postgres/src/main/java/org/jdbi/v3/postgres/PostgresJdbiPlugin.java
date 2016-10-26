@@ -31,15 +31,15 @@ public class PostgresJdbiPlugin implements JdbiPlugin {
         db.registerColumnMapper(new HStoreColumnMapper());
         db.registerArgumentFactory(new HStoreArgumentFactory());
 
-        db.registerArrayElementTypeName(int.class, "integer");
-        db.registerArrayElementTypeName(Integer.class, "integer");
-        db.registerArrayElementTypeName(long.class, "bigint");
-        db.registerArrayElementTypeName(Long.class, "bigint");
-        db.registerArrayElementTypeName(String.class, "varchar");
-        db.registerArrayElementTypeName(UUID.class, "uuid");
-        db.registerArrayElementTypeName(float.class, "real");
-        db.registerArrayElementTypeName(Float.class, "real");
-        db.registerArrayElementTypeName(double.class, "double precision");
-        db.registerArrayElementTypeName(Double.class, "double precision");
+        db.registerArrayType(int.class, "integer");
+        db.registerArrayType(Integer.class, "integer");
+        db.registerArrayType(long.class, "bigint");
+        db.registerArrayType(Long.class, "bigint");
+        db.registerArrayType(String.class, "varchar");
+        db.registerArrayType(UUID.class, "uuid");
+        db.registerArrayType(float.class, "real");
+        db.registerArrayType(Float.class, "real");
+        db.registerArrayType(double.class, "double precision");
+        db.registerArrayType(Double.class, "double precision");
     }
 }

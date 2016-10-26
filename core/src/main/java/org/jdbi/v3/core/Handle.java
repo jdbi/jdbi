@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.ArrayElementMapper;
-import org.jdbi.v3.core.argument.ArrayElementMapperFactory;
+import org.jdbi.v3.core.argument.SqlArrayType;
+import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
@@ -102,47 +102,46 @@ public class Handle implements Closeable
     }
 
     /**
-     * Register the given type as an array element type supported by the JDBC driver.
+     * Register an array element type that is supported by the JDBC vendor.
      *
-     * @param type        the supported type
-     * @param sqlTypeName the type name to provide to JDBC when creating an array of this type. This value must be
-     *                    suitable for passing to {@link java.sql.Connection#createArrayOf(String, Object[])}.
+     * @param elementType the array element type
+     * @param sqlTypeName the vendor-specific SQL type name for the array type.  This value will be passed to
+     *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
      * @return this
      */
-    public Handle registerArrayElementTypeName(Class<?> type, String sqlTypeName)
+    public Handle registerArrayType(Class<?> elementType, String sqlTypeName)
     {
-        config.argumentRegistry.registerArrayElementTypeName(type, sqlTypeName);
+        config.argumentRegistry.registerArrayType(elementType, sqlTypeName);
         return this;
     }
 
     /**
-     * Register an array element mapper which will have its parameterized type inspected to determine which type it
-     * maps from. Array element mappers are used to map elements of Java containers, such as arrays or lists, into
-     * types supported by a particular JDBC driver within SQL array columns.
+     * Register a {@link SqlArrayType} which will have its parameterized type inspected to determine which element type
+     * it supports. {@link SqlArrayType SQL array types} are used to convert array-like arguments into SQL arrays.
      * <p>
-     * The parameter must be concretely parameterized, we use the type argument T to
-     * determine if it applies to a given parameter type.
+     * The parameter must be concretely parameterized; we use the type argument {@code T} to determine if it applies to
+     * a given element type.
      *
-     * @param mapper the array element mapper
+     * @param arrayType the {@link SqlArrayType}
      * @return this
-     * @throws UnsupportedOperationException if the ArrayElementMapper is not a concretely parameterized type
+     * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
      */
-    public Handle registerArrayElementMapper(ArrayElementMapper<?> mapper)
+    public Handle registerArrayType(SqlArrayType<?> arrayType)
     {
-        config.argumentRegistry.register(mapper);
+        config.argumentRegistry.registerArrayType(arrayType);
         return this;
     }
 
     /**
-     * Register an array element mapper factory. A factory is provided types and, if it supports array elements of that
-     * type, provides an array element mapper for it.
+     * Register a {@link SqlArrayTypeFactory}. A factory is provided element types and, if it supports it, provides an
+     * {@link SqlArrayType} for it.
      *
      * @param factory the factory
      * @return this
      */
-    public Handle registerArrayElementMapper(ArrayElementMapperFactory factory)
+    public Handle registerArrayType(SqlArrayTypeFactory factory)
     {
-        config.argumentRegistry.register(factory);
+        config.argumentRegistry.registerArrayType(factory);
         return this;
     }
 

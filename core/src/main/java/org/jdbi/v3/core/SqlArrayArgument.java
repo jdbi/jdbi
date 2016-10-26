@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArrayElementMapper;
+import org.jdbi.v3.core.argument.SqlArrayType;
 
 class SqlArrayArgument<T> implements Argument {
 
@@ -27,18 +27,18 @@ class SqlArrayArgument<T> implements Argument {
     private final Object[] array;
 
     @SuppressWarnings("unchecked")
-    SqlArrayArgument(ArrayElementMapper<T> elementMapper, Object newArray) {
-        this.typeName = elementMapper.getTypeName();
+    SqlArrayArgument(SqlArrayType<T> arrayType, Object newArray) {
+        this.typeName = arrayType.getTypeName();
         int length = Array.getLength(newArray);
         this.array = new Object[length];
         for (int i = 0; i < length; i++) {
-            array[i] = elementMapper.mapArrayElement((T) Array.get(newArray, i));
+            array[i] = arrayType.convertArrayElement((T) Array.get(newArray, i));
         }
     }
 
-    SqlArrayArgument(ArrayElementMapper<T> elementMapper, List<T> list) {
-        this.typeName = elementMapper.getTypeName();
-        this.array = list.stream().map(elementMapper::mapArrayElement).toArray();
+    SqlArrayArgument(SqlArrayType<T> arrayType, List<T> list) {
+        this.typeName = arrayType.getTypeName();
+        this.array = list.stream().map(arrayType::convertArrayElement).toArray();
     }
 
     @Override

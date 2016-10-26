@@ -35,8 +35,8 @@ public class TestGuavaMappers {
     @Before
     public void setUp() {
         db.getJdbi()
-                .registerArrayElementTypeName(Integer.class, "integer")
-                .registerArrayElementTypeName(UUID.class, "uuid");
+                .registerArrayType(Integer.class, "integer")
+                .registerArrayType(UUID.class, "uuid");
         h = db.openHandle();
         h.useTransaction((th, status) -> {
             th.execute("DROP TABLE IF EXISTS arrays");
