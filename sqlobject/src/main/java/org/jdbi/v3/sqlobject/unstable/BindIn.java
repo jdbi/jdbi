@@ -36,14 +36,20 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
 /**
- * Binds an Iterable or array/varargs of any type to a placeholder as a comma-separated list (e.g. for WHERE X IN (...) query statements).
+ * Binds each value in the annotated {@link Iterable} or array/varargs argument, and defines a named attribute as a
+ * comma-separated list of each bound parameter name. Common use cases:
  *
+ * <pre>
+ * &#64;SqlQuery("SELECT * FROM THINGS WHERE ID IN (&lt;ids&gt;)")
+ * List&lt;Thing&gt; getThings(@BindIn int... ids)
+ *
+ * &#64;SqlQuery("INSERT INTO THINGS (&lt;columnNames&gt;) VALUES (&lt;values&gt;)")
+ * void insertThings(@DefineIn List&lt;String&gt; columnNames, @BindIn List&lt;Object&gt; values)
+ * </pre>
+ *
+ * <p>
  * Throws IllegalArgumentException if the argument is not an array or Iterable. How null and empty collections are handled can be configured with onEmpty:EmptyHandling - throws IllegalArgumentException by default.
- *
- * Don't forget to add @UseStringTemplate3StatementLocator to your query class and use the correct placeholder format:
- *  {@literal @}SqlQuery("SELECT * FROM THINGS WHERE ID IN ({@literal <}ids{@literal >})")
- *  abstract Object[] foo({@literal @}BindIn("ids") int[] ids);
- *  ids = [1, 2, 3] -{@literal >} SELECT * FROM THINGS WHERE ID IN (1,2,3)
+ * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
@@ -52,9 +58,12 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 public @interface BindIn
 {
     /**
-     * placeholder in your query to be replaced with comma-separated list
+     * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
+     * the name when there is no parameter naming information in your class files.
+     *
+     * @return the attribute name.
      */
-    String value();
+    String value() default "";
 
     /**
      * what to do when the argument is null or empty
@@ -109,7 +118,18 @@ public @interface BindIn
                 }
             }
 
-            final String key = bindIn.value();
+            String name = bindIn.value();
+            if (name.isEmpty()) {
+                if (param.isNamePresent()) {
+                    name = param.getName();
+                } else {
+                    throw new UnsupportedOperationException("A @BindIn parameter was not given a name, "
+                            + "and parameter name data is not present in the class file, for: "
+                            + param.getDeclaringExecutable() + " :: " + param);
+                }
+            }
+
+            final String key = name;
 
             // generate and concat placeholders
             final StringBuilder names = new StringBuilder();
@@ -132,9 +152,20 @@ public @interface BindIn
         @Override
         public Binder<BindIn, Object> build(final BindIn bindIn)
         {
-            final String key = bindIn.value();
-
             return (q, param, index, bind, arg) -> {
+                String name = bindIn.value();
+                if (name.isEmpty()) {
+                    if (param.isNamePresent()) {
+                        name = param.getName();
+                    } else {
+                        throw new UnsupportedOperationException("A @BindIn parameter was not given a name, "
+                                + "and parameter name data is not present in the class file, for: "
+                                + param.getDeclaringExecutable() + " :: " + param);
+                    }
+                }
+
+                final String key = name;
+
                 if (arg == null || Util.size(arg) == 0)
                 {
                     switch (bindIn.onEmpty())

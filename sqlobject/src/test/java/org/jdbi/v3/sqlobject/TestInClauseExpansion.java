@@ -52,7 +52,7 @@ public class TestInClauseExpansion
     public interface DAO
     {
         @SqlQuery("select name from something where id in (<names>)")
-        ImmutableSet<String> findIdsForNames(@BindIn("names") List<Integer> names);
+        ImmutableSet<String> findIdsForNames(@BindIn List<Integer> names);
     }
 
 }

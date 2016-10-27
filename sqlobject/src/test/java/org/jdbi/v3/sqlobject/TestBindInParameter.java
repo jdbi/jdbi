@@ -69,9 +69,9 @@ public class TestBindInParameter {
         int broken();
 
         @SqlQuery("select count(*) from foo where bar \\< 12 and id in (<ids>)")
-        int works(@BindIn("ids") List<Long> ids);
+        int works(@BindIn List<Long> ids);
 
         @SqlQuery("select count(*) from foo where id in (<ids>)")
-        int ids(@BindIn("ids") List<Integer> ids);
+        int ids(@BindIn List<Integer> ids);
     }
 }

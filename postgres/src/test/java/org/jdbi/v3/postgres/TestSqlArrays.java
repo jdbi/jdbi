@@ -25,8 +25,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.sqlobject.BindBean;
+import org.jdbi.v3.sqlobject.SqlBatch;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -179,5 +184,37 @@ public class TestSqlArrays {
 
         @SqlUpdate(I_INSERT)
         void insertIntList(List<Integer> u);
+    }
+
+    @Test
+    public void testWhereInArray() throws Exception {
+        WhereInDao dao = h.attach(WhereInDao.class);
+        dao.createTable();
+        Something a = new Something(1, "Alice");
+        Something b = new Something(2, "Bob");
+        Something c = new Something(3, "Candace");
+        Something d = new Something(4, "David");
+        Something e = new Something(5, "Emily");
+        dao.insert(a, b, c, d, e);
+
+        assertThat(dao.getByIds(1)).containsExactly(a);
+        assertThat(dao.getByIds(2)).containsExactly(b);
+        assertThat(dao.getByIds(3)).containsExactly(c);
+        assertThat(dao.getByIds(4)).containsExactly(d);
+        assertThat(dao.getByIds(5)).containsExactly(e);
+        assertThat(dao.getByIds(1, 2, 5)) // Three, sir!
+                .containsExactly(a, b, e);
+    }
+
+    @RegisterRowMapper(SomethingMapper.class)
+    public interface WhereInDao {
+        @SqlUpdate("create table something(id int, name text)")
+        void createTable();
+
+        @SqlBatch("insert into something(id, name) values (:id, :name)")
+        void insert(@BindBean Something... somethings);
+
+        @SqlQuery("select * from something where id = any(:ids) order by id")
+        List<Something> getByIds(int... ids);
     }
 }

@@ -129,16 +129,16 @@ public class TestDefineInParameter
     public interface TestDao
     {
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindIn("values") List<Object> values);
+        void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindIn List<Object> values);
 
         @SqlUpdate("insert into <table> (<columns>) values (:id, :name)")
         void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindBean Something s);
 
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void insert(@Define("table") String table, @DefineIn("columns") Object[] columns, @BindIn("values") List<Object> values);
+        void insert(@Define("table") String table, @DefineIn("columns") Object[] columns, @BindIn List<Object> values);
 
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void defaultedInsert(@Define("table") String table, @DefineIn List<String> columns, @BindIn("values") List<Object> values);
+        void defaultedInsert(@Define("table") String table, @DefineIn List<String> columns, @BindIn List<Object> values);
 
         @SqlQuery("select <columns> from <table> where id = :id")
         Something findById(@DefineIn("columns") List<String> columns, @Define("table") String table, @Bind("id") long id);

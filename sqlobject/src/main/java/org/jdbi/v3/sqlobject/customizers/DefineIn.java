@@ -30,33 +30,28 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Used to dynamically set {@link List} or array arguments as attributes on the StatementContext for the statement
- * generated for this method. For example:
- * <p>
- * <blockquote>
+ * Defines a named attribute as a comma-separated {@link String} from the elements of the annotated array or
+ * {@link List} argument. Attributes are stored on the {@link org.jdbi.v3.core.StatementContext}, and may be used by
+ * statement customizers such as the statement rewriter. For example:
+ *
  * <pre>
- * <code>
- * {@literal @}SqlUpdate("insert into {@literal <}table{@literal >} ({@literal <}columns{@literal >}) values ({@literal <}values{@literal >})")
- * int insert(@Define String table, @DefineIn List{@literal <}String{@literal >} columns, @BindIn("values") List{@literal <}Object{@literal >} values);
- * </code>
+ * &#64;SqlUpdate("insert into &lt;table&gt; (&lt;columns&gt;) values (&lt;values&gt;)")
+ * int insert(@Define String table, @DefineIn List&lt;String&gt; columns, @BindIn List&lt;Object&gt; values);
+ *
+ * &#64;SqlQuery("select &lt;columns&gt; from &lt;table&gt; where id = :id")
+ * ResultSet select(@DefineIn("columns") List&lt;String&gt; columns, @Define("table") String table, @Bind("id") long id);
  * </pre>
- * </blockquote>
+ *
  * <p>
- * <blockquote>
- * <pre>
- * <code>
- * {@literal @}SqlQuery("select {@literal <}columns{@literal >} from {@literal <}table{@literal >} where id = :id")
- * ResultSet select(@DefineIn("columns") List{@literal <}String{@literal >} columns, @Define("table") String table, @Bind("id") long id);
- * </code>
- * </pre>
- * </blockquote>
- * <p>
- * A {@code List} argument passed to {@code @DefineIn} will be converted to a comma-separated String and set as a whole
- * as a single specified attribute. Duplicate members in the {@code List} may cause SQL exceptions. An empty
+ * An array or {@code List} argument passed to {@code @DefineIn} will be converted to a comma-separated String and set
+ * as a whole as a single specified attribute. Duplicate members in the {@code List} may cause SQL exceptions. An empty
  * {@code List} or {@code null} members in the {@code List} will result in an {@link IllegalArgumentException}.
+ * </p>
+ *
  * <p>
  * Be aware of the list members you're binding with @DefineIn, as there is no input sanitization! <b>Blindly passing
  * Strings through <code>@DefineIn</code> may make your application vulnerable to SQL Injection.</b>
+ * </p>
  *
  * @see Define
  */
@@ -66,7 +61,8 @@ import java.util.List;
 public @interface DefineIn
 {
     /**
-     * The key for the attribute to set. The value will be the value passed to the annotated argument
+     * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
+     * the name when there is no parameter naming information in your class files.
      *
      * @return the attribute key
      */

@@ -92,11 +92,10 @@ public class BindInNullTest
         assertThat(out).isEmpty();
     }
 
-    @UseStringTemplateStatementRewriter
     public interface SomethingByIterableHandleNull
     {
         @SqlQuery("select id, name from something where name in (<names>)")
-        List<Something> get(@BindIn(value = "names", onEmpty = NULL) Iterable<Object> ids);
+        List<Something> get(@BindIn(onEmpty = NULL) Iterable<Object> names);
     }
 
     //
@@ -131,7 +130,7 @@ public class BindInNullTest
     public interface SomethingByIterableHandleVoid
     {
         @SqlQuery("select id, name from something where id in (<ids>);")
-        List<Something> get(@BindIn(value = "ids", onEmpty = VOID) Iterable<Object> ids);
+        List<Something> get(@BindIn(onEmpty = VOID) Iterable<Object> ids);
     }
 
     public static class SpyingRewriter extends ColonPrefixStatementRewriter

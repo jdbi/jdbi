@@ -31,7 +31,7 @@ class DefaultObjectBinder implements Binder<Bind, Object>
     public void bind(SqlStatement<?> q, Parameter param, int index, Bind b, Object arg)
     {
         final String bindName;
-        if (b == null || b.value().equals(Bind.USE_PARAM_NAME)) {
+        if (b == null || b.value().isEmpty()) {
             if (param.isNamePresent()) {
                 bindName = param.getName();
             } else {

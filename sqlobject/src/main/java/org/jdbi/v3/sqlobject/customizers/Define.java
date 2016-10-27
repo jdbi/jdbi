@@ -26,8 +26,8 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
 /**
- * Used to set attributes on the StatementContext for the statement generated for this method.
- * These values will be available to other customizers, such as the statement locator or rewriter.
+ * Defines a named attribute as the argument passed to the annotated parameter. Attributes are stored on the
+ * {@link org.jdbi.v3.core.StatementContext}, and may be used by statement customizers such as the statement rewriter.
  */
 @SqlStatementCustomizingAnnotation(Define.Factory.class)
 @Target(ElementType.PARAMETER)
@@ -35,8 +35,10 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 public @interface Define
 {
     /**
-     * The key for the attribute to set. The value will be the value passed to the annotated argument
-     * @return the attribute key
+     * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
+     * the name when there is no parameter naming information in your class files.
+     *
+     * @return the attribute name.
      */
     String value() default "";
 

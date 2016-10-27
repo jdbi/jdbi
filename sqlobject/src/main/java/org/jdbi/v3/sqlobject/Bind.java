@@ -19,20 +19,35 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A binding annotation.  Will bind both as the {@code value}
- * of the annotation as well as the parameter index.  If the
- * {@code value} is not specified, it will default to using the parameter
- * name.  It is an error to not specify the name when there is no
- * parameter naming information in your class files.
+ * Binds the annotated argument as a named parameter, and as a positional parameter.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@BindingAnnotation(BindFactory.class)
+@BindingAnnotation(Bind.Factory.class)
 public @interface Bind
 {
-    String USE_PARAM_NAME = "___use_param_name___";
-
-    String value() default USE_PARAM_NAME;
+    /**
+     * The name to bind the argument to. If omitted, the name of the annotated parameter is used. It is an
+     * error to omit the name when there is no parameter naming information in your class files.
+     *
+     * @return the name to which the argument will be bound.
+     */
+    String value() default "";
 
     Class<? extends Binder<Bind, ?>> binder() default DefaultObjectBinder.class;
+
+    class Factory implements BinderFactory<Bind, Object>
+    {
+        @SuppressWarnings("unchecked")
+        @Override
+        public Binder<Bind, Object> build(Bind bind)
+        {
+            try {
+                return (Binder<Bind, Object>) bind.binder().newInstance();
+            }
+            catch (Exception e) {
+                throw new IllegalStateException("unable to instantiate specified binder", e);
+            }
+        }
+    }
 }
