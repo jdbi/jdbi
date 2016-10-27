@@ -13,6 +13,8 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
+import static java.util.Collections.synchronizedMap;
+
 import com.fasterxml.classmate.MemberResolver;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
@@ -32,17 +34,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.WeakHashMap;
 
 import org.skife.jdbi.v2.SqlObjectContext;
 
 class SqlObject
 {
-    private static final TypeResolver                                  typeResolver  = new TypeResolver();
-    private static final Map<Method, Handler>                          mixinHandlers = new HashMap<Method, Handler>();
-    private static final ConcurrentMap<Class<?>, Map<Method, Handler>> handlersCache = new ConcurrentHashMap<Class<?>, Map<Method, Handler>>();
-    private static final ConcurrentMap<Class<?>, Factory>              factories     = new ConcurrentHashMap<Class<?>, Factory>();
+    private static final TypeResolver                        typeResolver  = new TypeResolver();
+    private static final Map<Method, Handler>                mixinHandlers = new HashMap<Method, Handler>();
+    private static final Map<Class<?>, Map<Method, Handler>> handlersCache = synchronizedMap(new WeakHashMap<Class<?>, Map<Method, Handler>>());
+    private static final Map<Class<?>, Factory>              factories     = synchronizedMap(new WeakHashMap<Class<?>, Factory>());
 
     private static Method jdk8DefaultMethod = null;
 
@@ -114,11 +115,14 @@ class SqlObject
                     NoOp.INSTANCE
             });
             T t = (T) e.create();
-            T actual = (T) factories.putIfAbsent(sqlObjectType, (Factory) t);
-            if (actual == null) {
-                return t;
+
+            synchronized (factories) {
+                f = factories.get(sqlObjectType);
+                if (f == null) {
+                    f = (Factory) t;
+                    factories.put(sqlObjectType, f);
+                }
             }
-            f = (Factory) actual;
         }
 
         final SqlObject so = new SqlObject(sqlObjectType, buildHandlersFor(sqlObjectType), handle);
