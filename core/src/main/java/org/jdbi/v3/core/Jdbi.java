@@ -366,9 +366,16 @@ public class Jdbi
         return this;
     }
 
-    public <C extends ExtensionConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer) {
+    public <C extends ExtensionConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer)
+    {
         config.extensionRegistry.configure(configClass, consumer);
         return this;
+    }
+
+    public <C extends ExtensionConfig<C>> Jdbi configure(Class<C> configClass, Consumer<C> consumer)
+    {
+        registerExtension(new ConfigOnlyExtension<C>(configClass));
+        return configureExtension(configClass, consumer);
     }
 
     /**

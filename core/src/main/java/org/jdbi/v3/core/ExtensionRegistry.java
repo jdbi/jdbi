@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.jdbi.v3.core.extension.ExtensionConfig;
 import org.jdbi.v3.core.extension.ExtensionFactory;

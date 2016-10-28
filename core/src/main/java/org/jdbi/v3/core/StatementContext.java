@@ -22,10 +22,12 @@ import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.SqlArrayType;
+import org.jdbi.v3.core.extension.ExtensionConfig;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 
@@ -153,6 +155,13 @@ public class StatementContext implements Closeable
      */
     public Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
         return config.collectorRegistry.findCollectorFor(type);
+    }
+
+    public <C extends ExtensionConfig<C>> C findConfiguration(Class<C> configType)
+    {
+        AtomicReference<C> result = new AtomicReference<>();
+        config.extensionRegistry.configure(configType, result::set);
+        return result.get();
     }
 
     /**

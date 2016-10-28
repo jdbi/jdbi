@@ -651,8 +651,14 @@ public class Handle implements Closeable
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
-    public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
+    public <C extends ExtensionConfig<C>> Handle configureExtension(Class<C> configClass, Consumer<C> consumer) {
         config.extensionRegistry.configure(configClass, consumer);
+        return this;
+    }
+
+    public <C extends ExtensionConfig<C>> Handle configure(Class<C> configClass, Consumer<C> consumer) {
+        registerExtension(new ConfigOnlyExtension<C>(configClass));
+        return configureExtension(configClass, consumer);
     }
 
     public ExtensionMethod getExtensionMethod() {
