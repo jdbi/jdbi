@@ -109,7 +109,7 @@ abstract class CustomizingStatementHandler implements Handler
             if (!thereBindingAnnotation) {
                 // If there is no binding annotation on a parameter,
                 // then add a default parameter binder
-                binders.add(new Bindifier<>(method, null, paramIndex, new DefaultObjectBinder()));
+                binders.add(new Bindifier<>(method, null, paramIndex, new DefaultObjectBinder().build(null)));
             }
         }
     }

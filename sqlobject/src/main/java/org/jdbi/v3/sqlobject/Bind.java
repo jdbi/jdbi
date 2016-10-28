@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@BindingAnnotation(Bind.Factory.class)
+@BindingAnnotation(DefaultObjectBinder.class)
 public @interface Bind
 {
     /**
@@ -33,21 +33,4 @@ public @interface Bind
      * @return the name to which the argument will be bound.
      */
     String value() default "";
-
-    Class<? extends Binder<Bind, ?>> binder() default DefaultObjectBinder.class;
-
-    class Factory implements BinderFactory<Bind, Object>
-    {
-        @SuppressWarnings("unchecked")
-        @Override
-        public Binder<Bind, Object> build(Bind bind)
-        {
-            try {
-                return (Binder<Bind, Object>) bind.binder().newInstance();
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to instantiate specified binder", e);
-            }
-        }
-    }
 }

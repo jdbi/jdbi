@@ -15,14 +15,13 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 import java.sql.Connection;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -122,7 +121,7 @@ public class TestNewApiOnDbiAndHandle
     public interface Spiffy extends GetHandle
     {
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
-        void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something s);
+        void insert(@BindSomething("it") Something s);
 
         @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind("id") int id);

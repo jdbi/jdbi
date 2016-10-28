@@ -114,7 +114,7 @@ public class TestVariousOddities
         Something byId(@Bind("id") long id);
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
-        void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
+        void insert(@BindSomething("it") Something it);
 
     }
 

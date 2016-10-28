@@ -15,6 +15,8 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.ExtensionMethod;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
@@ -23,8 +25,6 @@ import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.lang.reflect.Method;
 
 public class TestDefaultMethods
 {
@@ -57,7 +57,7 @@ public class TestDefaultMethods
         Something byId(@Bind("id") int id);
 
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
-        void insert(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something it);
+        void insert(@BindSomething("it") Something it);
 
         default Something insertAndReturn(int id, String name) {
             insert(new Something(id, name));

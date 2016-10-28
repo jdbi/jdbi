@@ -51,7 +51,7 @@ public class TestCustomBinder
     {
         @SqlQuery("select id, name from something where id = :it.id")
         @UseRowMapper(SomethingMapper.class)
-        Something findSame(@Bind(value = "it", binder = SomethingBinderAgainstBind.class) Something something);
+        Something findSame(@BindSomething("it") Something something);
 
         @SqlUpdate("insert into something (id, name) values (:s.id, :s.name)")
         int insert(@BindSomething("s") Something something);
