@@ -73,6 +73,13 @@ public class Jdbi
     {
         Objects.requireNonNull(connectionFactory, "null connectionFactory");
         this.connectionFactory = connectionFactory;
+
+        baseConfiguration();
+    }
+
+    private void baseConfiguration()
+    {
+        configure(SqlArrayConfiguration.class, c -> {});
     }
 
     /**

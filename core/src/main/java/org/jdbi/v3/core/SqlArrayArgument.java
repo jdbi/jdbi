@@ -44,8 +44,18 @@ class SqlArrayArgument<T> implements Argument {
 
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-        java.sql.Array sqlArray = statement.getConnection().createArrayOf(typeName, array);
-        ctx.getCleanables().add(sqlArray::free);
-        statement.setArray(position, sqlArray);
+        ArgumentStyle argumentStyle = ctx.findConfiguration(SqlArrayConfiguration.class).getArgumentStyle();
+        switch (argumentStyle) {
+        case SQL_ARRAY:
+            java.sql.Array sqlArray = statement.getConnection().createArrayOf(typeName, array);
+            ctx.getCleanables().add(sqlArray::free);
+            statement.setArray(position, sqlArray);
+            break;
+        case OBJECT_ARRAY:
+            statement.setObject(position, array);
+            break;
+        default:
+            throw new UnsupportedOperationException("Unknown array argument style " + argumentStyle);
+        }
     }
 }
