@@ -16,8 +16,9 @@ package org.jdbi.v3.core;
 import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Collection;
 
+import org.jdbi.v3.core.SqlArrayConfiguration.ArgumentStyle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.SqlArrayType;
 
@@ -36,7 +37,7 @@ class SqlArrayArgument<T> implements Argument {
         }
     }
 
-    SqlArrayArgument(SqlArrayType<T> arrayType, List<T> list) {
+    SqlArrayArgument(SqlArrayType<T> arrayType, Collection<T> list) {
         this.typeName = arrayType.getTypeName();
         this.array = list.stream().map(arrayType::convertArrayElement).toArray();
     }

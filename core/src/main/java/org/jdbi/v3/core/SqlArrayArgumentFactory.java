@@ -14,7 +14,7 @@
 package org.jdbi.v3.core;
 
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
@@ -23,7 +23,7 @@ import org.jdbi.v3.core.util.GenericTypes;
 
 class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         if (erasedType.isArray()) {
@@ -31,10 +31,10 @@ class SqlArrayArgumentFactory implements ArgumentFactory {
             return ctx.findArrayTypeFor(elementType)
                     .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
         }
-        if (List.class.isAssignableFrom(erasedType)) {
-            return GenericTypes.findGenericParameter(type, List.class)
+        if (Collection.class.isAssignableFrom(erasedType)) {
+            return GenericTypes.findGenericParameter(type, Collection.class)
                     .flatMap(ctx::findArrayTypeFor)
-                    .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
+                    .map(arrayType -> new SqlArrayArgument<>(arrayType, (Collection) value));
         }
         return Optional.empty();
     }
