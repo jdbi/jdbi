@@ -35,6 +35,7 @@ public class TestH2SqlArrays {
     private static final GenericType<ArrayList<UUID>> UUID_ARRAYLIST = new GenericType<ArrayList<UUID>>() {};
     private static final GenericType<Set<UUID>> UUID_SET = new GenericType<Set<UUID>>() {};
     private static final GenericType<HashSet<UUID>> UUID_HASHSET = new GenericType<HashSet<UUID>>() {};
+    private static final GenericType<LinkedHashSet<UUID>> UUID_LINKEDHASHSET = new GenericType<LinkedHashSet<UUID>>() {};
 
     private static final String U_SELECT = "SELECT u FROM uuids";
     private static final String U_INSERT = "INSERT INTO uuids VALUES(:u)";
@@ -110,7 +111,7 @@ public class TestH2SqlArrays {
             h.createQuery(U_SELECT)
                 .mapTo(UUID_HASHSET)
                 .findOnly())
-            .containsExactly(testUuids);
+            .containsExactlyInAnyOrder(testUuids);
     }
 
     @Test
@@ -122,7 +123,7 @@ public class TestH2SqlArrays {
             .isEqualTo(1);
         assertThat(
             h.createQuery(U_SELECT)
-                .mapTo(UUID_SET)
+                .mapTo(UUID_LINKEDHASHSET)
                 .findOnly())
             .isInstanceOf(LinkedHashSet.class)
             .containsExactly(testUuids);

@@ -15,11 +15,16 @@ package org.jdbi.v3.core;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
@@ -28,17 +33,22 @@ import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.util.GenericTypes;
 
 class SqlArrayMapperFactory implements ColumnMapperFactory {
-    private final Map<Class<?>, Supplier<List<?>>> listSuppliers = new HashMap<>();
+    private final Map<Class<?>, Supplier<Collection<?>>> suppliers = new HashMap<>();
 
     SqlArrayMapperFactory() {
-        listSuppliers.put(List.class, ArrayList::new);
-        listSuppliers.put(ArrayList.class, ArrayList::new);
-        listSuppliers.put(LinkedList.class, LinkedList::new);
-        listSuppliers.put(CopyOnWriteArrayList.class, CopyOnWriteArrayList::new);
+        suppliers.put(List.class, ArrayList::new);
+        suppliers.put(ArrayList.class, ArrayList::new);
+        suppliers.put(LinkedList.class, LinkedList::new);
+        suppliers.put(CopyOnWriteArrayList.class, CopyOnWriteArrayList::new);
+
+        suppliers.put(Set.class, HashSet::new);
+        suppliers.put(HashSet.class, HashSet::new);
+        suppliers.put(LinkedHashSet.class, LinkedHashSet::new);
+        suppliers.put(TreeSet.class, TreeSet::new);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
         final Class<?> erasedType = GenericTypes.getErasedType(type);
 
@@ -48,11 +58,11 @@ class SqlArrayMapperFactory implements ColumnMapperFactory {
                     .map(elementMapper -> new ArrayColumnMapper(elementMapper, elementType));
         }
 
-        Supplier<List<?>> supplier = listSuppliers.get(erasedType);
+        Supplier<Collection<?>> supplier = suppliers.get(erasedType);
         if (supplier != null) {
-            return GenericTypes.findGenericParameter(type, List.class)
+            return GenericTypes.findGenericParameter(type, Collection.class)
                     .flatMap(elementType -> elementTypeMapper(elementType, ctx))
-                    .map(elementMapper -> new ListColumnMapper(elementMapper, supplier));
+                    .map(elementMapper -> new CollectionColumnMapper(elementMapper, supplier));
         }
 
         return Optional.empty();
