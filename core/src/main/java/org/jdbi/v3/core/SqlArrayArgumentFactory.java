@@ -29,12 +29,12 @@ class SqlArrayArgumentFactory implements ArgumentFactory {
         if (erasedType.isArray()) {
             Class<?> elementType = erasedType.getComponentType();
             return ctx.findArrayTypeFor(elementType)
-                    .map(arrayType -> new SqlArrayArgument(arrayType, value));
+                    .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
         }
         if (List.class.isAssignableFrom(erasedType)) {
             return GenericTypes.findGenericParameter(type, List.class)
                     .flatMap(ctx::findArrayTypeFor)
-                    .map(arrayType -> new SqlArrayArgument(arrayType, (List) value));
+                    .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
         }
         return Optional.empty();
     }
