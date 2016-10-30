@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.unstable;
+package org.jdbi.v3.sqlobject.customizers;
 
 import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 
@@ -34,16 +34,23 @@ import org.jdbi.v3.sqlobject.BindingAnnotation;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
- * Binds an Iterable or array/varargs of any type to a placeholder as a comma-separated list (e.g. for WHERE X IN (...) query statements).
+ * Binds each value in the annotated {@link Iterable} or array/varargs argument, and defines a named attribute as a
+ * comma-separated list of each bound parameter name. Common use cases:
  *
+ * <pre>
+ * &#64;SqlQuery("select * from things where id in (&lt;ids&gt;)")
+ * List&lt;Thing&gt; getThings(@BindIn int... ids)
+ *
+ * &#64;SqlQuery("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+ * void insertThings(@DefineIn List&lt;String&gt; columnNames, @BindIn List&lt;Object&gt; values)
+ * </pre>
+ *
+ * <p>
  * Throws IllegalArgumentException if the argument is not an array or Iterable. How null and empty collections are handled can be configured with onEmpty:EmptyHandling - throws IllegalArgumentException by default.
- *
- * Don't forget to add @UseStringTemplate3StatementLocator to your query class and use the correct placeholder format:
- *  {@literal @}SqlQuery("SELECT * FROM THINGS WHERE ID IN ({@literal <}ids{@literal >})")
- *  abstract Object[] foo({@literal @}BindIn("ids") int[] ids);
- *  ids = [1, 2, 3] -{@literal >} SELECT * FROM THINGS WHERE ID IN (1,2,3)
+ * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
@@ -52,9 +59,12 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 public @interface BindIn
 {
     /**
-     * placeholder in your query to be replaced with comma-separated list
+     * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
+     * the name when there is no parameter naming information in your class files.
+     *
+     * @return the attribute name.
      */
-    String value();
+    String value() default "";
 
     /**
      * what to do when the argument is null or empty
@@ -109,7 +119,7 @@ public @interface BindIn
                 }
             }
 
-            final String key = bindIn.value();
+            final String name = ParameterUtil.getParameterName(bindIn, bindIn.value(), param);
 
             // generate and concat placeholders
             final StringBuilder names = new StringBuilder();
@@ -119,11 +129,11 @@ public @interface BindIn
                 {
                     names.append(",");
                 }
-                names.append(":__").append(key).append("_").append(i);
+                names.append(":__").append(name).append("_").append(i);
             }
             final String ns = names.toString();
 
-            return q -> q.define(key, ns);
+            return q -> q.define(name, ns);
         }
     }
 
@@ -132,9 +142,9 @@ public @interface BindIn
         @Override
         public Binder<BindIn, Object> build(final BindIn bindIn)
         {
-            final String key = bindIn.value();
-
             return (q, param, index, bind, arg) -> {
+                final String name = ParameterUtil.getParameterName(bindIn, bindIn.value(), param);
+
                 if (arg == null || Util.size(arg) == 0)
                 {
                     switch (bindIn.onEmpty())
@@ -144,7 +154,7 @@ public @interface BindIn
                             break;
                         case NULL:
                             // output null
-                            q.bind("__" + key + "_0", (String) null);
+                            q.bind("__" + name + "_0", (String) null);
                             break;
                         case THROW:
                             final Exception inner = new IllegalArgumentException("argument is null; null was explicitly forbidden on this instance of BindIn");
@@ -161,7 +171,7 @@ public @interface BindIn
                     final Iterator<?> it = Util.toIterator(arg);
                     for (int i = 0; it.hasNext(); i++)
                     {
-                        q.bindByType("__" + key + "_" + i, it.next(), elementType);
+                        q.bindByType("__" + name + "_" + i, it.next(), elementType);
                     }
                 }
             };

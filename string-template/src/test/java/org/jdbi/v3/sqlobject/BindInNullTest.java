@@ -14,8 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.NULL;
-import static org.jdbi.v3.sqlobject.unstable.BindIn.EmptyHandling.VOID;
+import static org.jdbi.v3.sqlobject.customizers.BindIn.EmptyHandling.NULL;
+import static org.jdbi.v3.sqlobject.customizers.BindIn.EmptyHandling.VOID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
-import org.jdbi.v3.sqlobject.unstable.BindIn;
+import org.jdbi.v3.sqlobject.customizers.BindIn;
 import org.jdbi.v3.stringtemplate.UseStringTemplateStatementRewriter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -92,11 +92,10 @@ public class BindInNullTest
         assertThat(out).isEmpty();
     }
 
-    @UseStringTemplateStatementRewriter
     public interface SomethingByIterableHandleNull
     {
         @SqlQuery("select id, name from something where name in (<names>)")
-        List<Something> get(@BindIn(value = "names", onEmpty = NULL) Iterable<Object> ids);
+        List<Something> get(@BindIn(onEmpty = NULL) Iterable<Object> names);
     }
 
     //
@@ -131,7 +130,7 @@ public class BindInNullTest
     public interface SomethingByIterableHandleVoid
     {
         @SqlQuery("select id, name from something where id in (<ids>);")
-        List<Something> get(@BindIn(value = "ids", onEmpty = VOID) Iterable<Object> ids);
+        List<Something> get(@BindIn(onEmpty = VOID) Iterable<Object> ids);
     }
 
     public static class SpyingRewriter extends ColonPrefixStatementRewriter

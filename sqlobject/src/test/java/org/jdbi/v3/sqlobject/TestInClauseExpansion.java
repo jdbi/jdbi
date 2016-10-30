@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableSet;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.sqlobject.unstable.BindIn;
+import org.jdbi.v3.sqlobject.customizers.BindIn;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class TestInClauseExpansion
     public interface DAO
     {
         @SqlQuery("select name from something where id in (<names>)")
-        ImmutableSet<String> findIdsForNames(@BindIn("names") List<Integer> names);
+        ImmutableSet<String> findIdsForNames(@BindIn List<Integer> names);
     }
 
 }

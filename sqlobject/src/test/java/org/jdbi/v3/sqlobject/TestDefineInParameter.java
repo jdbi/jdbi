@@ -21,8 +21,7 @@ import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.Define;
 import org.jdbi.v3.sqlobject.customizers.DefineIn;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
-import org.jdbi.v3.sqlobject.unstable.BindIn;
-import org.junit.After;
+import org.jdbi.v3.sqlobject.customizers.BindIn;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -129,16 +128,16 @@ public class TestDefineInParameter
     public interface TestDao
     {
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindIn("values") List<Object> values);
+        void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindIn List<Object> values);
 
         @SqlUpdate("insert into <table> (<columns>) values (:id, :name)")
         void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindBean Something s);
 
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void insert(@Define("table") String table, @DefineIn("columns") Object[] columns, @BindIn("values") List<Object> values);
+        void insert(@Define("table") String table, @DefineIn("columns") Object[] columns, @BindIn List<Object> values);
 
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void defaultedInsert(@Define("table") String table, @DefineIn List<String> columns, @BindIn("values") List<Object> values);
+        void defaultedInsert(@Define("table") String table, @DefineIn List<String> columns, @BindIn List<Object> values);
 
         @SqlQuery("select <columns> from <table> where id = :id")
         Something findById(@DefineIn("columns") List<String> columns, @Define("table") String table, @Bind("id") long id);

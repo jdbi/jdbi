@@ -19,7 +19,7 @@ import java.util.UUID;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
-import org.jdbi.v3.sqlobject.unstable.BindIn;
+import org.jdbi.v3.sqlobject.customizers.BindIn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,9 +69,9 @@ public class TestBindInParameter {
         int broken();
 
         @SqlQuery("select count(*) from foo where bar \\< 12 and id in (<ids>)")
-        int works(@BindIn("ids") List<Long> ids);
+        int works(@BindIn List<Long> ids);
 
         @SqlQuery("select count(*) from foo where id in (<ids>)")
-        int ids(@BindIn("ids") List<Integer> ids);
+        int ids(@BindIn List<Integer> ids);
     }
 }
