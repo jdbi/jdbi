@@ -78,7 +78,7 @@ public class BindInTest
     public interface SomethingWithExplicitAttributeName
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
-        List<Something> get(@BindIn("ids") int... ids);
+        List<Something> get(@BindIn("ids") int... blarg);
     }
 
     //

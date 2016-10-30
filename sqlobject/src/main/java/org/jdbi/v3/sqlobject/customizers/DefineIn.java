@@ -18,6 +18,7 @@ package org.jdbi.v3.sqlobject.customizers;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -93,17 +94,7 @@ public @interface DefineIn
             }
 
             DefineIn d = (DefineIn) annotation;
-            String name = d.value();
-            if (name.isEmpty()) {
-                if (param.isNamePresent()) {
-                    name = param.getName();
-                } else {
-                    throw new UnsupportedOperationException("A @DefineIn parameter was not given a name, "
-                            + "and parameter name data is not present in the class file, for: "
-                            + param.getDeclaringExecutable() + " :: " + param);
-                }
-            }
-            final String key = name;
+            final String name = ParameterUtil.getParameterName(d, d.value(), param);
 
             StringBuilder sb = new StringBuilder();
             boolean firstItem = true;
@@ -118,7 +109,7 @@ public @interface DefineIn
                 }
                 sb.append(o.toString());
             }
-            return q -> q.define(key, sb.toString());
+            return q -> q.define(name, sb.toString());
         }
     }
 }

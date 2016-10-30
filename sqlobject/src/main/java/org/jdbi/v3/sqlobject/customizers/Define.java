@@ -24,6 +24,7 @@ import java.lang.reflect.Parameter;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
  * Defines a named attribute as the argument passed to the annotated parameter. Attributes are stored on the
@@ -49,19 +50,8 @@ public @interface Define
         {
             Define define = (Define) annotation;
 
-            String name = define.value();
-            if (name.isEmpty()) {
-                if (param.isNamePresent()) {
-                    name = param.getName();
-                } else {
-                    throw new UnsupportedOperationException("A @Define parameter was not given a name, "
-                            + "and parameter name data is not present in the class file, for: "
-                            + param.getDeclaringExecutable() + " :: " + param);
-                }
-            }
-
-            final String key = name;
-            return q -> q.define(key, arg);
+            final String name = ParameterUtil.getParameterName(define, define.value(), param);
+            return q -> q.define(name, arg);
         }
     }
 }

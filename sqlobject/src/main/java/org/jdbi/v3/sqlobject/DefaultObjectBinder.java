@@ -20,6 +20,7 @@ import java.util.Iterator;
 import org.jdbi.v3.core.PreparedBatchPart;
 import org.jdbi.v3.core.SqlStatement;
 import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 class DefaultObjectBinder implements Binder<Bind, Object>
 {
@@ -30,18 +31,8 @@ class DefaultObjectBinder implements Binder<Bind, Object>
     @Override
     public void bind(SqlStatement<?> q, Parameter param, int index, Bind b, Object arg)
     {
-        final String bindName;
-        if (b == null || b.value().isEmpty()) {
-            if (param.isNamePresent()) {
-                bindName = param.getName();
-            } else {
-                throw new UnsupportedOperationException("A parameter was not given a name, "
-                        + "and parameter name data is not present in the class file, for: "
-                        + param.getDeclaringExecutable() + " :: " + param);
-            }
-        } else {
-            bindName = b.value();
-        }
+        String nameFromAnnotation = b == null ? "" : b.value();
+        final String name = ParameterUtil.getParameterName(b, nameFromAnnotation, param);
 
         Type type = param.getParameterizedType();
 
@@ -57,6 +48,6 @@ class DefaultObjectBinder implements Binder<Bind, Object>
         }
 
         q.bindByType(index, arg, type);
-        q.bindByType(bindName, arg, type);
+        q.bindByType(name, arg, type);
     }
 }

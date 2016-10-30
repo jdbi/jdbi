@@ -34,16 +34,17 @@ import org.jdbi.v3.sqlobject.BindingAnnotation;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
  * Binds each value in the annotated {@link Iterable} or array/varargs argument, and defines a named attribute as a
  * comma-separated list of each bound parameter name. Common use cases:
  *
  * <pre>
- * &#64;SqlQuery("SELECT * FROM THINGS WHERE ID IN (&lt;ids&gt;)")
+ * &#64;SqlQuery("select * from things where id in (&lt;ids&gt;)")
  * List&lt;Thing&gt; getThings(@BindIn int... ids)
  *
- * &#64;SqlQuery("INSERT INTO THINGS (&lt;columnNames&gt;) VALUES (&lt;values&gt;)")
+ * &#64;SqlQuery("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
  * void insertThings(@DefineIn List&lt;String&gt; columnNames, @BindIn List&lt;Object&gt; values)
  * </pre>
  *
@@ -118,18 +119,7 @@ public @interface BindIn
                 }
             }
 
-            String name = bindIn.value();
-            if (name.isEmpty()) {
-                if (param.isNamePresent()) {
-                    name = param.getName();
-                } else {
-                    throw new UnsupportedOperationException("A @BindIn parameter was not given a name, "
-                            + "and parameter name data is not present in the class file, for: "
-                            + param.getDeclaringExecutable() + " :: " + param);
-                }
-            }
-
-            final String key = name;
+            final String name = ParameterUtil.getParameterName(bindIn, bindIn.value(), param);
 
             // generate and concat placeholders
             final StringBuilder names = new StringBuilder();
@@ -139,11 +129,11 @@ public @interface BindIn
                 {
                     names.append(",");
                 }
-                names.append(":__").append(key).append("_").append(i);
+                names.append(":__").append(name).append("_").append(i);
             }
             final String ns = names.toString();
 
-            return q -> q.define(key, ns);
+            return q -> q.define(name, ns);
         }
     }
 
@@ -153,18 +143,7 @@ public @interface BindIn
         public Binder<BindIn, Object> build(final BindIn bindIn)
         {
             return (q, param, index, bind, arg) -> {
-                String name = bindIn.value();
-                if (name.isEmpty()) {
-                    if (param.isNamePresent()) {
-                        name = param.getName();
-                    } else {
-                        throw new UnsupportedOperationException("A @BindIn parameter was not given a name, "
-                                + "and parameter name data is not present in the class file, for: "
-                                + param.getDeclaringExecutable() + " :: " + param);
-                    }
-                }
-
-                final String key = name;
+                final String name = ParameterUtil.getParameterName(bindIn, bindIn.value(), param);
 
                 if (arg == null || Util.size(arg) == 0)
                 {
@@ -175,7 +154,7 @@ public @interface BindIn
                             break;
                         case NULL:
                             // output null
-                            q.bind("__" + key + "_0", (String) null);
+                            q.bind("__" + name + "_0", (String) null);
                             break;
                         case THROW:
                             final Exception inner = new IllegalArgumentException("argument is null; null was explicitly forbidden on this instance of BindIn");
@@ -192,7 +171,7 @@ public @interface BindIn
                     final Iterator<?> it = Util.toIterator(arg);
                     for (int i = 0; it.hasNext(); i++)
                     {
-                        q.bindByType("__" + key + "_" + i, it.next(), elementType);
+                        q.bindByType("__" + name + "_" + i, it.next(), elementType);
                     }
                 }
             };
