@@ -32,10 +32,22 @@ class SqlArrayArgumentFactory implements ArgumentFactory {
                     .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
         }
         if (Collection.class.isAssignableFrom(erasedType)) {
-            return GenericTypes.findGenericParameter(type, Collection.class)
+            return guessElementType(type, (Collection<?>) value)
                     .flatMap(ctx::findArrayTypeFor)
                     .map(arrayType -> new SqlArrayArgument<>(arrayType, (Collection) value));
         }
         return Optional.empty();
+    }
+
+    private Optional<? extends Type> guessElementType(Type type, Collection<?> value) {
+        Optional<? extends Type> result = GenericTypes.findGenericParameter(type, Collection.class);
+        if (result.isPresent()) {
+            return result;
+        }
+        result = value.stream().map(Object::getClass).findFirst();
+        if (result.isPresent()) {
+            return result;
+        }
+        return Optional.of(Object.class);
     }
 }
