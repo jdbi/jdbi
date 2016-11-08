@@ -19,8 +19,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.jdbi.v3.core.mapper.BeanMapperFactory;
+import org.jdbi.v3.core.mapper.BeanMapper;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -36,6 +39,15 @@ public @interface RegisterBeanMapper
      */
     Class<?>[] value();
 
+    /**
+     * Column name prefix for each bean type. If omitted, defaults to no prefix. If specified, must have the same
+     * number of elements as {@link #value()}. Each <code>prefix</code> element is applied to the <code>value</code>
+     * element at the same index.
+     *
+     * @return Column name prefixes corresponding pairwise to the elements in {@link #value()}.
+     */
+    String[] prefix() default {};
+
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
@@ -50,8 +62,24 @@ public @interface RegisterBeanMapper
         }
 
         private SqlStatementCustomizer create(RegisterBeanMapper annotation) {
-            return statement ->
-                statement.registerRowMapper(new BeanMapperFactory(annotation.value()));
+            Class<?>[] beanClasses = annotation.value();
+            String[] prefixes = annotation.prefix();
+            List<RowMapperFactory> mappers = new ArrayList<>(beanClasses.length);
+            if (prefixes.length == 0) {
+                for (Class<?> beanClass : beanClasses) {
+                    mappers.add(BeanMapper.of(beanClass));
+                }
+            }
+            else if (prefixes.length == beanClasses.length) {
+                for (int i = 0; i < beanClasses.length; i++) {
+                    mappers.add(BeanMapper.of(beanClasses[i], prefixes[i]));
+                }
+            }
+            else {
+                throw new IllegalStateException("RegisterBeanMapper.prefix() must have the same number of elements as value()");
+            }
+
+            return stmt -> mappers.forEach(stmt::registerRowMapper);
         }
     }
 }

@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -22,37 +21,78 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Stream;
 
 import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 
 /**
- * A row mapper which maps the fields in a statement into an object. This uses
- * the reflection to set the fields on the object including its super class fields,
- * it does not support nested properties.
+ * A row mapper which maps the columns in a statement into an object, using reflection
+ * to set fields on the object. All declared fields of the class and its superclasses
+ * may be set. Nested properties are not supported.
  *
- * The class must have a default constructor.
+ * The mapped class must have a default constructor.
  */
 public class FieldMapper<T> implements RowMapper<T>
 {
+    /**
+     * Returns a mapper factory that maps to the given bean class
+     *
+     * @param type the mapped class
+     * @return a mapper factory that maps to the given bean class
+     */
+    public static RowMapperFactory of(Class<?> type) {
+        return of(type, new FieldMapper<>(type));
+    }
+
+    /**
+     * Returns a mapper factory that maps to the given bean class
+     *
+     * @param type the mapped class
+     * @param prefix the column name prefix for each mapped field
+     * @return a mapper factory that maps to the given bean class
+     */
+    public static RowMapperFactory of(Class<?> type, String prefix) {
+        return of(type, new FieldMapper<>(type, prefix));
+    }
+
+    private static RowMapperFactory of(Class<?> type, RowMapper<?> mapper) {
+        return (t, ctx) -> t == type
+                ? Optional.of(mapper)
+                : Optional.empty();
+    }
+
+    static final String DEFAULT_PREFIX = "";
+
     private final Class<T> type;
+    private final String prefix;
     private final ConcurrentMap<String, Optional<Field>> fieldByNameCache = new ConcurrentHashMap<>();
     private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
     public FieldMapper(Class<T> type)
     {
-        this(type, BeanMapper.DEFAULT_STRATEGIES);
+        this(type, DEFAULT_PREFIX);
+    }
+
+    public FieldMapper(Class<T> type, String prefix)
+    {
+        this(type, prefix, BeanMapper.DEFAULT_STRATEGIES);
     }
 
     public FieldMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
     {
+        this(type, DEFAULT_PREFIX, nameMappingStrategies);
+    }
+
+    public FieldMapper(Class<T> type,
+                       String prefix,
+                       Collection<ColumnNameMappingStrategy> nameMappingStrategies)
+    {
         this.type = type;
+        this.prefix = prefix;
         this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
     }
 
@@ -60,9 +100,9 @@ public class FieldMapper<T> implements RowMapper<T>
     public T map(ResultSet rs, StatementContext ctx)
             throws SQLException
     {
-        T bean;
+        T obj;
         try {
-            bean = type.newInstance();
+            obj = type.newInstance();
         }
         catch (Exception e) {
             throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
@@ -73,6 +113,16 @@ public class FieldMapper<T> implements RowMapper<T>
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i).toLowerCase();
+
+            if (prefix.length() > 0) {
+                if (name.length() > prefix.length() &&
+                        name.regionMatches(true, 0, prefix, 0, prefix.length())) {
+                    name = name.substring(prefix.length());
+                }
+                else {
+                    continue;
+                }
+            }
 
             Optional<Field> maybeField = fieldByNameCache.computeIfAbsent(name, this::fieldByColumn);
 
@@ -95,7 +145,7 @@ public class FieldMapper<T> implements RowMapper<T>
             try
             {
                 field.setAccessible(true);
-                field.set(bean, value);
+                field.set(obj, value);
             }
             catch (IllegalAccessException e) {
                 throw new IllegalArgumentException(String.format("Unable to access " +
@@ -103,7 +153,7 @@ public class FieldMapper<T> implements RowMapper<T>
             }
         }
 
-        return bean;
+        return obj;
     }
 
     private Optional<Field> fieldByColumn(String columnName)

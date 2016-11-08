@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.util.GenericTypes;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 
 /**
@@ -43,13 +42,87 @@ import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
  */
 public class ConstructorMapper<T> implements RowMapper<T>
 {
+
+    /**
+     * Use a {@code Constructor<T>} to map its declaring type.
+     */
+    public static RowMapperFactory of(Constructor<?> constructor) {
+        return of(constructor, DEFAULT_PREFIX);
+    }
+
+    /**
+     * Use a {@code Constructor<T>} to map its declaring type.
+     */
+    public static RowMapperFactory of(Constructor<?> constructor, String prefix) {
+        return of(constructor, prefix, BeanMapper.DEFAULT_STRATEGIES);
+    }
+
+    /**
+     * Use the only declared constructor to map a class.
+     */
+    public static RowMapperFactory of(Class<?> clazz) {
+        return of(clazz, DEFAULT_PREFIX);
+    }
+
+    /**
+     * Use the only declared constructor to map a class.
+     */
+    public static RowMapperFactory of(Class<?> clazz, String prefix) {
+        return of(clazz, prefix, BeanMapper.DEFAULT_STRATEGIES);
+    }
+
+    /**
+     * Use the only declared constructor to map a class, and specify the name mapping strategy.
+     */
+    public static RowMapperFactory of(Class<?> clazz, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
+        return of(findOnlyConstructor(clazz), DEFAULT_PREFIX, nameMappingStrategies);
+    }
+
+    /**
+     * Use the only declared constructor to map a class, and specify the name mapping strategy.
+     */
+    public static RowMapperFactory of(Class<?> clazz, String prefix, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
+        return of(findOnlyConstructor(clazz), prefix, nameMappingStrategies);
+    }
+
+    /**
+     * Use a {@code Constructor<T>} to map its declaring type, and specify the name mapping strategy.
+     */
+    public static RowMapperFactory of(Constructor<?> constructor, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
+        return of(constructor, DEFAULT_PREFIX, nameMappingStrategies);
+    }
+
+    /**
+     * Use a {@code Constructor<T>} to map its declaring type, and specify the name mapping strategy.
+     */
+    public static RowMapperFactory of(Constructor<?> constructor, String prefix, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
+        final Class<?> type = constructor.getDeclaringClass();
+        final RowMapper<?> mapper = new ConstructorMapper<>(constructor, prefix, nameMappingStrategies);
+        return (t, ctx) -> t == type ? Optional.of(mapper) : Optional.empty();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Constructor<T> findOnlyConstructor(Class<T> type) {
+        final Constructor<?>[] constructors = type.getDeclaredConstructors();
+        if (constructors.length != 1) {
+            throw new IllegalArgumentException(type + " must have exactly one constructor, or specify it explicitly");
+        }
+        return (Constructor<T>) constructors[0];
+    }
+
+    static final String DEFAULT_PREFIX = "";
+
     private final Constructor<T> constructor;
     private final ConcurrentMap<List<String>, Factory<T>> factoryCache = new ConcurrentHashMap<>();
+    private final String prefix;
     private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
-    private ConstructorMapper(Constructor<T> constructor, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
+    private ConstructorMapper(Constructor<T> constructor,
+                              String prefix,
+                              Collection<ColumnNameMappingStrategy> nameMappingStrategies)
     {
         this.constructor = constructor;
+        this.prefix = prefix;
         this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
     }
 
@@ -118,8 +191,19 @@ public class ConstructorMapper<T> implements RowMapper<T>
     {
         int result = -1;
         for (int i = 0; i < columnNames.size(); i++) {
+            String name = columnNames.get(i);
+            if (prefix.length() > 0) {
+                if (name.length() > prefix.length() &&
+                        name.regionMatches(true, 0, prefix, 0, prefix.length())) {
+                    name = name.substring(prefix.length());
+                }
+                else {
+                    continue;
+                }
+            }
+
             for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                if (strategy.nameMatches(parameterName, columnNames.get(i))) {
+                if (strategy.nameMatches(parameterName, name)) {
                     if (result >= 0) {
                         throw new IllegalArgumentException(String.format(
                                 "Constructor '%s' parameter '%s' matches multiple " +
@@ -153,49 +237,5 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
     interface Factory<T> {
         T create(ResultSet rs) throws SQLException;
-    }
-
-
-    @SuppressWarnings("unchecked")
-    private static <T> Constructor<T> findOnlyConstructor(Class<T> type) {
-        final Constructor<?>[] constructors = type.getDeclaredConstructors();
-        if (constructors.length != 1) {
-            throw new IllegalArgumentException(type + " must have exactly one constructor, or specify it explicitly");
-        }
-        return (Constructor<T>) constructors[0];
-    }
-
-    /**
-     * Use a {@code Constructor<T>} to map its declaring type.
-     */
-    public static RowMapperFactory of(Constructor<?> constructor) {
-        return of(constructor, BeanMapper.DEFAULT_STRATEGIES);
-    }
-
-    /**
-     * Use the only declared constructor to map a class.
-     */
-    public static RowMapperFactory of(Class<?> clazz) {
-        return of(clazz, BeanMapper.DEFAULT_STRATEGIES);
-    }
-
-    /**
-     * Use the only declared constructor to map a class, and specify the name mapping strategy.
-     */
-    public static RowMapperFactory of(Class<?> clazz, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
-        return of(findOnlyConstructor(clazz), nameMappingStrategies);
-    }
-
-    /**
-     * Use a {@code Constructor<T>} to map its declaring type, and specify the name mapping strategy.
-     */
-    public static RowMapperFactory of(Constructor<?> constructor, Collection<ColumnNameMappingStrategy> nameMappingStrategies) {
-        final RowMapper<?> mapper = new ConstructorMapper<>(constructor, nameMappingStrategies);
-        return new RowMapperFactory() {
-            @Override
-            public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
-                return GenericTypes.getErasedType(type) == constructor.getDeclaringClass() ? Optional.of(mapper) : Optional.empty();
-            }
-        };
     }
 }

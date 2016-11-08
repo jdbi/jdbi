@@ -24,12 +24,11 @@ import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.ValueTypeMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestBeanMapperFactory
+public class TestBeanMapper
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -47,26 +46,16 @@ public class TestBeanMapperFactory
         }
     }
 
-    public enum TestEnum {
-        foo,
-        bar
-    }
-
-    @RegisterBeanMapper(TestBean.class)
     @RegisterColumnMapper(ValueTypeMapper.class)
     public interface TestDao
     {
         @SqlQuery("select * from testBean")
+        @RegisterBeanMapper(TestBean.class)
         List<TestBean> listBeans();
 
-        @SqlQuery("select * from testBean")
-        List<String> listStrings();
-
-        @SqlQuery("select * from testBean")
-        List<TestEnum> listEnums();
-
-        @SqlQuery("select * from testBean")
-        List<ValueType> listValueTypes();
+        @SqlQuery("select valueType as bean_value_type from testBean")
+        @RegisterBeanMapper(value=TestBean.class, prefix="bean_")
+        List<TestBean> listBeansPrefix();
     }
 
     Handle h;
@@ -79,11 +68,6 @@ public class TestBeanMapperFactory
         dao = h.attach(TestDao.class);
     }
 
-    @After
-    public void dropTable() {
-        h.createUpdate("drop table testBean").execute();
-    }
-
     @Test
     public void testMapBean() {
         h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
@@ -93,21 +77,10 @@ public class TestBeanMapperFactory
     }
 
     @Test
-    public void testBuiltInColumnMappers() {
+    public void testMapBeanPrefix() {
         h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
 
-        List<String> strings = dao.listStrings();
-        assertThat(strings).containsExactly("foo");
-
-        List<TestEnum> enums = dao.listEnums();
-        assertThat(enums).containsExactly(TestEnum.foo);
-    }
-
-    @Test
-    public void testCustomColumnMapper() {
-        h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
-
-        List<ValueType> valueTypes = dao.listValueTypes();
-        assertThat(valueTypes).containsExactly(ValueType.valueOf("foo"));
+        List<TestBean> beans = dao.listBeansPrefix();
+        assertThat(beans).extracting(TestBean::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 }

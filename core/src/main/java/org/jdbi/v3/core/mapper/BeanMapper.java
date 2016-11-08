@@ -39,13 +39,44 @@ import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 import org.jdbi.v3.core.util.bean.SnakeCaseColumnNameStrategy;
 
 /**
- * A row mapper which maps the fields in a statement into a JavaBean. The default implementation will perform a
- * case insensitive mapping between the bean property names and the column labels, also considering camel-case to
- * underscores conversion. This uses the JDK's built in bean mapping facilities, so it does not support nested
+ * A row mapper which maps the columns in a statement into a JavaBean. The default
+ * implementation will perform a case insensitive mapping between the bean property
+ * names and the column labels, also considering camel-case to underscores conversion.
+ * This uses the JDK's built in bean mapping facilities, so it does not support nested
  * properties.
+ *
+ * The mapped class must have a default constructor.
  */
 public class BeanMapper<T> implements RowMapper<T>
 {
+    /**
+     * Returns a mapper factory that maps to the given bean class
+     *
+     * @param type the mapped class
+     * @return a mapper factory that maps to the given bean class
+     */
+    public static RowMapperFactory of(Class<?> type) {
+        return of(type, new BeanMapper<>(type));
+    }
+
+    /**
+     * Returns a mapper factory that maps to the given bean class
+     *
+     * @param type the mapped class
+     * @param prefix the column name prefix for each mapped bean property
+     * @return a mapper factory that maps to the given bean class
+     */
+    public static RowMapperFactory of(Class<?> type, String prefix) {
+        return of(type, new BeanMapper<>(type, prefix));
+    }
+
+    private static RowMapperFactory of(Class<?> type, RowMapper<?> mapper) {
+        return (t, ctx) -> t == type
+                ? Optional.of(mapper)
+                : Optional.empty();
+    }
+
+    static final String DEFAULT_PREFIX = "";
     static final Collection<ColumnNameMappingStrategy> DEFAULT_STRATEGIES =
             Collections.unmodifiableList(Arrays.asList(
                     CaseInsensitiveColumnNameStrategy.INSTANCE,
@@ -53,18 +84,30 @@ public class BeanMapper<T> implements RowMapper<T>
             ));
 
     private final Class<T> type;
+    private final String prefix;
     private final BeanInfo info;
     private final ConcurrentMap<String, Optional<PropertyDescriptor>> descriptorByColumnCache = new ConcurrentHashMap<>();
     private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
     public BeanMapper(Class<T> type)
     {
-        this(type, DEFAULT_STRATEGIES);
+        this(type, DEFAULT_PREFIX, DEFAULT_STRATEGIES);
+    }
+
+    public BeanMapper(Class<T> type, String prefix)
+    {
+        this(type, prefix, DEFAULT_STRATEGIES);
     }
 
     public BeanMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
     {
+        this(type, DEFAULT_PREFIX, nameMappingStrategies);
+    }
+
+    public BeanMapper(Class<T> type, String prefix, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
+    {
         this.type = type;
+        this.prefix = prefix;
         this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
         try
         {
@@ -92,6 +135,16 @@ public class BeanMapper<T> implements RowMapper<T>
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i);
+
+            if (prefix.length() > 0) {
+                if (name.length() > prefix.length() &&
+                        name.regionMatches(true, 0, prefix, 0, prefix.length())) {
+                    name = name.substring(prefix.length());
+                }
+                else {
+                    continue;
+                }
+            }
 
             final Optional<PropertyDescriptor> maybeDescriptor =
                     descriptorByColumnCache.computeIfAbsent(name, this::descriptorForColumn);
@@ -157,4 +210,3 @@ public class BeanMapper<T> implements RowMapper<T>
                 .orElseGet(descriptor::getName);
     }
 }
-
