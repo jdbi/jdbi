@@ -119,6 +119,7 @@ class BasicHandle implements Handle
     @Override
     public void close()
     {
+        sqlObjectContext.remove();
         if (!closed) {
             try {
                 statementBuilder.close(getConnection());
