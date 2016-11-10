@@ -20,7 +20,7 @@ import org.jdbi.v3.core.HandleSupplier;
  *
  * @param <C> extension config class
  */
-public interface ExtensionFactory<C extends ExtensionConfig<C>> {
+public interface ExtensionFactory<C extends JdbiConfig<C>> {
     /**
      * @return a new default configuration for this extension factory.
      */

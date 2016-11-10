@@ -29,7 +29,7 @@ import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
-import org.jdbi.v3.core.extension.ExtensionConfig;
+import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -55,7 +55,7 @@ public class Handle implements Closeable
 {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
-    protected final JdbiConfig config;
+    protected final ConfigRegistry config;
     protected StatementBuilder statementBuilder;
     private boolean closed = false;
     protected final TransactionHandler transactions;
@@ -63,7 +63,7 @@ public class Handle implements Closeable
 
     private ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
 
-    Handle(JdbiConfig config,
+    Handle(ConfigRegistry config,
             TransactionHandler transactions,
             StatementBuilder preparedStatementCache,
             Connection connection)
@@ -92,12 +92,12 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle define(String key, Object value) {
-        config.statementAttributes.put(key, value);
+        config.get(SqlStatementConfig.class).getAttributes().put(key, value);
         return this;
     }
 
     public Handle registerArgumentFactory(ArgumentFactory argumentFactory) {
-        config.argumentRegistry.register(argumentFactory);
+        config.get(ArgumentRegistry.class).registerArgumentFactory(argumentFactory);
         return this;
     }
 
@@ -111,7 +111,7 @@ public class Handle implements Closeable
      */
     public Handle registerArrayType(Class<?> elementType, String sqlTypeName)
     {
-        config.argumentRegistry.registerArrayType(elementType, sqlTypeName);
+        config.get(ArgumentRegistry.class).registerArrayType(elementType, sqlTypeName);
         return this;
     }
 
@@ -128,7 +128,7 @@ public class Handle implements Closeable
      */
     public Handle registerArrayType(SqlArrayType<?> arrayType)
     {
-        config.argumentRegistry.registerArrayType(arrayType);
+        config.get(ArgumentRegistry.class).registerArrayType(arrayType);
         return this;
     }
 
@@ -141,12 +141,12 @@ public class Handle implements Closeable
      */
     public Handle registerArrayType(SqlArrayTypeFactory factory)
     {
-        config.argumentRegistry.registerArrayType(factory);
+        config.get(ArgumentRegistry.class).registerArrayType(factory);
         return this;
     }
 
     public Handle registerCollectorFactory(CollectorFactory factory) {
-        config.collectorRegistry.register(factory);
+        config.get(CollectorRegistry.class).register(factory);
         return this;
     }
 
@@ -162,7 +162,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle registerColumnMapper(ColumnMapper<?> mapper) {
-        config.mappingRegistry.addColumnMapper(mapper);
+        config.get(MappingRegistry.class).addColumnMapper(mapper);
         return this;
     }
 
@@ -175,12 +175,12 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle registerColumnMapper(ColumnMapperFactory factory) {
-        config.mappingRegistry.addColumnMapper(factory);
+        config.get(MappingRegistry.class).addColumnMapper(factory);
         return this;
     }
 
     public Handle registerExtension(ExtensionFactory<?> factory) {
-        config.extensionRegistry.register(factory);
+        config.get(ExtensionRegistry.class).register(factory);
         return this;
     }
 
@@ -196,7 +196,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle registerRowMapper(RowMapper<?> mapper) {
-        config.mappingRegistry.addRowMapper(mapper);
+        config.get(MappingRegistry.class).addRowMapper(mapper);
         return this;
     }
 
@@ -209,7 +209,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle registerRowMapper(RowMapperFactory factory) {
-        config.mappingRegistry.addRowMapper(factory);
+        config.get(MappingRegistry.class).addRowMapper(factory);
         return this;
     }
 
@@ -231,7 +231,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle setStatementRewriter(StatementRewriter rewriter) {
-        config.statementRewriter = rewriter;
+        config.get(SqlStatementConfig.class).setStatementRewriter(rewriter);;
         return this;
     }
 
@@ -243,12 +243,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle setTimingCollector(final TimingCollector timingCollector) {
-        if (timingCollector == null) {
-            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
-        }
-        else {
-            config.timingCollector = timingCollector;
-        }
+        config.get(SqlStatementConfig.class).setTimingCollector(timingCollector);
         return this;
     }
 
@@ -343,7 +338,7 @@ public class Handle implements Closeable
      * @see Handle#prepareBatch(String)
      */
     public Batch createBatch() {
-        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry batchConfig = config.createChild();
         return new Batch(batchConfig,
                          this.connection,
                          new StatementContext(batchConfig, extensionMethod.get()));
@@ -357,7 +352,7 @@ public class Handle implements Closeable
      * @return a batch which can have "statements" added
      */
     public PreparedBatch prepareBatch(String sql) {
-        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry batchConfig = config.createChild();
         return new PreparedBatch(batchConfig,
                                  this,
                                  statementBuilder,
@@ -374,7 +369,7 @@ public class Handle implements Closeable
      * @return the Call
      */
     public Call createCall(String sql) {
-        JdbiConfig callConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry callConfig = config.createChild();
         return new Call(callConfig,
                         this,
                         statementBuilder,
@@ -390,7 +385,7 @@ public class Handle implements Closeable
      * @return the Query
      */
     public Query<Map<String, Object>> createQuery(String sql) {
-        JdbiConfig queryConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry queryConfig = config.createChild();
         return new Query<>(queryConfig,
                 new Binding(),
                 new DefaultMapper(),
@@ -420,7 +415,7 @@ public class Handle implements Closeable
      * @return the Update
      */
     public Update createUpdate(String sql) {
-        JdbiConfig updateConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry updateConfig = config.createChild();
         return new Update(updateConfig,
                           this,
                           statementBuilder,
@@ -648,12 +643,12 @@ public class Handle implements Closeable
      * @return the new extension object bound to this handle
      */
     public <T> T attach(Class<T> extensionType) {
-        return config.extensionRegistry.findExtensionFor(extensionType, ConstantHandleSupplier.of(this))
+        return config.get(ExtensionRegistry.class).findExtensionFor(extensionType, ConstantHandleSupplier.of(this))
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 
-    public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        config.extensionRegistry.configure(configClass, consumer);
+    public <C extends JdbiConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
+        config.get(ExtensionRegistry.class).configure(configClass, consumer);
     }
 
     public ExtensionMethod getExtensionMethod() {

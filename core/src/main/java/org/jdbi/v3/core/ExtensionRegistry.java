@@ -13,29 +13,20 @@
  */
 package org.jdbi.v3.core;
 
-import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
+import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-import org.jdbi.v3.core.extension.ExtensionConfig;
 import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 
-class ExtensionRegistry {
-    static ExtensionRegistry copyOf(ExtensionRegistry registry) {
-        return new ExtensionRegistry(registry.factories);
-    }
-
-    private static class Entry<C extends ExtensionConfig<C>> {
-        static <C extends ExtensionConfig<C>> Entry<C> copyOf(Entry<C> entry) {
-            return new Entry<>(entry.factory, entry.config.createCopy());
-        }
-
+public class ExtensionRegistry implements JdbiConfig<ExtensionRegistry> {
+    private static class Entry<C extends JdbiConfig<C>> {
         final ExtensionFactory<C> factory;
         final C config;
 
@@ -45,40 +36,43 @@ class ExtensionRegistry {
         }
 
         <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-            return factory.attach(extensionType, config.createCopy(), handle);
+            return factory.attach(extensionType, config.createChild(), handle);
         }
     }
 
-    private final List<Entry<? extends ExtensionConfig<?>>> factories;
+    private final Optional<ExtensionRegistry> parent;
+    private final List<Entry<? extends JdbiConfig<?>>> factories = new CopyOnWriteArrayList<>();
 
-    ExtensionRegistry() {
-        this.factories = new CopyOnWriteArrayList<>();
+    public ExtensionRegistry() {
+        this.parent = Optional.empty();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"}) // working around https://bugs.eclipse.org/bugs/show_bug.cgi?id=499197
-    ExtensionRegistry(List<Entry<? extends ExtensionConfig<?>>> factories) {
-        this.factories = (List) factories.stream()
-                .map(e -> Entry.copyOf((Entry)e))
-                .collect(toCollection(CopyOnWriteArrayList::new));
+    private ExtensionRegistry(ExtensionRegistry that) {
+        this.parent = Optional.of(that);
     }
 
-    <C extends ExtensionConfig<C>> void register(ExtensionFactory<C> factory) {
+    public <C extends JdbiConfig<C>> void register(ExtensionFactory<C> factory) {
         factories.add(0, new Entry<>(factory, factory.createConfig()));
     }
 
-    boolean hasExtensionFor(Class<?> extensionType) {
-        return factories.stream()
-                .anyMatch(entry -> entry.factory.accepts(extensionType));
+    public boolean hasExtensionFor(Class<?> extensionType) {
+        return findEntryFor(extensionType).isPresent();
     }
 
-    <E> Optional<E> findExtensionFor(Class<E> extensionType, HandleSupplier handle) {
-        return factories.stream()
-                .filter(entry -> entry.factory.accepts(extensionType))
-                .map(entry -> extensionType.cast(entry.attach(extensionType, handle)))
-                .findFirst();
+    public <E> Optional<E> findExtensionFor(Class<E> extensionType, HandleSupplier handle) {
+        return findEntryFor(extensionType)
+                .map(entry -> extensionType.cast(entry.attach(extensionType, handle)));
     }
 
-    <C extends ExtensionConfig<C>> void configure(Class<C> configClass, Consumer<C> consumer) {
+    private Optional<ExtensionRegistry.Entry<?>> findEntryFor(Class<?> extensionType) {
+        return findFirstPresent(
+                () -> factories.stream()
+                        .filter(entry -> entry.factory.accepts(extensionType))
+                        .findFirst(),
+                () -> parent.flatMap(p -> p.findEntryFor(extensionType)));
+    }
+
+    public <C extends JdbiConfig<C>> void configure(Class<C> configClass, Consumer<C> consumer) {
         List<C> configs = factories.stream()
                 .map(entry -> entry.config)
                 .filter(configClass::isInstance)
@@ -90,5 +84,10 @@ class ExtensionRegistry {
         }
 
         configs.forEach(consumer::accept);
+    }
+
+    @Override
+    public ExtensionRegistry createChild() {
+        return new ExtensionRegistry(this);
     }
 }

@@ -40,8 +40,8 @@ public class TestTimingCollector
         tc = new TTC();
 
         Connection conn = db.openHandle().getConnection();
-        JdbiConfig config = new JdbiConfig();
-        config.timingCollector = tc;
+        ConfigRegistry config = new ConfigRegistry();
+        config.get(SqlStatementConfig.class).setTimingCollector(tc);
         return new Handle(config, new LocalTransactionHandler(), new DefaultStatementBuilder(), conn);
     }
 

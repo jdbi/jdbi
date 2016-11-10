@@ -44,7 +44,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
 {
     private final RowMapper<ResultType> mapper;
 
-    Query(JdbiConfig config,
+    Query(ConfigRegistry config,
           Binding params,
           RowMapper<ResultType> mapper,
           Handle handle,

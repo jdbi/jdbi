@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.core.mapper.BuiltInMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
@@ -31,28 +32,23 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.util.SingleColumnMapper;
 
-class MappingRegistry
-{
+public class MappingRegistry implements JdbiConfig<MappingRegistry> {
+    private final Optional<MappingRegistry> parent;
+
     private final List<RowMapperFactory> rowFactories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, RowMapper<?>> rowCache = new ConcurrentHashMap<>();
 
     private final List<ColumnMapperFactory> columnFactories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, ColumnMapper<?>> columnCache = new ConcurrentHashMap<>();
 
-    MappingRegistry() {
+    public MappingRegistry() {
+        parent = Optional.empty();
         columnFactories.add(new BuiltInMapperFactory());
         columnFactories.add(new SqlArrayMapperFactory());
     }
 
     private MappingRegistry(MappingRegistry that) {
-        rowFactories.addAll(that.rowFactories);
-        rowCache.putAll(that.rowCache);
-        columnFactories.addAll(that.columnFactories);
-        columnCache.putAll(that.columnCache);
-    }
-
-    static MappingRegistry copyOf(MappingRegistry registry) {
-        return new MappingRegistry(registry);
+        parent = Optional.of(that);
     }
 
     public void addRowMapper(RowMapper<?> mapper)
@@ -81,7 +77,8 @@ class MappingRegistry
                         .flatMap(factory -> toStream(factory.build(type, ctx)))
                         .findFirst(),
                 () -> findColumnMapperFor(type, ctx)
-                        .map(c -> new SingleColumnMapper<>(c)));
+                        .map(c -> new SingleColumnMapper<>(c)),
+                () -> parent.flatMap(p -> p.findRowMapperFor(type, ctx)));
 
         mapper.ifPresent(m -> rowCache.put(type, m));
 
@@ -108,12 +105,20 @@ class MappingRegistry
             return Optional.of(cached);
         }
 
-        Optional<ColumnMapper<?>> mapper = columnFactories.stream()
-                .flatMap(factory -> toStream(factory.build(type, ctx)))
-                .findFirst();
+
+        Optional<ColumnMapper<?>> mapper = findFirstPresent(
+                () -> columnFactories.stream()
+                        .flatMap(factory -> toStream(factory.build(type, ctx)))
+                        .findFirst(),
+                () -> parent.flatMap(p -> p.findColumnMapperFor(type, ctx)));
 
         mapper.ifPresent(m -> columnCache.put(type, m));
 
         return mapper;
+    }
+
+    @Override
+    public MappingRegistry createChild() {
+        return new MappingRegistry(this);
     }
 }

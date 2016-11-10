@@ -25,18 +25,18 @@ import org.jdbi.v3.core.statement.StatementCustomizer;
 
 abstract class BaseStatement implements Closeable
 {
-    final JdbiConfig config;
+    final ConfigRegistry config;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
     private final StatementContext context;
 
-    BaseStatement(JdbiConfig config, StatementContext context)
+    BaseStatement(ConfigRegistry config, StatementContext context)
     {
         this.config = config;
         this.context = context;
     }
 
     final ArgumentRegistry getArgumentRegistry() {
-        return config.argumentRegistry;
+        return config.get(ArgumentRegistry.class);
     }
 
     /**

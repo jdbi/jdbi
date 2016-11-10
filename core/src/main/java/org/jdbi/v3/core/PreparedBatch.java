@@ -48,7 +48,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
     private final List<PreparedBatchPart> parts = new ArrayList<>();
     private Binding currentBinding;
 
-    PreparedBatch(JdbiConfig config,
+    PreparedBatch(ConfigRegistry config,
                   Handle handle,
                   StatementBuilder statementBuilder,
                   String sql,

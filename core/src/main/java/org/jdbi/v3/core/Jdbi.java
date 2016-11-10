@@ -33,7 +33,7 @@ import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.core.extension.ExtensionCallback;
-import org.jdbi.v3.core.extension.ExtensionConfig;
+import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
@@ -61,7 +61,7 @@ public class Jdbi
 {
     private static final Logger LOG = LoggerFactory.getLogger(Jdbi.class);
 
-    private final JdbiConfig config = new JdbiConfig();
+    private final ConfigRegistry config = new ConfigRegistry();
 
     private final ConnectionFactory connectionFactory;
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(new LocalTransactionHandler());
@@ -248,13 +248,13 @@ public class Jdbi
     public Jdbi setStatementRewriter(StatementRewriter rewriter)
     {
         Objects.requireNonNull(rewriter, "null statement rewriter");
-        config.statementRewriter = rewriter;
+        config.get(SqlStatementConfig.class).setStatementRewriter(rewriter);
         return this;
     }
 
     public StatementRewriter getStatementRewriter()
     {
-        return config.statementRewriter;
+        return config.get(SqlStatementConfig.class).getStatementRewriter();
     }
 
     /**
@@ -290,23 +290,18 @@ public class Jdbi
      * @return this
      */
     public Jdbi setTimingCollector(final TimingCollector timingCollector) {
-        if (timingCollector == null) {
-            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
-        }
-        else {
-            config.timingCollector = timingCollector;
-        }
+        config.get(SqlStatementConfig.class).setTimingCollector(timingCollector);
         return this;
     }
 
     public TimingCollector getTimingCollector()
     {
-        return config.timingCollector;
+        return config.get(SqlStatementConfig.class).getTimingCollector();
     }
 
     public Jdbi registerArgumentFactory(ArgumentFactory argumentFactory)
     {
-        config.argumentRegistry.register(argumentFactory);
+        config.get(ArgumentRegistry.class).registerArgumentFactory(argumentFactory);
         return this;
     }
 
@@ -320,7 +315,7 @@ public class Jdbi
      */
     public Jdbi registerArrayType(Class<?> elementType, String sqlTypeName)
     {
-        config.argumentRegistry.registerArrayType(elementType, sqlTypeName);
+        config.get(ArgumentRegistry.class).registerArrayType(elementType, sqlTypeName);
         return this;
     }
 
@@ -337,7 +332,7 @@ public class Jdbi
      */
     public Jdbi registerArrayType(SqlArrayType<?> arrayType)
     {
-        config.argumentRegistry.registerArrayType(arrayType);
+        config.get(ArgumentRegistry.class).registerArrayType(arrayType);
         return this;
     }
 
@@ -350,24 +345,24 @@ public class Jdbi
      */
     public Jdbi registerArrayType(SqlArrayTypeFactory factory)
     {
-        config.argumentRegistry.registerArrayType(factory);
+        config.get(ArgumentRegistry.class).registerArrayType(factory);
         return this;
     }
 
     public Jdbi registerCollectorFactory(CollectorFactory collectorFactory)
     {
-        config.collectorRegistry.register(collectorFactory);
+        config.get(CollectorRegistry.class).register(collectorFactory);
         return this;
     }
 
     public Jdbi registerExtension(ExtensionFactory<?> extensionFactory)
     {
-        config.extensionRegistry.register(extensionFactory);
+        config.get(ExtensionRegistry.class).register(extensionFactory);
         return this;
     }
 
-    public <C extends ExtensionConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        config.extensionRegistry.configure(configClass, consumer);
+    public <C extends JdbiConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer) {
+        config.get(ExtensionRegistry.class).configure(configClass, consumer);
         return this;
     }
 
@@ -380,7 +375,7 @@ public class Jdbi
      * @return this
      */
     public Jdbi registerColumnMapper(ColumnMapper<?> mapper) {
-        config.mappingRegistry.addColumnMapper(mapper);
+        config.get(MappingRegistry.class).addColumnMapper(mapper);
         return this;
     }
 
@@ -393,7 +388,7 @@ public class Jdbi
      * @return this
      */
     public Jdbi registerColumnMapper(ColumnMapperFactory factory) {
-        config.mappingRegistry.addColumnMapper(factory);
+        config.get(MappingRegistry.class).addColumnMapper(factory);
         return this;
     }
 
@@ -406,7 +401,7 @@ public class Jdbi
      * @return this
      */
     public Jdbi registerRowMapper(RowMapper<?> mapper) {
-        config.mappingRegistry.addRowMapper(mapper);
+        config.get(MappingRegistry.class).addRowMapper(mapper);
         return this;
     }
 
@@ -419,7 +414,7 @@ public class Jdbi
      * @return this
      */
     public Jdbi registerRowMapper(RowMapperFactory factory) {
-        config.mappingRegistry.addRowMapper(factory);
+        config.get(MappingRegistry.class).addRowMapper(factory);
         return this;
     }
 
@@ -433,7 +428,7 @@ public class Jdbi
      */
     public Jdbi define(String key, Object value)
     {
-        config.statementAttributes.put(key, value);
+        config.get(SqlStatementConfig.class).getAttributes().put(key, value);
         return this;
     }
 
@@ -454,7 +449,7 @@ public class Jdbi
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new Handle(JdbiConfig.copyOf(config), transactionhandler.get(), cache, conn);
+            Handle h = new Handle(config.createChild(), transactionhandler.get(), cache, conn);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
@@ -551,7 +546,7 @@ public class Jdbi
             throws NoSuchExtensionException, X
     {
         try (LazyHandleSupplier handle = new LazyHandleSupplier(this)) {
-            E extension = config.extensionRegistry.findExtensionFor(extensionType, handle)
+            E extension = config.get(ExtensionRegistry.class).findExtensionFor(extensionType, handle)
                     .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
 
             return callback.withExtension(extension);
@@ -591,7 +586,7 @@ public class Jdbi
         if (!Modifier.isPublic(extensionType.getModifiers())) {
             throw new IllegalArgumentException("On-demand extensions types must be public.");
         }
-        if (!config.extensionRegistry.hasExtensionFor(extensionType)) {
+        if (!config.get(ExtensionRegistry.class).hasExtensionFor(extensionType)) {
             throw new NoSuchExtensionException("Extension not found: " + extensionType);
         }
 

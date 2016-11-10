@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
+
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
@@ -21,24 +23,27 @@ import java.util.stream.Collector;
 
 import org.jdbi.v3.core.collector.BuiltInCollectorFactories;
 import org.jdbi.v3.core.collector.CollectorFactory;
+import org.jdbi.v3.core.extension.JdbiConfig;
 
 /**
  * Registry of collector factories.
  * Contains a set of collector factories, registered by the application.
  */
-class CollectorFactoryRegistry {
+public class CollectorRegistry implements JdbiConfig<CollectorRegistry> {
 
+    private final Optional<CollectorRegistry> parent;
     private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
 
-    CollectorFactoryRegistry() {
+    public CollectorRegistry() {
+        parent = Optional.empty();
         factories.addAll(BuiltInCollectorFactories.get());
     }
 
-    private CollectorFactoryRegistry(CollectorFactoryRegistry that) {
-        factories.addAll(that.factories);
+    private CollectorRegistry(CollectorRegistry that) {
+        parent = Optional.of(that);
     }
 
-    void register(CollectorFactory factory) {
+    public void register(CollectorFactory factory) {
         factories.add(0, factory);
     }
 
@@ -53,12 +58,15 @@ class CollectorFactoryRegistry {
     }
 
     private Optional<CollectorFactory> findFactoryFor(Type containerType) {
-        return factories.stream()
-                .filter(f -> f.accepts(containerType))
-                .findFirst();
+        return findFirstPresent(
+                () -> factories.stream()
+                        .filter(f -> f.accepts(containerType))
+                        .findFirst(),
+                () -> parent.flatMap(p -> p.findFactoryFor(containerType)));
     }
 
-    static CollectorFactoryRegistry copyOf(CollectorFactoryRegistry registry) {
-        return new CollectorFactoryRegistry(registry);
+    @Override
+    public CollectorRegistry createChild() {
+        return new CollectorRegistry(this);
     }
 }

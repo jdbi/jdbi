@@ -25,7 +25,7 @@ public class JdbiAccess {
      * a database.
      */
     public static Handle createHandle() {
-        return new Handle(new JdbiConfig(), new LocalTransactionHandler(),
+        return new Handle(new ConfigRegistry(), new LocalTransactionHandler(),
                 new DefaultStatementBuilder(), null);
     }
 

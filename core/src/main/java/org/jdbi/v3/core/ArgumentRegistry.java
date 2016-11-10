@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 import java.lang.reflect.Type;
@@ -22,59 +23,61 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.BuiltInArgumentFactory;
 import org.jdbi.v3.core.argument.SqlArrayType;
 import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
-import org.jdbi.v3.core.argument.BuiltInArgumentFactory;
+import org.jdbi.v3.core.extension.JdbiConfig;
 
-class ArgumentRegistry
-{
+public class ArgumentRegistry implements JdbiConfig<ArgumentRegistry> {
 
-    static ArgumentRegistry copyOf(ArgumentRegistry registry) {
-        return new ArgumentRegistry(registry);
-    }
-
+    private final Optional<ArgumentRegistry> parent;
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
     private final List<SqlArrayTypeFactory> arrayTypeFactories = new CopyOnWriteArrayList<>();
 
-    ArgumentRegistry()
-    {
-        register(BuiltInArgumentFactory.INSTANCE);
-        register(new SqlArrayArgumentFactory());
+    public ArgumentRegistry() {
+        parent = Optional.empty();
+        registerArgumentFactory(BuiltInArgumentFactory.INSTANCE);
+        registerArgumentFactory(new SqlArrayArgumentFactory());
     }
 
-    ArgumentRegistry(ArgumentRegistry that)
-    {
-        this.argumentFactories.addAll(that.argumentFactories);
-        this.arrayTypeFactories.addAll(that.arrayTypeFactories);
+    private ArgumentRegistry(ArgumentRegistry that) {
+        parent = Optional.of(that);
     }
 
-    Optional<Argument> findArgumentFor(Type expectedType, Object it, StatementContext ctx)
-    {
-        return argumentFactories.stream()
-                .flatMap(factory -> toStream(factory.build(expectedType, it, ctx)))
-                .findFirst();
+    public Optional<Argument> findArgumentFor(Type expectedType, Object it, StatementContext ctx) {
+        return findFirstPresent(
+                () -> argumentFactories.stream()
+                        .flatMap(factory -> toStream(factory.build(expectedType, it, ctx)))
+                        .findFirst(),
+                () -> parent.flatMap(p -> p.findArgumentFor(expectedType, it, ctx)));
     }
 
-    void register(ArgumentFactory factory)
-    {
+    public void registerArgumentFactory(ArgumentFactory factory) {
         argumentFactories.add(0, factory);
     }
 
-    Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType, StatementContext ctx) {
-        return arrayTypeFactories.stream()
-                .flatMap(factory -> toStream(factory.build(elementType, ctx)))
-                .findFirst();
+    public Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType, StatementContext ctx) {
+        return findFirstPresent(
+                () -> arrayTypeFactories.stream()
+                        .flatMap(factory -> toStream(factory.build(elementType, ctx)))
+                        .findFirst(),
+                () -> parent.flatMap(p -> p.findArrayTypeFor(elementType, ctx)));
     }
 
-    void registerArrayType(Class<?> elementType, String sqlTypeName) {
+    public void registerArrayType(Class<?> elementType, String sqlTypeName) {
         registerArrayType(VendorSupportedArrayType.factory(elementType, sqlTypeName));
     }
 
-    void registerArrayType(SqlArrayType<?> arrayType) {
+    public void registerArrayType(SqlArrayType<?> arrayType) {
         registerArrayType(new InferredSqlArrayTypeFactory(arrayType));
     }
 
-    void registerArrayType(SqlArrayTypeFactory factory) {
+    public void registerArrayType(SqlArrayTypeFactory factory) {
         arrayTypeFactories.add(0, factory);
+    }
+
+    @Override
+    public ArgumentRegistry createChild() {
+        return new ArgumentRegistry(this);
     }
 }

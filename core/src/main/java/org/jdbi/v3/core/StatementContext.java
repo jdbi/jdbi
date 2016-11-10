@@ -40,7 +40,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
  */
 public class StatementContext implements Closeable
 {
-    private final JdbiConfig config;
+    private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
 
     private final Cleanables cleanables = new Cleanables();
@@ -55,15 +55,15 @@ public class StatementContext implements Closeable
     private String[]          generatedKeysColumnNames;
 
     StatementContext() {
-        this(new JdbiConfig());
+        this(new ConfigRegistry());
     }
 
-    StatementContext(JdbiConfig config)
+    StatementContext(ConfigRegistry config)
     {
         this(config, null);
     }
 
-    StatementContext(JdbiConfig config, ExtensionMethod extensionMethod)
+    StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod)
     {
         this.config = requireNonNull(config);
         this.extensionMethod = extensionMethod;
@@ -79,7 +79,7 @@ public class StatementContext implements Closeable
      */
     public Object setAttribute(String key, Object value)
     {
-        return config.statementAttributes.put(key, value);
+        return config.get(SqlStatementConfig.class).getAttributes().put(key, value);
     }
 
     /**
@@ -91,7 +91,7 @@ public class StatementContext implements Closeable
      */
     public Object getAttribute(String key)
     {
-        return config.statementAttributes.get(key);
+        return config.get(SqlStatementConfig.class).getAttributes().get(key);
     }
 
     /**
@@ -102,7 +102,7 @@ public class StatementContext implements Closeable
      */
     public Map<String, Object> getAttributes()
     {
-        return config.statementAttributes;
+        return config.get(SqlStatementConfig.class).getAttributes();
     }
 
     /**
@@ -113,7 +113,7 @@ public class StatementContext implements Closeable
      */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type)
     {
-        return config.mappingRegistry.findColumnMapperFor(type, this);
+        return config.get(MappingRegistry.class).findColumnMapperFor(type, this);
     }
 
     /**
@@ -124,7 +124,7 @@ public class StatementContext implements Closeable
      */
     public Optional<RowMapper<?>> findRowMapperFor(Type type)
     {
-        return config.mappingRegistry.findRowMapperFor(type, this);
+        return config.get(MappingRegistry.class).findRowMapperFor(type, this);
     }
 
     /**
@@ -134,7 +134,7 @@ public class StatementContext implements Closeable
      * @return an Argument for the given value.
      */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return config.argumentRegistry.findArgumentFor(type, value, this);
+        return config.get(ArgumentRegistry.class).findArgumentFor(type, value, this);
     }
 
     /**
@@ -143,7 +143,7 @@ public class StatementContext implements Closeable
      * @return an {@link SqlArrayType} for the given element type.
      */
     public Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType) {
-        return config.argumentRegistry.findArrayTypeFor(elementType, this);
+        return config.get(ArgumentRegistry.class).findArrayTypeFor(elementType, this);
     }
 
     /**
@@ -152,7 +152,7 @@ public class StatementContext implements Closeable
      * @return a Collector for the given result type, or null if no collector factory is registered for this type.
      */
     public Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
-        return config.collectorRegistry.findCollectorFor(type);
+        return config.get(CollectorRegistry.class).findCollectorFor(type);
     }
 
     /**
@@ -160,7 +160,7 @@ public class StatementContext implements Closeable
      * @return the element type for the given container type, if available.
      */
     public Optional<Type> elementTypeFor(Type containerType) {
-        return config.collectorRegistry.elementTypeFor(containerType);
+        return config.get(CollectorRegistry.class).elementTypeFor(containerType);
     }
 
     void setRawSql(String rawSql)

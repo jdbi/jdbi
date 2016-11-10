@@ -77,7 +77,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     private       PreparedStatement  stmt;
 
     @SuppressWarnings("unchecked")
-    SqlStatement(JdbiConfig config,
+    SqlStatement(ConfigRegistry config,
                  Binding params,
                  Handle handle,
                  StatementBuilder statementBuilder,
@@ -100,19 +100,19 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
         ctx.setBinding(params);
     }
 
-    CollectorFactoryRegistry getCollectorFactoryRegistry()
+    CollectorRegistry getCollectorFactoryRegistry()
     {
-        return config.collectorRegistry;
+        return config.get(CollectorRegistry.class);
     }
 
     public SelfType registerCollectorFactory(CollectorFactory collectorFactory) {
-        config.collectorRegistry.register(collectorFactory);
+        config.get(CollectorRegistry.class).register(collectorFactory);
         return typedThis;
     }
 
     public SelfType registerArgumentFactory(ArgumentFactory argumentFactory)
     {
-        getArgumentRegistry().register(argumentFactory);
+        getArgumentRegistry().registerArgumentFactory(argumentFactory);
         return typedThis;
     }
 
@@ -126,7 +126,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      */
     public SelfType registerArrayType(Class<?> elementType, String sqlTypeName)
     {
-        config.argumentRegistry.registerArrayType(elementType, sqlTypeName);
+        config.get(ArgumentRegistry.class).registerArrayType(elementType, sqlTypeName);
         return typedThis;
     }
 
@@ -143,7 +143,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      */
     public SelfType registerArrayType(SqlArrayType<?> arrayType)
     {
-        config.argumentRegistry.registerArrayType(arrayType);
+        config.get(ArgumentRegistry.class).registerArrayType(arrayType);
         return typedThis;
     }
 
@@ -156,31 +156,31 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      */
     public SelfType registerArrayType(SqlArrayTypeFactory factory)
     {
-        config.argumentRegistry.registerArrayType(factory);
+        config.get(ArgumentRegistry.class).registerArrayType(factory);
         return typedThis;
     }
 
     public SelfType registerRowMapper(RowMapper<?> m)
     {
-        config.mappingRegistry.addRowMapper(new InferredRowMapperFactory(m));
+        config.get(MappingRegistry.class).addRowMapper(new InferredRowMapperFactory(m));
         return typedThis;
     }
 
     public SelfType registerRowMapper(RowMapperFactory m)
     {
-        config.mappingRegistry.addRowMapper(m);
+        config.get(MappingRegistry.class).addRowMapper(m);
         return typedThis;
     }
 
     public SelfType registerColumnMapper(ColumnMapper<?> m)
     {
-        config.mappingRegistry.addColumnMapper(m);
+        config.get(MappingRegistry.class).addColumnMapper(m);
         return typedThis;
     }
 
     public SelfType registerColumnMapper(ColumnMapperFactory m)
     {
-        config.mappingRegistry.addColumnMapper(m);
+        config.get(MappingRegistry.class).addColumnMapper(m);
         return typedThis;
     }
 
@@ -192,7 +192,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      * @return the same Query instance
      */
     public SelfType setStatementRewriter(StatementRewriter rewriter) {
-        config.statementRewriter = rewriter;
+        config.get(SqlStatementConfig.class).setStatementRewriter(rewriter);
         return typedThis;
     }
 
@@ -266,7 +266,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     protected StatementRewriter getRewriter()
     {
-        return config.statementRewriter;
+        return config.get(SqlStatementConfig.class).getStatementRewriter();
     }
 
     protected Binding getParams()
@@ -1319,7 +1319,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     protected PreparedStatement internalExecute()
     {
-        rewritten = config.statementRewriter.rewrite(sql, getParams(), getContext());
+        rewritten = config.get(SqlStatementConfig.class).getStatementRewriter().rewrite(sql, getParams(), getContext());
         getContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
@@ -1353,7 +1353,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
             LOG.trace("Execute SQL \"{}\" in {}ms", rewritten.getSql(), elapsedTime / 1000000L);
-            config.timingCollector.collect(elapsedTime, getContext());
+            config.get(SqlStatementConfig.class).getTimingCollector().collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
             try {
@@ -1371,7 +1371,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     protected TimingCollector getTimingCollector()
     {
-        return config.timingCollector;
+        return config.get(SqlStatementConfig.class).getTimingCollector();
     }
 
     @SuppressWarnings("unchecked")
@@ -1388,7 +1388,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
     protected RowMapper<?> rowMapperForType(Type type)
     {
-        return config.mappingRegistry.findRowMapperFor(type, getContext())
+        return config.get(MappingRegistry.class).findRowMapperFor(type, getContext())
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 }

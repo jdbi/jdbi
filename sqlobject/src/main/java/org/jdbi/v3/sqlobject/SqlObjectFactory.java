@@ -92,7 +92,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     public <E> E attach(Class<E> extensionType, SqlObjectConfig config, HandleSupplier handle) {
         Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
-        SqlObjectConfig instanceConfig = config.createCopy();
+        SqlObjectConfig instanceConfig = config.createChild();
         forEachConfigurerFactory(extensionType, (factory, annotation) ->
                 factory.createForType(annotation, extensionType).accept(instanceConfig));
 
@@ -278,7 +278,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
             try {
                 Handler handler = handlers.get(method);
 
-                SqlObjectConfig config = instanceConfig.createCopy();
+                SqlObjectConfig config = instanceConfig.createChild();
                 forEachConfigurerFactory(method, (factory, annotation) ->
                         factory.createForMethod(annotation, sqlObjectType, method).accept(config));
 

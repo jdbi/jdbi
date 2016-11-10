@@ -33,7 +33,7 @@ import org.jdbi.v3.core.util.SingleColumnMapper;
  */
 public class Update extends SqlStatement<Update>
 {
-    Update(JdbiConfig config,
+    Update(ConfigRegistry config,
            Handle handle,
            StatementBuilder statementBuilder,
            String sql,

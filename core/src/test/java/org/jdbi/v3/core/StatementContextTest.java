@@ -54,8 +54,8 @@ public class StatementContextTest {
     public void testMapperForDelegatesToRegistry() {
         ColumnMapper<?> mapper = new FooMapper();
 
-        JdbiConfig config = new JdbiConfig();
-        config.mappingRegistry.addColumnMapper(mapper);
+        ConfigRegistry config = new ConfigRegistry();
+        config.get(MappingRegistry.class).addColumnMapper(mapper);
 
         final StatementContext context = new StatementContext(config);
 

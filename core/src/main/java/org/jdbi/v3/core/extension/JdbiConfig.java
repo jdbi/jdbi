@@ -14,13 +14,13 @@
 package org.jdbi.v3.core.extension;
 
 /**
- * A configuration object for an extension.
+ * Interface for classes that hold configuration.
  *
  * @param <C> A "This" type. Should always be the configuration class.
  */
-public interface ExtensionConfig<C extends ExtensionConfig<C>> {
+public interface JdbiConfig<C extends JdbiConfig<C>> {
     /**
      * @return a copy of this configuration object. Changes to the copy should not modify the original.
      */
-    C createCopy();
+    C createChild();
 }

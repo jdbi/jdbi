@@ -27,7 +27,7 @@ public class PreparedBatchPart extends SqlStatement<PreparedBatchPart>
 {
     private final PreparedBatch batch;
 
-    PreparedBatchPart(JdbiConfig config,
+    PreparedBatchPart(ConfigRegistry config,
                       Binding binding,
                       PreparedBatch batch,
                       Handle handle,

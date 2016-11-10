@@ -15,14 +15,14 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.Objects;
 
-import org.jdbi.v3.core.extension.ExtensionConfig;
+import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 /**
  * Configuration class for the SqlObject plugin.
  */
-public class SqlObjectConfig implements ExtensionConfig<SqlObjectConfig> {
+public class SqlObjectConfig implements JdbiConfig<SqlObjectConfig> {
     private SqlLocator sqlLocator;
 
     SqlObjectConfig() {
@@ -52,7 +52,7 @@ public class SqlObjectConfig implements ExtensionConfig<SqlObjectConfig> {
     }
 
     @Override
-    public SqlObjectConfig createCopy() {
+    public SqlObjectConfig createChild() {
         return new SqlObjectConfig(this);
     }
 }

@@ -34,7 +34,7 @@ public class Batch extends BaseStatement
     private final List<String> parts = new ArrayList<>();
     private final Connection connection;
 
-    Batch(JdbiConfig config,
+    Batch(ConfigRegistry config,
           Connection connection,
           StatementContext statementContext)
     {
@@ -99,7 +99,7 @@ public class Batch extends BaseStatement
             {
                 for (String part : parts)
                 {
-                    final String sql = config.statementRewriter.rewrite(part, empty, getContext()).getSql();
+                    final String sql = config.get(SqlStatementConfig.class).getStatementRewriter().rewrite(part, empty, getContext()).getSql();
                     LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }
@@ -116,7 +116,7 @@ public class Batch extends BaseStatement
                 final long elapsedTime = System.nanoTime() - start;
                 LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                config.timingCollector.collect(elapsedTime, getContext());
+                config.get(SqlStatementConfig.class).getTimingCollector().collect(elapsedTime, getContext());
                 return rs;
 
             }
