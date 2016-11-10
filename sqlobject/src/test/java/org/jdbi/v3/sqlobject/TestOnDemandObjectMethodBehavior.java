@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -28,7 +26,6 @@ public class TestOnDemandObjectMethodBehavior
 {
     private Jdbi    dbi;
     private UselessDao dao;
-    private UselessDao anotherDao;
 
     public interface UselessDao extends GetHandle
     {
@@ -50,7 +47,6 @@ public class TestOnDemandObjectMethodBehavior
         dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
         dao = dbi.onDemand(UselessDao.class);
-        anotherDao = dbi.onDemand(UselessDao.class);
     }
 
     /**
@@ -65,23 +61,4 @@ public class TestOnDemandObjectMethodBehavior
         dao.finalize(); // Normally GC would do this, but just fake it
     }
 
-    @Test
-    public void testEquals() throws Exception
-    {
-        assertThat(dao).isEqualTo(dao);
-        assertThat(dao).isNotEqualTo(anotherDao);
-    }
-
-    @Test
-    public void testHashCode() throws Exception
-    {
-        assertThat(dao.hashCode()).isEqualTo(dao.hashCode());
-        assertThat(dao.hashCode()).isNotEqualTo(anotherDao.hashCode());
-    }
-
-    @Test
-    public void testToStringDoesntConnect() throws Exception
-    {
-        assertThat(dao.toString()).isNotNull();
-    }
 }
