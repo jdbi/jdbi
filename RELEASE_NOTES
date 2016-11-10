@@ -1,3 +1,6 @@
+2.78
+  - clear SqlObject ThreadLocals on close, fixes leak on e.g. webapp reload
+
 2.77
   - Improved BindIn functionality: can now process Iterables and arrays/varargs 
     of any type, and has configurable handling for a null/empty argument.

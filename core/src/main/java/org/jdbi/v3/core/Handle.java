@@ -259,6 +259,7 @@ public class Handle implements Closeable
      */
     @Override
     public void close() {
+        extensionMethod.remove();
         if (!closed) {
             try {
                 statementBuilder.close(getConnection());
