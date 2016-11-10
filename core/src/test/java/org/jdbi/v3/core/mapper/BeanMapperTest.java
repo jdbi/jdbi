@@ -268,7 +268,7 @@ public class BeanMapperTest {
     @Test
     public void testColumnNameAnnotation() {
         Handle handle = db.getSharedHandle();
-        handle.registerRowMapper(new BeanMapperFactory(ColumnNameBean.class));
+        handle.registerRowMapper(BeanMapper.of(ColumnNameBean.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
 

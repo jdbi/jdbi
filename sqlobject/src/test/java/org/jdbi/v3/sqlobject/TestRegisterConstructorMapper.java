@@ -42,6 +42,14 @@ public class TestRegisterConstructorMapper {
         assertThat(brain.getName()).isEqualTo("brain");
     }
 
+    @Test
+    public void testMapperPrefixed() {
+        dao.insert(1, "brain");
+        Something brain = dao.getByIdPrefixed(1);
+        assertThat(brain.getId()).isEqualTo(1);
+        assertThat(brain.getName()).isEqualTo("brain");
+    }
+
     // subclassing just to hide Something() constructor
     public static class SubSomething extends Something {
         public SubSomething(int id, String name) {
@@ -49,12 +57,16 @@ public class TestRegisterConstructorMapper {
         }
     }
 
-    @RegisterConstructorMapper(SubSomething.class)
     public interface Dao {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
 
         @SqlQuery("select id, name from something where id=:id")
+        @RegisterConstructorMapper(SubSomething.class)
         SubSomething getById(@Bind("id") int id);
+
+        @SqlQuery("select id thing_id, name thing_name from something where id=:id")
+        @RegisterConstructorMapper(value = SubSomething.class, prefix = "thing_")
+        SubSomething getByIdPrefixed(@Bind("id") int id);
     }
 }

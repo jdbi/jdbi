@@ -22,23 +22,20 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.core.mapper.ConstructorMapper;
+import org.jdbi.v3.core.mapper.FieldMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
-/**
- * Used to register a constructor mapper factory for the only constructor of a type.
- */
-@SqlStatementCustomizingAnnotation(RegisterConstructorMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
+@SqlStatementCustomizingAnnotation(RegisterFieldMapper.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterConstructorMapper
+public @interface RegisterFieldMapper
 {
     /**
-     * The type to map with ConstructorMapper.
-     * @return one or more mapped types.
+     * The types to map with FieldMapper.
+     * @return one or more classes.
      */
     Class<?>[] value();
 
@@ -53,35 +50,33 @@ public @interface RegisterConstructorMapper
 
     class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
+            return create((RegisterFieldMapper) annotation);
+        }
 
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return create((RegisterConstructorMapper) annotation);
+            return create((RegisterFieldMapper) annotation);
         }
 
-        @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            return create((RegisterConstructorMapper) annotation);
-        }
-
-        private SqlStatementCustomizer create(RegisterConstructorMapper rcm) {
-            Class<?>[] types = rcm.value();
-            String[] prefixes = rcm.prefix();
+        private SqlStatementCustomizer create(RegisterFieldMapper annotation) {
+            Class<?>[] types = annotation.value();
+            String[] prefixes = annotation.prefix();
             List<RowMapperFactory> mappers = new ArrayList<>(types.length);
             if (prefixes.length == 0) {
                 for (Class<?> type : types) {
-                    mappers.add(ConstructorMapper.of(type));
+                    mappers.add(FieldMapper.of(type));
                 }
             }
             else if (prefixes.length == types.length) {
                 for (int i = 0; i < types.length; i++) {
-                    mappers.add(ConstructorMapper.of(types[i], prefixes[i]));
+                    mappers.add(FieldMapper.of(types[i], prefixes[i]));
                 }
             }
             else {
-                throw new IllegalStateException("RegisterConstructorMapper.prefix() must have the same number of elements as value()");
+                throw new IllegalStateException("RegisterFieldMapper.prefix() must have the same number of elements as value()");
             }
 
             return stmt -> mappers.forEach(stmt::registerRowMapper);

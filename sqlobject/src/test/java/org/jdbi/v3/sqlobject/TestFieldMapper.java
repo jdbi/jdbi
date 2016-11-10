@@ -18,55 +18,40 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.ValueTypeMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
-import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
-import org.junit.After;
+import org.jdbi.v3.sqlobject.customizers.RegisterFieldMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestBeanMapperFactory
+public class TestFieldMapper
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    public static class TestBean
+    public static class TestObject
     {
-        private ValueType valueType;
+        ValueType valueType;
 
         public ValueType getValueType() {
             return valueType;
         }
-
-        public void setValueType(ValueType valueType) {
-            this.valueType = valueType;
-        }
     }
 
-    public enum TestEnum {
-        foo,
-        bar
-    }
-
-    @RegisterBeanMapper(TestBean.class)
     @RegisterColumnMapper(ValueTypeMapper.class)
     public interface TestDao
     {
         @SqlQuery("select * from testBean")
-        List<TestBean> listBeans();
+        @RegisterFieldMapper(TestObject.class)
+        List<TestObject> listBeans();
 
-        @SqlQuery("select * from testBean")
-        List<String> listStrings();
-
-        @SqlQuery("select * from testBean")
-        List<TestEnum> listEnums();
-
-        @SqlQuery("select * from testBean")
-        List<ValueType> listValueTypes();
+        @SqlQuery("select valueType as obj_value_type from testBean")
+        @RegisterFieldMapper(value=TestObject.class, prefix="obj_")
+        List<TestObject> listBeansPrefix();
     }
 
     Handle h;
@@ -79,35 +64,19 @@ public class TestBeanMapperFactory
         dao = h.attach(TestDao.class);
     }
 
-    @After
-    public void dropTable() {
-        h.createUpdate("drop table testBean").execute();
+    @Test
+    public void testMapFields() {
+        h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
+
+        List<TestObject> beans = dao.listBeans();
+        assertThat(beans).extracting(TestObject::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 
     @Test
-    public void testMapBean() {
+    public void testMapFieldsPrefix() {
         h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
 
-        List<TestBean> beans = dao.listBeans();
-        assertThat(beans).extracting(TestBean::getValueType).containsExactly(ValueType.valueOf("foo"));
-    }
-
-    @Test
-    public void testBuiltInColumnMappers() {
-        h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
-
-        List<String> strings = dao.listStrings();
-        assertThat(strings).containsExactly("foo");
-
-        List<TestEnum> enums = dao.listEnums();
-        assertThat(enums).containsExactly(TestEnum.foo);
-    }
-
-    @Test
-    public void testCustomColumnMapper() {
-        h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
-
-        List<ValueType> valueTypes = dao.listValueTypes();
-        assertThat(valueTypes).containsExactly(ValueType.valueOf("foo"));
+        List<TestObject> beans = dao.listBeansPrefix();
+        assertThat(beans).extracting(TestObject::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 }
