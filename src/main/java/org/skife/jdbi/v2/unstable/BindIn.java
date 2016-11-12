@@ -97,23 +97,6 @@ public @interface BindIn
                 size = Util.size(arg);
             }
 
-            if (size == 0)
-            {
-                switch (bindIn.onEmpty())
-                {
-                    case VOID:
-                        // output nothing - taken care of with size = 0
-                        break;
-                    case NULL:
-                        // output null - handle in Binder
-                        break;
-                    case THROW:
-                        throw new IllegalArgumentException("argument is empty; emptiness was explicitly forbidden on this instance of BindIn");
-                    default:
-                        throw new IllegalStateException(EmptyHandling.valueNotHandledMessage);
-                }
-            }
-
             final String key = bindIn.value();
 
             // generate and concat placeholders
@@ -126,6 +109,24 @@ public @interface BindIn
                 }
                 names.append(":__").append(key).append("_").append(i);
             }
+
+            if (size == 0)
+            {
+                switch (bindIn.onEmpty())
+                {
+                    case VOID:
+                        // output nothing - taken care of with size = 0
+                        break;
+                    case NULL:
+                        names.append((String) null); // force 'null' placeholder in IN clause
+                        break;
+                    case THROW:
+                        throw new IllegalArgumentException("argument is empty; emptiness was explicitly forbidden on this instance of BindIn");
+                    default:
+                        throw new IllegalStateException(EmptyHandling.valueNotHandledMessage);
+                }
+            }
+
             final String ns = names.toString();
 
             return new SqlStatementCustomizer()
