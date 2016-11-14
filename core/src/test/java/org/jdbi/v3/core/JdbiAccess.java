@@ -34,6 +34,6 @@ public class JdbiAccess {
      * with the given handle.
      */
     public static StatementContext createContext(Handle handle) {
-        return new StatementContext(handle.config);
+        return new StatementContext(handle.getConfig());
     }
 }

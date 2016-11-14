@@ -34,30 +34,25 @@ import java.util.function.BiConsumer;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.ExtensionMethod;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 
-public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
+public enum SqlObjectFactory implements ExtensionFactory {
     INSTANCE;
 
     private static final Object[] NO_ARGS = new Object[0];
 
     private final Map<Method, Handler> mixinHandlers = new HashMap<>();
     private final Map<Class<?>, Map<Method, Handler>> handlersCache = synchronizedMap(new WeakHashMap<>());
-    private final Map<Class<? extends SqlObjectConfigurerFactory>, SqlObjectConfigurerFactory>
+    private final Map<Class<? extends ConfigurerFactory>, ConfigurerFactory>
             configurerFactories = synchronizedMap(new WeakHashMap<>());
 
     SqlObjectFactory() {
         mixinHandlers.putAll(TransactionalHelper.handlers());
         mixinHandlers.putAll(GetHandleHelper.handlers());
-    }
-
-    @Override
-    public SqlObjectConfig createConfig() {
-        return new SqlObjectConfig();
     }
 
     @Override
@@ -89,14 +84,13 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
      * @return the new sql object bound to this handle
      */
     @Override
-    public <E> E attach(Class<E> extensionType, SqlObjectConfig config, HandleSupplier handle) {
+    public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
         Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
-        SqlObjectConfig instanceConfig = config.createChild();
         forEachConfigurerFactory(extensionType, (factory, annotation) ->
-                factory.createForType(annotation, extensionType).accept(instanceConfig));
+                factory.createForType(annotation, extensionType).accept(handle.getConfig()));
 
-        InvocationHandler invocationHandler = createInvocationHandler(extensionType, instanceConfig, handlers, handle);
+        InvocationHandler invocationHandler = createInvocationHandler(extensionType, handlers, handle);
         return extensionType.cast(
                 Proxy.newProxyInstance(
                         extensionType.getClassLoader(),
@@ -233,7 +227,7 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
             handler = decorator.decorateHandler(handler, sqlObjectType, method);
         }
 
-        return handler;
+        return new SetExtensionMethodHandler(sqlObjectType, method, handler);
     }
 
     private Comparator<Class<? extends Annotation>> createDecoratorComparator(DecoratorOrder order) {
@@ -268,40 +262,32 @@ public enum SqlObjectFactory implements ExtensionFactory<SqlObjectConfig> {
     }
 
     private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,
-                                                      SqlObjectConfig instanceConfig,
                                                       Map<Method, Handler> handlers,
                                                       HandleSupplier handle) {
         return (proxy, method, args) -> {
-            ExtensionMethod oldMethod = handle.getExtensionMethod();
-            handle.setExtensionMethod(new ExtensionMethod(sqlObjectType, method));
+            Handler handler = handlers.get(method);
 
-            try {
-                Handler handler = handlers.get(method);
+            ConfigRegistry methodConfig = handle.getConfig().createChild();
+            forEachConfigurerFactory(method, (factory, annotation) ->
+                    factory.createForMethod(annotation, sqlObjectType, method).accept(methodConfig));
 
-                SqlObjectConfig config = instanceConfig.createChild();
-                forEachConfigurerFactory(method, (factory, annotation) ->
-                        factory.createForMethod(annotation, sqlObjectType, method).accept(config));
-
-                return handler.invoke(proxy, method, args == null ? NO_ARGS : args, config, handle);
-            }
-            finally {
-                handle.setExtensionMethod(oldMethod);
-            }
+            return handle.withConfig(methodConfig,
+                    () -> handler.invoke(proxy, method, args == null ? NO_ARGS : args, handle));
         };
     }
 
-    private void forEachConfigurerFactory(AnnotatedElement element, BiConsumer<SqlObjectConfigurerFactory, Annotation> consumer) {
+    private void forEachConfigurerFactory(AnnotatedElement element, BiConsumer<ConfigurerFactory, Annotation> consumer) {
         Stream.of(element.getAnnotations())
-                .filter(a -> a.annotationType().isAnnotationPresent(SqlObjectConfiguringAnnotation.class))
+                .filter(a -> a.annotationType().isAnnotationPresent(ConfiguringAnnotation.class))
                 .forEach(a -> {
-                    SqlObjectConfiguringAnnotation meta = a.annotationType()
-                            .getAnnotation(SqlObjectConfiguringAnnotation.class);
+                    ConfiguringAnnotation meta = a.annotationType()
+                            .getAnnotation(ConfiguringAnnotation.class);
 
                     consumer.accept(getConfigurerFactory(meta.value()), a);
                 });
     }
 
-    private SqlObjectConfigurerFactory getConfigurerFactory(Class<? extends SqlObjectConfigurerFactory> factoryClass) {
+    private ConfigurerFactory getConfigurerFactory(Class<? extends ConfigurerFactory> factoryClass) {
         return configurerFactories.computeIfAbsent(factoryClass, c -> {
             try {
                 return c.newInstance();

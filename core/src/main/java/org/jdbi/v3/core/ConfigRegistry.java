@@ -19,13 +19,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
 
-import org.jdbi.v3.core.extension.JdbiConfig;
-
 public class ConfigRegistry {
     private final Optional<ConfigRegistry> parent;
     private final Map<Class<? extends JdbiConfig>, JdbiConfig<?>> cache = synchronizedMap(new WeakHashMap<>());
 
-    ConfigRegistry() {
+    public ConfigRegistry() {
         parent = Optional.empty();
     }
 
@@ -34,7 +32,7 @@ public class ConfigRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    <C extends JdbiConfig<C>> C get(Class<C> configClass) {
+    public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
         return (C) cache.computeIfAbsent(configClass, c ->
                 createFromParent(configClass)
                         .orElseGet(() -> create(configClass)));

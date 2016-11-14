@@ -21,15 +21,17 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.mapper.FieldMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 @Retention(RetentionPolicy.RUNTIME)
-@SqlStatementCustomizingAnnotation(RegisterFieldMapper.Factory.class)
+@ConfiguringAnnotation(RegisterFieldMapper.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterFieldMapper
 {
@@ -48,20 +50,20 @@ public @interface RegisterFieldMapper
      */
     String[] prefix() default {};
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements ConfigurerFactory
     {
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
             return create((RegisterFieldMapper) annotation);
         }
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             return create((RegisterFieldMapper) annotation);
         }
 
-        private SqlStatementCustomizer create(RegisterFieldMapper annotation) {
+        private Consumer<ConfigRegistry> create(RegisterFieldMapper annotation) {
             Class<?>[] types = annotation.value();
             String[] prefixes = annotation.prefix();
             List<RowMapperFactory> mappers = new ArrayList<>(types.length);
@@ -79,7 +81,7 @@ public @interface RegisterFieldMapper
                 throw new IllegalStateException("RegisterFieldMapper.prefix() must have the same number of elements as value()");
             }
 
-            return stmt -> mappers.forEach(stmt::registerRowMapper);
+            return config -> mappers.forEach(config.get(MappingRegistry.class)::registerRowMapper);
         }
     }
 }

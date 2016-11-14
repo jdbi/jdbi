@@ -19,17 +19,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation used to configure {@link SqlObjectConfig}. Use this to annotate an annotation.
+ * Annotation used to modify configuration in the context of a SQL object or method. Use this to annotate an annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface SqlObjectConfiguringAnnotation
+public @interface ConfiguringAnnotation
 {
     /**
-     * A {@link SqlObjectConfigurerFactory} type, which will be used to create
+     * A {@link ConfigurerFactory} type, which will be used to create
      * {@link java.util.function.Consumer}&lt;{@link SqlObjectConfig}&gt; instances.
      *
      * @return a factory used to crate customizers for the customizing annotation
      */
-    Class<? extends SqlObjectConfigurerFactory> value();
+    Class<? extends ConfigurerFactory> value();
 }

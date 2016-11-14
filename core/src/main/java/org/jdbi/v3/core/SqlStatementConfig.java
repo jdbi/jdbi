@@ -16,7 +16,6 @@ package org.jdbi.v3.core;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 

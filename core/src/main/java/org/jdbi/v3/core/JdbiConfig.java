@@ -11,16 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.extension;
+package org.jdbi.v3.core;
 
 /**
  * Interface for classes that hold configuration.
  *
- * @param <C> A "This" type. Should always be the configuration class.
+ * @param <This> A "This" type. Should always be the configuration class.
  */
-public interface JdbiConfig<C extends JdbiConfig<C>> {
+public interface JdbiConfig<This extends JdbiConfig<This>> {
     /**
-     * @return a copy of this configuration object. Changes to the copy should not modify the original.
+     * Returns a copy of this configuration object. Changes to the copy should not modify the original.
+     * @return a copy of this configuration object.
      */
-    C createChild();
+    This createChild();
 }

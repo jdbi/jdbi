@@ -13,16 +13,36 @@
  */
 package org.jdbi.v3.core;
 
-class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
-    private final Jdbi dbi;
+import java.util.concurrent.Callable;
 
+class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
+    private final Jdbi jdbi;
+    private final ThreadLocal<ConfigRegistry> config;
     private final ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
 
     private volatile Handle handle;
     private volatile boolean closed = false;
 
-    LazyHandleSupplier(Jdbi dbi) {
-        this.dbi = dbi;
+    LazyHandleSupplier(Jdbi jdbi, ConfigRegistry config) {
+        this.jdbi = jdbi;
+        this.config = ThreadLocal.withInitial(() -> config);
+    }
+
+    @Override
+    public ConfigRegistry getConfig() {
+        return config.get();
+    }
+
+    @Override
+    public <V> V withConfig(ConfigRegistry config, Callable<V> task) throws Exception {
+        ConfigRegistry oldConfig = this.config.get();
+        try {
+            this.config.set(config);
+            return task.call();
+        }
+        finally {
+            this.config.set(oldConfig);
+        }
     }
 
     @Override
@@ -48,10 +68,11 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
                 throw new IllegalStateException("Handle is closed");
             }
 
-            Handle handle = dbi.open();
+            Handle handle = jdbi.open();
             // share extension method thread local with handle,
             // so extension methods set in other threads are preserved
             handle.setExtensionMethodThreadLocal(extensionMethod);
+            handle.setConfigThreadLocal(config);
 
             this.handle = handle;
         }
@@ -62,5 +83,7 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
         if (handle != null) {
             handle.close();
         }
+        config.remove();
+        extensionMethod.remove();
     }
 }

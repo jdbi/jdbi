@@ -160,7 +160,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
 
     public <T> Query<T> map(RowMapper<T> mapper)
     {
-        return new Query<>(config,
+        return new Query<>(getConfig(),
                 getParams(),
                 mapper,
                 getHandle(),

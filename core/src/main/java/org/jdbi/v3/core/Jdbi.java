@@ -23,7 +23,6 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
@@ -33,7 +32,6 @@ import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.core.extension.ExtensionCallback;
-import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
@@ -355,14 +353,9 @@ public class Jdbi
         return this;
     }
 
-    public Jdbi registerExtension(ExtensionFactory<?> extensionFactory)
+    public Jdbi registerExtension(ExtensionFactory extensionFactory)
     {
         config.get(ExtensionRegistry.class).register(extensionFactory);
-        return this;
-    }
-
-    public <C extends JdbiConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        config.get(ExtensionRegistry.class).configure(configClass, consumer);
         return this;
     }
 
@@ -375,7 +368,7 @@ public class Jdbi
      * @return this
      */
     public Jdbi registerColumnMapper(ColumnMapper<?> mapper) {
-        config.get(MappingRegistry.class).addColumnMapper(mapper);
+        config.get(MappingRegistry.class).registerColumnMapper(mapper);
         return this;
     }
 
@@ -388,7 +381,7 @@ public class Jdbi
      * @return this
      */
     public Jdbi registerColumnMapper(ColumnMapperFactory factory) {
-        config.get(MappingRegistry.class).addColumnMapper(factory);
+        config.get(MappingRegistry.class).registerColumnMapper(factory);
         return this;
     }
 
@@ -401,7 +394,7 @@ public class Jdbi
      * @return this
      */
     public Jdbi registerRowMapper(RowMapper<?> mapper) {
-        config.get(MappingRegistry.class).addRowMapper(mapper);
+        config.get(MappingRegistry.class).registerRowMapper(mapper);
         return this;
     }
 
@@ -414,7 +407,7 @@ public class Jdbi
      * @return this
      */
     public Jdbi registerRowMapper(RowMapperFactory factory) {
-        config.get(MappingRegistry.class).addRowMapper(factory);
+        config.get(MappingRegistry.class).registerRowMapper(factory);
         return this;
     }
 
@@ -545,7 +538,7 @@ public class Jdbi
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws NoSuchExtensionException, X
     {
-        try (LazyHandleSupplier handle = new LazyHandleSupplier(this)) {
+        try (LazyHandleSupplier handle = new LazyHandleSupplier(this, config.createChild())) {
             E extension = config.get(ExtensionRegistry.class).findExtensionFor(extensionType, handle)
                     .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
 

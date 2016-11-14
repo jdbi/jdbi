@@ -19,17 +19,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.mapper.JoinRowMapper;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Used to register a {@link JoinRowMapper} factory.  Will attempt to map all
  * types given in the annotation declaration.
  */
-@SqlStatementCustomizingAnnotation(RegisterJoinRowMapper.Factory.class)
+@ConfiguringAnnotation(RegisterJoinRowMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterJoinRowMapper
@@ -39,23 +41,24 @@ public @interface RegisterJoinRowMapper
      */
     Class<?>[] value();
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements ConfigurerFactory
     {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             return create((RegisterJoinRowMapper) annotation);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             return create((RegisterJoinRowMapper) annotation);
         }
 
-        private SqlStatementCustomizer create(RegisterJoinRowMapper rjm) {
-            return stmt -> stmt.registerRowMapper(JoinRowMapper.forTypes(rjm.value()));
+        private Consumer<ConfigRegistry> create(RegisterJoinRowMapper annotation) {
+            return config -> config.get(MappingRegistry.class)
+                    .registerRowMapper(JoinRowMapper.forTypes(annotation.value()));
         }
     }
 }

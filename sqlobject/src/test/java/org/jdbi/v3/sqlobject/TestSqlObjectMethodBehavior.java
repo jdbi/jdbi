@@ -16,7 +16,9 @@ package org.jdbi.v3.sqlobject;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
+import java.util.concurrent.Callable;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.ExtensionMethod;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
@@ -43,12 +45,22 @@ public class TestSqlObjectMethodBehavior
             }
 
             @Override
+            public ConfigRegistry getConfig() {
+                return new ConfigRegistry();
+            }
+
+            @Override
+            public <V> V withConfig(ConfigRegistry config, Callable<V> task) throws Exception {
+                return task.call();
+            }
+
+            @Override
             public Handle getHandle() {
                 throw new UnsupportedOperationException();
             }
         };
-        dao = SqlObjectFactory.INSTANCE.attach(UselessDao.class, new SqlObjectConfig(), handleSupplier);
-        anotherDao = SqlObjectFactory.INSTANCE.attach(UselessDao.class, new SqlObjectConfig(), handleSupplier);
+        dao = SqlObjectFactory.INSTANCE.attach(UselessDao.class, handleSupplier);
+        anotherDao = SqlObjectFactory.INSTANCE.attach(UselessDao.class, handleSupplier);
     }
 
     public interface UselessDao extends GetHandle

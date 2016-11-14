@@ -21,16 +21,18 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ArgumentRegistry;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Used to register an argument factory with either a sql object type or for a specific method.
  */
-@SqlStatementCustomizingAnnotation(RegisterArgumentFactory.Factory.class)
+@ConfiguringAnnotation(RegisterArgumentFactory.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterArgumentFactory
@@ -41,21 +43,21 @@ public @interface RegisterArgumentFactory
      */
     Class<? extends ArgumentFactory>[] value();
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements ConfigurerFactory
     {
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             return create(annotation);
         }
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             return create(annotation);
         }
 
-        private SqlStatementCustomizer create(Annotation annotation)
+        private Consumer<ConfigRegistry> create(Annotation annotation)
         {
             final RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;
             final List<ArgumentFactory> ary = new ArrayList<>(raf.value().length);
@@ -67,7 +69,7 @@ public @interface RegisterArgumentFactory
                     throw new IllegalStateException("unable to instantiate specified argument factory", e);
                 }
             }
-            return q -> ary.forEach(q::registerArgumentFactory);
+            return config -> ary.forEach(config.get(ArgumentRegistry.class)::registerArgumentFactory);
         }
     }
 }

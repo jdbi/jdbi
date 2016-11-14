@@ -25,9 +25,9 @@ import org.jdbi.v3.core.statement.StatementCustomizer;
 
 abstract class BaseStatement implements Closeable
 {
-    final ConfigRegistry config;
-    private final Collection<StatementCustomizer> customizers = new ArrayList<>();
+    private final ConfigRegistry config;
     private final StatementContext context;
+    private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
     BaseStatement(ConfigRegistry config, StatementContext context)
     {
@@ -35,8 +35,21 @@ abstract class BaseStatement implements Closeable
         this.context = context;
     }
 
-    final ArgumentRegistry getArgumentRegistry() {
-        return config.get(ArgumentRegistry.class);
+    /**
+     * Gets the configuration object of the given type, associated with this statement.
+     * @param configClass the configuration type
+     * @param <C> the configuration type
+     * @return the configuration object of the given type, associated with this statement.
+     */
+    public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
+        return config.get(configClass);
+    }
+
+    /**
+     * @return the configuration registry associated with this statement
+     */
+    protected ConfigRegistry getConfig() {
+        return config;
     }
 
     /**

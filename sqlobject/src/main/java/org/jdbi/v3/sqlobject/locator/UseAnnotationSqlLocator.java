@@ -23,27 +23,29 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.sqlobject.SqlObjectConfig;
-import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
-import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Configures SQL Object to use AnnotationSqlLocator (the default SqlLocator).
  */
-@SqlObjectConfiguringAnnotation(UseAnnotationSqlLocator.Factory.class)
+@ConfiguringAnnotation(UseAnnotationSqlLocator.Factory.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface UseAnnotationSqlLocator {
-    class Factory implements SqlObjectConfigurerFactory {
-        private static Consumer<SqlObjectConfig> CONFIGURER = config -> config.setSqlLocator(new AnnotationSqlLocator());
+    class Factory implements ConfigurerFactory {
+        private static Consumer<ConfigRegistry> CONFIGURER = config ->
+                config.get(SqlObjectConfig.class).setSqlLocator(new AnnotationSqlLocator());
 
         @Override
-        public Consumer<SqlObjectConfig> createForType(Annotation annotation, Class<?> sqlObjectType) {
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
             return CONFIGURER;
         }
 
         @Override
-        public Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             return CONFIGURER;
         }
     }

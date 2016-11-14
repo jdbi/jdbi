@@ -22,18 +22,20 @@ import java.lang.reflect.Method;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ArgumentRegistry;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.ObjectArgumentFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Used to register argument factories for types which are compatible with
  * {@link java.sql.PreparedStatement#setObject(int, Object)}.
  */
-@SqlStatementCustomizingAnnotation(RegisterObjectArgumentFactory.Factory.class)
+@ConfiguringAnnotation(RegisterObjectArgumentFactory.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterObjectArgumentFactory
@@ -52,21 +54,21 @@ public @interface RegisterObjectArgumentFactory
      */
     int[] sqlType() default {};
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements ConfigurerFactory
     {
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             return create((RegisterObjectArgumentFactory) annotation);
         }
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             return create((RegisterObjectArgumentFactory) annotation);
         }
 
-        private SqlStatementCustomizer create(RegisterObjectArgumentFactory annotation)
+        private Consumer<ConfigRegistry> create(RegisterObjectArgumentFactory annotation)
         {
             Class<?>[] classes = annotation.value();
             int[] sqlTypes = annotation.sqlType();
@@ -83,7 +85,7 @@ public @interface RegisterObjectArgumentFactory
                 factories.add(ObjectArgumentFactory.create(clazz, sqlType));
             }
 
-            return q -> factories.forEach(q::registerArgumentFactory);
+            return config -> factories.forEach(config.get(ArgumentRegistry.class)::registerArgumentFactory);
         }
     }
 }

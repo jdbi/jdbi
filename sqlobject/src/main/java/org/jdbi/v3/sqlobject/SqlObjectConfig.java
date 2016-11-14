@@ -15,7 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.Objects;
 
-import org.jdbi.v3.core.extension.JdbiConfig;
+import org.jdbi.v3.core.JdbiConfig;
 import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
@@ -25,11 +25,11 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
 public class SqlObjectConfig implements JdbiConfig<SqlObjectConfig> {
     private SqlLocator sqlLocator;
 
-    SqlObjectConfig() {
+    public SqlObjectConfig() {
         sqlLocator = new AnnotationSqlLocator();
     }
 
-    SqlObjectConfig(SqlObjectConfig parent) {
+    private SqlObjectConfig(SqlObjectConfig parent) {
         this.sqlLocator = parent.sqlLocator;
     }
 

@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.concurrent.Callable;
+
 class ConstantHandleSupplier implements HandleSupplier {
     private final Handle handle;
 
@@ -22,6 +24,23 @@ class ConstantHandleSupplier implements HandleSupplier {
 
     ConstantHandleSupplier(Handle handle) {
         this.handle = handle;
+    }
+
+    @Override
+    public ConfigRegistry getConfig() {
+        return handle.getConfig();
+    }
+
+    @Override
+    public <V> V withConfig(ConfigRegistry config, Callable<V> task) throws Exception {
+        ConfigRegistry oldConfig = handle.getConfig();
+        try {
+            handle.setConfig(config);
+            return task.call();
+        }
+        finally {
+            handle.setConfig(oldConfig);
+        }
     }
 
     @Override

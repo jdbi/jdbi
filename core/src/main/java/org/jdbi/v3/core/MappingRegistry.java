@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.core.mapper.BuiltInMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
@@ -51,12 +50,12 @@ public class MappingRegistry implements JdbiConfig<MappingRegistry> {
         parent = Optional.of(that);
     }
 
-    public void addRowMapper(RowMapper<?> mapper)
+    public void registerRowMapper(RowMapper<?> mapper)
     {
-        this.addRowMapper(new InferredRowMapperFactory(mapper));
+        this.registerRowMapper(new InferredRowMapperFactory(mapper));
     }
 
-    public void addRowMapper(RowMapperFactory factory)
+    public void registerRowMapper(RowMapperFactory factory)
     {
         rowFactories.add(0, factory);
         rowCache.clear();
@@ -85,12 +84,12 @@ public class MappingRegistry implements JdbiConfig<MappingRegistry> {
         return mapper;
     }
 
-    public void addColumnMapper(ColumnMapper<?> mapper)
+    public void registerColumnMapper(ColumnMapper<?> mapper)
     {
-        this.addColumnMapper(new InferredColumnMapperFactory(mapper));
+        this.registerColumnMapper(new InferredColumnMapperFactory(mapper));
     }
 
-    public void addColumnMapper(ColumnMapperFactory factory) {
+    public void registerColumnMapper(ColumnMapperFactory factory) {
         columnFactories.add(0, factory);
         columnCache.clear();
     }

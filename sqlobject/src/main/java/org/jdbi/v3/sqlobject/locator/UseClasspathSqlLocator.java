@@ -23,11 +23,12 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjectConfig;
-import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
-import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Configures SQL Object to locate SQL using the {@link ClasspathSqlLocator#findSqlOnClasspath(Class, String)} method.
@@ -46,25 +47,26 @@ import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
  *     }
  * </pre>
  */
-@SqlObjectConfiguringAnnotation(UseClasspathSqlLocator.Factory.class)
+@ConfiguringAnnotation(UseClasspathSqlLocator.Factory.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface UseClasspathSqlLocator {
-    class Factory implements SqlObjectConfigurerFactory {
+    class Factory implements ConfigurerFactory {
         private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
             String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
             return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, name);
         };
 
-        private static Consumer<SqlObjectConfig> CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
+        private static Consumer<ConfigRegistry> CONFIGURER = config ->
+                config.get(SqlObjectConfig.class).setSqlLocator(SQL_LOCATOR);
 
         @Override
-        public Consumer<SqlObjectConfig> createForType(Annotation annotation, Class<?> sqlObjectType) {
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
             return CONFIGURER;
         }
 
         @Override
-        public Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             return CONFIGURER;
         }
     }

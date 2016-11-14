@@ -23,7 +23,6 @@ import java.util.stream.Collector;
 
 import org.jdbi.v3.core.collector.BuiltInCollectorFactories;
 import org.jdbi.v3.core.collector.CollectorFactory;
-import org.jdbi.v3.core.extension.JdbiConfig;
 
 /**
  * Registry of collector factories.
@@ -47,12 +46,12 @@ public class CollectorRegistry implements JdbiConfig<CollectorRegistry> {
         factories.add(0, factory);
     }
 
-    Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
+    public Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
         return findFactoryFor(containerType)
                 .map(f -> f.build(containerType));
     }
 
-    Optional<Type> elementTypeFor(Type containerType) {
+    public Optional<Type> elementTypeFor(Type containerType) {
         return findFactoryFor(containerType)
                 .flatMap(f -> f.elementType(containerType));
     }

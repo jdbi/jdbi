@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.SqlArrayType;
@@ -29,7 +28,6 @@ import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
-import org.jdbi.v3.core.extension.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -55,23 +53,37 @@ public class Handle implements Closeable
 {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
-    protected final ConfigRegistry config;
-    protected StatementBuilder statementBuilder;
-    private boolean closed = false;
-    protected final TransactionHandler transactions;
-    protected final Connection connection;
+    private final TransactionHandler transactions;
+    private final Connection connection;
 
-    private ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
+    private ThreadLocal<ConfigRegistry> config;
+    private ThreadLocal<ExtensionMethod> extensionMethod;
+    private StatementBuilder statementBuilder;
+
+    private boolean closed = false;
 
     Handle(ConfigRegistry config,
-            TransactionHandler transactions,
-            StatementBuilder preparedStatementCache,
-            Connection connection)
-    {
-        this.config = config;
-        this.statementBuilder = preparedStatementCache;
+           TransactionHandler transactions,
+           StatementBuilder statementBuilder,
+           Connection connection) {
         this.transactions = transactions;
         this.connection = connection;
+
+        this.config = ThreadLocal.withInitial(() -> config);
+        this.extensionMethod = new ThreadLocal<>();
+        this.statementBuilder = statementBuilder;
+    }
+
+    public ConfigRegistry getConfig() {
+        return config.get();
+    }
+
+    void setConfig(ConfigRegistry config) {
+        this.config.set(config);
+    }
+
+    public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
+        return getConfig().get(configClass);
     }
 
     /**
@@ -92,12 +104,12 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle define(String key, Object value) {
-        config.get(SqlStatementConfig.class).getAttributes().put(key, value);
+        getConfig(SqlStatementConfig.class).getAttributes().put(key, value);
         return this;
     }
 
     public Handle registerArgumentFactory(ArgumentFactory argumentFactory) {
-        config.get(ArgumentRegistry.class).registerArgumentFactory(argumentFactory);
+        getConfig(ArgumentRegistry.class).registerArgumentFactory(argumentFactory);
         return this;
     }
 
@@ -111,7 +123,7 @@ public class Handle implements Closeable
      */
     public Handle registerArrayType(Class<?> elementType, String sqlTypeName)
     {
-        config.get(ArgumentRegistry.class).registerArrayType(elementType, sqlTypeName);
+        getConfig(ArgumentRegistry.class).registerArrayType(elementType, sqlTypeName);
         return this;
     }
 
@@ -128,7 +140,7 @@ public class Handle implements Closeable
      */
     public Handle registerArrayType(SqlArrayType<?> arrayType)
     {
-        config.get(ArgumentRegistry.class).registerArrayType(arrayType);
+        getConfig(ArgumentRegistry.class).registerArrayType(arrayType);
         return this;
     }
 
@@ -141,12 +153,12 @@ public class Handle implements Closeable
      */
     public Handle registerArrayType(SqlArrayTypeFactory factory)
     {
-        config.get(ArgumentRegistry.class).registerArrayType(factory);
+        getConfig(ArgumentRegistry.class).registerArrayType(factory);
         return this;
     }
 
     public Handle registerCollectorFactory(CollectorFactory factory) {
-        config.get(CollectorRegistry.class).register(factory);
+        getConfig(CollectorRegistry.class).register(factory);
         return this;
     }
 
@@ -162,7 +174,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle registerColumnMapper(ColumnMapper<?> mapper) {
-        config.get(MappingRegistry.class).addColumnMapper(mapper);
+        getConfig(MappingRegistry.class).registerColumnMapper(mapper);
         return this;
     }
 
@@ -175,12 +187,12 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle registerColumnMapper(ColumnMapperFactory factory) {
-        config.get(MappingRegistry.class).addColumnMapper(factory);
+        getConfig(MappingRegistry.class).registerColumnMapper(factory);
         return this;
     }
 
-    public Handle registerExtension(ExtensionFactory<?> factory) {
-        config.get(ExtensionRegistry.class).register(factory);
+    public Handle registerExtension(ExtensionFactory factory) {
+        getConfig(ExtensionRegistry.class).register(factory);
         return this;
     }
 
@@ -196,7 +208,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle registerRowMapper(RowMapper<?> mapper) {
-        config.get(MappingRegistry.class).addRowMapper(mapper);
+        getConfig(MappingRegistry.class).registerRowMapper(mapper);
         return this;
     }
 
@@ -209,7 +221,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle registerRowMapper(RowMapperFactory factory) {
-        config.get(MappingRegistry.class).addRowMapper(factory);
+        getConfig(MappingRegistry.class).registerRowMapper(factory);
         return this;
     }
 
@@ -231,7 +243,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle setStatementRewriter(StatementRewriter rewriter) {
-        config.get(SqlStatementConfig.class).setStatementRewriter(rewriter);;
+        getConfig(SqlStatementConfig.class).setStatementRewriter(rewriter);;
         return this;
     }
 
@@ -243,7 +255,7 @@ public class Handle implements Closeable
      * @return this
      */
     public Handle setTimingCollector(final TimingCollector timingCollector) {
-        config.get(SqlStatementConfig.class).setTimingCollector(timingCollector);
+        getConfig(SqlStatementConfig.class).setTimingCollector(timingCollector);
         return this;
     }
 
@@ -338,7 +350,7 @@ public class Handle implements Closeable
      * @see Handle#prepareBatch(String)
      */
     public Batch createBatch() {
-        ConfigRegistry batchConfig = config.createChild();
+        ConfigRegistry batchConfig = getConfig().createChild();
         return new Batch(batchConfig,
                          this.connection,
                          new StatementContext(batchConfig, extensionMethod.get()));
@@ -352,7 +364,7 @@ public class Handle implements Closeable
      * @return a batch which can have "statements" added
      */
     public PreparedBatch prepareBatch(String sql) {
-        ConfigRegistry batchConfig = config.createChild();
+        ConfigRegistry batchConfig = getConfig().createChild();
         return new PreparedBatch(batchConfig,
                                  this,
                                  statementBuilder,
@@ -369,7 +381,7 @@ public class Handle implements Closeable
      * @return the Call
      */
     public Call createCall(String sql) {
-        ConfigRegistry callConfig = config.createChild();
+        ConfigRegistry callConfig = getConfig().createChild();
         return new Call(callConfig,
                         this,
                         statementBuilder,
@@ -385,7 +397,7 @@ public class Handle implements Closeable
      * @return the Query
      */
     public Query<Map<String, Object>> createQuery(String sql) {
-        ConfigRegistry queryConfig = config.createChild();
+        ConfigRegistry queryConfig = getConfig().createChild();
         return new Query<>(queryConfig,
                 new Binding(),
                 new DefaultMapper(),
@@ -415,7 +427,7 @@ public class Handle implements Closeable
      * @return the Update
      */
     public Update createUpdate(String sql) {
-        ConfigRegistry updateConfig = config.createChild();
+        ConfigRegistry updateConfig = getConfig().createChild();
         return new Update(updateConfig,
                           this,
                           statementBuilder,
@@ -643,24 +655,25 @@ public class Handle implements Closeable
      * @return the new extension object bound to this handle
      */
     public <T> T attach(Class<T> extensionType) {
-        return config.get(ExtensionRegistry.class).findExtensionFor(extensionType, ConstantHandleSupplier.of(this))
+        return getConfig(ExtensionRegistry.class)
+                .findExtensionFor(extensionType, ConstantHandleSupplier.of(this))
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
-    }
-
-    public <C extends JdbiConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        config.get(ExtensionRegistry.class).configure(configClass, consumer);
     }
 
     public ExtensionMethod getExtensionMethod() {
         return extensionMethod.get();
     }
 
-    public void setExtensionMethod(ExtensionMethod extensionMethod) {
+    void setExtensionMethod(ExtensionMethod extensionMethod) {
         this.extensionMethod.set(extensionMethod);
     }
 
     /* package private */
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
         this.extensionMethod = requireNonNull(extensionMethod);
+    }
+
+    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> config) {
+        this.config = config;
     }
 }

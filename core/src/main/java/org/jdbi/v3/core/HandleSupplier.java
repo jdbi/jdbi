@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.concurrent.Callable;
+
 /**
  * A handle supplier for extension implementors.
  */
@@ -28,6 +30,14 @@ public interface HandleSupplier {
      * @param extensionMethod the extension method
      */
     void setExtensionMethod(ExtensionMethod extensionMethod);
+
+    ConfigRegistry getConfig();
+
+    <V> V withConfig(ConfigRegistry config, Callable<V> task) throws Exception;
+
+    default <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
+        return getConfig().get(configClass);
+    }
 
     /**
      * Returns a handle, possibly creating it lazily. A Handle holds a database connection, so extensions should only

@@ -23,7 +23,7 @@ class InTransactionWithIsolationLevelHandler implements Handler
 {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public Object invoke(final Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle) throws Exception
+    public Object invoke(final Object target, Method method, Object[] args, HandleSupplier handle) throws Exception
     {
         final TransactionalCallback callback = (TransactionalCallback) args[1];
         final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];

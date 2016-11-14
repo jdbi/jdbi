@@ -31,12 +31,13 @@ import net.jodah.expiringmap.ExpiringMap;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjectConfig;
-import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
-import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -59,14 +60,14 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
  *     }
  * </pre>
  */
-@SqlObjectConfiguringAnnotation(UseStringTemplateSqlLocator.LocatorFactory.class)
+@ConfiguringAnnotation(UseStringTemplateSqlLocator.LocatorFactory.class)
 @SqlStatementCustomizingAnnotation(UseStringTemplateSqlLocator.RewriterFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseStringTemplateSqlLocator {
     Class<? extends StatementRewriter> value() default ColonPrefixStatementRewriter.class;
 
-    class LocatorFactory implements SqlObjectConfigurerFactory {
+    class LocatorFactory implements ConfigurerFactory {
         private static final Map<String, Class<?>> TYPE_CACHE = ExpiringMap.builder()
                 .expiration(10, TimeUnit.MINUTES)
                 .expirationPolicy(ExpirationPolicy.ACCESSED)
@@ -86,15 +87,16 @@ public @interface UseStringTemplateSqlLocator {
             return typeName + "#" + name;
         };
 
-        private static final Consumer<SqlObjectConfig> CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
+        private static final Consumer<ConfigRegistry> CONFIGURER = config ->
+                config.get(SqlObjectConfig.class).setSqlLocator(SQL_LOCATOR);
 
         @Override
-        public Consumer<SqlObjectConfig> createForType(Annotation annotation, Class<?> sqlObjectType) {
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
             return CONFIGURER;
         }
 
         @Override
-        public Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             return CONFIGURER;
         }
     }

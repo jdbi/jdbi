@@ -17,15 +17,8 @@ import org.jdbi.v3.core.HandleSupplier;
 
 /**
  * Factory interface used to produce JDBI extension objects.
- *
- * @param <C> extension config class
  */
-public interface ExtensionFactory<C extends JdbiConfig<C>> {
-    /**
-     * @return a new default configuration for this extension factory.
-     */
-    C createConfig();
-
+public interface ExtensionFactory {
     /**
      * @param extensionType the extension type
      *
@@ -35,7 +28,6 @@ public interface ExtensionFactory<C extends JdbiConfig<C>> {
 
     /**
      * @param extensionType the extension type.
-     * @param config        the extension configuration.
      * @param handle        Supplies the database handle. This supplier may lazily open a Handle on the first
      *                      invocation. Extension implementors should take care not to fetch the handle before it is
      *                      needed, to avoid opening handles unnecessarily.
@@ -45,5 +37,5 @@ public interface ExtensionFactory<C extends JdbiConfig<C>> {
      * @throws IllegalArgumentException if the extension type is not supported by this factory.
      * @see org.jdbi.v3.core.Jdbi#onDemand(Class)
      */
-    <E> E attach(Class<E> extensionType, C config, HandleSupplier handle);
+    <E> E attach(Class<E> extensionType, HandleSupplier handle);
 }

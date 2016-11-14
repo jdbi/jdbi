@@ -26,7 +26,6 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.BuiltInArgumentFactory;
 import org.jdbi.v3.core.argument.SqlArrayType;
 import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
-import org.jdbi.v3.core.extension.JdbiConfig;
 
 public class ArgumentRegistry implements JdbiConfig<ArgumentRegistry> {
 

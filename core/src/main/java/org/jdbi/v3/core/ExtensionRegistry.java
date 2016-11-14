@@ -13,35 +13,17 @@
  */
 package org.jdbi.v3.core;
 
-import static java.util.stream.Collectors.toList;
 import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.extension.ExtensionFactory;
-import org.jdbi.v3.core.extension.JdbiConfig;
-import org.jdbi.v3.core.extension.NoSuchExtensionException;
 
 public class ExtensionRegistry implements JdbiConfig<ExtensionRegistry> {
-    private static class Entry<C extends JdbiConfig<C>> {
-        final ExtensionFactory<C> factory;
-        final C config;
-
-        Entry(ExtensionFactory<C> factory, C config) {
-            this.factory = factory;
-            this.config = config;
-        }
-
-        <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-            return factory.attach(extensionType, config.createChild(), handle);
-        }
-    }
-
     private final Optional<ExtensionRegistry> parent;
-    private final List<Entry<? extends JdbiConfig<?>>> factories = new CopyOnWriteArrayList<>();
+    private final List<ExtensionFactory> factories = new CopyOnWriteArrayList<>();
 
     public ExtensionRegistry() {
         this.parent = Optional.empty();
@@ -51,39 +33,25 @@ public class ExtensionRegistry implements JdbiConfig<ExtensionRegistry> {
         this.parent = Optional.of(that);
     }
 
-    public <C extends JdbiConfig<C>> void register(ExtensionFactory<C> factory) {
-        factories.add(0, new Entry<>(factory, factory.createConfig()));
+    public void register(ExtensionFactory factory) {
+        factories.add(0, factory);
     }
 
     public boolean hasExtensionFor(Class<?> extensionType) {
-        return findEntryFor(extensionType).isPresent();
+        return findFactoryFor(extensionType).isPresent();
     }
 
     public <E> Optional<E> findExtensionFor(Class<E> extensionType, HandleSupplier handle) {
-        return findEntryFor(extensionType)
-                .map(entry -> extensionType.cast(entry.attach(extensionType, handle)));
+        return findFactoryFor(extensionType)
+                .map(factory -> factory.attach(extensionType, handle));
     }
 
-    private Optional<ExtensionRegistry.Entry<?>> findEntryFor(Class<?> extensionType) {
+    private Optional<ExtensionFactory> findFactoryFor(Class<?> extensionType) {
         return findFirstPresent(
                 () -> factories.stream()
-                        .filter(entry -> entry.factory.accepts(extensionType))
+                        .filter(factory -> factory.accepts(extensionType))
                         .findFirst(),
-                () -> parent.flatMap(p -> p.findEntryFor(extensionType)));
-    }
-
-    public <C extends JdbiConfig<C>> void configure(Class<C> configClass, Consumer<C> consumer) {
-        List<C> configs = factories.stream()
-                .map(entry -> entry.config)
-                .filter(configClass::isInstance)
-                .map(configClass::cast)
-                .collect(toList());
-
-        if (configs.isEmpty()) {
-            throw new NoSuchExtensionException("No extension found with config class " + configClass);
-        }
-
-        configs.forEach(consumer::accept);
+                () -> parent.flatMap(p -> p.findFactoryFor(extensionType)));
     }
 
     @Override

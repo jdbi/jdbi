@@ -219,7 +219,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(config,
+        PreparedBatchPart part = new PreparedBatchPart(getConfig(),
                                                        this.currentBinding,
                                                        this,
                                                        getHandle(),

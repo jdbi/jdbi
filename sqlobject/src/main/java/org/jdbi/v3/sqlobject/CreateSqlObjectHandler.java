@@ -27,8 +27,8 @@ class CreateSqlObjectHandler implements Handler
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle)
+    public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
-        return SqlObjectFactory.INSTANCE.attach(sqlObjectTypeToCreate, config, handle);
+        return SqlObjectFactory.INSTANCE.attach(sqlObjectTypeToCreate, handle);
     }
 }
