@@ -25,7 +25,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.core.extension.ExtensionConfig;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,9 +39,6 @@ public class TestOnDemandMethodBehavior {
 
     @Mock
     private ExtensionFactory mockExtensionFactory;
-
-    @Mock
-    private ExtensionConfig mockConfig;
 
     @Mock
     private UselessDao mockDao;
@@ -65,7 +61,6 @@ public class TestOnDemandMethodBehavior {
     public void setUp() throws Exception
     {
         when(mockExtensionFactory.accepts(UselessDao.class)).thenReturn(true);
-        when(mockExtensionFactory.createConfig()).thenReturn(mockConfig);
 
         final JdbcDataSource ds = new JdbcDataSource() {
             private static final long serialVersionUID = 1L;
@@ -87,7 +82,7 @@ public class TestOnDemandMethodBehavior {
     {
         assertThat(onDemand).isEqualTo(onDemand);
         assertThat(onDemand).isNotEqualTo(anotherOnDemand);
-        verify(mockExtensionFactory, never()).attach(any(), any(), any());
+        verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
@@ -95,27 +90,26 @@ public class TestOnDemandMethodBehavior {
     {
         assertThat(onDemand.hashCode()).isEqualTo(onDemand.hashCode());
         assertThat(onDemand.hashCode()).isNotEqualTo(anotherOnDemand.hashCode());
-        verify(mockExtensionFactory, never()).attach(any(), any(), any());
+        verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
     public void testToStringDoesntAttach() throws Exception
     {
         assertThat(onDemand.toString()).isNotNull();
-        verify(mockExtensionFactory, never()).attach(any(), any(), any());
+        verify(mockExtensionFactory, never()).attach(any(), any());
     }
 
     @Test
     public void testReentrantCallReusesExtension() {
-        when(mockConfig.createCopy()).thenReturn(mockConfig);
-        when(mockExtensionFactory.attach(any(), any(), any()))
+        when(mockExtensionFactory.attach(any(), any()))
                 .thenReturn(mockDao)
                 .thenThrow(IllegalStateException.class);
 
         doCallRealMethod().when(mockDao).run(any());
         onDemand.run(onDemand::foo);
 
-        verify(mockExtensionFactory).attach(eq(UselessDao.class), eq(mockConfig), any());
+        verify(mockExtensionFactory).attach(eq(UselessDao.class), any());
         verify(mockDao).run(any());
         verify(mockDao).foo();
     }
