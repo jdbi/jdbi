@@ -1,4 +1,5 @@
 2.78
+  - @BindIn: fix handling of empty lists on Postgres
   - clear SqlObject ThreadLocals on close, fixes leak on e.g. webapp reload
 
 2.77

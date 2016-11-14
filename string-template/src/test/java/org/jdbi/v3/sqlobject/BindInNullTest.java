@@ -67,11 +67,6 @@ public class BindInNullTest
         handle.close();
     }
 
-    // TODO run the following 2 tests against a postgresql db
-    // due to queries being parameterized with ?, we can't really test that the query's final form contains "in (null)", i.e. that EmptyHandling.NULL works as intended on a db like postgresql that demands the "in (null)" syntax
-    // all we can test is that the query returns no rows, as specified by sql's general design
-    // h2 accepts either form without causing trouble
-
     @Test
     public void testSomethingByIterableHandleNullWithNull()
     {
