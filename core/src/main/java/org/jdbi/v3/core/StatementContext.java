@@ -69,6 +69,10 @@ public class StatementContext implements Closeable
         this.extensionMethod = extensionMethod;
     }
 
+    public ConfigRegistry getConfig() {
+        return config;
+    }
+
     /**
      * Specify an attribute on the statement context
      *
