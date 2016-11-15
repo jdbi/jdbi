@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.Call;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.OutParameters;
 import org.jdbi.v3.core.util.GenericTypes;
@@ -45,8 +46,9 @@ class CallHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
-        String sql = handle.getConfig(SqlObjectConfig.class).getSqlLocator().locate(sqlObjectType, method);
-        Call call = handle.getHandle().createCall(sql);
+        Handle h = handle.getHandle();
+        String sql = h.getConfig(SqlObjectConfig.class).getSqlLocator().locate(sqlObjectType, method);
+        Call call = h.createCall(sql);
         applyCustomizers(call, args);
         applyBinders(call, args);
 

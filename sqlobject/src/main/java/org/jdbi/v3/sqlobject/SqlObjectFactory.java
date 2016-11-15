@@ -35,6 +35,7 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.ExtensionMethod;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
@@ -85,12 +86,13 @@ public enum SqlObjectFactory implements ExtensionFactory {
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
+        ConfigRegistry instanceConfig = handle.getConfig().createChild();
         Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
         forEachConfigurerFactory(extensionType, (factory, annotation) ->
-                factory.createForType(annotation, extensionType).accept(handle.getConfig()));
+                factory.createForType(annotation, extensionType).accept(instanceConfig));
 
-        InvocationHandler invocationHandler = createInvocationHandler(extensionType, handlers, handle);
+        InvocationHandler invocationHandler = createInvocationHandler(extensionType, handlers, instanceConfig, handle);
         return extensionType.cast(
                 Proxy.newProxyInstance(
                         extensionType.getClassLoader(),
@@ -227,7 +229,7 @@ public enum SqlObjectFactory implements ExtensionFactory {
             handler = decorator.decorateHandler(handler, sqlObjectType, method);
         }
 
-        return new SetExtensionMethodHandler(sqlObjectType, method, handler);
+        return handler;
     }
 
     private Comparator<Class<? extends Annotation>> createDecoratorComparator(DecoratorOrder order) {
@@ -263,15 +265,16 @@ public enum SqlObjectFactory implements ExtensionFactory {
 
     private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,
                                                       Map<Method, Handler> handlers,
+                                                      ConfigRegistry instanceConfig,
                                                       HandleSupplier handle) {
         return (proxy, method, args) -> {
             Handler handler = handlers.get(method);
 
-            ConfigRegistry methodConfig = handle.getConfig().createChild();
+            ConfigRegistry methodConfig = instanceConfig.createChild();
             forEachConfigurerFactory(method, (factory, annotation) ->
                     factory.createForMethod(annotation, sqlObjectType, method).accept(methodConfig));
 
-            return handle.withConfig(methodConfig,
+            return handle.invokeInContext(new ExtensionMethod(sqlObjectType, method), methodConfig,
                     () -> handler.invoke(proxy, method, args == null ? NO_ARGS : args, handle));
         };
     }

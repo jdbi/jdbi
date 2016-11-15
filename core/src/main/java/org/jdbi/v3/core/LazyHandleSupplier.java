@@ -33,28 +33,6 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
         return config.get();
     }
 
-    @Override
-    public <V> V withConfig(ConfigRegistry config, Callable<V> task) throws Exception {
-        ConfigRegistry oldConfig = this.config.get();
-        try {
-            this.config.set(config);
-            return task.call();
-        }
-        finally {
-            this.config.set(oldConfig);
-        }
-    }
-
-    @Override
-    public ExtensionMethod getExtensionMethod() {
-        return extensionMethod.get();
-    }
-
-    @Override
-    public void setExtensionMethod(ExtensionMethod extensionMethod) {
-        this.extensionMethod.set(extensionMethod);
-    }
-
     public Handle getHandle() {
         if (handle == null) {
             initHandle();
@@ -75,6 +53,26 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
             handle.setConfigThreadLocal(config);
 
             this.handle = handle;
+        }
+    }
+
+    @Override
+    public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
+        ExtensionMethod oldExtensionMethod = this.extensionMethod.get();
+        try {
+            this.extensionMethod.set(extensionMethod);
+
+            ConfigRegistry oldConfig = this.config.get();
+            try {
+                this.config.set(config);
+                return task.call();
+            }
+            finally {
+                this.config.set(oldConfig);
+            }
+        }
+        finally {
+            this.extensionMethod.set(oldExtensionMethod);
         }
     }
 

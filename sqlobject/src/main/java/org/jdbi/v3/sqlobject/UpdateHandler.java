@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.GeneratedKeys;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Update;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
@@ -68,8 +69,9 @@ class UpdateHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
-        String sql = handle.getConfig(SqlObjectConfig.class).getSqlLocator().locate(sqlObjectType, method);
-        Update q = handle.getHandle().createUpdate(sql);
+        Handle h = handle.getHandle();
+        String sql = h.getConfig(SqlObjectConfig.class).getSqlLocator().locate(sqlObjectType, method);
+        Update q = h.createUpdate(sql);
         applyCustomizers(q, args);
         applyBinders(q, args);
         return this.returner.value(q, handle);

@@ -36,27 +36,18 @@ public class TestSqlObjectMethodBehavior
     {
         HandleSupplier handleSupplier = new HandleSupplier() {
             @Override
-            public ExtensionMethod getExtensionMethod() {
-                return null;
-            }
-
-            @Override
-            public void setExtensionMethod(ExtensionMethod extensionMethod) {
-            }
-
-            @Override
             public ConfigRegistry getConfig() {
                 return new ConfigRegistry();
             }
 
             @Override
-            public <V> V withConfig(ConfigRegistry config, Callable<V> task) throws Exception {
-                return task.call();
+            public Handle getHandle() {
+                throw new UnsupportedOperationException();
             }
 
             @Override
-            public Handle getHandle() {
-                throw new UnsupportedOperationException();
+            public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
+                return task.call();
             }
         };
         dao = SqlObjectFactory.INSTANCE.attach(UselessDao.class, handleSupplier);

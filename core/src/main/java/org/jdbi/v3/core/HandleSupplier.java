@@ -20,28 +20,15 @@ import java.util.concurrent.Callable;
  */
 public interface HandleSupplier {
     /**
-     * Returns the extension method currently being called with this handle.
+     * Returns the config registry associated with the handle.
      */
-    ExtensionMethod getExtensionMethod();
-
-    /**
-     * Sets the extension method currently being called with this handle.
-     *
-     * @param extensionMethod the extension method
-     */
-    void setExtensionMethod(ExtensionMethod extensionMethod);
-
     ConfigRegistry getConfig();
-
-    <V> V withConfig(ConfigRegistry config, Callable<V> task) throws Exception;
-
-    default <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
-        return getConfig().get(configClass);
-    }
 
     /**
      * Returns a handle, possibly creating it lazily. A Handle holds a database connection, so extensions should only
      * call this method in order to interact with the database.
      */
     Handle getHandle();
+
+    <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception;
 }

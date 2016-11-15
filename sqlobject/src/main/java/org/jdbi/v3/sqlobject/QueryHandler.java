@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Query;
 
@@ -33,8 +34,9 @@ class QueryHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
-        String sql = handle.getConfig(SqlObjectConfig.class).getSqlLocator().locate(sqlObjectType, method);
-        Query<?> q = handle.getHandle().createQuery(sql);
+        Handle h = handle.getHandle();
+        String sql = h.getConfig(SqlObjectConfig.class).getSqlLocator().locate(sqlObjectType, method);
+        Query<?> q = h.createQuery(sql);
         applyCustomizers(q, args);
         applyBinders(q, args);
 
