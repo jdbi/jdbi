@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.H2DatabaseRule;
@@ -28,6 +29,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -75,7 +77,7 @@ public class TestRegisteredMappersWork
         }
     }
 
-    public interface BeanMappingDao
+    public interface BeanMappingDao extends GetHandle
     {
         @SqlUpdate("create table beans ( name varchar primary key, color varchar )")
         void createBeanTable();
@@ -86,6 +88,14 @@ public class TestRegisteredMappersWork
         @SqlQuery("select name, color from beans where name = :name")
         @RegisterBeanMapper(Bean.class)
         Bean findByName(@Bind("name") String name);
+
+        @RegisterBeanMapper(Bean.class)
+        default Optional<Bean> findByNameDefaultMethod(String name) {
+            return getHandle().createQuery("select name, color from beans where name = :name")
+                    .bind("name", name)
+                    .mapTo(Bean.class) // uses annotation-registered mapper
+                    .findFirst();
+        }
     }
 
     @Test
@@ -103,6 +113,25 @@ public class TestRegisteredMappersWork
         Bean another_lima = bdb.findByName("lima");
         assertThat(another_lima.getName()).isEqualTo(lima.getName());
         assertThat(another_lima.getColor()).isEqualTo(lima.getColor());
+    }
+
+    @Test
+    public void testBeanMapperFactoryDefaultMethod() throws Exception
+    {
+        BeanMappingDao bdb = db.getSharedHandle().attach(BeanMappingDao.class);
+        bdb.createBeanTable();
+
+        Bean lima = new Bean();
+        lima.setColor("green");
+        lima.setName("lima");
+
+        bdb.insertBean(lima);
+
+        assertThat(bdb.findByNameDefaultMethod("lima"))
+                .hasValueSatisfying(bean -> {
+                    assertThat(bean).extracting(Bean::getName, Bean::getColor)
+                            .contains(lima.getName(), lima.getColor());
+                });
     }
 
     @Test
