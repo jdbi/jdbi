@@ -59,7 +59,8 @@ public class RowView
     public Object getRow(Type type)
     {
         try {
-            return ctx.findRowMapperFor(type)
+            return ctx.getConfig(MappingRegistry.class)
+                    .findRowMapperFor(type, ctx)
                     .orElseThrow(() -> new UnableToExecuteStatementException("No row mapper for " + type, ctx))
                     .map(rs, ctx);
         } catch (SQLException e) {
@@ -105,7 +106,8 @@ public class RowView
     public Object getColumn(String column, Type type)
     {
         try {
-            return ctx.findColumnMapperFor(type)
+            return ctx.getConfig(MappingRegistry.class)
+                    .findColumnMapperFor(type, ctx)
                     .orElseThrow(() -> new UnableToExecuteStatementException("No column mapper for " + type, ctx))
                     .map(rs, column, ctx);
         } catch (SQLException e) {
@@ -119,7 +121,8 @@ public class RowView
     public Object getColumn(int column, Type type)
     {
         try {
-            return ctx.findColumnMapperFor(type)
+            return ctx.getConfig(MappingRegistry.class)
+                    .findColumnMapperFor(type, ctx)
                     .orElseThrow(() -> new UnableToExecuteStatementException("No column mapper for " + type, ctx))
                     .map(rs, column, ctx);
         } catch (SQLException e) {

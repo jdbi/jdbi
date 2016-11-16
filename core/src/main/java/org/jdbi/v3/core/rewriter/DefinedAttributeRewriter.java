@@ -23,12 +23,14 @@ import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
+import org.jdbi.v3.core.SqlStatementConfig;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
 
 class DefinedAttributeRewriter {
     static String rewriteDefines(String sql, StatementContext ctx) {
         StringBuilder b = new StringBuilder();
+        SqlStatementConfig config = ctx.getConfig(SqlStatementConfig.class);
         DefineStatementLexer lexer = new DefineStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
@@ -42,7 +44,7 @@ class DefinedAttributeRewriter {
                 case DEFINE:
                     String text = t.getText();
                     String key = text.substring(1, text.length() - 1);
-                    Object value = ctx.getAttribute(key);
+                    Object value = config.getAttribute(key);
                     if (value == null) {
                         throw new IllegalArgumentException("Undefined attribute for token '" + text + "'");
                     }

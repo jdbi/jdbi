@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
  */
-public class Batch extends BaseStatement
+public class Batch extends BaseStatement<Batch>
 {
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
@@ -51,19 +51,6 @@ public class Batch extends BaseStatement
     public Batch add(String sql)
     {
         parts.add(sql);
-        return this;
-    }
-
-    /**
-     * Define a value on the {@link StatementContext}.
-     *
-     * @param key   Key to access this value from the StatementContext
-     * @param value Value to setAttribute on the StatementContext
-     *
-     * @return this
-     */
-    public Batch define(String key, Object value) {
-        getContext().setAttribute(key, value);
         return this;
     }
 

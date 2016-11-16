@@ -69,7 +69,7 @@ public @interface RegisterArgumentFactory
                     throw new IllegalStateException("unable to instantiate specified argument factory", e);
                 }
             }
-            return config -> ary.forEach(config.get(ArgumentRegistry.class)::registerArgumentFactory);
+            return config -> ary.forEach(config.get(ArgumentRegistry.class)::register);
         }
     }
 }

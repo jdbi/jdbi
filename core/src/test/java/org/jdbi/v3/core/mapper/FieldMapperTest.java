@@ -26,6 +26,7 @@ import org.jdbi.v3.core.DerivedBean;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiAccess;
+import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.SampleBean;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.ValueType;
@@ -162,7 +163,7 @@ public class FieldMapperTest {
 
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
-        handle.registerColumnMapper(new ValueTypeMapper());
+        handle.getConfig(MappingRegistry.class).registerColumnMapper(new ValueTypeMapper());
 
         when(resultSetMetaData.getColumnCount()).thenReturn(2);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");

@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import org.jdbi.v3.core.ArgumentRegistry;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiAccess;
 import org.jdbi.v3.core.StatementContext;
@@ -47,70 +48,70 @@ public class TestArgumentRegistry
     @Test
     public void testWaffleLong() throws Exception
     {
-        ctx.findArgumentFor(Object.class, 3L).get().apply(1, stmt, null);
+        ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Object.class, 3L, ctx).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 
     @Test
     public void testWaffleShort() throws Exception
     {
-        ctx.findArgumentFor(Object.class, (short) 2000).get().apply(2, stmt, null);
+        ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Object.class, (short) 2000, ctx).get().apply(2, stmt, null);
         verify(stmt).setShort(2, (short) 2000);
     }
 
     @Test
     public void testWaffleString() throws Exception {
-        ctx.findArgumentFor(Object.class, I_AM_A_STRING).get().apply(3, stmt, null);
+        ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Object.class, I_AM_A_STRING, ctx).get().apply(3, stmt, null);
         verify(stmt).setString(3, I_AM_A_STRING);
     }
 
     @Test
     public void testExplicitWaffleLong() throws Exception {
-        ctx.findArgumentFor(Long.class, 3L).get().apply(1, stmt, null);
+        ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Long.class, 3L, ctx).get().apply(1, stmt, null);
         verify(stmt).setLong(1, 3);
     }
 
     @Test
     public void testExplicitWaffleShort() throws Exception {
-        ctx.findArgumentFor(short.class, (short) 2000).get().apply(2, stmt, null);
+        ctx.getConfig(ArgumentRegistry.class).findArgumentFor(short.class, (short) 2000, ctx).get().apply(2, stmt, null);
         verify(stmt).setShort(2, (short) 2000);
     }
 
     @Test
     public void testExplicitWaffleString() throws Exception {
-        ctx.findArgumentFor(String.class, I_AM_A_STRING).get().apply(3, stmt, null);
+        ctx.getConfig(ArgumentRegistry.class).findArgumentFor(String.class, I_AM_A_STRING, ctx).get().apply(3, stmt, null);
         verify(stmt).setString(3, I_AM_A_STRING);
     }
 
     @Test
     public void testPull88WeirdClassArgumentFactory() throws Exception
     {
-        handle.registerArgumentFactory(new WeirdClassArgumentFactory());
+        handle.getConfig(ArgumentRegistry.class).register(new WeirdClassArgumentFactory());
 
-        assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
+        assertThat(ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Weird.class, new Weird(), ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
-        assertThat(ctx.findArgumentFor(Weird.class, null))
+        assertThat(ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Weird.class, null, ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
 
-        assertThat(ctx.findArgumentFor(Object.class, new Weird()))
+        assertThat(ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Object.class, new Weird(), ctx))
                 .isEmpty();
-        assertThat(ctx.findArgumentFor(Object.class, null))
+        assertThat(ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Object.class, null, ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 
     @Test
     public void testPull88WeirdValueArgumentFactory()
     {
-        handle.registerArgumentFactory(new WeirdValueArgumentFactory());
+        handle.getConfig(ArgumentRegistry.class).register(new WeirdValueArgumentFactory());
 
-        assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
+        assertThat(ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Weird.class, new Weird(), ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
-        assertThat(ctx.findArgumentFor(Object.class, new Weird()))
+        assertThat(ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Object.class, new Weird(), ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
 
-        assertThat(ctx.findArgumentFor(Weird.class, null))
+        assertThat(ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Weird.class, null, ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
-        assertThat(ctx.findArgumentFor(Object.class, null))
+        assertThat(ctx.getConfig(ArgumentRegistry.class).findArgumentFor(Object.class, null, ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 

@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.MappingRegistry;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,8 +29,9 @@ public class ConstructorMapperTest {
 
     @Before
     public void setUp() throws Exception {
-        db.getSharedHandle().registerRowMapper(ConstructorMapper.of(ConstructorBean.class));
-        db.getSharedHandle().registerRowMapper(ConstructorMapper.of(NamedParameterBean.class));
+        db.getSharedHandle().getConfig(MappingRegistry.class)
+                .registerRowMapper(ConstructorMapper.of(ConstructorBean.class))
+                .registerRowMapper(ConstructorMapper.of(NamedParameterBean.class));
         db.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
 
         db.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");

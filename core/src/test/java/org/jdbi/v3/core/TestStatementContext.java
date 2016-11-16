@@ -30,7 +30,7 @@ public class TestStatementContext
         final int inserted = h.createUpdate("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", "Martin")
-                .define("table", "something")
+                .configure(SqlStatementConfig.class, config -> config.putAttribute("table", "something"))
                 .execute();
         assertThat(inserted).isEqualTo(1);
     }

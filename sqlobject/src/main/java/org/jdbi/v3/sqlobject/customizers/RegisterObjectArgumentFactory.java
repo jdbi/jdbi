@@ -85,7 +85,7 @@ public @interface RegisterObjectArgumentFactory
                 factories.add(ObjectArgumentFactory.create(clazz, sqlType));
             }
 
-            return config -> factories.forEach(config.get(ArgumentRegistry.class)::registerArgumentFactory);
+            return config -> factories.forEach(config.get(ArgumentRegistry.class)::register);
         }
     }
 }

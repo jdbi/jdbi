@@ -23,7 +23,7 @@ import org.jdbi.v3.core.Cleanables.Cleanable;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 
-abstract class BaseStatement implements Closeable
+abstract class BaseStatement<This> implements Closeable, Configurable<This>
 {
     private final ConfigRegistry config;
     private final StatementContext context;
@@ -35,20 +35,8 @@ abstract class BaseStatement implements Closeable
         this.context = context;
     }
 
-    /**
-     * Gets the configuration object of the given type, associated with this statement.
-     * @param configClass the configuration type
-     * @param <C> the configuration type
-     * @return the configuration object of the given type, associated with this statement.
-     */
-    public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
-        return config.get(configClass);
-    }
-
-    /**
-     * @return the configuration registry associated with this statement
-     */
-    protected ConfigRegistry getConfig() {
+    @Override
+    public ConfigRegistry getConfig() {
         return config;
     }
 

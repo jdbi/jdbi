@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jdbi.v3.core.ArgumentRegistry;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.StatementContext;
@@ -90,7 +91,7 @@ public class ArgumentsTest {
     @Test
     public void uuidArgumentFactory() {
         UUID u = UUID.randomUUID();
-        handle.registerArgumentFactory(new UUIDArgumentFactory());
+        handle.getConfig(ArgumentRegistry.class).register(new UUIDArgumentFactory());
         assertThat(handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
             .bind("uuid", u)
             .mapTo(String.class)

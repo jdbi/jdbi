@@ -20,7 +20,7 @@ import org.jdbi.v3.core.StatementContext;
 
 /**
  * Maps result set columns to objects.
- * @see StatementContext#findColumnMapperFor(java.lang.reflect.Type)
+ * @see org.jdbi.v3.core.MappingRegistry#findColumnMapperFor(java.lang.reflect.Type,StatementContext)
  */
 @FunctionalInterface
 public interface ColumnMapper<T>

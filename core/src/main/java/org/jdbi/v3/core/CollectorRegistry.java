@@ -42,15 +42,25 @@ public class CollectorRegistry implements JdbiConfig<CollectorRegistry> {
         parent = Optional.of(that);
     }
 
-    public void register(CollectorFactory factory) {
+    public CollectorRegistry register(CollectorFactory factory) {
         factories.add(0, factory);
+        return this;
     }
 
+    /**
+     * Obtain a collector for the given type in this context
+     * @param containerType the result type of the collector
+     * @return a Collector for the given result type, or null if no collector factory is registered for this type.
+     */
     public Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
         return findFactoryFor(containerType)
                 .map(f -> f.build(containerType));
     }
 
+    /**
+     * @param containerType the container type.
+     * @return the element type for the given container type, if available.
+     */
     public Optional<Type> elementTypeFor(Type containerType) {
         return findFactoryFor(containerType)
                 .flatMap(f -> f.elementType(containerType));

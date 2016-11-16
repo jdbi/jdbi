@@ -50,17 +50,43 @@ public class MappingRegistry implements JdbiConfig<MappingRegistry> {
         parent = Optional.of(that);
     }
 
-    public void registerRowMapper(RowMapper<?> mapper)
+    /**
+     * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     *
+     * The parameter must be concretely parameterized, we use the type argument T to
+     * determine if it applies to a given type.
+     *
+     * @param mapper the row mapper
+     * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
+     * @return this
+     */
+    public MappingRegistry registerRowMapper(RowMapper<?> mapper)
     {
-        this.registerRowMapper(new InferredRowMapperFactory(mapper));
+        return this.registerRowMapper(new InferredRowMapperFactory(mapper));
     }
 
-    public void registerRowMapper(RowMapperFactory factory)
+    /**
+     * Register a row mapper factory.
+     *
+     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
+     *
+     * @param factory the row mapper factory
+     * @return this
+     */
+    public MappingRegistry registerRowMapper(RowMapperFactory factory)
     {
         rowFactories.add(0, factory);
         rowCache.clear();
+        return this;
     }
 
+    /**
+     * Obtain a row mapper for the given type in the given context.
+     *
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
     public Optional<RowMapper<?>> findRowMapperFor(Type type, StatementContext ctx) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since row mappers can decorate other row mappers, we have to populate the cache the old fashioned way.
@@ -84,16 +110,43 @@ public class MappingRegistry implements JdbiConfig<MappingRegistry> {
         return mapper;
     }
 
-    public void registerColumnMapper(ColumnMapper<?> mapper)
+    /**
+     * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * The parameter must be concretely parameterized, we use the type argument T to
+     * determine if it applies to a given type.
+     *
+     * @param mapper the column mapper
+     * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
+     * @return this
+     */
+    public MappingRegistry registerColumnMapper(ColumnMapper<?> mapper)
     {
-        this.registerColumnMapper(new InferredColumnMapperFactory(mapper));
+        return this.registerColumnMapper(new InferredColumnMapperFactory(mapper));
     }
 
-    public void registerColumnMapper(ColumnMapperFactory factory) {
+    /**
+     * Register a column mapper factory.
+     *
+     * Column mappers may be reused by {@link RowMapper} to map individual columns.
+     *
+     * @param factory the column mapper factory
+     * @return this
+     */
+    public MappingRegistry registerColumnMapper(ColumnMapperFactory factory) {
         columnFactories.add(0, factory);
         columnCache.clear();
+        return this;
     }
 
+    /**
+     * Obtain a column mapper for the given type in the given context.
+     *
+     * @param type the target type to map to
+     * @param ctx the statement context
+     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
+     */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type, StatementContext ctx) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
@@ -103,7 +156,6 @@ public class MappingRegistry implements JdbiConfig<MappingRegistry> {
         if (cached != null) {
             return Optional.of(cached);
         }
-
 
         Optional<ColumnMapper<?>> mapper = findFirstPresent(
                 () -> columnFactories.stream()

@@ -67,7 +67,8 @@ class BeanPropertyArguments implements NamedArgumentFinder
 
                     try
                     {
-                        return ctx.findArgumentFor(getter.getGenericReturnType(), getter.invoke(bean));
+                        return ctx.getConfig(ArgumentRegistry.class)
+                                .findArgumentFor(getter.getGenericReturnType(), getter.invoke(bean), ctx);
                     }
                     catch (IllegalAccessException e)
                     {

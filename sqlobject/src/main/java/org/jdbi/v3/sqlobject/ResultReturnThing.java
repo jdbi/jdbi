@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.CollectorRegistry;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.ResultBearing;
@@ -112,7 +113,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleSupplier handle)
         {
             if (q instanceof Query) {
-                Collector collector = ((Query)q).getContext().findCollectorFor(returnType).orElse(null);
+                Collector collector = ((Query)q).getContext().getConfig(CollectorRegistry.class).findCollectorFor(returnType).orElse(null);
                 if (collector != null) {
                     return q.collect(collector);
                 }
@@ -124,7 +125,9 @@ abstract class ResultReturnThing
         protected Type elementType(StatementContext ctx)
         {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return ctx.elementTypeFor(returnType).orElse(returnType);
+            return ctx.getConfig(CollectorRegistry.class)
+                    .elementTypeFor(returnType)
+                    .orElse(returnType);
         }
     }
 

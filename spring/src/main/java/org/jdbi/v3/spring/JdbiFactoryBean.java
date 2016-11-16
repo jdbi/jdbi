@@ -22,6 +22,7 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.SqlStatementConfig;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +56,7 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
 
         plugins.forEach(dbi::installPlugin);
 
-        for (Map.Entry<String, Object> entry : globalDefines.entrySet()) {
-            dbi.define(entry.getKey(), entry.getValue());
-        }
+        globalDefines.forEach(dbi.getConfig(SqlStatementConfig.class)::putAttribute);
 
         return dbi;
     }

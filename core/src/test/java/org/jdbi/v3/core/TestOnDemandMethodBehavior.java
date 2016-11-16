@@ -72,7 +72,8 @@ public class TestOnDemandMethodBehavior {
             }
         };
         dbi = Jdbi.create(ds);
-        dbi.registerExtension(mockExtensionFactory);
+        dbi.getConfig(ExtensionRegistry.class)
+                .register(mockExtensionFactory);
         onDemand = dbi.onDemand(UselessDao.class);
         anotherOnDemand = dbi.onDemand(UselessDao.class);
     }

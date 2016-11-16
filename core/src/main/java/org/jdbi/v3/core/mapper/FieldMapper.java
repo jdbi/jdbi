@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.core.ColumnName;
+import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 
@@ -133,7 +134,7 @@ public class FieldMapper<T> implements RowMapper<T>
             final Field field = maybeField.get();
             final Type type = field.getGenericType();
             final Object value;
-            final Optional<ColumnMapper<?>> mapper = ctx.findColumnMapperFor(type);
+            final Optional<ColumnMapper<?>> mapper = ctx.getConfig(MappingRegistry.class).findColumnMapperFor(type, ctx);
 
             if (mapper.isPresent()) {
                 value = mapper.get().map(rs, i, ctx);

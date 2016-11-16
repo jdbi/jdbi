@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.mapper.ConstructorMapper;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
@@ -59,7 +60,7 @@ public class TransactionTest {
     public void getHandle() {
         jdbi = db.getJdbi();
         handle = db.getSharedHandle();
-        handle.registerRowMapper(ConstructorMapper.of(User.class));
+        handle.getConfig(MappingRegistry.class).registerRowMapper(ConstructorMapper.of(User.class));
     }
 
     @Before

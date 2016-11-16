@@ -44,7 +44,7 @@ public class TestHashPrefixStatementRewriter
 
     private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
         StatementContext ctx = new StatementContext();
-        attributes.forEach(ctx::setAttribute);
+        attributes.forEach(ctx.getConfig(SqlStatementConfig.class)::putAttribute);
 
         return rw.rewrite(sql, new Binding(), ctx);
     }

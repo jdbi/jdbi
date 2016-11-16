@@ -60,36 +60,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
     }
 
     /**
-     * Specify a value on the statement context for this batch
-     *
-     * @return self
-     */
-    @Override
-    public PreparedBatch define(String key, Object value)
-    {
-        getContext().setAttribute(key, value);
-        return this;
-    }
-
-    /**
-     * Adds all key/value pairs in the Map to the {@link StatementContext}.
-     *
-     * @param values containing key/value pairs.
-     * @return this
-     */
-    @Override
-    public PreparedBatch define(final Map<String, ?> values)
-    {
-        if (values != null) {
-            for (Map.Entry<String, ?> entry: values.entrySet())
-            {
-                getContext().setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
-        return this;
-    }
-
-    /**
      * Execute the batch
      *
      * @return the number of rows modified or inserted per batch part.
@@ -151,7 +121,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
 
         PreparedBatchPart current = parts.get(0);
         final String rawSql = getSql();
-        final RewrittenStatement rewritten = getRewriter().rewrite(rawSql, current.getParams(), getContext());
+        final RewrittenStatement rewritten = getConfig(SqlStatementConfig.class).getStatementRewriter().rewrite(rawSql, current.getParams(), getContext());
         PreparedStatement stmt;
         try {
             try {

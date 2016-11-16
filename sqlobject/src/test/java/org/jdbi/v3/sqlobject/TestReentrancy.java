@@ -21,6 +21,7 @@ import java.util.UUID;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -94,7 +95,7 @@ public class TestReentrancy
 
         dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
-        dbi.registerRowMapper(new SomethingMapper());
+        dbi.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
 
         handle = dbi.open();
 

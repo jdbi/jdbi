@@ -23,7 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestVendorArrays {
 
     private void init(Jdbi jdbi) {
-        jdbi.registerArrayType(Integer.class, "int")
+        jdbi.getConfig(ArgumentRegistry.class)
+                .registerArrayType(Integer.class, "int")
                 .registerArrayType(String.class, "varchar");
     }
 

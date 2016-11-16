@@ -33,8 +33,9 @@ public class ExtensionRegistry implements JdbiConfig<ExtensionRegistry> {
         this.parent = Optional.of(that);
     }
 
-    public void register(ExtensionFactory factory) {
+    public ExtensionRegistry register(ExtensionFactory factory) {
         factories.add(0, factory);
+        return this;
     }
 
     public boolean hasExtensionFor(Class<?> extensionType) {

@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 
+import org.jdbi.v3.core.ArgumentRegistry;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.PgDatabaseRule;
 import org.jdbi.v3.core.util.GenericType;
@@ -34,7 +35,7 @@ public class TestGuavaMappers {
 
     @Before
     public void setUp() {
-        db.getJdbi()
+        db.getJdbi().getConfig(ArgumentRegistry.class)
                 .registerArrayType(Integer.class, "integer")
                 .registerArrayType(UUID.class, "uuid");
         h = db.openHandle();

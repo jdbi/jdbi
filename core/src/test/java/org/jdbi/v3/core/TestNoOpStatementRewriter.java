@@ -31,7 +31,7 @@ public class TestNoOpStatementRewriter
     public void setUp() throws Exception
     {
         this.dbi = db.getJdbi();
-        dbi.setStatementRewriter(new NoOpStatementRewriter());
+        dbi.configure(SqlStatementConfig.class, config -> config.setStatementRewriter(new NoOpStatementRewriter()));
     }
 
     @Test

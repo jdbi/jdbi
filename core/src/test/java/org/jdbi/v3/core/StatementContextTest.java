@@ -57,8 +57,8 @@ public class StatementContextTest {
         ConfigRegistry config = new ConfigRegistry();
         config.get(MappingRegistry.class).registerColumnMapper(mapper);
 
-        final StatementContext context = new StatementContext(config);
+        final StatementContext ctx = new StatementContext(config);
 
-        assertThat(context.findColumnMapperFor(Foo.class)).contains(mapper);
+        assertThat(config.get(MappingRegistry.class).findColumnMapperFor(Foo.class, ctx)).contains(mapper);
     }
 }

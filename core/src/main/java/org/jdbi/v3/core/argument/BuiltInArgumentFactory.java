@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jdbi.v3.core.ArgumentRegistry;
 import org.jdbi.v3.core.SqlStatement;
 import org.jdbi.v3.core.StatementContext;
 
@@ -141,7 +142,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         if (value instanceof Optional) {
             Object nestedValue = ((Optional<?>)value).orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
-            return ctx.findArgumentFor(nestedType, nestedValue);
+            return ctx.getConfig(ArgumentRegistry.class)
+                    .findArgumentFor(nestedType, nestedValue, ctx);
         }
 
         return value == null

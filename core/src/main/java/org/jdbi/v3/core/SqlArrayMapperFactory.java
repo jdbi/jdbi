@@ -59,7 +59,7 @@ class SqlArrayMapperFactory implements ColumnMapperFactory {
     }
 
     private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, StatementContext ctx) {
-        Optional<ColumnMapper<?>> mapper = ctx.findColumnMapperFor(elementType);
+        Optional<ColumnMapper<?>> mapper = ctx.getConfig(MappingRegistry.class).findColumnMapperFor(elementType, ctx);
 
         if (!mapper.isPresent() && elementType == Object.class) {
             return Optional.of((rs, num, context) -> rs.getObject(num));

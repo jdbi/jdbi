@@ -42,7 +42,8 @@ class MapArguments implements NamedArgumentFinder
             final Object argument = args.get(name);
             final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();
-            return ctx.findArgumentFor(argumentClass, argument);
+            return ctx.getConfig(ArgumentRegistry.class)
+                    .findArgumentFor(argumentClass, argument, ctx);
         }
         return Optional.empty();
     }

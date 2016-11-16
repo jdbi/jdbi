@@ -20,18 +20,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.SqlStatementConfig;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Use this to override the statement rewriter on a sql object, May be specified on either the interface
  * or method level.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@SqlStatementCustomizingAnnotation(OverrideStatementRewriterWith.Factory.class)
+@ConfiguringAnnotation(OverrideStatementRewriterWith.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface OverrideStatementRewriterWith
 {
@@ -41,15 +43,15 @@ public @interface OverrideStatementRewriterWith
      */
     Class<? extends StatementRewriter> value();
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements ConfigurerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, method);
-                return q -> q.setStatementRewriter(rw);
+                return config -> config.get(SqlStatementConfig.class).setStatementRewriter(rw);
             }
             catch (Exception e) {
                 throw new IllegalStateException(e);
@@ -57,12 +59,12 @@ public @interface OverrideStatementRewriterWith
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, null);
-                return q -> q.setStatementRewriter(rw);
+                return config -> config.get(SqlStatementConfig.class).setStatementRewriter(rw);
             }
             catch (Exception e) {
                 throw new IllegalStateException(e);

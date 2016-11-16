@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.StatementContext;
 
 /**
@@ -76,11 +77,11 @@ public class JoinRowMapper implements RowMapper<JoinRowMapper.JoinRow>
     {
         final Map<Type, Object> entries = new HashMap<>(types.length);
         for (Type t : types) {
-            entries.put(t,
-                ctx.findRowMapperFor(t)
-                   .orElseThrow(() -> new IllegalArgumentException(
-                       "No row mapper registered for " + t))
-                   .map(r, ctx));
+            entries.put(t, ctx.getConfig(MappingRegistry.class)
+                    .findRowMapperFor(t, ctx)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "No row mapper registered for " + t))
+                    .map(r, ctx));
         }
         return new JoinRow(entries);
     }

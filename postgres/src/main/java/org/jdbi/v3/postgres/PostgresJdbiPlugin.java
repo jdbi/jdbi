@@ -15,31 +15,32 @@ package org.jdbi.v3.postgres;
 
 import java.util.UUID;
 
+import org.jdbi.v3.core.ArgumentRegistry;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class PostgresJdbiPlugin implements JdbiPlugin {
     @Override
-    public void customizeDbi(Jdbi db) {
-        db.registerArgumentFactory(new TypedEnumArgumentFactory());
+    public void customizeJdbi(Jdbi db) {
+        db.getConfig(ArgumentRegistry.class)
+                .register(new TypedEnumArgumentFactory())
+                .register(new JavaTimeArgumentFactory())
+                .register(new InetArgumentFactory())
+                .register(new HStoreArgumentFactory())
+                .registerArrayType(int.class, "integer")
+                .registerArrayType(Integer.class, "integer")
+                .registerArrayType(long.class, "bigint")
+                .registerArrayType(Long.class, "bigint")
+                .registerArrayType(String.class, "varchar")
+                .registerArrayType(UUID.class, "uuid")
+                .registerArrayType(float.class, "real")
+                .registerArrayType(Float.class, "real")
+                .registerArrayType(double.class, "double precision")
+                .registerArrayType(Double.class, "double precision");
 
-        db.registerColumnMapper(new JavaTimeMapperFactory());
-        db.registerArgumentFactory(new JavaTimeArgumentFactory());
-
-        db.registerArgumentFactory(new InetArgumentFactory());
-
-        db.registerColumnMapper(new HStoreColumnMapper());
-        db.registerArgumentFactory(new HStoreArgumentFactory());
-
-        db.registerArrayType(int.class, "integer");
-        db.registerArrayType(Integer.class, "integer");
-        db.registerArrayType(long.class, "bigint");
-        db.registerArrayType(Long.class, "bigint");
-        db.registerArrayType(String.class, "varchar");
-        db.registerArrayType(UUID.class, "uuid");
-        db.registerArrayType(float.class, "real");
-        db.registerArrayType(Float.class, "real");
-        db.registerArrayType(double.class, "double precision");
-        db.registerArrayType(Double.class, "double precision");
+        db.getConfig(MappingRegistry.class)
+                .registerColumnMapper(new JavaTimeMapperFactory())
+                .registerColumnMapper(new HStoreColumnMapper());
     }
 }

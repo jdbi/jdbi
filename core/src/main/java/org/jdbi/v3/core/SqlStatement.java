@@ -28,24 +28,15 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.SqlArrayType;
-import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.mapper.InferredRowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.StatementCustomizers;
@@ -60,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement {
+public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
     private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
 
     private final This             typedThis;
@@ -99,133 +90,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         ctx.setBinding(params);
     }
 
-    public This registerCollectorFactory(CollectorFactory collectorFactory) {
-        getConfig(CollectorRegistry.class).register(collectorFactory);
-        return typedThis;
-    }
-
-    public This registerArgumentFactory(ArgumentFactory argumentFactory)
-    {
-        getConfig(ArgumentRegistry.class).registerArgumentFactory(argumentFactory);
-        return typedThis;
-    }
-
-    /**
-     * Register an array element type that is supported by the JDBC vendor.
-     *
-     * @param elementType the array element type
-     * @param sqlTypeName the vendor-specific SQL type name for the array type.  This value will be passed to
-     *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
-     * @return this
-     */
-    public This registerArrayType(Class<?> elementType, String sqlTypeName)
-    {
-        getConfig(ArgumentRegistry.class).registerArrayType(elementType, sqlTypeName);
-        return typedThis;
-    }
-
-    /**
-     * Register a {@link SqlArrayType} which will have its parameterized type inspected to determine which element type
-     * it supports. {@link SqlArrayType SQL array types} are used to convert array-like arguments into SQL arrays.
-     * <p>
-     * The parameter must be concretely parameterized; we use the type argument {@code T} to determine if it applies to
-     * a given element type.
-     *
-     * @param arrayType the {@link SqlArrayType}
-     * @return this
-     * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
-     */
-    public This registerArrayType(SqlArrayType<?> arrayType)
-    {
-        getConfig(ArgumentRegistry.class).registerArrayType(arrayType);
-        return typedThis;
-    }
-
-    /**
-     * Register a {@link SqlArrayTypeFactory}. A factory is provided element types and, if it supports it, provides an
-     * {@link SqlArrayType} for it.
-     *
-     * @param factory the factory
-     * @return this
-     */
-    public This registerArrayType(SqlArrayTypeFactory factory)
-    {
-        getConfig(ArgumentRegistry.class).registerArrayType(factory);
-        return typedThis;
-    }
-
-    public This registerRowMapper(RowMapper<?> m)
-    {
-        getConfig(MappingRegistry.class).registerRowMapper(new InferredRowMapperFactory(m));
-        return typedThis;
-    }
-
-    public This registerRowMapper(RowMapperFactory m)
-    {
-        getConfig(MappingRegistry.class).registerRowMapper(m);
-        return typedThis;
-    }
-
-    public This registerColumnMapper(ColumnMapper<?> m)
-    {
-        getConfig(MappingRegistry.class).registerColumnMapper(m);
-        return typedThis;
-    }
-
-    public This registerColumnMapper(ColumnMapperFactory m)
-    {
-        getConfig(MappingRegistry.class).registerColumnMapper(m);
-        return typedThis;
-    }
-
-    /**
-     * Override the statement rewriter used for this statement
-     *
-     * @param rewriter the statement rewriter
-     *
-     * @return the same Query instance
-     */
-    public This setStatementRewriter(StatementRewriter rewriter) {
-        getConfig(SqlStatementConfig.class).setStatementRewriter(rewriter);
-        return typedThis;
-    }
-
     public This setFetchDirection(final int value)
     {
         addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
-        return typedThis;
-    }
-
-    /**
-     * Define a value on the {@link StatementContext}.
-     *
-     * @param key   Key to access this value from the StatementContext
-     * @param value Value to setAttribute on the StatementContext
-     *
-     * @return this
-     */
-    public This define(String key, Object value)
-    {
-        getContext().setAttribute(key, value);
-        return typedThis;
-    }
-
-    /**
-     * Adds all key/value pairs in the Map to the {@link StatementContext}.
-     *
-     * @param values containing key/value pairs.
-     *
-     * @return this
-     */
-    public This define(final Map<String, ?> values)
-    {
-        final StatementContext context = getContext();
-
-        if (values != null) {
-            for (Map.Entry<String, ?> entry : values.entrySet()) {
-                context.setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
         return typedThis;
     }
 
@@ -256,11 +123,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     protected StatementBuilder getStatementBuilder()
     {
         return statementBuilder;
-    }
-
-    protected StatementRewriter getRewriter()
-    {
-        return getConfig(SqlStatementConfig.class).getStatementRewriter();
     }
 
     protected Binding getParams()

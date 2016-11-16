@@ -16,18 +16,9 @@ package org.jdbi.v3.core;
 import static java.util.Objects.requireNonNull;
 
 import java.io.Closeable;
-import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collector;
-
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.SqlArrayType;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -38,7 +29,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
  * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
  * mock tools to create a mock object of this class in the user code.
  */
-public class StatementContext implements Closeable
+public class StatementContext implements Closeable, Configurable<StatementContext>
 {
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
@@ -71,100 +62,6 @@ public class StatementContext implements Closeable
 
     public ConfigRegistry getConfig() {
         return config;
-    }
-
-    /**
-     * Specify an attribute on the statement context
-     *
-     * @param key   name of the attribute
-     * @param value value for the attribute
-     *
-     * @return previous value of this attribute
-     */
-    public Object setAttribute(String key, Object value)
-    {
-        return config.get(SqlStatementConfig.class).getAttributes().put(key, value);
-    }
-
-    /**
-     * Obtain the value of an attribute
-     *
-     * @param key The name of the attribute
-     *
-     * @return the value of the attribute
-     */
-    public Object getAttribute(String key)
-    {
-        return config.get(SqlStatementConfig.class).getAttributes().get(key);
-    }
-
-    /**
-     * Obtain all the attributes associated with this context as a map. Changes to the map
-     * or to the attributes on the context will be reflected across both
-     *
-     * @return a map f attributes
-     */
-    public Map<String, Object> getAttributes()
-    {
-        return config.get(SqlStatementConfig.class).getAttributes();
-    }
-
-    /**
-     * Obtain a column mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type)
-    {
-        return config.get(MappingRegistry.class).findColumnMapperFor(type, this);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findRowMapperFor(Type type)
-    {
-        return config.get(MappingRegistry.class).findRowMapperFor(type, this);
-    }
-
-    /**
-     * Obtain an argument for given value in this context
-     * @param type the type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
-     */
-    public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return config.get(ArgumentRegistry.class).findArgumentFor(type, value, this);
-    }
-
-    /**
-     * Obtain an {@link SqlArrayType} for the given array element type in this context
-     * @param elementType the array element type.
-     * @return an {@link SqlArrayType} for the given element type.
-     */
-    public Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType) {
-        return config.get(ArgumentRegistry.class).findArrayTypeFor(elementType, this);
-    }
-
-    /**
-     * Obtain a collector for the given type in this context
-     * @param type the result type of the collector
-     * @return a Collector for the given result type, or null if no collector factory is registered for this type.
-     */
-    public Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
-        return config.get(CollectorRegistry.class).findCollectorFor(type);
-    }
-
-    /**
-     * @param containerType the container type.
-     * @return the element type for the given container type, if available.
-     */
-    public Optional<Type> elementTypeFor(Type containerType) {
-        return config.get(CollectorRegistry.class).elementTypeFor(containerType);
     }
 
     void setRawSql(String rawSql)

@@ -112,10 +112,8 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see Jdbi#registerRowMapper(RowMapper)
-     * @see Jdbi#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapper)
+     * @see MappingRegistry#registerRowMapper(RowMapper)
+     * @see MappingRegistry#registerRowMapper(RowMapperFactory)
      */
     @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(Class<T> resultType)
@@ -131,10 +129,8 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map rows to the desired type
      *
-     * @see Jdbi#registerRowMapper(RowMapper)
-     * @see Jdbi#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapper)
+     * @see MappingRegistry#registerRowMapper(RowMapper)
+     * @see MappingRegistry#registerRowMapper(RowMapperFactory)
      */
     @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(GenericType<T> resultType)
@@ -149,10 +145,8 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see Jdbi#registerRowMapper(RowMapper)
-     * @see Jdbi#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapper)
+     * @see MappingRegistry#registerRowMapper(RowMapper)
+     * @see MappingRegistry#registerRowMapper(RowMapperFactory)
      */
     public Query<?> mapTo(Type resultType) {
         return this.map(rowMapperForType(resultType));

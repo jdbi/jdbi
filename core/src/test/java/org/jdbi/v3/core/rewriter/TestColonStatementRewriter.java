@@ -14,12 +14,14 @@
 package org.jdbi.v3.core.rewriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Binding;
+import org.jdbi.v3.core.SqlStatementConfig;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.junit.Before;
@@ -45,9 +47,9 @@ public class TestColonStatementRewriter
 
     private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
         StatementContext ctx = Mockito.mock(StatementContext.class);
-        for (Map.Entry<String, Object> e : attributes.entrySet()) {
-            Mockito.when(ctx.getAttribute(e.getKey())).thenReturn(e.getValue());
-        }
+        SqlStatementConfig config = new SqlStatementConfig();
+        config.putAttributes(attributes);
+        when(ctx.getConfig(SqlStatementConfig.class)).thenReturn(config);
 
         return rw.rewrite(sql, new Binding(), ctx);
     }

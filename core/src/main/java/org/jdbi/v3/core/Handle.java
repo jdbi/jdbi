@@ -22,20 +22,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.SqlArrayType;
-import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
-import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
-import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.DefaultMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.transaction.TransactionCallback;
@@ -49,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * This represents a connection to the database system. It usually is a wrapper around
  * a JDBC Connection object.
  */
-public class Handle implements Closeable
+public class Handle implements Closeable, Configurable<Handle>
 {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
@@ -82,8 +72,8 @@ public class Handle implements Closeable
         this.config.set(config);
     }
 
-    public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
-        return getConfig().get(configClass);
+    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> config) {
+        this.config = config;
     }
 
     /**
@@ -96,166 +86,12 @@ public class Handle implements Closeable
     }
 
     /**
-     * Define a statement attribute which will be applied to all {@link StatementContext}
-     * instances for statements created from this handle.
-     *
-     * @param key Attribute name
-     * @param value Attribute value
-     * @return this
-     */
-    public Handle define(String key, Object value) {
-        getConfig(SqlStatementConfig.class).getAttributes().put(key, value);
-        return this;
-    }
-
-    public Handle registerArgumentFactory(ArgumentFactory argumentFactory) {
-        getConfig(ArgumentRegistry.class).registerArgumentFactory(argumentFactory);
-        return this;
-    }
-
-    /**
-     * Register an array element type that is supported by the JDBC vendor.
-     *
-     * @param elementType the array element type
-     * @param sqlTypeName the vendor-specific SQL type name for the array type.  This value will be passed to
-     *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
-     * @return this
-     */
-    public Handle registerArrayType(Class<?> elementType, String sqlTypeName)
-    {
-        getConfig(ArgumentRegistry.class).registerArrayType(elementType, sqlTypeName);
-        return this;
-    }
-
-    /**
-     * Register a {@link SqlArrayType} which will have its parameterized type inspected to determine which element type
-     * it supports. {@link SqlArrayType SQL array types} are used to convert array-like arguments into SQL arrays.
-     * <p>
-     * The parameter must be concretely parameterized; we use the type argument {@code T} to determine if it applies to
-     * a given element type.
-     *
-     * @param arrayType the {@link SqlArrayType}
-     * @return this
-     * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
-     */
-    public Handle registerArrayType(SqlArrayType<?> arrayType)
-    {
-        getConfig(ArgumentRegistry.class).registerArrayType(arrayType);
-        return this;
-    }
-
-    /**
-     * Register a {@link SqlArrayTypeFactory}. A factory is provided element types and, if it supports it, provides an
-     * {@link SqlArrayType} for it.
-     *
-     * @param factory the factory
-     * @return this
-     */
-    public Handle registerArrayType(SqlArrayTypeFactory factory)
-    {
-        getConfig(ArgumentRegistry.class).registerArrayType(factory);
-        return this;
-    }
-
-    public Handle registerCollectorFactory(CollectorFactory factory) {
-        getConfig(CollectorRegistry.class).register(factory);
-        return this;
-    }
-
-    /**
-     * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * The parameter must be concretely parameterized, we use the type argument T to
-     * determine if it applies to a given type.
-     *
-     * @param mapper the column mapper
-     * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
-     * @return this
-     */
-    public Handle registerColumnMapper(ColumnMapper<?> mapper) {
-        getConfig(MappingRegistry.class).registerColumnMapper(mapper);
-        return this;
-    }
-
-    /**
-     * Register a column mapper factory.
-     *
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * @param factory the column mapper factory
-     * @return this
-     */
-    public Handle registerColumnMapper(ColumnMapperFactory factory) {
-        getConfig(MappingRegistry.class).registerColumnMapper(factory);
-        return this;
-    }
-
-    public Handle registerExtension(ExtensionFactory factory) {
-        getConfig(ExtensionRegistry.class).register(factory);
-        return this;
-    }
-
-    /**
-     * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * The parameter must be concretely parameterized, we use the type argument T to
-     * determine if it applies to a given type.
-     *
-     * @param mapper the row mapper
-     * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
-     * @return this
-     */
-    public Handle registerRowMapper(RowMapper<?> mapper) {
-        getConfig(MappingRegistry.class).registerRowMapper(mapper);
-        return this;
-    }
-
-    /**
-     * Register a row mapper factory.
-     *
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * @param factory the row mapper factory
-     * @return this
-     */
-    public Handle registerRowMapper(RowMapperFactory factory) {
-        getConfig(MappingRegistry.class).registerRowMapper(factory);
-        return this;
-    }
-
-    /**
      * Specify the statement builder to use for this handle.
      * @param builder StatementBuilder to be used
      * @return this
      */
     public Handle setStatementBuilder(StatementBuilder builder) {
         this.statementBuilder = builder;
-        return this;
-    }
-
-    /**
-     * Allows for overiding the default statement rewriter. The default handles
-     * named parameter interpolation.
-     *
-     * @param rewriter the statement rewriter.
-     * @return this
-     */
-    public Handle setStatementRewriter(StatementRewriter rewriter) {
-        getConfig(SqlStatementConfig.class).setStatementRewriter(rewriter);;
-        return this;
-    }
-
-    /**
-     * Specify the class used to collect timing information. The default is inherited from the DBI used
-     * to create this Handle.
-     *
-     * @param timingCollector the timing collector
-     * @return this
-     */
-    public Handle setTimingCollector(final TimingCollector timingCollector) {
-        getConfig(SqlStatementConfig.class).setTimingCollector(timingCollector);
         return this;
     }
 
@@ -671,9 +507,5 @@ public class Handle implements Closeable
     /* package private */
     void setExtensionMethodThreadLocal(ThreadLocal<ExtensionMethod> extensionMethod) {
         this.extensionMethod = requireNonNull(extensionMethod);
-    }
-
-    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> config) {
-        this.config = config;
     }
 }

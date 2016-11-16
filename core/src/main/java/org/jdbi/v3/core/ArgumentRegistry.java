@@ -35,26 +35,40 @@ public class ArgumentRegistry implements JdbiConfig<ArgumentRegistry> {
 
     public ArgumentRegistry() {
         parent = Optional.empty();
-        registerArgumentFactory(BuiltInArgumentFactory.INSTANCE);
-        registerArgumentFactory(new SqlArrayArgumentFactory());
+        register(BuiltInArgumentFactory.INSTANCE);
+        register(new SqlArrayArgumentFactory());
     }
 
     private ArgumentRegistry(ArgumentRegistry that) {
         parent = Optional.of(that);
     }
 
-    public Optional<Argument> findArgumentFor(Type expectedType, Object it, StatementContext ctx) {
+    /**
+     * Obtain an argument for given value in the given context
+     * @param expectedType the type of the argument.
+     * @param value the argument value.
+     * @param ctx the statement context.
+     * @return an Argument for the given value.
+     */
+    public Optional<Argument> findArgumentFor(Type expectedType, Object value, StatementContext ctx) {
         return findFirstPresent(
                 () -> argumentFactories.stream()
-                        .flatMap(factory -> toStream(factory.build(expectedType, it, ctx)))
+                        .flatMap(factory -> toStream(factory.build(expectedType, value, ctx)))
                         .findFirst(),
-                () -> parent.flatMap(p -> p.findArgumentFor(expectedType, it, ctx)));
+                () -> parent.flatMap(p -> p.findArgumentFor(expectedType, value, ctx)));
     }
 
-    public void registerArgumentFactory(ArgumentFactory factory) {
+    public ArgumentRegistry register(ArgumentFactory factory) {
         argumentFactories.add(0, factory);
+        return this;
     }
 
+    /**
+     * Obtain an {@link SqlArrayType} for the given array element type in the given context
+     * @param elementType the array element type.
+     * @param ctx the statement context
+     * @return an {@link SqlArrayType} for the given element type.
+     */
     public Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType, StatementContext ctx) {
         return findFirstPresent(
                 () -> arrayTypeFactories.stream()
@@ -63,16 +77,43 @@ public class ArgumentRegistry implements JdbiConfig<ArgumentRegistry> {
                 () -> parent.flatMap(p -> p.findArrayTypeFor(elementType, ctx)));
     }
 
-    public void registerArrayType(Class<?> elementType, String sqlTypeName) {
-        registerArrayType(VendorSupportedArrayType.factory(elementType, sqlTypeName));
+    /**
+     * Register an array element type that is supported by the JDBC vendor.
+     *
+     * @param elementType the array element type
+     * @param sqlTypeName the vendor-specific SQL type name for the array type.  This value will be passed to
+     *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
+     * @return this
+     */
+    public ArgumentRegistry registerArrayType(Class<?> elementType, String sqlTypeName) {
+        return registerArrayType(VendorSupportedArrayType.factory(elementType, sqlTypeName));
     }
 
-    public void registerArrayType(SqlArrayType<?> arrayType) {
-        registerArrayType(new InferredSqlArrayTypeFactory(arrayType));
+    /**
+     * Register a {@link SqlArrayType} which will have its parameterized type inspected to determine which element type
+     * it supports. {@link SqlArrayType SQL array types} are used to convert array-like arguments into SQL arrays.
+     * <p>
+     * The parameter must be concretely parameterized; we use the type argument {@code T} to determine if it applies to
+     * a given element type.
+     *
+     * @param arrayType the {@link SqlArrayType}
+     * @return this
+     * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
+     */
+    public ArgumentRegistry registerArrayType(SqlArrayType<?> arrayType) {
+        return registerArrayType(new InferredSqlArrayTypeFactory(arrayType));
     }
 
-    public void registerArrayType(SqlArrayTypeFactory factory) {
+    /**
+     * Register a {@link SqlArrayTypeFactory}. A factory is provided element types and, if it supports it, provides an
+     * {@link SqlArrayType} for it.
+     *
+     * @param factory the factory
+     * @return this
+     */
+    public ArgumentRegistry registerArrayType(SqlArrayTypeFactory factory) {
         arrayTypeFactories.add(0, factory);
+        return this;
     }
 
     @Override
