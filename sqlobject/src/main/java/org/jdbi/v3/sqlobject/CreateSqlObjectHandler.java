@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.HandleSupplier;
+import org.jdbi.v3.core.extension.Extensions;
 
 class CreateSqlObjectHandler implements Handler
 {
@@ -29,6 +30,9 @@ class CreateSqlObjectHandler implements Handler
     @Override
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
-        return SqlObjectFactory.INSTANCE.attach(sqlObjectTypeToCreate, handle);
+        return handle.getConfig(Extensions.class)
+                .findFactory(SqlObjectFactory.class)
+                .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
+                .attach(sqlObjectTypeToCreate, handle);
     }
 }

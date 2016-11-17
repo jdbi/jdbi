@@ -50,8 +50,9 @@ public class TestSqlObjectMethodBehavior
                 return task.call();
             }
         };
-        dao = SqlObjectFactory.INSTANCE.attach(UselessDao.class, handleSupplier);
-        anotherDao = SqlObjectFactory.INSTANCE.attach(UselessDao.class, handleSupplier);
+        SqlObjectFactory factory = new SqlObjectFactory();
+        dao = factory.attach(UselessDao.class, handleSupplier);
+        anotherDao = factory.attach(UselessDao.class, handleSupplier);
     }
 
     public interface UselessDao extends GetHandle

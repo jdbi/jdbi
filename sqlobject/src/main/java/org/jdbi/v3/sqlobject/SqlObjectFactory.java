@@ -41,9 +41,7 @@ import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 
-public enum SqlObjectFactory implements ExtensionFactory {
-    INSTANCE;
-
+public class SqlObjectFactory implements ExtensionFactory {
     private static final Object[] NO_ARGS = new Object[0];
 
     private final Map<Method, Handler> mixinHandlers = new HashMap<>();

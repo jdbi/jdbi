@@ -56,6 +56,15 @@ public class Extensions implements JdbiConfig<Extensions> {
                 () -> parent.flatMap(p -> p.findFactoryFor(extensionType)));
     }
 
+    public <F extends ExtensionFactory> Optional<F> findFactory(Class<F> factoryType) {
+        return findFirstPresent(
+                () -> factories.stream()
+                        .filter(factoryType::isInstance)
+                        .map(factoryType::cast)
+                        .findFirst(),
+                () -> parent.flatMap(p -> p.findFactory(factoryType)));
+    }
+
     @Override
     public Extensions createChild() {
         return new Extensions(this);
