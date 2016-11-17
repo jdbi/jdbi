@@ -44,7 +44,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     /**
      * Define an attribute for {@link StatementContext} for statements executed by JDBI.
      *
-     * @param key   The key for the attribute
+     * @param key   the key for the attribute
      * @param value the value for the attribute
      * @return this
      */
@@ -59,8 +59,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param values map of attributes to define.
      * @return this
      */
-    public SqlStatements defineMap(final Map<String, ?> values)
-    {
+    public SqlStatements defineMap(final Map<String, ?> values) {
         if (values != null) {
             attributes.putAll(values);
         }
@@ -70,8 +69,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     /**
      * Obtain the value of an attribute
      *
-     * @param key The name of the attribute
-     *
+     * @param key the name of the attribute
      * @return the value of the attribute
      */
     public Object getAttribute(String key) {
@@ -79,7 +77,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * The attributes which will be applied to all {@link SqlStatement SQL statements} created by JDBI.
+     * Returns the attributes which will be applied to {@link SqlStatement SQL statements} created by JDBI.
+     *
      * @return the defined attributes.
      */
     public Map<String, Object> getAttributes() {

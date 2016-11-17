@@ -21,6 +21,7 @@ package org.jdbi.v3.core;
 public interface JdbiConfig<This extends JdbiConfig<This>> {
     /**
      * Returns a copy of this configuration object. Changes to the copy should not modify the original.
+     *
      * @return a copy of this configuration object.
      */
     This createChild();

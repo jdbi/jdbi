@@ -45,22 +45,21 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     /**
      * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
+     * <p>
      * The parameter must be concretely parameterized, we use the type argument T to
      * determine if it applies to a given type.
      *
      * @param mapper the column mapper
-     * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
      * @return this
+     * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
      */
-    public ColumnMappers register(ColumnMapper<?> mapper)
-    {
+    public ColumnMappers register(ColumnMapper<?> mapper) {
         return this.register(new InferredColumnMapperFactory(mapper));
     }
 
     /**
      * Register a column mapper factory.
-     *
+     * <p>
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
      * @param factory the column mapper factory
@@ -76,7 +75,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Obtain a column mapper for the given type in the given context.
      *
      * @param type the target type to map to
-     * @param ctx the statement context
+     * @param ctx  the statement context
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findFor(Type type, StatementContext ctx) {

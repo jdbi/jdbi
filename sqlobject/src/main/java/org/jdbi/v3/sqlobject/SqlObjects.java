@@ -35,6 +35,7 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
 
     /**
      * Returns the configured {@link SqlLocator}. The default SQL locator is {@link AnnotationSqlLocator}.
+     *
      * @return the configured {@link SqlLocator}.
      */
     public SqlLocator getSqlLocator() {
@@ -43,6 +44,7 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
 
     /**
      * Configures SqlObject to use the given {@link SqlLocator}.
+     *
      * @param sqlLocator the new SQL locator.
      * @return this {@link SqlObjects}.
      */

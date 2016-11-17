@@ -47,9 +47,10 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     /**
      * Obtain an argument for given value in the given context
-     * @param type the type of the argument.
+     *
+     * @param type  the type of the argument.
      * @param value the argument value.
-     * @param ctx the statement context.
+     * @param ctx   the statement context.
      * @return an Argument for the given value.
      */
     public Optional<Argument> findFor(Type type, Object value, StatementContext ctx) {

@@ -47,9 +47,10 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     }
 
     /**
-     * Obtain a collector for the given type in this context
-     * @param containerType the result type of the collector
-     * @return a Collector for the given result type, or null if no collector factory is registered for this type.
+     * Obtain a collector for the given type.
+     *
+     * @param containerType the container type.
+     * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
      */
     public Optional<Collector<?, ?, ?>> findFor(Type containerType) {
         return findFactoryFor(containerType)
@@ -57,6 +58,8 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     }
 
     /**
+     * Returns the element type for the given container type.
+     *
      * @param containerType the container type.
      * @return the element type for the given container type, if available.
      */

@@ -45,8 +45,7 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     }
 
     /**
-     * The strategy used to bind array-type arguments to SQL statements.
-     * @see SqlArrayArgumentStrategy
+     * Returns the strategy used to bind array-type arguments to SQL statements.
      */
     public SqlArrayArgumentStrategy getArgumentStrategy() {
         return argumentStrategy;
@@ -54,6 +53,7 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
 
     /**
      * Sets the strategy used when binding array-type arguments to SQL statements.
+     *
      * @param argumentStrategy the argument strategy to set
      * @return this
      */
@@ -103,8 +103,9 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
 
     /**
      * Obtain an {@link SqlArrayType} for the given array element type in the given context
+     *
      * @param elementType the array element type.
-     * @param ctx the statement context
+     * @param ctx         the statement context
      * @return an {@link SqlArrayType} for the given element type.
      */
     public Optional<SqlArrayType<?>> findFor(Type elementType, StatementContext ctx) {

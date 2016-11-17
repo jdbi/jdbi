@@ -76,48 +76,112 @@ public class StatementContext implements Closeable
         this.extensionMethod = extensionMethod;
     }
 
+    /**
+     * Gets the configuration object of the given type, associated with this context.
+     *
+     * @param configClass the configuration type
+     * @param <C>         the configuration type
+     * @return the configuration object of the given type, associated with this context.
+     */
     public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
         return config.get(configClass);
     }
 
+    /**
+     * Returns the attributes applied in this context.
+     *
+     * @return the defined attributes.
+     */
     public Map<String, Object> getAttributes() {
-        return config.get(SqlStatements.class).getAttributes();
+        return getConfig(SqlStatements.class).getAttributes();
     }
 
+    /**
+     * Obtain the value of an attribute
+     *
+     * @param key the name of the attribute
+     * @return the value of the attribute
+     */
     public Object getAttribute(String key) {
-        return config.get(SqlStatements.class).getAttribute(key);
+        return getConfig(SqlStatements.class).getAttribute(key);
     }
 
+    /**
+     * Define an attribute for in this context.
+     *
+     * @param key   the key for the attribute
+     * @param value the value for the attribute
+     */
     public void define(String key, Object value) {
-        config.get(SqlStatements.class).define(key, value);
+        getConfig(SqlStatements.class).define(key, value);
     }
 
+    /**
+     * Obtain an argument for given value in the this context
+     *
+     * @param type  the type of the argument.
+     * @param value the argument value.
+     * @return an Argument for the given value.
+     */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return config.get(Arguments.class).findFor(type, value, this);
+        return getConfig(Arguments.class).findFor(type, value, this);
     }
 
+    /**
+     * Returns the strategy used to bind array-type arguments to SQL statements.
+     */
     public SqlArrayArgumentStrategy getSqlArrayArgumentStrategy() {
-        return config.get(SqlArrayTypes.class).getArgumentStrategy();
+        return getConfig(SqlArrayTypes.class).getArgumentStrategy();
     }
 
+    /**
+     * Obtain an {@link SqlArrayType} for the given array element type in this context
+     *
+     * @param elementType the array element type.
+     * @return an {@link SqlArrayType} for the given element type.
+     */
     public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
-        return config.get(SqlArrayTypes.class).findFor(elementType, this);
+        return getConfig(SqlArrayTypes.class).findFor(elementType, this);
     }
 
+    /**
+     * Obtain a column mapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
+     */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
-        return config.get(ColumnMappers.class).findFor(type, this);
+        return getConfig(ColumnMappers.class).findFor(type, this);
     }
 
+    /**
+     * Obtain a row mapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
     public Optional<RowMapper<?>> findRowMapperFor(Type type) {
-        return config.get(RowMappers.class).findFor(type, this);
+        return getConfig(RowMappers.class).findFor(type, this);
     }
 
-    public Optional<Collector<?,?,?>> findCollectorFor(Type type) {
-        return config.get(JdbiCollectors.class).findFor(type);
+    /**
+     * Obtain a collector for the given type.
+     *
+     * @param containerType the container type.
+     * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
+     */
+    public Optional<Collector<?,?,?>> findCollectorFor(Type containerType) {
+        return getConfig(JdbiCollectors.class).findFor(containerType);
     }
 
-    public Optional<Type> findElementTypeFor(Type type) {
-        return config.get(JdbiCollectors.class).findElementTypeFor(type);
+    /**
+     * Returns the element type for the given container type.
+     *
+     * @param containerType the container type.
+     * @return the element type for the given container type, if available.
+     */
+    public Optional<Type> findElementTypeFor(Type containerType) {
+        return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
     }
 
     void setRawSql(String rawSql)

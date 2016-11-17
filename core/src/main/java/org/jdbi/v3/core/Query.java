@@ -116,8 +116,8 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @see RowMappers#register(RowMapper)
      * @see RowMappers#register(RowMapperFactory)
-     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(ColumnMapper)
-     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(org.jdbi.v3.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(RowMapperFactory)
      */
     @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(Class<T> resultType)
@@ -135,8 +135,8 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @see RowMappers#register(RowMapper)
      * @see RowMappers#register(RowMapperFactory)
-     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(ColumnMapper)
-     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(org.jdbi.v3.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(RowMapperFactory)
      */
     @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(GenericType<T> resultType)
@@ -153,8 +153,8 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @see RowMappers#register(RowMapper)
      * @see RowMappers#register(RowMapperFactory)
-     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(ColumnMapper)
-     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(org.jdbi.v3.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(RowMapperFactory)
      */
     public Query<?> mapTo(Type resultType) {
         return this.map(rowMapperForType(resultType));

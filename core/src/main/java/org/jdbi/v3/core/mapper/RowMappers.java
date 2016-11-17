@@ -43,29 +43,27 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     /**
      * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
+     * <p>
      * The parameter must be concretely parameterized, we use the type argument T to
      * determine if it applies to a given type.
      *
      * @param mapper the row mapper
-     * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
      * @return this
+     * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
      */
-    public RowMappers register(RowMapper<?> mapper)
-    {
+    public RowMappers register(RowMapper<?> mapper) {
         return this.register(new InferredRowMapperFactory(mapper));
     }
 
     /**
      * Register a row mapper factory.
-     *
+     * <p>
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
      * @param factory the row mapper factory
      * @return this
      */
-    public RowMappers register(RowMapperFactory factory)
-    {
+    public RowMappers register(RowMapperFactory factory) {
         factories.add(0, factory);
         cache.clear();
         return this;
