@@ -91,8 +91,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
                 () -> factories.stream()
                         .flatMap(factory -> toStream(factory.build(type, ctx)))
                         .findFirst(),
-                () -> ctx.getConfig(ColumnMappers.class)
-                        .findFor(type, ctx)
+                () -> ctx.findColumnMapperFor(type)
                         .map(SingleColumnMapper::new),
                 () -> parent.flatMap(p -> p.findFor(type, ctx)));
 

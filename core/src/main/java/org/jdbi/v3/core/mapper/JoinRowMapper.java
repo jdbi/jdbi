@@ -75,11 +75,10 @@ public class JoinRowMapper implements RowMapper<JoinRowMapper.JoinRow>
     throws SQLException
     {
         final Map<Type, Object> entries = new HashMap<>(types.length);
-        for (Type t : types) {
-            entries.put(t, ctx.getConfig(RowMappers.class)
-                    .findFor(t, ctx)
+        for (Type type : types) {
+            entries.put(type, ctx.findRowMapperFor(type)
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "No row mapper registered for " + t))
+                            "No row mapper registered for " + type))
                     .map(r, ctx));
         }
         return new JoinRow(entries);

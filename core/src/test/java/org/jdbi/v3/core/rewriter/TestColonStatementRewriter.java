@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Binding;
-import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.junit.Before;
@@ -47,9 +46,7 @@ public class TestColonStatementRewriter
 
     private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
         StatementContext ctx = Mockito.mock(StatementContext.class);
-        SqlStatements config = new SqlStatements();
-        config.defineMap(attributes);
-        when(ctx.getConfig(SqlStatements.class)).thenReturn(config);
+        attributes.forEach((key, value) -> when(ctx.getAttribute(key)).thenReturn(value));
 
         return rw.rewrite(sql, new Binding(), ctx);
     }

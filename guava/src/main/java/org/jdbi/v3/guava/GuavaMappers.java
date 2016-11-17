@@ -20,7 +20,6 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 
-import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
@@ -51,8 +50,7 @@ public class GuavaMappers {
 
             if (ImmutableList.class.equals(erasedType)) {
                 return GenericTypes.findGenericParameter(type, ImmutableList.class)
-                        .flatMap(elementType -> ctx.getConfig(ColumnMappers.class)
-                                .findFor(elementType, ctx))
+                        .flatMap(elementType -> ctx.findColumnMapperFor(elementType))
                         .map(ImmutableListArrayColumnMapper::new);
             }
 

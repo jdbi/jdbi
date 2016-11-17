@@ -16,9 +16,25 @@ package org.jdbi.v3.core;
 import static java.util.Objects.requireNonNull;
 
 import java.io.Closeable;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collector;
+
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
+import org.jdbi.v3.core.array.SqlArrayType;
+import org.jdbi.v3.core.array.SqlArrayTypes;
+import org.jdbi.v3.core.collector.JdbiCollectors;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.statement.SqlStatements;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -29,7 +45,7 @@ import java.util.Arrays;
  * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
  * mock tools to create a mock object of this class in the user code.
  */
-public class StatementContext implements Closeable, Configurable<StatementContext>
+public class StatementContext implements Closeable
 {
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
@@ -60,8 +76,48 @@ public class StatementContext implements Closeable, Configurable<StatementContex
         this.extensionMethod = extensionMethod;
     }
 
-    public ConfigRegistry getConfig() {
-        return config;
+    public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
+        return config.get(configClass);
+    }
+
+    public Map<String, Object> getAttributes() {
+        return config.get(SqlStatements.class).getAttributes();
+    }
+
+    public Object getAttribute(String key) {
+        return config.get(SqlStatements.class).getAttribute(key);
+    }
+
+    public void define(String key, Object value) {
+        config.get(SqlStatements.class).define(key, value);
+    }
+
+    public Optional<Argument> findArgumentFor(Type type, Object value) {
+        return config.get(Arguments.class).findFor(type, value, this);
+    }
+
+    public SqlArrayArgumentStrategy getSqlArrayArgumentStrategy() {
+        return config.get(SqlArrayTypes.class).getArgumentStrategy();
+    }
+
+    public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
+        return config.get(SqlArrayTypes.class).findFor(elementType, this);
+    }
+
+    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
+        return config.get(ColumnMappers.class).findFor(type, this);
+    }
+
+    public Optional<RowMapper<?>> findRowMapperFor(Type type) {
+        return config.get(RowMappers.class).findFor(type, this);
+    }
+
+    public Optional<Collector<?,?,?>> findCollectorFor(Type type) {
+        return config.get(JdbiCollectors.class).findFor(type);
+    }
+
+    public Optional<Type> findElementTypeFor(Type type) {
+        return config.get(JdbiCollectors.class).findElementTypeFor(type);
     }
 
     void setRawSql(String rawSql)

@@ -85,7 +85,7 @@ public @interface UseStringTemplateSqlLocator {
                 String templateName = sql;
 
                 StringTemplateGroup group = findStringTemplateGroup(sqlObjectType);
-                StringTemplate template = group.getInstanceOf(templateName, ctx.getConfig(SqlStatements.class).getAttributes());
+                StringTemplate template = group.getInstanceOf(templateName, ctx.getAttributes());
                 String rewritten = template.toString();
 
                 return delegate.rewrite(rewritten, params, ctx);

@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.ResultBearing;
@@ -114,8 +113,7 @@ abstract class ResultReturnThing
         {
             if (q instanceof Query) {
                 Collector collector = ((Query)q).getContext()
-                        .getConfig(JdbiCollectors.class)
-                        .findFor(returnType)
+                        .findCollectorFor(returnType)
                         .orElse(null);
                 if (collector != null) {
                     return q.collect(collector);
@@ -128,8 +126,7 @@ abstract class ResultReturnThing
         protected Type elementType(StatementContext ctx)
         {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return ctx.getConfig(JdbiCollectors.class)
-                    .findElementTypeFor(returnType)
+            return ctx.findElementTypeFor(returnType)
                     .orElse(returnType);
         }
     }

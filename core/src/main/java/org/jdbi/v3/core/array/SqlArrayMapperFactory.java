@@ -28,7 +28,6 @@ import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
@@ -71,7 +70,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
     }
 
     private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, StatementContext ctx) {
-        Optional<ColumnMapper<?>> mapper = ctx.getConfig(ColumnMappers.class).findFor(elementType, ctx);
+        Optional<ColumnMapper<?>> mapper = ctx.findColumnMapperFor(elementType);
 
         if (!mapper.isPresent() && elementType == Object.class) {
             return Optional.of((rs, num, context) -> rs.getObject(num));

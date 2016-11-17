@@ -18,7 +18,6 @@ import static java.util.Objects.requireNonNull;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.jdbi.v3.core.Binding;
-import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
@@ -51,7 +50,7 @@ public class StringTemplateStatementRewriter implements StatementRewriter {
     public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx) {
         StringTemplate template = new StringTemplate(sql, AngleBracketTemplateLexer.class);
 
-        ctx.getConfig(SqlStatements.class).getAttributes().forEach(template::setAttribute);
+        ctx.getAttributes().forEach(template::setAttribute);
 
         return delegate.rewrite(template.toString(), params, ctx);
     }

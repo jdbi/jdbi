@@ -19,7 +19,6 @@ import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
@@ -49,7 +48,7 @@ public class GuavaArguments {
             if (value instanceof com.google.common.base.Optional) {
                 Object nestedValue = ((com.google.common.base.Optional<?>) value).orNull();
                 Type nestedType = findOptionalType(expectedType, nestedValue);
-                return ctx.getConfig(Arguments.class).findFor(nestedType, nestedValue, ctx);
+                return ctx.findArgumentFor(nestedType, nestedValue);
             }
 
             return Optional.empty();

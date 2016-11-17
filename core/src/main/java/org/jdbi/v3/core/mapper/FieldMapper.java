@@ -132,7 +132,7 @@ public class FieldMapper<T> implements RowMapper<T>
             final Field field = maybeField.get();
             final Type type = field.getGenericType();
             final Object value;
-            final Optional<ColumnMapper<?>> mapper = ctx.getConfig(ColumnMappers.class).findFor(type, ctx);
+            final Optional<ColumnMapper<?>> mapper = ctx.findColumnMapperFor(type);
 
             if (mapper.isPresent()) {
                 value = mapper.get().map(rs, i, ctx);

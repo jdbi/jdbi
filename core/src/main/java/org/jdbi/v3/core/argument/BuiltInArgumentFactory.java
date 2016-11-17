@@ -141,7 +141,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         if (value instanceof Optional) {
             Object nestedValue = ((Optional<?>)value).orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
-            return ctx.getConfig(Arguments.class).findFor(nestedType, nestedValue, ctx);
+            return ctx.findArgumentFor(nestedType, nestedValue);
         }
 
         return value == null

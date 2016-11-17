@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 
 /**
@@ -43,8 +42,7 @@ class MapArguments implements NamedArgumentFinder
             final Object argument = args.get(name);
             final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();
-            return ctx.getConfig(Arguments.class)
-                    .findFor(argumentClass, argument, ctx);
+            return ctx.findArgumentFor(argumentClass, argument);
         }
         return Optional.empty();
     }

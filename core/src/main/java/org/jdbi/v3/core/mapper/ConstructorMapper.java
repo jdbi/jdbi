@@ -160,8 +160,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
             final String paramName = paramName(constructor.getParameters()[i]);
             final int columnIndex = columnIndexForParameter(columnNames, paramName);
 
-            mappers[i] = ctx.getConfig(ColumnMappers.class)
-                    .findFor(type, ctx)
+            mappers[i] = ctx.findColumnMapperFor(type)
                     .orElseThrow(() -> new IllegalArgumentException(String.format(
                             "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'",
                             type, paramName, constructor)));
