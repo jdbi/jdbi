@@ -13,7 +13,17 @@
  */
 package org.jdbi.v3.core.array;
 
+import java.sql.Array;
+
 public enum SqlArrayArgumentStrategy {
+    /**
+     * Bind arrays arguments using {@link java.sql.Connection#createArrayOf(String, Object[])} and
+     * {@link java.sql.PreparedStatement#setArray(int, Array)}.
+     */
     SQL_ARRAY,
+
+    /**
+     * Bind arrays arguments using {@link java.sql.PreparedStatement#setObject(int, Object)} with an array object.
+     */
     OBJECT_ARRAY
 }

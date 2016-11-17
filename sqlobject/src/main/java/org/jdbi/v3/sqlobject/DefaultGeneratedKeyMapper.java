@@ -32,15 +32,13 @@ class DefaultGeneratedKeyMapper implements RowMapper<Object> {
 
     @Override
     public Object map(ResultSet r, StatementContext ctx) throws SQLException {
-        ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(returnType)
-                .orElse(null);
+        ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(returnType).orElse(null);
         if (columnMapper != null) {
             return "".equals(columnName)
                 ? columnMapper.map(r, 1, ctx)
                 : columnMapper.map(r, columnName, ctx);
         }
-        RowMapper<?> rowMapper = ctx.findRowMapperFor(returnType)
-                .orElse(null);
+        RowMapper<?> rowMapper = ctx.findRowMapperFor(returnType).orElse(null);
         if (rowMapper != null) {
             return rowMapper.map(r, ctx);
         }

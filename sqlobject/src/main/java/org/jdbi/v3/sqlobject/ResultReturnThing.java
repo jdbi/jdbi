@@ -112,9 +112,7 @@ abstract class ResultReturnThing
         protected Object result(ResultBearing<?> q, HandleSupplier handle)
         {
             if (q instanceof Query) {
-                Collector collector = ((Query)q).getContext()
-                        .findCollectorFor(returnType)
-                        .orElse(null);
+                Collector collector = ((Query)q).getContext().findCollectorFor(returnType).orElse(null);
                 if (collector != null) {
                     return q.collect(collector);
                 }
@@ -126,8 +124,7 @@ abstract class ResultReturnThing
         protected Type elementType(StatementContext ctx)
         {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return ctx.findElementTypeFor(returnType)
-                    .orElse(returnType);
+            return ctx.findElementTypeFor(returnType).orElse(returnType);
         }
     }
 

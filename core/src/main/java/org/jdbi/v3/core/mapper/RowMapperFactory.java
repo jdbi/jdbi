@@ -32,6 +32,9 @@ public interface RowMapperFactory
      *
      * @return a row mapper for the given type if this factory supports it; <code>Optional.empty()</code> otherwise.
      *
+     * @see StatementContext#findRowMapperFor(Type)
+     * @see RowMappers#findFor(Type, StatementContext)
+     * @see StatementContext#findColumnMapperFor(Type) for pluggable per-column mappings
      * @see ColumnMappers#findFor(Type,StatementContext)
      */
     Optional<RowMapper<?>> build(Type type, StatementContext ctx);

@@ -34,9 +34,8 @@ class QueryHandler extends CustomizingStatementHandler
     @Override
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
-        Handle h = handle.getHandle();
-        String sql = h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
-        Query<?> q = h.createQuery(sql);
+        String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
+        Query<?> q = handle.getHandle().createQuery(sql);
         applyCustomizers(q, args);
         applyBinders(q, args);
 

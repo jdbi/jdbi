@@ -30,6 +30,7 @@ public interface ColumnMapperFactory
      * @param type the target type to map to
      * @param ctx the statement context.
      * @return a column mapper for the given type if this factory supports it, or <code>Optional.empty()</code> otherwise.
+     * @see StatementContext#findColumnMapperFor(Type)
      * @see ColumnMappers#findFor(Type,StatementContext)
      */
     Optional<ColumnMapper<?>> build(Type type, StatementContext ctx);

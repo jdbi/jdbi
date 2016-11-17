@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -20,6 +21,7 @@ import org.jdbi.v3.core.StatementContext;
 
 /**
  * Maps result set columns to objects.
+ * @see StatementContext#findColumnMapperFor(Type)
  * @see ColumnMappers#findFor(java.lang.reflect.Type,StatementContext)
  */
 @FunctionalInterface

@@ -50,7 +50,7 @@ public class GuavaMappers {
 
             if (ImmutableList.class.equals(erasedType)) {
                 return GenericTypes.findGenericParameter(type, ImmutableList.class)
-                        .flatMap(elementType -> ctx.findColumnMapperFor(elementType))
+                        .flatMap(ctx::findColumnMapperFor)
                         .map(ImmutableListArrayColumnMapper::new);
             }
 
