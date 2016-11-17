@@ -95,7 +95,7 @@ public class TestReentrancy
 
         dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
-        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
+        dbi.registerRowMapper(new SomethingMapper());
 
         handle = dbi.open();
 

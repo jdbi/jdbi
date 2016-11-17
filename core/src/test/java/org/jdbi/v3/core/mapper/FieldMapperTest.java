@@ -161,7 +161,7 @@ public class FieldMapperTest {
 
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
-        handle.getConfig(ColumnMappers.class).register(new ValueTypeMapper());
+        handle.registerColumnMapper(new ValueTypeMapper());
 
         when(resultSetMetaData.getColumnCount()).thenReturn(2);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");

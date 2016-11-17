@@ -13,20 +13,18 @@
  */
 package org.jdbi.v3.core;
 
-import org.jdbi.v3.core.array.SqlArrayTypes;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 
 public class TestVendorArrays {
 
     private void init(Jdbi jdbi) {
-        jdbi.getConfig(SqlArrayTypes.class)
-                .register(Integer.class, "int")
-                .register(String.class, "varchar");
+        jdbi.registerArrayType(Integer.class, "int");
+        jdbi.registerArrayType(String.class, "varchar");
     }
 
     @Test

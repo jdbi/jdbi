@@ -17,16 +17,12 @@ import java.util.UUID;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
-import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
-public class H2DatabasePlugin implements JdbiPlugin
-{
+public class H2DatabasePlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi jdbi)
-    {
-        jdbi.getConfig(SqlArrayTypes.class)
-                .setArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY)
-                .register(UUID.class, "uuid");
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY);
+        jdbi.registerArrayType(UUID.class, "uuid");
     }
 }

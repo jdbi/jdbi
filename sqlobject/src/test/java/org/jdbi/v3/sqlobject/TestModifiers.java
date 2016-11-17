@@ -44,7 +44,7 @@ public class TestModifiers
     public void setUp() throws Exception
     {
         handle = db.getSharedHandle();
-        handle.getConfig(RowMappers.class).register(new SomethingMapper());
+        handle.registerRowMapper(new SomethingMapper());
     }
 
     @Test

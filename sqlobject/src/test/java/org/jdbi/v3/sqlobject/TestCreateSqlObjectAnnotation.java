@@ -39,9 +39,9 @@ public class TestCreateSqlObjectAnnotation
     @Before
     public void setUp() throws Exception
     {
-        db.getJdbi().getConfig(RowMappers.class).register(new SomethingMapper());
+        db.getJdbi().registerRowMapper(new SomethingMapper());
         handle = db.getSharedHandle();
-        handle.getConfig(RowMappers.class).register(new SomethingMapper());
+        handle.registerRowMapper(new SomethingMapper());
     }
 
 

@@ -21,7 +21,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -52,7 +51,7 @@ public @interface Define
             Define define = (Define) annotation;
 
             final String name = ParameterUtil.getParameterName(define, define.value(), param);
-            return stmt -> stmt.getConfig(SqlStatements.class).putAttribute(name, arg);
+            return stmt -> stmt.define(name, arg);
         }
     }
 }

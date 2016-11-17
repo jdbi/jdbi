@@ -37,7 +37,7 @@ public class TestRegisteredMappers
     @Test
     public void testRegisterInferredOnDBI() throws Exception
     {
-        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
+        dbi.registerRowMapper(new SomethingMapper());
         Something sam = dbi.withHandle(handle1 -> {
             handle1.insert("insert into something (id, name) values (18, 'Sam')");
 

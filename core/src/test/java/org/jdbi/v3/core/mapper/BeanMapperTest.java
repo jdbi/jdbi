@@ -211,7 +211,7 @@ public class BeanMapperTest {
 
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
-        handle.getConfig(ColumnMappers.class).register(new ValueTypeMapper());
+        handle.registerColumnMapper(new ValueTypeMapper());
 
         when(resultSetMetaData.getColumnCount()).thenReturn(2);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
@@ -267,7 +267,7 @@ public class BeanMapperTest {
     @Test
     public void testColumnNameAnnotation() {
         Handle handle = db.getSharedHandle();
-        handle.getConfig(RowMappers.class).register(BeanMapper.of(ColumnNameBean.class));
+        handle.registerRowMapper(BeanMapper.of(ColumnNameBean.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
 

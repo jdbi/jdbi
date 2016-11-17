@@ -20,7 +20,6 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 public class SqlObjectPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        jdbi.getConfig(Extensions.class)
-                .register(SqlObjectFactory.INSTANCE);
+        jdbi.registerExtension(SqlObjectFactory.INSTANCE);
     }
 }

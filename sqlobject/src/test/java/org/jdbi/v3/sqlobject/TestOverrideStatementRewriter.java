@@ -43,7 +43,7 @@ public class TestOverrideStatementRewriter
         Jdbi dbi = db.getJdbi();
 
         // this is the default, but be explicit for sake of clarity in test
-        dbi.configure(SqlStatements.class, config -> config.setStatementRewriter(new ColonPrefixStatementRewriter()));
+        dbi.setStatementRewriter(new ColonPrefixStatementRewriter());
         handle = dbi.open();
     }
 

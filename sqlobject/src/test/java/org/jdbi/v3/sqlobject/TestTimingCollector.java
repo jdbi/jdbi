@@ -45,7 +45,7 @@ public class TestTimingCollector {
         jdbi = h2DatabaseRule.getJdbi();
         jdbi.useHandle(h -> h.execute("CREATE ALIAS custom_insert FOR " +
                 "\"org.jdbi.v3.sqlobject.TestTimingCollector.customInsert\";"));
-        jdbi.configure(SqlStatements.class, config -> config.setTimingCollector(timingCollector));
+        jdbi.setTimingCollector(timingCollector);
         dao = jdbi.onDemand(DAO.class);
     }
 

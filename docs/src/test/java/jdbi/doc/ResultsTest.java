@@ -109,7 +109,7 @@ public class ResultsTest {
     // tag::rowMapperFactory[]
     @Test
     public void rowMapperFactory() {
-        handle.getConfig(RowMappers.class).register(new RowMapperFactory() {
+        handle.registerRowMapper(new RowMapperFactory() {
             @Override
             public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
                 return type == User.class ?
@@ -132,7 +132,7 @@ public class ResultsTest {
     // tag::constructorMapper[]
     @Test
     public void constructorMapper() {
-        handle.getConfig(RowMappers.class).register(ConstructorMapper.of(User.class));
+        handle.registerRowMapper(ConstructorMapper.of(User.class));
         Set<User> userSet = handle.createQuery(SELECT_ALL_USERS)
             .mapTo(User.class)
             .collect(Collectors.toSet());
@@ -171,8 +171,8 @@ public class ResultsTest {
 
     @Test
     public void columnMapper() {
-        handle.getConfig(ColumnMappers.class).register(new UserNameColumnMapperFactory());
-        handle.getConfig(RowMappers.class).register(ConstructorMapper.of(NamedUser.class));
+        handle.registerColumnMapper(new UserNameColumnMapperFactory());
+        handle.registerRowMapper(ConstructorMapper.of(NamedUser.class));
 
         NamedUser bob = handle.createQuery("SELECT id, name FROM user WHERE name = :name")
             .bind("name", "Bob")

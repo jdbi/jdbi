@@ -44,7 +44,7 @@ public class TestNewApiOnDbiAndHandle
         ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
-        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
+        dbi.registerRowMapper(new SomethingMapper());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");

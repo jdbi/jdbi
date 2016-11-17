@@ -22,7 +22,6 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 public class JpaPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        jdbi.getConfig(RowMappers.class)
-                .register(new JpaMapperFactory());
+        jdbi.registerRowMapper(new JpaMapperFactory());
     }
 }

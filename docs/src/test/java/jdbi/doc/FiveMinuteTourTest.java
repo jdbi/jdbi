@@ -106,7 +106,7 @@ public class FiveMinuteTourTest {
     @Test
     public void registerCustomMapper() {
         // tag::registerCustomMapper[]
-        handle.getConfig(RowMappers.class).register(new SomethingMapper());
+        handle.registerRowMapper(new SomethingMapper());
 
         List<Something> things = handle.createQuery("select * from something")
                                        .mapTo(Something.class)
@@ -119,7 +119,7 @@ public class FiveMinuteTourTest {
 
     @Test
     public void namedParameters() {
-        handle.getConfig(RowMappers.class).register(new SomethingMapper());
+        handle.registerRowMapper(new SomethingMapper());
         // tag::namedParameters[]
         Something thing = handle.createQuery("select * from something where id = :id")
                                 .bind("id", 1)

@@ -42,7 +42,7 @@ public class HelloWorldTest {
                 .execute();
 
             // Easy mapping to your types
-            handle.getConfig(RowMappers.class).register(ConstructorMapper.of(User.class));
+            handle.registerRowMapper(ConstructorMapper.of(User.class));
             return handle.createQuery("SELECT * FROM user ORDER BY id")
                 .mapTo(User.class)
                 .list();

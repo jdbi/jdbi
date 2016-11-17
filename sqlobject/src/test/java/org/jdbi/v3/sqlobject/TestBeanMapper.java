@@ -214,9 +214,8 @@ public class TestBeanMapper
                             "on f.id = d.folder_id " +
                             "where f.id = :folderId")
                     .bind("folderId", folderId)
-                    .configure(RowMappers.class, mappers -> mappers
-                            .register(BeanMapper.of(Folder.class, "f_"))
-                            .register(BeanMapper.of(Document.class, "d_")))
+                    .registerRowMapper(BeanMapper.of(Folder.class, "f_"))
+                    .registerRowMapper(BeanMapper.of(Document.class, "d_"))
                     .reduceRows(Optional.<Folder>empty(), (folder, row) -> {
                         Folder f = folder.orElseGet(() -> row.getRow(Folder.class));
                         if (row.getColumn("d_id", Integer.class) != null) {

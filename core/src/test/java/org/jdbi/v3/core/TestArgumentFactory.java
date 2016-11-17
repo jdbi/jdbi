@@ -34,7 +34,7 @@ public class TestArgumentFactory
     public void testRegisterOnDBI() throws Exception
     {
         final Jdbi dbi = db.getJdbi();
-        dbi.getConfig(Arguments.class).register(new NameAF());
+        dbi.registerArgument(new NameAF());
         try (Handle h = dbi.open()) {
             h.createUpdate("insert into something (id, name) values (:id, :name)")
               .bind("id", 7)
@@ -51,7 +51,7 @@ public class TestArgumentFactory
     public void testRegisterOnHandle() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            h.getConfig(Arguments.class).register(new NameAF());
+            h.registerArgument(new NameAF());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
              .bind("id", 7)
              .bind("name", new Name("Brian", "McCallister"))
@@ -67,7 +67,7 @@ public class TestArgumentFactory
     public void testRegisterOnStatement() throws Exception
     {
         db.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
-         .configure(Arguments.class, args -> args.register(new NameAF()))
+         .registerArgument(new NameAF())
          .bind("id", 1)
          .bind("name", new Name("Brian", "McCallister"))
          .execute();
@@ -78,7 +78,7 @@ public class TestArgumentFactory
     {
         Handle h = db.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
-        batch.getConfig(Arguments.class).register(new NameAF());
+        batch.registerArgument(new NameAF());
 
         batch.add().bind("id", 1).bind("name", new Name("Brian", "McCallister"));
         batch.add().bind("id", 2).bind("name", new Name("Henning", "S"));

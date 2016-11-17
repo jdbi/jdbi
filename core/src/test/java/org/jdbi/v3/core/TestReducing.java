@@ -41,7 +41,7 @@ public class TestReducing
         h.execute("INSERT INTO something_location (id, location) VALUES (1, 'outside')");
         h.execute("INSERT INTO something_location (id, location) VALUES (2, 'tree')");
         h.execute("INSERT INTO something_location (id, location) VALUES (2, 'pie')");
-        h.getConfig(RowMappers.class).register(new SomethingMapper());
+        h.registerRowMapper(new SomethingMapper());
     }
 
     @Test

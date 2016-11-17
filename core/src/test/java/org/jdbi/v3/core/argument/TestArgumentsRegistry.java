@@ -85,7 +85,7 @@ public class TestArgumentsRegistry
     @Test
     public void testPull88WeirdClassArgumentFactory() throws Exception
     {
-        handle.getConfig(Arguments.class).register(new WeirdClassArgumentFactory());
+        handle.registerArgument(new WeirdClassArgumentFactory());
 
         assertThat(ctx.getConfig(Arguments.class).findFor(Weird.class, new Weird(), ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
@@ -101,7 +101,7 @@ public class TestArgumentsRegistry
     @Test
     public void testPull88WeirdValueArgumentFactory()
     {
-        handle.getConfig(Arguments.class).register(new WeirdValueArgumentFactory());
+        handle.registerArgument(new WeirdValueArgumentFactory());
 
         assertThat(ctx.getConfig(Arguments.class).findFor(Weird.class, new Weird(), ctx))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));

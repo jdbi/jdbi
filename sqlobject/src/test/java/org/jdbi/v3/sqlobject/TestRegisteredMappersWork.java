@@ -138,7 +138,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegistered() throws Exception
     {
-        db.getSharedHandle().getConfig(RowMappers.class).register(new SomethingMapper());
+        db.getSharedHandle().registerRowMapper(new SomethingMapper());
 
         Spiffy s = db.getSharedHandle().attach(Spiffy.class);
 

@@ -73,7 +73,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() throws Exception {
-        handle.getConfig(Arguments.class).register(new NameArgumentFactory());
+        handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
@@ -111,7 +111,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testBindOptionalOfCustomType() throws Exception {
-        handle.getConfig(Arguments.class).register(new NameArgumentFactory());
+        handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)

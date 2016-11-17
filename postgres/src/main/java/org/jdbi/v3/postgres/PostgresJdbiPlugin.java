@@ -15,35 +15,29 @@ package org.jdbi.v3.postgres;
 
 import java.util.UUID;
 
-import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.array.SqlArrayTypes;
-import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class PostgresJdbiPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        jdbi.getConfig(Arguments.class)
-                .register(new TypedEnumArgumentFactory())
-                .register(new JavaTimeArgumentFactory())
-                .register(new InetArgumentFactory())
-                .register(new HStoreArgumentFactory());
+        jdbi.registerArgument(new TypedEnumArgumentFactory());
+        jdbi.registerArgument(new JavaTimeArgumentFactory());
+        jdbi.registerArgument(new InetArgumentFactory());
+        jdbi.registerArgument(new HStoreArgumentFactory());
 
-        jdbi.getConfig(SqlArrayTypes.class)
-                .register(int.class, "integer")
-                .register(Integer.class, "integer")
-                .register(long.class, "bigint")
-                .register(Long.class, "bigint")
-                .register(String.class, "varchar")
-                .register(UUID.class, "uuid")
-                .register(float.class, "real")
-                .register(Float.class, "real")
-                .register(double.class, "double precision")
-                .register(Double.class, "double precision");
+        jdbi.registerArrayType(int.class, "integer");
+        jdbi.registerArrayType(Integer.class, "integer");
+        jdbi.registerArrayType(long.class, "bigint");
+        jdbi.registerArrayType(Long.class, "bigint");
+        jdbi.registerArrayType(String.class, "varchar");
+        jdbi.registerArrayType(UUID.class, "uuid");
+        jdbi.registerArrayType(float.class, "real");
+        jdbi.registerArrayType(Float.class, "real");
+        jdbi.registerArrayType(double.class, "double precision");
+        jdbi.registerArrayType(Double.class, "double precision");
 
-        jdbi.getConfig(ColumnMappers.class)
-                .register(new JavaTimeMapperFactory())
-                .register(new HStoreColumnMapper());
+        jdbi.registerColumnMapper(new JavaTimeMapperFactory());
+        jdbi.registerColumnMapper(new HStoreColumnMapper());
     }
 }

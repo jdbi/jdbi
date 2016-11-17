@@ -48,7 +48,7 @@ public class TestColonStatementRewriter
     private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
         StatementContext ctx = Mockito.mock(StatementContext.class);
         SqlStatements config = new SqlStatements();
-        config.putAttributes(attributes);
+        config.defineMap(attributes);
         when(ctx.getConfig(SqlStatements.class)).thenReturn(config);
 
         return rw.rewrite(sql, new Binding(), ctx);

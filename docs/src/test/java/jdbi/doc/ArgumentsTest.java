@@ -91,7 +91,7 @@ public class ArgumentsTest {
     @Test
     public void uuidArgumentFactory() {
         UUID u = UUID.randomUUID();
-        handle.getConfig(Arguments.class).register(new UUIDArgumentFactory());
+        handle.registerArgument(new UUIDArgumentFactory());
         assertThat(handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
             .bind("uuid", u)
             .mapTo(String.class)

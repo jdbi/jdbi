@@ -27,9 +27,9 @@ public class ConstructorMapperTest {
 
     @Before
     public void setUp() throws Exception {
-        db.getSharedHandle().getConfig(RowMappers.class)
-                .register(ConstructorMapper.of(ConstructorBean.class))
-                .register(ConstructorMapper.of(NamedParameterBean.class));
+        db.getSharedHandle()
+                .registerRowMapper(ConstructorMapper.of(ConstructorBean.class))
+                .registerRowMapper(ConstructorMapper.of(NamedParameterBean.class));
         db.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
 
         db.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");

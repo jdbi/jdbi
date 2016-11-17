@@ -24,7 +24,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 public class JodaTimePlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        jdbi.getConfig(Arguments.class).register(new DateTimeArgument.Factory());
-        jdbi.getConfig(ColumnMappers.class).register(new DateTimeMapper());
+        jdbi.registerArgument(new DateTimeArgument.Factory());
+        jdbi.registerColumnMapper(new DateTimeMapper());
     }
 }

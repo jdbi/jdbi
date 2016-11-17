@@ -60,7 +60,7 @@ public class TransactionTest {
     public void getHandle() {
         jdbi = db.getJdbi();
         handle = db.getSharedHandle();
-        handle.getConfig(RowMappers.class).register(ConstructorMapper.of(User.class));
+        handle.registerRowMapper(ConstructorMapper.of(User.class));
     }
 
     @Before

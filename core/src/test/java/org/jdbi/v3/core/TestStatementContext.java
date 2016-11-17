@@ -15,7 +15,6 @@ package org.jdbi.v3.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.jdbi.v3.core.statement.SqlStatements;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -31,7 +30,7 @@ public class TestStatementContext
         final int inserted = h.createUpdate("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", "Martin")
-                .configure(SqlStatements.class, config -> config.putAttribute("table", "something"))
+                .define("table", "something")
                 .execute();
         assertThat(inserted).isEqualTo(1);
     }

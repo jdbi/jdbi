@@ -47,7 +47,7 @@ public class BindInTest
     {
         final Jdbi dbi = db.getJdbi();
         dbi.installPlugin(new SqlObjectPlugin());
-        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
+        dbi.registerRowMapper(new SomethingMapper());
         handle = dbi.open();
 
         handle.execute("insert into something(id, name) values(1, '1')");
