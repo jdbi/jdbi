@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.core.ArgumentRegistry;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.ObjectArgumentFactory;
@@ -85,7 +85,7 @@ public @interface RegisterObjectArgumentFactory
                 factories.add(ObjectArgumentFactory.create(clazz, sqlType));
             }
 
-            return config -> factories.forEach(config.get(ArgumentRegistry.class)::register);
+            return config -> factories.forEach(config.get(Arguments.class)::register);
         }
     }
 }

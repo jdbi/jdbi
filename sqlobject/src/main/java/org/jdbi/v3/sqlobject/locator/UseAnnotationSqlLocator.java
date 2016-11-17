@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.sqlobject.SqlObjectConfig;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
@@ -37,7 +37,7 @@ import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 public @interface UseAnnotationSqlLocator {
     class Factory implements ConfigurerFactory {
         private static Consumer<ConfigRegistry> CONFIGURER = config ->
-                config.get(SqlObjectConfig.class).setSqlLocator(new AnnotationSqlLocator());
+                config.get(SqlObjects.class).setSqlLocator(new AnnotationSqlLocator());
 
         @Override
         public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {

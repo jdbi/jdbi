@@ -17,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.Something;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,7 +37,7 @@ public class TestRegisteredMappers
     @Test
     public void testRegisterInferredOnDBI() throws Exception
     {
-        dbi.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
         Something sam = dbi.withHandle(handle1 -> {
             handle1.insert("insert into something (id, name) values (18, 'Sam')");
 

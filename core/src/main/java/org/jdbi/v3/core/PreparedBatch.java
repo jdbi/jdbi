@@ -28,10 +28,11 @@ import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.util.GenericType;
-import org.jdbi.v3.core.util.SingleColumnMapper;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +122,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
 
         PreparedBatchPart current = parts.get(0);
         final String rawSql = getSql();
-        final RewrittenStatement rewritten = getConfig(SqlStatementConfig.class).getStatementRewriter().rewrite(rawSql, current.getParams(), getContext());
+        final RewrittenStatement rewritten = getConfig(SqlStatements.class).getStatementRewriter().rewrite(rawSql, current.getParams(), getContext());
         PreparedStatement stmt;
         try {
             try {
@@ -159,7 +160,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
                 LOG.trace("Prepared batch of {} parts executed in {}ms", parts.size(), elapsedTime / 1000000L, rewritten.getSql());
-                getTimingCollector().collect(elapsedTime, getContext());
+                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
 
                 afterExecution(stmt);
 

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,7 +41,7 @@ public class TestReducing
         h.execute("INSERT INTO something_location (id, location) VALUES (1, 'outside')");
         h.execute("INSERT INTO something_location (id, location) VALUES (2, 'tree')");
         h.execute("INSERT INTO something_location (id, location) VALUES (2, 'pie')");
-        h.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        h.getConfig(RowMappers.class).register(new SomethingMapper());
     }
 
     @Test

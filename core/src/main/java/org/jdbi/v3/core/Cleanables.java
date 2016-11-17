@@ -39,13 +39,6 @@ class Cleanables implements Closeable
 {
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
-    @FunctionalInterface
-    interface Cleanable extends AutoCloseable
-    {
-        @Override
-        void close() throws SQLException;
-    }
-
     Cleanables()
     {
     }

@@ -24,6 +24,8 @@ import java.util.Locale;
 import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.BeanMapper;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.statement.StatementBuilder;
@@ -112,8 +114,10 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see MappingRegistry#registerRowMapper(RowMapper)
-     * @see MappingRegistry#registerRowMapper(RowMapperFactory)
+     * @see RowMappers#register(RowMapper)
+     * @see RowMappers#register(RowMapperFactory)
+     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(ColumnMapper)
+     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      */
     @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(Class<T> resultType)
@@ -129,8 +133,10 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map rows to the desired type
      *
-     * @see MappingRegistry#registerRowMapper(RowMapper)
-     * @see MappingRegistry#registerRowMapper(RowMapperFactory)
+     * @see RowMappers#register(RowMapper)
+     * @see RowMappers#register(RowMapperFactory)
+     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(ColumnMapper)
+     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      */
     @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(GenericType<T> resultType)
@@ -145,8 +151,10 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see MappingRegistry#registerRowMapper(RowMapper)
-     * @see MappingRegistry#registerRowMapper(RowMapperFactory)
+     * @see RowMappers#register(RowMapper)
+     * @see RowMappers#register(RowMapperFactory)
+     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(ColumnMapper)
+     * @see org.jdbi.v3.core.mapper.ColumnMappers#register(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      */
     public Query<?> mapTo(Type resultType) {
         return this.map(rowMapperForType(resultType));

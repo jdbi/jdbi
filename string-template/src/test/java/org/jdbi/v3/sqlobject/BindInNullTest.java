@@ -23,9 +23,9 @@ import org.jdbi.v3.core.Binding;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
@@ -49,7 +49,7 @@ public class BindInNullTest
     public static void init()
     {
         final Jdbi dbi = db.getJdbi();
-        dbi.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
         dbi.installPlugin(new SqlObjectPlugin());
         handle = dbi.open();
 
@@ -101,7 +101,7 @@ public class BindInNullTest
     public void testSomethingByIterableHandleVoidWithNull()
     {
         final List<String> log = new ArrayList<>();
-        handle.getConfig(SqlStatementConfig.class).putAttribute(SPY, log);
+        handle.getConfig(SqlStatements.class).putAttribute(SPY, log);
         final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
         final List<Something> out = s.get(null);
@@ -114,7 +114,7 @@ public class BindInNullTest
     public void testSomethingByIterableHandleVoidWithEmptyList()
     {
         final List<String> log = new ArrayList<>();
-        handle.getConfig(SqlStatementConfig.class).putAttribute(SPY, log);
+        handle.getConfig(SqlStatements.class).putAttribute(SPY, log);
         final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
         final List<Something> out = s.get(new ArrayList<Object>());
@@ -137,7 +137,7 @@ public class BindInNullTest
         public RewrittenStatement rewrite(String sql, Binding params,
                 StatementContext ctx)
         {
-            ((List<String>)ctx.getConfig(SqlStatementConfig.class).getAttribute(SPY)).add(sql);
+            ((List<String>)ctx.getConfig(SqlStatements.class).getAttribute(SPY)).add(sql);
             return super.rewrite(sql, params, ctx);
         }
     }

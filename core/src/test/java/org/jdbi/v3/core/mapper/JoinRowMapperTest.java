@@ -20,7 +20,6 @@ import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.MappingRegistry;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,9 +64,9 @@ public class JoinRowMapperTest
             .submit().execute();
 
         // tag::mapperSetup[]
-        h.getConfig(MappingRegistry.class)
-                .registerRowMapper(ConstructorMapper.of(User.class))
-                .registerRowMapper(ConstructorMapper.of(Article.class));
+        h.getConfig(RowMappers.class)
+                .register(ConstructorMapper.of(User.class))
+                .register(ConstructorMapper.of(Article.class));
         // end::mapperSetup[]
     }
 

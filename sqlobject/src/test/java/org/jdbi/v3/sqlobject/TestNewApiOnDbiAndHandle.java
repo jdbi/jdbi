@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -44,7 +44,7 @@ public class TestNewApiOnDbiAndHandle
         ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
         dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
-        dbi.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
         handle = dbi.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");

@@ -22,12 +22,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.DerivedBean;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiAccess;
-import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.SampleBean;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.ValueType;
@@ -213,7 +211,7 @@ public class BeanMapperTest {
 
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
-        handle.getConfig(MappingRegistry.class).registerColumnMapper(new ValueTypeMapper());
+        handle.getConfig(ColumnMappers.class).register(new ValueTypeMapper());
 
         when(resultSetMetaData.getColumnCount()).thenReturn(2);
         when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
@@ -269,7 +267,7 @@ public class BeanMapperTest {
     @Test
     public void testColumnNameAnnotation() {
         Handle handle = db.getSharedHandle();
-        handle.getConfig(MappingRegistry.class).registerRowMapper(BeanMapper.of(ColumnNameBean.class));
+        handle.getConfig(RowMappers.class).register(BeanMapper.of(ColumnNameBean.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
 

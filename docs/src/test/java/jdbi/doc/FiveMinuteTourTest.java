@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.junit.After;
@@ -106,7 +106,7 @@ public class FiveMinuteTourTest {
     @Test
     public void registerCustomMapper() {
         // tag::registerCustomMapper[]
-        handle.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        handle.getConfig(RowMappers.class).register(new SomethingMapper());
 
         List<Something> things = handle.createQuery("select * from something")
                                        .mapTo(Something.class)
@@ -119,7 +119,7 @@ public class FiveMinuteTourTest {
 
     @Test
     public void namedParameters() {
-        handle.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        handle.getConfig(RowMappers.class).register(new SomethingMapper());
         // tag::namedParameters[]
         Something thing = handle.createQuery("select * from something where id = :id")
                                 .bind("id", 1)

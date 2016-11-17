@@ -11,15 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.array;
 
 import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.argument.SqlArrayType;
-import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
+import org.jdbi.v3.core.StatementContext;
 
 /**
  * A generic {@link SqlArrayTypeFactory} that reflectively inspects an {@link SqlArrayType SqlArrayType<T>} and maps
@@ -30,7 +29,7 @@ class InferredSqlArrayTypeFactory implements SqlArrayTypeFactory {
     private final Type elementType;
     private final SqlArrayType<?> arrayType;
 
-    InferredSqlArrayTypeFactory(SqlArrayType<?> arrayType) {
+    public InferredSqlArrayTypeFactory(SqlArrayType<?> arrayType) {
         this.elementType = findGenericParameter(arrayType.getClass(), SqlArrayType.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed SqlArrayType here"));
         this.arrayType = arrayType;

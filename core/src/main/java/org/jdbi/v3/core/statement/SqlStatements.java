@@ -11,27 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.statement;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.JdbiConfig;
+import org.jdbi.v3.core.SqlStatement;
+import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.TimingCollector;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 
-public final class SqlStatementConfig implements JdbiConfig<SqlStatementConfig> {
+public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
     private volatile StatementRewriter statementRewriter;
     private volatile TimingCollector timingCollector;
 
-    public SqlStatementConfig() {
+    public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
         statementRewriter = new ColonPrefixStatementRewriter();
         timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
     }
 
-    private SqlStatementConfig(SqlStatementConfig that) {
+    private SqlStatements(SqlStatements that) {
         this.attributes = new ConcurrentHashMap<>(that.attributes);
         this.statementRewriter = that.statementRewriter;
         this.timingCollector = that.timingCollector;
@@ -52,7 +56,7 @@ public final class SqlStatementConfig implements JdbiConfig<SqlStatementConfig> 
      * @param value the value for the attribute
      * @return this
      */
-    public SqlStatementConfig putAttribute(String key, Object value) {
+    public SqlStatements putAttribute(String key, Object value) {
         attributes.put(key, value);
         return this;
     }
@@ -74,7 +78,7 @@ public final class SqlStatementConfig implements JdbiConfig<SqlStatementConfig> 
      * @param values map of attributes to define.
      * @return this
      */
-    public SqlStatementConfig putAttributes(final Map<String, ?> values)
+    public SqlStatements putAttributes(final Map<String, ?> values)
     {
         if (values != null) {
             attributes.putAll(values);
@@ -93,7 +97,7 @@ public final class SqlStatementConfig implements JdbiConfig<SqlStatementConfig> 
      * @param rewriter the new statement rewriter.
      * @return this
      */
-    public SqlStatementConfig setStatementRewriter(StatementRewriter rewriter) {
+    public SqlStatements setStatementRewriter(StatementRewriter rewriter) {
         this.statementRewriter = rewriter;
         return this;
     }
@@ -109,13 +113,13 @@ public final class SqlStatementConfig implements JdbiConfig<SqlStatementConfig> 
      * @param timingCollector the new timing collector
      * @return this
      */
-    public SqlStatementConfig setTimingCollector(TimingCollector timingCollector) {
+    public SqlStatements setTimingCollector(TimingCollector timingCollector) {
         this.timingCollector = timingCollector == null ? TimingCollector.NOP_TIMING_COLLECTOR : timingCollector;
         return this;
     }
 
     @Override
-    public SqlStatementConfig createChild() {
-        return new SqlStatementConfig(this);
+    public SqlStatements createChild() {
+        return new SqlStatements(this);
     }
 }

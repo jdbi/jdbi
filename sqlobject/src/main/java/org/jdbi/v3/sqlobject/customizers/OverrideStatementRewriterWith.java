@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
@@ -51,7 +51,7 @@ public @interface OverrideStatementRewriterWith
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, method);
-                return config -> config.get(SqlStatementConfig.class).setStatementRewriter(rw);
+                return config -> config.get(SqlStatements.class).setStatementRewriter(rw);
             }
             catch (Exception e) {
                 throw new IllegalStateException(e);
@@ -64,7 +64,7 @@ public @interface OverrideStatementRewriterWith
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, null);
-                return config -> config.get(SqlStatementConfig.class).setStatementRewriter(rw);
+                return config -> config.get(SqlStatements.class).setStatementRewriter(rw);
             }
             catch (Exception e) {
                 throw new IllegalStateException(e);

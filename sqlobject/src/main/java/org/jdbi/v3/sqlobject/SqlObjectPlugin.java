@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.ExtensionRegistry;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class SqlObjectPlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi dbi) {
-        dbi.getConfig(ExtensionRegistry.class)
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.getConfig(Extensions.class)
                 .register(SqlObjectFactory.INSTANCE);
     }
 }

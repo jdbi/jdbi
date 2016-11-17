@@ -15,14 +15,14 @@ package org.jdbi.v3.jpa;
 
 import com.google.auto.service.AutoService;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 @AutoService(JdbiPlugin.class)
 public class JpaPlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi dbi) {
-        dbi.getConfig(MappingRegistry.class)
-                .registerRowMapper(new JpaMapperFactory());
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.getConfig(RowMappers.class)
+                .register(new JpaMapperFactory());
     }
 }

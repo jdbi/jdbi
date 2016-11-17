@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.Arguments;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ public class TestArgumentFactory
     public void testRegisterOnDBI() throws Exception
     {
         final Jdbi dbi = db.getJdbi();
-        dbi.getConfig(ArgumentRegistry.class).register(new NameAF());
+        dbi.getConfig(Arguments.class).register(new NameAF());
         try (Handle h = dbi.open()) {
             h.createUpdate("insert into something (id, name) values (:id, :name)")
               .bind("id", 7)
@@ -50,7 +51,7 @@ public class TestArgumentFactory
     public void testRegisterOnHandle() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            h.getConfig(ArgumentRegistry.class).register(new NameAF());
+            h.getConfig(Arguments.class).register(new NameAF());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
              .bind("id", 7)
              .bind("name", new Name("Brian", "McCallister"))
@@ -66,7 +67,7 @@ public class TestArgumentFactory
     public void testRegisterOnStatement() throws Exception
     {
         db.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
-         .configure(ArgumentRegistry.class, arguments -> arguments.register(new NameAF()))
+         .configure(Arguments.class, args -> args.register(new NameAF()))
          .bind("id", 1)
          .bind("name", new Name("Brian", "McCallister"))
          .execute();
@@ -77,7 +78,7 @@ public class TestArgumentFactory
     {
         Handle h = db.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
-        batch.getConfig(ArgumentRegistry.class).register(new NameAF());
+        batch.getConfig(Arguments.class).register(new NameAF());
 
         batch.add().bind("id", 1).bind("name", new Name("Brian", "McCallister"));
         batch.add().bind("id", 2).bind("name", new Name("Henning", "S"));
@@ -97,8 +98,8 @@ public class TestArgumentFactory
         public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
             if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
-                return ctx.getConfig(ArgumentRegistry.class)
-                        .findArgumentFor(String.class, nameValue.getFullName(), ctx);
+                return ctx.getConfig(Arguments.class)
+                        .findFor(String.class, nameValue.getFullName(), ctx);
             }
             return Optional.empty();
         }

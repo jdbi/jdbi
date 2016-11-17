@@ -30,7 +30,7 @@ public interface ArgumentFactory
      * @param value the value to convert into an {@link Argument}
      * @param ctx   the statement context.
      * @return an argument for the given value if this factory supports it, or <code>Optional.empty()</code> otherwise.
-     * @see org.jdbi.v3.core.ArgumentRegistry#findArgumentFor(Type, Object, StatementContext) for composeable argument types.
+     * @see Arguments#findFor(Type, Object, StatementContext) for composeable argument types.
      */
     Optional<Argument> build(Type type, Object value, StatementContext ctx);
 }

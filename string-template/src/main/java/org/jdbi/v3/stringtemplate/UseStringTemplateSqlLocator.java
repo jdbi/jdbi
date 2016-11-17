@@ -27,11 +27,11 @@ import java.util.function.Consumer;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
-import org.jdbi.v3.sqlobject.SqlObjectConfig;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
@@ -85,14 +85,14 @@ public @interface UseStringTemplateSqlLocator {
                 String templateName = sql;
 
                 StringTemplateGroup group = findStringTemplateGroup(sqlObjectType);
-                StringTemplate template = group.getInstanceOf(templateName, ctx.getConfig(SqlStatementConfig.class).getAttributes());
+                StringTemplate template = group.getInstanceOf(templateName, ctx.getConfig(SqlStatements.class).getAttributes());
                 String rewritten = template.toString();
 
                 return delegate.rewrite(rewritten, params, ctx);
             };
             return config -> {
-                config.get(SqlObjectConfig.class).setSqlLocator(locator);
-                config.get(SqlStatementConfig.class).setStatementRewriter(locatingRewriter);
+                config.get(SqlObjects.class).setSqlLocator(locator);
+                config.get(SqlStatements.class).setStatementRewriter(locatingRewriter);
             };
         }
 

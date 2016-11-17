@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
-import org.jdbi.v3.sqlobject.SqlObjectConfig;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
@@ -58,7 +58,7 @@ public @interface UseClasspathSqlLocator {
         };
 
         private static Consumer<ConfigRegistry> CONFIGURER = config ->
-                config.get(SqlObjectConfig.class).setSqlLocator(SQL_LOCATOR);
+                config.get(SqlObjects.class).setSqlLocator(SQL_LOCATOR);
 
         @Override
         public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.core.ArgumentRegistry;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
@@ -69,7 +69,7 @@ public @interface RegisterArgumentFactory
                     throw new IllegalStateException("unable to instantiate specified argument factory", e);
                 }
             }
-            return config -> ary.forEach(config.get(ArgumentRegistry.class)::register);
+            return config -> ary.forEach(config.get(Arguments.class)::register);
         }
     }
 }

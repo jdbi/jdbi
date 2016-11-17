@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.JoinRowMapper;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
@@ -57,8 +57,8 @@ public @interface RegisterJoinRowMapper
         }
 
         private Consumer<ConfigRegistry> create(RegisterJoinRowMapper annotation) {
-            return config -> config.get(MappingRegistry.class)
-                    .registerRowMapper(JoinRowMapper.forTypes(annotation.value()));
+            return config -> config.get(RowMappers.class)
+                    .register(JoinRowMapper.forTypes(annotation.value()));
         }
     }
 }

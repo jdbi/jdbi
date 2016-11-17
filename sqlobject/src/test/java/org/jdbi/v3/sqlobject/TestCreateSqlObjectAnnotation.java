@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
@@ -39,9 +39,9 @@ public class TestCreateSqlObjectAnnotation
     @Before
     public void setUp() throws Exception
     {
-        db.getJdbi().getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        db.getJdbi().getConfig(RowMappers.class).register(new SomethingMapper());
         handle = db.getSharedHandle();
-        handle.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        handle.getConfig(RowMappers.class).register(new SomethingMapper());
     }
 
 

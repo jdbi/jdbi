@@ -23,14 +23,14 @@ import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
 
 class DefinedAttributeRewriter {
     static String rewriteDefines(String sql, StatementContext ctx) {
         StringBuilder b = new StringBuilder();
-        SqlStatementConfig config = ctx.getConfig(SqlStatementConfig.class);
+        SqlStatements config = ctx.getConfig(SqlStatements.class);
         DefineStatementLexer lexer = new DefineStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {

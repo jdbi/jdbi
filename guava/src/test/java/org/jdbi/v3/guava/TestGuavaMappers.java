@@ -19,9 +19,9 @@ import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 
-import org.jdbi.v3.core.ArgumentRegistry;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.PgDatabaseRule;
+import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.util.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,9 +35,9 @@ public class TestGuavaMappers {
 
     @Before
     public void setUp() {
-        db.getJdbi().getConfig(ArgumentRegistry.class)
-                .registerArrayType(Integer.class, "integer")
-                .registerArrayType(UUID.class, "uuid");
+        db.getJdbi().getConfig(SqlArrayTypes.class)
+                .register(Integer.class, "integer")
+                .register(UUID.class, "uuid");
         h = db.openHandle();
         h.useTransaction((th, status) -> {
             th.execute("DROP TABLE IF EXISTS arrays");

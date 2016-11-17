@@ -11,31 +11,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.array;
 
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
+import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.util.GenericTypes;
 
-class SqlArrayArgumentFactory implements ArgumentFactory {
+public class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
     @SuppressWarnings("unchecked")
     public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         if (erasedType.isArray()) {
             Class<?> elementType = erasedType.getComponentType();
-            return ctx.getConfig(ArgumentRegistry.class)
-                    .findArrayTypeFor(elementType, ctx)
+            return ctx.getConfig(SqlArrayTypes.class)
+                    .findFor(elementType, ctx)
                     .map(arrayType -> new SqlArrayArgument(arrayType, value));
         }
-        if (List.class.isAssignableFrom(erasedType)) {
-            return GenericTypes.findGenericParameter(type, List.class)
-                    .flatMap(elementType -> ctx.getConfig(ArgumentRegistry.class).findArrayTypeFor(elementType, ctx))
-                    .map(arrayType -> new SqlArrayArgument(arrayType, (List) value));
+        if (Collection.class.isAssignableFrom(erasedType)) {
+            return GenericTypes.findGenericParameter(type, Collection.class)
+                    .flatMap(elementType -> ctx.getConfig(SqlArrayTypes.class).findFor(elementType, ctx))
+                    .map(arrayType -> new SqlArrayArgument(arrayType, (Collection) value));
         }
         return Optional.empty();
     }

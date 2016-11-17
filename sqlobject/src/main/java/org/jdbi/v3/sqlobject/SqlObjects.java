@@ -20,16 +20,16 @@ import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 /**
- * Configuration class for the SqlObject plugin.
+ * Configuration class for SQL objects
  */
-public class SqlObjectConfig implements JdbiConfig<SqlObjectConfig> {
+public class SqlObjects implements JdbiConfig<SqlObjects> {
     private SqlLocator sqlLocator;
 
-    public SqlObjectConfig() {
+    public SqlObjects() {
         sqlLocator = new AnnotationSqlLocator();
     }
 
-    private SqlObjectConfig(SqlObjectConfig parent) {
+    private SqlObjects(SqlObjects parent) {
         this.sqlLocator = parent.sqlLocator;
     }
 
@@ -44,15 +44,15 @@ public class SqlObjectConfig implements JdbiConfig<SqlObjectConfig> {
     /**
      * Configures SqlObject to use the given {@link SqlLocator}.
      * @param sqlLocator the new SQL locator.
-     * @return this {@link SqlObjectConfig}.
+     * @return this {@link SqlObjects}.
      */
-    public SqlObjectConfig setSqlLocator(SqlLocator sqlLocator) {
+    public SqlObjects setSqlLocator(SqlLocator sqlLocator) {
         this.sqlLocator = Objects.requireNonNull(sqlLocator);
         return this;
     }
 
     @Override
-    public SqlObjectConfig createChild() {
-        return new SqlObjectConfig(this);
+    public SqlObjects createChild() {
+        return new SqlObjects(this);
     }
 }

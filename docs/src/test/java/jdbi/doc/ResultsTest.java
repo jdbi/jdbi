@@ -27,7 +27,8 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
@@ -108,7 +109,7 @@ public class ResultsTest {
     // tag::rowMapperFactory[]
     @Test
     public void rowMapperFactory() {
-        handle.getConfig(MappingRegistry.class).registerRowMapper(new RowMapperFactory() {
+        handle.getConfig(RowMappers.class).register(new RowMapperFactory() {
             @Override
             public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
                 return type == User.class ?
@@ -131,7 +132,7 @@ public class ResultsTest {
     // tag::constructorMapper[]
     @Test
     public void constructorMapper() {
-        handle.getConfig(MappingRegistry.class).registerRowMapper(ConstructorMapper.of(User.class));
+        handle.getConfig(RowMappers.class).register(ConstructorMapper.of(User.class));
         Set<User> userSet = handle.createQuery(SELECT_ALL_USERS)
             .mapTo(User.class)
             .collect(Collectors.toSet());
@@ -170,9 +171,8 @@ public class ResultsTest {
 
     @Test
     public void columnMapper() {
-        handle.getConfig(MappingRegistry.class)
-                .registerColumnMapper(new UserNameColumnMapperFactory())
-                .registerRowMapper(ConstructorMapper.of(NamedUser.class));
+        handle.getConfig(ColumnMappers.class).register(new UserNameColumnMapperFactory());
+        handle.getConfig(RowMappers.class).register(ConstructorMapper.of(NamedUser.class));
 
         NamedUser bob = handle.createQuery("SELECT id, name FROM user WHERE name = :name")
             .bind("name", "Bob")

@@ -26,6 +26,7 @@ import java.sql.SQLException;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.Extensions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class TestOnDemandMethodBehavior {
             }
         };
         dbi = Jdbi.create(ds);
-        dbi.getConfig(ExtensionRegistry.class)
+        dbi.getConfig(Extensions.class)
                 .register(mockExtensionFactory);
         onDemand = dbi.onDemand(UselessDao.class);
         anotherOnDemand = dbi.onDemand(UselessDao.class);

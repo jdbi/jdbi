@@ -41,7 +41,7 @@ public interface CollectorFactory {
      *
      * @return a {@link Collector} for the given container type.
      *
-     * @see org.jdbi.v3.core.CollectorRegistry#findCollectorFor(Type)
+     * @see JdbiCollectors#findFor(Type)
      */
     Collector<?, ?, ?> build(Type containerType);
 }

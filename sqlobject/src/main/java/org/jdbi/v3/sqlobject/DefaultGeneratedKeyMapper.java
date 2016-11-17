@@ -17,7 +17,8 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -33,16 +34,16 @@ class DefaultGeneratedKeyMapper implements RowMapper<Object> {
 
     @Override
     public Object map(ResultSet r, StatementContext ctx) throws SQLException {
-        ColumnMapper<?> columnMapper = ctx.getConfig(MappingRegistry.class)
-                .findColumnMapperFor(returnType, ctx)
+        ColumnMapper<?> columnMapper = ctx.getConfig(ColumnMappers.class)
+                .findFor(returnType, ctx)
                 .orElse(null);
         if (columnMapper != null) {
             return "".equals(columnName)
                 ? columnMapper.map(r, 1, ctx)
                 : columnMapper.map(r, columnName, ctx);
         }
-        RowMapper<?> rowMapper = ctx.getConfig(MappingRegistry.class)
-                .findRowMapperFor(returnType, ctx)
+        RowMapper<?> rowMapper = ctx.getConfig(RowMappers.class)
+                .findFor(returnType, ctx)
                 .orElse(null);
         if (rowMapper != null) {
             return rowMapper.map(r, ctx);

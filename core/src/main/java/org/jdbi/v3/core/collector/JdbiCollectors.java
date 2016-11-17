@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.collector;
 
 import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
 
@@ -21,28 +21,27 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
 
-import org.jdbi.v3.core.collector.BuiltInCollectorFactories;
-import org.jdbi.v3.core.collector.CollectorFactory;
+import org.jdbi.v3.core.JdbiConfig;
 
 /**
  * Registry of collector factories.
  * Contains a set of collector factories, registered by the application.
  */
-public class CollectorRegistry implements JdbiConfig<CollectorRegistry> {
+public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
 
-    private final Optional<CollectorRegistry> parent;
+    private final Optional<JdbiCollectors> parent;
     private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
 
-    public CollectorRegistry() {
+    public JdbiCollectors() {
         parent = Optional.empty();
         factories.addAll(BuiltInCollectorFactories.get());
     }
 
-    private CollectorRegistry(CollectorRegistry that) {
+    private JdbiCollectors(JdbiCollectors that) {
         parent = Optional.of(that);
     }
 
-    public CollectorRegistry register(CollectorFactory factory) {
+    public JdbiCollectors register(CollectorFactory factory) {
         factories.add(0, factory);
         return this;
     }
@@ -52,7 +51,7 @@ public class CollectorRegistry implements JdbiConfig<CollectorRegistry> {
      * @param containerType the result type of the collector
      * @return a Collector for the given result type, or null if no collector factory is registered for this type.
      */
-    public Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
+    public Optional<Collector<?, ?, ?>> findFor(Type containerType) {
         return findFactoryFor(containerType)
                 .map(f -> f.build(containerType));
     }
@@ -61,7 +60,7 @@ public class CollectorRegistry implements JdbiConfig<CollectorRegistry> {
      * @param containerType the container type.
      * @return the element type for the given container type, if available.
      */
-    public Optional<Type> elementTypeFor(Type containerType) {
+    public Optional<Type> findElementTypeFor(Type containerType) {
         return findFactoryFor(containerType)
                 .flatMap(f -> f.elementType(containerType));
     }
@@ -75,7 +74,7 @@ public class CollectorRegistry implements JdbiConfig<CollectorRegistry> {
     }
 
     @Override
-    public CollectorRegistry createChild() {
-        return new CollectorRegistry(this);
+    public JdbiCollectors createChild() {
+        return new JdbiCollectors(this);
     }
 }

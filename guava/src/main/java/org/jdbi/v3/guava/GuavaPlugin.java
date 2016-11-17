@@ -15,18 +15,18 @@ package org.jdbi.v3.guava;
 
 import com.google.auto.service.AutoService;
 
-import org.jdbi.v3.core.ArgumentRegistry;
-import org.jdbi.v3.core.CollectorRegistry;
+import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 @AutoService(JdbiPlugin.class)
 public class GuavaPlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi dbi) {
-        dbi.getConfig(ArgumentRegistry.class).register(GuavaArguments.factory());
-        dbi.getConfig(CollectorRegistry.class).register(GuavaCollectors.factory());
-        dbi.getConfig(MappingRegistry.class).registerColumnMapper(GuavaMappers.columnFactory());
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.getConfig(Arguments.class).register(GuavaArguments.factory());
+        jdbi.getConfig(JdbiCollectors.class).register(GuavaCollectors.factory());
+        jdbi.getConfig(ColumnMappers.class).register(GuavaMappers.columnFactory());
     }
 }

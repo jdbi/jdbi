@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.mapper.DefaultMapper;
 import org.jdbi.v3.core.statement.StatementBuilder;
@@ -491,8 +492,8 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the new extension object bound to this handle
      */
     public <T> T attach(Class<T> extensionType) {
-        return getConfig(ExtensionRegistry.class)
-                .findExtensionFor(extensionType, ConstantHandleSupplier.of(this))
+        return getConfig(Extensions.class)
+                .findFor(extensionType, ConstantHandleSupplier.of(this))
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
     }
 

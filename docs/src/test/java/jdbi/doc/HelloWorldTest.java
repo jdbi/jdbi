@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.ConstructorMapper;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class HelloWorldTest {
                 .execute();
 
             // Easy mapping to your types
-            handle.getConfig(MappingRegistry.class).registerRowMapper(ConstructorMapper.of(User.class));
+            handle.getConfig(RowMappers.class).register(ConstructorMapper.of(User.class));
             return handle.createQuery("SELECT * FROM user ORDER BY id")
                 .mapTo(User.class)
                 .list();

@@ -15,32 +15,35 @@ package org.jdbi.v3.postgres;
 
 import java.util.UUID;
 
-import org.jdbi.v3.core.ArgumentRegistry;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.array.SqlArrayTypes;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class PostgresJdbiPlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi db) {
-        db.getConfig(ArgumentRegistry.class)
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.getConfig(Arguments.class)
                 .register(new TypedEnumArgumentFactory())
                 .register(new JavaTimeArgumentFactory())
                 .register(new InetArgumentFactory())
-                .register(new HStoreArgumentFactory())
-                .registerArrayType(int.class, "integer")
-                .registerArrayType(Integer.class, "integer")
-                .registerArrayType(long.class, "bigint")
-                .registerArrayType(Long.class, "bigint")
-                .registerArrayType(String.class, "varchar")
-                .registerArrayType(UUID.class, "uuid")
-                .registerArrayType(float.class, "real")
-                .registerArrayType(Float.class, "real")
-                .registerArrayType(double.class, "double precision")
-                .registerArrayType(Double.class, "double precision");
+                .register(new HStoreArgumentFactory());
 
-        db.getConfig(MappingRegistry.class)
-                .registerColumnMapper(new JavaTimeMapperFactory())
-                .registerColumnMapper(new HStoreColumnMapper());
+        jdbi.getConfig(SqlArrayTypes.class)
+                .register(int.class, "integer")
+                .register(Integer.class, "integer")
+                .register(long.class, "bigint")
+                .register(Long.class, "bigint")
+                .register(String.class, "varchar")
+                .register(UUID.class, "uuid")
+                .register(float.class, "real")
+                .register(Float.class, "real")
+                .register(double.class, "double precision")
+                .register(Double.class, "double precision");
+
+        jdbi.getConfig(ColumnMappers.class)
+                .register(new JavaTimeMapperFactory())
+                .register(new HStoreColumnMapper());
     }
 }

@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +52,13 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
     @Override
     public Jdbi getObject() throws Exception
     {
-        final Jdbi dbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
+        final Jdbi jdbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
 
-        plugins.forEach(dbi::installPlugin);
+        plugins.forEach(jdbi::installPlugin);
 
-        globalDefines.forEach(dbi.getConfig(SqlStatementConfig.class)::putAttribute);
+        globalDefines.forEach(jdbi.getConfig(SqlStatements.class)::putAttribute);
 
-        return dbi;
+        return jdbi;
     }
 
     /**

@@ -15,7 +15,7 @@
 package org.jdbi.v3.sqlobject.customizers;
 
 
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -110,7 +110,7 @@ public @interface DefineIn
                 }
                 sb.append(o.toString());
             }
-            return stmt -> stmt.getConfig(SqlStatementConfig.class).putAttribute(name, sb.toString());
+            return stmt -> stmt.getConfig(SqlStatements.class).putAttribute(name, sb.toString());
         }
     }
 }

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
@@ -68,7 +68,7 @@ public @interface RegisterColumnMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified column mapper", e);
             }
-            return config -> m.forEach(config.get(MappingRegistry.class)::registerColumnMapper);
+            return config -> m.forEach(config.get(ColumnMappers.class)::register);
         }
     }
 }

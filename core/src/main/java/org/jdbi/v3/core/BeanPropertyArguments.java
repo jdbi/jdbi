@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 
@@ -67,8 +68,8 @@ class BeanPropertyArguments implements NamedArgumentFinder
 
                     try
                     {
-                        return ctx.getConfig(ArgumentRegistry.class)
-                                .findArgumentFor(getter.getGenericReturnType(), getter.invoke(bean), ctx);
+                        return ctx.getConfig(Arguments.class)
+                                .findFor(getter.getGenericReturnType(), getter.invoke(bean), ctx);
                     }
                     catch (IllegalAccessException e)
                     {

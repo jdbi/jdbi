@@ -23,7 +23,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.H2DatabaseRule;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -138,7 +138,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegistered() throws Exception
     {
-        db.getSharedHandle().getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        db.getSharedHandle().getConfig(RowMappers.class).register(new SomethingMapper());
 
         Spiffy s = db.getSharedHandle().attach(Spiffy.class);
 

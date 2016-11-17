@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.BeanMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
@@ -81,7 +81,7 @@ public @interface RegisterBeanMapper
                 throw new IllegalStateException("RegisterBeanMapper.prefix() must have the same number of elements as value()");
             }
 
-            return config -> mappers.forEach(config.get(MappingRegistry.class)::registerRowMapper);
+            return config -> mappers.forEach(config.get(RowMappers.class)::register);
         }
     }
 }

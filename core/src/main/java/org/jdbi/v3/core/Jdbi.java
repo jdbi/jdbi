@@ -30,6 +30,7 @@ import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.core.extension.ExtensionCallback;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.StatementBuilder;
@@ -371,8 +372,8 @@ public class Jdbi implements Configurable<Jdbi>
             throws NoSuchExtensionException, X
     {
         try (LazyHandleSupplier handle = new LazyHandleSupplier(this, config)) {
-            E extension = getConfig(ExtensionRegistry.class)
-                    .findExtensionFor(extensionType, handle)
+            E extension = getConfig(Extensions.class)
+                    .findFor(extensionType, handle)
                     .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
 
             return callback.withExtension(extension);
@@ -412,7 +413,7 @@ public class Jdbi implements Configurable<Jdbi>
         if (!Modifier.isPublic(extensionType.getModifiers())) {
             throw new IllegalArgumentException("On-demand extensions types must be public.");
         }
-        if (!getConfig(ExtensionRegistry.class).hasExtensionFor(extensionType)) {
+        if (!getConfig(Extensions.class).hasExtensionFor(extensionType)) {
             throw new NoSuchExtensionException("Extension not found: " + extensionType);
         }
 

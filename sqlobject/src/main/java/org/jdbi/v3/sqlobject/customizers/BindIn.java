@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
 import org.jdbi.v3.sqlobject.BindingAnnotation;
@@ -135,7 +135,7 @@ public @interface BindIn
 
             final String ns = names.toString();
 
-            return stmt -> stmt.getConfig(SqlStatementConfig.class).putAttribute(name, ns);
+            return stmt -> stmt.getConfig(SqlStatements.class).putAttribute(name, ns);
         }
     }
 

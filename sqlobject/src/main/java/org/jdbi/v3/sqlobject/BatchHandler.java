@@ -131,7 +131,7 @@ class BatchHandler extends CustomizingStatementHandler
         int processed = 0;
         List<int[]> rs_parts = new ArrayList<>();
 
-        String sql = handle.getConfig(SqlObjectConfig.class).getSqlLocator().locate(sqlObjectType, method);
+        String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
         PreparedBatch batch = handle.prepareBatch(sql);
         applyCustomizers(batch, args);
         Object[] _args;

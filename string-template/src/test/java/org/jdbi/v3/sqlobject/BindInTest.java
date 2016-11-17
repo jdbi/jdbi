@@ -25,7 +25,7 @@ import java.util.List;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.BindIn;
@@ -47,7 +47,7 @@ public class BindInTest
     {
         final Jdbi dbi = db.getJdbi();
         dbi.installPlugin(new SqlObjectPlugin());
-        dbi.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
         handle = dbi.open();
 
         handle.execute("insert into something(id, name) values(1, '1')");

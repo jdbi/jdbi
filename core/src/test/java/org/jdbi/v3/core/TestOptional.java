@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.util.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,7 +70,7 @@ public class TestOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() throws Exception {
-        handle.getConfig(ArgumentRegistry.class).register(new NameArgumentFactory());
+        handle.getConfig(Arguments.class).register(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
@@ -107,7 +108,7 @@ public class TestOptional {
 
     @Test
     public void testBindOptionalOfCustomType() throws Exception {
-        handle.getConfig(ArgumentRegistry.class).register(new NameArgumentFactory());
+        handle.getConfig(Arguments.class).register(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)

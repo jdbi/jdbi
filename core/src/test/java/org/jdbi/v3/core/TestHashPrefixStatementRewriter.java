@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.rewriter.HashPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ public class TestHashPrefixStatementRewriter
 
     private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
         StatementContext ctx = new StatementContext();
-        attributes.forEach(ctx.getConfig(SqlStatementConfig.class)::putAttribute);
+        attributes.forEach(ctx.getConfig(SqlStatements.class)::putAttribute);
 
         return rw.rewrite(sql, new Binding(), ctx);
     }

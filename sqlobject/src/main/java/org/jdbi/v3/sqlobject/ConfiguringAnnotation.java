@@ -18,6 +18,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.ConfigRegistry;
+
 /**
  * Annotation used to modify configuration in the context of a SQL object or method. Use this to annotate an annotation.
  */
@@ -27,7 +29,7 @@ public @interface ConfiguringAnnotation
 {
     /**
      * A {@link ConfigurerFactory} type, which will be used to create
-     * {@link java.util.function.Consumer}&lt;{@link SqlObjectConfig}&gt; instances.
+     * {@link java.util.function.Consumer}&lt;{@link ConfigRegistry}&gt; instances.
      *
      * @return a factory used to crate customizers for the customizing annotation
      */

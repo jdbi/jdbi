@@ -145,6 +145,10 @@ public class StatementContext implements Closeable, Configurable<StatementContex
         return cleanables;
     }
 
+    public void addCleanable(Cleanable cleanable) {
+        getCleanables().add(cleanable);
+    }
+
     @Override
     public void close()
     {

@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
@@ -35,8 +36,10 @@ import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.StatementCustomizers;
@@ -1113,7 +1116,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     private Argument toArgument(Type type, Object value) {
-        return getConfig(ArgumentRegistry.class).findArgumentFor(type, value, getContext())
+        return getConfig(Arguments.class)
+                .findFor(type, value, getContext())
                 .orElseThrow(() -> new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type));
     }
 
@@ -1173,9 +1177,11 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return bind(position, new ObjectArgument(value, sqlType));
     }
 
-    protected PreparedStatement internalExecute()
+    PreparedStatement internalExecute()
     {
-        rewritten = getConfig(SqlStatementConfig.class).getStatementRewriter().rewrite(sql, getParams(), getContext());
+        rewritten = getConfig(SqlStatements.class)
+                .getStatementRewriter()
+                .rewrite(sql, getParams(), getContext());
         getContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
@@ -1209,7 +1215,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
             LOG.trace("Execute SQL \"{}\" in {}ms", rewritten.getSql(), elapsedTime / 1000000L);
-            getConfig(SqlStatementConfig.class).getTimingCollector().collect(elapsedTime, getContext());
+            getConfig(SqlStatements.class)
+                    .getTimingCollector()
+                    .collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
             try {
@@ -1225,26 +1233,21 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return stmt;
     }
 
-    protected TimingCollector getTimingCollector()
-    {
-        return getConfig(SqlStatementConfig.class).getTimingCollector();
-    }
-
     @SuppressWarnings("unchecked")
-    protected <T> RowMapper<T> rowMapperForType(Class<T> type)
+    <T> RowMapper<T> rowMapperForType(Class<T> type)
     {
         return (RowMapper<T>) rowMapperForType((Type) type);
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> RowMapper<T> rowMapperForType(GenericType<T> type)
+    <T> RowMapper<T> rowMapperForType(GenericType<T> type)
     {
         return (RowMapper<T>) rowMapperForType(type.getType());
     }
 
-    protected RowMapper<?> rowMapperForType(Type type)
+    RowMapper<?> rowMapperForType(Type type)
     {
-        return getConfig(MappingRegistry.class).findRowMapperFor(type, getContext())
+        return getConfig(RowMappers.class).findFor(type, getContext())
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 }

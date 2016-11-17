@@ -15,16 +15,16 @@ package org.jdbi.v3.jodatime;
 
 import com.google.auto.service.AutoService;
 
-import org.jdbi.v3.core.ArgumentRegistry;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 @AutoService(JdbiPlugin.class)
 public class JodaTimePlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi dbi) {
-        dbi.getConfig(ArgumentRegistry.class).register(new DateTimeArgument.Factory());
-        dbi.getConfig(MappingRegistry.class).registerColumnMapper(new DateTimeMapper());
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.getConfig(Arguments.class).register(new DateTimeArgument.Factory());
+        jdbi.getConfig(ColumnMappers.class).register(new DateTimeMapper());
     }
 }

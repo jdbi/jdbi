@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,10 +56,10 @@ public class StatementContextTest {
         ColumnMapper<?> mapper = new FooMapper();
 
         ConfigRegistry config = new ConfigRegistry();
-        config.get(MappingRegistry.class).registerColumnMapper(mapper);
+        config.get(ColumnMappers.class).register(mapper);
 
         final StatementContext ctx = new StatementContext(config);
 
-        assertThat(config.get(MappingRegistry.class).findColumnMapperFor(Foo.class, ctx)).contains(mapper);
+        assertThat(config.get(ColumnMappers.class).findFor(Foo.class, ctx)).contains(mapper);
     }
 }

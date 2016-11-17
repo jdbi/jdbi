@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
@@ -54,7 +54,7 @@ public @interface UseStringTemplateStatementRewriter {
         private Consumer<ConfigRegistry> create(UseStringTemplateStatementRewriter annotation) {
             StatementRewriter delegate = createDelegate(annotation.value());
             StatementRewriter rewriter = new StringTemplateStatementRewriter(delegate);
-            return config -> config.get(SqlStatementConfig.class).setStatementRewriter(rewriter);
+            return config -> config.get(SqlStatements.class).setStatementRewriter(rewriter);
         }
 
         private StatementRewriter createDelegate(Class<? extends StatementRewriter> type) {

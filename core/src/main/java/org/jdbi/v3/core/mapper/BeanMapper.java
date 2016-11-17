@@ -32,8 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.ColumnName;
-import org.jdbi.v3.core.MappingRegistry;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.util.bean.CaseInsensitiveColumnNameStrategy;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
@@ -157,7 +155,7 @@ public class BeanMapper<T> implements RowMapper<T>
             final PropertyDescriptor descriptor = maybeDescriptor.get();
             final Type type = descriptor.getReadMethod().getGenericReturnType();
             final Object value;
-            final Optional<ColumnMapper<?>> mapper = ctx.getConfig(MappingRegistry.class).findColumnMapperFor(type, ctx);
+            final Optional<ColumnMapper<?>> mapper = ctx.getConfig(ColumnMappers.class).findFor(type, ctx);
 
             if (mapper.isPresent()) {
                 value = mapper.get().map(rs, i, ctx);

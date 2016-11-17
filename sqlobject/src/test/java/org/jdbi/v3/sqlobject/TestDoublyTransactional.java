@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableSet;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
@@ -80,7 +80,7 @@ public class TestDoublyTransactional
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
         dbi = Jdbi.create(ds);
         dbi.installPlugin(new SqlObjectPlugin());
-        dbi.getConfig(MappingRegistry.class).registerRowMapper(new SomethingMapper());
+        dbi.getConfig(RowMappers.class).register(new SomethingMapper());
 
         handle = dbi.open();
 

@@ -11,15 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.array;
 
 import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Collection;
 
+import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.SqlArrayType;
 
 class SqlArrayArgument<T> implements Argument {
 
@@ -36,15 +36,25 @@ class SqlArrayArgument<T> implements Argument {
         }
     }
 
-    SqlArrayArgument(SqlArrayType<T> arrayType, List<T> list) {
+    SqlArrayArgument(SqlArrayType<T> arrayType, Collection<T> list) {
         this.typeName = arrayType.getTypeName();
         this.array = list.stream().map(arrayType::convertArrayElement).toArray();
     }
 
     @Override
     public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
-        java.sql.Array sqlArray = statement.getConnection().createArrayOf(typeName, array);
-        ctx.getCleanables().add(sqlArray::free);
-        statement.setArray(position, sqlArray);
+        SqlArrayArgumentStrategy argumentStyle = ctx.getConfig(SqlArrayTypes.class).getArgumentStrategy();
+        switch(argumentStyle) {
+            case SQL_ARRAY:
+                java.sql.Array sqlArray = statement.getConnection().createArrayOf(typeName, array);
+                ctx.addCleanable(sqlArray::free);
+                statement.setArray(position, sqlArray);
+                break;
+            case OBJECT_ARRAY:
+                statement.setObject(position, array);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown array argument style " + argumentStyle);
+        }
     }
 }

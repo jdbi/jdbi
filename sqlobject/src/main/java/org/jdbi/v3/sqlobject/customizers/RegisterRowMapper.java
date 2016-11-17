@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.MappingRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
@@ -68,7 +68,7 @@ public @interface RegisterRowMapper
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified row mapper", e);
             }
-            return config -> m.forEach(config.get(MappingRegistry.class)::registerRowMapper);
+            return config -> m.forEach(config.get(RowMappers.class)::register);
         }
     }
 }

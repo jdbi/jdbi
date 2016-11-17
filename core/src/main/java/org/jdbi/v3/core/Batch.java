@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ public class Batch extends BaseStatement<Batch>
             {
                 for (String part : parts)
                 {
-                    final String sql = getConfig(SqlStatementConfig.class).getStatementRewriter().rewrite(part, empty, getContext()).getSql();
+                    final String sql = getConfig(SqlStatements.class).getStatementRewriter().rewrite(part, empty, getContext()).getSql();
                     LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }
@@ -103,7 +104,7 @@ public class Batch extends BaseStatement<Batch>
                 final long elapsedTime = System.nanoTime() - start;
                 LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                getConfig(SqlStatementConfig.class).getTimingCollector().collect(elapsedTime, getContext());
+                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
                 return rs;
 
             }

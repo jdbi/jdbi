@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import com.google.common.base.Optional;
 
-import org.jdbi.v3.core.ArgumentRegistry;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
@@ -73,7 +73,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() throws Exception {
-        handle.getConfig(ArgumentRegistry.class).register(new NameArgumentFactory());
+        handle.getConfig(Arguments.class).register(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
@@ -111,7 +111,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testBindOptionalOfCustomType() throws Exception {
-        handle.getConfig(ArgumentRegistry.class).register(new NameArgumentFactory());
+        handle.getConfig(Arguments.class).register(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)

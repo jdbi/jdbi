@@ -70,7 +70,7 @@ class UpdateHandler extends CustomizingStatementHandler
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
         Handle h = handle.getHandle();
-        String sql = h.getConfig(SqlObjectConfig.class).getSqlLocator().locate(sqlObjectType, method);
+        String sql = h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
         Update q = h.createUpdate(sql);
         applyCustomizers(q, args);
         applyBinders(q, args);

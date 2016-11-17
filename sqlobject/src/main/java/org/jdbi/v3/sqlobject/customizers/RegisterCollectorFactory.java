@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.core.CollectorRegistry;
+import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.collector.CollectorFactory;
@@ -62,7 +62,7 @@ public @interface RegisterCollectorFactory {
                 }
             }
 
-            return config -> factories.forEach(config.get(CollectorRegistry.class)::register);
+            return config -> factories.forEach(config.get(JdbiCollectors.class)::register);
         }
     }
 }

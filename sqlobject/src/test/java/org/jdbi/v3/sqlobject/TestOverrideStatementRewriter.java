@@ -20,7 +20,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.SqlStatementConfig;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.HashPrefixStatementRewriter;
@@ -43,7 +43,7 @@ public class TestOverrideStatementRewriter
         Jdbi dbi = db.getJdbi();
 
         // this is the default, but be explicit for sake of clarity in test
-        dbi.configure(SqlStatementConfig.class, config -> config.setStatementRewriter(new ColonPrefixStatementRewriter()));
+        dbi.configure(SqlStatements.class, config -> config.setStatementRewriter(new ColonPrefixStatementRewriter()));
         handle = dbi.open();
     }
 
