@@ -18,7 +18,7 @@ import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 
 /**
  * A generic ColumnMapperFactory that reflectively inspects a
@@ -40,7 +40,7 @@ class InferredColumnMapperFactory implements ColumnMapperFactory
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         return maps.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();

@@ -151,7 +151,7 @@ public class StatementContext implements Closeable
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
-        return getConfig(ColumnMappers.class).findFor(type, this);
+        return getConfig(ColumnMappers.class).findFor(type, config);
     }
 
     /**

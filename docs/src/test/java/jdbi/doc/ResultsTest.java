@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.StatementContext;
@@ -160,7 +161,7 @@ public class ResultsTest {
 
     static class UserNameColumnMapperFactory implements ColumnMapperFactory {
         @Override
-        public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
+        public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
             return type == UserName.class ?
                     Optional.of((rs, index, cx) -> new UserName(rs.getString(index))) :
                         Optional.empty();

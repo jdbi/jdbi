@@ -34,7 +34,7 @@ public class ValueTypeMapper implements ColumnMapper<ValueType> {
 
     public static class Factory implements ColumnMapperFactory {
         @Override
-        public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
+        public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
             return ValueType.class.isAssignableFrom(getErasedType(type))
                     ? Optional.of(new ValueTypeMapper())
                     : Optional.empty();

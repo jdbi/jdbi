@@ -28,9 +28,10 @@ import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.util.GenericTypes;
 
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
@@ -50,27 +51,27 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         final Class<?> erasedType = GenericTypes.getErasedType(type);
 
         if (erasedType.isArray()) {
             Class<?> elementType = erasedType.getComponentType();
-            return elementTypeMapper(elementType, ctx)
+            return elementTypeMapper(elementType, config)
                     .map(elementMapper -> new ArrayColumnMapper(elementMapper, elementType));
         }
 
         Supplier<Collection<?>> supplier = suppliers.get(erasedType);
         if (supplier != null) {
             return GenericTypes.findGenericParameter(type, Collection.class)
-                    .flatMap(elementType -> elementTypeMapper(elementType, ctx))
+                    .flatMap(elementType -> elementTypeMapper(elementType, config))
                     .map(elementMapper -> new CollectionColumnMapper(elementMapper, supplier));
         }
 
         return Optional.empty();
     }
 
-    private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, StatementContext ctx) {
-        Optional<ColumnMapper<?>> mapper = ctx.findColumnMapperFor(elementType);
+    private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, ConfigRegistry config) {
+        Optional<ColumnMapper<?>> mapper = config.get(ColumnMappers.class).findFor(elementType, config);
 
         if (!mapper.isPresent() && elementType == Object.class) {
             return Optional.of((rs, num, context) -> rs.getObject(num));
