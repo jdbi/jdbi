@@ -14,7 +14,8 @@
 package org.jdbi.v3.core;
 
 /**
- * Interface for classes that hold configuration.
+ * Interface for classes that hold configuration. Implementations of this interface must have a public, no-argument
+ * constructor in order to work with JDBI.
  *
  * @param <This> A "This" type. Should always be the configuration class.
  */
