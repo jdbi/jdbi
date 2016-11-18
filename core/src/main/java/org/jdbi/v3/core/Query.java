@@ -24,7 +24,6 @@ import java.util.Locale;
 import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.BeanMapper;
-import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;

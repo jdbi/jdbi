@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.StatementContext;

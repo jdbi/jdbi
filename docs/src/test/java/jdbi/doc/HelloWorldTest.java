@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.ConstructorMapper;
 import org.junit.Test;
 

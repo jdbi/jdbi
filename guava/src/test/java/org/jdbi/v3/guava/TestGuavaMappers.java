@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableList;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.PgDatabaseRule;
-import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.util.GenericType;
 import org.junit.Before;
 import org.junit.Rule;

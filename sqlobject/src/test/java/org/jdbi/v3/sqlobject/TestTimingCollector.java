@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.*;
-import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.junit.Before;
 import org.junit.Rule;

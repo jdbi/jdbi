@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.GeneratedKeys;
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Update;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;

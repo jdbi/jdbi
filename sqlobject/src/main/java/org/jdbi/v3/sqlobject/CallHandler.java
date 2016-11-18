@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.Call;
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.OutParameters;
 import org.jdbi.v3.core.util.GenericTypes;

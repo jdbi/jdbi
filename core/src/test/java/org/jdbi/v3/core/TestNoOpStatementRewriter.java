@@ -16,7 +16,6 @@ package org.jdbi.v3.core;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.rewriter.NoOpStatementRewriter;
-import org.jdbi.v3.core.statement.SqlStatements;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

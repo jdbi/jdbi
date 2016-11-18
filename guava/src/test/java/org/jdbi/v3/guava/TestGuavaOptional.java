@@ -19,7 +19,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import com.google.common.base.Optional;
 
-import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;

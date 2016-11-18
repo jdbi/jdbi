@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.junit.Before;
 import org.junit.Rule;

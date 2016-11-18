@@ -29,7 +29,7 @@ class InferredSqlArrayTypeFactory implements SqlArrayTypeFactory {
     private final Type elementType;
     private final SqlArrayType<?> arrayType;
 
-    public InferredSqlArrayTypeFactory(SqlArrayType<?> arrayType) {
+    InferredSqlArrayTypeFactory(SqlArrayType<?> arrayType) {
         this.elementType = findGenericParameter(arrayType.getClass(), SqlArrayType.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed SqlArrayType here"));
         this.arrayType = arrayType;

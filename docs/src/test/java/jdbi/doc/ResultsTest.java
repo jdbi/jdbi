@@ -27,8 +27,6 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.mapper.ColumnMappers;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;

@@ -16,7 +16,6 @@ package org.jdbi.v3.guava;
 import com.google.auto.service.AutoService;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 @AutoService(JdbiPlugin.class)

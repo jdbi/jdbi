@@ -15,7 +15,6 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.Query;
 

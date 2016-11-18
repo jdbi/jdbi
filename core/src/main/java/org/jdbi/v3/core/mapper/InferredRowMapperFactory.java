@@ -27,12 +27,12 @@ import org.jdbi.v3.core.StatementContext;
  * via reflection or an {@link UnsupportedOperationException}
  * will be thrown.
  */
-public class InferredRowMapperFactory implements RowMapperFactory
+class InferredRowMapperFactory implements RowMapperFactory
 {
     private final Type maps;
     private final RowMapper<?> mapper;
 
-    public InferredRowMapperFactory(RowMapper<?> mapper)
+    InferredRowMapperFactory(RowMapper<?> mapper)
     {
         this.maps = findGenericParameter(mapper.getClass(), RowMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed RowMapper here"));

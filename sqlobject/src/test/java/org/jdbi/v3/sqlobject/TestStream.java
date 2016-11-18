@@ -15,11 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.google.common.collect.ImmutableList;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Something;

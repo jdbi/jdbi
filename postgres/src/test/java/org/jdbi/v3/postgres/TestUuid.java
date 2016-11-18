@@ -15,7 +15,6 @@ package org.jdbi.v3.postgres;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
