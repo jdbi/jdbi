@@ -1247,7 +1247,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     RowMapper<?> rowMapperForType(Type type)
     {
-        return getConfig(RowMappers.class).findFor(type, getContext())
+        return getConfig(RowMappers.class).findFor(type, getConfig())
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 }

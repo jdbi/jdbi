@@ -161,7 +161,7 @@ public class StatementContext implements Closeable
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public Optional<RowMapper<?>> findRowMapperFor(Type type) {
-        return getConfig(RowMappers.class).findFor(type, this);
+        return getConfig(RowMappers.class).findFor(type, config);
     }
 
     /**

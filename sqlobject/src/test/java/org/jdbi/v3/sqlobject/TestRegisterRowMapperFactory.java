@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -65,7 +66,7 @@ public class TestRegisterRowMapperFactory
     public static class MyFactory implements RowMapperFactory
     {
         @Override
-        public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
+        public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
             Class<?> erasedType = getErasedType(type);
             try {
                 MapWith mapWith = erasedType.getAnnotation(MapWith.class);

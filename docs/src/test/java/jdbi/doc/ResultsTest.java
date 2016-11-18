@@ -110,7 +110,7 @@ public class ResultsTest {
     public void rowMapperFactory() {
         handle.registerRowMapper(new RowMapperFactory() {
             @Override
-            public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
+            public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
                 return type == User.class ?
                         Optional.of(new UserMapper()) :
                             Optional.empty();
