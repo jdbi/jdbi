@@ -22,7 +22,6 @@ import java.util.Optional;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.Arguments;
 
 /**
  * Provide ArgumentFactory instances that understand Guava types.
@@ -49,7 +48,7 @@ public class GuavaArguments {
             if (value instanceof com.google.common.base.Optional) {
                 Object nestedValue = ((com.google.common.base.Optional<?>) value).orNull();
                 Type nestedType = findOptionalType(expectedType, nestedValue);
-                return config.get(Arguments.class).findFor(nestedType, nestedValue, config);
+                return config.findArgumentFor(nestedType, nestedValue);
             }
 
             return Optional.empty();

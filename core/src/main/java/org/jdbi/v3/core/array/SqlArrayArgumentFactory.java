@@ -29,13 +29,12 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         if (erasedType.isArray()) {
             Class<?> elementType = erasedType.getComponentType();
-            return config.get(SqlArrayTypes.class)
-                    .findFor(elementType, config)
+            return config.findSqlArrayTypeFor(elementType)
                     .map(arrayType -> new SqlArrayArgument(arrayType, value));
         }
         if (Collection.class.isAssignableFrom(erasedType)) {
             return GenericTypes.findGenericParameter(type, Collection.class)
-                    .flatMap(elementType -> config.get(SqlArrayTypes.class).findFor(elementType, config))
+                    .flatMap(config::findSqlArrayTypeFor)
                     .map(arrayType -> new SqlArrayArgument(arrayType, (Collection) value));
         }
         return Optional.empty();

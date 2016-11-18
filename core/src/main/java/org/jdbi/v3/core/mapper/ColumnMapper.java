@@ -21,6 +21,7 @@ import org.jdbi.v3.core.StatementContext;
 
 /**
  * Maps result set columns to objects.
+ * @see org.jdbi.v3.core.ConfigRegistry#findColumnMapperFor(Type)
  * @see StatementContext#findColumnMapperFor(Type)
  * @see ColumnMappers#findFor(java.lang.reflect.Type,org.jdbi.v3.core.ConfigRegistry)
  */

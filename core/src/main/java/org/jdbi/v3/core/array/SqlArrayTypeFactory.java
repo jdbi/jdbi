@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.StatementContext;
 
 /**
  * Factory interface to produce {@link SqlArrayType} instances.
@@ -30,7 +29,7 @@ public interface SqlArrayTypeFactory {
      * @param elementType the array element type
      * @param config the config registry, for composition
      * @return an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
-     * @see StatementContext#findSqlArrayTypeFor(Type)
+     * @see ConfigRegistry#findSqlArrayTypeFor(Type)
      * @see SqlArrayTypes#findFor(Type, ConfigRegistry)
      */
     Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config);

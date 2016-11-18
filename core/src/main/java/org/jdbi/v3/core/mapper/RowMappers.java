@@ -89,7 +89,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
                 () -> factories.stream()
                         .flatMap(factory -> toStream(factory.build(type, config)))
                         .findFirst(),
-                () -> config.get(ColumnMappers.class).findFor(type, config)
+                () -> config.findColumnMapperFor(type)
                         .map(SingleColumnMapper::new),
                 // FIXME possible to taint parent cache with child config's mappers?
                 () -> parent.flatMap(p -> p.findFor(type, config)));

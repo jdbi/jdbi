@@ -25,15 +25,12 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.statement.SqlStatements;
 
 /**
@@ -117,14 +114,14 @@ public class StatementContext implements Closeable
     }
 
     /**
-     * Obtain an argument for given value in the this context
+     * Obtain an argument for given value in this context
      *
      * @param type  the type of the argument.
      * @param value the argument value.
      * @return an Argument for the given value.
      */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value, config);
+        return config.findArgumentFor(type, value);
     }
 
     /**
@@ -141,7 +138,7 @@ public class StatementContext implements Closeable
      * @return an {@link SqlArrayType} for the given element type.
      */
     public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
-        return getConfig(SqlArrayTypes.class).findFor(elementType, config);
+        return config.findSqlArrayTypeFor(elementType);
     }
 
     /**
@@ -151,7 +148,7 @@ public class StatementContext implements Closeable
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
-        return getConfig(ColumnMappers.class).findFor(type, config);
+        return config.findColumnMapperFor(type);
     }
 
     /**
@@ -161,7 +158,7 @@ public class StatementContext implements Closeable
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public Optional<RowMapper<?>> findRowMapperFor(Type type) {
-        return getConfig(RowMappers.class).findFor(type, config);
+        return config.findRowMapperFor(type);
     }
 
     /**

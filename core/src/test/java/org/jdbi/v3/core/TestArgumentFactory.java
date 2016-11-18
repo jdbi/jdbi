@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.Arguments;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -98,7 +97,7 @@ public class TestArgumentFactory
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
-                return config.get(Arguments.class).findFor(String.class, nameValue.getFullName(), config);
+                return config.findArgumentFor(String.class, nameValue.getFullName());
             }
             return Optional.empty();
         }

@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
@@ -36,7 +35,6 @@ import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.statement.SqlStatements;
@@ -1116,8 +1114,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     private Argument toArgument(Type type, Object value) {
-        return getConfig(Arguments.class)
-                .findFor(type, value, getConfig())
+        return getConfig().findArgumentFor(type, value)
                 .orElseThrow(() -> new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type));
     }
 
@@ -1247,7 +1244,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     RowMapper<?> rowMapperForType(Type type)
     {
-        return getConfig(RowMappers.class).findFor(type, getConfig())
+        return getConfig().findRowMapperFor(type)
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 }

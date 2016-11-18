@@ -31,7 +31,6 @@ import java.util.function.Supplier;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.util.GenericTypes;
 
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
@@ -71,7 +70,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
     }
 
     private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, ConfigRegistry config) {
-        Optional<ColumnMapper<?>> mapper = config.get(ColumnMappers.class).findFor(elementType, config);
+        Optional<ColumnMapper<?>> mapper = config.findColumnMapperFor(elementType);
 
         if (!mapper.isPresent() && elementType == Object.class) {
             return Optional.of((rs, num, context) -> rs.getObject(num));
