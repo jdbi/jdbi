@@ -29,7 +29,7 @@ public interface RowMapperFactory
      * Supplies a row mapper which will map result set rows to type if the factory supports it; empty otherwise.
      *
      * @param type the target type to map to
-     * @param config the config registry
+     * @param config the config registry, for composition
      *
      * @return a row mapper for the given type if this factory supports it; <code>Optional.empty()</code> otherwise.
      *

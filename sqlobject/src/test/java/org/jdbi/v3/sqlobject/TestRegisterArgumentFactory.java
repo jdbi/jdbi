@@ -19,9 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.sqlobject.customizers.RegisterArgumentFactory;
@@ -65,7 +65,7 @@ public class TestRegisterArgumentFactory
     public static class NameAF implements ArgumentFactory
     {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
                 return Optional.of((position, statement, ctx1) -> statement.setString(position, nameValue.getFullName()));

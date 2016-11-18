@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.StatementContext;
@@ -80,7 +81,7 @@ public class ArgumentsTest {
     // tag::uuidArgumentFactory[]
     static class UUIDArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
             return type == UUID.class ?
                     Optional.of(new UUIDArgument((UUID) value)) :
                         Optional.empty();

@@ -124,7 +124,7 @@ public class StatementContext implements Closeable
      * @return an Argument for the given value.
      */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value, this);
+        return getConfig(Arguments.class).findFor(type, value, config);
     }
 
     /**
@@ -141,7 +141,7 @@ public class StatementContext implements Closeable
      * @return an {@link SqlArrayType} for the given element type.
      */
     public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
-        return getConfig(SqlArrayTypes.class).findFor(elementType, this);
+        return getConfig(SqlArrayTypes.class).findFor(elementType, config);
     }
 
     /**

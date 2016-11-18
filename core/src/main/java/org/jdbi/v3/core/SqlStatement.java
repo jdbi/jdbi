@@ -1117,7 +1117,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     private Argument toArgument(Type type, Object value) {
         return getConfig(Arguments.class)
-                .findFor(type, value, getContext())
+                .findFor(type, value, getConfig())
                 .orElseThrow(() -> new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type));
     }
 

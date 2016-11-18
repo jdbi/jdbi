@@ -18,7 +18,7 @@ import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 
 /**
  * A generic {@link SqlArrayTypeFactory} that reflectively inspects an {@link SqlArrayType SqlArrayType<T>} and maps
@@ -36,7 +36,7 @@ class InferredSqlArrayTypeFactory implements SqlArrayTypeFactory {
     }
 
     @Override
-    public Optional<SqlArrayType<?>> build(Type elementType, StatementContext ctx) {
+    public Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config) {
         return this.elementType.equals(elementType)
                 ? Optional.of(arrayType)
                 : Optional.empty();

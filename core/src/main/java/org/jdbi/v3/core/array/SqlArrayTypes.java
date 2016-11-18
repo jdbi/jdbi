@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.JdbiConfig;
-import org.jdbi.v3.core.StatementContext;
 
 /**
  * Configuration class for SQL array binding and mapping.
@@ -105,15 +105,15 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * Obtain an {@link SqlArrayType} for the given array element type in the given context
      *
      * @param elementType the array element type.
-     * @param ctx         the statement context
+     * @param config      the config registry, for composition
      * @return an {@link SqlArrayType} for the given element type.
      */
-    public Optional<SqlArrayType<?>> findFor(Type elementType, StatementContext ctx) {
+    public Optional<SqlArrayType<?>> findFor(Type elementType, ConfigRegistry config) {
         return findFirstPresent(
                 () -> factories.stream()
-                        .flatMap(factory -> toStream(factory.build(elementType, ctx)))
+                        .flatMap(factory -> toStream(factory.build(elementType, config)))
                         .findFirst(),
-                () -> parent.flatMap(p -> p.findFor(elementType, ctx)));
+                () -> parent.flatMap(p -> p.findFor(elementType, config)));
     }
 
     @Override

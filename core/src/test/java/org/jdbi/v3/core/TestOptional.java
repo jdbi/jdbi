@@ -144,7 +144,7 @@ public class TestOptional {
 
     class NameArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class) {
                 Name nameValue = (Name) value;
                 return Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));

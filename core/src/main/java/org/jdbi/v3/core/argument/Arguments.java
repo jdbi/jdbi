@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.JdbiConfig;
-import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 
 public class Arguments implements JdbiConfig<Arguments> {
@@ -50,15 +50,15 @@ public class Arguments implements JdbiConfig<Arguments> {
      *
      * @param type  the type of the argument.
      * @param value the argument value.
-     * @param ctx   the statement context.
+     * @param config the config registry, for composition
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findFor(Type type, Object value, StatementContext ctx) {
+    public Optional<Argument> findFor(Type type, Object value, ConfigRegistry config) {
         return findFirstPresent(
                 () -> argumentFactories.stream()
-                        .flatMap(factory -> toStream(factory.build(type, value, ctx)))
+                        .flatMap(factory -> toStream(factory.build(type, value, config)))
                         .findFirst(),
-                () -> parent.flatMap(p -> p.findFor(type, value, ctx)));
+                () -> parent.flatMap(p -> p.findFor(type, value, config)));
     }
 
     @Override

@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiAccess;
 import org.jdbi.v3.core.StatementContext;
@@ -121,7 +122,7 @@ public class TestArgumentsRegistry
     private static class WeirdClassArgumentFactory implements ArgumentFactory
     {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             return getErasedType(expectedType) == Weird.class
                     ? Optional.of(new WeirdArgument())
                     : Optional.empty();
@@ -131,7 +132,7 @@ public class TestArgumentsRegistry
     private static class WeirdValueArgumentFactory implements ArgumentFactory
     {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             return value instanceof Weird
                     ? Optional.of(new WeirdArgument())
                     : Optional.empty();

@@ -29,7 +29,7 @@ public interface ColumnMapperFactory
      * Supplies a column mapper which will map columns to type if the factory supports it; empty otherwise.
      *
      * @param type the target type to map to
-     * @param config the configuration registry
+     * @param config the config registry, for composition
      * @return a column mapper for the given type if this factory supports it, or <code>Optional.empty()</code> otherwise.
      * @see StatementContext#findColumnMapperFor(Type)
      * @see ColumnMappers#findFor(Type,ConfigRegistry)

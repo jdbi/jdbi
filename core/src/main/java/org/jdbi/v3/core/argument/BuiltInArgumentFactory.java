@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.SqlStatement;
 import org.jdbi.v3.core.StatementContext;
 
@@ -117,7 +118,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx)
+    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config)
     {
         Class<?> expectedClass = getErasedType(expectedType);
 
@@ -141,7 +142,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         if (value instanceof Optional) {
             Object nestedValue = ((Optional<?>)value).orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
-            return ctx.findArgumentFor(nestedType, nestedValue);
+            return config.get(Arguments.class).findFor(nestedType, nestedValue, config);
         }
 
         return value == null

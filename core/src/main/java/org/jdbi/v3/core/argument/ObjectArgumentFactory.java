@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 
 public class ObjectArgumentFactory implements ArgumentFactory
 {
@@ -38,7 +38,7 @@ public class ObjectArgumentFactory implements ArgumentFactory
     }
 
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
         return Objects.equals(type, expectedType) || type.isInstance(value)
                 ? Optional.of(new ObjectArgument(value, sqlType))
                 : Optional.empty();

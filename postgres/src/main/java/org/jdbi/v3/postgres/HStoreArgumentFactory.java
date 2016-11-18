@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.util.GenericTypes;
@@ -29,7 +29,7 @@ public class HStoreArgumentFactory implements ArgumentFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
+    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         if (Map.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
             return Optional.of((i, p, cx) -> p.setObject(i, value));
         }
