@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.array;
 
-import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -21,28 +20,23 @@ import java.util.Collection;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
 
-class SqlArrayArgument<T> implements Argument<Object> {
+class CollectionArrayArgument<T> implements Argument<Collection<T>> {
 
     private final SqlArrayType<T> arrayType;
 
-    @SuppressWarnings("unchecked")
-    SqlArrayArgument(SqlArrayType<T> arrayType) {
+    CollectionArrayArgument(SqlArrayType<T> arrayType) {
         this.arrayType = arrayType;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void apply(PreparedStatement statement, int position, Object value, StatementContext ctx) throws SQLException {
-        int length = Array.getLength(value);
-        Object[] array = new Object[length];
-        for (int i = 0; i < length; i++) {
-            array[i] = arrayType.convertArrayElement((T) Array.get(value, i));
-        }
+    public void apply(PreparedStatement statement, int position, Collection<T> value, StatementContext ctx) throws SQLException {
+        Object[] array = value.stream().map(arrayType::convertArrayElement).toArray();
+        String typeName = arrayType.getTypeName();
 
         SqlArrayArgumentStrategy argumentStyle = ctx.getSqlArrayArgumentStrategy();
-        switch(argumentStyle) {
+        switch (argumentStyle) {
             case SQL_ARRAY:
-                java.sql.Array sqlArray = statement.getConnection().createArrayOf(arrayType.getTypeName(), array);
+                java.sql.Array sqlArray = statement.getConnection().createArrayOf(typeName, array);
                 ctx.addCleanable(sqlArray::free);
                 statement.setArray(position, sqlArray);
                 break;

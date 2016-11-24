@@ -13,15 +13,22 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.util.Optional;
+import java.io.Reader;
 
-import org.jdbi.v3.core.BoundArgument;
+public class CharacterStream {
+    private final Reader reader;
+    private final int length;
 
-/**
- * Returns an Argument based on a name. Used to lookup multiple properties e.g. in a Bean or a Map.
- */
-@FunctionalInterface
-public interface NamedArgumentFinder
-{
-    Optional<BoundArgument> find(String name);
+    public CharacterStream(Reader reader, int length) {
+        this.reader = reader;
+        this.length = length;
+    }
+
+    public Reader getReader() {
+        return reader;
+    }
+
+    public int getLength() {
+        return length;
+    }
 }

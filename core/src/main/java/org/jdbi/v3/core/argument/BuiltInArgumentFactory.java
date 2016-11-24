@@ -35,7 +35,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -55,17 +54,17 @@ import org.jdbi.v3.core.StatementContext;
 public class BuiltInArgumentFactory implements ArgumentFactory {
     // Care for the initialization order here, there's a fair number of statics.  Create the builders before the factory instance.
 
-    private static final ArgBuilder<String> STR_BUILDER = v -> new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString, v);
-    private static final Map<Class<?>, ArgBuilder<?>> BUILDERS = createInternalBuilders();
+    private static final Argument<String> STR_BUILDER = new BuiltInArgument<>(String.class, Types.VARCHAR, PreparedStatement::setString);
+    private static final Map<Class<?>, Argument<?>> CACHE = createInternalBuilders();
 
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
 
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
-        register(map, klass, v -> new BuiltInArgument<>(klass, type, binder, v));
+    private static <T> void register(Map<Class<?>, Argument<?>> map, Class<T> klass, int type, StatementBinder<T> binder) {
+        register(map, klass, new BuiltInArgument<>(klass, type, binder));
     }
 
-    private static <T> void register(Map<Class<?>, ArgBuilder<?>> map, Class<T> klass, ArgBuilder<T> builder) {
-        map.put(klass, builder);
+    private static <T> void register(Map<Class<?>, Argument<?>> map, Class<T> klass, Argument<T> argument) {
+        map.put(klass, argument);
     }
 
     /** Create a binder which calls String.valueOf on its argument and then delegates to another binder. */
@@ -73,8 +72,8 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         return (p, i, v) -> real.bind(p, i, String.valueOf(v));
     }
 
-    private static Map<Class<?>, ArgBuilder<?>> createInternalBuilders() {
-        final Map<Class<?>, ArgBuilder<?>> map = new IdentityHashMap<>();
+    private static Map<Class<?>, Argument<?>> createInternalBuilders() {
+        final Map<Class<?>, Argument<?>> map = new IdentityHashMap<>();
         register(map, BigDecimal.class, Types.NUMERIC, PreparedStatement::setBigDecimal);
         register(map, Blob.class, Types.BLOB, PreparedStatement::setBlob);
         register(map, Boolean.class, Types.BOOLEAN, PreparedStatement::setBoolean);
@@ -113,51 +112,63 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         register(map, ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(map, LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
 
+        register(map, AsciiStream.class, Types.LONGVARCHAR, (p, i, v) -> p.setAsciiStream(i, v.getStream(), v.getLength()));
+        register(map, BinaryStream.class, Types.LONGVARBINARY, (p, i, v) -> p.setBinaryStream(i, v.getStream(), v.getLength()));
+        register(map, CharacterStream.class, Types.LONGVARBINARY, (p, i, v) -> p.setCharacterStream(i, v.getReader(), v.getLength()));
+
+        register(map, NullValue.class, (p, i, v, ctx) -> p.setNull(i, v.getSqlType()));
+
         return Collections.unmodifiableMap(map);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config)
+    public Optional<Argument> build(Type expectedType, ConfigRegistry config)
     {
         Class<?> expectedClass = getErasedType(expectedType);
 
-        if (value != null && expectedClass == Object.class) {
-            expectedClass = value.getClass();
-        }
-
         @SuppressWarnings("rawtypes")
-        ArgBuilder v = BUILDERS.get(expectedClass);
+        Argument<?> a = CACHE.get(expectedClass);
 
-        if (v != null) {
-            return Optional.of(v.build(value));
+        if (a != null) {
+            return Optional.of(a);
         }
 
         // Enums must be bound as VARCHAR.
-        if (value instanceof Enum) {
-            Enum<?> enumValue = (Enum<?>) value;
-            return Optional.of(STR_BUILDER.build(enumValue.name()));
+        if (expectedClass.isEnum()) {
+            return Optional.of(new BuiltInArgument(
+                    expectedClass,
+                    Types.VARCHAR,
+                    (p, i, v) -> p.setString(i, Enum.class.cast(v).name())));
         }
 
-        if (value instanceof Optional) {
-            Object nestedValue = ((Optional<?>)value).orElse(null);
-            Type nestedType = findOptionalType(expectedType, nestedValue);
-            return config.findArgumentFor(nestedType, nestedValue);
+        if (Optional.class.equals(expectedClass)) {
+            Optional<Argument> argument = findGenericParameter(expectedType, Optional.class)
+                    .flatMap(config::findArgumentFor)
+                    .map(this::applyOptional);
+
+            return argument.isPresent()
+                    ? argument
+                    : Optional.of(bestEffortOptionalArgument());
         }
 
-        return value == null
-                ? Optional.of(new NullArgument(Types.NULL))
-                : Optional.empty();
+        return Optional.empty();
     }
 
-    private Type findOptionalType(Type wrapperType, Object nestedValue) {
-        if (getErasedType(wrapperType).equals(Optional.class)) {
-            Optional<Type> nestedType = findGenericParameter(wrapperType, Optional.class);
-            if (nestedType.isPresent()) {
-                return nestedType.get();
-            }
-        }
-        return nestedValue == null ? Object.class : nestedValue.getClass();
+    private <T> Argument<Optional<T>> applyOptional(Argument<T> delegate) {
+        return (stmt, pos, arg, ctx) -> delegate.apply(stmt, pos, arg.orElse(null), ctx);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Argument<Optional> bestEffortOptionalArgument() {
+        // no static type information -- best effort based on runtime type information
+        return (stmt, pos, value, ctx) -> {
+            Object nested = value.orElseGet(NullValue::new);
+            ctx.findArgumentFor(nested.getClass())
+                    .orElseThrow(() -> new UnsupportedOperationException(
+                            "No argument registered for value " + nested + " of type " + nested.getClass()))
+                    .apply(stmt, pos, nested, ctx);
+        };
     }
 
     @FunctionalInterface
@@ -165,26 +176,17 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         void bind(PreparedStatement p, int index, T value) throws SQLException;
     }
 
-    @FunctionalInterface
-    interface ArgBuilder<T> {
-        Argument build(final T value);
-    }
-
-    static final class BuiltInArgument<T> implements Argument {
-        private final T value;
-        private final boolean isArray;
+    static final class BuiltInArgument<T> implements Argument<T> {
         private final int type;
         private final StatementBinder<T> binder;
 
-        private BuiltInArgument(Class<T> klass, int type, StatementBinder<T> binder, T value) {
+        private BuiltInArgument(Class<T> klass, int type, StatementBinder<T> binder) {
             this.binder = binder;
-            this.isArray = klass.isArray();
             this.type = type;
-            this.value = value;
         }
 
         @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+        public void apply(PreparedStatement statement, int position, T value, StatementContext ctx) throws SQLException {
             if (value == null) {
                 statement.setNull(position, type);
                 return;
@@ -194,14 +196,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
         @Override
         public String toString() {
-            if (isArray) {
-                return Arrays.toString((Object[]) value);
-            }
-            return String.valueOf(value);
-        }
-
-        StatementBinder<T> getStatementBinder() {
-            return binder;
+            return "BuiltInArgument<" + type + ">";
         }
     }
 }

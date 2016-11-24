@@ -93,11 +93,13 @@ public class TestArgumentFactory
 
     public static class NameAF implements ArgumentFactory
     {
+        @SuppressWarnings("unchecked")
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-            if (expectedType == Name.class || value instanceof Name) {
-                Name nameValue = (Name) value;
-                return config.findArgumentFor(String.class, nameValue.getFullName());
+        public Optional<Argument> build(Type expectedType, ConfigRegistry config) {
+            if (expectedType == Name.class) {
+                return config.findArgumentFor(String.class)
+                        .map(delegate -> (stmt, pos, value, ctx) ->
+                                delegate.apply(stmt, pos, ((Name)value).getFullName(), ctx));
             }
             return Optional.empty();
         }

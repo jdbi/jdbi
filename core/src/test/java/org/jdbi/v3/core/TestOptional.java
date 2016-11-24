@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 public class TestOptional {
     private static final String SELECT_BY_NAME = "select * from something " +
@@ -50,7 +51,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalPresent() throws Exception {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
+                .bind("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .findOnly();
 
@@ -60,7 +61,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalEmpty() throws Exception {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.empty(), new GenericType<Optional<String>>() {})
+                .bind("name", Optional.empty(), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .list();
 
@@ -71,7 +72,7 @@ public class TestOptional {
     public void testDynamicBindOptionalOfCustomType() throws Exception {
         handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+                .bind("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
                 .list();
     }
@@ -80,7 +81,7 @@ public class TestOptional {
     public void testDynamicBindOptionalOfUnregisteredCustomType() throws Exception {
         exception.expect(UnsupportedOperationException.class);
         handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+                .bind("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
                 .list();
     }
@@ -144,10 +145,10 @@ public class TestOptional {
 
     class NameArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-            if (expectedType == Name.class) {
-                Name nameValue = (Name) value;
-                return Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));
+        public Optional<Argument> build(Type expectedType, ConfigRegistry config) {
+            if (Name.class.isAssignableFrom(getErasedType(expectedType))) {
+                Argument<Name> arg = (stmt, pos, value, c) -> stmt.setString(pos, value.value);
+                return Optional.of(arg);
             }
             return Optional.empty();
         }

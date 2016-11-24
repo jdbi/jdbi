@@ -20,6 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
@@ -27,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
+import org.jdbi.v3.core.BoundArgument;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -77,10 +79,9 @@ public class TestBindExpression
                 final JexlEngine engine = new JexlEngine();
                 return q -> q.bindNamedArgumentFinder(name -> {
                     Expression e = engine.createExpression(name);
-                    final Object it = e.evaluate(new MapContext(ImmutableMap.of(root_name, root)));
-                    return it == null
-                            ? Optional.empty()
-                            : Optional.of((position, statement, ctx) -> statement.setObject(position, it));
+                    Object value = e.evaluate(new MapContext(ImmutableMap.of(root_name, root)));
+                    Type type = value == null ? Object.class : value.getClass(); 
+                    return Optional.ofNullable(new BoundArgument(value, type));
                 });
             }
         }

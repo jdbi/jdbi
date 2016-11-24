@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.customizers;
 
 import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.jdbi.v3.core.util.GenericTypes;
 import org.jdbi.v3.sqlobject.Binder;
 import org.jdbi.v3.sqlobject.BinderFactory;
 import org.jdbi.v3.sqlobject.BindingAnnotation;
@@ -166,13 +168,12 @@ public @interface BindIn
                 } else
                 {
                     Type parameterType = param == null ? Object.class : param.getParameterizedType();
-                    Type elementType = findGenericParameter(parameterType, Iterable.class)
-                            .orElse(Object.class);
+                    Type elementType = Util.elementType(parameterType);
                     // replace placeholders with actual values
                     final Iterator<?> it = Util.toIterator(arg);
                     for (int i = 0; it.hasNext(); i++)
                     {
-                        q.bindByType("__" + name + "_" + i, it.next(), elementType);
+                        q.bind("__" + name + "_" + i, it.next(), elementType);
                     }
                 }
             };
@@ -209,6 +210,20 @@ public @interface BindIn
             }
 
             throw new IllegalArgumentException(getTypeWarning(obj.getClass()));
+        }
+
+        static Type elementType(Type type) {
+            Class<?> erasedType = getErasedType(type);
+            if (erasedType.isArray()) {
+                return erasedType.getComponentType();
+            }
+
+            if (Iterable.class.isAssignableFrom(erasedType)) {
+                return findGenericParameter(type, Iterable.class)
+                        .orElse(Object.class);
+            }
+
+            throw new IllegalArgumentException(getTypeWarning(erasedType));
         }
 
         static int size(final Object obj)

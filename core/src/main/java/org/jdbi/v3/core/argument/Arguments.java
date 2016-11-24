@@ -19,6 +19,7 @@ import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.ConfigRegistry;
@@ -29,6 +30,7 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     private final Optional<Arguments> parent;
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
+    private final ConcurrentHashMap<Type, Argument<?>> cache = new ConcurrentHashMap<>();
 
     public Arguments() {
         parent = Optional.empty();
@@ -49,16 +51,15 @@ public class Arguments implements JdbiConfig<Arguments> {
      * Obtain an argument for given value in the given context
      *
      * @param type  the type of the argument.
-     * @param value the argument value.
      * @param config the config registry, for composition
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findFor(Type type, Object value, ConfigRegistry config) {
+    public Optional<Argument> findFor(Type type, ConfigRegistry config) {
         return findFirstPresent(
                 () -> argumentFactories.stream()
-                        .flatMap(factory -> toStream(factory.build(type, value, config)))
+                        .flatMap(factory -> toStream(factory.build(type, config)))
                         .findFirst(),
-                () -> parent.flatMap(p -> p.findFor(type, value, config)));
+                () -> parent.flatMap(p -> p.findFor(type, config)));
     }
 
     @Override

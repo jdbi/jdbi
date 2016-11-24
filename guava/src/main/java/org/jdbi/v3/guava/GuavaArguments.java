@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.NullValue;
 
 /**
  * Provide ArgumentFactory instances that understand Guava types.
@@ -43,26 +44,36 @@ public class GuavaArguments {
 
     private static class Factory implements ArgumentFactory {
 
+        @SuppressWarnings("unchecked")
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-            if (value instanceof com.google.common.base.Optional) {
-                Object nestedValue = ((com.google.common.base.Optional<?>) value).orNull();
-                Type nestedType = findOptionalType(expectedType, nestedValue);
-                return config.findArgumentFor(nestedType, nestedValue);
+        public Optional<Argument> build(Type expectedType, ConfigRegistry config) {
+            if (com.google.common.base.Optional.class.isAssignableFrom(getErasedType(expectedType))) {
+                Optional<Argument> argument = findGenericParameter(expectedType, com.google.common.base.Optional.class)
+                        .flatMap(config::findArgumentFor)
+                        .map(this::applyOPtional);
+
+                return argument.isPresent()
+                        ? argument
+                        : Optional.of(bestEffortOptionalArgument());
             }
 
             return Optional.empty();
         }
 
-        private Type findOptionalType(Type wrapperType, Object nestedValue) {
-            if (getErasedType(wrapperType).equals(com.google.common.base.Optional.class)) {
-                Optional<Type> nestedType = findGenericParameter(wrapperType, com.google.common.base.Optional.class);
-                if (nestedType.isPresent()) {
-                    return nestedType.get();
-                }
-            }
-            return nestedValue == null ? Object.class : nestedValue.getClass();
+        private <T> Argument<com.google.common.base.Optional<T>> applyOPtional(Argument<T> delegate) {
+            return (s, p, value, ctx) -> delegate.apply(s, p, value.orNull(), ctx);
         }
 
+        @SuppressWarnings("unchecked")
+        private Argument<com.google.common.base.Optional> bestEffortOptionalArgument() {
+            // no static type information -- best effort based on runtime type information
+            return (stmt, pos, value, ctx) -> {
+                Object nested = value.or(NullValue::new);
+                ctx.findArgumentFor(nested.getClass())
+                        .orElseThrow(() -> new UnsupportedOperationException(
+                                "No argument registered for value " + nested + " of type " + nested.getClass()))
+                        .apply(stmt, pos, nested, ctx);
+            };
+        }
     }
 }

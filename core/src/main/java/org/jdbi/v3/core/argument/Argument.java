@@ -23,7 +23,7 @@ import org.jdbi.v3.core.StatementContext;
  * statement is executed to bind the parameter.
  */
 @FunctionalInterface
-public interface Argument
+public interface Argument<T>
 {
     /**
      * Callback method invoked right before statement execution.
@@ -34,5 +34,5 @@ public interface Argument
      * @param ctx the statement context
      * @throws SQLException if anything goes wrong
      */
-    void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException;
+    void apply(PreparedStatement statement, int position, T argument, StatementContext ctx) throws SQLException;
 }

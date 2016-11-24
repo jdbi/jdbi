@@ -22,38 +22,20 @@ import org.jdbi.v3.core.StatementContext;
  * An Argument which uses {@code setObject} to support
  * vendor specific types.
  */
-public class ObjectArgument implements Argument
-{
-    private final Object value;
+public class ObjectArgument implements Argument<Object> {
     private final Integer sqlType;
 
-    public ObjectArgument(Object value, Integer sqlType) {
+    public ObjectArgument(int sqlType) {
         this.sqlType = sqlType;
-        this.value = value;
-
-        if (sqlType == null && value == null) {
-            throw new IllegalArgumentException("Null value provided without a type");
-        }
     }
 
     @Override
-    public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-    {
-        if (value == null) {
-            statement.setNull(position, sqlType);
-        }
-        else {
-            if (sqlType != null) {
-                statement.setObject(position, value, sqlType);
-            } else {
-                statement.setObject(position, value);
-            }
-        }
+    public void apply(PreparedStatement statement, int position, Object value, StatementContext ctx) throws SQLException {
+        statement.setObject(position, value, sqlType);
     }
 
     @Override
     public String toString() {
-        return (value == null ? "NULL" : String.valueOf(value)) +
-                (sqlType == null? "" : " (type " + sqlType + ")");
+        return "ObjectArgument{sqlType=" + sqlType + "}";
     }
 }

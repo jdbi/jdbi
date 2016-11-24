@@ -54,7 +54,7 @@ public class TestGuavaOptional {
     @Test
     public void testDynamicBindOptionalPresent() throws Exception {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
+                .bind("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .findOnly();
         assertThat(result).isEqualTo(new Something(1, "eric"));
@@ -63,7 +63,7 @@ public class TestGuavaOptional {
     @Test
     public void testDynamicBindOptionalEmpty() throws Exception {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.absent(), new GenericType<Optional<String>>() {})
+                .bind("name", Optional.absent(), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .list();
 
@@ -74,7 +74,7 @@ public class TestGuavaOptional {
     public void testDynamicBindOptionalOfCustomType() throws Exception {
         handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+                .bind("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
                 .list();
     }
@@ -83,7 +83,7 @@ public class TestGuavaOptional {
     public void testDynamicBindOptionalOfUnregisteredCustomType() throws Exception {
         exception.expect(UnsupportedOperationException.class);
         handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+                .bind("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
                 .list();
     }
@@ -147,10 +147,10 @@ public class TestGuavaOptional {
 
     class NameArgumentFactory implements ArgumentFactory {
         @Override
-        public java.util.Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-            if (expectedType == Name.class) {
-                Name nameValue = (Name) value;
-                return java.util.Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));
+        public java.util.Optional<Argument> build(Type expectedType, ConfigRegistry config) {
+            if (Name.class.equals(expectedType)) {
+                Argument<Name> argument = (stmt, pos, value, c) -> stmt.setString(pos, value.value);
+                return java.util.Optional.of(argument);
             }
             return java.util.Optional.empty();
         }

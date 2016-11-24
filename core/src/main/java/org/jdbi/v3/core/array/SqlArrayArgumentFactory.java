@@ -25,17 +25,17 @@ import org.jdbi.v3.core.util.GenericTypes;
 public class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type type, ConfigRegistry config) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         if (erasedType.isArray()) {
             Class<?> elementType = erasedType.getComponentType();
             return config.findSqlArrayTypeFor(elementType)
-                    .map(arrayType -> new SqlArrayArgument(arrayType, value));
+                    .map(SqlArrayArgument::new);
         }
         if (Collection.class.isAssignableFrom(erasedType)) {
             return GenericTypes.findGenericParameter(type, Collection.class)
                     .flatMap(config::findSqlArrayTypeFor)
-                    .map(arrayType -> new SqlArrayArgument(arrayType, (Collection) value));
+                    .map(CollectionArrayArgument::new);
         }
         return Optional.empty();
     }

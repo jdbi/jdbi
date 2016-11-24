@@ -13,12 +13,14 @@
  */
 package org.jdbi.v3.core;
 
+import java.lang.reflect.Type;
+import java.sql.Types;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
+import org.jdbi.v3.core.argument.NullValue;
 
 /**
  * Binds all entries of a map as arguments.
@@ -26,23 +28,26 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 class MapArguments implements NamedArgumentFinder
 {
     private final Map<String, ?> args;
-    private final StatementContext ctx;
 
-    MapArguments(Map<String, ?> args, StatementContext ctx)
+    MapArguments(Map<String, ?> args)
     {
-        this.ctx = ctx;
         this.args = args;
     }
 
     @Override
-    public Optional<Argument> find(String name)
+    public Optional<BoundArgument> find(String name)
     {
-        if (args.containsKey(name))
-        {
-            final Object argument = args.get(name);
-            final Class<?> argumentClass =
-                    argument == null ? Object.class : argument.getClass();
-            return ctx.findArgumentFor(argumentClass, argument);
+        if (args.containsKey(name)) {
+            Object value = args.get(name);
+            Type type;
+            if (value == null) {
+                value = new NullValue(Types.NULL);
+                type = NullValue.class;
+            }
+            else {
+                type = value.getClass();
+            }
+            return Optional.of(new BoundArgument(value, type));
         }
         return Optional.empty();
     }

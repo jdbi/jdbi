@@ -13,10 +13,12 @@
  */
 package org.jdbi.v3.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.Map;
@@ -27,8 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class TestMapArguments
-{
+public class TestMapArguments {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
 
@@ -41,7 +42,7 @@ public class TestMapArguments
     public void testBind() throws Exception
     {
         Map<String, Object> args = Collections.singletonMap("foo", BigDecimal.ONE);
-        new MapArguments(args, ctx).find("foo").get().apply(5, stmt, null);
+        applyArgument(5, new MapArguments(args).find("foo").get());
 
         verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
@@ -50,8 +51,14 @@ public class TestMapArguments
     public void testNullBinding() throws Exception
     {
         Map<String, Object> args = Collections.singletonMap("foo", null);
-        new MapArguments(args, ctx).find("foo").get().apply(3, stmt, null);
+        applyArgument(3, new MapArguments(args).find("foo").get());
 
         verify(stmt).setNull(3, Types.NULL);
+    }
+
+    private void applyArgument(int position, BoundArgument argument) throws SQLException {
+        ctx.findArgumentFor(argument.getType())
+                .get()
+                .apply(stmt, position, argument.getValue(), ctx);
     }
 }

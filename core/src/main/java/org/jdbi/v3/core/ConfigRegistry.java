@@ -92,11 +92,10 @@ public class ConfigRegistry {
      * Obtain an argument for given value
      *
      * @param type  the type of the argument.
-     * @param value the argument value.
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return get(Arguments.class).findFor(type, value, this);
+    public Optional<Argument> findArgumentFor(Type type) {
+        return get(Arguments.class).findFor(type, this);
     }
 
     /**

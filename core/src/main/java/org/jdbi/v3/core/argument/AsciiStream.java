@@ -13,27 +13,25 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.InputStream;
 
-import org.jdbi.v3.core.StatementContext;
+/**
+ * Parameter wrapper type for input stream arguments that should be bound as ASCII.
+ */
+public class AsciiStream {
+    private final InputStream stream;
+    private final int length;
 
-public class NullArgument implements Argument
-{
-    private final int sqlType;
-
-    public NullArgument(int sqlType) {
-        this.sqlType = sqlType;
+    public AsciiStream(InputStream stream, int length) {
+        this.stream = stream;
+        this.length = length;
     }
 
-    @Override
-    public void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-    {
-        statement.setNull(position, sqlType);
+    public InputStream getStream() {
+        return stream;
     }
 
-    @Override
-    public String toString() {
-        return "NULL";
+    public int getLength() {
+        return length;
     }
 }

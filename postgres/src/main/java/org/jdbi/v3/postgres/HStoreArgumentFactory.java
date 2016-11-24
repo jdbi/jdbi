@@ -29,9 +29,9 @@ public class HStoreArgumentFactory implements ArgumentFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type type, ConfigRegistry config) {
         if (Map.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
-            return Optional.of((i, p, cx) -> p.setObject(i, value));
+            return Optional.of((p, i, value, cx) -> p.setObject(i, value));
         }
         return Optional.empty();
     }

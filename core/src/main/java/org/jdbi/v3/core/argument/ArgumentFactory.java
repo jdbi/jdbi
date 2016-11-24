@@ -28,12 +28,11 @@ public interface ArgumentFactory
      * @param type  the known type of value. Depending on the situation this may be a full generic signature e.g.
      *              {@link java.lang.reflect.ParameterizedType}, a {@link Class}, or Object.class if no type information
      *              is known.
-     * @param value the value to convert into an {@link Argument}
      * @param config the config registry, for composition
      * @return an argument for the given value if this factory supports it, or <code>Optional.empty()</code> otherwise.
-     * @see ConfigRegistry#findArgumentFor(Type, Object) for composeable argument types.
-     * @see StatementContext#findArgumentFor(Type, Object)
-     * @see Arguments#findFor(Type, Object, ConfigRegistry)
+     * @see ConfigRegistry#findArgumentFor(Type) for composeable argument types.
+     * @see StatementContext#findArgumentFor(Type)
+     * @see Arguments#findFor(Type, ConfigRegistry)
      */
-    Optional<Argument> build(Type type, Object value, ConfigRegistry config);
+    Optional<Argument> build(Type type, ConfigRegistry config);
 }

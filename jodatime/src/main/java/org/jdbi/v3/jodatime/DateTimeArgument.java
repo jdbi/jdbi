@@ -26,16 +26,9 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.util.GenericTypes;
 import org.joda.time.DateTime;
 
-public class DateTimeArgument implements Argument {
-
-    private final DateTime value;
-
-    public DateTimeArgument(DateTime value) {
-        this.value = value;
-    }
-
+public class DateTimeArgument implements Argument<DateTime> {
     @Override
-    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException {
+    public void apply(PreparedStatement statement, int position, DateTime value, StatementContext ctx) throws SQLException {
         if (value == null) {
             statement.setNull(position, java.sql.Types.TIMESTAMP);
         } else {
@@ -45,9 +38,9 @@ public class DateTimeArgument implements Argument {
 
     public static class Factory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, ConfigRegistry config) {
             return (GenericTypes.getErasedType(type).equals(DateTime.class))
-                    ? Optional.of(new DateTimeArgument((DateTime) value))
+                    ? Optional.of(new DateTimeArgument())
                     : Optional.empty();
         }
     }

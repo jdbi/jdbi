@@ -13,26 +13,25 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.io.Reader;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.InputStream;
 
-import org.jdbi.v3.core.StatementContext;
-
-public class CharacterStreamArgument implements Argument
-{
-    private final Reader value;
+/**
+ * Parameter wrapper type for input stream arguments that should be bound as binary.
+ */
+public class BinaryStream {
+    private final InputStream stream;
     private final int length;
 
-    public CharacterStreamArgument(Reader value, int length)
-    {
-        this.value = value;
+    public BinaryStream(InputStream stream, int length) {
+        this.stream = stream;
         this.length = length;
     }
 
-    @Override
-    public void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException
-    {
-        statement.setCharacterStream(position, value, length);
+    public InputStream getStream() {
+        return stream;
+    }
+
+    public int getLength() {
+        return length;
     }
 }

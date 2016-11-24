@@ -18,8 +18,10 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Binding;
+import org.jdbi.v3.core.BoundArgument;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 
 /**
  * A statement rewriter which does not, in fact, rewrite anything. This is useful
@@ -49,14 +51,23 @@ public class NoOpStatementRewriter implements StatementRewriter
         public void bind(Binding params, PreparedStatement statement) throws SQLException
         {
             for (int i = 0; ; i++) {
-                final Optional<Argument> s = params.findForPosition(i);
-                if (s.isPresent()) {
-                    s.get().apply(i + 1, statement, this.context);
+                Optional<BoundArgument> boundArgument = params.findForPosition(i);
+                if (boundArgument.isPresent()) {
+                    BoundArgument bound = boundArgument.get();
+                    argumentFor(bound).apply(statement, i+1, bound.getValue(), context);
                 }
                 else {
                     break;
                 }
             }
+        }
+
+        @SuppressWarnings("unchecked")
+        private <T> Argument<T> argumentFor(BoundArgument boundArgument) {
+            return (Argument<T>) context.findArgumentFor(boundArgument.getType())
+                    .orElseThrow(() -> new UnableToExecuteStatementException(
+                            "No argument registered for value " + boundArgument.getValue() + " of type " + boundArgument.getType(),
+                            context));
         }
 
         @Override
