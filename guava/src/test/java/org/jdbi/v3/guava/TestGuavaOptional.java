@@ -15,16 +15,16 @@ package org.jdbi.v3.guava;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Type;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import com.google.common.base.Optional;
 
-import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.util.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
@@ -72,7 +72,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() throws Exception {
-        handle.registerArgument(new NameArgumentFactory());
+        handle.registerArgument(new NameArgument());
         handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
@@ -110,7 +110,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testBindOptionalOfCustomType() throws Exception {
-        handle.registerArgument(new NameArgumentFactory());
+        handle.registerArgument(new NameArgument());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
@@ -145,14 +145,10 @@ public class TestGuavaOptional {
         }
     }
 
-    class NameArgumentFactory implements ArgumentFactory {
+    class NameArgument implements Argument<Name> {
         @Override
-        public java.util.Optional<Argument> build(Type expectedType, ConfigRegistry config) {
-            if (Name.class.equals(expectedType)) {
-                Argument<Name> argument = (stmt, pos, value, c) -> stmt.setString(pos, value.value);
-                return java.util.Optional.of(argument);
-            }
-            return java.util.Optional.empty();
+        public void apply(PreparedStatement statement, int position, Name value, StatementContext ctx) throws SQLException {
+            statement.setString(position, value.value);
         }
     }
 

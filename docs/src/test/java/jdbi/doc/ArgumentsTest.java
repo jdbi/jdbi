@@ -65,6 +65,7 @@ public class ArgumentsTest {
     @Test
     public void uuidArgument() {
         UUID u = UUID.randomUUID();
+        handle.registerArgument(new UUIDArgument());
         assertThat(handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
             .bind("uuid", u)
             .mapTo(String.class)

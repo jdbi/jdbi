@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core;
 
-import java.lang.reflect.Type;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,10 +20,8 @@ import java.sql.Types;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
@@ -45,7 +42,7 @@ public class Call extends SqlStatement<Call>
     {
         super(config, new Binding(), handle, cache, sql, ctx, customizers);
 
-        registerArgument(new OutParamArgumentFactory());
+        registerArgument(new OutParamArgument());
     }
 
     /**
@@ -153,15 +150,6 @@ public class Call extends SqlStatement<Call>
             }
         } catch (SQLException e) {
             throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
-        }
-    }
-
-    private class OutParamArgumentFactory implements ArgumentFactory {
-        @Override
-        public Optional<Argument> build(Type type, ConfigRegistry config) {
-            return OutParam.class.equals(type)
-                    ? Optional.of(new OutParamArgument())
-                    : Optional.empty();
         }
     }
 

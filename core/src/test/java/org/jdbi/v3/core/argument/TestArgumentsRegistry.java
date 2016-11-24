@@ -67,7 +67,19 @@ public class TestArgumentsRegistry
     @Test
     public void testPull88WeirdClassArgumentFactory() throws Exception
     {
-        handle.registerArgument(new WeirdClassArgumentFactory());
+        handle.registerArgument(new WeirdArgumentFactory());
+
+        assertThat(ctx.findArgumentFor(Weird.class))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
+
+        assertThat(ctx.findArgumentFor(Object.class))
+                .isEmpty();
+    }
+
+    @Test
+    public void testPull88WeirdClassArgument() throws Exception
+    {
+        handle.registerArgument(new WeirdArgument());
 
         assertThat(ctx.findArgumentFor(Weird.class))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
@@ -80,7 +92,7 @@ public class TestArgumentsRegistry
     {
     }
 
-    private static class WeirdClassArgumentFactory implements ArgumentFactory
+    private static class WeirdArgumentFactory implements ArgumentFactory
     {
         @Override
         public Optional<Argument> build(Type expectedType, ConfigRegistry config) {
@@ -97,11 +109,5 @@ public class TestArgumentsRegistry
         public void apply(PreparedStatement statement, int position, Weird value, StatementContext ctx) throws SQLException
         {
         }
-    }
-
-    private void applyArgument(int position, BoundArgument argument) throws SQLException {
-        ctx.findArgumentFor(argument.getType())
-                .get()
-                .apply(stmt, position, argument.getValue(), ctx);
     }
 }

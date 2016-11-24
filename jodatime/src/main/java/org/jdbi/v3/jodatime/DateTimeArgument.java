@@ -13,17 +13,12 @@
  */
 package org.jdbi.v3.jodatime;
 
-import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Optional;
 
-import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.util.GenericTypes;
 import org.joda.time.DateTime;
 
 public class DateTimeArgument implements Argument<DateTime> {
@@ -33,15 +28,6 @@ public class DateTimeArgument implements Argument<DateTime> {
             statement.setNull(position, java.sql.Types.TIMESTAMP);
         } else {
             statement.setTimestamp(position, new Timestamp(value.getMillis()));
-        }
-    }
-
-    public static class Factory implements ArgumentFactory {
-        @Override
-        public Optional<Argument> build(Type type, ConfigRegistry config) {
-            return (GenericTypes.getErasedType(type).equals(DateTime.class))
-                    ? Optional.of(new DateTimeArgument())
-                    : Optional.empty();
         }
     }
 }

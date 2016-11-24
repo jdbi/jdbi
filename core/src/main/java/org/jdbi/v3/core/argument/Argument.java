@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.StatementContext;
 
 /**
- * Represents an argument to a prepared statement. It will be called right before the
+ * An argument to a prepared statement. It will be called right before the
  * statement is executed to bind the parameter.
  */
 @FunctionalInterface
@@ -28,11 +28,12 @@ public interface Argument<T>
     /**
      * Callback method invoked right before statement execution.
      *
+     * @param statement the prepared statement the argument is to be bound to
      * @param position the position to which the argument should be bound, using the
      *                 stupid JDBC "start at 1" bit
-     * @param statement the prepared statement the argument is to be bound to
+     * @param value the value to bind to the prepared statement.
      * @param ctx the statement context
      * @throws SQLException if anything goes wrong
      */
-    void apply(PreparedStatement statement, int position, T argument, StatementContext ctx) throws SQLException;
+    void apply(PreparedStatement statement, int position, T value, StatementContext ctx) throws SQLException;
 }

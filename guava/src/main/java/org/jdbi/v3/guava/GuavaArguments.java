@@ -17,9 +17,12 @@ import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Optional;
 
 import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.NullValue;
@@ -42,6 +45,37 @@ public class GuavaArguments {
         return new Factory();
     }
 
+    private static class OptionalArgument<T> implements Argument<com.google.common.base.Optional<T>> {
+        private final Argument<T> delegate;
+
+        OptionalArgument(Argument<T> delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void apply(PreparedStatement statement,
+                          int position,
+                          com.google.common.base.Optional<T> value,
+                          StatementContext ctx) throws SQLException {
+            delegate.apply(statement, position, value.orNull(), ctx);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static class BestEffortOptionalArgument implements Argument<com.google.common.base.Optional> {
+        @Override
+        public void apply(PreparedStatement statement,
+                          int position,
+                          com.google.common.base.Optional value,
+                          StatementContext ctx) throws SQLException {
+            Object nested = value.or(NullValue::new);
+            ctx.findArgumentFor(nested.getClass())
+                    .orElseThrow(() -> new UnsupportedOperationException(
+                            "No argument registered for value " + nested + " of type " + nested.getClass()))
+                    .apply(statement, position, nested, ctx);
+        }
+    }
+
     private static class Factory implements ArgumentFactory {
 
         @SuppressWarnings("unchecked")
@@ -50,30 +84,14 @@ public class GuavaArguments {
             if (com.google.common.base.Optional.class.isAssignableFrom(getErasedType(expectedType))) {
                 Optional<Argument> argument = findGenericParameter(expectedType, com.google.common.base.Optional.class)
                         .flatMap(config::findArgumentFor)
-                        .map(this::applyOPtional);
+                        .map(OptionalArgument::new);
 
                 return argument.isPresent()
                         ? argument
-                        : Optional.of(bestEffortOptionalArgument());
+                        : Optional.of(new BestEffortOptionalArgument());
             }
 
             return Optional.empty();
-        }
-
-        private <T> Argument<com.google.common.base.Optional<T>> applyOPtional(Argument<T> delegate) {
-            return (s, p, value, ctx) -> delegate.apply(s, p, value.orNull(), ctx);
-        }
-
-        @SuppressWarnings("unchecked")
-        private Argument<com.google.common.base.Optional> bestEffortOptionalArgument() {
-            // no static type information -- best effort based on runtime type information
-            return (stmt, pos, value, ctx) -> {
-                Object nested = value.or(NullValue::new);
-                ctx.findArgumentFor(nested.getClass())
-                        .orElseThrow(() -> new UnsupportedOperationException(
-                                "No argument registered for value " + nested + " of type " + nested.getClass()))
-                        .apply(stmt, pos, nested, ctx);
-            };
         }
     }
 }
