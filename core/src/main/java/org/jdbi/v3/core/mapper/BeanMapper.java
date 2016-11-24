@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,38 +77,21 @@ public class BeanMapper<T> implements RowMapper<T>
     }
 
     static final String DEFAULT_PREFIX = "";
-    static final Collection<ColumnNameMappingStrategy> DEFAULT_STRATEGIES =
-            Collections.unmodifiableList(Arrays.asList(
-                    CaseInsensitiveColumnNameStrategy.INSTANCE,
-                    SnakeCaseColumnNameStrategy.INSTANCE
-            ));
 
     private final Class<T> type;
     private final String prefix;
     private final BeanInfo info;
     private final ConcurrentMap<String, Optional<PropertyDescriptor>> descriptorByColumnCache = new ConcurrentHashMap<>();
-    private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
     public BeanMapper(Class<T> type)
     {
-        this(type, DEFAULT_PREFIX, DEFAULT_STRATEGIES);
+        this(type, DEFAULT_PREFIX);
     }
 
     public BeanMapper(Class<T> type, String prefix)
     {
-        this(type, prefix, DEFAULT_STRATEGIES);
-    }
-
-    public BeanMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
-    {
-        this(type, DEFAULT_PREFIX, nameMappingStrategies);
-    }
-
-    public BeanMapper(Class<T> type, String prefix, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
-    {
         this.type = type;
         this.prefix = prefix;
-        this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
         try
         {
             info = Introspector.getBeanInfo(type);
@@ -131,6 +115,8 @@ public class BeanMapper<T> implements RowMapper<T>
         }
 
         ResultSetMetaData metadata = rs.getMetaData();
+        List<ColumnNameMappingStrategy> nameMappingStrategies =
+                ctx.getConfig(ReflectionMappers.class).getColumnNameMappingStrategies();
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i);
@@ -146,7 +132,7 @@ public class BeanMapper<T> implements RowMapper<T>
             }
 
             final Optional<PropertyDescriptor> maybeDescriptor =
-                    descriptorByColumnCache.computeIfAbsent(name, this::descriptorForColumn);
+                    descriptorByColumnCache.computeIfAbsent(name, n -> descriptorForColumn(n, nameMappingStrategies));
 
             if (!maybeDescriptor.isPresent()) {
                 continue;
@@ -185,7 +171,8 @@ public class BeanMapper<T> implements RowMapper<T>
         return bean;
     }
 
-    private Optional<PropertyDescriptor> descriptorForColumn(String columnName)
+    private Optional<PropertyDescriptor> descriptorForColumn(String columnName,
+                                                             List<ColumnNameMappingStrategy> nameMappingStrategies)
     {
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
             String paramName = paramName(descriptor);
