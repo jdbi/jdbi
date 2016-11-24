@@ -1,9 +1,10 @@
 language: java
 
-jdk:
-  - oraclejdk7
-
 sudo: false
+
+# No much sense in keeping jdbi artifacts cached
+before_cache:
+  rm -rf $HOME/.m2/repository/org/jdbi
 
 cache:
   directories:
@@ -12,8 +13,19 @@ cache:
 before_install:
     - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
 
-install: mvn -DskipTests=true -Dbasepom.check.skip-all=true -B install
-script: mvn -B verify
+install: mvn -Ptoolchains -DskipTests=true -Dbasepom.check.skip-all=true -Dmaven.javadoc.skip=true -B install
 
-before_script:
-  - "psql -c 'create database jdbi_test;' -U postgres"
+matrix:
+  include:
+    - env:
+        - TESTS=Y
+      script: mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Ptoolchains -B verify
+      jdk: oraclejdk8
+    - env:
+        - DOCUMENTATION=Y
+      script: mvn -DskipTests=true -Dbasepom.check.skip-all=true -Ptoolchains -B verify
+      jdk: oraclejdk8
+    - env:
+        - CODE_STYLE=Y
+      script: mvn -DskipTests=true -Dmaven.javadoc.skip=true -Ptoolchains -B verify
+      jdk: oraclejdk8

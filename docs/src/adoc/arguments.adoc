@@ -1,0 +1,39 @@
+= Arguments and Binding
+
+Most non-trivial queries require binding arguments from Java land
+to the statement.  In addition to binding by index (which is zero-based
+in *jdbi*, unlike JDBC's bizarre one-indexing scheme), named parameters
+are supported out of the box.
+
+All primitive and many core Java types come with predefined bindings.
+
+[source,java,indent=0]
+-------------------------------------------
+include::ArgumentsTest.java[tags=bindValue]
+-------------------------------------------
+
+You also have a couple of options to deal with custom types.
+The *Argument* class wraps a single value into a binding.
+
+[source,java,indent=0]
+-------------------------------------------
+include::ArgumentsTest.java[tags=uuidArgument]
+-------------------------------------------
+
+<1> Since Argument usually directly calls into JDBC directly,
+it is given the *one-based index* when it is applied.
+
+Here we use an *Argument* to directly bind a UUID.  In this
+particular case, the most obvious approach is to send the UUID
+to the database as a String.  If your JDBC driver supports custom
+types directly or efficient binary transfers, you can leverage them
+easily here.
+
+[source,java,indent=0]
+-------------------------------------------
+include::ArgumentsTest.java[tags=uuidArgumentFactory]
+-------------------------------------------
+
+You can also register *ArgumentFactory* instances which can inspect
+the type of bindings and determine if they understand how to convert
+the type to Arguments.
