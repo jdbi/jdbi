@@ -50,34 +50,6 @@
         <tag>HEAD</tag>
     </scm>
 
-    <developers>
-        <developer>
-            <id>brianm</id>
-            <name>Brian McCallister</name>
-            <email>brianm@skife.org</email>
-        </developer>
-        <developer>
-            <id>martint</id>
-            <name>Martin Traverso</name>
-        </developer>
-        <developer>
-            <id>hgschmie</id>
-            <name>Henning Schmiedehausen</name>
-        </developer>
-        <developer>
-            <id>arosien</id>
-            <name>Adam Rosien</name>
-        </developer>
-        <developer>
-            <id>tomdz</id>
-            <name>Thomas Dudziak</name>
-        </developer>
-        <developer>
-            <id>stevenschlansker</id>
-            <name>Steven Schlansker</name>
-        </developer>
-    </developers>
-
     <properties>
         <project.build.targetJdk>1.8</project.build.targetJdk>
         <basepom.maven.version>3.2.5</basepom.maven.version>
