@@ -29,10 +29,18 @@ import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 
+/**
+ * A registry of {@link JdbiConfig} instances by type.
+ *
+ * @see Configurable
+ */
 public class ConfigRegistry {
     private final Optional<ConfigRegistry> parent;
     private final Map<Class<? extends JdbiConfig>, JdbiConfig<?>> cache = synchronizedMap(new WeakHashMap<>());
 
+    /**
+     * Creates a new config registry.
+     */
     public ConfigRegistry() {
         parent = Optional.empty();
     }
@@ -41,11 +49,19 @@ public class ConfigRegistry {
         parent = Optional.of(that);
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Returns this registry's instance of the given config class. Creates an instance on-demand if this registry does
+     * not have one of the given type yet.
+     *
+     * @param configClass the config class type.
+     * @param <C>         the config class type.
+     * @return the given config class instance that belongs to this registry.
+     */
     public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
-        return (C) cache.computeIfAbsent(configClass, c ->
-                createFromParent(configClass)
+        JdbiConfig<?> config = cache.computeIfAbsent(configClass,
+                c -> createFromParent(configClass)
                         .orElseGet(() -> create(configClass)));
+        return configClass.cast(config);
     }
 
     private <C extends JdbiConfig<C>> Optional<C> createFromParent(Class<C> configClass) {
@@ -54,13 +70,20 @@ public class ConfigRegistry {
 
     private static <C extends JdbiConfig<C>> C create(Class<C> configClass) {
         try {
-            return configClass.newInstance();
+            return configClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Unable to instantiate config class " + configClass +
                     ". Is there a public no-arg constructor?");
         }
     }
 
+    /**
+     * Creates and returns a new config registry, which inherits all configuration from this one.
+     *
+     * @return the child registry
+     * @see JdbiConfig#createChild() config objects belonging to the child registry are children of the corresponding
+     * config objects from this registry.
+     */
     public ConfigRegistry createChild() {
         return new ConfigRegistry(this);
     }

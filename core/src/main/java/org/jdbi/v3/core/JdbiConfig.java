@@ -17,6 +17,9 @@ package org.jdbi.v3.core;
  * Interface for classes that hold configuration. Implementations of this interface must have a public, no-argument
  * constructor in order to work with JDBI.
  *
+ * Implementors should ensure that implementations are thread-safe for access and caching purposes, but not
+ * necessarily for reconfiguration.
+ *
  * @param <This> A "This" type. Should always be the configuration class.
  */
 public interface JdbiConfig<This extends JdbiConfig<This>> {

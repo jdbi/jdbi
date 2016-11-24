@@ -26,8 +26,8 @@ import org.jdbi.v3.core.rewriter.StatementRewriter;
 public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
-    private volatile StatementRewriter statementRewriter;
-    private volatile TimingCollector timingCollector;
+    private StatementRewriter statementRewriter;
+    private TimingCollector timingCollector;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
