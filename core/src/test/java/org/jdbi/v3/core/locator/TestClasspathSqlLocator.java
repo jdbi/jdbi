@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.locator;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 import static org.assertj.core.api.Assertions.assertThat;
 

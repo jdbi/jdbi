@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.rewriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Map;
@@ -45,9 +46,7 @@ public class TestColonStatementRewriter
 
     private RewrittenStatement rewrite(String sql, Map<String, Object> attributes) {
         StatementContext ctx = Mockito.mock(StatementContext.class);
-        for (Map.Entry<String, Object> e : attributes.entrySet()) {
-            Mockito.when(ctx.getAttribute(e.getKey())).thenReturn(e.getValue());
-        }
+        attributes.forEach((key, value) -> when(ctx.getAttribute(key)).thenReturn(value));
 
         return rw.rewrite(sql, new Binding(), ctx);
     }

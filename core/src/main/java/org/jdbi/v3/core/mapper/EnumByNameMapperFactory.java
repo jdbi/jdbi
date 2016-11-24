@@ -18,7 +18,7 @@ import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 
 /**
  * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.
@@ -26,7 +26,7 @@ import org.jdbi.v3.core.StatementContext;
 public class EnumByNameMapperFactory implements ColumnMapperFactory {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> clazz = getErasedType(type);
         return clazz.isEnum()
                 ? Optional.of(EnumMapper.byName((Class<? extends Enum>) clazz))

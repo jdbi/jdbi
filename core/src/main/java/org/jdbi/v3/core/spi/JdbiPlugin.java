@@ -19,7 +19,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
 
 public interface JdbiPlugin {
-    default void customizeDbi(Jdbi dbi) {}
+    default void customizeJdbi(Jdbi jdbi) {}
     default Handle customizeHandle(Handle handle) { return handle; }
     default Connection customizeConnection(Connection conn) { return conn; }
 }

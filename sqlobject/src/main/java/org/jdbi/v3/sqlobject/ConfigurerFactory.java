@@ -17,19 +17,21 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ConfigRegistry;
+
 /**
- * Generates {@link Consumer}&lt;{@link SqlObjectConfig}&gt; instances to satisfy the contract of a
- * {@link SqlObjectConfiguringAnnotation}-annotated annotation.
+ * Generates {@link Consumer}&lt;{@link ConfigRegistry}&gt; instances to satisfy the contract of a
+ * {@link ConfiguringAnnotation}-annotated annotation.
  */
-public interface SqlObjectConfigurerFactory {
+public interface ConfigurerFactory {
     /**
      * Create a configurer for the given annotation on a sql object type.
      *
      * @param annotation    the annotation
      * @param sqlObjectType the sql object type which was annotated
-     * @return a configurer which will be applied to the {@link SqlObjectConfig}.
+     * @return a configurer which will be applied to the {@link ConfigRegistry}.
      */
-    default Consumer<SqlObjectConfig> createForType(Annotation annotation, Class<?> sqlObjectType) {
+    default Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
         throw new UnsupportedOperationException("Not supported for type");
     }
 
@@ -39,9 +41,9 @@ public interface SqlObjectConfigurerFactory {
      * @param annotation    the annotation
      * @param sqlObjectType the sql object type
      * @param method        the method which was annotated
-     * @return a configurer which will be applied to the {@link SqlObjectConfig}.
+     * @return a configurer which will be applied to the {@link ConfigRegistry}.
      */
-    default Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+    default Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         throw new UnsupportedOperationException("Not supported for method");
     }
 }

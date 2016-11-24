@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -40,8 +41,8 @@ public class TestTimingCollector
         tc = new TTC();
 
         Connection conn = db.openHandle().getConnection();
-        JdbiConfig config = new JdbiConfig();
-        config.timingCollector = tc;
+        ConfigRegistry config = new ConfigRegistry();
+        config.get(SqlStatements.class).setTimingCollector(tc);
         return new Handle(config, new LocalTransactionHandler(), new DefaultStatementBuilder(), conn);
     }
 

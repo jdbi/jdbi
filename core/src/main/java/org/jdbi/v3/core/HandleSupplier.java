@@ -13,25 +13,17 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.concurrent.Callable;
+
 /**
  * A handle supplier for extension implementors.
  */
-public interface HandleSupplier {
-    /**
-     * Returns the extension method currently being called with this handle.
-     */
-    ExtensionMethod getExtensionMethod();
-
-    /**
-     * Sets the extension method currently being called with this handle.
-     *
-     * @param extensionMethod the extension method
-     */
-    void setExtensionMethod(ExtensionMethod extensionMethod);
-
+public interface HandleSupplier extends Configurable<HandleSupplier> {
     /**
      * Returns a handle, possibly creating it lazily. A Handle holds a database connection, so extensions should only
      * call this method in order to interact with the database.
      */
     Handle getHandle();
+
+    <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception;
 }

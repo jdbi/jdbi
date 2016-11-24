@@ -11,21 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.array;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import java.sql.Array;
 
 /**
- * Specify the binding or mapping name for a property or parameter explicitly.
+ * Strategies used to bind SQL array arguments to a {@link java.sql.PreparedStatement}.
  */
-@Retention(RUNTIME)
-@Target({PARAMETER, FIELD, METHOD})
-public @interface ColumnName {
-    String value();
+public enum SqlArrayArgumentStrategy {
+    /**
+     * Bind using {@link java.sql.Connection#createArrayOf(String, Object[])} and
+     * {@link java.sql.PreparedStatement#setArray(int, Array)}.
+     */
+    SQL_ARRAY,
+
+    /**
+     * Bind using {@link java.sql.PreparedStatement#setObject(int, Object)} with an array object.
+     */
+    OBJECT_ARRAY
 }

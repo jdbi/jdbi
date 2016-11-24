@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiAccess;
 import org.jdbi.v3.core.StatementContext;
@@ -31,7 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-public class TestArgumentRegistry
+public class TestArgumentsRegistry
 {
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
@@ -85,7 +86,7 @@ public class TestArgumentRegistry
     @Test
     public void testPull88WeirdClassArgumentFactory() throws Exception
     {
-        handle.registerArgumentFactory(new WeirdClassArgumentFactory());
+        handle.registerArgument(new WeirdClassArgumentFactory());
 
         assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
@@ -101,7 +102,7 @@ public class TestArgumentRegistry
     @Test
     public void testPull88WeirdValueArgumentFactory()
     {
-        handle.registerArgumentFactory(new WeirdValueArgumentFactory());
+        handle.registerArgument(new WeirdValueArgumentFactory());
 
         assertThat(ctx.findArgumentFor(Weird.class, new Weird()))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
@@ -121,7 +122,7 @@ public class TestArgumentRegistry
     private static class WeirdClassArgumentFactory implements ArgumentFactory
     {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             return getErasedType(expectedType) == Weird.class
                     ? Optional.of(new WeirdArgument())
                     : Optional.empty();
@@ -131,7 +132,7 @@ public class TestArgumentRegistry
     private static class WeirdValueArgumentFactory implements ArgumentFactory
     {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             return value instanceof Weird
                     ? Optional.of(new WeirdArgument())
                     : Optional.empty();

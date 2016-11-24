@@ -11,27 +11,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.array;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Collection;
 import java.util.function.Supplier;
 
+import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 
-class ListColumnMapper<T> implements ColumnMapper<List<T>> {
+class CollectionColumnMapper<T, C extends Collection<T>> implements ColumnMapper<C> {
     private final ColumnMapper<T> elementMapper;
-    private final Supplier<List<T>> listSupplier;
+    private final Supplier<C> collectionSupplier;
 
-    ListColumnMapper(ColumnMapper<T> elementMapper,
-                     Supplier<List<T>> listSupplier) {
+    CollectionColumnMapper(ColumnMapper<T> elementMapper,
+                           Supplier<C> collectionSupplier) {
         this.elementMapper = elementMapper;
-        this.listSupplier = listSupplier;
+        this.collectionSupplier = collectionSupplier;
     }
 
     @Override
-    public List<T> map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+    public C map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         java.sql.Array array = r.getArray(columnNumber);
         try {
             return buildFromResultSet(array, ctx);
@@ -41,15 +42,15 @@ class ListColumnMapper<T> implements ColumnMapper<List<T>> {
         }
     }
 
-    private List<T> buildFromResultSet(java.sql.Array array, StatementContext ctx) throws SQLException {
-        List<T> list = listSupplier.get();
+    private C buildFromResultSet(java.sql.Array array, StatementContext ctx) throws SQLException {
+        C result = collectionSupplier.get();
 
         try (ResultSet rs = array.getResultSet()) {
             while (rs.next()) {
-                list.add(elementMapper.map(rs, 2, ctx));
+                result.add(elementMapper.map(rs, 2, ctx));
             }
         }
 
-        return list;
+        return result;
     }
 }

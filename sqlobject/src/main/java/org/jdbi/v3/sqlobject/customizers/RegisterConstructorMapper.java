@@ -21,17 +21,19 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.ConstructorMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Used to register a constructor mapper factory for the only constructor of a type.
  */
-@SqlStatementCustomizingAnnotation(RegisterConstructorMapper.Factory.class)
+@ConfiguringAnnotation(RegisterConstructorMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterConstructorMapper
@@ -51,22 +53,22 @@ public @interface RegisterConstructorMapper
      */
     String[] prefix() default {};
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements ConfigurerFactory
     {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             return create((RegisterConstructorMapper) annotation);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             return create((RegisterConstructorMapper) annotation);
         }
 
-        private SqlStatementCustomizer create(RegisterConstructorMapper rcm) {
+        private Consumer<ConfigRegistry> create(RegisterConstructorMapper rcm) {
             Class<?>[] types = rcm.value();
             String[] prefixes = rcm.prefix();
             List<RowMapperFactory> mappers = new ArrayList<>(types.length);
@@ -84,7 +86,7 @@ public @interface RegisterConstructorMapper
                 throw new IllegalStateException("RegisterConstructorMapper.prefix() must have the same number of elements as value()");
             }
 
-            return stmt -> mappers.forEach(stmt::registerRowMapper);
+            return config -> mappers.forEach(config.get(RowMappers.class)::register);
         }
     }
 }

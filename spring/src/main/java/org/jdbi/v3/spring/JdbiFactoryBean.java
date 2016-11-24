@@ -51,15 +51,13 @@ public class JdbiFactoryBean implements FactoryBean<Jdbi>
     @Override
     public Jdbi getObject() throws Exception
     {
-        final Jdbi dbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
+        final Jdbi jdbi = Jdbi.create(() -> DataSourceUtils.getConnection(dataSource));
 
-        plugins.forEach(dbi::installPlugin);
+        plugins.forEach(jdbi::installPlugin);
 
-        for (Map.Entry<String, Object> entry : globalDefines.entrySet()) {
-            dbi.define(entry.getKey(), entry.getValue());
-        }
+        globalDefines.forEach(jdbi::define);
 
-        return dbi;
+        return jdbi;
     }
 
     /**

@@ -18,14 +18,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 public class JoinRowMapperTest
 {

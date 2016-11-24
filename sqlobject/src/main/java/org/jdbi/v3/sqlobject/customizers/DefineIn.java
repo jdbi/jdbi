@@ -109,7 +109,7 @@ public @interface DefineIn
                 }
                 sb.append(o.toString());
             }
-            return q -> q.define(name, sb.toString());
+            return stmt -> stmt.define(name, sb.toString());
         }
     }
 }

@@ -19,24 +19,24 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.jdbi.v3.core.Cleanables.Cleanable;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 
-abstract class BaseStatement implements Closeable
+abstract class BaseStatement<This> implements Closeable, Configurable<This>
 {
-    final JdbiConfig config;
-    private final Collection<StatementCustomizer> customizers = new ArrayList<>();
+    private final ConfigRegistry config;
     private final StatementContext context;
+    private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
-    BaseStatement(JdbiConfig config, StatementContext context)
+    BaseStatement(ConfigRegistry config, StatementContext context)
     {
         this.config = config;
         this.context = context;
     }
 
-    final ArgumentRegistry getArgumentRegistry() {
-        return config.argumentRegistry;
+    @Override
+    public ConfigRegistry getConfig() {
+        return config;
     }
 
     /**
@@ -47,27 +47,27 @@ abstract class BaseStatement implements Closeable
         return context;
     }
 
-    protected void addCleanable(Cleanable cleanable)
+    void addCleanable(Cleanable cleanable)
     {
         getContext().getCleanables().add(cleanable);
     }
 
-    protected void addCustomizers(final Collection<StatementCustomizer> customizers)
+    void addCustomizers(final Collection<StatementCustomizer> customizers)
     {
         this.customizers.addAll(customizers);
     }
 
-    protected void addCustomizer(final StatementCustomizer customizer)
+    void addCustomizer(final StatementCustomizer customizer)
     {
         this.customizers.add(customizer);
     }
 
-    protected Collection<StatementCustomizer> getStatementCustomizers()
+    Collection<StatementCustomizer> getStatementCustomizers()
     {
         return this.customizers;
     }
 
-    protected final void beforeExecution(final PreparedStatement stmt)
+    final void beforeExecution(final PreparedStatement stmt)
     {
         for (StatementCustomizer customizer : customizers) {
             try {
@@ -79,7 +79,7 @@ abstract class BaseStatement implements Closeable
         }
     }
 
-    protected final void afterExecution(final PreparedStatement stmt)
+    final void afterExecution(final PreparedStatement stmt)
     {
         for (StatementCustomizer customizer : customizers) {
             try {

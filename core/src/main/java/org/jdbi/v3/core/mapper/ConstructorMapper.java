@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 
@@ -161,10 +160,10 @@ public class ConstructorMapper<T> implements RowMapper<T>
             final String paramName = paramName(constructor.getParameters()[i]);
             final int columnIndex = columnIndexForParameter(columnNames, paramName);
 
-            mappers[i] = ctx.findColumnMapperFor(type).orElseThrow(() ->
-                new IllegalArgumentException(String.format(
-                        "Could not find column mapper for type '%s' of parameter " +
-                        "'%s' for constructor '%s'", type, paramName, constructor)));
+            mappers[i] = ctx.findColumnMapperFor(type)
+                    .orElseThrow(() -> new IllegalArgumentException(String.format(
+                            "Could not find column mapper for type '%s' of parameter '%s' for constructor '%s'",
+                            type, paramName, constructor)));
             columnMap[i] = columnIndex;
         }
 

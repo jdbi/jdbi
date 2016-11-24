@@ -14,16 +14,16 @@
 package org.jdbi.v3.guava;
 
 import com.google.auto.service.AutoService;
-import org.jdbi.v3.core.Handle;
+
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 @AutoService(JdbiPlugin.class)
 public class GuavaPlugin implements JdbiPlugin {
     @Override
-    public Handle customizeHandle(Handle handle) {
-        handle.registerArgumentFactory(GuavaArguments.factory());
-        handle.registerCollectorFactory(GuavaCollectors.factory());
-        handle.registerColumnMapper(GuavaMappers.columnFactory());
-        return handle;
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerArgument(GuavaArguments.factory());
+        jdbi.registerCollector(GuavaCollectors.factory());
+        jdbi.registerColumnMapper(GuavaMappers.columnFactory());
     }
 }

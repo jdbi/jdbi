@@ -28,10 +28,11 @@ import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.util.GenericType;
-import org.jdbi.v3.core.util.SingleColumnMapper;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
     private final List<PreparedBatchPart> parts = new ArrayList<>();
     private Binding currentBinding;
 
-    PreparedBatch(JdbiConfig config,
+    PreparedBatch(ConfigRegistry config,
                   Handle handle,
                   StatementBuilder statementBuilder,
                   String sql,
@@ -57,36 +58,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
     {
         super(config, new Binding(), handle, statementBuilder, sql, ctx, statementCustomizers);
         this.currentBinding = new Binding();
-    }
-
-    /**
-     * Specify a value on the statement context for this batch
-     *
-     * @return self
-     */
-    @Override
-    public PreparedBatch define(String key, Object value)
-    {
-        getContext().setAttribute(key, value);
-        return this;
-    }
-
-    /**
-     * Adds all key/value pairs in the Map to the {@link StatementContext}.
-     *
-     * @param values containing key/value pairs.
-     * @return this
-     */
-    @Override
-    public PreparedBatch define(final Map<String, ?> values)
-    {
-        if (values != null) {
-            for (Map.Entry<String, ?> entry: values.entrySet())
-            {
-                getContext().setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
-        return this;
     }
 
     /**
@@ -151,7 +122,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
 
         PreparedBatchPart current = parts.get(0);
         final String rawSql = getSql();
-        final RewrittenStatement rewritten = getRewriter().rewrite(rawSql, current.getParams(), getContext());
+        final RewrittenStatement rewritten = getConfig(SqlStatements.class).getStatementRewriter().rewrite(rawSql, current.getParams(), getContext());
         PreparedStatement stmt;
         try {
             try {
@@ -189,7 +160,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
                 LOG.trace("Prepared batch of {} parts executed in {}ms", parts.size(), elapsedTime / 1000000L, rewritten.getSql());
-                getTimingCollector().collect(elapsedTime, getContext());
+                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
 
                 afterExecution(stmt);
 
@@ -219,7 +190,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
      */
     public PreparedBatchPart add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(config,
+        PreparedBatchPart part = new PreparedBatchPart(getConfig(),
                                                        this.currentBinding,
                                                        this,
                                                        getHandle(),

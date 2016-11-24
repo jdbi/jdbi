@@ -16,6 +16,7 @@ package org.jdbi.v3.core.argument;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.StatementContext;
 
 @FunctionalInterface
@@ -28,9 +29,11 @@ public interface ArgumentFactory
      *              {@link java.lang.reflect.ParameterizedType}, a {@link Class}, or Object.class if no type information
      *              is known.
      * @param value the value to convert into an {@link Argument}
-     * @param ctx   the statement context.
+     * @param config the config registry, for composition
      * @return an argument for the given value if this factory supports it, or <code>Optional.empty()</code> otherwise.
-     * @see StatementContext#findArgumentFor(Type, Object) for composeable argument types.
+     * @see ConfigRegistry#findArgumentFor(Type, Object) for composeable argument types.
+     * @see StatementContext#findArgumentFor(Type, Object)
+     * @see Arguments#findFor(Type, Object, ConfigRegistry)
      */
-    Optional<Argument> build(Type type, Object value, StatementContext ctx);
+    Optional<Argument> build(Type type, Object value, ConfigRegistry config);
 }

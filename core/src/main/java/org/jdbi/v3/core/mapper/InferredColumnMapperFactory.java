@@ -18,7 +18,7 @@ import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 
 /**
  * A generic ColumnMapperFactory that reflectively inspects a
@@ -27,12 +27,12 @@ import org.jdbi.v3.core.StatementContext;
  * via reflection or an {@link UnsupportedOperationException}
  * will be thrown.
  */
-public class InferredColumnMapperFactory implements ColumnMapperFactory
+class InferredColumnMapperFactory implements ColumnMapperFactory
 {
     private final Type maps;
     private final ColumnMapper<?> mapper;
 
-    public InferredColumnMapperFactory(ColumnMapper<?> mapper)
+    InferredColumnMapperFactory(ColumnMapper<?> mapper)
     {
         this.maps = findGenericParameter(mapper.getClass(), ColumnMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here"));
@@ -40,7 +40,7 @@ public class InferredColumnMapperFactory implements ColumnMapperFactory
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         return maps.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();

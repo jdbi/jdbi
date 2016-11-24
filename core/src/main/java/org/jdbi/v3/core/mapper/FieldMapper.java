@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 

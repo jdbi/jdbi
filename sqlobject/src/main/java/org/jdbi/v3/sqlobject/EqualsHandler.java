@@ -22,7 +22,7 @@ import org.jdbi.v3.core.HandleSupplier;
 class EqualsHandler implements Handler
 {
     @Override
-    public Object invoke(final Object target, Method method, final Object[] args, SqlObjectConfig config, final HandleSupplier handle)
+    public Object invoke(final Object target, Method method, final Object[] args, final HandleSupplier handle)
     {
         // basic reference equals for now.
         return target == args[0];

@@ -11,12 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.argument;
+package org.jdbi.v3.core.array;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 
 /**
  * Factory interface to produce {@link SqlArrayType} instances.
@@ -27,9 +27,10 @@ public interface SqlArrayTypeFactory {
      * Returns an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
      *
      * @param elementType the array element type
-     * @param ctx the statement context.
+     * @param config the config registry, for composition
      * @return an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
-     * @see StatementContext#findArrayTypeFor(Type)
+     * @see ConfigRegistry#findSqlArrayTypeFor(Type)
+     * @see SqlArrayTypes#findFor(Type, ConfigRegistry)
      */
-    Optional<SqlArrayType<?>> build(Type elementType, StatementContext ctx);
+    Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config);
 }

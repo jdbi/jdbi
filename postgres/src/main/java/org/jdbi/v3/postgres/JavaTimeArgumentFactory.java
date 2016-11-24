@@ -21,7 +21,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.ObjectArgument;
@@ -29,7 +29,7 @@ import org.jdbi.v3.core.argument.ObjectArgument;
 public class JavaTimeArgumentFactory implements ArgumentFactory {
 
     @Override
-    public Optional<Argument> build(Type type, Object value, StatementContext ctx) {
+    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         if (type == LocalDate.class) {
             return Optional.of(new ObjectArgument(value, Types.DATE));
         }

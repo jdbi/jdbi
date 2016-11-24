@@ -25,7 +25,7 @@ public class JdbiAccess {
      * a database.
      */
     public static Handle createHandle() {
-        return new Handle(new JdbiConfig(), new LocalTransactionHandler(),
+        return new Handle(new ConfigRegistry(), new LocalTransactionHandler(),
                 new DefaultStatementBuilder(), null);
     }
 
@@ -34,6 +34,6 @@ public class JdbiAccess {
      * with the given handle.
      */
     public static StatementContext createContext(Handle handle) {
-        return new StatementContext(handle.config);
+        return new StatementContext(handle.getConfig());
     }
 }

@@ -19,44 +19,40 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.jdbi.v3.core.collector.JdbiCollectors;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.Query;
-import org.jdbi.v3.core.SqlStatement;
 import org.jdbi.v3.core.collector.CollectorFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Used to register container mappers on the current {@link Query}
  * either for a sql object type or for a method.
  */
-@SqlStatementCustomizingAnnotation(RegisterCollectorFactory.Factory.class)
+@ConfiguringAnnotation(RegisterCollectorFactory.Factory.class)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterCollectorFactory {
 
     Class<? extends CollectorFactory>[] value();
 
-    class Factory implements SqlStatementCustomizerFactory {
+    class Factory implements ConfigurerFactory {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            return new Customizer((RegisterCollectorFactory) annotation);
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+            return create((RegisterCollectorFactory) annotation);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return new Customizer((RegisterCollectorFactory) annotation);
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
+            return create((RegisterCollectorFactory) annotation);
         }
-    }
 
-    class Customizer implements SqlStatementCustomizer {
-        private final List<CollectorFactory> factories;
-
-        Customizer(RegisterCollectorFactory annotation) {
+        private Consumer<ConfigRegistry> create(RegisterCollectorFactory annotation) {
             List<CollectorFactory> factories = new ArrayList<>();
             for (Class<? extends CollectorFactory> type : annotation.value()) {
                 try {
@@ -65,12 +61,8 @@ public @interface RegisterCollectorFactory {
                     throw new IllegalStateException("Unable to instantiate container factory", e);
                 }
             }
-            this.factories = factories;
-        }
 
-        @Override
-        public void apply(SqlStatement<?> q) throws SQLException {
-            factories.forEach(q::registerCollectorFactory);
+            return config -> factories.forEach(config.get(JdbiCollectors.class)::register);
         }
     }
 }

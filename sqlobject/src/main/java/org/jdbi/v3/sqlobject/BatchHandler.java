@@ -99,7 +99,7 @@ class BatchHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier h)
+    public Object invoke(Object target, Method method, Object[] args, HandleSupplier h)
     {
         boolean foundIterator = false;
         Handle handle = h.getHandle();
@@ -131,7 +131,7 @@ class BatchHandler extends CustomizingStatementHandler
         int processed = 0;
         List<int[]> rs_parts = new ArrayList<>();
 
-        String sql = config.getSqlLocator().locate(sqlObjectType, method);
+        String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
         PreparedBatch batch = handle.prepareBatch(sql);
         applyCustomizers(batch, args);
         Object[] _args;

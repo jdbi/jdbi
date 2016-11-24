@@ -20,26 +20,24 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class PostgresJdbiPlugin implements JdbiPlugin {
     @Override
-    public void customizeDbi(Jdbi db) {
-        db.registerArgumentFactory(new TypedEnumArgumentFactory());
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerArgument(new TypedEnumArgumentFactory());
+        jdbi.registerArgument(new JavaTimeArgumentFactory());
+        jdbi.registerArgument(new InetArgumentFactory());
+        jdbi.registerArgument(new HStoreArgumentFactory());
 
-        db.registerColumnMapper(new JavaTimeMapperFactory());
-        db.registerArgumentFactory(new JavaTimeArgumentFactory());
+        jdbi.registerArrayType(int.class, "integer");
+        jdbi.registerArrayType(Integer.class, "integer");
+        jdbi.registerArrayType(long.class, "bigint");
+        jdbi.registerArrayType(Long.class, "bigint");
+        jdbi.registerArrayType(String.class, "varchar");
+        jdbi.registerArrayType(UUID.class, "uuid");
+        jdbi.registerArrayType(float.class, "real");
+        jdbi.registerArrayType(Float.class, "real");
+        jdbi.registerArrayType(double.class, "double precision");
+        jdbi.registerArrayType(Double.class, "double precision");
 
-        db.registerArgumentFactory(new InetArgumentFactory());
-
-        db.registerColumnMapper(new HStoreColumnMapper());
-        db.registerArgumentFactory(new HStoreArgumentFactory());
-
-        db.registerArrayType(int.class, "integer");
-        db.registerArrayType(Integer.class, "integer");
-        db.registerArrayType(long.class, "bigint");
-        db.registerArrayType(Long.class, "bigint");
-        db.registerArrayType(String.class, "varchar");
-        db.registerArrayType(UUID.class, "uuid");
-        db.registerArrayType(float.class, "real");
-        db.registerArrayType(Float.class, "real");
-        db.registerArrayType(double.class, "double precision");
-        db.registerArrayType(Double.class, "double precision");
+        jdbi.registerColumnMapper(new JavaTimeMapperFactory());
+        jdbi.registerColumnMapper(new HStoreColumnMapper());
     }
 }

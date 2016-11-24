@@ -20,13 +20,13 @@ import java.util.Optional;
 
 import javax.persistence.Entity;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 
 public class JpaMapperFactory implements RowMapperFactory {
     @Override
-    public Optional<RowMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> clazz = getErasedType(type);
         return clazz.isAnnotationPresent(Entity.class)
                 ? Optional.of(new JpaMapper<>(clazz))

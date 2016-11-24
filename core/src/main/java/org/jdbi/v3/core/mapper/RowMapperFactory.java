@@ -16,23 +16,21 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 
 /**
  * Factory interface used to produce row mappers.
  */
 @FunctionalInterface
-public interface RowMapperFactory
-{
+public interface RowMapperFactory {
     /**
      * Supplies a row mapper which will map result set rows to type if the factory supports it; empty otherwise.
      *
-     * @param type the target type to map to
-     * @param ctx the statement context.
-     *
+     * @param type   the target type to map to
+     * @param config the config registry, for composition
      * @return a row mapper for the given type if this factory supports it; <code>Optional.empty()</code> otherwise.
-     *
-     * @see StatementContext#findColumnMapperFor(Type)
+     * @see ConfigRegistry#findRowMapperFor(Type) for composition
+     * @see ConfigRegistry#findColumnMapperFor(Type) for composition
      */
-    Optional<RowMapper<?>> build(Type type, StatementContext ctx);
+    Optional<RowMapper<?>> build(Type type, ConfigRegistry config);
 }

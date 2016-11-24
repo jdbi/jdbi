@@ -21,20 +21,21 @@ import java.util.List;
 
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
  */
-public class Batch extends BaseStatement
+public class Batch extends BaseStatement<Batch>
 {
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
     private final List<String> parts = new ArrayList<>();
     private final Connection connection;
 
-    Batch(JdbiConfig config,
+    Batch(ConfigRegistry config,
           Connection connection,
           StatementContext statementContext)
     {
@@ -51,19 +52,6 @@ public class Batch extends BaseStatement
     public Batch add(String sql)
     {
         parts.add(sql);
-        return this;
-    }
-
-    /**
-     * Define a value on the {@link StatementContext}.
-     *
-     * @param key   Key to access this value from the StatementContext
-     * @param value Value to setAttribute on the StatementContext
-     *
-     * @return this
-     */
-    public Batch define(String key, Object value) {
-        getContext().setAttribute(key, value);
         return this;
     }
 
@@ -99,7 +87,7 @@ public class Batch extends BaseStatement
             {
                 for (String part : parts)
                 {
-                    final String sql = config.statementRewriter.rewrite(part, empty, getContext()).getSql();
+                    final String sql = getConfig(SqlStatements.class).getStatementRewriter().rewrite(part, empty, getContext()).getSql();
                     LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }
@@ -116,7 +104,7 @@ public class Batch extends BaseStatement
                 final long elapsedTime = System.nanoTime() - start;
                 LOG.trace("] executed in {}ms", elapsedTime / 1000000L);
                 // Null for statement, because for batches, we don't really have a good way to keep the sql around.
-                config.timingCollector.collect(elapsedTime, getContext());
+                getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
                 return rs;
 
             }

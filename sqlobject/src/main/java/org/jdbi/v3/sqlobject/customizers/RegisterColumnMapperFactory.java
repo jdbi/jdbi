@@ -21,16 +21,18 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 
 /**
  * Used to register a column mapper with either a sql object type or for a specific method.
  */
-@SqlStatementCustomizingAnnotation(RegisterColumnMapperFactory.Factory.class)
+@ConfiguringAnnotation(RegisterColumnMapperFactory.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterColumnMapperFactory
@@ -41,22 +43,22 @@ public @interface RegisterColumnMapperFactory
      */
     Class<? extends ColumnMapperFactory>[] value();
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements ConfigurerFactory
     {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             return create((RegisterColumnMapperFactory) annotation);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             return create((RegisterColumnMapperFactory) annotation);
         }
 
-        private SqlStatementCustomizer create(RegisterColumnMapperFactory ma) {
+        private Consumer<ConfigRegistry> create(RegisterColumnMapperFactory ma) {
             final List<ColumnMapperFactory> m = new ArrayList<ColumnMapperFactory>(ma.value().length);
             try {
                 Class<? extends ColumnMapperFactory>[] mcs = ma.value();
@@ -67,7 +69,7 @@ public @interface RegisterColumnMapperFactory
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified column mapper factory", e);
             }
-            return stmt -> m.forEach(stmt::registerColumnMapper);
+            return config -> m.forEach(config.get(ColumnMappers.class)::register);
         }
     }
 }

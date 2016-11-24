@@ -28,24 +28,16 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.SqlArrayType;
-import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
 import org.jdbi.v3.core.argument.InputStreamArgument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.mapper.InferredRowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.StatementCustomizers;
@@ -60,11 +52,10 @@ import org.slf4j.LoggerFactory;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> extends BaseStatement
-{
+public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
     private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
 
-    private final SelfType         typedThis;
+    private final This             typedThis;
     private final Binding          params;
     private final Handle           handle;
     private final String           sql;
@@ -77,7 +68,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     private       PreparedStatement  stmt;
 
     @SuppressWarnings("unchecked")
-    SqlStatement(JdbiConfig config,
+    SqlStatement(ConfigRegistry config,
                  Binding params,
                  Handle handle,
                  StatementBuilder statementBuilder,
@@ -89,7 +80,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
 
         addCustomizers(statementCustomizers);
 
-        this.typedThis = (SelfType) this;
+        this.typedThis = (This) this;
         this.statementBuilder = statementBuilder;
         this.handle = handle;
         this.sql = sql;
@@ -100,138 +91,9 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
         ctx.setBinding(params);
     }
 
-    CollectorFactoryRegistry getCollectorFactoryRegistry()
-    {
-        return config.collectorRegistry;
-    }
-
-    public SelfType registerCollectorFactory(CollectorFactory collectorFactory) {
-        config.collectorRegistry.register(collectorFactory);
-        return typedThis;
-    }
-
-    public SelfType registerArgumentFactory(ArgumentFactory argumentFactory)
-    {
-        getArgumentRegistry().register(argumentFactory);
-        return typedThis;
-    }
-
-    /**
-     * Register an array element type that is supported by the JDBC vendor.
-     *
-     * @param elementType the array element type
-     * @param sqlTypeName the vendor-specific SQL type name for the array type.  This value will be passed to
-     *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
-     * @return this
-     */
-    public SelfType registerArrayType(Class<?> elementType, String sqlTypeName)
-    {
-        config.argumentRegistry.registerArrayType(elementType, sqlTypeName);
-        return typedThis;
-    }
-
-    /**
-     * Register a {@link SqlArrayType} which will have its parameterized type inspected to determine which element type
-     * it supports. {@link SqlArrayType SQL array types} are used to convert array-like arguments into SQL arrays.
-     * <p>
-     * The parameter must be concretely parameterized; we use the type argument {@code T} to determine if it applies to
-     * a given element type.
-     *
-     * @param arrayType the {@link SqlArrayType}
-     * @return this
-     * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
-     */
-    public SelfType registerArrayType(SqlArrayType<?> arrayType)
-    {
-        config.argumentRegistry.registerArrayType(arrayType);
-        return typedThis;
-    }
-
-    /**
-     * Register a {@link SqlArrayTypeFactory}. A factory is provided element types and, if it supports it, provides an
-     * {@link SqlArrayType} for it.
-     *
-     * @param factory the factory
-     * @return this
-     */
-    public SelfType registerArrayType(SqlArrayTypeFactory factory)
-    {
-        config.argumentRegistry.registerArrayType(factory);
-        return typedThis;
-    }
-
-    public SelfType registerRowMapper(RowMapper<?> m)
-    {
-        config.mappingRegistry.addRowMapper(new InferredRowMapperFactory(m));
-        return typedThis;
-    }
-
-    public SelfType registerRowMapper(RowMapperFactory m)
-    {
-        config.mappingRegistry.addRowMapper(m);
-        return typedThis;
-    }
-
-    public SelfType registerColumnMapper(ColumnMapper<?> m)
-    {
-        config.mappingRegistry.addColumnMapper(m);
-        return typedThis;
-    }
-
-    public SelfType registerColumnMapper(ColumnMapperFactory m)
-    {
-        config.mappingRegistry.addColumnMapper(m);
-        return typedThis;
-    }
-
-    /**
-     * Override the statement rewriter used for this statement
-     *
-     * @param rewriter the statement rewriter
-     *
-     * @return the same Query instance
-     */
-    public SelfType setStatementRewriter(StatementRewriter rewriter) {
-        config.statementRewriter = rewriter;
-        return typedThis;
-    }
-
-    public SelfType setFetchDirection(final int value)
+    public This setFetchDirection(final int value)
     {
         addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
-        return typedThis;
-    }
-
-    /**
-     * Define a value on the {@link StatementContext}.
-     *
-     * @param key   Key to access this value from the StatementContext
-     * @param value Value to setAttribute on the StatementContext
-     *
-     * @return this
-     */
-    public SelfType define(String key, Object value)
-    {
-        getContext().setAttribute(key, value);
-        return typedThis;
-    }
-
-    /**
-     * Adds all key/value pairs in the Map to the {@link StatementContext}.
-     *
-     * @param values containing key/value pairs.
-     *
-     * @return this
-     */
-    public SelfType define(final Map<String, ?> values)
-    {
-        final StatementContext context = getContext();
-
-        if (values != null) {
-            for (Map.Entry<String, ?> entry : values.entrySet()) {
-                context.setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
         return typedThis;
     }
 
@@ -243,7 +105,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return modified statement
      */
-    public SelfType addStatementCustomizer(StatementCustomizer customizer)
+    public This addStatementCustomizer(StatementCustomizer customizer)
     {
         super.addCustomizer(customizer);
         return typedThis;
@@ -262,11 +124,6 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     protected StatementBuilder getStatementBuilder()
     {
         return statementBuilder;
-    }
-
-    protected StatementRewriter getRewriter()
-    {
-        return config.statementRewriter;
     }
 
     protected Binding getParams()
@@ -294,7 +151,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public SelfType setQueryTimeout(final int seconds)
+    public This setQueryTimeout(final int seconds)
     {
         return addStatementCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
     }
@@ -304,7 +161,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public SelfType cleanupHandle()
+    public This cleanupHandle()
     {
         super.addCleanable(Cleanables.forHandle(handle, TransactionState.ROLLBACK));
         return typedThis;
@@ -317,7 +174,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public SelfType cleanupHandle(final TransactionState state)
+    public This cleanupHandle(final TransactionState state)
     {
         super.addCleanable(Cleanables.forHandle(handle, state));
         return typedThis;
@@ -333,10 +190,10 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      * @return the same Query instance
      */
     @SuppressWarnings("unchecked")
-    public SelfType bind(int position, Argument argument)
+    public This bind(int position, Argument argument)
     {
         getParams().addPositional(position, argument);
-        return (SelfType) this;
+        return (This) this;
     }
 
     /**
@@ -347,7 +204,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public SelfType bind(String name, Argument argument)
+    public This bind(String name, Argument argument)
     {
         getParams().addNamed(name, argument);
         return typedThis;
@@ -360,7 +217,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return modified statement
      */
-    public SelfType bindBean(Object bean)
+    public This bindBean(Object bean)
     {
         return bindNamedArgumentFinder(new BeanPropertyArguments(null, bean, getContext()));
     }
@@ -375,7 +232,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return modified statement
      */
-    public SelfType bindBean(String prefix, Object bean)
+    public This bindBean(String prefix, Object bean)
     {
         return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean, getContext()));
     }
@@ -388,7 +245,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return modified statement
      */
-    public SelfType bindMap(Map<String, ?> map)
+    public This bindMap(Map<String, ?> map)
     {
         return map == null ? typedThis : bindNamedArgumentFinder(new MapArguments(map, getContext()));
     }
@@ -400,7 +257,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public SelfType bindNamedArgumentFinder(final NamedArgumentFinder namedArgumentFinder)
+    public This bindNamedArgumentFinder(final NamedArgumentFinder namedArgumentFinder)
     {
         if (namedArgumentFinder != null) {
             getParams().addNamedArgumentFinder(namedArgumentFinder);
@@ -417,7 +274,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Character value)
+    public final This bind(int position, Character value)
     {
         return bind(position, toArgument(Character.class, value));
     }
@@ -430,7 +287,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Character value)
+    public final This bind(String name, Character value)
     {
         return bind(name, toArgument(Character.class, value));
     }
@@ -443,7 +300,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, String value)
+    public final This bind(int position, String value)
     {
         return bind(position, toArgument(String.class, value));
     }
@@ -456,7 +313,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, String value)
+    public final This bind(String name, String value)
     {
         return bind(name, toArgument(String.class, value));
     }
@@ -469,7 +326,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, int value)
+    public final This bind(int position, int value)
     {
         return bind(position, toArgument(int.class, value));
     }
@@ -482,7 +339,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Integer value)
+    public final This bind(int position, Integer value)
     {
         return bind(position, toArgument(Integer.class, value));
     }
@@ -495,7 +352,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, int value)
+    public final This bind(String name, int value)
     {
         return bind(name, toArgument(int.class, value));
     }
@@ -508,7 +365,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Integer value)
+    public final This bind(String name, Integer value)
     {
         return bind(name, toArgument(Integer.class, value));
     }
@@ -521,7 +378,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, char value)
+    public final This bind(int position, char value)
     {
         return bind(position, toArgument(char.class, value));
     }
@@ -534,7 +391,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, char value)
+    public final This bind(String name, char value)
     {
         return bind(name, toArgument(char.class, value));
     }
@@ -548,7 +405,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindASCIIStream(int position, InputStream value, int length)
+    public final This bindASCIIStream(int position, InputStream value, int length)
     {
         return bind(position, new InputStreamArgument(value, length, true));
     }
@@ -562,7 +419,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindASCIIStream(String name, InputStream value, int length)
+    public final This bindASCIIStream(String name, InputStream value, int length)
     {
         return bind(name, new InputStreamArgument(value, length, true));
     }
@@ -575,7 +432,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, BigDecimal value)
+    public final This bind(int position, BigDecimal value)
     {
         return bind(position, toArgument(BigDecimal.class, value));
     }
@@ -588,7 +445,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, BigDecimal value)
+    public final This bind(String name, BigDecimal value)
     {
         return bind(name, toArgument(BigDecimal.class, value));
     }
@@ -602,7 +459,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindBinaryStream(int position, InputStream value, int length)
+    public final This bindBinaryStream(int position, InputStream value, int length)
     {
         return bind(position, new InputStreamArgument(value, length, false));
     }
@@ -616,7 +473,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindBinaryStream(String name, InputStream value, int length)
+    public final This bindBinaryStream(String name, InputStream value, int length)
     {
         return bind(name, new InputStreamArgument(value, length, false));
     }
@@ -629,7 +486,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Blob value)
+    public final This bind(int position, Blob value)
     {
         return bind(position, toArgument(Blob.class, value));
     }
@@ -642,7 +499,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Blob value)
+    public final This bind(String name, Blob value)
     {
         return bind(name, toArgument(Blob.class, value));
     }
@@ -655,7 +512,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, boolean value)
+    public final This bind(int position, boolean value)
     {
         return bind(position, toArgument(boolean.class, value));
     }
@@ -668,7 +525,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Boolean value)
+    public final This bind(int position, Boolean value)
     {
         return bind(position, toArgument(Boolean.class, value));
     }
@@ -681,7 +538,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, boolean value)
+    public final This bind(String name, boolean value)
     {
         return bind(name, toArgument(boolean.class, value));
     }
@@ -694,7 +551,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Boolean value)
+    public final This bind(String name, Boolean value)
     {
         return bind(name, toArgument(Boolean.class, value));
     }
@@ -707,7 +564,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, byte value)
+    public final This bind(int position, byte value)
     {
         return bind(position, toArgument(byte.class, value));
     }
@@ -720,7 +577,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Byte value)
+    public final This bind(int position, Byte value)
     {
         return bind(position, toArgument(Byte.class, value));
     }
@@ -733,7 +590,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, byte value)
+    public final This bind(String name, byte value)
     {
         return bind(name, toArgument(byte.class, value));
     }
@@ -746,7 +603,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Byte value)
+    public final This bind(String name, Byte value)
     {
         return bind(name, toArgument(Byte.class, value));
     }
@@ -759,7 +616,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, byte[] value)
+    public final This bind(int position, byte[] value)
     {
         return bind(position, toArgument(byte[].class, value));
     }
@@ -772,7 +629,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, byte[] value)
+    public final This bind(String name, byte[] value)
     {
         return bind(name, toArgument(byte[].class, value));
     }
@@ -786,7 +643,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Reader value, int length)
+    public final This bind(int position, Reader value, int length)
     {
 
         return bind(position, new CharacterStreamArgument(value, length));
@@ -801,7 +658,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Reader value, int length)
+    public final This bind(String name, Reader value, int length)
     {
         return bind(name, new CharacterStreamArgument(value, length));
     }
@@ -814,7 +671,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Clob value)
+    public final This bind(int position, Clob value)
     {
         return bind(position, toArgument(Clob.class, value));
     }
@@ -827,7 +684,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Clob value)
+    public final This bind(String name, Clob value)
     {
         return bind(name, toArgument(Clob.class, value));
     }
@@ -840,7 +697,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, java.sql.Date value)
+    public final This bind(int position, java.sql.Date value)
     {
         return bind(position, toArgument(java.sql.Date.class, value));
     }
@@ -853,7 +710,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, java.sql.Date value)
+    public final This bind(String name, java.sql.Date value)
     {
         return bind(name, toArgument(java.sql.Date.class, value));
     }
@@ -866,7 +723,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, java.util.Date value)
+    public final This bind(int position, java.util.Date value)
     {
         return bind(position, toArgument(java.util.Date.class, value));
     }
@@ -879,7 +736,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, java.util.Date value)
+    public final This bind(String name, java.util.Date value)
     {
         return bind(name, toArgument(java.util.Date.class, value));
     }
@@ -892,7 +749,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, double value)
+    public final This bind(int position, double value)
     {
         return bind(position, toArgument(double.class, value));
     }
@@ -905,7 +762,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Double value)
+    public final This bind(int position, Double value)
     {
         return bind(position, toArgument(Double.class, value));
     }
@@ -918,7 +775,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, double value)
+    public final This bind(String name, double value)
     {
         return bind(name, toArgument(double.class, value));
     }
@@ -931,7 +788,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Double value)
+    public final This bind(String name, Double value)
     {
         return bind(name, toArgument(Double.class, value));
     }
@@ -944,7 +801,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, float value)
+    public final This bind(int position, float value)
     {
         return bind(position, toArgument(float.class, value));
     }
@@ -957,7 +814,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Float value)
+    public final This bind(int position, Float value)
     {
         return bind(position, toArgument(Float.class, value));
     }
@@ -970,7 +827,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, float value)
+    public final This bind(String name, float value)
     {
         return bind(name, toArgument(float.class, value));
     }
@@ -983,7 +840,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Float value)
+    public final This bind(String name, Float value)
     {
         return bind(name, toArgument(Float.class, value));
     }
@@ -996,7 +853,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, long value)
+    public final This bind(int position, long value)
     {
         return bind(position, toArgument(long.class, value));
     }
@@ -1009,7 +866,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Long value)
+    public final This bind(int position, Long value)
     {
         return bind(position, toArgument(Long.class, value));
     }
@@ -1022,7 +879,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, long value)
+    public final This bind(String name, long value)
     {
         return bind(name, toArgument(long.class, value));
     }
@@ -1035,7 +892,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Long value)
+    public final This bind(String name, Long value)
     {
         return bind(name, toArgument(Long.class, value));
     }
@@ -1048,7 +905,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Short value)
+    public final This bind(int position, Short value)
     {
         return bind(position, toArgument(Short.class, value));
     }
@@ -1061,7 +918,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, short value)
+    public final This bind(int position, short value)
     {
         return bind(position, toArgument(short.class, value));
     }
@@ -1074,7 +931,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, short value)
+    public final This bind(String name, short value)
     {
         return bind(name, toArgument(short.class, value));
     }
@@ -1087,7 +944,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Short value)
+    public final This bind(String name, Short value)
     {
         return bind(name, toArgument(short.class, value));
     }
@@ -1100,7 +957,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Object value)
+    public final This bind(int position, Object value)
     {
         return bind(position, toArgument(value));
     }
@@ -1113,7 +970,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Object value)
+    public final This bind(String name, Object value)
     {
         return bind(name, toArgument(value));
     }
@@ -1126,7 +983,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Time value)
+    public final This bind(int position, Time value)
     {
         return bind(position, toArgument(Time.class, value));
     }
@@ -1139,7 +996,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Time value)
+    public final This bind(String name, Time value)
     {
         return bind(name, toArgument(Time.class, value));
     }
@@ -1152,7 +1009,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, Timestamp value)
+    public final This bind(int position, Timestamp value)
     {
         return bind(position, toArgument(Timestamp.class, value));
     }
@@ -1165,7 +1022,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, Timestamp value)
+    public final This bind(String name, Timestamp value)
     {
         return bind(name, toArgument(Timestamp.class, value));
     }
@@ -1178,7 +1035,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(int position, URL value)
+    public final This bind(int position, URL value)
     {
         return bind(position, toArgument(URL.class, value));
     }
@@ -1191,7 +1048,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bind(String name, URL value)
+    public final This bind(String name, URL value)
     {
         return bind(name, toArgument(URL.class, value));
     }
@@ -1205,7 +1062,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindByType(int position, Object value, Type argumentType)
+    public final This bindByType(int position, Object value, Type argumentType)
     {
         return bind(position, toArgument(argumentType, value));
     }
@@ -1219,7 +1076,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindByType(int position, Object value, GenericType<?> argumentType)
+    public final This bindByType(int position, Object value, GenericType<?> argumentType)
     {
         return bindByType(position, value, argumentType.getType());
     }
@@ -1233,7 +1090,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindByType(String name, Object value, Type argumentType)
+    public final This bindByType(String name, Object value, Type argumentType)
     {
         return bind(name, toArgument(argumentType, value));
     }
@@ -1247,7 +1104,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same Query instance
      */
-    public final SelfType bindByType(String name, Object value, GenericType<?> argumentType)
+    public final This bindByType(String name, Object value, GenericType<?> argumentType)
     {
         return bindByType(name, value, argumentType.getType());
     }
@@ -1257,7 +1114,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
     }
 
     private Argument toArgument(Type type, Object value) {
-        return getArgumentRegistry().findArgumentFor(type, value, getContext())
+        return getConfig().findArgumentFor(type, value)
                 .orElseThrow(() -> new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type));
     }
 
@@ -1269,7 +1126,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same statement instance
      */
-    public final SelfType bindNull(String name, int sqlType)
+    public final This bindNull(String name, int sqlType)
     {
         return bind(name, new NullArgument(sqlType));
     }
@@ -1282,7 +1139,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return the same statement instance
      */
-    public final SelfType bindNull(int position, int sqlType)
+    public final This bindNull(int position, int sqlType)
     {
         return bind(position, new NullArgument(sqlType));
     }
@@ -1297,7 +1154,7 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return self
      */
-    public final SelfType bindBySqlType(String name, Object value, int sqlType)
+    public final This bindBySqlType(String name, Object value, int sqlType)
     {
         return bind(name, new ObjectArgument(value, sqlType));
     }
@@ -1312,14 +1169,16 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
      *
      * @return self
      */
-    public final SelfType bindBySqlType(int position, Object value, int sqlType)
+    public final This bindBySqlType(int position, Object value, int sqlType)
     {
         return bind(position, new ObjectArgument(value, sqlType));
     }
 
-    protected PreparedStatement internalExecute()
+    PreparedStatement internalExecute()
     {
-        rewritten = config.statementRewriter.rewrite(sql, getParams(), getContext());
+        rewritten = getConfig(SqlStatements.class)
+                .getStatementRewriter()
+                .rewrite(sql, getParams(), getContext());
         getContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
@@ -1353,7 +1212,9 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
             stmt.execute();
             final long elapsedTime = System.nanoTime() - start;
             LOG.trace("Execute SQL \"{}\" in {}ms", rewritten.getSql(), elapsedTime / 1000000L);
-            config.timingCollector.collect(elapsedTime, getContext());
+            getConfig(SqlStatements.class)
+                    .getTimingCollector()
+                    .collect(elapsedTime, getContext());
         }
         catch (SQLException e) {
             try {
@@ -1369,26 +1230,21 @@ public abstract class SqlStatement<SelfType extends SqlStatement<SelfType>> exte
         return stmt;
     }
 
-    protected TimingCollector getTimingCollector()
-    {
-        return config.timingCollector;
-    }
-
     @SuppressWarnings("unchecked")
-    protected <T> RowMapper<T> rowMapperForType(Class<T> type)
+    <T> RowMapper<T> rowMapperForType(Class<T> type)
     {
         return (RowMapper<T>) rowMapperForType((Type) type);
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> RowMapper<T> rowMapperForType(GenericType<T> type)
+    <T> RowMapper<T> rowMapperForType(GenericType<T> type)
     {
         return (RowMapper<T>) rowMapperForType(type.getType());
     }
 
-    protected RowMapper<?> rowMapperForType(Type type)
+    RowMapper<?> rowMapperForType(Type type)
     {
-        return config.mappingRegistry.findRowMapperFor(type, getContext())
+        return getConfig().findRowMapperFor(type)
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 }

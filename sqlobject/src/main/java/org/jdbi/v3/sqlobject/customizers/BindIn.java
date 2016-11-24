@@ -134,7 +134,7 @@ public @interface BindIn
 
             final String ns = names.toString();
 
-            return q -> q.define(name, ns);
+            return stmt -> stmt.define(name, ns);
         }
     }
 

@@ -35,7 +35,7 @@ class TransactionDecorator implements Handler
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, SqlObjectConfig config, HandleSupplier handle) throws Exception
+    public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle) throws Exception
     {
         Handle h = handle.getHandle();
 
@@ -43,7 +43,7 @@ class TransactionDecorator implements Handler
             TransactionIsolationLevel currentLevel = h.getTransactionIsolationLevel();
             if (currentLevel == isolation || isolation == INVALID_LEVEL) {
                 // Already in transaction. The outermost @Transaction method determines the transaction isolation level.
-                return delegate.invoke(target, method, args, config, handle);
+                return delegate.invoke(target, method, args, handle);
             }
             else {
                 throw new TransactionException("Tried to execute nested @Transaction(" + isolation+ "), " +
@@ -51,7 +51,7 @@ class TransactionDecorator implements Handler
             }
         }
 
-        TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(target, method, args, config, handle);
+        TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(target, method, args, handle);
 
         if (isolation == INVALID_LEVEL) {
             return h.inTransaction(callback);

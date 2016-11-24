@@ -20,9 +20,9 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 /**
  * A mixin interface to expose transaction methods on the sql object.
  *
- * @param <SelfType> must match the interface that is extending this one.
+ * @param <This> must match the interface that is extending this one.
  */
-public interface Transactional<SelfType extends Transactional<SelfType>>
+public interface Transactional<This extends Transactional<This>>
 {
     void begin();
 
@@ -36,12 +36,12 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
 
     void rollback(String name);
 
-    <R, X extends Exception> R inTransaction(TransactionalCallback<R, SelfType, X> callback) throws X;
+    <R, X extends Exception> R inTransaction(TransactionalCallback<R, This, X> callback) throws X;
 
     <R, X extends Exception> R inTransaction(TransactionIsolationLevel isolation,
-                                             TransactionalCallback<R, SelfType, X> callback) throws X;
+                                             TransactionalCallback<R, This, X> callback) throws X;
 
-    default <X extends Exception> void useTransaction(TransactionalConsumer<SelfType, X> callback) throws X {
+    default <X extends Exception> void useTransaction(TransactionalConsumer<This, X> callback) throws X {
         inTransaction((transactional, status) -> {
             callback.useTransaction(transactional, status);
             return null;
@@ -49,7 +49,7 @@ public interface Transactional<SelfType extends Transactional<SelfType>>
     }
 
     default <X extends Exception> void useTransaction(TransactionIsolationLevel isolation,
-                                                      TransactionalConsumer<SelfType, X> callback) throws X {
+                                                      TransactionalConsumer<This, X> callback) throws X {
         inTransaction(isolation, (transactional, status) -> {
             callback.useTransaction(transactional, status);
             return null;

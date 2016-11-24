@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.ColumnName;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.util.bean.CaseInsensitiveColumnNameStrategy;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;

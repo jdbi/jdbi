@@ -51,7 +51,7 @@ public @interface Define
             Define define = (Define) annotation;
 
             final String name = ParameterUtil.getParameterName(define, define.value(), param);
-            return q -> q.define(name, arg);
+            return stmt -> stmt.define(name, arg);
         }
     }
 }

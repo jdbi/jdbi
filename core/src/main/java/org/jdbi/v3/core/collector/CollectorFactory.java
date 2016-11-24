@@ -33,6 +33,7 @@ public interface CollectorFactory {
      * @param containerType the container type
      *
      * @return the container element type if it can be discovered through reflection; empty otherwise.
+     * @see org.jdbi.v3.core.StatementContext#findElementTypeFor(Type)
      */
     Optional<Type> elementType(Type containerType);
 
@@ -42,6 +43,7 @@ public interface CollectorFactory {
      * @return a {@link Collector} for the given container type.
      *
      * @see org.jdbi.v3.core.StatementContext#findCollectorFor(Type)
+     * @see JdbiCollectors#findFor(Type)
      */
     Collector<?, ?, ?> build(Type containerType);
 }

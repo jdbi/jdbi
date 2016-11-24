@@ -33,7 +33,7 @@ public class TestArgumentFactory
     public void testRegisterOnDBI() throws Exception
     {
         final Jdbi dbi = db.getJdbi();
-        dbi.registerArgumentFactory(new NameAF());
+        dbi.registerArgument(new NameAF());
         try (Handle h = dbi.open()) {
             h.createUpdate("insert into something (id, name) values (:id, :name)")
               .bind("id", 7)
@@ -50,7 +50,7 @@ public class TestArgumentFactory
     public void testRegisterOnHandle() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            h.registerArgumentFactory(new NameAF());
+            h.registerArgument(new NameAF());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
              .bind("id", 7)
              .bind("name", new Name("Brian", "McCallister"))
@@ -66,7 +66,7 @@ public class TestArgumentFactory
     public void testRegisterOnStatement() throws Exception
     {
         db.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
-         .registerArgumentFactory(new NameAF())
+         .registerArgument(new NameAF())
          .bind("id", 1)
          .bind("name", new Name("Brian", "McCallister"))
          .execute();
@@ -77,7 +77,7 @@ public class TestArgumentFactory
     {
         Handle h = db.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
-        batch.registerArgumentFactory(new NameAF());
+        batch.registerArgument(new NameAF());
 
         batch.add().bind("id", 1).bind("name", new Name("Brian", "McCallister"));
         batch.add().bind("id", 2).bind("name", new Name("Henning", "S"));
@@ -94,10 +94,10 @@ public class TestArgumentFactory
     public static class NameAF implements ArgumentFactory
     {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
-                return ctx.findArgumentFor(String.class, nameValue.getFullName());
+                return config.findArgumentFor(String.class, nameValue.getFullName());
             }
             return Optional.empty();
         }

@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 
@@ -90,7 +91,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, StatementContext ctx) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> rawType = getErasedType(type);
         if (rawType.isEnum()) {
             return Optional.of(EnumMapper.byName(rawType.asSubclass(Enum.class)));

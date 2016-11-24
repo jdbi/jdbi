@@ -22,24 +22,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
+import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.SqlAnnotations;
-import org.jdbi.v3.sqlobject.SqlObjectConfig;
-import org.jdbi.v3.sqlobject.SqlObjectConfigurerFactory;
-import org.jdbi.v3.sqlobject.SqlObjectConfiguringAnnotation;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.SqlObjects;
+import org.jdbi.v3.sqlobject.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 /**
@@ -59,72 +53,47 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
  *     }
  * </pre>
  */
-@SqlObjectConfiguringAnnotation(UseStringTemplateSqlLocator.LocatorFactory.class)
-@SqlStatementCustomizingAnnotation(UseStringTemplateSqlLocator.RewriterFactory.class)
+@ConfiguringAnnotation(UseStringTemplateSqlLocator.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseStringTemplateSqlLocator {
     Class<? extends StatementRewriter> value() default ColonPrefixStatementRewriter.class;
 
-    class LocatorFactory implements SqlObjectConfigurerFactory {
-        private static final Map<String, Class<?>> TYPE_CACHE = ExpiringMap.builder()
-                .expiration(10, TimeUnit.MINUTES)
-                .expirationPolicy(ExpirationPolicy.ACCESSED)
-                .build();
-
-        private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
-            String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-            StringTemplateGroup group = findStringTemplateGroup(sqlObjectType);
-            if (!group.isDefined(name)) {
-                throw new IllegalStateException("No StringTemplate group " + name + " for class " + sqlObjectType);
-            }
-
-            String typeName = sqlObjectType.getName();
-            TYPE_CACHE.putIfAbsent(typeName, sqlObjectType);
-
-            // Hash character # should never appear in class names.. right?
-            return typeName + "#" + name;
-        };
-
-        private static final Consumer<SqlObjectConfig> CONFIGURER = config -> config.setSqlLocator(SQL_LOCATOR);
-
+    class Factory implements ConfigurerFactory {
         @Override
-        public Consumer<SqlObjectConfig> createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return CONFIGURER;
+        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
+            return create((UseStringTemplateSqlLocator) annotation, sqlObjectType);
         }
 
         @Override
-        public Consumer<SqlObjectConfig> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            return CONFIGURER;
-        }
-    }
-
-    class RewriterFactory implements SqlStatementCustomizerFactory {
-        @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return create((UseStringTemplateSqlLocator) annotation);
+        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+            return create((UseStringTemplateSqlLocator) annotation, sqlObjectType);
         }
 
-        @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            return create((UseStringTemplateSqlLocator) annotation);
-        }
+        private Consumer<ConfigRegistry> create(UseStringTemplateSqlLocator annotation, Class<?> sqlObjectType) {
+            SqlLocator locator = (type, method) -> {
+                String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
+                StringTemplateGroup group = findStringTemplateGroup(type);
+                if (!group.isDefined(templateName)) {
+                    throw new IllegalStateException("No StringTemplate group " + templateName + " for class " + sqlObjectType);
+                }
 
-        private SqlStatementCustomizer create(UseStringTemplateSqlLocator annotation) {
+                return templateName;
+            };
             StatementRewriter delegate = createDelegate(annotation.value());
             StatementRewriter locatingRewriter = (sql, params, ctx) -> {
-                int delimiterIndex = sql.indexOf('#');
-                String typeName = sql.substring(0, delimiterIndex);
-                String templateName = sql.substring(delimiterIndex + 1);
+                String templateName = sql;
 
-                Class<?> type = LocatorFactory.TYPE_CACHE.get(typeName);
-                StringTemplateGroup group = findStringTemplateGroup(type);
+                StringTemplateGroup group = findStringTemplateGroup(sqlObjectType);
                 StringTemplate template = group.getInstanceOf(templateName, ctx.getAttributes());
                 String rewritten = template.toString();
 
                 return delegate.rewrite(rewritten, params, ctx);
             };
-            return q -> q.setStatementRewriter(locatingRewriter);
+            return config -> {
+                config.get(SqlObjects.class).setSqlLocator(locator);
+                config.get(SqlStatements.class).setStatementRewriter(locatingRewriter);
+            };
         }
 
         private StatementRewriter createDelegate(Class<? extends StatementRewriter> type) {

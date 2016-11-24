@@ -11,14 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.util;
+package org.jdbi.v3.core.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
 
 /**
  * Adapts a {@link ColumnMapper} into a {@link RowMapper} by mapping a single column.

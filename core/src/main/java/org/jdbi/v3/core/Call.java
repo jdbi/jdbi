@@ -33,7 +33,7 @@ public class Call extends SqlStatement<Call>
 {
     private final List<OutParamArgument> params = new ArrayList<>();
 
-    Call(JdbiConfig config,
+    Call(ConfigRegistry config,
          Handle handle,
          StatementBuilder cache,
          String sql,

@@ -26,14 +26,14 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.util.GenericType;
-import org.jdbi.v3.core.util.SingleColumnMapper;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements
  */
 public class Update extends SqlStatement<Update>
 {
-    Update(JdbiConfig config,
+    Update(ConfigRegistry config,
            Handle handle,
            StatementBuilder statementBuilder,
            String sql,

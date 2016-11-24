@@ -25,9 +25,13 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.SqlArrayType;
+import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
+import org.jdbi.v3.core.array.SqlArrayType;
+import org.jdbi.v3.core.array.SqlArrayTypes;
+import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.SqlStatements;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -40,7 +44,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
  */
 public class StatementContext implements Closeable
 {
-    private final JdbiConfig config;
+    private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
 
     private final Cleanables cleanables = new Cleanables();
@@ -55,54 +59,86 @@ public class StatementContext implements Closeable
     private String[]          generatedKeysColumnNames;
 
     StatementContext() {
-        this(new JdbiConfig());
+        this(new ConfigRegistry());
     }
 
-    StatementContext(JdbiConfig config)
+    StatementContext(ConfigRegistry config)
     {
         this(config, null);
     }
 
-    StatementContext(JdbiConfig config, ExtensionMethod extensionMethod)
+    StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod)
     {
         this.config = requireNonNull(config);
         this.extensionMethod = extensionMethod;
     }
 
     /**
-     * Specify an attribute on the statement context
+     * Gets the configuration object of the given type, associated with this context.
      *
-     * @param key   name of the attribute
-     * @param value value for the attribute
-     *
-     * @return previous value of this attribute
+     * @param configClass the configuration type
+     * @param <C>         the configuration type
+     * @return the configuration object of the given type, associated with this context.
      */
-    public Object setAttribute(String key, Object value)
-    {
-        return config.statementAttributes.put(key, value);
+    public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
+        return config.get(configClass);
+    }
+
+    /**
+     * Returns the attributes applied in this context.
+     *
+     * @return the defined attributes.
+     */
+    public Map<String, Object> getAttributes() {
+        return getConfig(SqlStatements.class).getAttributes();
     }
 
     /**
      * Obtain the value of an attribute
      *
-     * @param key The name of the attribute
-     *
+     * @param key the name of the attribute
      * @return the value of the attribute
      */
-    public Object getAttribute(String key)
-    {
-        return config.statementAttributes.get(key);
+    public Object getAttribute(String key) {
+        return getConfig(SqlStatements.class).getAttribute(key);
     }
 
     /**
-     * Obtain all the attributes associated with this context as a map. Changes to the map
-     * or to the attributes on the context will be reflected across both
+     * Define an attribute for in this context.
      *
-     * @return a map f attributes
+     * @param key   the key for the attribute
+     * @param value the value for the attribute
      */
-    public Map<String, Object> getAttributes()
-    {
-        return config.statementAttributes;
+    public void define(String key, Object value) {
+        getConfig(SqlStatements.class).define(key, value);
+    }
+
+    /**
+     * Obtain an argument for given value in this context
+     *
+     * @param type  the type of the argument.
+     * @param value the argument value.
+     * @return an Argument for the given value.
+     */
+    public Optional<Argument> findArgumentFor(Type type, Object value) {
+        return config.findArgumentFor(type, value);
+    }
+
+    /**
+     * Returns the strategy used to bind array-type arguments to SQL statements.
+     */
+    public SqlArrayArgumentStrategy getSqlArrayArgumentStrategy() {
+        return getConfig(SqlArrayTypes.class).getArgumentStrategy();
+    }
+
+    /**
+     * Obtain an {@link SqlArrayType} for the given array element type in this context
+     *
+     * @param elementType the array element type.
+     * @return an {@link SqlArrayType} for the given element type.
+     */
+    public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
+        return config.findSqlArrayTypeFor(elementType);
     }
 
     /**
@@ -111,9 +147,8 @@ public class StatementContext implements Closeable
      * @param type the target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
-    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type)
-    {
-        return config.mappingRegistry.findColumnMapperFor(type, this);
+    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
+        return config.findColumnMapperFor(type);
     }
 
     /**
@@ -122,45 +157,28 @@ public class StatementContext implements Closeable
      * @param type the target type to map to
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
-    public Optional<RowMapper<?>> findRowMapperFor(Type type)
-    {
-        return config.mappingRegistry.findRowMapperFor(type, this);
+    public Optional<RowMapper<?>> findRowMapperFor(Type type) {
+        return config.findRowMapperFor(type);
     }
 
     /**
-     * Obtain an argument for given value in this context
-     * @param type the type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
+     * Obtain a collector for the given type.
+     *
+     * @param containerType the container type.
+     * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
      */
-    public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return config.argumentRegistry.findArgumentFor(type, value, this);
+    public Optional<Collector<?,?,?>> findCollectorFor(Type containerType) {
+        return getConfig(JdbiCollectors.class).findFor(containerType);
     }
 
     /**
-     * Obtain an {@link SqlArrayType} for the given array element type in this context
-     * @param elementType the array element type.
-     * @return an {@link SqlArrayType} for the given element type.
-     */
-    public Optional<SqlArrayType<?>> findArrayTypeFor(Type elementType) {
-        return config.argumentRegistry.findArrayTypeFor(elementType, this);
-    }
-
-    /**
-     * Obtain a collector for the given type in this context
-     * @param type the result type of the collector
-     * @return a Collector for the given result type, or null if no collector factory is registered for this type.
-     */
-    public Optional<Collector<?, ?, ?>> findCollectorFor(Type type) {
-        return config.collectorRegistry.findCollectorFor(type);
-    }
-
-    /**
+     * Returns the element type for the given container type.
+     *
      * @param containerType the container type.
      * @return the element type for the given container type, if available.
      */
-    public Optional<Type> elementTypeFor(Type containerType) {
-        return config.collectorRegistry.elementTypeFor(containerType);
+    public Optional<Type> findElementTypeFor(Type containerType) {
+        return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
     }
 
     void setRawSql(String rawSql)
@@ -242,6 +260,10 @@ public class StatementContext implements Closeable
     Cleanables getCleanables()
     {
         return cleanables;
+    }
+
+    public void addCleanable(Cleanable cleanable) {
+        getCleanables().add(cleanable);
     }
 
     @Override

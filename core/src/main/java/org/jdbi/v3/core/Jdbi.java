@@ -23,25 +23,15 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.SqlArrayType;
-import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
-import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.core.extension.ExtensionCallback;
-import org.jdbi.v3.core.extension.ExtensionConfig;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementBuilderFactory;
@@ -57,11 +47,11 @@ import org.slf4j.LoggerFactory;
  * This class  provides the access point for jDBI. Use it to obtain Handle instances
  * and provide "global" configuration for all handles obtained from it.
  */
-public class Jdbi
+public class Jdbi implements Configurable<Jdbi>
 {
     private static final Logger LOG = LoggerFactory.getLogger(Jdbi.class);
 
-    private final JdbiConfig config = new JdbiConfig();
+    private final ConfigRegistry config = new ConfigRegistry();
 
     private final ConnectionFactory connectionFactory;
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(new LocalTransactionHandler());
@@ -213,7 +203,7 @@ public class Jdbi
 
     public Jdbi installPlugin(JdbiPlugin plugin)
     {
-        plugin.customizeDbi(this);
+        plugin.customizeJdbi(this);
         plugins.add(plugin);
         return this;
     }
@@ -238,23 +228,9 @@ public class Jdbi
         return this.statementBuilderFactory.get();
     }
 
-    /**
-     * Use a non-standard StatementRewriter to transform SQL for all Handle instances
-     * created by this DBI.
-     *
-     * @param rewriter StatementRewriter to use on all Handle instances
-     * @return this
-     */
-    public Jdbi setStatementRewriter(StatementRewriter rewriter)
-    {
-        Objects.requireNonNull(rewriter, "null statement rewriter");
-        config.statementRewriter = rewriter;
-        return this;
-    }
-
-    public StatementRewriter getStatementRewriter()
-    {
-        return config.statementRewriter;
+    @Override
+    public ConfigRegistry getConfig() {
+        return config;
     }
 
     /**
@@ -283,161 +259,6 @@ public class Jdbi
     }
 
     /**
-     * Add a callback to accumulate timing information about the queries running from this
-     * data source.
-     *
-     * @param timingCollector the new timing collector
-     * @return this
-     */
-    public Jdbi setTimingCollector(final TimingCollector timingCollector) {
-        if (timingCollector == null) {
-            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
-        }
-        else {
-            config.timingCollector = timingCollector;
-        }
-        return this;
-    }
-
-    public TimingCollector getTimingCollector()
-    {
-        return config.timingCollector;
-    }
-
-    public Jdbi registerArgumentFactory(ArgumentFactory argumentFactory)
-    {
-        config.argumentRegistry.register(argumentFactory);
-        return this;
-    }
-
-    /**
-     * Register an array element type that is supported by the JDBC vendor.
-     *
-     * @param elementType the array element type
-     * @param sqlTypeName the vendor-specific SQL type name for the array type.  This value will be passed to
-     *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
-     * @return this
-     */
-    public Jdbi registerArrayType(Class<?> elementType, String sqlTypeName)
-    {
-        config.argumentRegistry.registerArrayType(elementType, sqlTypeName);
-        return this;
-    }
-
-    /**
-     * Register a {@link SqlArrayType} which will have its parameterized type inspected to determine which element type
-     * it supports. {@link SqlArrayType SQL array types} are used to convert array-like arguments into SQL arrays.
-     * <p>
-     * The parameter must be concretely parameterized; we use the type argument {@code T} to determine if it applies to
-     * a given element type.
-     *
-     * @param arrayType the {@link SqlArrayType}
-     * @return this
-     * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
-     */
-    public Jdbi registerArrayType(SqlArrayType<?> arrayType)
-    {
-        config.argumentRegistry.registerArrayType(arrayType);
-        return this;
-    }
-
-    /**
-     * Register a {@link SqlArrayTypeFactory}. A factory is provided element types and, if it supports it, provides an
-     * {@link SqlArrayType} for it.
-     *
-     * @param factory the factory
-     * @return this
-     */
-    public Jdbi registerArrayType(SqlArrayTypeFactory factory)
-    {
-        config.argumentRegistry.registerArrayType(factory);
-        return this;
-    }
-
-    public Jdbi registerCollectorFactory(CollectorFactory collectorFactory)
-    {
-        config.collectorRegistry.register(collectorFactory);
-        return this;
-    }
-
-    public Jdbi registerExtension(ExtensionFactory<?> extensionFactory)
-    {
-        config.extensionRegistry.register(extensionFactory);
-        return this;
-    }
-
-    public <C extends ExtensionConfig<C>> Jdbi configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        config.extensionRegistry.configure(configClass, consumer);
-        return this;
-    }
-
-    /**
-     * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
-     *
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * @param mapper the column mapper
-     * @return this
-     */
-    public Jdbi registerColumnMapper(ColumnMapper<?> mapper) {
-        config.mappingRegistry.addColumnMapper(mapper);
-        return this;
-    }
-
-    /**
-     * Register a column mapper factory.
-     *
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * @param factory the column mapper factory
-     * @return this
-     */
-    public Jdbi registerColumnMapper(ColumnMapperFactory factory) {
-        config.mappingRegistry.addColumnMapper(factory);
-        return this;
-    }
-
-    /**
-     * Register a row mapper which will have its parameterized type inspected to determine what it maps to
-     *
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * @param mapper the row mapper
-     * @return this
-     */
-    public Jdbi registerRowMapper(RowMapper<?> mapper) {
-        config.mappingRegistry.addRowMapper(mapper);
-        return this;
-    }
-
-    /**
-     * Register a row mapper factory.
-     *
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * @param factory the row mapper factory
-     * @return this
-     */
-    public Jdbi registerRowMapper(RowMapperFactory factory) {
-        config.mappingRegistry.addRowMapper(factory);
-        return this;
-    }
-
-    /**
-     * Define an attribute on every {@link StatementContext} for every statement created
-     * from a handle obtained from this DBI instance.
-     *
-     * @param key   The key for the attribute
-     * @param value the value for the attribute
-     * @return this
-     */
-    public Jdbi define(String key, Object value)
-    {
-        config.statementAttributes.put(key, value);
-        return this;
-    }
-
-    /**
      * Obtain a Handle to the data source wrapped by this DBI instance
      *
      * @return an open Handle instance
@@ -454,7 +275,7 @@ public class Jdbi
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new Handle(JdbiConfig.copyOf(config), transactionhandler.get(), cache, conn);
+            Handle h = new Handle(config.createChild(), transactionhandler.get(), cache, conn);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
@@ -550,8 +371,9 @@ public class Jdbi
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws NoSuchExtensionException, X
     {
-        try (LazyHandleSupplier handle = new LazyHandleSupplier(this)) {
-            E extension = config.extensionRegistry.findExtensionFor(extensionType, handle)
+        try (LazyHandleSupplier handle = new LazyHandleSupplier(this, config)) {
+            E extension = getConfig(Extensions.class)
+                    .findFor(extensionType, handle)
                     .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
 
             return callback.withExtension(extension);
@@ -591,7 +413,7 @@ public class Jdbi
         if (!Modifier.isPublic(extensionType.getModifiers())) {
             throw new IllegalArgumentException("On-demand extensions types must be public.");
         }
-        if (!config.extensionRegistry.hasExtensionFor(extensionType)) {
+        if (!getConfig(Extensions.class).hasExtensionFor(extensionType)) {
             throw new NoSuchExtensionException("Extension not found: " + extensionType);
         }
 

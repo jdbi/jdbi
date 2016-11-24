@@ -11,12 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.array;
 
 import java.util.Optional;
-
-import org.jdbi.v3.core.argument.SqlArrayType;
-import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
 
 class VendorSupportedArrayType<T> implements SqlArrayType<T> {
     static <T> SqlArrayTypeFactory factory(Class<T> type, String sqlTypeName) {

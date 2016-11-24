@@ -69,7 +69,7 @@ public class TestOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() throws Exception {
-        handle.registerArgumentFactory(new NameArgumentFactory());
+        handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
@@ -107,7 +107,7 @@ public class TestOptional {
 
     @Test
     public void testBindOptionalOfCustomType() throws Exception {
-        handle.registerArgumentFactory(new NameArgumentFactory());
+        handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
@@ -144,7 +144,7 @@ public class TestOptional {
 
     class NameArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class) {
                 Name nameValue = (Name) value;
                 return Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));

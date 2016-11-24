@@ -24,6 +24,7 @@ import java.util.Locale;
 import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.BeanMapper;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.statement.StatementBuilder;
@@ -44,7 +45,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
 {
     private final RowMapper<ResultType> mapper;
 
-    Query(JdbiConfig config,
+    Query(ConfigRegistry config,
           Binding params,
           RowMapper<ResultType> mapper,
           Handle handle,
@@ -112,10 +113,10 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see Jdbi#registerRowMapper(RowMapper)
-     * @see Jdbi#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapper)
+     * @see RowMappers#register(RowMapper)
+     * @see RowMappers#register(RowMapperFactory)
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(RowMapperFactory)
      */
     @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(Class<T> resultType)
@@ -131,10 +132,10 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map rows to the desired type
      *
-     * @see Jdbi#registerRowMapper(RowMapper)
-     * @see Jdbi#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapper)
+     * @see RowMappers#register(RowMapper)
+     * @see RowMappers#register(RowMapperFactory)
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(RowMapperFactory)
      */
     @SuppressWarnings("unchecked")
     public <T> Query<T> mapTo(GenericType<T> resultType)
@@ -149,10 +150,10 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return a new query instance which will map to the desired type
      *
-     * @see Jdbi#registerRowMapper(RowMapper)
-     * @see Jdbi#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapperFactory)
-     * @see Handle#registerRowMapper(RowMapper)
+     * @see RowMappers#register(RowMapper)
+     * @see RowMappers#register(RowMapperFactory)
+     * @see Configurable#registerRowMapper(RowMapper)
+     * @see Configurable#registerRowMapper(RowMapperFactory)
      */
     public Query<?> mapTo(Type resultType) {
         return this.map(rowMapperForType(resultType));
@@ -160,7 +161,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
 
     public <T> Query<T> map(RowMapper<T> mapper)
     {
-        return new Query<>(config,
+        return new Query<>(getConfig(),
                 getParams(),
                 mapper,
                 getHandle(),

@@ -124,7 +124,7 @@ abstract class ResultReturnThing
         protected Type elementType(StatementContext ctx)
         {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return ctx.elementTypeFor(returnType).orElse(returnType);
+            return ctx.findElementTypeFor(returnType).orElse(returnType);
         }
     }
 

@@ -18,10 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Type;
 import java.util.List;
 import com.google.common.base.Optional;
+
+import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.util.GenericType;
@@ -71,7 +72,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() throws Exception {
-        handle.registerArgumentFactory(new NameArgumentFactory());
+        handle.registerArgument(new NameArgumentFactory());
         handle.createQuery(SELECT_BY_NAME)
                 .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
@@ -109,7 +110,7 @@ public class TestGuavaOptional {
 
     @Test
     public void testBindOptionalOfCustomType() throws Exception {
-        handle.registerArgumentFactory(new NameArgumentFactory());
+        handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
@@ -146,7 +147,7 @@ public class TestGuavaOptional {
 
     class NameArgumentFactory implements ArgumentFactory {
         @Override
-        public java.util.Optional<Argument> build(Type expectedType, Object value, StatementContext ctx) {
+        public java.util.Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class) {
                 Name nameValue = (Name) value;
                 return java.util.Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));

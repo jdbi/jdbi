@@ -16,21 +16,20 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.ConfigRegistry;
 
 /**
  * Factory interface used to produce column mappers.
  */
 @FunctionalInterface
-public interface ColumnMapperFactory
-{
+public interface ColumnMapperFactory {
     /**
      * Supplies a column mapper which will map columns to type if the factory supports it; empty otherwise.
      *
-     * @param type the target type to map to
-     * @param ctx the statement context.
+     * @param type   the target type to map to
+     * @param config the config registry, for composition
      * @return a column mapper for the given type if this factory supports it, or <code>Optional.empty()</code> otherwise.
-     * @see StatementContext#findColumnMapperFor(Type)
+     * @see ConfigRegistry#findColumnMapperFor(Type) for composition
      */
-    Optional<ColumnMapper<?>> build(Type type, StatementContext ctx);
+    Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config);
 }

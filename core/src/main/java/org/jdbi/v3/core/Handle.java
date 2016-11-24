@@ -21,23 +21,12 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.SqlArrayType;
-import org.jdbi.v3.core.argument.SqlArrayTypeFactory;
-import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
-import org.jdbi.v3.core.extension.ExtensionConfig;
-import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.DefaultMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.transaction.TransactionCallback;
@@ -51,27 +40,41 @@ import org.slf4j.LoggerFactory;
  * This represents a connection to the database system. It usually is a wrapper around
  * a JDBC Connection object.
  */
-public class Handle implements Closeable
+public class Handle implements Closeable, Configurable<Handle>
 {
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
-    protected final JdbiConfig config;
-    protected StatementBuilder statementBuilder;
+    private final TransactionHandler transactions;
+    private final Connection connection;
+
+    private ThreadLocal<ConfigRegistry> config;
+    private ThreadLocal<ExtensionMethod> extensionMethod;
+    private StatementBuilder statementBuilder;
+
     private boolean closed = false;
-    protected final TransactionHandler transactions;
-    protected final Connection connection;
 
-    private ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
-
-    Handle(JdbiConfig config,
-            TransactionHandler transactions,
-            StatementBuilder preparedStatementCache,
-            Connection connection)
-    {
-        this.config = config;
-        this.statementBuilder = preparedStatementCache;
+    Handle(ConfigRegistry config,
+           TransactionHandler transactions,
+           StatementBuilder statementBuilder,
+           Connection connection) {
         this.transactions = transactions;
         this.connection = connection;
+
+        this.config = ThreadLocal.withInitial(() -> config);
+        this.extensionMethod = new ThreadLocal<>();
+        this.statementBuilder = statementBuilder;
+    }
+
+    public ConfigRegistry getConfig() {
+        return config.get();
+    }
+
+    void setConfig(ConfigRegistry config) {
+        this.config.set(config);
+    }
+
+    void setConfigThreadLocal(ThreadLocal<ConfigRegistry> config) {
+        this.config = config;
     }
 
     /**
@@ -84,171 +87,12 @@ public class Handle implements Closeable
     }
 
     /**
-     * Define a statement attribute which will be applied to all {@link StatementContext}
-     * instances for statements created from this handle.
-     *
-     * @param key Attribute name
-     * @param value Attribute value
-     * @return this
-     */
-    public Handle define(String key, Object value) {
-        config.statementAttributes.put(key, value);
-        return this;
-    }
-
-    public Handle registerArgumentFactory(ArgumentFactory argumentFactory) {
-        config.argumentRegistry.register(argumentFactory);
-        return this;
-    }
-
-    /**
-     * Register an array element type that is supported by the JDBC vendor.
-     *
-     * @param elementType the array element type
-     * @param sqlTypeName the vendor-specific SQL type name for the array type.  This value will be passed to
-     *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
-     * @return this
-     */
-    public Handle registerArrayType(Class<?> elementType, String sqlTypeName)
-    {
-        config.argumentRegistry.registerArrayType(elementType, sqlTypeName);
-        return this;
-    }
-
-    /**
-     * Register a {@link SqlArrayType} which will have its parameterized type inspected to determine which element type
-     * it supports. {@link SqlArrayType SQL array types} are used to convert array-like arguments into SQL arrays.
-     * <p>
-     * The parameter must be concretely parameterized; we use the type argument {@code T} to determine if it applies to
-     * a given element type.
-     *
-     * @param arrayType the {@link SqlArrayType}
-     * @return this
-     * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
-     */
-    public Handle registerArrayType(SqlArrayType<?> arrayType)
-    {
-        config.argumentRegistry.registerArrayType(arrayType);
-        return this;
-    }
-
-    /**
-     * Register a {@link SqlArrayTypeFactory}. A factory is provided element types and, if it supports it, provides an
-     * {@link SqlArrayType} for it.
-     *
-     * @param factory the factory
-     * @return this
-     */
-    public Handle registerArrayType(SqlArrayTypeFactory factory)
-    {
-        config.argumentRegistry.registerArrayType(factory);
-        return this;
-    }
-
-    public Handle registerCollectorFactory(CollectorFactory factory) {
-        config.collectorRegistry.register(factory);
-        return this;
-    }
-
-    /**
-     * Register a column mapper which will have its parameterized type inspected to determine what it maps to.
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * The parameter must be concretely parameterized, we use the type argument T to
-     * determine if it applies to a given type.
-     *
-     * @param mapper the column mapper
-     * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
-     * @return this
-     */
-    public Handle registerColumnMapper(ColumnMapper<?> mapper) {
-        config.mappingRegistry.addColumnMapper(mapper);
-        return this;
-    }
-
-    /**
-     * Register a column mapper factory.
-     *
-     * Column mappers may be reused by {@link RowMapper} to map individual columns.
-     *
-     * @param factory the column mapper factory
-     * @return this
-     */
-    public Handle registerColumnMapper(ColumnMapperFactory factory) {
-        config.mappingRegistry.addColumnMapper(factory);
-        return this;
-    }
-
-    public Handle registerExtension(ExtensionFactory<?> factory) {
-        config.extensionRegistry.register(factory);
-        return this;
-    }
-
-    /**
-     * Register a row mapper which will have its parameterized type inspected to determine what it maps to.
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * The parameter must be concretely parameterized, we use the type argument T to
-     * determine if it applies to a given type.
-     *
-     * @param mapper the row mapper
-     * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
-     * @return this
-     */
-    public Handle registerRowMapper(RowMapper<?> mapper) {
-        config.mappingRegistry.addRowMapper(mapper);
-        return this;
-    }
-
-    /**
-     * Register a row mapper factory.
-     *
-     * Will be used with {@link Query#mapTo(Class)} for registered mappings.
-     *
-     * @param factory the row mapper factory
-     * @return this
-     */
-    public Handle registerRowMapper(RowMapperFactory factory) {
-        config.mappingRegistry.addRowMapper(factory);
-        return this;
-    }
-
-    /**
      * Specify the statement builder to use for this handle.
      * @param builder StatementBuilder to be used
      * @return this
      */
     public Handle setStatementBuilder(StatementBuilder builder) {
         this.statementBuilder = builder;
-        return this;
-    }
-
-    /**
-     * Allows for overiding the default statement rewriter. The default handles
-     * named parameter interpolation.
-     *
-     * @param rewriter the statement rewriter.
-     * @return this
-     */
-    public Handle setStatementRewriter(StatementRewriter rewriter) {
-        config.statementRewriter = rewriter;
-        return this;
-    }
-
-    /**
-     * Specify the class used to collect timing information. The default is inherited from the DBI used
-     * to create this Handle.
-     *
-     * @param timingCollector the timing collector
-     * @return this
-     */
-    public Handle setTimingCollector(final TimingCollector timingCollector) {
-        if (timingCollector == null) {
-            config.timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
-        }
-        else {
-            config.timingCollector = timingCollector;
-        }
         return this;
     }
 
@@ -343,7 +187,7 @@ public class Handle implements Closeable
      * @see Handle#prepareBatch(String)
      */
     public Batch createBatch() {
-        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry batchConfig = getConfig().createChild();
         return new Batch(batchConfig,
                          this.connection,
                          new StatementContext(batchConfig, extensionMethod.get()));
@@ -357,7 +201,7 @@ public class Handle implements Closeable
      * @return a batch which can have "statements" added
      */
     public PreparedBatch prepareBatch(String sql) {
-        JdbiConfig batchConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry batchConfig = getConfig().createChild();
         return new PreparedBatch(batchConfig,
                                  this,
                                  statementBuilder,
@@ -374,7 +218,7 @@ public class Handle implements Closeable
      * @return the Call
      */
     public Call createCall(String sql) {
-        JdbiConfig callConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry callConfig = getConfig().createChild();
         return new Call(callConfig,
                         this,
                         statementBuilder,
@@ -390,7 +234,7 @@ public class Handle implements Closeable
      * @return the Query
      */
     public Query<Map<String, Object>> createQuery(String sql) {
-        JdbiConfig queryConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry queryConfig = getConfig().createChild();
         return new Query<>(queryConfig,
                 new Binding(),
                 new DefaultMapper(),
@@ -420,7 +264,7 @@ public class Handle implements Closeable
      * @return the Update
      */
     public Update createUpdate(String sql) {
-        JdbiConfig updateConfig = JdbiConfig.copyOf(config);
+        ConfigRegistry updateConfig = getConfig().createChild();
         return new Update(updateConfig,
                           this,
                           statementBuilder,
@@ -648,19 +492,16 @@ public class Handle implements Closeable
      * @return the new extension object bound to this handle
      */
     public <T> T attach(Class<T> extensionType) {
-        return config.extensionRegistry.findExtensionFor(extensionType, ConstantHandleSupplier.of(this))
+        return getConfig(Extensions.class)
+                .findFor(extensionType, ConstantHandleSupplier.of(this))
                 .orElseThrow(() -> new NoSuchExtensionException("Extension not found: " + extensionType));
-    }
-
-    public <C extends ExtensionConfig<C>> void configureExtension(Class<C> configClass, Consumer<C> consumer) {
-        config.extensionRegistry.configure(configClass, consumer);
     }
 
     public ExtensionMethod getExtensionMethod() {
         return extensionMethod.get();
     }
 
-    public void setExtensionMethod(ExtensionMethod extensionMethod) {
+    void setExtensionMethod(ExtensionMethod extensionMethod) {
         this.extensionMethod.set(extensionMethod);
     }
 

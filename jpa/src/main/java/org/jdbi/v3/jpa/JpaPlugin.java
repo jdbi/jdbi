@@ -14,14 +14,13 @@
 package org.jdbi.v3.jpa;
 
 import com.google.auto.service.AutoService;
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
 @AutoService(JdbiPlugin.class)
 public class JpaPlugin implements JdbiPlugin {
     @Override
-    public Handle customizeHandle(Handle handle) {
-        handle.registerRowMapper(new JpaMapperFactory());
-        return handle;
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerRowMapper(new JpaMapperFactory());
     }
 }
