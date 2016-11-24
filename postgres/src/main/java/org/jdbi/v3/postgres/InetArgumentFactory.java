@@ -29,7 +29,7 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
  */
 public class InetArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<Argument> build(Type type, ConfigRegistry config) {
+    public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
         if (InetAddress.class.isAssignableFrom(getErasedType(type))) {
             return Optional.of((p, i, value, cx) -> p.setObject(i, ((InetAddress) value).getHostAddress(), Types.OTHER));
         }

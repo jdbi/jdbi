@@ -123,7 +123,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type expectedType, ConfigRegistry config)
+    public Optional<Argument<?>> build(Type expectedType, ConfigRegistry config)
     {
         Class<?> expectedClass = getErasedType(expectedType);
 
@@ -143,32 +143,43 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         }
 
         if (Optional.class.equals(expectedClass)) {
-            Optional<Argument> argument = findGenericParameter(expectedType, Optional.class)
+            Optional<Argument<?>> argument = findGenericParameter(expectedType, Optional.class)
                     .flatMap(config::findArgumentFor)
-                    .map(this::applyOptional);
+                    .map(OptionalArgument::new);
 
             return argument.isPresent()
                     ? argument
-                    : Optional.of(bestEffortOptionalArgument());
+                    : Optional.of(new BestEffortOptionalArgument());
         }
 
         return Optional.empty();
     }
 
-    private <T> Argument<Optional<T>> applyOptional(Argument<T> delegate) {
-        return (stmt, pos, arg, ctx) -> delegate.apply(stmt, pos, arg.orElse(null), ctx);
+    private static class OptionalArgument<T> implements Argument<Optional<T>> {
+        private final Argument<T> delegate;
+
+        OptionalArgument(Argument<T> delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void apply(PreparedStatement statement, int position, Optional<T> value, StatementContext ctx) throws SQLException {
+            delegate.apply(statement, position, value.orElse(null), ctx);
+        }
     }
 
     @SuppressWarnings("unchecked")
-    private Argument<Optional> bestEffortOptionalArgument() {
-        // no static type information -- best effort based on runtime type information
-        return (stmt, pos, value, ctx) -> {
-            Object nested = value.orElseGet(NullValue::new);
-            ctx.findArgumentFor(nested.getClass())
+    private static class BestEffortOptionalArgument implements Argument<Optional> {
+        @Override
+        public void apply(PreparedStatement statement, int position, Optional value, StatementContext ctx) throws SQLException {
+            // no static type information -- best effort based on runtime type information
+            Object nestedValue = value.orElseGet(NullValue::new);
+
+            Argument<Object> argument = (Argument<Object>) ctx.findArgumentFor(nestedValue.getClass())
                     .orElseThrow(() -> new UnsupportedOperationException(
-                            "No argument registered for value " + nested + " of type " + nested.getClass()))
-                    .apply(stmt, pos, nested, ctx);
-        };
+                            "No argument registered for value " + nestedValue + " of type " + nestedValue.getClass()));
+            argument.apply(statement, position, nestedValue, ctx);
+        }
     }
 
     @FunctionalInterface

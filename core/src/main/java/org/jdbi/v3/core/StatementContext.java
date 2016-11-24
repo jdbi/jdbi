@@ -119,7 +119,17 @@ public class StatementContext implements Closeable
      * @param type  the type of the argument.
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findArgumentFor(Type type) {
+    public <T> Optional<Argument<T>> findArgumentFor(Class<T> type) {
+        return config.findArgumentFor(type);
+    }
+
+    /**
+     * Obtain an argument for given value in this context
+     *
+     * @param type  the type of the argument.
+     * @return an Argument for the given value.
+     */
+    public Optional<Argument<?>> findArgumentFor(Type type) {
         return config.findArgumentFor(type);
     }
 

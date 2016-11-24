@@ -29,7 +29,7 @@ import org.jdbi.v3.core.argument.ObjectArgument;
 public class JavaTimeArgumentFactory implements ArgumentFactory {
 
     @Override
-    public Optional<Argument> build(Type type, ConfigRegistry config) {
+    public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
         if (type == LocalDate.class) {
             return Optional.of(new ObjectArgument(Types.DATE));
         }

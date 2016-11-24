@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -131,9 +132,9 @@ public class TestBeanArguments
         new BeanPropertyArguments("foo", bean, ctx).find("foo.bar");
     }
 
+    @SuppressWarnings("unchecked")
     private void applyArgument(int position, BoundArgument argument) throws SQLException {
-        ctx.findArgumentFor(argument.getType())
-                .get()
-                .apply(stmt, position, argument.getValue(), ctx);
+        Argument<Object> arg = (Argument<Object>) ctx.findArgumentFor(argument.getType()).get();
+        arg.apply(stmt, position, argument.getValue(), ctx);
     }
 }

@@ -94,7 +94,18 @@ public class ConfigRegistry {
      * @param type  the type of the argument.
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findArgumentFor(Type type) {
+    public <T> Optional<Argument<T>> findArgumentFor(Class<T> type) {
+        Argument<T> argument = (Argument<T>) findArgumentFor((Type) type).orElse(null);
+        return Optional.ofNullable(argument);
+    }
+
+    /**
+     * Obtain an argument for given value
+     *
+     * @param type  the type of the argument.
+     * @return an Argument for the given value.
+     */
+    public Optional<Argument<?>> findArgumentFor(Type type) {
         return get(Arguments.class).findFor(type, this);
     }
 

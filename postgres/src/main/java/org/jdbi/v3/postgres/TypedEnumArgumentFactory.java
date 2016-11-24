@@ -29,7 +29,7 @@ import org.jdbi.v3.core.util.GenericTypes;
  */
 public class TypedEnumArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<Argument> build(Type type, ConfigRegistry config) {
+    public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
         if (!GenericTypes.getErasedType(type).isEnum()) {
             return Optional.empty();
         }

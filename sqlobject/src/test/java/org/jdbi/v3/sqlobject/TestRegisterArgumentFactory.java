@@ -65,7 +65,7 @@ public class TestRegisterArgumentFactory
     public static class NameAF implements ArgumentFactory
     {
         @Override
-        public Optional<Argument> build(Type expectedType, ConfigRegistry config) {
+        public Optional<Argument<?>> build(Type expectedType, ConfigRegistry config) {
             if (expectedType == Name.class) {
                 Argument<Name> argument = (stmt, pos, value, ctx) -> stmt.setString(pos, value.getFullName());
                 return Optional.of(argument);

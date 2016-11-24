@@ -31,8 +31,9 @@ public interface ArgumentFactory
      * @param config the config registry, for composition
      * @return an argument for the given value if this factory supports it, or <code>Optional.empty()</code> otherwise.
      * @see ConfigRegistry#findArgumentFor(Type) for composeable argument types.
+     * @see StatementContext#findArgumentFor(Class)
      * @see StatementContext#findArgumentFor(Type)
      * @see Arguments#findFor(Type, ConfigRegistry)
      */
-    Optional<Argument> build(Type type, ConfigRegistry config);
+    Optional<Argument<?>> build(Type type, ConfigRegistry config);
 }

@@ -69,10 +69,10 @@ public class GuavaArguments {
                           com.google.common.base.Optional value,
                           StatementContext ctx) throws SQLException {
             Object nested = value.or(NullValue::new);
-            ctx.findArgumentFor(nested.getClass())
+            Argument<Object> argument = (Argument<Object>) ctx.findArgumentFor(nested.getClass())
                     .orElseThrow(() -> new UnsupportedOperationException(
-                            "No argument registered for value " + nested + " of type " + nested.getClass()))
-                    .apply(statement, position, nested, ctx);
+                            "No argument registered for value " + nested + " of type " + nested.getClass()));
+            argument.apply(statement, position, nested, ctx);
         }
     }
 
@@ -80,9 +80,9 @@ public class GuavaArguments {
 
         @SuppressWarnings("unchecked")
         @Override
-        public Optional<Argument> build(Type expectedType, ConfigRegistry config) {
+        public Optional<Argument<?>> build(Type expectedType, ConfigRegistry config) {
             if (com.google.common.base.Optional.class.isAssignableFrom(getErasedType(expectedType))) {
-                Optional<Argument> argument = findGenericParameter(expectedType, com.google.common.base.Optional.class)
+                Optional<Argument<?>> argument = findGenericParameter(expectedType, com.google.common.base.Optional.class)
                         .flatMap(config::findArgumentFor)
                         .map(OptionalArgument::new);
 

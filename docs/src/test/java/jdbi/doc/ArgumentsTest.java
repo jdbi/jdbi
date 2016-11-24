@@ -76,7 +76,7 @@ public class ArgumentsTest {
     // tag::uuidArgumentFactory[]
     static class UUIDArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type type, ConfigRegistry config) {
+        public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
             return type == UUID.class ?
                     Optional.of(new UUIDArgument()) :
                     Optional.empty();

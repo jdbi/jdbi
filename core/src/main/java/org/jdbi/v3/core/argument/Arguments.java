@@ -71,7 +71,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @param config the config registry, for composition
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findFor(Type type, ConfigRegistry config) {
+    public Optional<Argument<?>> findFor(Type type, ConfigRegistry config) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since arguments can decorate other arguments, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
@@ -82,7 +82,7 @@ public class Arguments implements JdbiConfig<Arguments> {
             return Optional.of(cached);
         }
 
-        Optional<Argument> argument = findFirstPresent(
+        Optional<Argument<?>> argument = findFirstPresent(
                 () -> argumentFactories.stream()
                         .flatMap(factory -> toStream(factory.build(type, config)))
                         .findFirst(),

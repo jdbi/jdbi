@@ -38,7 +38,7 @@ class InferredArgumentFactory implements ArgumentFactory {
     }
 
     @Override
-    public Optional<Argument> build(Type type, ConfigRegistry config) {
+    public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
         return binds.equals(type)
                 ? Optional.of(argument)
                 : Optional.empty();

@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
@@ -23,6 +22,7 @@ import java.sql.Types;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jdbi.v3.core.argument.Argument;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -56,9 +56,9 @@ public class TestMapArguments {
         verify(stmt).setNull(3, Types.NULL);
     }
 
+    @SuppressWarnings("unchecked")
     private void applyArgument(int position, BoundArgument argument) throws SQLException {
-        ctx.findArgumentFor(argument.getType())
-                .get()
-                .apply(stmt, position, argument.getValue(), ctx);
+        Argument<Object> arg = (Argument<Object>) ctx.findArgumentFor(argument.getType()).get();
+        arg.apply(stmt, position, argument.getValue(), ctx);
     }
 }

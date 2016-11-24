@@ -95,7 +95,7 @@ public class TestArgumentsRegistry
     private static class WeirdArgumentFactory implements ArgumentFactory
     {
         @Override
-        public Optional<Argument> build(Type expectedType, ConfigRegistry config) {
+        public Optional<Argument<?>> build(Type expectedType, ConfigRegistry config) {
             return getErasedType(expectedType) == Weird.class
                     ? Optional.of(new WeirdArgument())
                     : Optional.empty();
