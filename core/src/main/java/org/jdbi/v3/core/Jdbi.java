@@ -275,7 +275,7 @@ public class Jdbi implements Configurable<Jdbi>
             }
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-            Handle h = new Handle(config.createChild(), transactionhandler.get(), cache, conn);
+            Handle h = new Handle(config.createCopy(), transactionhandler.get(), cache, conn);
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }

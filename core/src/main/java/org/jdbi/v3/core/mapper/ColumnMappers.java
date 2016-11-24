@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 import java.lang.reflect.Type;
@@ -27,19 +26,17 @@ import org.jdbi.v3.core.JdbiConfig;
 import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
-    private final Optional<ColumnMappers> parent;
-
     private final List<ColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
 
     public ColumnMappers() {
-        parent = Optional.empty();
         factories.add(new BuiltInMapperFactory());
         factories.add(new SqlArrayMapperFactory());
     }
 
     private ColumnMappers(ColumnMappers that) {
-        parent = Optional.of(that);
+        factories.addAll(that.factories);
+        cache.putAll(that.cache);
     }
 
     /**
@@ -88,11 +85,9 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
             return Optional.of(cached);
         }
 
-        Optional<ColumnMapper<?>> mapper = findFirstPresent(
-                () -> factories.stream()
-                        .flatMap(factory -> toStream(factory.build(type, config)))
-                        .findFirst(),
-                () -> parent.flatMap(p -> p.findFor(type, config)));
+        Optional<ColumnMapper<?>> mapper = factories.stream()
+                .flatMap(factory -> toStream(factory.build(type, config)))
+                .findFirst();
 
         mapper.ifPresent(m -> cache.put(type, m));
 
@@ -100,7 +95,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     }
 
     @Override
-    public ColumnMappers createChild() {
+    public ColumnMappers createCopy() {
         return new ColumnMappers(this);
     }
 }
