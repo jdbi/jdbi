@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 import java.lang.reflect.Type;
@@ -26,18 +25,15 @@ import org.jdbi.v3.core.JdbiConfig;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 
 public class Arguments implements JdbiConfig<Arguments> {
-
-    private final Optional<Arguments> parent;
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
 
     public Arguments() {
-        parent = Optional.empty();
         register(BuiltInArgumentFactory.INSTANCE);
         register(new SqlArrayArgumentFactory());
     }
 
     private Arguments(Arguments that) {
-        parent = Optional.of(that);
+        argumentFactories.addAll(that.argumentFactories);
     }
 
     public Arguments register(ArgumentFactory factory) {
@@ -54,15 +50,13 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return an Argument for the given value.
      */
     public Optional<Argument> findFor(Type type, Object value, ConfigRegistry config) {
-        return findFirstPresent(
-                () -> argumentFactories.stream()
-                        .flatMap(factory -> toStream(factory.build(type, value, config)))
-                        .findFirst(),
-                () -> parent.flatMap(p -> p.findFor(type, value, config)));
+        return argumentFactories.stream()
+                .flatMap(factory -> toStream(factory.build(type, value, config)))
+                .findFirst();
     }
 
     @Override
-    public Arguments createChild() {
+    public Arguments createCopy() {
         return new Arguments(this);
     }
 }

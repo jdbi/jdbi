@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.extension;
 
-import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -23,15 +21,13 @@ import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.JdbiConfig;
 
 public class Extensions implements JdbiConfig<Extensions> {
-    private final Optional<Extensions> parent;
     private final List<ExtensionFactory> factories = new CopyOnWriteArrayList<>();
 
     public Extensions() {
-        this.parent = Optional.empty();
     }
 
     private Extensions(Extensions that) {
-        this.parent = Optional.of(that);
+        factories.addAll(that.factories);
     }
 
     public Extensions register(ExtensionFactory factory) {
@@ -49,24 +45,20 @@ public class Extensions implements JdbiConfig<Extensions> {
     }
 
     private Optional<ExtensionFactory> findFactoryFor(Class<?> extensionType) {
-        return findFirstPresent(
-                () -> factories.stream()
-                        .filter(factory -> factory.accepts(extensionType))
-                        .findFirst(),
-                () -> parent.flatMap(p -> p.findFactoryFor(extensionType)));
+        return factories.stream()
+                .filter(factory -> factory.accepts(extensionType))
+                .findFirst();
     }
 
     public <F extends ExtensionFactory> Optional<F> findFactory(Class<F> factoryType) {
-        return findFirstPresent(
-                () -> factories.stream()
-                        .filter(factoryType::isInstance)
-                        .map(factoryType::cast)
-                        .findFirst(),
-                () -> parent.flatMap(p -> p.findFactory(factoryType)));
+        return factories.stream()
+                .filter(factoryType::isInstance)
+                .map(factoryType::cast)
+                .findFirst();
     }
 
     @Override
-    public Extensions createChild() {
+    public Extensions createCopy() {
         return new Extensions(this);
     }
 }

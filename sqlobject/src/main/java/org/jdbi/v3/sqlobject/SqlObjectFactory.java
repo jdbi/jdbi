@@ -86,7 +86,7 @@ public class SqlObjectFactory implements ExtensionFactory {
     public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
         Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
-        ConfigRegistry instanceConfig = handle.getConfig().createChild();
+        ConfigRegistry instanceConfig = handle.getConfig().createCopy();
         forEachConfigurerFactory(extensionType, (factory, annotation) ->
                 factory.createForType(annotation, extensionType).accept(instanceConfig));
 
@@ -268,7 +268,7 @@ public class SqlObjectFactory implements ExtensionFactory {
         return (proxy, method, args) -> {
             Handler handler = handlers.get(method);
 
-            ConfigRegistry methodConfig = instanceConfig.createChild();
+            ConfigRegistry methodConfig = instanceConfig.createCopy();
             forEachConfigurerFactory(method, (factory, annotation) ->
                     factory.createForMethod(annotation, sqlObjectType, method).accept(methodConfig));
 

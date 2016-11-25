@@ -29,8 +29,8 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
         sqlLocator = new AnnotationSqlLocator();
     }
 
-    private SqlObjects(SqlObjects parent) {
-        this.sqlLocator = parent.sqlLocator;
+    private SqlObjects(SqlObjects that) {
+        sqlLocator = that.sqlLocator;
     }
 
     /**
@@ -54,7 +54,7 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
     }
 
     @Override
-    public SqlObjects createChild() {
+    public SqlObjects createCopy() {
         return new SqlObjects(this);
     }
 }
