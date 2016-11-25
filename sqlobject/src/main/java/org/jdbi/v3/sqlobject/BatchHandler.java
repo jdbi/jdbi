@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.PreparedBatch;
-import org.jdbi.v3.core.ResultBearing;
 import org.jdbi.v3.core.ResultIterator;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.StatementExecutor;
@@ -41,7 +40,7 @@ class BatchHandler extends CustomizingStatementHandler
     private final Class<?> sqlObjectType;
     private final SqlBatch sqlBatch;
     private final ChunkSizeFunction batchChunkSize;
-    private final Function<PreparedBatch, ResultBearing<?>> batchIntermediate;
+    private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
     private final ResultReturner magic;
 
     BatchHandler(Class<?> sqlObjectType, Method method)
@@ -64,9 +63,9 @@ class BatchHandler extends CustomizingStatementHandler
             magic = ResultReturner.forMethod(sqlObjectType, method);
             final Function<StatementContext, RowMapper<?>> mapper = ctx -> ResultReturner.rowMapperFor(getGeneratedKeys, magic.elementType(ctx));
             if (getGeneratedKeys.columnName().isEmpty()) {
-                batchIntermediate = batch -> batch.executeAndGenerateKeys(mapper.apply(batch.getContext()));
+                batchIntermediate = batch -> batch.executeAndGenerateKeys(mapper.apply(batch.getContext())).iterator();
             } else {
-                batchIntermediate = batch -> batch.executeAndGenerateKeys(mapper.apply(batch.getContext()), getGeneratedKeys.columnName());
+                batchIntermediate = batch -> batch.executeAndGenerateKeys(mapper.apply(batch.getContext()), getGeneratedKeys.columnName()).iterator();
             }
         }
     }
@@ -117,6 +116,11 @@ class BatchHandler extends CustomizingStatementHandler
 
         ResultIterator<Object> result = new ResultIterator<Object>() {
             ResultIterator<?> batchResult;
+
+            {
+                hasNext(); // Ensure our batchResult is prepared, so we can get its context
+            }
+
             @Override
             public boolean hasNext() {
                 // first, any elements already buffered?
@@ -137,7 +141,7 @@ class BatchHandler extends CustomizingStatementHandler
                 for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
                     applyBinders(batch.add(), batchArgs.next());
                 }
-                batchResult = executeBatch(handle, batch).iterator();
+                batchResult = executeBatch(handle, batch);
                 return hasNext(); // recurse to ensure we actually got elements
             }
 
@@ -228,7 +232,7 @@ class BatchHandler extends CustomizingStatementHandler
         };
     }
 
-    private ResultBearing<?> executeBatch(final Handle handle, final PreparedBatch batch)
+    private ResultIterator<?> executeBatch(final Handle handle, final PreparedBatch batch)
     {
         if (!handle.isInTransaction() && sqlBatch.transactional()) {
             // it is safe to use same prepared batch as the inTransaction passes in the same

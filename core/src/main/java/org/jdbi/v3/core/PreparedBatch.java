@@ -28,12 +28,12 @@ import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.util.GenericType;
-import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +70,9 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
         return (int[]) internalBatchExecute(null, null);
     }
 
-    public ResultBearing<Integer> executeAndGetModCount() {
+    public ResultIterator<Integer> executeAndGetModCount() {
         final int[] modCount = execute();
-        return () -> new ResultIterator<Integer>() {
+        return new ResultIterator<Integer>() {
             int pos = 0;
             @Override
             public boolean hasNext() {
