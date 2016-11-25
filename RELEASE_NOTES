@@ -1,6 +1,7 @@
 2.78
   - @BindIn: fix handling of empty lists on Postgres
   - clear SqlObject ThreadLocals on close, fixes leak on e.g. webapp reload
+  - expose Script.getStatements()
 
 2.77
   - Improved BindIn functionality: can now process Iterables and arrays/varargs 
