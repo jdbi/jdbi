@@ -86,4 +86,10 @@ public class GeneratedKeys<T> implements ResultBearing<T>
             throw new UnableToExecuteStatementException(e, context);
         }
     }
+
+    @Override
+    public StatementContext getContext()
+    {
+        return context;
+    }
 }

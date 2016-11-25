@@ -40,6 +40,11 @@ public interface ResultBearing<T> extends Iterable<T>
     <R> R execute(StatementExecutor<T, R> executor);
 
     /**
+     * @return the current statement context
+     */
+    StatementContext getContext();
+
+    /**
      * Stream all the rows of the result set out
      * with an {@code Iterator}.  The {@code Iterator} must be
      * closed to release database resources.
