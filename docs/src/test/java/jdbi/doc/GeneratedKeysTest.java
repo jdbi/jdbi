@@ -18,8 +18,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.PGDatabaseRule;
-import org.jdbi.v3.core.mapper.ConstructorMapper;
+import org.jdbi.v3.core.PgDatabaseRule;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.v3.postgres.PostgresJdbiPlugin;
 import org.jdbi.v3.sqlobject.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.SqlBatch;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
@@ -29,12 +30,14 @@ import org.junit.Test;
 
 public class GeneratedKeysTest {
     @Rule
-    public PGDatabaseRule db = new PGDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule db = new PgDatabaseRule()
+        .withPlugin(new SqlObjectPlugin())
+        .withPlugin(new PostgresJdbiPlugin());
     private Jdbi dbi;
 
     @Before
     public void getHandle() {
-        dbi = db.getDbi();
+        dbi = db.getJdbi();
     }
 
     // tag::setup[]
@@ -51,7 +54,7 @@ public class GeneratedKeysTest {
     @Before
     public void setUp() throws Exception {
         dbi.useHandle(h -> h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)"));
-        dbi.registerRowMapper(ConstructorMapper.factoryFor(User.class));
+        dbi.registerRowMapper(ConstructorMapper.of(User.class));
     }
     // end::setup[]
 
@@ -59,7 +62,7 @@ public class GeneratedKeysTest {
     // tag::fluent[]
     public void fluentInsertKeys() {
         dbi.useHandle(handle -> {
-            User data = handle.createStatement("INSERT INTO users (name) VALUES(?)")
+            User data = handle.createUpdate("INSERT INTO users (name) VALUES(?)")
                     .bind(0, "Data")
                     .executeAndReturnGeneratedKeys(User.class)
                     .findOnly();
@@ -88,7 +91,7 @@ public class GeneratedKeysTest {
         });
     }
 
-    interface UserDao {
+    public interface UserDao {
         @SqlBatch("INSERT INTO users (name) VALUES(?)")
         @GetGeneratedKeys
         List<User> createUsers(String... names);
