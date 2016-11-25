@@ -48,9 +48,6 @@ class DefaultObjectBinder implements BinderFactory<Bind, Object>
                     type = ((Class<?>) type).getComponentType();
                 }
             }
-            else if (GenericTypes.isArray(type)) {
-                type = ((Class<?>)type).getComponentType();
-            }
 
             q.bindByType(index, arg, type);
             q.bindByType(name, arg, type);

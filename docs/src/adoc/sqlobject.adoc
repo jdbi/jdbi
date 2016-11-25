@@ -33,3 +33,13 @@ include::SqlObjectTest.java[tags=find-by-id]
 
 There are also `@SqlBatch` and `@SqlCall` annotations.
 Check out the Javadoc for more information.
+
+== @SingleValue
+
+Sometimes when using advanced SQL features like Arrays,
+a container type like `int[]` or `List<Integer>` can
+ambiguously mean either "a single SQL int[]" or 
+"a ResultSet of int".  Since arrays are not commonly
+used in normalized schema, jdbi assumes that you are collecting
+a ResultSet into a container object.  You can annotate a return
+type as `@SingleValue` to override this.

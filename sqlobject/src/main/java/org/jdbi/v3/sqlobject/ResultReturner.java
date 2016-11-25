@@ -85,6 +85,9 @@ abstract class ResultReturner
         else if (Iterator.class.isAssignableFrom(returnClass)) {
             return new IteratorResultReturner(returnType);
         }
+        else if (method.getAnnotation(SingleValue.class) != null) {
+            return new SingleValueResultReturner(returnType);
+        }
         else if (returnClass.isArray()) {
             return new ArrayResultReturner(returnClass.getComponentType());
         }
@@ -146,10 +149,9 @@ abstract class ResultReturner
         @SuppressWarnings({ "unchecked", "rawtypes" })
         protected Object result(ResultBearing<?> bearer)
         {
-            StreamReturner delegate = new StreamReturner();
             Collector collector = bearer.getContext().findCollectorFor(returnType).orElse(null);
             if (collector != null) {
-                return delegate.result(bearer).collect(collector);
+                return bearer.collect(collector);
             }
             return bearer.findFirst().orElse(null);
         }
@@ -159,6 +161,28 @@ abstract class ResultReturner
         {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
             return ctx.findElementTypeFor(returnType).orElse(returnType);
+        }
+    }
+
+    static class SingleValueResultReturner extends ResultReturner
+    {
+        private final Type returnType;
+
+        SingleValueResultReturner(Type returnType)
+        {
+            this.returnType = returnType;
+        }
+
+        @Override
+        protected Object result(ResultBearing<?> bearer)
+        {
+            return bearer.findFirst().orElse(null);
+        }
+
+        @Override
+        protected Type elementType(StatementContext ctx)
+        {
+            return returnType;
         }
     }
 

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
@@ -28,6 +27,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.BindBean;
+import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.SqlBatch;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
@@ -75,29 +75,25 @@ public class TestSqlArrays {
     @Test
     public void testUuidList() throws Exception {
         ao.insertUuidList(Arrays.asList(testUuids));
-        assertThat(ao.fetchUuidList())
-                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+        assertThat(ao.fetchUuidList()).contains(testUuids);
     }
 
     @Test
     public void testUuidArrayList() throws Exception {
         ao.insertUuidList(Arrays.asList(testUuids));
-        assertThat(ao.fetchUuidArrayList())
-                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+        assertThat(ao.fetchUuidArrayList()).contains(testUuids);
     }
 
     @Test
     public void testUuidLinkedList() throws Exception {
         ao.insertUuidList(Arrays.asList(testUuids));
-        assertThat(ao.fetchUuidLinkedList())
-                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+        assertThat(ao.fetchUuidLinkedList()).contains(testUuids);
     }
 
     @Test
     public void testUuidCopyOnWriteArrayList() throws Exception {
         ao.insertUuidList(Arrays.asList(testUuids));
-        assertThat(ao.fetchUuidCopyOnWriteArrayList())
-                .hasValueSatisfying(list -> assertThat(list).contains(testUuids));
+        assertThat(ao.fetchUuidCopyOnWriteArrayList()).contains(testUuids);
     }
 
     @Test
@@ -134,42 +130,46 @@ public class TestSqlArrays {
         List<Integer> testIntList = new ArrayList<Integer>();
         Arrays.stream(testInts).forEach(testIntList::add);
         ao.insertIntList(testIntList);
-        assertThat(ao.fetchIntList()).contains(testIntList);
+        assertThat(ao.fetchIntList()).containsExactlyElementsOf(testIntList);
     }
 
     public interface ArrayObject {
         @SqlQuery(U_SELECT)
+        @SingleValue
         UUID[] fetchUuidArray();
 
         @SqlUpdate(U_INSERT)
         void insertUuidArray(UUID[] uuids);
 
         @SqlQuery(U_SELECT)
-        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
-        Optional<List<UUID>> fetchUuidList();
+        @SingleValue
+        List<UUID> fetchUuidList();
 
         @SqlQuery(U_SELECT)
-        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
-        Optional<ArrayList<UUID>> fetchUuidArrayList();
+        @SingleValue
+        ArrayList<UUID> fetchUuidArrayList();
 
         @SqlQuery(U_SELECT)
-        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
-        Optional<LinkedList<UUID>> fetchUuidLinkedList();
+        @SingleValue
+        LinkedList<UUID> fetchUuidLinkedList();
 
         @SqlQuery(U_SELECT)
-        // Wrap in an Optional container, so SQL object knows that the row type is List<UUID>, not UUID
-        Optional<CopyOnWriteArrayList<UUID>> fetchUuidCopyOnWriteArrayList();
+        @SingleValue
+        CopyOnWriteArrayList<UUID> fetchUuidCopyOnWriteArrayList();
 
         @SqlUpdate(U_INSERT)
         void insertUuidList(List<UUID> u);
 
         @SqlQuery(I_SELECT)
+        @SingleValue
         int[] fetchIntArray();
 
         @SqlQuery(I_SELECT)
+        @SingleValue
         Integer[] fetchBoxedIntArray();
 
         @SqlQuery(I_SELECT)
+        @SingleValue
         Object[] fetchObjectArray();
 
         @SqlUpdate(I_INSERT)
@@ -179,8 +179,8 @@ public class TestSqlArrays {
         void insertBoxedIntArray(Integer[] ints);
 
         @SqlQuery(I_SELECT)
-        // Wrap in an Optional container, so SQL object knows that the row type is List<Integer>, not Integer
-        Optional<List<Integer>> fetchIntList();
+        @SingleValue
+        List<Integer> fetchIntList();
 
         @SqlUpdate(I_INSERT)
         void insertIntList(List<Integer> u);
