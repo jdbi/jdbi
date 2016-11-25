@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.ConstructorMapper;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;

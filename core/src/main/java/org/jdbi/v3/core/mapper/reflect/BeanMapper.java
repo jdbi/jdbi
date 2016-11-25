@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -22,10 +22,6 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,9 +30,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.util.bean.CaseInsensitiveColumnNameStrategy;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
-import org.jdbi.v3.core.util.bean.SnakeCaseColumnNameStrategy;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
