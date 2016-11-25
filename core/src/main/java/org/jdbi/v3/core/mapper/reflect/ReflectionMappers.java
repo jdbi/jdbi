@@ -43,7 +43,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     }
 
     @Override
-    public ReflectionMappers createChild() {
+    public ReflectionMappers createCopy() {
         return new ReflectionMappers(this);
     }
 }
