@@ -21,14 +21,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.junit.Rule;
 import org.junit.Test;
@@ -189,6 +190,13 @@ public class TestRegisteredMappersWork
 
         List<Something> rs = bob.listAll();
         assertThat(rs).isEmpty();
+
+    }
+
+    @Test(expected = ResultSetException.class)
+    public void testIteratorCloses() throws Exception
+    {
+        Kabob bob = db.getJdbi().onDemand(Kabob.class);
 
         Iterator<Something> itty = bob.iterateAll();
         assertThat(itty.hasNext()).isFalse();
