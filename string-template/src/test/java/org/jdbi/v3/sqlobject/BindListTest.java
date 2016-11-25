@@ -14,8 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.sqlobject.customizers.BindIn.EmptyHandling.THROW;
-import static org.jdbi.v3.sqlobject.customizers.BindIn.EmptyHandling.VOID;
+import static org.jdbi.v3.sqlobject.customizers.BindList.EmptyHandling.THROW;
+import static org.jdbi.v3.sqlobject.customizers.BindList.EmptyHandling.VOID;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,14 +27,14 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.sqlobject.customizers.BindIn;
+import org.jdbi.v3.sqlobject.customizers.BindList;
 import org.jdbi.v3.stringtemplate.UseStringTemplateStatementRewriter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class BindInTest
+public class BindListTest
 {
     private static Handle handle;
 
@@ -78,7 +78,7 @@ public class BindInTest
     public interface SomethingWithExplicitAttributeName
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
-        List<Something> get(@BindIn("ids") int... blarg);
+        List<Something> get(@BindList("ids") int... blarg);
     }
 
     //
@@ -97,7 +97,7 @@ public class BindInTest
     public interface SomethingByVarargsHandleDefault
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
-        List<Something> get(@BindIn int... ids);
+        List<Something> get(@BindList int... ids);
     }
 
     //
@@ -136,7 +136,7 @@ public class BindInTest
     public interface SomethingByArrayHandleVoid
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
-        List<Something> get(@BindIn(onEmpty = VOID) int[] ids);
+        List<Something> get(@BindList(onEmpty = VOID) int[] ids);
     }
 
     //
@@ -161,7 +161,7 @@ public class BindInTest
     private interface SomethingByArrayHandleThrow
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
-        List<Something> get(@BindIn(onEmpty = THROW) int[] ids);
+        List<Something> get(@BindList(onEmpty = THROW) int[] ids);
     }
 
     //
@@ -197,7 +197,7 @@ public class BindInTest
     public interface SomethingByIterableHandleDefault
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
-        List<Something> get(@BindIn(onEmpty = VOID) Iterable<Integer> ids);
+        List<Something> get(@BindList(onEmpty = VOID) Iterable<Integer> ids);
     }
 
     //
@@ -214,7 +214,7 @@ public class BindInTest
     private interface SomethingByIterableHandleThrow
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
-        List<Something> get(@BindIn(onEmpty = THROW) Iterable<Integer> ids);
+        List<Something> get(@BindList(onEmpty = THROW) Iterable<Integer> ids);
     }
 
     //
@@ -231,6 +231,6 @@ public class BindInTest
     private interface SomethingByIteratorHandleDefault
     {
         @SqlQuery("select id, name from something where id in (<ids>)")
-        List<Something> get(@BindIn Iterator<Integer> ids);
+        List<Something> get(@BindList Iterator<Integer> ids);
     }
 }

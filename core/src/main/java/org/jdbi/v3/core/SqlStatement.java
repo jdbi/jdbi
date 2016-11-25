@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
@@ -25,6 +27,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.jdbi.v3.core.argument.Argument;
@@ -1172,6 +1175,62 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public final This bindBySqlType(int position, Object value, int sqlType)
     {
         return bind(position, new ObjectArgument(value, sqlType));
+    }
+
+    /**
+     * Bind a parameter for each value in the given list, and defines an attribute as the comma-separated list of
+     * parameter references (using colon prefix).
+     *
+     * @param key    attribute name
+     * @param values values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the list is empty.
+     */
+    public final This bindList(String key, List<?> values) {
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was passed an empty list.");
+        }
+
+        StringBuilder names = new StringBuilder();
+
+        for (int i = 0; i < values.size(); i++) {
+            String name = "__" + key + "_" + i;
+
+            if (i > 0) {
+                names.append(',');
+            }
+            names.append(':').append(name);
+
+            bind(name, values.get(i));
+        }
+
+        return define(key, names.toString());
+    }
+
+    /**
+     * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
+     *
+     * @param key    attribute name
+     * @param values values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the list is empty, or contains any null elements.
+     */
+    public final This defineList(String key, List<?> values) {
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was passed an empty list.");
+        }
+        if (values.contains(null)) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was passed a list with null values in it.");
+        }
+
+        String value = values.stream()
+                .map(Object::toString)
+                .collect(joining(", "));
+
+        return define(key, value);
     }
 
     PreparedStatement internalExecute()

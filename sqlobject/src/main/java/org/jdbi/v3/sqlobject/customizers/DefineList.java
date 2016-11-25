@@ -37,29 +37,29 @@ import java.util.List;
  *
  * <pre>
  * &#64;SqlUpdate("insert into &lt;table&gt; (&lt;columns&gt;) values (&lt;values&gt;)")
- * int insert(@Define String table, @DefineIn List&lt;String&gt; columns, @BindIn List&lt;Object&gt; values);
+ * int insert(@Define String table, @DefineList List&lt;String&gt; columns, @BindList List&lt;Object&gt; values);
  *
  * &#64;SqlQuery("select &lt;columns&gt; from &lt;table&gt; where id = :id")
- * ResultSet select(@DefineIn("columns") List&lt;String&gt; columns, @Define("table") String table, @Bind("id") long id);
+ * ResultSet select(@DefineList("columns") List&lt;String&gt; columns, @Define("table") String table, @Bind("id") long id);
  * </pre>
  *
  * <p>
- * An array or {@code List} argument passed to {@code @DefineIn} will be converted to a comma-separated String and set
+ * An array or {@code List} argument passed to {@code @DefineList} will be converted to a comma-separated String and set
  * as a whole as a single specified attribute. Duplicate members in the {@code List} may cause SQL exceptions. An empty
  * {@code List} or {@code null} members in the {@code List} will result in an {@link IllegalArgumentException}.
  * </p>
  *
  * <p>
- * Be aware of the list members you're binding with @DefineIn, as there is no input sanitization! <b>Blindly passing
- * Strings through <code>@DefineIn</code> may make your application vulnerable to SQL Injection.</b>
+ * Be aware of the list members you're binding with @DefineList, as there is no input sanitization! <b>Blindly passing
+ * Strings through <code>@DefineList</code> may make your application vulnerable to SQL Injection.</b>
  * </p>
  *
  * @see Define
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-@SqlStatementCustomizingAnnotation(DefineIn.Factory.class)
-public @interface DefineIn
+@SqlStatementCustomizingAnnotation(DefineList.Factory.class)
+public @interface DefineList
 {
     /**
      * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
@@ -82,34 +82,24 @@ public @interface DefineIn
                 argsList = Arrays.asList((Object[]) arg);
             } else {
                 if (arg == null) {
-                    throw new IllegalArgumentException("A null object was passed as a @DefineIn parameter. @DefineIn " +
-                            "is only supported on List and array arguments");
+                    throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. " +
+                            "@DefineList is only supported on List and array arguments");
                 }
-                throw new IllegalArgumentException("A " + arg.getClass() + " object was passed as a @DefineIn " +
-                        "parameter. @DefineIn is only supported on List and array arguments");
+                throw new IllegalArgumentException("A " + arg.getClass() + " object was passed as a @DefineList " +
+                        "parameter. @DefineList is only supported on List and array arguments");
             }
             if (argsList.isEmpty()) {
-                throw new IllegalArgumentException("An empty list was passed as a @DefineIn parameter. Can't define " +
+                throw new IllegalArgumentException("An empty list was passed as a @DefineList parameter. Can't define " +
                         "an empty attribute.");
             }
+            if (argsList.contains(null)) {
+                throw new IllegalArgumentException("A @DefineList parameter was passed a list with null values in it.");
+            }
 
-            DefineIn d = (DefineIn) annotation;
+            DefineList d = (DefineList) annotation;
             final String name = ParameterUtil.getParameterName(d, d.value(), param);
 
-            StringBuilder sb = new StringBuilder();
-            boolean firstItem = true;
-            for (Object o : argsList) {
-                if (o == null) {
-                    throw new IllegalArgumentException("A @DefineIn parameter was passed a list with null values in it.");
-                }
-                if (firstItem) {
-                    firstItem = false;
-                } else {
-                    sb.append(',');
-                }
-                sb.append(o.toString());
-            }
-            return stmt -> stmt.define(name, sb.toString());
+            return stmt -> stmt.defineList(name, argsList);
         }
     }
 }

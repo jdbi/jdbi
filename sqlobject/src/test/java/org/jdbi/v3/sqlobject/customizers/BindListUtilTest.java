@@ -23,49 +23,49 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BindInUtilTest
+public class BindListUtilTest
 {
     @Test(expected = IllegalArgumentException.class)
     public void testObjectToIterator()
     {
-        BindIn.Util.toIterator(new Object());
+        BindList.Util.toIterator(new Object());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOtherClassToIterator()
     {
-        BindIn.Util.toIterator("bla"); // or any other kind of object that isn't a java.lang.Object
+        BindList.Util.toIterator("bla"); // or any other kind of object that isn't a java.lang.Object
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPrimitiveToIterator()
     {
-        BindIn.Util.toIterator(1);
+        BindList.Util.toIterator(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIteratorToIterator()
     {
-        BindIn.Util.toIterator(new ArrayList<Object>().iterator());
+        BindList.Util.toIterator(new ArrayList<Object>().iterator());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullToIterator()
     {
-        BindIn.Util.toIterator(null);
+        BindList.Util.toIterator(null);
     }
 
     @Test
     public void testEmptyArrayToIterator()
     {
-        final Object[] out = toArray(BindIn.Util.toIterator(new int[]{}));
+        final Object[] out = toArray(BindList.Util.toIterator(new int[]{}));
         assertThat(out).isEmpty();
     }
 
     @Test
     public void testEmptyListToIterator()
     {
-        final Object[] out = toArray(BindIn.Util.toIterator(new ArrayList<Integer>()));
+        final Object[] out = toArray(BindList.Util.toIterator(new ArrayList<Integer>()));
         assertThat(out).isEmpty();
     }
 
@@ -76,7 +76,7 @@ public class BindInUtilTest
         in.add("1");
         in.add("2");
 
-        final Object[] out = toArray(BindIn.Util.toIterator(in));
+        final Object[] out = toArray(BindList.Util.toIterator(in));
 
         assertThat(out).containsExactly("1", "2");
     }
@@ -88,7 +88,7 @@ public class BindInUtilTest
         in.add("1");
         in.add("2");
 
-        final Object[] out = toArray(BindIn.Util.toIterator(in));
+        final Object[] out = toArray(BindList.Util.toIterator(in));
 
         assertThat(out).containsExactly("1", "2");
     }
@@ -109,7 +109,7 @@ public class BindInUtilTest
             }
         };
 
-        final Object[] out = toArray(BindIn.Util.toIterator(in));
+        final Object[] out = toArray(BindList.Util.toIterator(in));
 
         assertThat(out).containsExactly("1", "2");
     }
@@ -119,7 +119,7 @@ public class BindInUtilTest
     {
         final String[] in = new String[]{"1", "2"};
 
-        final Object[] out = toArray(BindIn.Util.toIterator(in));
+        final Object[] out = toArray(BindList.Util.toIterator(in));
 
         assertThat(out).containsExactly("1", "2");
     }
@@ -129,7 +129,7 @@ public class BindInUtilTest
     {
         final int[] in = new int[]{1, 2};
 
-        final Object[] out = toArray(BindIn.Util.toIterator(in));
+        final Object[] out = toArray(BindList.Util.toIterator(in));
 
         assertThat(out).containsExactly(1, 2);
     }
@@ -147,25 +147,25 @@ public class BindInUtilTest
     @Test
     public void testSizePrimitiveArray()
     {
-        assertThat(BindIn.Util.size(new int[]{1, 2, 3})).isEqualTo(3);
+        assertThat(BindList.Util.size(new int[]{1, 2, 3})).isEqualTo(3);
     }
 
     @Test
     public void testSizeEmptyPrimitiveArray()
     {
-        assertThat(BindIn.Util.size(new int[]{})).isEqualTo(0);
+        assertThat(BindList.Util.size(new int[]{})).isEqualTo(0);
     }
 
     @Test
     public void testSizeObjectArray()
     {
-        assertThat(BindIn.Util.size(new Object[]{"1", "2", "3"})).isEqualTo(3);
+        assertThat(BindList.Util.size(new Object[]{"1", "2", "3"})).isEqualTo(3);
     }
 
     @Test
     public void testSizeEmptyObjectArray()
     {
-        assertThat(BindIn.Util.size(new Object[]{})).isEqualTo(0);
+        assertThat(BindList.Util.size(new Object[]{})).isEqualTo(0);
     }
 
     @Test
@@ -176,30 +176,30 @@ public class BindInUtilTest
         in.add("2");
         in.add("3");
 
-        assertThat(BindIn.Util.size(in)).isEqualTo(3);
+        assertThat(BindList.Util.size(in)).isEqualTo(3);
     }
 
     @Test
     public void testSizeEmptyList()
     {
-        assertThat(BindIn.Util.size(new ArrayList<String>())).isEqualTo(0);
+        assertThat(BindList.Util.size(new ArrayList<String>())).isEqualTo(0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSizeObject()
     {
-        BindIn.Util.size(new Object());
+        BindList.Util.size(new Object());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSizePrimitive()
     {
-        BindIn.Util.size(5);
+        BindList.Util.size(5);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSizeNull()
     {
-        BindIn.Util.size(null);
+        BindList.Util.size(null);
     }
 }
