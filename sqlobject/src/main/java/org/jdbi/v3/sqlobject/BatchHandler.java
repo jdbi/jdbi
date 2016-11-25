@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.PreparedBatch;
+import org.jdbi.v3.core.ResultBearing;
 import org.jdbi.v3.core.ResultIterator;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.StatementExecutor;
