@@ -11,18 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.util.bean;
+package org.jdbi.v3.core.mapper.reflect;
 
 /**
- * Strategy for mapping Java bean property and field names
- * to SQL column names.
+ * Strategy for matching SQL column names to Java property, field, or parameter names.
  */
-// TODO 3: Is this the right pattern?
-public interface ColumnNameMappingStrategy {
+public interface ColumnNameMatcher {
     /**
-     * @param propertyName a JavaBean property or field name
-     * @param sqlColumnName an SQL column name.
+     * Returns whether the column name fits the given Java identifier name.
+     *
+     * @param columnName the SQL column name
+     * @param javaName   the Java property, field, or parameter name
      * @return whether the given names are logically equivalent
      */
-    boolean nameMatches(String propertyName, String sqlColumnName);
+    boolean columnNameMatches(String columnName, String javaName);
 }

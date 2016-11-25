@@ -27,7 +27,6 @@ import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -96,8 +95,7 @@ public class FieldMapper<T> implements RowMapper<T>
         }
 
         ResultSetMetaData metadata = rs.getMetaData();
-        List<ColumnNameMappingStrategy> nameMappingStrategies =
-                ctx.getConfig(ReflectionMappers.class).getColumnNameMappingStrategies();
+        List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i).toLowerCase();
@@ -112,7 +110,7 @@ public class FieldMapper<T> implements RowMapper<T>
                 }
             }
 
-            Optional<Field> maybeField = fieldByNameCache.computeIfAbsent(name, n -> fieldByColumn(n, nameMappingStrategies));
+            Optional<Field> maybeField = fieldByNameCache.computeIfAbsent(name, n -> fieldByColumn(n, columnNameMatchers));
 
             if (!maybeField.isPresent()) {
                 continue;
@@ -144,14 +142,14 @@ public class FieldMapper<T> implements RowMapper<T>
         return obj;
     }
 
-    private Optional<Field> fieldByColumn(String columnName, List<ColumnNameMappingStrategy> nameMappingStrategies)
+    private Optional<Field> fieldByColumn(String columnName, List<ColumnNameMatcher> columnNameMatchers)
     {
         Class<?> aClass = type;
         while(aClass != null) {
             for (Field field : aClass.getDeclaredFields()) {
                 String paramName = paramName(field);
-                for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                    if (strategy.nameMatches(paramName, columnName)) {
+                for (ColumnNameMatcher strategy : columnNameMatchers) {
+                    if (strategy.columnNameMatches(columnName, paramName)) {
                         return Optional.of(field);
                     }
                 }

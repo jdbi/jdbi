@@ -33,7 +33,6 @@ import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
@@ -112,8 +111,7 @@ public class BeanMapper<T> implements RowMapper<T>
         }
 
         ResultSetMetaData metadata = rs.getMetaData();
-        List<ColumnNameMappingStrategy> nameMappingStrategies =
-                ctx.getConfig(ReflectionMappers.class).getColumnNameMappingStrategies();
+        List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i);
@@ -129,7 +127,7 @@ public class BeanMapper<T> implements RowMapper<T>
             }
 
             final Optional<PropertyDescriptor> maybeDescriptor =
-                    descriptorByColumnCache.computeIfAbsent(name, n -> descriptorForColumn(n, nameMappingStrategies));
+                    descriptorByColumnCache.computeIfAbsent(name, n -> descriptorForColumn(n, columnNameMatchers));
 
             if (!maybeDescriptor.isPresent()) {
                 continue;
@@ -169,12 +167,12 @@ public class BeanMapper<T> implements RowMapper<T>
     }
 
     private Optional<PropertyDescriptor> descriptorForColumn(String columnName,
-                                                             List<ColumnNameMappingStrategy> nameMappingStrategies)
+                                                             List<ColumnNameMatcher> columnNameMatchers)
     {
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
             String paramName = paramName(descriptor);
-            for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                if (strategy.nameMatches(paramName, columnName)) {
+            for (ColumnNameMatcher strategy : columnNameMatchers) {
+                if (strategy.columnNameMatches(columnName, paramName)) {
                     return Optional.of(descriptor);
                 }
             }

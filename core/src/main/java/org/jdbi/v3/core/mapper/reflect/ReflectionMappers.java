@@ -19,25 +19,22 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jdbi.v3.core.JdbiConfig;
-import org.jdbi.v3.core.util.bean.CaseInsensitiveColumnNameStrategy;
-import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
-import org.jdbi.v3.core.util.bean.SnakeCaseColumnNameStrategy;
 
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
-    private List<ColumnNameMappingStrategy> columnNameMappingStrategies;
+    private List<ColumnNameMatcher> columnNameMatchers;
 
     public ReflectionMappers() {
-        columnNameMappingStrategies = Arrays.asList(
-                CaseInsensitiveColumnNameStrategy.INSTANCE,
-                SnakeCaseColumnNameStrategy.INSTANCE);
+        columnNameMatchers = Arrays.asList(
+                new CaseInsensitiveColumnNameMatcher(),
+                new SnakeCaseColumnNameMatcher());
     }
 
-    public List<ColumnNameMappingStrategy> getColumnNameMappingStrategies() {
-        return Collections.unmodifiableList(columnNameMappingStrategies);
+    public List<ColumnNameMatcher> getColumnNameMatchers() {
+        return Collections.unmodifiableList(columnNameMatchers);
     }
 
-    public void setColumnNameMappingStrategies(List<ColumnNameMappingStrategy> columnNameMappingStrategies) {
-        this.columnNameMappingStrategies = new ArrayList<>(columnNameMappingStrategies);
+    public void setColumnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
+        this.columnNameMatchers = new ArrayList<>(columnNameMatchers);
     }
 
     @Override

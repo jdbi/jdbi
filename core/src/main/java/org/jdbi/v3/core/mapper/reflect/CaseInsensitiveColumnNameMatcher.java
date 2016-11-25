@@ -11,18 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.util.bean;
+package org.jdbi.v3.core.mapper.reflect;
 
-public class SnakeCaseColumnNameStrategy implements ColumnNameMappingStrategy {
-    public static final SnakeCaseColumnNameStrategy INSTANCE = new SnakeCaseColumnNameStrategy();
-
+/**
+ * Matches snake case column names to java camel case names, ignoring case.
+ * <p>
+ * Example: column names {@code first_name} or {@code FIRST_NAME} would match java name {@code firstName}.
+ */
+public class CaseInsensitiveColumnNameMatcher implements ColumnNameMatcher {
     @Override
-    public boolean nameMatches(String propertyName, String sqlColumnName) {
-        return sqlColumnName.replace("_", "").equalsIgnoreCase(propertyName);
+    public boolean columnNameMatches(String columnName, String javaName) {
+        return columnName.equalsIgnoreCase(javaName);
     }
 
     @Override
     public String toString() {
-        return "SnakeCaseColumnNamingStrategy";
+        return getClass().getSimpleName();
     }
 }

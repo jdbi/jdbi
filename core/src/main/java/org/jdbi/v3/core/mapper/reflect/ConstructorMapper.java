@@ -30,7 +30,6 @@ import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
 
 /**
  * A row mapper which maps the fields in a result set into a constructor. The default implementation will perform a
@@ -121,8 +120,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
                     constructor.getParameterCount());
         }
 
-        List<ColumnNameMappingStrategy> nameMappingStrategies =
-                ctx.getConfig(ReflectionMappers.class).getColumnNameMappingStrategies();
+        List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
 
         final int[] columnMap = new int[columns];
         final ColumnMapper<?>[] mappers = new ColumnMapper<?>[columns];
@@ -130,7 +128,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
         for (int i = 0; i < columns; i++) {
             final Type type = constructor.getGenericParameterTypes()[i];
             final String paramName = paramName(constructor.getParameters()[i]);
-            final int columnIndex = columnIndexForParameter(columnNames, paramName, nameMappingStrategies);
+            final int columnIndex = columnIndexForParameter(columnNames, paramName, columnNameMatchers);
 
             mappers[i] = ctx.findColumnMapperFor(type)
                     .orElseThrow(() -> new IllegalArgumentException(String.format(
@@ -160,23 +158,23 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
     private int columnIndexForParameter(List<String> columnNames,
                                         String parameterName,
-                                        List<ColumnNameMappingStrategy> nameMappingStrategies)
+                                        List<ColumnNameMatcher> columnNameMatchers)
     {
         int result = -1;
         for (int i = 0; i < columnNames.size(); i++) {
-            String name = columnNames.get(i);
+            String columnName = columnNames.get(i);
             if (prefix.length() > 0) {
-                if (name.length() > prefix.length() &&
-                        name.regionMatches(true, 0, prefix, 0, prefix.length())) {
-                    name = name.substring(prefix.length());
+                if (columnName.length() > prefix.length() &&
+                        columnName.regionMatches(true, 0, prefix, 0, prefix.length())) {
+                    columnName = columnName.substring(prefix.length());
                 }
                 else {
                     continue;
                 }
             }
 
-            for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                if (strategy.nameMatches(parameterName, name)) {
+            for (ColumnNameMatcher strategy : columnNameMatchers) {
+                if (strategy.columnNameMatches(columnName, parameterName)) {
                     if (result >= 0) {
                         throw new IllegalArgumentException(String.format(
                                 "Constructor '%s' parameter '%s' matches multiple " +
