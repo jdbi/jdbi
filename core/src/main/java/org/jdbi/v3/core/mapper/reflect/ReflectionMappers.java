@@ -29,16 +29,21 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
                 new SnakeCaseColumnNameMatcher());
     }
 
+    private ReflectionMappers(ReflectionMappers that) {
+        columnNameMatchers = new ArrayList<>(that.columnNameMatchers);
+    }
+
     public List<ColumnNameMatcher> getColumnNameMatchers() {
         return Collections.unmodifiableList(columnNameMatchers);
     }
 
-    public void setColumnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
+    public ReflectionMappers setColumnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
         this.columnNameMatchers = new ArrayList<>(columnNameMatchers);
+        return this;
     }
 
     @Override
     public ReflectionMappers createChild() {
-        return null;
+        return new ReflectionMappers(this);
     }
 }
