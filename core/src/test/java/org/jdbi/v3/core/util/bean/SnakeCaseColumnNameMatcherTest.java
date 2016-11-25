@@ -13,31 +13,32 @@
  */
 package org.jdbi.v3.core.util.bean;
 
+import org.jdbi.v3.core.mapper.reflect.SnakeCaseColumnNameMatcher;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SnakeCaseColumnNameStrategyTest {
+public class SnakeCaseColumnNameMatcherTest {
 
-    final SnakeCaseColumnNameStrategy snake = new SnakeCaseColumnNameStrategy();
+    final SnakeCaseColumnNameMatcher snake = new SnakeCaseColumnNameMatcher();
 
     @Test
     public void testSimple() {
-        assertThat(snake.nameMatches("testPropertyWithCheese", "test_property_with_cheese")).isTrue();
+        assertThat(snake.columnNameMatches("test_property_with_cheese", "testPropertyWithCheese")).isTrue();
     }
 
     @Test
     public void testWithoutCheese() {
-        assertThat(snake.nameMatches("testPropertyWithoutCheese", "test_property_with_cheese")).isFalse();
+        assertThat(snake.columnNameMatches("test_property_with_cheese", "testPropertyWithoutCheese")).isFalse();
     }
 
     @Test
     public void testBeanNumbers() {
-        assertThat(snake.nameMatches("testProperty2", "test_property_2")).isTrue();
+        assertThat(snake.columnNameMatches("test_property_2", "testProperty2")).isTrue();
     }
 
     @Test
     public void testNumbersDontMatch() {
-        assertThat(snake.nameMatches("testProperty3", "test_property_2")).isFalse();
+        assertThat(snake.columnNameMatches("test_property_2", "testProperty3")).isFalse();
     }
 }

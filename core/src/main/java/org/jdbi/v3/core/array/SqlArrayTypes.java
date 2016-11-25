@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.array;
 
-import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 import java.lang.reflect.Type;
@@ -28,20 +27,16 @@ import org.jdbi.v3.core.JdbiConfig;
  * Configuration class for SQL array binding and mapping.
  */
 public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
-
-    private final Optional<SqlArrayTypes> parent;
     private final List<SqlArrayTypeFactory> factories = new CopyOnWriteArrayList<>();
-
     private SqlArrayArgumentStrategy argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
 
     public SqlArrayTypes() {
-        parent = Optional.empty();
         argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
     }
 
-    private SqlArrayTypes(SqlArrayTypes parent) {
-        this.parent = Optional.of(parent);
-        this.argumentStrategy = parent.argumentStrategy;
+    private SqlArrayTypes(SqlArrayTypes that) {
+        factories.addAll(that.factories);
+        argumentStrategy = that.argumentStrategy;
     }
 
     /**
@@ -109,15 +104,13 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * @return an {@link SqlArrayType} for the given element type.
      */
     public Optional<SqlArrayType<?>> findFor(Type elementType, ConfigRegistry config) {
-        return findFirstPresent(
-                () -> factories.stream()
-                        .flatMap(factory -> toStream(factory.build(elementType, config)))
-                        .findFirst(),
-                () -> parent.flatMap(p -> p.findFor(elementType, config)));
+        return factories.stream()
+                .flatMap(factory -> toStream(factory.build(elementType, config)))
+                .findFirst();
     }
 
     @Override
-    public SqlArrayTypes createChild() {
+    public SqlArrayTypes createCopy() {
         return new SqlArrayTypes(this);
     }
 }

@@ -26,7 +26,7 @@ import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.ValueTypeMapper;
-import org.jdbi.v3.core.mapper.BeanMapper;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;

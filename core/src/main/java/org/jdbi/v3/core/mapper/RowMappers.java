@@ -27,17 +27,15 @@ import org.jdbi.v3.core.JdbiConfig;
 import org.jdbi.v3.core.Query;
 
 public class RowMappers implements JdbiConfig<RowMappers> {
-    private final Optional<RowMappers> parent;
-
     private final List<RowMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, RowMapper<?>> cache = new ConcurrentHashMap<>();
 
     public RowMappers() {
-        parent = Optional.empty();
     }
 
     private RowMappers(RowMappers that) {
-        parent = Optional.of(that);
+        factories.addAll(that.factories);
+        cache.putAll(that.cache);
     }
 
     /**
@@ -90,9 +88,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
                         .flatMap(factory -> toStream(factory.build(type, config)))
                         .findFirst(),
                 () -> config.findColumnMapperFor(type)
-                        .map(SingleColumnMapper::new),
-                // FIXME possible to taint parent cache with child config's mappers?
-                () -> parent.flatMap(p -> p.findFor(type, config)));
+                        .map(SingleColumnMapper::new));
 
         mapper.ifPresent(m -> cache.put(type, m));
 
@@ -100,7 +96,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     }
 
     @Override
-    public RowMappers createChild() {
+    public RowMappers createCopy() {
         return new RowMappers(this);
     }
 }

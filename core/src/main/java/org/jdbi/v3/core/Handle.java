@@ -187,7 +187,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @see Handle#prepareBatch(String)
      */
     public Batch createBatch() {
-        ConfigRegistry batchConfig = getConfig().createChild();
+        ConfigRegistry batchConfig = getConfig().createCopy();
         return new Batch(batchConfig,
                          this.connection,
                          new StatementContext(batchConfig, extensionMethod.get()));
@@ -201,7 +201,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return a batch which can have "statements" added
      */
     public PreparedBatch prepareBatch(String sql) {
-        ConfigRegistry batchConfig = getConfig().createChild();
+        ConfigRegistry batchConfig = getConfig().createCopy();
         return new PreparedBatch(batchConfig,
                                  this,
                                  statementBuilder,
@@ -218,7 +218,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Call
      */
     public Call createCall(String sql) {
-        ConfigRegistry callConfig = getConfig().createChild();
+        ConfigRegistry callConfig = getConfig().createCopy();
         return new Call(callConfig,
                         this,
                         statementBuilder,
@@ -234,7 +234,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Query
      */
     public Query<Map<String, Object>> createQuery(String sql) {
-        ConfigRegistry queryConfig = getConfig().createChild();
+        ConfigRegistry queryConfig = getConfig().createCopy();
         return new Query<>(queryConfig,
                 new Binding(),
                 new DefaultMapper(),
@@ -264,7 +264,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Update
      */
     public Update createUpdate(String sql) {
-        ConfigRegistry updateConfig = getConfig().createChild();
+        ConfigRegistry updateConfig = getConfig().createCopy();
         return new Update(updateConfig,
                           this,
                           statementBuilder,

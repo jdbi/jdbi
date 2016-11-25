@@ -11,18 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.util.bean;
+package org.jdbi.v3.core.mapper.reflect;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
- * Strategy for mapping Java bean property and field names
- * to SQL column names.
+ * Specify the binding or mapping name for a property or parameter explicitly.
  */
-// TODO 3: Is this the right pattern?
-public interface ColumnNameMappingStrategy {
-    /**
-     * @param propertyName a JavaBean property or field name
-     * @param sqlColumnName an SQL column name.
-     * @return whether the given names are logically equivalent
-     */
-    boolean nameMatches(String propertyName, String sqlColumnName);
+@Retention(RUNTIME)
+@Target({PARAMETER, FIELD, METHOD})
+public @interface ColumnName {
+    String value();
 }

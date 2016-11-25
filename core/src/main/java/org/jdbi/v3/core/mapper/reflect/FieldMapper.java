@@ -11,22 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.core.mapper.reflect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -69,7 +69,6 @@ public class FieldMapper<T> implements RowMapper<T>
     private final Class<T> type;
     private final String prefix;
     private final ConcurrentMap<String, Optional<Field>> fieldByNameCache = new ConcurrentHashMap<>();
-    private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
     public FieldMapper(Class<T> type)
     {
@@ -78,21 +77,8 @@ public class FieldMapper<T> implements RowMapper<T>
 
     public FieldMapper(Class<T> type, String prefix)
     {
-        this(type, prefix, BeanMapper.DEFAULT_STRATEGIES);
-    }
-
-    public FieldMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
-    {
-        this(type, DEFAULT_PREFIX, nameMappingStrategies);
-    }
-
-    public FieldMapper(Class<T> type,
-                       String prefix,
-                       Collection<ColumnNameMappingStrategy> nameMappingStrategies)
-    {
         this.type = type;
         this.prefix = prefix;
-        this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
     }
 
     @Override
@@ -109,6 +95,7 @@ public class FieldMapper<T> implements RowMapper<T>
         }
 
         ResultSetMetaData metadata = rs.getMetaData();
+        List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i).toLowerCase();
@@ -123,7 +110,7 @@ public class FieldMapper<T> implements RowMapper<T>
                 }
             }
 
-            Optional<Field> maybeField = fieldByNameCache.computeIfAbsent(name, this::fieldByColumn);
+            Optional<Field> maybeField = fieldByNameCache.computeIfAbsent(name, n -> fieldByColumn(n, columnNameMatchers));
 
             if (!maybeField.isPresent()) {
                 continue;
@@ -155,14 +142,14 @@ public class FieldMapper<T> implements RowMapper<T>
         return obj;
     }
 
-    private Optional<Field> fieldByColumn(String columnName)
+    private Optional<Field> fieldByColumn(String columnName, List<ColumnNameMatcher> columnNameMatchers)
     {
         Class<?> aClass = type;
         while(aClass != null) {
             for (Field field : aClass.getDeclaredFields()) {
                 String paramName = paramName(field);
-                for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                    if (strategy.nameMatches(paramName, columnName)) {
+                for (ColumnNameMatcher strategy : columnNameMatchers) {
+                    if (strategy.columnNameMatches(columnName, paramName)) {
                         return Optional.of(field);
                     }
                 }

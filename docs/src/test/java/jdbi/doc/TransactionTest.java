@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.exception.TransactionException;
-import org.jdbi.v3.core.mapper.ConstructorMapper;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;

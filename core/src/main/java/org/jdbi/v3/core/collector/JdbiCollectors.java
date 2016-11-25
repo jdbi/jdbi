@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.collector;
 
-import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
@@ -28,17 +26,14 @@ import org.jdbi.v3.core.JdbiConfig;
  * Contains a set of collector factories, registered by the application.
  */
 public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
-
-    private final Optional<JdbiCollectors> parent;
     private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
 
     public JdbiCollectors() {
-        parent = Optional.empty();
         factories.addAll(BuiltInCollectorFactories.get());
     }
 
     private JdbiCollectors(JdbiCollectors that) {
-        parent = Optional.of(that);
+        factories.addAll(that.factories);
     }
 
     public JdbiCollectors register(CollectorFactory factory) {
@@ -69,15 +64,13 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     }
 
     private Optional<CollectorFactory> findFactoryFor(Type containerType) {
-        return findFirstPresent(
-                () -> factories.stream()
-                        .filter(f -> f.accepts(containerType))
-                        .findFirst(),
-                () -> parent.flatMap(p -> p.findFactoryFor(containerType)));
+        return factories.stream()
+                .filter(f -> f.accepts(containerType))
+                .findFirst();
     }
 
     @Override
-    public JdbiCollectors createChild() {
+    public JdbiCollectors createCopy() {
         return new JdbiCollectors(this);
     }
 }

@@ -11,19 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.util.bean;
+package org.jdbi.v3.core.mapper.reflect;
 
-public class CaseInsensitiveColumnNameStrategy implements ColumnNameMappingStrategy {
-
-    public static final CaseInsensitiveColumnNameStrategy INSTANCE = new CaseInsensitiveColumnNameStrategy();
-
+/**
+ * Matches column names with identical java names, ignoring case.
+ * <p>
+ * Example: column names {@code firstname} or {@code FIRSTNAME} would match java name {@code firstName}.
+ */
+public class SnakeCaseColumnNameMatcher implements ColumnNameMatcher {
     @Override
-    public boolean nameMatches(String propertyName, String columnName) {
-        return propertyName.equalsIgnoreCase(columnName);
+    public boolean columnNameMatches(String columnName, String javaName) {
+        return columnName.replace("_", "").equalsIgnoreCase(javaName);
     }
 
     @Override
     public String toString() {
-        return "LowercaseColumnNamingStrategy";
+        return getClass().getSimpleName();
     }
 }

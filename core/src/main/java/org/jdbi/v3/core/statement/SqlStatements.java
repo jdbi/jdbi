@@ -118,7 +118,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     @Override
-    public SqlStatements createChild() {
+    public SqlStatements createCopy() {
         return new SqlStatements(this);
     }
 }
