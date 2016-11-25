@@ -13,8 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,16 +22,21 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.PgDatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.postgres.PostgresJdbiPlugin;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+// This test arguably should be in jdbi-sqlobject but it needs Postgres
+// features to test generated keys
 public class TestBatchGeneratedKeys
 {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule db = new PgDatabaseRule()
+            .withPlugin(new SqlObjectPlugin())
+            .withPlugin(new PostgresJdbiPlugin());
     private Handle handle;
     private UsesBatching b;
 
@@ -48,17 +52,17 @@ public class TestBatchGeneratedKeys
     public void testReturnKey() throws Exception
     {
         long[] ids = b.insertNames("a", "b", "c", "d", "e");
-        assertArrayEquals(new long[] { 1, 2, 3, 4, 5 }, ids);
+        assertThat(ids).containsExactly(new long[] { 1, 2, 3, 4, 5 });
     }
 
     @Test
     public void testBeanReturn() throws Exception
     {
         Something[] people = b.insertNamesToBean(Arrays.asList("a", "b", "c", "d", "e"));
-        assertEquals(5, people.length);
+        assertThat(people.length).isEqualTo(5);
         for (int i = 0; i < people.length; i++) {
-            assertEquals(i + 1, people[i].getId());
-            assertEquals(String.valueOf((char)('a' + i)), people[i].getName());
+            assertThat(people[i].getId()).isEqualTo(i + 1);
+            assertThat(people[i].getName()).isEqualTo(nameByIndex(i));
         }
     }
 
@@ -66,13 +70,16 @@ public class TestBatchGeneratedKeys
     public void testVarargsList() throws Exception
     {
         List<Something> people = b.insertVarargs("a", "b", "c", "d", "e");
-        assertEquals(5, people.size());
+        assertThat(people.size()).isEqualTo(5);
         for (int i = 0; i < people.size(); i++) {
-            assertEquals(i + 1, people.get(i).getId());
-            assertEquals(String.valueOf((char)('a' + i)), people.get(i).getName());
+            assertThat(people.get(i).getId()).isEqualTo(i + 1);
+            assertThat(people.get(i).getName()).isEqualTo(nameByIndex(i));
         }
     }
 
+    private String nameByIndex(int i) {
+        return String.valueOf((char)('a' + i));
+    }
 
     @BatchChunkSize(2)
     @RegisterRowMapper(SomethingMapper.class)
