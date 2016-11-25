@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.core.mapper.reflect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

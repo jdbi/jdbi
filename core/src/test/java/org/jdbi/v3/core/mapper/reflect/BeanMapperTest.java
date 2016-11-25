@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.core.mapper.reflect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

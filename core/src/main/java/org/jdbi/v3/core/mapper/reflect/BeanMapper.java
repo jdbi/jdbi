@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.mapper;
+package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -22,10 +22,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,9 +30,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.util.bean.CaseInsensitiveColumnNameStrategy;
-import org.jdbi.v3.core.util.bean.ColumnNameMappingStrategy;
-import org.jdbi.v3.core.util.bean.SnakeCaseColumnNameStrategy;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 
 /**
  * A row mapper which maps the columns in a statement into a JavaBean. The default
@@ -76,38 +73,21 @@ public class BeanMapper<T> implements RowMapper<T>
     }
 
     static final String DEFAULT_PREFIX = "";
-    static final Collection<ColumnNameMappingStrategy> DEFAULT_STRATEGIES =
-            Collections.unmodifiableList(Arrays.asList(
-                    CaseInsensitiveColumnNameStrategy.INSTANCE,
-                    SnakeCaseColumnNameStrategy.INSTANCE
-            ));
 
     private final Class<T> type;
     private final String prefix;
     private final BeanInfo info;
     private final ConcurrentMap<String, Optional<PropertyDescriptor>> descriptorByColumnCache = new ConcurrentHashMap<>();
-    private final Collection<ColumnNameMappingStrategy> nameMappingStrategies;
 
     public BeanMapper(Class<T> type)
     {
-        this(type, DEFAULT_PREFIX, DEFAULT_STRATEGIES);
+        this(type, DEFAULT_PREFIX);
     }
 
     public BeanMapper(Class<T> type, String prefix)
     {
-        this(type, prefix, DEFAULT_STRATEGIES);
-    }
-
-    public BeanMapper(Class<T> type, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
-    {
-        this(type, DEFAULT_PREFIX, nameMappingStrategies);
-    }
-
-    public BeanMapper(Class<T> type, String prefix, Collection<ColumnNameMappingStrategy> nameMappingStrategies)
-    {
         this.type = type;
         this.prefix = prefix;
-        this.nameMappingStrategies = Collections.unmodifiableList(new ArrayList<>(nameMappingStrategies));
         try
         {
             info = Introspector.getBeanInfo(type);
@@ -131,6 +111,7 @@ public class BeanMapper<T> implements RowMapper<T>
         }
 
         ResultSetMetaData metadata = rs.getMetaData();
+        List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
 
         for (int i = 1; i <= metadata.getColumnCount(); ++i) {
             String name = metadata.getColumnLabel(i);
@@ -146,7 +127,7 @@ public class BeanMapper<T> implements RowMapper<T>
             }
 
             final Optional<PropertyDescriptor> maybeDescriptor =
-                    descriptorByColumnCache.computeIfAbsent(name, this::descriptorForColumn);
+                    descriptorByColumnCache.computeIfAbsent(name, n -> descriptorForColumn(n, columnNameMatchers));
 
             if (!maybeDescriptor.isPresent()) {
                 continue;
@@ -185,12 +166,13 @@ public class BeanMapper<T> implements RowMapper<T>
         return bean;
     }
 
-    private Optional<PropertyDescriptor> descriptorForColumn(String columnName)
+    private Optional<PropertyDescriptor> descriptorForColumn(String columnName,
+                                                             List<ColumnNameMatcher> columnNameMatchers)
     {
         for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
             String paramName = paramName(descriptor);
-            for (ColumnNameMappingStrategy strategy : nameMappingStrategies) {
-                if (strategy.nameMatches(paramName, columnName)) {
+            for (ColumnNameMatcher strategy : columnNameMatchers) {
+                if (strategy.columnNameMatches(columnName, paramName)) {
                     return Optional.of(descriptor);
                 }
             }
