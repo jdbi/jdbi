@@ -14,14 +14,14 @@
 package org.jdbi.v3.core;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.util.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.lang.reflect.Type;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,7 +50,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalPresent() throws Exception {
         Something result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
+                .bind("name", Optional.of("eric"), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .findOnly();
 
@@ -60,7 +60,7 @@ public class TestOptional {
     @Test
     public void testDynamicBindOptionalEmpty() throws Exception {
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.empty(), new GenericType<Optional<String>>() {})
+                .bind("name", Optional.empty(), new GenericType<Optional<String>>() {})
                 .mapToBean(Something.class)
                 .list();
 
@@ -69,9 +69,9 @@ public class TestOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() throws Exception {
-        handle.registerArgument(new NameArgumentFactory());
+        handle.registerArgument(new NameArgument());
         handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+                .bind("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
                 .list();
     }
@@ -80,7 +80,7 @@ public class TestOptional {
     public void testDynamicBindOptionalOfUnregisteredCustomType() throws Exception {
         exception.expect(UnsupportedOperationException.class);
         handle.createQuery(SELECT_BY_NAME)
-                .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
+                .bind("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
                 .mapToBean(Something.class)
                 .list();
     }
@@ -107,7 +107,7 @@ public class TestOptional {
 
     @Test
     public void testBindOptionalOfCustomType() throws Exception {
-        handle.registerArgument(new NameArgumentFactory());
+        handle.registerArgument(new NameArgument());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
                 .bind("name", Optional.of(new Name("eric")))
                 .mapToBean(Something.class)
@@ -142,14 +142,10 @@ public class TestOptional {
         }
     }
 
-    class NameArgumentFactory implements ArgumentFactory {
+    class NameArgument implements Argument<Name> {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-            if (expectedType == Name.class) {
-                Name nameValue = (Name) value;
-                return Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));
-            }
-            return Optional.empty();
+        public void apply(PreparedStatement statement, int position, Name value, StatementContext ctx) throws SQLException {
+            statement.setString(position, value.value);
         }
     }
 

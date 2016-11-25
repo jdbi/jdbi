@@ -13,17 +13,20 @@
  */
 package org.jdbi.v3.core;
 
+import static org.jdbi.v3.core.util.GenericTypes.resolveType;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.util.GenericTypes;
 
 class BeanPropertyArguments implements NamedArgumentFinder
 {
@@ -49,7 +52,7 @@ class BeanPropertyArguments implements NamedArgumentFinder
     }
 
     @Override
-    public Optional<Argument> find(String name)
+    public Optional<BoundArgument> find(String name)
     {
         if (name.startsWith(prefix)) {
             String propertyName = name.substring(prefix.length());
@@ -67,7 +70,9 @@ class BeanPropertyArguments implements NamedArgumentFinder
 
                     try
                     {
-                        return ctx.findArgumentFor(getter.getGenericReturnType(), getter.invoke(bean));
+                        Object value = getter.invoke(bean);
+                        Type type = resolveType(getter.getGenericReturnType(), bean.getClass());
+                        return Optional.of(new BoundArgument(value, type));
                     }
                     catch (IllegalAccessException e)
                     {

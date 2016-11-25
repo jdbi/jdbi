@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Binding;
+import org.jdbi.v3.core.BoundArgument;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
@@ -40,10 +41,11 @@ class InternalRewrittenStatement implements RewrittenStatement {
             // no named params, is easy
             boolean finished = false;
             for (int i = 0; !finished; ++i) {
-                final Optional<Argument> a = params.findForPosition(i);
+                final Optional<BoundArgument> a = params.findForPosition(i);
                 if (a.isPresent()) {
                     try {
-                        a.get().apply(i + 1, statement, this.context);
+                        BoundArgument arg = a.get();
+                        argumentFor(arg).apply(statement, i + 1, arg.getValue(), context);
                     } catch (SQLException e) {
                         throw new UnableToExecuteStatementException(
                                 String.format("Exception while binding positional param at (0 based) position %d",
@@ -56,31 +58,38 @@ class InternalRewrittenStatement implements RewrittenStatement {
         } else {
             //List<String> named_params = stmt.params;
             int i = 0;
-            for (String named_param : stmt.params) {
-                if ("*".equals(named_param)) {
+            for (String paramName : stmt.params) {
+                if ("*".equals(paramName)) {
                     continue;
                 }
                 final int index = i;
-                Argument a = findFirstPresent(
-                        () -> params.findForName(named_param),
+                BoundArgument boundArgument = findFirstPresent(
+                        () -> params.findForName(paramName),
                         () -> params.findForPosition(index))
                         .orElseThrow(() -> {
                             String msg = String.format("Unable to execute, no named parameter matches " +
                                             "\"%s\" and no positional param for place %d (which is %d in " +
                                             "the JDBC 'start at 1' scheme) has been set.",
-                                    named_param, index, index + 1);
+                                    paramName, index, index + 1);
                             return new UnableToExecuteStatementException(msg, context);
                         });
 
                 try {
-                    a.apply(i + 1, statement, this.context);
+                    argumentFor(boundArgument).apply(statement, i + 1, boundArgument.getValue(), context);
                 } catch (SQLException e) {
                     throw new UnableToCreateStatementException(String.format("Exception while binding '%s'",
-                            named_param), e, context);
+                            paramName), e, context);
                 }
                 i++;
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Argument<T> argumentFor(BoundArgument boundArgument) {
+        return (Argument<T>) context.findArgumentFor(boundArgument.getType())
+                .orElseThrow(() -> new UnsupportedOperationException(
+                        "No argument registered for value " + boundArgument.getValue() + " of type " + boundArgument.getType()));
     }
 
     @Override

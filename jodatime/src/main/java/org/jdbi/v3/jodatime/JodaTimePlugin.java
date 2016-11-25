@@ -22,7 +22,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 public class JodaTimePlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        jdbi.registerArgument(new DateTimeArgument.Factory());
+        jdbi.registerArgument(new DateTimeArgument());
         jdbi.registerColumnMapper(new DateTimeMapper());
     }
 }

@@ -27,11 +27,11 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
 
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.CharacterStreamArgument;
-import org.jdbi.v3.core.argument.InputStreamArgument;
+import org.jdbi.v3.core.argument.AsciiStream;
+import org.jdbi.v3.core.argument.BinaryStream;
+import org.jdbi.v3.core.argument.CharacterStream;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
-import org.jdbi.v3.core.argument.NullArgument;
+import org.jdbi.v3.core.argument.NullValue;
 import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
@@ -180,36 +180,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return typedThis;
     }
 
-
-    /**
-     * Used if you need to have some exotic parameter bound.
-     *
-     * @param position position to bindBinaryStream this argument, starting at 0
-     * @param argument exotic argument factory
-     *
-     * @return the same Query instance
-     */
-    @SuppressWarnings("unchecked")
-    public This bind(int position, Argument argument)
-    {
-        getParams().addPositional(position, argument);
-        return (This) this;
-    }
-
-    /**
-     * Used if you need to have some exotic parameter bound.
-     *
-     * @param name     name to bindBinaryStream this argument
-     * @param argument exotic argument factory
-     *
-     * @return the same Query instance
-     */
-    public This bind(String name, Argument argument)
-    {
-        getParams().addNamed(name, argument);
-        return typedThis;
-    }
-
     /**
      * Binds named parameters from JavaBean properties on the argument.
      *
@@ -247,7 +217,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bindMap(Map<String, ?> map)
     {
-        return map == null ? typedThis : bindNamedArgumentFinder(new MapArguments(map, getContext()));
+        return map == null ? typedThis : bindNamedArgumentFinder(new MapArguments(map));
     }
 
     /**
@@ -276,7 +246,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Character value)
     {
-        return bind(position, toArgument(Character.class, value));
+        return bind(position, value, Character.class);
     }
 
     /**
@@ -289,7 +259,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Character value)
     {
-        return bind(name, toArgument(Character.class, value));
+        return bind(name, value, Character.class);
     }
 
     /**
@@ -302,7 +272,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, String value)
     {
-        return bind(position, toArgument(String.class, value));
+        return bind(position, value, String.class);
     }
 
     /**
@@ -315,7 +285,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, String value)
     {
-        return bind(name, toArgument(String.class, value));
+        return bind(name, value, String.class);
     }
 
     /**
@@ -328,7 +298,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, int value)
     {
-        return bind(position, toArgument(int.class, value));
+        return bind(position, value, int.class);
     }
 
     /**
@@ -341,7 +311,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Integer value)
     {
-        return bind(position, toArgument(Integer.class, value));
+        return bind(position, value, Integer.class);
     }
 
     /**
@@ -354,7 +324,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, int value)
     {
-        return bind(name, toArgument(int.class, value));
+        return bind(name, value, int.class);
     }
 
     /**
@@ -367,7 +337,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Integer value)
     {
-        return bind(name, toArgument(Integer.class, value));
+        return bind(name, value, Integer.class);
     }
 
     /**
@@ -380,7 +350,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, char value)
     {
-        return bind(position, toArgument(char.class, value));
+        return bind(position, value, char.class);
     }
 
     /**
@@ -393,7 +363,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, char value)
     {
-        return bind(name, toArgument(char.class, value));
+        return bind(name, value, char.class);
     }
 
     /**
@@ -407,7 +377,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindASCIIStream(int position, InputStream value, int length)
     {
-        return bind(position, new InputStreamArgument(value, length, true));
+        return bind(position, new AsciiStream(value, length), AsciiStream.class);
     }
 
     /**
@@ -421,7 +391,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindASCIIStream(String name, InputStream value, int length)
     {
-        return bind(name, new InputStreamArgument(value, length, true));
+        return bind(name, new AsciiStream(value, length), AsciiStream.class);
     }
 
     /**
@@ -434,7 +404,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, BigDecimal value)
     {
-        return bind(position, toArgument(BigDecimal.class, value));
+        return bind(position, value, BigDecimal.class);
     }
 
     /**
@@ -447,7 +417,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, BigDecimal value)
     {
-        return bind(name, toArgument(BigDecimal.class, value));
+        return bind(name, value, BigDecimal.class);
     }
 
     /**
@@ -461,7 +431,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindBinaryStream(int position, InputStream value, int length)
     {
-        return bind(position, new InputStreamArgument(value, length, false));
+        return bind(position, new BinaryStream(value, length), BinaryStream.class);
     }
 
     /**
@@ -475,7 +445,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindBinaryStream(String name, InputStream value, int length)
     {
-        return bind(name, new InputStreamArgument(value, length, false));
+        return bind(name, new BinaryStream(value, length), BinaryStream.class);
     }
 
     /**
@@ -488,7 +458,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Blob value)
     {
-        return bind(position, toArgument(Blob.class, value));
+        return bind(position, value, Blob.class);
     }
 
     /**
@@ -501,7 +471,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Blob value)
     {
-        return bind(name, toArgument(Blob.class, value));
+        return bind(name, value, Blob.class);
     }
 
     /**
@@ -514,7 +484,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, boolean value)
     {
-        return bind(position, toArgument(boolean.class, value));
+        return bind(position, value, boolean.class);
     }
 
     /**
@@ -527,7 +497,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Boolean value)
     {
-        return bind(position, toArgument(Boolean.class, value));
+        return bind(position, value, Boolean.class);
     }
 
     /**
@@ -540,7 +510,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, boolean value)
     {
-        return bind(name, toArgument(boolean.class, value));
+        return bind(name, value, boolean.class);
     }
 
     /**
@@ -553,7 +523,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Boolean value)
     {
-        return bind(name, toArgument(Boolean.class, value));
+        return bind(name, value, Boolean.class);
     }
 
     /**
@@ -566,7 +536,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, byte value)
     {
-        return bind(position, toArgument(byte.class, value));
+        return bind(position, value, byte.class);
     }
 
     /**
@@ -579,7 +549,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Byte value)
     {
-        return bind(position, toArgument(Byte.class, value));
+        return bind(position, value, Byte.class);
     }
 
     /**
@@ -592,7 +562,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, byte value)
     {
-        return bind(name, toArgument(byte.class, value));
+        return bind(name, value, byte.class);
     }
 
     /**
@@ -605,7 +575,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Byte value)
     {
-        return bind(name, toArgument(Byte.class, value));
+        return bind(name, value, Byte.class);
     }
 
     /**
@@ -618,7 +588,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, byte[] value)
     {
-        return bind(position, toArgument(byte[].class, value));
+        return bind(position, value, byte[].class);
     }
 
     /**
@@ -631,7 +601,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, byte[] value)
     {
-        return bind(name, toArgument(byte[].class, value));
+        return bind(name, value, byte[].class);
     }
 
     /**
@@ -646,7 +616,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public final This bind(int position, Reader value, int length)
     {
 
-        return bind(position, new CharacterStreamArgument(value, length));
+        return bind(position, new CharacterStream(value, length), CharacterStream.class);
     }
 
     /**
@@ -660,7 +630,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Reader value, int length)
     {
-        return bind(name, new CharacterStreamArgument(value, length));
+        return bind(name, new CharacterStream(value, length), CharacterStream.class);
     }
 
     /**
@@ -673,7 +643,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Clob value)
     {
-        return bind(position, toArgument(Clob.class, value));
+        return bind(position, value, Clob.class);
     }
 
     /**
@@ -686,7 +656,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Clob value)
     {
-        return bind(name, toArgument(Clob.class, value));
+        return bind(name, value, Clob.class);
     }
 
     /**
@@ -699,7 +669,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, java.sql.Date value)
     {
-        return bind(position, toArgument(java.sql.Date.class, value));
+        return bind(position, value, java.sql.Date.class);
     }
 
     /**
@@ -712,7 +682,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, java.sql.Date value)
     {
-        return bind(name, toArgument(java.sql.Date.class, value));
+        return bind(name, value, java.sql.Date.class);
     }
 
     /**
@@ -725,7 +695,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, java.util.Date value)
     {
-        return bind(position, toArgument(java.util.Date.class, value));
+        return bind(position, value, java.util.Date.class);
     }
 
     /**
@@ -738,7 +708,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, java.util.Date value)
     {
-        return bind(name, toArgument(java.util.Date.class, value));
+        return bind(name, value, java.util.Date.class);
     }
 
     /**
@@ -751,7 +721,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, double value)
     {
-        return bind(position, toArgument(double.class, value));
+        return bind(position, value, double.class);
     }
 
     /**
@@ -764,7 +734,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Double value)
     {
-        return bind(position, toArgument(Double.class, value));
+        return bind(position, value, Double.class);
     }
 
     /**
@@ -777,7 +747,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, double value)
     {
-        return bind(name, toArgument(double.class, value));
+        return bind(name, value, double.class);
     }
 
     /**
@@ -790,7 +760,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Double value)
     {
-        return bind(name, toArgument(Double.class, value));
+        return bind(name, value, Double.class);
     }
 
     /**
@@ -803,7 +773,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, float value)
     {
-        return bind(position, toArgument(float.class, value));
+        return bind(position, value, float.class);
     }
 
     /**
@@ -816,7 +786,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Float value)
     {
-        return bind(position, toArgument(Float.class, value));
+        return bind(position, value, Float.class);
     }
 
     /**
@@ -829,7 +799,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, float value)
     {
-        return bind(name, toArgument(float.class, value));
+        return bind(name, value, float.class);
     }
 
     /**
@@ -842,7 +812,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Float value)
     {
-        return bind(name, toArgument(Float.class, value));
+        return bind(name, value, Float.class);
     }
 
     /**
@@ -855,7 +825,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, long value)
     {
-        return bind(position, toArgument(long.class, value));
+        return bind(position, value, long.class);
     }
 
     /**
@@ -868,7 +838,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Long value)
     {
-        return bind(position, toArgument(Long.class, value));
+        return bind(position, value, Long.class);
     }
 
     /**
@@ -881,7 +851,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, long value)
     {
-        return bind(name, toArgument(long.class, value));
+        return bind(name, value, long.class);
     }
 
     /**
@@ -894,7 +864,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Long value)
     {
-        return bind(name, toArgument(Long.class, value));
+        return bind(name, value, Long.class);
     }
 
     /**
@@ -907,7 +877,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Short value)
     {
-        return bind(position, toArgument(Short.class, value));
+        return bind(position, value, Short.class);
     }
 
     /**
@@ -920,7 +890,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, short value)
     {
-        return bind(position, toArgument(short.class, value));
+        return bind(position, value, short.class);
     }
 
     /**
@@ -933,7 +903,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, short value)
     {
-        return bind(name, toArgument(short.class, value));
+        return bind(name, value, short.class);
     }
 
     /**
@@ -946,7 +916,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Short value)
     {
-        return bind(name, toArgument(short.class, value));
+        return bind(name, value, short.class);
     }
 
     /**
@@ -959,7 +929,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Object value)
     {
-        return bind(position, toArgument(value));
+        value = maskNull(value);
+        return bind(position, value, value.getClass());
     }
 
     /**
@@ -972,7 +943,12 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Object value)
     {
-        return bind(name, toArgument(value));
+        value = maskNull(value);
+        return bind(name, value, value.getClass());
+    }
+
+    private Object maskNull(Object value) {
+        return value == null ? new NullValue() : value;
     }
 
     /**
@@ -985,7 +961,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Time value)
     {
-        return bind(position, toArgument(Time.class, value));
+        return bind(position, value, Time.class);
     }
 
     /**
@@ -998,7 +974,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Time value)
     {
-        return bind(name, toArgument(Time.class, value));
+        return bind(name, value, Time.class);
     }
 
     /**
@@ -1011,7 +987,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, Timestamp value)
     {
-        return bind(position, toArgument(Timestamp.class, value));
+        return bind(position, value, Timestamp.class);
     }
 
     /**
@@ -1024,7 +1000,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, Timestamp value)
     {
-        return bind(name, toArgument(Timestamp.class, value));
+        return bind(name, value, Timestamp.class);
     }
 
     /**
@@ -1037,7 +1013,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(int position, URL value)
     {
-        return bind(position, toArgument(URL.class, value));
+        return bind(position, value, URL.class);
     }
 
     /**
@@ -1050,21 +1026,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bind(String name, URL value)
     {
-        return bind(name, toArgument(URL.class, value));
-    }
-
-    /**
-     * Bind an argument dynamically by the type passed in.
-     *
-     * @param position     position to bind the parameter at, starting at 0
-     * @param value        to bind
-     * @param argumentType type for value argument
-     *
-     * @return the same Query instance
-     */
-    public final This bindByType(int position, Object value, Type argumentType)
-    {
-        return bind(position, toArgument(argumentType, value));
+        return bind(name, value, URL.class);
     }
 
     /**
@@ -1076,23 +1038,55 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
-    public final This bindByType(int position, Object value, GenericType<?> argumentType)
+    public final This bind(int position, Object value, GenericType<?> argumentType)
     {
-        return bindByType(position, value, argumentType.getType());
+        return bind(position, value, argumentType.getType());
     }
 
     /**
      * Bind an argument dynamically by the type passed in.
      *
-     * @param name         token name to bind the parameter to
-     * @param value        to bind
-     * @param argumentType type for value argument
-     *
+     * @param position position to bind the parameter at, starting at 0
+     * @param value    to bind
+     * @param type     type for value argument
      * @return the same Query instance
      */
-    public final This bindByType(String name, Object value, Type argumentType)
+    public final This bind(int position, Object value, Type type)
     {
-        return bind(name, toArgument(argumentType, value));
+        if (type.equals(Object.class)) {
+            if (value == null) {
+                value = new NullValue();
+                type = NullValue.class;
+            }
+            else {
+                type = value.getClass();
+            }
+        }
+        getParams().addPositional(position, value, type);
+        return typedThis;
+    }
+
+    /**
+     * Bind an argument dynamically by the type passed in.
+     *
+     * @param name  token name to bind the parameter to
+     * @param value to bind
+     * @param type  type for value argument
+     * @return the same Query instance
+     */
+    public final This bind(String name, Object value, Type type)
+    {
+        if (type.equals(Object.class)) {
+            if (value == null) {
+                value = new NullValue();
+                type = NullValue.class;
+            }
+            else {
+                type = value.getClass();
+            }
+        }
+        getParams().addNamed(name, value, type);
+        return typedThis;
     }
 
     /**
@@ -1104,18 +1098,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
-    public final This bindByType(String name, Object value, GenericType<?> argumentType)
+    public final This bind(String name, Object value, GenericType<?> argumentType)
     {
-        return bindByType(name, value, argumentType.getType());
-    }
-
-    private Argument toArgument(Object value) {
-        return toArgument(value == null ? Object.class : value.getClass(), value);
-    }
-
-    private Argument toArgument(Type type, Object value) {
-        return getConfig().findArgumentFor(type, value)
-                .orElseThrow(() -> new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type));
+        return bind(name, value, argumentType.getType());
     }
 
     /**
@@ -1128,7 +1113,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindNull(String name, int sqlType)
     {
-        return bind(name, new NullArgument(sqlType));
+        return bind(name, new NullValue(sqlType));
     }
 
     /**
@@ -1141,7 +1126,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindNull(int position, int sqlType)
     {
-        return bind(position, new NullArgument(sqlType));
+        return bind(position, new NullValue(sqlType));
     }
 
     /**
@@ -1156,7 +1141,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindBySqlType(String name, Object value, int sqlType)
     {
-        return bind(name, new ObjectArgument(value, sqlType));
+        return bind(name, new ObjectArgument(sqlType));
     }
 
     /**
@@ -1171,7 +1156,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public final This bindBySqlType(int position, Object value, int sqlType)
     {
-        return bind(position, new ObjectArgument(value, sqlType));
+        return bind(position, new ObjectArgument(sqlType));
     }
 
     PreparedStatement internalExecute()

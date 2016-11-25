@@ -76,7 +76,7 @@ public class TestH2SqlArrays {
     public void testUuidList() throws Exception {
         assertThat(
             h.createUpdate(U_INSERT)
-                .bindByType("u", Arrays.asList(testUuids), UUID_LIST)
+                .bind("u", Arrays.asList(testUuids), UUID_LIST)
                 .execute())
             .isEqualTo(1);
         assertThat(
@@ -90,7 +90,7 @@ public class TestH2SqlArrays {
     public void testUuidArrayList() throws Exception {
         assertThat(
             h.createUpdate(U_INSERT)
-                .bindByType("u", new ArrayList<>(Arrays.asList(testUuids)), UUID_LIST)
+                .bind("u", new ArrayList<>(Arrays.asList(testUuids)), UUID_LIST)
                 .execute())
             .isEqualTo(1);
         assertThat(
@@ -104,7 +104,7 @@ public class TestH2SqlArrays {
     public void testUuidHashSet() throws Exception {
         assertThat(
             h.createUpdate(U_INSERT)
-                .bindByType("u", new HashSet<>(Arrays.asList(testUuids)), UUID_SET)
+                .bind("u", new HashSet<>(Arrays.asList(testUuids)), UUID_SET)
                 .execute())
             .isEqualTo(1);
         assertThat(
@@ -118,7 +118,7 @@ public class TestH2SqlArrays {
     public void testUuidLinkedHashSet() throws Exception {
         assertThat(
             h.createUpdate(U_INSERT)
-                .bindByType("u", new LinkedHashSet<>(Arrays.asList(testUuids)), UUID_SET)
+                .bind("u", new LinkedHashSet<>(Arrays.asList(testUuids)), UUID_SET)
                 .execute())
             .isEqualTo(1);
         assertThat(

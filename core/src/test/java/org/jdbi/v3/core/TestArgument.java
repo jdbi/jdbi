@@ -15,16 +15,15 @@ package org.jdbi.v3.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Type;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestArgumentFactory
+public class TestArgument
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
@@ -33,7 +32,7 @@ public class TestArgumentFactory
     public void testRegisterOnDBI() throws Exception
     {
         final Jdbi dbi = db.getJdbi();
-        dbi.registerArgument(new NameAF());
+        dbi.registerArgument(new NameArgument());
         try (Handle h = dbi.open()) {
             h.createUpdate("insert into something (id, name) values (:id, :name)")
               .bind("id", 7)
@@ -50,7 +49,7 @@ public class TestArgumentFactory
     public void testRegisterOnHandle() throws Exception
     {
         try (Handle h = db.openHandle()) {
-            h.registerArgument(new NameAF());
+            h.registerArgument(new NameArgument());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
              .bind("id", 7)
              .bind("name", new Name("Brian", "McCallister"))
@@ -66,7 +65,7 @@ public class TestArgumentFactory
     public void testRegisterOnStatement() throws Exception
     {
         db.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
-         .registerArgument(new NameAF())
+         .registerArgument(new NameArgument())
          .bind("id", 1)
          .bind("name", new Name("Brian", "McCallister"))
          .execute();
@@ -77,7 +76,7 @@ public class TestArgumentFactory
     {
         Handle h = db.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
-        batch.registerArgument(new NameAF());
+        batch.registerArgument(new NameArgument());
 
         batch.add().bind("id", 1).bind("name", new Name("Brian", "McCallister"));
         batch.add().bind("id", 2).bind("name", new Name("Henning", "S"));
@@ -91,16 +90,10 @@ public class TestArgumentFactory
         assertThat(rs.get(1)).isEqualTo("Henning S");
     }
 
-    public static class NameAF implements ArgumentFactory
-    {
-        @SuppressWarnings("unchecked")
+    public static class NameArgument implements Argument<Name> {
         @Override
-        public Optional<Argument<?>> build(Type expectedType, ConfigRegistry config) {
-            if (expectedType == Name.class) {
-                Argument<Name> argument = (stmt, pos, value, ctx) -> stmt.setString(pos, value.getFullName());
-                return Optional.of(argument);
-            }
-            return Optional.empty();
+        public void apply(PreparedStatement statement, int position, Name value, StatementContext ctx) throws SQLException {
+            statement.setString(position, value.getFullName());
         }
     }
 

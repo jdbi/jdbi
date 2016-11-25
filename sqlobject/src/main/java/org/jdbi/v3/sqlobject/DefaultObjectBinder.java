@@ -47,8 +47,8 @@ class DefaultObjectBinder implements BinderFactory<Bind, Object>
                 }
             }
 
-            q.bindByType(index, arg, type);
-            q.bindByType(name, arg, type);
+            q.bind(index, arg, type);
+            q.bind(name, arg, type);
         };
     }
 }

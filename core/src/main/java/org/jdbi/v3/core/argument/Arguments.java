@@ -19,6 +19,7 @@ import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.ConfigRegistry;
@@ -29,6 +30,7 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     private final Optional<Arguments> parent;
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
+    private final ConcurrentHashMap<Type, Argument<?>> cache = new ConcurrentHashMap<>();
 
     public Arguments() {
         parent = Optional.empty();
@@ -40,25 +42,55 @@ public class Arguments implements JdbiConfig<Arguments> {
         parent = Optional.of(that);
     }
 
+    /**
+     * Register an argument, which will have its parameterized type inspected to determine what argument types it binds.
+     *
+     * @param argument the argument
+     * @return this
+     */
+    public Arguments register(Argument<?> argument) {
+        return this.register(new InferredArgumentFactory(argument));
+    }
+
+    /**
+     * Register an argument factory.
+     *
+     * @param factory the argument factory
+     * @return this
+     */
     public Arguments register(ArgumentFactory factory) {
         argumentFactories.add(0, factory);
+        cache.clear();
         return this;
     }
 
     /**
      * Obtain an argument for given value in the given context
      *
-     * @param type  the type of the argument.
-     * @param value the argument value.
+     * @param type   the type of the argument.
      * @param config the config registry, for composition
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findFor(Type type, Object value, ConfigRegistry config) {
-        return findFirstPresent(
+    public Optional<Argument<?>> findFor(Type type, ConfigRegistry config) {
+        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
+        // Since arguments can decorate other arguments, we have to populate the cache the old fashioned way.
+        // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
+
+        Argument<?> cached = cache.get(type);
+
+        if (cached != null) {
+            return Optional.of(cached);
+        }
+
+        Optional<Argument<?>> argument = findFirstPresent(
                 () -> argumentFactories.stream()
-                        .flatMap(factory -> toStream(factory.build(type, value, config)))
+                        .flatMap(factory -> toStream(factory.build(type, config)))
                         .findFirst(),
-                () -> parent.flatMap(p -> p.findFor(type, value, config)));
+                () -> parent.flatMap(p -> p.findFor(type, config)));
+
+        argument.ifPresent(a -> cache.put(type, a));
+
+        return argument;
     }
 
     @Override

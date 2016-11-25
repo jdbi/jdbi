@@ -17,8 +17,10 @@ import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Types;
 
+import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,7 +52,7 @@ public class TestBeanArguments
             }
         };
 
-        new BeanPropertyArguments("", bean, ctx).find("foo").get().apply(5, stmt, null);
+        applyArgument(5, new BeanPropertyArguments("", bean, ctx).find("foo").get());
 
         verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
@@ -65,7 +67,7 @@ public class TestBeanArguments
             }
         };
 
-        new BeanPropertyArguments("", bean, ctx).find("foo").get().apply(3, stmt, null);
+        applyArgument(3, new BeanPropertyArguments("", bean, ctx).find("foo").get());
 
         verify(stmt).setNull(3, Types.NUMERIC);
     }
@@ -80,7 +82,7 @@ public class TestBeanArguments
             }
         };
 
-        new BeanPropertyArguments("foo", bean, ctx).find("foo.bar").get().apply(3, stmt, null);
+        applyArgument(3, new BeanPropertyArguments("foo", bean, ctx).find("foo.bar").get());
 
         verify(stmt).setString(3, "baz");
     }
@@ -128,5 +130,11 @@ public class TestBeanArguments
 
         exception.expect(UnableToCreateStatementException.class);
         new BeanPropertyArguments("foo", bean, ctx).find("foo.bar");
+    }
+
+    @SuppressWarnings("unchecked")
+    private void applyArgument(int position, BoundArgument argument) throws SQLException {
+        Argument<Object> arg = (Argument<Object>) ctx.findArgumentFor(argument.getType()).get();
+        arg.apply(stmt, position, argument.getValue(), ctx);
     }
 }

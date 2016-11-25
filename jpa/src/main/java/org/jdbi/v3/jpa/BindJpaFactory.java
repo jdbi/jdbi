@@ -31,7 +31,7 @@ public class BindJpaFactory implements BinderFactory<BindJpa, Object> {
 
             JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
             for (JpaMember member : jpaClass.members()) {
-                q.bindByType(
+                q.bind(
                         prefix + member.getColumnName(),
                         readMember(arg, member),
                         member.getType());

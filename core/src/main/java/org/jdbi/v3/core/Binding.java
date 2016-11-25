@@ -15,13 +15,13 @@ package org.jdbi.v3.core;
 
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 
 /**
@@ -29,12 +29,12 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
  */
 public class Binding
 {
-    private final Map<Integer, Argument> positionals = new HashMap<>();
-    private final Map<String, Argument> named = new HashMap<>();
+    private final Map<Integer, BoundArgument> positionals = new HashMap<>();
+    private final Map<String, BoundArgument> named = new HashMap<>();
     private final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
 
-    void addPositional(int position, Argument parameter) {
-        positionals.put(position, parameter);
+    void addPositional(int position, Object value, Type type) {
+        positionals.put(position, new BoundArgument(value, type));
     }
 
     /**
@@ -44,7 +44,7 @@ public class Binding
      *
      * @return the bound Argument
      */
-    public Optional<Argument> findForName(String name) {
+    public Optional<BoundArgument> findForName(String name) {
         if (named.containsKey(name)) {
             return Optional.of(named.get(name));
         }
@@ -61,12 +61,12 @@ public class Binding
      *
      * @return argument bound to that position
      */
-    public Optional<Argument> findForPosition(int position) {
+    public Optional<BoundArgument> findForPosition(int position) {
         return Optional.ofNullable(positionals.get(position));
     }
 
-    void addNamed(String name, Argument argument) {
-        this.named.put(name, argument);
+    void addNamed(String name, Object value, Type type) {
+        this.named.put(name, new BoundArgument(value, type));
     }
 
     void addNamedArgumentFinder(NamedArgumentFinder args) {
@@ -78,7 +78,7 @@ public class Binding
         boolean wrote = false;
         StringBuilder b = new StringBuilder();
         b.append("{ positional:{");
-        for (Map.Entry<Integer, Argument> entry : positionals.entrySet()) {
+        for (Map.Entry<Integer, BoundArgument> entry : positionals.entrySet()) {
             wrote = true;
             b.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
         }
@@ -89,7 +89,7 @@ public class Binding
         b.append("}");
 
         b.append(", named:{");
-        for (Map.Entry<String, Argument> entry : named.entrySet()) {
+        for (Map.Entry<String, BoundArgument> entry : named.entrySet()) {
             wrote = true;
             b.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
         }

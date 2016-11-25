@@ -54,25 +54,20 @@ public class ArgumentsTest {
     // end::bindValue[]
 
     // tag::uuidArgument[]
-    static class UUIDArgument implements Argument {
-        private UUID uuid;
-
-        public UUIDArgument(UUID uuid) {
-            this.uuid = uuid;
-        }
-
+    static class UUIDArgument implements Argument<UUID> {
         @Override
-        public void apply(int position, PreparedStatement statement, StatementContext ctx)
+        public void apply(PreparedStatement statement, int position, UUID value, StatementContext ctx)
         throws SQLException {
-            statement.setString(position, uuid.toString()); // <1>
+            statement.setString(position, value.toString()); // <1>
         }
     }
 
     @Test
     public void uuidArgument() {
         UUID u = UUID.randomUUID();
+        handle.registerArgument(new UUIDArgument());
         assertThat(handle.createQuery("SELECT CAST(:uuid AS VARCHAR)")
-            .bind("uuid", new UUIDArgument(u))
+            .bind("uuid", u)
             .mapTo(String.class)
             .findOnly()).isEqualTo(u.toString());
     }
@@ -81,10 +76,10 @@ public class ArgumentsTest {
     // tag::uuidArgumentFactory[]
     static class UUIDArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
             return type == UUID.class ?
-                    Optional.of(new UUIDArgument((UUID) value)) :
-                        Optional.empty();
+                    Optional.of(new UUIDArgument()) :
+                    Optional.empty();
         }
     }
 

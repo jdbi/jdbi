@@ -13,15 +13,20 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.util.Optional;
+import java.sql.Types;
 
-import org.jdbi.v3.core.BoundArgument;
+public class NullValue {
+    private final int sqlType;
 
-/**
- * Returns an Argument based on a name. Used to lookup multiple properties e.g. in a Bean or a Map.
- */
-@FunctionalInterface
-public interface NamedArgumentFinder
-{
-    Optional<BoundArgument> find(String name);
+    public NullValue() {
+        this(Types.NULL);
+    }
+
+    public NullValue(int sqlType) {
+        this.sqlType = sqlType;
+    }
+
+    public int getSqlType() {
+        return sqlType;
+    }
 }

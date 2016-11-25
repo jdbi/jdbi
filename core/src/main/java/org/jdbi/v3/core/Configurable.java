@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import java.util.function.Consumer;
 
+import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
@@ -101,6 +102,16 @@ public interface Configurable<This> {
      */
     default This define(String key, Object value) {
         return configure(SqlStatements.class, c -> c.define(key, value));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(Arguments.class).register(argument)}
+     *
+     * @param argument the argument
+     * @return this
+     */
+    default This registerArgument(Argument<?> argument) {
+        return configure(Arguments.class, c -> c.register(argument));
     }
 
     /**

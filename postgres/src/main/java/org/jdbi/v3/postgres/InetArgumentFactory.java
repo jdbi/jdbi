@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.postgres;
 
+import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
+
 import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.sql.Types;
@@ -25,14 +27,11 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 /**
  * Postgres version of argument factory for {@code InetAddress}.
  */
-public class InetArgumentFactory implements ArgumentFactory
-{
+public class InetArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config)
-    {
-        if (value instanceof InetAddress)
-        {
-            return Optional.of((i, p, cx) -> p.setObject(i, ((InetAddress)value).getHostAddress(), Types.OTHER));
+    public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
+        if (InetAddress.class.isAssignableFrom(getErasedType(type))) {
+            return Optional.of((p, i, value, cx) -> p.setObject(i, ((InetAddress) value).getHostAddress(), Types.OTHER));
         }
         return Optional.empty();
     }

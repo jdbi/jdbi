@@ -13,12 +13,14 @@
  */
 package org.jdbi.v3.core;
 
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -349,7 +351,7 @@ public class TestQueries
         h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("name", "brian")
                 .bind(7, 8)
-                .bindMap(new HandyMapThing<String>().add("one", "two"))
+                .bindMap(singletonMap("one", "two"))
                 .bindBean(new Object())
                 .execute();
     }

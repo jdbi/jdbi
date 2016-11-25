@@ -13,15 +13,27 @@
  */
 package org.jdbi.v3.core;
 
-import java.util.HashMap;
+import java.lang.reflect.Type;
 
-public class HandyMapThing<K> extends HashMap<K, Object>
-{
-    private static final long serialVersionUID = 1L;
+public class BoundArgument {
+    final Object value;
+    final Type type;
 
-    public HandyMapThing<K> add(K k, Object v)
-    {
-        this.put(k, v);
-        return this;
+    public BoundArgument(Object value, Type type) {
+        this.value = value;
+        this.type = type;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
     }
 }

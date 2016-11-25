@@ -29,10 +29,10 @@ import org.jdbi.v3.core.util.GenericTypes;
  */
 public class TypedEnumArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
         if (!GenericTypes.getErasedType(type).isEnum()) {
             return Optional.empty();
         }
-        return Optional.of((p, s, c) -> s.setObject(p, value, java.sql.Types.OTHER));
+        return Optional.of((s, p, value, c) -> s.setObject(p, value, java.sql.Types.OTHER));
     }
 }

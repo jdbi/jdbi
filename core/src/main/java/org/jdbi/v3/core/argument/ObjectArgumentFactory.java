@@ -38,9 +38,9 @@ public class ObjectArgumentFactory implements ArgumentFactory
     }
 
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        return Objects.equals(type, expectedType) || type.isInstance(value)
-                ? Optional.of(new ObjectArgument(value, sqlType))
+    public Optional<Argument<?>> build(Type expectedType, ConfigRegistry config) {
+        return Objects.equals(type, expectedType)
+                ? Optional.of(new ObjectArgument(sqlType))
                 : Optional.empty();
     }
 }

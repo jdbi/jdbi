@@ -29,18 +29,18 @@ import org.jdbi.v3.core.argument.ObjectArgument;
 public class JavaTimeArgumentFactory implements ArgumentFactory {
 
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public Optional<Argument<?>> build(Type type, ConfigRegistry config) {
         if (type == LocalDate.class) {
-            return Optional.of(new ObjectArgument(value, Types.DATE));
+            return Optional.of(new ObjectArgument(Types.DATE));
         }
         if (type == LocalTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIME));
+            return Optional.of(new ObjectArgument(Types.TIME));
         }
         if (type == LocalDateTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIMESTAMP));
+            return Optional.of(new ObjectArgument(Types.TIMESTAMP));
         }
         if (type == OffsetDateTime.class) {
-            return Optional.of(new ObjectArgument(value, Types.TIMESTAMP_WITH_TIMEZONE));
+            return Optional.of(new ObjectArgument(Types.TIMESTAMP_WITH_TIMEZONE));
         }
         return Optional.empty();
     }
