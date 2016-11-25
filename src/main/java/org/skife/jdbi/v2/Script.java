@@ -63,7 +63,10 @@ public class Script
         }
     }
 
-    private List<String> getStatements() {
+    /**
+     * Locate the Script and split it into statements.
+     */
+    public List<String> getStatements() {
         final String script;
         try {
             script = locator.locate(name, statementContext);
