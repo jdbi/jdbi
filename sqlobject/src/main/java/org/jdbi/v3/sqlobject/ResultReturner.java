@@ -85,7 +85,7 @@ abstract class ResultReturner
         else if (Iterator.class.isAssignableFrom(returnClass)) {
             return new IteratorResultReturner(returnType);
         }
-        else if (method.getAnnotation(SingleValue.class) != null) {
+        else if (method.isAnnotationPresent(SingleValue.class)) {
             return new SingleValueResultReturner(returnType);
         }
         else if (returnClass.isArray()) {
@@ -104,7 +104,7 @@ abstract class ResultReturner
         }
         else {
             try {
-                return ggk.value().newInstance();
+                return ggk.value().getConstructor().newInstance();
             }
             catch (Exception e) {
                 throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);

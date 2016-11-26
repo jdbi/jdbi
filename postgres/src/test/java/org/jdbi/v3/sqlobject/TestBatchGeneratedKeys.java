@@ -52,7 +52,7 @@ public class TestBatchGeneratedKeys
     public void testReturnKey() throws Exception
     {
         long[] ids = b.insertNames("a", "b", "c", "d", "e");
-        assertThat(ids).containsExactly(new long[] { 1, 2, 3, 4, 5 });
+        assertThat(ids).containsExactly(1, 2, 3, 4, 5);
     }
 
     @Test

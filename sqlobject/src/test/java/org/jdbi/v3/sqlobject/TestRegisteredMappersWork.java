@@ -199,7 +199,7 @@ public class TestRegisteredMappersWork
         Kabob bob = db.getJdbi().onDemand(Kabob.class);
 
         Iterator<Something> itty = bob.iterateAll();
-        assertThat(itty.hasNext()).isFalse();
+        itty.hasNext();
     }
 
     public interface Spiffy

@@ -117,6 +117,7 @@ class BatchHandler extends CustomizingStatementHandler
 
         ResultIterator<Object> result = new ResultIterator<Object>() {
             ResultIterator<?> batchResult;
+            boolean closed = false;
 
             {
                 hasNext(); // Ensure our batchResult is prepared, so we can get its context
@@ -124,6 +125,9 @@ class BatchHandler extends CustomizingStatementHandler
 
             @Override
             public boolean hasNext() {
+                if (closed) {
+                    throw new IllegalStateException("closed");
+                }
                 // first, any elements already buffered?
                 if (batchResult != null) {
                     if (batchResult.hasNext()) {
@@ -148,6 +152,9 @@ class BatchHandler extends CustomizingStatementHandler
 
             @Override
             public Object next() {
+                if (closed) {
+                    throw new IllegalStateException("closed");
+                }
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
@@ -161,6 +168,7 @@ class BatchHandler extends CustomizingStatementHandler
 
             @Override
             public void close() {
+                closed = true;
                 batchResult.close();
             }
         };

@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
@@ -127,8 +128,7 @@ public class TestSqlArrays {
 
     @Test
     public void testIntList() throws Exception {
-        List<Integer> testIntList = new ArrayList<Integer>();
-        Arrays.stream(testInts).forEach(testIntList::add);
+        List<Integer> testIntList = Arrays.stream(testInts).boxed().collect(Collectors.toList());
         ao.insertIntList(testIntList);
         assertThat(ao.fetchIntList()).containsExactlyElementsOf(testIntList);
     }
