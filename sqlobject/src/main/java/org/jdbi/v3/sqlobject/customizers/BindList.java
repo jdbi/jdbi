@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
+import static java.util.Objects.requireNonNull;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -71,7 +73,7 @@ public @interface BindList {
             final BindList bindList = (BindList) annotation;
             final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
 
-            if (arg == null || Util.size(arg) == 0) {
+            if (arg == null || Util.isEmpty(arg)) {
                 switch (bindList.onEmpty()) {
                     case VOID:
                         return stmt -> stmt.define(name, "");
@@ -120,28 +122,21 @@ public @interface BindList {
             throw new IllegalArgumentException(getTypeWarning(obj.getClass()));
         }
 
-        static int size(final Object obj) {
+        static boolean isEmpty(final Object obj) {
             if (obj == null) {
-                throw new IllegalArgumentException("cannot get size of null");
+                throw new IllegalArgumentException("cannot determine emptiness of null");
             }
 
             if (obj instanceof Collection) {
-                return ((Collection<?>) obj).size();
+                return ((Collection)obj).isEmpty();
             }
 
             if (obj instanceof Iterable) {
-                final Iterable<?> iterable = (Iterable<?>) obj;
-
-                int size = 0;
-                for (final Object x : iterable) {
-                    size++;
-                }
-
-                return size;
+                return !((Iterable)obj).iterator().hasNext();
             }
 
             if (obj.getClass().isArray()) {
-                return Array.getLength(obj);
+                return Array.getLength(obj) == 0;
             }
 
             throw new IllegalArgumentException(getTypeWarning(obj.getClass()));

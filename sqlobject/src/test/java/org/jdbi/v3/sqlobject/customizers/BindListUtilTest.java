@@ -145,61 +145,61 @@ public class BindListUtilTest
     }
 
     @Test
-    public void testSizePrimitiveArray()
+    public void testIsEmptyPrimitiveArray()
     {
-        assertThat(BindList.Util.size(new int[]{1, 2, 3})).isEqualTo(3);
+        assertThat(BindList.Util.isEmpty(new int[]{1, 2, 3})).isFalse();
     }
 
     @Test
-    public void testSizeEmptyPrimitiveArray()
+    public void testIsEmptyEmptyPrimitiveArray()
     {
-        assertThat(BindList.Util.size(new int[]{})).isEqualTo(0);
+        assertThat(BindList.Util.isEmpty(new int[]{})).isTrue();
     }
 
     @Test
-    public void testSizeObjectArray()
+    public void testIsEmptyObjectArray()
     {
-        assertThat(BindList.Util.size(new Object[]{"1", "2", "3"})).isEqualTo(3);
+        assertThat(BindList.Util.isEmpty(new Object[]{"1", "2", "3"})).isFalse();
     }
 
     @Test
-    public void testSizeEmptyObjectArray()
+    public void testIsEmptyEmptyObjectArray()
     {
-        assertThat(BindList.Util.size(new Object[]{})).isEqualTo(0);
+        assertThat(BindList.Util.isEmpty(new Object[]{})).isTrue();
     }
 
     @Test
-    public void testSizeList()
+    public void testIsEmptyList()
     {
         final List<String> in = new ArrayList<String>();
         in.add("1");
         in.add("2");
         in.add("3");
 
-        assertThat(BindList.Util.size(in)).isEqualTo(3);
+        assertThat(BindList.Util.isEmpty(in)).isFalse();
     }
 
     @Test
-    public void testSizeEmptyList()
+    public void testIsEmptyEmptyList()
     {
-        assertThat(BindList.Util.size(new ArrayList<String>())).isEqualTo(0);
+        assertThat(BindList.Util.isEmpty(new ArrayList<String>())).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSizeObject()
+    public void testIsEmptyObject()
     {
-        BindList.Util.size(new Object());
+        BindList.Util.isEmpty(new Object());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSizePrimitive()
+    public void testIsEmptyPrimitive()
     {
-        BindList.Util.size(5);
+        BindList.Util.isEmpty(5);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSizeNull()
+    public void testIsEmptyNull()
     {
-        BindList.Util.size(null);
+        BindList.Util.isEmpty(null);
     }
 }
