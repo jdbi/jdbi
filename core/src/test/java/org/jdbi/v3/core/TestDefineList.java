@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.core.mapper.FieldMapper;
+import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

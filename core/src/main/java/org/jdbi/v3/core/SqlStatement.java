@@ -26,9 +26,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
@@ -1178,18 +1181,36 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     /**
+     * Bind a parameter for each value in the given vararg array, and defines an attribute as the comma-separated list
+     * of parameter references (using colon prefix).
+     *
+     * @param key    attribute name
+     * @param values vararg values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the vararg array is empty.
+     */
+    public final This bindList(String key, Object... values) {
+        if (values.length == 0) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".bindList was called with no vararg values.");
+        }
+
+        return bindList(key, Arrays.asList(values));
+    }
+
+    /**
      * Bind a parameter for each value in the given list, and defines an attribute as the comma-separated list of
      * parameter references (using colon prefix).
      *
      * @param key    attribute name
-     * @param values values that will be comma-spliced into the defined attribute value.
+     * @param values list of values that will be comma-spliced into the defined attribute value.
      * @return this
      * @throws IllegalArgumentException if the list is empty.
      */
     public final This bindList(String key, List<?> values) {
         if (values.isEmpty()) {
             throw new IllegalArgumentException(
-                    getClass().getSimpleName() + ".defineList was passed an empty list.");
+                    getClass().getSimpleName() + ".bindList was called with an empty list.");
         }
 
         StringBuilder names = new StringBuilder();
@@ -1212,18 +1233,39 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
      *
      * @param key    attribute name
-     * @param values values that will be comma-spliced into the defined attribute value.
+     * @param values vararg values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the vararg array is empty, or contains any null elements.
+     */
+    public final This defineList(String key, Object... values) {
+        if (values.length == 0) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was called with no vararg values.");
+        }
+        if (Stream.of(values).anyMatch(Objects::isNull)) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was called with a vararg array containing null values.");
+        }
+
+        return defineList(key, Arrays.asList(values));
+    }
+
+    /**
+     * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
+     *
+     * @param key    attribute name
+     * @param values list of values that will be comma-spliced into the defined attribute value.
      * @return this
      * @throws IllegalArgumentException if the list is empty, or contains any null elements.
      */
     public final This defineList(String key, List<?> values) {
         if (values.isEmpty()) {
             throw new IllegalArgumentException(
-                    getClass().getSimpleName() + ".defineList was passed an empty list.");
+                    getClass().getSimpleName() + ".defineList was called with an empty list.");
         }
         if (values.contains(null)) {
             throw new IllegalArgumentException(
-                    getClass().getSimpleName() + ".defineList was passed a list with null values in it.");
+                    getClass().getSimpleName() + ".defineList was called with a list containing null values.");
         }
 
         String value = values.stream()

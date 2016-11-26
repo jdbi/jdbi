@@ -16,10 +16,9 @@ package org.jdbi.v3.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.core.mapper.FieldMapper;
+import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,12 +41,12 @@ public class TestBindList {
     @Test
     public void testBindList() {
         handle.createUpdate("insert into thing (<columns>) values (<values>)")
-                .defineList("columns", Arrays.asList("id", "foo"))
-                .bindList("values", Arrays.asList(3, "abc"))
+                .defineList("columns", "id", "foo")
+                .bindList("values", 3, "abc")
                 .execute();
 
         List<Thing> list = handle.createQuery("select id, foo from thing where id in (<ids>)")
-                .bindList("ids", Arrays.asList(1, 3))
+                .bindList("ids", 1, 3)
                 .mapTo(Thing.class)
                 .list();
         assertThat(list)
