@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.customizers;
 
-import static java.util.Objects.requireNonNull;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

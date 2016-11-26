@@ -1183,6 +1183,19 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     /**
      * Bind a parameter for each value in the given vararg array, and defines an attribute as the comma-separated list
      * of parameter references (using colon prefix).
+     * <p>
+     * Examples:
+     * <pre>
+     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+     *     .defineList("columnNames", "id", "name", "created_on")
+     *     .bindList("values", 1, "Alice", LocalDate.now())
+     *     .execute();
+     *
+     * List&lt;Thing&gt; things = handle.createQuery("select * from things where id in (&lt;ids&gt;)")
+     *     .bindList("ids", 1, 2, 3)
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
      *
      * @param key    attribute name
      * @param values vararg values that will be comma-spliced into the defined attribute value.
@@ -1201,6 +1214,22 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     /**
      * Bind a parameter for each value in the given list, and defines an attribute as the comma-separated list of
      * parameter references (using colon prefix).
+     * <p>
+     * Examples:
+     * <pre>
+     * List&lt;String&gt; columnNames = Arrays.asList("id", "name", "created_on");
+     * List&lt;Object&gt; values = Arrays.asList(1, "Alice", LocalDate.now());
+     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+     *     .defineList("columnNames", columnNames)
+     *     .bindList("values", values)
+     *     .execute();
+     *
+     * List&lt;Integer&gt; ids = Arrays.asList(1, 2, 3);
+     * List&lt;Thing&gt; things = handle.createQuery("select * from things where id in (&lt;ids&gt;)")
+     *     .bindList("ids", ids)
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
      *
      * @param key    attribute name
      * @param values list of values that will be comma-spliced into the defined attribute value.
@@ -1231,6 +1260,19 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     /**
      * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
+     * <p>
+     * Examples:
+     * <pre>
+     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+     *     .defineList("columnNames", "id", "name", "created_on")
+     *     .bindList("values", 1, "Alice", LocalDate.now())
+     *     .execute();
+     *
+     * List&lt;Thing&gt; things = handle.createQuery("select &lt;columnNames&gt; from things")
+     *     .bindList("columnNames", "id", "name", "created_on")
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
      *
      * @param key    attribute name
      * @param values vararg values that will be comma-spliced into the defined attribute value.
@@ -1252,6 +1294,22 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     /**
      * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
+     * <p>
+     * Examples:
+     * <pre>
+     * List&lt;String&gt; columnNames = Arrays.asList("id", "name", "created_on");
+     * List&lt;Object&gt; values = Arrays.asList(1, "Alice", LocalDate.now());
+     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+     *     .defineList("columnNames", columnNames)
+     *     .bindList("values", 1, values)
+     *     .execute();
+     *
+     * List&lt;String&gt; columnNames = Arrays.asList("id", "name", "created_on");
+     * List&lt;Thing&gt; things = handle.createQuery("select &lt;columnNames&gt; from things")
+     *     .bindList("columnNames", columnNames)
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
      *
      * @param key    attribute name
      * @param values list of values that will be comma-spliced into the defined attribute value.
