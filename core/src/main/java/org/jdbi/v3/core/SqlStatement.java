@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
@@ -24,8 +26,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.CharacterStreamArgument;
@@ -1172,6 +1178,159 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public final This bindBySqlType(int position, Object value, int sqlType)
     {
         return bind(position, new ObjectArgument(value, sqlType));
+    }
+
+    /**
+     * Bind a parameter for each value in the given vararg array, and defines an attribute as the comma-separated list
+     * of parameter references (using colon prefix).
+     * <p>
+     * Examples:
+     * <pre>
+     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+     *     .defineList("columnNames", "id", "name", "created_on")
+     *     .bindList("values", 1, "Alice", LocalDate.now())
+     *     .execute();
+     *
+     * List&lt;Thing&gt; things = handle.createQuery("select * from things where id in (&lt;ids&gt;)")
+     *     .bindList("ids", 1, 2, 3)
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
+     *
+     * @param key    attribute name
+     * @param values vararg values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the vararg array is empty.
+     */
+    public final This bindList(String key, Object... values) {
+        if (values.length == 0) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".bindList was called with no vararg values.");
+        }
+
+        return bindList(key, Arrays.asList(values));
+    }
+
+    /**
+     * Bind a parameter for each value in the given list, and defines an attribute as the comma-separated list of
+     * parameter references (using colon prefix).
+     * <p>
+     * Examples:
+     * <pre>
+     * List&lt;String&gt; columnNames = Arrays.asList("id", "name", "created_on");
+     * List&lt;Object&gt; values = Arrays.asList(1, "Alice", LocalDate.now());
+     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+     *     .defineList("columnNames", columnNames)
+     *     .bindList("values", values)
+     *     .execute();
+     *
+     * List&lt;Integer&gt; ids = Arrays.asList(1, 2, 3);
+     * List&lt;Thing&gt; things = handle.createQuery("select * from things where id in (&lt;ids&gt;)")
+     *     .bindList("ids", ids)
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
+     *
+     * @param key    attribute name
+     * @param values list of values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the list is empty.
+     */
+    public final This bindList(String key, List<?> values) {
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".bindList was called with an empty list.");
+        }
+
+        StringBuilder names = new StringBuilder();
+
+        for (int i = 0; i < values.size(); i++) {
+            String name = "__" + key + "_" + i;
+
+            if (i > 0) {
+                names.append(',');
+            }
+            names.append(':').append(name);
+
+            bind(name, values.get(i));
+        }
+
+        return define(key, names.toString());
+    }
+
+    /**
+     * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
+     * <p>
+     * Examples:
+     * <pre>
+     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+     *     .defineList("columnNames", "id", "name", "created_on")
+     *     .bindList("values", 1, "Alice", LocalDate.now())
+     *     .execute();
+     *
+     * List&lt;Thing&gt; things = handle.createQuery("select &lt;columnNames&gt; from things")
+     *     .bindList("columnNames", "id", "name", "created_on")
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
+     *
+     * @param key    attribute name
+     * @param values vararg values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the vararg array is empty, or contains any null elements.
+     */
+    public final This defineList(String key, Object... values) {
+        if (values.length == 0) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was called with no vararg values.");
+        }
+        if (Stream.of(values).anyMatch(Objects::isNull)) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was called with a vararg array containing null values.");
+        }
+
+        return defineList(key, Arrays.asList(values));
+    }
+
+    /**
+     * Define an attribute as the comma-separated {@link String} from the elements of the {@code values} argument.
+     * <p>
+     * Examples:
+     * <pre>
+     * List&lt;String&gt; columnNames = Arrays.asList("id", "name", "created_on");
+     * List&lt;Object&gt; values = Arrays.asList(1, "Alice", LocalDate.now());
+     * handle.createUpdate("insert into things (&lt;columnNames&gt;) values (&lt;values&gt;)")
+     *     .defineList("columnNames", columnNames)
+     *     .bindList("values", 1, values)
+     *     .execute();
+     *
+     * List&lt;String&gt; columnNames = Arrays.asList("id", "name", "created_on");
+     * List&lt;Thing&gt; things = handle.createQuery("select &lt;columnNames&gt; from things")
+     *     .bindList("columnNames", columnNames)
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
+     *
+     * @param key    attribute name
+     * @param values list of values that will be comma-spliced into the defined attribute value.
+     * @return this
+     * @throws IllegalArgumentException if the list is empty, or contains any null elements.
+     */
+    public final This defineList(String key, List<?> values) {
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was called with an empty list.");
+        }
+        if (values.contains(null)) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".defineList was called with a list containing null values.");
+        }
+
+        String value = values.stream()
+                .map(Object::toString)
+                .collect(joining(", "));
+
+        return define(key, value);
     }
 
     PreparedStatement internalExecute()

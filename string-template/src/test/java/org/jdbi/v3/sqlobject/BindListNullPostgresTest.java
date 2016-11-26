@@ -19,7 +19,7 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.PgDatabaseRule;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.sqlobject.customizers.BindIn;
+import org.jdbi.v3.sqlobject.customizers.BindList;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.stringtemplate.TestStringTemplateSqlLocator.SomethingMapper;
 import org.jdbi.v3.stringtemplate.UseStringTemplateStatementRewriter;
@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class BindInNullPostgresTest {
+public class BindListNullPostgresTest {
     @Rule
     public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -74,6 +74,6 @@ public class BindInNullPostgresTest {
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingByIterableHandleNull {
         @SqlQuery("select id, name from something where name in (<names>)")
-        List<Something> get(@BindIn(value = "names", onEmpty = BindIn.EmptyHandling.NULL) Iterable<Object> ids);
+        List<Something> get(@BindList(value = "names", onEmpty = BindList.EmptyHandling.NULL) Iterable<Object> ids);
     }
 }

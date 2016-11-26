@@ -19,9 +19,9 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.Define;
-import org.jdbi.v3.sqlobject.customizers.DefineIn;
+import org.jdbi.v3.sqlobject.customizers.DefineList;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
-import org.jdbi.v3.sqlobject.customizers.BindIn;
+import org.jdbi.v3.sqlobject.customizers.BindList;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestDefineInParameter
+public class TestDefineListParameter
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -51,7 +51,7 @@ public class TestDefineInParameter
     }
 
     @Test
-    public void testWithBindIn() throws Exception
+    public void testWithBindList() throws Exception
     {
         TestDao testDao = handle.attach(TestDao.class);
 
@@ -128,18 +128,18 @@ public class TestDefineInParameter
     public interface TestDao
     {
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindIn List<Object> values);
+        void insert(@Define("table") String table, @DefineList("columns") List<String> columns, @BindList List<Object> values);
 
         @SqlUpdate("insert into <table> (<columns>) values (:id, :name)")
-        void insert(@Define("table") String table, @DefineIn("columns") List<String> columns, @BindBean Something s);
+        void insert(@Define("table") String table, @DefineList("columns") List<String> columns, @BindBean Something s);
 
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void insert(@Define("table") String table, @DefineIn("columns") Object[] columns, @BindIn List<Object> values);
+        void insert(@Define("table") String table, @DefineList("columns") Object[] columns, @BindList List<Object> values);
 
         @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-        void defaultedInsert(@Define("table") String table, @DefineIn List<String> columns, @BindIn List<Object> values);
+        void defaultedInsert(@Define("table") String table, @DefineList List<String> columns, @BindList List<Object> values);
 
         @SqlQuery("select <columns> from <table> where id = :id")
-        Something findById(@DefineIn("columns") List<String> columns, @Define("table") String table, @Bind("id") long id);
+        Something findById(@DefineList("columns") List<String> columns, @Define("table") String table, @Bind("id") long id);
     }
 }
