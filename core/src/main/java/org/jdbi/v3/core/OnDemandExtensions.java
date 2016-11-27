@@ -22,6 +22,7 @@ public class OnDemandExtensions {
     private static final Method EQUALS_METHOD;
     private static final Method HASHCODE_METHOD;
     private static final Method TOSTRING_METHOD;
+    private static final ThreadLocal<Boolean> IN_ON_DEMAND_EXTENSION = ThreadLocal.withInitial(() -> false);
 
     static {
         try {
@@ -30,7 +31,7 @@ public class OnDemandExtensions {
             TOSTRING_METHOD = Object.class.getMethod("toString");
         }
         catch (NoSuchMethodException wat) {
-            throw new IllegalStateException("JVM error", wat);
+            throw new ExceptionInInitializerError(wat);
         }
     }
 
@@ -56,10 +57,12 @@ public class OnDemandExtensions {
                 }
                 return dbi.withExtension(extensionType, extension -> {
                     threadExtension.set(extension);
+                    IN_ON_DEMAND_EXTENSION.set(true);
                     try {
                         return method.invoke(extension, args);
                     }
                     finally {
+                        IN_ON_DEMAND_EXTENSION.remove();
                         threadExtension.remove();
                     }
                 });
@@ -72,6 +75,11 @@ public class OnDemandExtensions {
         return extensionType.cast(
                 Proxy.newProxyInstance(
                         extensionType.getClassLoader(),
-                        new Class[]{extensionType}, handler));
+                        new Class<?>[] { extensionType }, handler));
+    }
+
+    public static boolean inOnDemandExtension()
+    {
+        return IN_ON_DEMAND_EXTENSION.get();
     }
 }
