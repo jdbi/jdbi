@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jdbi.v3.core.util.ReflectionArrayIterator;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -113,7 +114,7 @@ public @interface BindList {
                 if (obj instanceof Object[]) {
                     return Arrays.asList((Object[]) obj).iterator();
                 } else {
-                    return new ReflectionArrayIterator(obj);
+                    return ReflectionArrayIterator.of(obj);
                 }
             }
 

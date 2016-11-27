@@ -11,13 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.customizers;
+package org.jdbi.v3.core.util;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Iterator;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class ReflectionArrayIteratorTest
 {
@@ -40,7 +40,7 @@ public class ReflectionArrayIteratorTest
     @Test(expected = ArrayIndexOutOfBoundsException.class)
     public void testOverflow()
     {
-        final Iterator it = new ReflectionArrayIterator(new int[]{1});
+        final Iterator<?> it = new ReflectionArrayIterator(new int[]{1});
 
         assertThat(it.hasNext()).isTrue();
         assertThat(it.next()).isEqualTo(1);
@@ -51,7 +51,7 @@ public class ReflectionArrayIteratorTest
     @Test(expected = ArrayIndexOutOfBoundsException.class)
     public void testOverflowOnEmpty()
     {
-        final Iterator it = new ReflectionArrayIterator(new int[]{});
+        final Iterator<?> it = new ReflectionArrayIterator(new int[]{});
 
         it.next();
     }

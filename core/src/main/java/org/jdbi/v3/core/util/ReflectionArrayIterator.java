@@ -11,15 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.customizers;
+package org.jdbi.v3.core.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Iterator;
+
+import com.google.common.base.Verify;
 
 /**
  * Implements Iterator for unidentified arrays that have been cast to Object. Note that its elements will be returned as Object, primitives included (will be autoboxed).
  */
-class ReflectionArrayIterator implements Iterator<Object>
+public class ReflectionArrayIterator implements Iterator<Object>
 {
     private int index = 0;
     private final int size;
@@ -56,5 +59,40 @@ class ReflectionArrayIterator implements Iterator<Object>
     public void remove()
     {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @return whether {@code ReflectionArrayIterator} can iterate over the given object
+     */
+    public static boolean isIterable(Object maybeIterable)
+    {
+        return  maybeIterable instanceof Iterator<?> ||
+                maybeIterable instanceof Iterable<?> ||
+                maybeIterable.getClass().isArray();
+    }
+
+    /**
+     * Given an iterable object (which may be a iterator, iterable, primitive
+     * or reference array), return an iterator over its (possibly boxed) elements.
+     *
+     * @return an iterator of the given array's elements
+     */
+    @SuppressWarnings("unchecked")
+    public static Iterator<Object> of(Object iterable)
+    {
+        if (iterable instanceof Iterator<?>) {
+            return (Iterator<Object>) iterable;
+        }
+        else if (iterable instanceof Iterable<?>) {
+            return ((Iterable<Object>) iterable).iterator();
+        }
+
+        Class<? extends Object> klass = iterable.getClass();
+        Verify.verify(klass.isArray(), "'%s' not an iterable", klass);
+        if (klass.getComponentType().isPrimitive())
+        {
+            return new ReflectionArrayIterator(iterable);
+        }
+        return Arrays.asList((Object[])iterable).iterator();
     }
 }
