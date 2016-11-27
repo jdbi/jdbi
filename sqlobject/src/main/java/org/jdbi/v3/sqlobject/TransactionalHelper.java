@@ -17,8 +17,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.sqlobject.mixins.Transactional;
 
 class TransactionalHelper
 {
@@ -30,9 +30,9 @@ class TransactionalHelper
             h.put(Transactional.class.getMethod("commit"), new CommitHandler());
             h.put(Transactional.class.getMethod("rollback"), new RollbackHandler());
 
-            h.put(Transactional.class.getMethod("checkpoint", String.class), new CheckpointHandler());
-            h.put(Transactional.class.getMethod("release", String.class), new ReleaseCheckpointHandler());
-            h.put(Transactional.class.getMethod("rollback", String.class), new RollbackCheckpointHandler());
+            h.put(Transactional.class.getMethod("savepoint", String.class), new SavepointHandler());
+            h.put(Transactional.class.getMethod("releaseSavepoint", String.class), new ReleaseSavepointHandler());
+            h.put(Transactional.class.getMethod("rollbackToSavepoint", String.class), new RollbackSavepointHandler());
 
             h.put(Transactional.class.getMethod("inTransaction", TransactionalCallback.class), new InTransactionHandler());
             h.put(Transactional.class.getMethod("inTransaction", TransactionIsolationLevel.class, TransactionalCallback.class), new InTransactionWithIsolationLevelHandler());

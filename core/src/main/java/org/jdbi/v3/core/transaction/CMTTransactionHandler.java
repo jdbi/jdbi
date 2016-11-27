@@ -54,15 +54,12 @@ public class CMTTransactionHandler implements TransactionHandler
     }
 
     /**
-     * Roll back to a named checkpoint
-     *
-     * @param handle the handle the rollback is being performed on
-     * @param name   the name of the checkpoint to rollback to
+     * Savepoints are not supported.
      */
     @Override
-    public void rollback(Handle handle, String name)
+    public void rollbackToSavepoint(Handle handle, String name)
     {
-        throw new UnsupportedOperationException("Checkpoints not implemented");
+        throw new UnsupportedOperationException("Savepoints not supported");
     }
 
     /**
@@ -82,27 +79,21 @@ public class CMTTransactionHandler implements TransactionHandler
     }
 
     /**
-     * Create a new checkpoint (savepoint in JDBC terminology)
-     *
-     * @param handle the handle on which the transaction is being checkpointed
-     * @param name   The name of the chckpoint, used to rollback to or release late
+     * Savepoints are not supported.
      */
     @Override
-    public void checkpoint(Handle handle, String name)
+    public void savepoint(Handle handle, String name)
     {
-        throw new UnsupportedOperationException("Checkpoints not implemented");
+        throw new UnsupportedOperationException("Savepoints not supported");
     }
 
     /**
-     * Release a previously created checkpoint
-     *
-     * @param handle         the handle on which the checkpoint is being released
-     * @param checkpointName the checkpoint to release
+     * Savepoints are not supported.
      */
     @Override
-    public void release(Handle handle, String checkpointName)
+    public void releaseSavepoint(Handle handle, String savepointName)
     {
-        throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");
+        throw new UnsupportedOperationException("Savepoints not supported");
     }
 
     @Override

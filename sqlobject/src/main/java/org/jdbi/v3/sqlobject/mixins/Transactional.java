@@ -30,11 +30,11 @@ public interface Transactional<This extends Transactional<This>>
 
     void rollback();
 
-    void checkpoint(String name);
+    void savepoint(String savepointName);
 
-    void release(String name);
+    void rollbackToSavepoint(String savepointName);
 
-    void rollback(String name);
+    void releaseSavepoint(String name);
 
     <R, X extends Exception> R inTransaction(TransactionalCallback<R, This, X> callback) throws X;
 

@@ -28,33 +28,25 @@ import org.jdbi.v3.core.Handle;
 public interface TransactionHandler
 {
     /**
-     * Called when a transaction is started
+     * Begin a transaction.
      *
      * @param handle the handle the transaction is being started on
      */
     void begin(Handle handle);
 
     /**
-     * Called when a transaction is committed
+     * Commit the transaction.
      *
      * @param handle the handle the commit is being performed on
      */
     void commit(Handle handle);
 
     /**
-     * Called when a transaction is rolled back
+     * Roll back the transaction.
      *
      * @param handle the handle the rollback is being performed on
      */
     void rollback(Handle handle);
-
-    /**
-     * Roll back to a named checkpoint
-     *
-     * @param handle the handle the rollback is being performed on
-     * @param name the name of the checkpoint to rollback to
-     */
-    void rollback(Handle handle, String name);
 
     /**
      * @param handle the handle to test
@@ -63,20 +55,28 @@ public interface TransactionHandler
     boolean isInTransaction(Handle handle);
 
     /**
-     * Create a new checkpoint (savepoint in JDBC terminology)
+     * Create a new savepoint.
      *
-     * @param handle the handle on which the transaction is being checkpointed
-     * @param name The name of the chckpoint, used to rollback to or release late
+     * @param handle the handle on which the transaction is being savepointed
+     * @param savepointName The name of the savepoint, used to rollback to or release later
      */
-    void checkpoint(Handle handle, String name);
+    void savepoint(Handle handle, String savepointName);
 
     /**
-     * Release a previously created checkpoint
+     * Roll back to a named savepoint.
      *
-     * @param handle the handle on which the checkpoint is being released
-     * @param checkpointName the checkpoint to release
+     * @param handle the handle the rollback is being performed on
+     * @param savepointName the name of the savepoint to rollback to
      */
-    void release(Handle handle, String checkpointName);
+    void rollbackToSavepoint(Handle handle, String savepointName);
+
+    /**
+     * Release a previously created savepoint.
+     *
+     * @param handle the handle on which the savepoint is being released
+     * @param savepointName the savepoint to release
+     */
+    void releaseSavepoint(Handle handle, String savepointName);
 
     /**
      * Run a transaction.

@@ -17,12 +17,12 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.HandleSupplier;
 
-class CheckpointHandler implements Handler
+class RollbackSavepointHandler implements Handler
 {
     @Override
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
-        handle.getHandle().checkpoint(String.valueOf(args[0]));
+        handle.getHandle().rollbackToSavepoint(String.valueOf(args[0]));
         return null;
     }
 }

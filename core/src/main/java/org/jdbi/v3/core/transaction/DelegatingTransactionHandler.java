@@ -48,9 +48,9 @@ public class DelegatingTransactionHandler implements TransactionHandler
     }
 
     @Override
-    public void rollback(Handle handle, String name)
+    public void rollbackToSavepoint(Handle handle, String name)
     {
-        delegate.rollback(handle, name);
+        delegate.rollbackToSavepoint(handle, name);
     }
 
     @Override
@@ -60,15 +60,15 @@ public class DelegatingTransactionHandler implements TransactionHandler
     }
 
     @Override
-    public void checkpoint(Handle handle, String name)
+    public void savepoint(Handle handle, String name)
     {
-        delegate.checkpoint(handle, name);
+        delegate.savepoint(handle, name);
     }
 
     @Override
-    public void release(Handle handle, String checkpointName)
+    public void releaseSavepoint(Handle handle, String name)
     {
-        delegate.release(handle, checkpointName);
+        delegate.releaseSavepoint(handle, name);
     }
 
     @Override

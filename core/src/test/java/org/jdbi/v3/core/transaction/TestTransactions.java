@@ -128,16 +128,16 @@ public class TestTransactions
     }
 
     @Test
-    public void testCheckpoint() throws Exception
+    public void testSavepoint() throws Exception
     {
         h.begin();
 
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
-        h.checkpoint("first");
+        h.savepoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 2, "Martin");
         assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
                 .isEqualTo(Integer.valueOf(2));
-        h.rollback("first");
+        h.rollbackToSavepoint("first");
         assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
                 .isEqualTo(Integer.valueOf(1));
         h.commit();
@@ -146,16 +146,16 @@ public class TestTransactions
     }
 
     @Test
-    public void testReleaseCheckpoint() throws Exception
+    public void testReleaseSavepoint() throws Exception
     {
         h.begin();
-        h.checkpoint("first");
+        h.savepoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Martin");
 
         h.release("first");
 
         assertThatExceptionOfType(TransactionException.class)
-                .isThrownBy(() -> h.rollback("first"));
+                .isThrownBy(() -> h.rollbackToSavepoint("first"));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -17,12 +17,12 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.HandleSupplier;
 
-class ReleaseCheckpointHandler implements Handler
+class SavepointHandler implements Handler
 {
     @Override
     public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
     {
-        handle.getHandle().release(String.valueOf(args[0]));
+        handle.getHandle().savepoint(String.valueOf(args[0]));
         return null;
     }
 }

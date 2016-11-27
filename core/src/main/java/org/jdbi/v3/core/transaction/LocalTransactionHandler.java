@@ -34,9 +34,6 @@ public class LocalTransactionHandler implements TransactionHandler
     private final ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<>();
     private final ThreadLocal<Boolean> didTxnRollback = ThreadLocal.withInitial(() -> false);
 
-    /**
-     * Called when a transaction is started
-     */
     @Override
     public void begin(Handle handle)
     {
@@ -52,9 +49,6 @@ public class LocalTransactionHandler implements TransactionHandler
         }
     }
 
-    /**
-     * Called when a transaction is committed
-     */
     @Override
     public void commit(Handle handle)
     {
@@ -69,9 +63,6 @@ public class LocalTransactionHandler implements TransactionHandler
         }
     }
 
-    /**
-     * Called when a transaction is rolled back
-     */
     @Override
     public void rollback(Handle handle)
     {
@@ -87,31 +78,25 @@ public class LocalTransactionHandler implements TransactionHandler
         }
     }
 
-    /**
-     * Create a new checkpoint (savepoint in JDBC terminology)
-     *
-     * @param handle the handle on which the transaction is being checkpointed
-     * @param name   The name of the chckpoint, used to rollback to or release late
-     */
     @Override
-    public void checkpoint(Handle handle, String name)
+    public void savepoint(Handle handle, String name)
     {
         final Connection conn = handle.getConnection();
         try {
             final Savepoint savepoint = conn.setSavepoint(name);
-            localStuff.get(handle).getCheckpoints().put(name, savepoint);
+            localStuff.get(handle).getSavepoints().put(name, savepoint);
         }
         catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
+            throw new TransactionException(String.format("Unable to create savepoint '%s'", name), e);
         }
     }
 
     @Override
-    public void release(Handle handle, String name)
+    public void releaseSavepoint(Handle handle, String name)
     {
         final Connection conn = handle.getConnection();
         try {
-            final Savepoint savepoint = localStuff.get(handle).getCheckpoints().remove(name);
+            final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
             if (savepoint == null) {
                 throw new TransactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
                                                              name));
@@ -119,22 +104,16 @@ public class LocalTransactionHandler implements TransactionHandler
             conn.releaseSavepoint(savepoint);
         }
         catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
+            throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
         }
     }
 
-    /**
-     * Roll back to a named checkpoint
-     *
-     * @param handle the handle the rollback is being performed on
-     * @param name   the name of the checkpoint to rollback to
-     */
     @Override
-    public void rollback(Handle handle, String name)
+    public void rollbackToSavepoint(Handle handle, String name)
     {
         final Connection conn = handle.getConnection();
         try {
-            final Savepoint savepoint = localStuff.get(handle).getCheckpoints().remove(name);
+            final Savepoint savepoint = localStuff.get(handle).getSavepoints().remove(name);
             if (savepoint == null) {
                 throw new TransactionException(String.format("Attempt to rollback to non-existant savepoint, '%s'",
                                                              name));
@@ -142,13 +121,10 @@ public class LocalTransactionHandler implements TransactionHandler
             conn.rollback(savepoint);
         }
         catch (SQLException e) {
-            throw new TransactionException(String.format("Unable to create checkpoint %s", name), e);
+            throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
         }
     }
 
-    /**
-     * Called to test if a handle is in a transaction
-     */
     @Override
     public boolean isInTransaction(Handle handle)
     {
@@ -165,6 +141,9 @@ public class LocalTransactionHandler implements TransactionHandler
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionCallback<R, X> callback) throws X
     {
+        if (isInTransaction(handle)) {
+            throw new IllegalStateException("Already in transaction");
+        }
         didTxnRollback.set(false);
         final R returnValue;
         try {
@@ -207,7 +186,7 @@ public class LocalTransactionHandler implements TransactionHandler
             final LocalStuff stuff = localStuff.remove(handle);
             if (stuff != null) {
                 handle.getConnection().setAutoCommit(stuff.getInitialAutocommit());
-                stuff.getCheckpoints().clear();
+                stuff.getSavepoints().clear();
             }
         } catch (SQLException e) {
             throw new UnableToRestoreAutoCommitStateException(e);
@@ -220,7 +199,7 @@ public class LocalTransactionHandler implements TransactionHandler
 
     private static class LocalStuff
     {
-        private final Map<String, Savepoint> checkpoints = new HashMap<>();
+        private final Map<String, Savepoint> savepoints = new HashMap<>();
         private final boolean initialAutocommit;
 
         LocalStuff(boolean initial)
@@ -228,9 +207,9 @@ public class LocalTransactionHandler implements TransactionHandler
             this.initialAutocommit = initial;
         }
 
-        Map<String, Savepoint> getCheckpoints()
+        Map<String, Savepoint> getSavepoints()
         {
-            return checkpoints;
+            return savepoints;
         }
 
         boolean getInitialAutocommit()

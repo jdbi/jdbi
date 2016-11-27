@@ -317,41 +317,40 @@ public class Handle implements Closeable, Configurable<Handle>
     }
 
     /**
-     * Rollback a transaction to a named checkpoint.
+     * Rollback a transaction to a named savepoint.
      *
-     * @param checkpointName the name of the checkpoint, previously declared with {@link Handle#checkpoint}
+     * @param savepointName the name of the savepoint, previously declared with {@link Handle#savepoint}
      *
      * @return the same handle
      */
-    public Handle rollback(String checkpointName) {
+    public Handle rollbackToSavepoint(String savepointName) {
         final long start = System.nanoTime();
-        transactions.rollback(this, checkpointName);
-        LOG.trace("Handle [{}] rollback to checkpoint \"{}\" in {}ms", this, checkpointName, ((System.nanoTime() - start) / 1000000L));
+        transactions.rollbackToSavepoint(this, savepointName);
+        LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, ((System.nanoTime() - start) / 1000000L));
         return this;
     }
 
     /**
-     * Create a transaction checkpoint (savepoint in JDBC terminology) with the name provided.
+     * Create a transaction savepoint with the name provided.
      *
-     * @param name The name of the checkpoint
+     * @param name The name of the savepoint
      * @return The same handle
      */
-    public Handle checkpoint(String name) {
-        transactions.checkpoint(this, name);
-        LOG.trace("Handle [{}] checkpoint \"{}\"", this, name);
+    public Handle savepoint(String name) {
+        transactions.savepoint(this, name);
+        LOG.trace("Handle [{}] savepoint \"{}\"", this, name);
         return this;
     }
 
     /**
-     * Release a previously created checkpoint / savepoint.
+     * Release a previously created savepoint.
      *
-     * @param checkpointName the name of the checkpoint to release
-     *
+     * @param savepointName the name of the savepoint to release
      * @return the same handle
      */
-    public Handle release(String checkpointName) {
-        transactions.release(this, checkpointName);
-        LOG.trace("Handle [{}] release checkpoint \"{}\"", this, checkpointName);
+    public Handle release(String savepointName) {
+        transactions.releaseSavepoint(this, savepointName);
+        LOG.trace("Handle [{}] release savepoint \"{}\"", this, savepointName);
         return this;
     }
 
