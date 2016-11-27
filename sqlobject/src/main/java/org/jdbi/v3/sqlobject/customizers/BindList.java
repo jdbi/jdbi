@@ -127,11 +127,11 @@ public @interface BindList {
             }
 
             if (obj instanceof Collection) {
-                return ((Collection)obj).isEmpty();
+                return ((Collection<?>)obj).isEmpty();
             }
 
             if (obj instanceof Iterable) {
-                return !((Iterable)obj).iterator().hasNext();
+                return !((Iterable<?>)obj).iterator().hasNext();
             }
 
             if (obj.getClass().isArray()) {
