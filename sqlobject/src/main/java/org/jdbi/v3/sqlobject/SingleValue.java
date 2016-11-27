@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  * should be treated as a single element.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.PARAMETER })
 public @interface SingleValue {
 
 }

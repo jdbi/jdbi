@@ -17,8 +17,6 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import com.google.common.base.Verify;
-
 /**
  * Implements Iterator for unidentified arrays that have been cast to Object. Note that its elements will be returned as Object, primitives included (will be autoboxed).
  */
@@ -88,9 +86,11 @@ public class ReflectionArrayIterator implements Iterator<Object>
         }
 
         Class<? extends Object> klass = iterable.getClass();
-        Verify.verify(klass.isArray(), "'%s' not an iterable", klass);
-        if (klass.getComponentType().isPrimitive())
-        {
+        if(!klass.isArray()) {
+            throw new IllegalArgumentException(String.format("'%s' not an iterable", klass));
+        }
+
+        if (klass.getComponentType().isPrimitive()) {
             return new ReflectionArrayIterator(iterable);
         }
         return Arrays.asList((Object[])iterable).iterator();

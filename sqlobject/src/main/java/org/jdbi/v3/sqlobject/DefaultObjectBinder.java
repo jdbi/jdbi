@@ -36,7 +36,7 @@ class DefaultObjectBinder implements BinderFactory<Bind, Object>
 
             Type type = param.getParameterizedType();
 
-            if (q instanceof PreparedBatchPart) {
+            if (q instanceof PreparedBatchPart && !param.isAnnotationPresent(SingleValue.class)) {
                 Class<?> erasedType = GenericTypes.getErasedType(type);
                 if (Iterable.class.isAssignableFrom(erasedType)) {
                     type = GenericTypes.findGenericParameter(type, Iterable.class).get();

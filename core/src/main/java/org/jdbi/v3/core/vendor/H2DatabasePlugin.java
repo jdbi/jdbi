@@ -24,5 +24,6 @@ public class H2DatabasePlugin implements JdbiPlugin {
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY);
         jdbi.registerArrayType(UUID.class, "uuid");
+        jdbi.registerArrayType(int.class, "integer");
     }
 }

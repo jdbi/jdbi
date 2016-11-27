@@ -16,7 +16,6 @@ package org.jdbi.v3.sqlobject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -33,6 +32,7 @@ import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.StatementExecutor;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.util.ReflectionArrayIterator;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
@@ -113,7 +113,7 @@ class BatchHandler extends CustomizingStatementHandler
         final String sql = handle.getConfig().get(SqlObjects.class)
                 .getSqlLocator().locate(sqlObjectType, method);
         final int chunkSize = batchChunkSize.call(args);
-        final Iterator<Object[]> batchArgs = zipArgs(args);
+        final Iterator<Object[]> batchArgs = zipArgs(method, args);
 
         ResultIterator<Object> result = new ResultIterator<Object>() {
             ResultIterator<?> batchResult;
@@ -193,20 +193,14 @@ class BatchHandler extends CustomizingStatementHandler
         });
     }
 
-    private Iterator<Object[]> zipArgs(Object[] args) {
+    private Iterator<Object[]> zipArgs(Method method, Object[] args) {
         boolean foundIterator = false;
         List<Iterator<?>> extras = new ArrayList<>();
-        for (final Object arg : args) {
-            if (arg instanceof Iterable) {
-                extras.add(((Iterable<?>) arg).iterator());
-                foundIterator = true;
-            }
-            else if (arg instanceof Iterator) {
-                extras.add((Iterator<?>) arg);
-                foundIterator = true;
-            }
-            else if (arg.getClass().isArray()) {
-                extras.add(Arrays.asList((Object[])arg).iterator());
+        for (int paramIdx = 0; paramIdx < method.getParameterCount(); paramIdx++) {
+            final boolean singleValue = method.getParameters()[paramIdx].isAnnotationPresent(SingleValue.class);
+            final Object arg = args[paramIdx];
+            if (!singleValue && ReflectionArrayIterator.isIterable(arg)) {
+                extras.add(ReflectionArrayIterator.of(arg));
                 foundIterator = true;
             }
             else {
