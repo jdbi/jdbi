@@ -23,8 +23,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -83,7 +81,6 @@ public class ConstructorMapper<T> implements RowMapper<T>
     static final String DEFAULT_PREFIX = "";
 
     private final Constructor<T> constructor;
-    private final ConcurrentMap<List<String>, Factory<T>> factoryCache = new ConcurrentHashMap<>();
     private final String prefix;
 
     private ConstructorMapper(Constructor<T> constructor,
@@ -94,9 +91,12 @@ public class ConstructorMapper<T> implements RowMapper<T>
     }
 
     @Override
-    public T map(ResultSet rs, StatementContext ctx)
-        throws SQLException
-    {
+    public T map(ResultSet rs, StatementContext ctx) throws SQLException {
+        return memoize(rs, ctx).map(rs, ctx);
+    }
+
+    @Override
+    public RowMapper<T> memoize(ResultSet rs, StatementContext ctx) throws SQLException {
         final ResultSetMetaData metadata = rs.getMetaData();
         final List<String> columnNames = new ArrayList<>(metadata.getColumnCount());
 
@@ -104,14 +104,6 @@ public class ConstructorMapper<T> implements RowMapper<T>
             columnNames.add(metadata.getColumnLabel(i));
         }
 
-        Factory<T> factory = factoryCache.computeIfAbsent(columnNames, c -> createFactory(c, ctx));
-        return factory.create(rs);
-    }
-
-    /**
-     * Compute a memoized mapping from ResultSet column labels to Constructor argument position.
-     */
-    private Factory<T> createFactory(List<String> columnNames, StatementContext ctx) {
         final int columns = constructor.getParameterCount();
 
         if (columns > columnNames.size()) {
@@ -137,10 +129,10 @@ public class ConstructorMapper<T> implements RowMapper<T>
             columnMap[i] = columnIndex;
         }
 
-        return rs -> {
+        return (r, c) -> {
             final Object[] params = new Object[columns];
             for (int i = 0; i < columns; i++) {
-                params[i] = mappers[i].map(rs, columnMap[i] + 1, ctx);
+                params[i] = mappers[i].map(r, columnMap[i] + 1, c);
             }
             try {
                 return constructor.newInstance(params);
@@ -204,9 +196,5 @@ public class ConstructorMapper<T> implements RowMapper<T>
             return dbName.value();
         }
         return parameter.getName();
-    }
-
-    interface Factory<T> {
-        T create(ResultSet rs) throws SQLException;
     }
 }

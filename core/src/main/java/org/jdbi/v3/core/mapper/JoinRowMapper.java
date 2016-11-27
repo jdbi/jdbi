@@ -84,6 +84,27 @@ public class JoinRowMapper implements RowMapper<JoinRowMapper.JoinRow>
         return new JoinRow(entries);
     }
 
+    @Override
+    public RowMapper<JoinRow> memoize(ResultSet r, StatementContext ctx) throws SQLException {
+        RowMapper[] mappers = new RowMapper[types.length];
+        for (int i = 0; i < types.length; i++) {
+            Type type = types[i];
+            mappers[i] = ctx.findRowMapperFor(type)
+                    .orElseThrow(() -> new IllegalArgumentException("No row mapper registered for " + type))
+                    .memoize(r, ctx);
+        }
+
+        return (rs, context) -> {
+            final Map<Type, Object> entries = new HashMap<>(types.length);
+            for (int i = 0; i < types.length; i++) {
+                Type type = types[i];
+                RowMapper<?> mapper = mappers[i];
+                entries.put(type, mapper.map(r, ctx));
+            }
+            return new JoinRow(entries);
+        };
+    }
+
     /**
      * Create a JoinRowMapper that maps each of the given types and returns a
      * {@link JoinRowMapper.JoinRow} with the resulting values.

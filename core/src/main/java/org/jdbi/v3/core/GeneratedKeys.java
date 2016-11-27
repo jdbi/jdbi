@@ -74,7 +74,13 @@ public class GeneratedKeys<T> implements ResultBearing<T>
         if (results == null) {
             return new EmptyResultIterator<>(context);
         }
-        return new ResultSetResultIterator<>(mapper, results, context);
+
+        try {
+            return new ResultSetResultIterator<>(mapper, results, context);
+        }
+        catch (SQLException e) {
+            throw new UnableToExecuteStatementException(e, context);
+        }
     }
 
     @Override

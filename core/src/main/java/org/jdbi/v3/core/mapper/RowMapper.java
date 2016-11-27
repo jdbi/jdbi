@@ -16,8 +16,8 @@ package org.jdbi.v3.core.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.Query;
+import org.jdbi.v3.core.StatementContext;
 
 /**
  * Used with a {@link Query#map(RowMapper)} call to specify
@@ -30,10 +30,24 @@ public interface RowMapper<T>
      * Map the row the result set is at when passed in. This method should not cause the result
      * set to advance, allow jDBI to do that, please.
      *
-     * @param r the result set being iterated
+     * @param rs the result set being iterated
      * @param ctx the statement context
      * @return the value to return for this row
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      */
-    T map(ResultSet r, StatementContext ctx) throws SQLException;
+    T map(ResultSet rs, StatementContext ctx) throws SQLException;
+
+    /**
+     * Returns a row mapper instance with the details of the result set memoized for performance. Overriding this
+     * method is optional--the default implementation simply returns {@code this}.
+     *
+     * @param rs  the result set to memoize over
+     * @param ctx the statement context to memoize over
+     * @return a row mapper equivalent to this one, possibly memoized.
+     * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
+     * @see org.jdbi.v3.core.mapper.reflect.BeanMapper for an example of memoization.
+     */
+    default RowMapper<T> memoize(ResultSet rs, StatementContext ctx) throws SQLException {
+        return this;
+    }
 }

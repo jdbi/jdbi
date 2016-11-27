@@ -16,8 +16,12 @@ package org.jdbi.v3.core;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.util.GenericType;
 
 /**
@@ -29,6 +33,9 @@ public class RowView
 {
     private final StatementContext ctx;
     private final ResultSet rs;
+
+    private final Map<Type, RowMapper<?>> rowMappers = new ConcurrentHashMap<>();
+    private final Map<Type, ColumnMapper<?>> columnMappers = new ConcurrentHashMap<>();
 
     RowView(ResultSet rs, StatementContext ctx)
     {
@@ -59,12 +66,23 @@ public class RowView
     public Object getRow(Type type)
     {
         try {
-            return ctx.findRowMapperFor(type)
-                    .orElseThrow(() -> new UnableToExecuteStatementException("No row mapper for " + type, ctx))
-                    .map(rs, ctx);
+            return rowMapperFor(type).map(rs, ctx);
         } catch (SQLException e) {
             throw new UnableToExecuteStatementException(e, ctx);
         }
+    }
+
+    private RowMapper<?> rowMapperFor(Type type) throws SQLException {
+        if (rowMappers.containsKey(type)) {
+            return rowMappers.get(type);
+        }
+
+        RowMapper<?> mapper = ctx.findRowMapperFor(type)
+                .orElseThrow(() -> new UnableToExecuteStatementException("No row mapper for " + type, ctx))
+                .memoize(rs, ctx);
+        rowMappers.put(type, mapper);
+
+        return mapper;
     }
 
     /**
@@ -105,12 +123,16 @@ public class RowView
     public Object getColumn(String column, Type type)
     {
         try {
-            return ctx.findColumnMapperFor(type)
-                    .orElseThrow(() -> new UnableToExecuteStatementException("No column mapper for " + type, ctx))
-                    .map(rs, column, ctx);
+            return columnMapperFor(type).map(rs, column, ctx);
         } catch (SQLException e) {
             throw new UnableToExecuteStatementException(e, ctx);
         }
+    }
+
+    private ColumnMapper<?> columnMapperFor(Type type) {
+        return columnMappers.computeIfAbsent(type, t ->
+                ctx.findColumnMapperFor(t)
+                        .orElseThrow(() -> new UnableToExecuteStatementException("No column mapper for " + t, ctx)));
     }
 
     /**

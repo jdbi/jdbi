@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.SingleColumnMapper;
 
 class DefaultGeneratedKeyMapper implements RowMapper<Object> {
     private final Type returnType;
@@ -31,17 +32,24 @@ class DefaultGeneratedKeyMapper implements RowMapper<Object> {
     }
 
     @Override
-    public Object map(ResultSet r, StatementContext ctx) throws SQLException {
-        ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(returnType).orElse(null);
+    public Object map(ResultSet rs, StatementContext ctx) throws SQLException {
+        return rowMapperFor(ctx).map(rs, ctx);
+    }
+
+    @Override
+    public RowMapper<Object> memoize(ResultSet rs, StatementContext ctx) throws SQLException {
+        return rowMapperFor(ctx).memoize(rs, ctx);
+    }
+
+    @SuppressWarnings("unchecked")
+    private RowMapper<Object> rowMapperFor(StatementContext ctx) {
+        ColumnMapper<Object> columnMapper = (ColumnMapper<Object>) ctx.findColumnMapperFor(returnType).orElse(null);
         if (columnMapper != null) {
             return "".equals(columnName)
-                ? columnMapper.map(r, 1, ctx)
-                : columnMapper.map(r, columnName, ctx);
+                    ? new SingleColumnMapper<>(columnMapper, 1)
+                    : new SingleColumnMapper<>(columnMapper, columnName);
         }
-        RowMapper<?> rowMapper = ctx.findRowMapperFor(returnType).orElse(null);
-        if (rowMapper != null) {
-            return rowMapper.map(r, ctx);
-        }
-        throw new IllegalStateException("No column or row mapper for " + returnType);
+        return (RowMapper<Object>) ctx.findRowMapperFor(returnType)
+                .orElseThrow(() -> new IllegalStateException("No column or row mapper for " + returnType));
     }
 }
