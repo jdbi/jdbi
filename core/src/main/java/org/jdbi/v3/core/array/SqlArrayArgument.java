@@ -16,10 +16,13 @@ package org.jdbi.v3.core.array;
 import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.util.ReflectionArrayIterator;
 
 class SqlArrayArgument<T> implements Argument {
 
@@ -29,11 +32,12 @@ class SqlArrayArgument<T> implements Argument {
     @SuppressWarnings("unchecked")
     SqlArrayArgument(SqlArrayType<T> arrayType, Object newArray) {
         this.typeName = arrayType.getTypeName();
-        int length = Array.getLength(newArray);
-        this.array = new Object[length];
-        for (int i = 0; i < length; i++) {
-            array[i] = arrayType.convertArrayElement((T) Array.get(newArray, i));
-        }
+
+        List<Object> elements = new ArrayList<>(
+                newArray.getClass().isArray() ? Array.getLength(newArray) : 10);
+        ReflectionArrayIterator.of(newArray).forEachRemaining(
+                e -> elements.add(arrayType.convertArrayElement((T) e)));
+        array = elements.toArray();
     }
 
     SqlArrayArgument(SqlArrayType<T> arrayType, Collection<T> list) {
