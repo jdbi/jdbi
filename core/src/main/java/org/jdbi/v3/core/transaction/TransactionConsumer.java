@@ -22,5 +22,5 @@ import org.jdbi.v3.core.Handle;
 @FunctionalInterface
 public interface TransactionConsumer<X extends Exception>
 {
-    void useTransaction(Handle handle, TransactionStatus status) throws X;
+    void useTransaction(Handle handle) throws X;
 }

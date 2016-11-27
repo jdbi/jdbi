@@ -32,7 +32,7 @@ public interface TransactionHandler
      *
      * @param handle the handle the transaction is being started on
      */
-    void begin(Handle handle); // TODO consider having this return a TransactionStatus
+    void begin(Handle handle);
 
     /**
      * Called when a transaction is committed

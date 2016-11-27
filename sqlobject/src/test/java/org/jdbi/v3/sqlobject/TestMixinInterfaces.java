@@ -18,14 +18,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,7 +109,7 @@ public class TestMixinInterfaces
         TransactionStuff txl = handle.attach(TransactionStuff.class);
         txl.insert(7, "Keith");
 
-        Something s = txl.inTransaction((conn, status) -> conn.byId(7));
+        Something s = txl.inTransaction(h -> h.byId(7));
 
         assertThat(s.getName()).isEqualTo("Keith");
     }
@@ -120,7 +120,7 @@ public class TestMixinInterfaces
         TransactionStuff txl = handle.attach(TransactionStuff.class);
         txl.insert(7, "Keith");
 
-        Something s = txl.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (conn, status) -> {
+        Something s = txl.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
             assertThat(conn.getHandle().getTransactionIsolationLevel())
                     .isEqualTo(TransactionIsolationLevel.SERIALIZABLE);
             return conn.byId(7);

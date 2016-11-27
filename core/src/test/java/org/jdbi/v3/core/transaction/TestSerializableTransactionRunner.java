@@ -13,18 +13,18 @@
  */
 package org.jdbi.v3.core.transaction;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TestSerializableTransactionRunner
 {
@@ -48,7 +48,7 @@ public class TestSerializableTransactionRunner
 
         assertThatExceptionOfType(SQLException.class)
                 .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
-                        (conn, status) -> {
+                        conn -> {
                             tries.decrementAndGet();
                             throw new SQLException("serialization", "40001");
                         }))
@@ -62,7 +62,7 @@ public class TestSerializableTransactionRunner
         final AtomicInteger tries = new AtomicInteger(3);
         Handle handle = dbi.open();
 
-        handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, (conn, status) -> {
+        handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
             if (tries.decrementAndGet() == 0)
             {
                 return null;

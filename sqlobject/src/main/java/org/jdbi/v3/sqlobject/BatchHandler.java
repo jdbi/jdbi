@@ -240,7 +240,7 @@ class BatchHandler extends CustomizingStatementHandler
         if (!handle.isInTransaction() && sqlBatch.transactional()) {
             // it is safe to use same prepared batch as the inTransaction passes in the same
             // Handle instance.
-            return handle.inTransaction((conn, status) -> batchIntermediate.apply(batch));
+            return handle.inTransaction(c -> batchIntermediate.apply(batch));
         }
         else {
             return batchIntermediate.apply(batch);

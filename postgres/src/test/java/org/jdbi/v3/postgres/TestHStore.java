@@ -13,8 +13,11 @@
  */
 package org.jdbi.v3.postgres;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import java.util.Map;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.util.GenericType;
 import org.jdbi.v3.sqlobject.Bind;
@@ -28,10 +31,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 public class TestHStore {
 
@@ -45,7 +46,7 @@ public class TestHStore {
     public ExpectedException expectedException = ExpectedException.none();
 
     private Handle handle;
-    private Map<String, String> caps = ImmutableMap.of("yearly", "6000", "monthly", "1500", "daily", "100");
+    private final Map<String, String> caps = ImmutableMap.of("yearly", "6000", "monthly", "1500", "daily", "100");
 
     @BeforeClass
     public static void staticSetUp() {
@@ -55,7 +56,7 @@ public class TestHStore {
     @Before
     public void setUp() throws Exception {
         handle = postgresDbRule.getSharedHandle();
-        handle.useTransaction((h, status) -> {
+        handle.useTransaction(h -> {
             h.execute("drop table if exists campaigns");
             h.execute("create table campaigns(id int not null, caps hstore)");
             h.insert("insert into campaigns(id, caps) values (1, 'yearly=>10000, monthly=>5000, daily=>200'::hstore)");

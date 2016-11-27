@@ -105,27 +105,11 @@ public class CMTTransactionHandler implements TransactionHandler
         throw new TransactionException("Rollback called, this runtime exception thrown to halt the transaction");
     }
 
-    private class ExplodingTransactionStatus implements TransactionStatus
-    {
-        private final Handle handle;
-
-        ExplodingTransactionStatus(Handle handle)
-        {
-            this.handle = handle;
-        }
-
-        @Override
-        public void setRollbackOnly()
-        {
-            rollback(handle);
-        }
-    }
-
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionCallback<R, X> callback) throws X
     {
-        return callback.inTransaction(handle, new ExplodingTransactionStatus(handle));
+        return callback.inTransaction(handle);
     }
 
     @Override

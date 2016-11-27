@@ -19,11 +19,9 @@ import java.sql.Savepoint;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.exception.TransactionException;
-import org.jdbi.v3.core.exception.TransactionFailedException;
 import org.jdbi.v3.core.exception.UnableToRestoreAutoCommitStateException;
 
 /**
@@ -34,6 +32,7 @@ import org.jdbi.v3.core.exception.UnableToRestoreAutoCommitStateException;
 public class LocalTransactionHandler implements TransactionHandler
 {
     private final ConcurrentHashMap<Handle, LocalStuff> localStuff = new ConcurrentHashMap<>();
+    private final ThreadLocal<Boolean> didTxnRollback = ThreadLocal.withInitial(() -> false);
 
     /**
      * Called when a transaction is started
@@ -76,6 +75,7 @@ public class LocalTransactionHandler implements TransactionHandler
     @Override
     public void rollback(Handle handle)
     {
+        didTxnRollback.set(true);
         try {
             handle.getConnection().rollback();
         }
@@ -165,13 +165,12 @@ public class LocalTransactionHandler implements TransactionHandler
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionCallback<R, X> callback) throws X
     {
-        final AtomicBoolean failed = new AtomicBoolean(false);
-        TransactionStatus status = () -> failed.set(true);
+        didTxnRollback.set(false);
         final R returnValue;
         try {
             handle.begin();
-            returnValue = callback.inTransaction(handle, status);
-            if (!failed.get()) {
+            returnValue = callback.inTransaction(handle);
+            if (!didTxnRollback.get()) {
                 handle.commit();
             }
         }
@@ -184,14 +183,8 @@ public class LocalTransactionHandler implements TransactionHandler
             throw (X) e;
         }
 
-        if (failed.get()) {
-            handle.rollback();
-            throw new TransactionFailedException("Transaction failed due to transaction status being set " +
-                                                 "to rollback only.");
-        }
-        else {
-            return returnValue;
-        }
+        didTxnRollback.remove();
+        return returnValue;
     }
 
     @Override

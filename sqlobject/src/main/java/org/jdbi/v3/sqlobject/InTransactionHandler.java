@@ -25,6 +25,6 @@ class InTransactionHandler implements Handler
     public Object invoke(final Object target, Method method, Object[] args, HandleSupplier handle) throws Exception
     {
         final TransactionalCallback callback = (TransactionalCallback) args[0];
-        return handle.getHandle().inTransaction((conn, status) -> callback.inTransaction(Transactional.class.cast(target), status));
+        return handle.getHandle().inTransaction(h -> callback.inTransaction(Transactional.class.cast(target)));
     }
 }

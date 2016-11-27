@@ -23,7 +23,8 @@ import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.exception.TransactionException;
-import org.jdbi.v3.core.exception.TransactionFailedException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -32,12 +33,51 @@ public class TestTransactions
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
+    int begin, commit, rollback;
+
+    private Handle h;
+
+    private final LocalTransactionHandler txSpy = new LocalTransactionHandler()
+    {
+        @Override
+        public void begin(Handle handle)
+        {
+            begin++;
+            super.begin(handle);
+        }
+
+        @Override
+        public void commit(Handle handle)
+        {
+            commit++;
+            super.commit(handle);
+        }
+
+        @Override
+        public void rollback(Handle handle)
+        {
+            rollback++;
+            super.rollback(handle);
+        }
+    };
+
+    @Before
+    public void setUp()
+    {
+        db.getJdbi().setTransactionHandler(txSpy);
+        h = db.openHandle();
+    }
+
+    @After
+    public void close()
+    {
+        h.close();
+    }
+
     @Test
     public void testCallback() throws Exception
     {
-        Handle h = db.openHandle();
-
-        String woot = h.inTransaction((handle, status) -> "Woot!");
+        String woot = h.inTransaction(x -> "Woot!");
 
         assertThat(woot).isEqualTo("Woot!");
     }
@@ -45,8 +85,6 @@ public class TestTransactions
     @Test
     public void testRollbackOutsideTx() throws Exception
     {
-        Handle h = db.openHandle();
-
         h.insert("insert into something (id, name) values (?, ?)", 7, "Tom");
         h.rollback();
     }
@@ -54,7 +92,6 @@ public class TestTransactions
     @Test
     public void testDoubleOpen() throws Exception
     {
-        Handle h = db.openHandle();
         assertThat(h.getConnection().getAutoCommit()).isTrue();
 
         h.begin();
@@ -67,10 +104,8 @@ public class TestTransactions
     @Test
     public void testExceptionAbortsTransaction() throws Exception
     {
-        Handle h = db.openHandle();
-
         assertThatExceptionOfType(IOException.class).isThrownBy(() ->
-                h.inTransaction((handle, status) -> {
+                h.inTransaction(handle -> {
                     handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
                     throw new IOException();
                 }));
@@ -80,24 +115,21 @@ public class TestTransactions
     }
 
     @Test
-    public void testRollbackOnlyAbortsTransaction() throws Exception
+    public void testRollbackDoesntCommit() throws Exception
     {
-        Handle h = db.openHandle();
-        assertThatExceptionOfType(TransactionFailedException.class).isThrownBy(() ->
-                h.inTransaction((handle, status) -> {
-                    handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
-                    status.setRollbackOnly();
-                    return "Hi";
-                }));
-
-        List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
-        assertThat(r).isEmpty();
+        assertThat(begin).isEqualTo(0);
+        h.useTransaction(th -> {
+            assertThat(begin).isEqualTo(1);
+            assertThat(rollback).isEqualTo(0);
+            th.rollback();
+        });
+        assertThat(rollback).isEqualTo(1);
+        assertThat(commit).isEqualTo(0);
     }
 
     @Test
     public void testCheckpoint() throws Exception
     {
-        Handle h = db.openHandle();
         h.begin();
 
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
@@ -116,7 +148,6 @@ public class TestTransactions
     @Test
     public void testReleaseCheckpoint() throws Exception
     {
-        Handle h = db.openHandle();
         h.begin();
         h.checkpoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Martin");
@@ -130,7 +161,7 @@ public class TestTransactions
     @Test(expected = IllegalArgumentException.class)
     public void testThrowingRuntimeExceptionPercolatesOriginal() throws Exception
     {
-        db.openHandle().inTransaction((handle, status) -> {
+        h.inTransaction(handle -> {
             throw new IllegalArgumentException();
         });
     }

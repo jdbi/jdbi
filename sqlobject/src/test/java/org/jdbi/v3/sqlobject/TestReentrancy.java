@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -69,15 +69,15 @@ public class TestReentrancy
         final TheBasics dao = dbi.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
-            handle1.useTransaction((conn, status) -> {
+            handle1.useTransaction(h -> {
                 dao.insert(new Something(1, "x"));
 
-                List<String> rs = conn.createQuery("select name from something where id = 1")
+                List<String> rs = h.createQuery("select name from something where id = 1")
                         .mapTo(String.class)
                         .list();
                 assertThat(rs).hasSize(1);
 
-                conn.createQuery("SELECT 1").list();
+                h.createQuery("SELECT 1").list();
             });
 
             return null;

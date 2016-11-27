@@ -51,7 +51,7 @@ class TransactionDecorator implements Handler
             }
         }
 
-        TransactionCallback<Object, Exception> callback = (conn, status) -> delegate.invoke(target, method, args, handle);
+        TransactionCallback<Object, Exception> callback = th -> delegate.invoke(target, method, args, handle);
 
         if (isolation == INVALID_LEVEL) {
             return h.inTransaction(callback);

@@ -16,8 +16,8 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.HandleSupplier;
-import org.jdbi.v3.sqlobject.mixins.Transactional;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.sqlobject.mixins.Transactional;
 
 class InTransactionWithIsolationLevelHandler implements Handler
 {
@@ -28,6 +28,6 @@ class InTransactionWithIsolationLevelHandler implements Handler
         final TransactionalCallback callback = (TransactionalCallback) args[1];
         final TransactionIsolationLevel level = (TransactionIsolationLevel) args[0];
 
-        return handle.getHandle().inTransaction(level, (conn, status) -> callback.inTransaction(Transactional.class.cast(target), status));
+        return handle.getHandle().inTransaction(level, h -> callback.inTransaction(Transactional.class.cast(target)));
     }
 }

@@ -21,7 +21,10 @@ import java.util.UUID;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class TestUuid {
 
@@ -33,7 +36,7 @@ public class TestUuid {
     @Before
     public void setupDbi() throws Exception {
         h = db.getJdbi().open();
-        h.useTransaction((th, status) -> {
+        h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS foo");
             th.execute("CREATE TABLE foo (bar UUID)");
         });

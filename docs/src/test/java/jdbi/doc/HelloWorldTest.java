@@ -29,7 +29,7 @@ public class HelloWorldTest {
         // H2 in-memory database
         Jdbi dbi = Jdbi.create("jdbc:h2:mem:test");
         // Easy scope-based transactions
-        List<User> users = dbi.inTransaction((handle, status) -> {
+        List<User> users = dbi.inTransaction(handle -> {
             handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
             handle.createUpdate("INSERT INTO user(id, name) VALUES (:id, :name)")
                 .bind("id", 0)   // Bind arguments by name

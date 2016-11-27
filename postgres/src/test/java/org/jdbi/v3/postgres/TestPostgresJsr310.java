@@ -36,7 +36,7 @@ public class TestPostgresJsr310 {
     @Before
     public void setUp() {
         h = db.getSharedHandle();
-        h.useTransaction((th, status) -> {
+        h.useTransaction(th -> {
             th.execute("drop table if exists stuff");
             th.execute("create table stuff (ts timestamp, d date)");
         });

@@ -15,6 +15,8 @@ package org.jdbi.v3.core.transaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.sql.Connection;
+
 import org.jdbi.v3.core.Handle;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,16 +32,21 @@ public class TestLocalTransactionHandler {
     @Mock
     Handle h;
 
+    @Mock
+    Connection c;
+
     @Test
     public void testRollbackThrow() throws Exception {
         RuntimeException outer = new RuntimeException("Transaction throws!");
         RuntimeException inner = new RuntimeException("Rollback throws!");
 
+        Mockito.when(c.getAutoCommit()).thenReturn(true);
+        Mockito.when(h.getConnection()).thenReturn(c);
         Mockito.when(h.rollback()).thenThrow(inner);
 
         try {
             new LocalTransactionHandler().inTransaction(h,
-                (h, txn) -> { throw outer; });
+                x -> { throw outer; });
         } catch (RuntimeException e) {
             assertThat(e).isSameAs(outer);
             assertThat(e.getSuppressed()).hasSize(1);

@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.sqlobject.mixins.Transactional;
-import org.jdbi.v3.core.transaction.TransactionStatus;
 
 public interface TransactionalCallback<R, T extends Transactional<T>, X extends Exception>
 {
@@ -22,9 +21,8 @@ public interface TransactionalCallback<R, T extends Transactional<T>, X extends 
      * Execute in a transaction. Will be committed afterwards, or rolled back if an exception is thrown.
      *
      * @param transactional The object communicating with the database.
-     * @param status a handle on the transaction, kind of
      * @return the transaction result
      * @throws X any exception thrown will cause the transaction to be rolled back
      */
-    R inTransaction(T transactional, TransactionStatus status) throws X;
+    R inTransaction(T transactional) throws X;
 }

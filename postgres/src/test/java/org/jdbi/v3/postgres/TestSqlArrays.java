@@ -52,7 +52,7 @@ public class TestSqlArrays {
     @Before
     public void setUp() {
         h = db.getSharedHandle();
-        h.useTransaction((th, status) -> {
+        h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
             th.execute("CREATE TABLE uuids (u UUID[], i INT[])");
         });

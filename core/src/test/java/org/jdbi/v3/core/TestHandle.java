@@ -15,8 +15,6 @@ package org.jdbi.v3.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -30,7 +28,7 @@ public class TestHandle
     {
         Handle h = db.openHandle();
 
-        String value = h.inTransaction((handle, status) -> {
+        String value = h.inTransaction(handle -> {
             handle.insert("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
         });
@@ -45,7 +43,7 @@ public class TestHandle
         }
 
         String value = db.getJdbi().withHandle(handle ->
-                handle.inTransaction((handle1, status) ->
+                handle.inTransaction(handle1 ->
                         handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
 
         assertThat(value).isEqualTo("Keith");

@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.sqlobject.mixins;
 
+import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.TransactionalCallback;
 import org.jdbi.v3.sqlobject.TransactionalConsumer;
-import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
 /**
  * A mixin interface to expose transaction methods on the sql object.
@@ -42,16 +42,16 @@ public interface Transactional<This extends Transactional<This>>
                                              TransactionalCallback<R, This, X> callback) throws X;
 
     default <X extends Exception> void useTransaction(TransactionalConsumer<This, X> callback) throws X {
-        inTransaction((transactional, status) -> {
-            callback.useTransaction(transactional, status);
+        inTransaction(transactional -> {
+            callback.useTransaction(transactional);
             return null;
         });
     }
 
     default <X extends Exception> void useTransaction(TransactionIsolationLevel isolation,
                                                       TransactionalConsumer<This, X> callback) throws X {
-        inTransaction(isolation, (transactional, status) -> {
-            callback.useTransaction(transactional, status);
+        inTransaction(isolation, transactional -> {
+            callback.useTransaction(transactional);
             return null;
         });
     }

@@ -30,7 +30,6 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
-import org.jdbi.v3.core.transaction.TransactionStatus;
 import org.jdbi.v3.postgres.PostgresDbRule;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
@@ -64,11 +63,11 @@ public class TransactionTest {
 
     @Before
     public void setUp() throws Exception {
-        handle.useTransaction((th, status) -> {
-            th.execute("DROP TABLE IF EXISTS users");
-            th.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)");
+        handle.useTransaction(h -> {
+            h.execute("DROP TABLE IF EXISTS users");
+            h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)");
             for (String name : Arrays.asList("Alice", "Bob", "Charlie", "Data")) {
-                th.execute("INSERT INTO users(name) VALUES (?)", name);
+                h.execute("INSERT INTO users(name) VALUES (?)", name);
             }
         });
     }
@@ -82,7 +81,7 @@ public class TransactionTest {
 
     // tag::simpleTransaction[]
     public Optional<User> findUserById(long id) {
-        return handle.inTransaction((h, status) ->
+        return handle.inTransaction(h ->
                 h.createQuery("SELECT * FROM users WHERE id=:id")
                         .bind("id", id)
                         .mapTo(User.class)
@@ -181,7 +180,7 @@ public class TransactionTest {
         }
 
         @Override
-        public Integer inTransaction(Handle handle, TransactionStatus status) throws Exception {
+        public Integer inTransaction(Handle handle) throws Exception {
             IntListDao dao = handle.attach(IntListDao.class);
             int sum = dao.sum();
 

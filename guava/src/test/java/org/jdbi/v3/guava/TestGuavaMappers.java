@@ -17,14 +17,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 
-import com.google.common.collect.ImmutableList;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.PgDatabaseRule;
 import org.jdbi.v3.core.util.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 public class TestGuavaMappers {
     @Rule
@@ -38,7 +38,7 @@ public class TestGuavaMappers {
                 .registerArrayType(Integer.class, "integer")
                 .registerArrayType(UUID.class, "uuid");
         h = db.openHandle();
-        h.useTransaction((th, status) -> {
+        h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS arrays");
             th.execute("CREATE TABLE arrays (u UUID[], i INT[])");
         });

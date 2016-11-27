@@ -65,7 +65,7 @@ public class TestPostgresBugs
     {
         Dao dao = db.getJdbi().onDemand(Dao.class);
 
-        Something s = dao.inTransaction((transactional, status) -> {
+        Something s = dao.inTransaction(transactional -> {
             transactional.insert(1, "Brian");
             return transactional.findById(1);
         });

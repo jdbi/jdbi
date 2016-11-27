@@ -65,6 +65,7 @@ public class Handle implements Closeable, Configurable<Handle>
         this.statementBuilder = statementBuilder;
     }
 
+    @Override
     public ConfigRegistry getConfig() {
         return config.get();
     }
@@ -378,8 +379,8 @@ public class Handle implements Closeable, Configurable<Handle>
      * @throws X any exception thrown by the callback
      */
     public <X extends Exception> void useTransaction(final TransactionConsumer<X> callback) throws X {
-        transactions.inTransaction(this, (handle, status) -> {
-            callback.useTransaction(handle, status);
+        transactions.inTransaction(this, handle -> {
+            callback.useTransaction(handle);
             return null;
         });
     }
@@ -436,8 +437,8 @@ public class Handle implements Closeable, Configurable<Handle>
      * @throws X any exception thrown by the callback
      */
     public <X extends Exception> void useTransaction(TransactionIsolationLevel level, TransactionConsumer<X> callback) throws X {
-        inTransaction(level, (handle, status) -> {
-            callback.useTransaction(handle, status);
+        inTransaction(level, handle -> {
+            callback.useTransaction(handle);
             return null;
         });
     }
