@@ -41,17 +41,17 @@ public interface RowMapper<T>
      * Returns a specialized row mapper, optimized for the given result set.
      * <p>
      * Before mapping the result set from a SQL statement, JDBI will first call this method to obtain a specialized
-     * instance. The returned mapper will then be used for each row in the result set, and discarded.
+     * instance. The returned mapper will then be used to map the result set rows, and discarded.
      * <p>
      * Implementing this method is optional; the default implementation returns {@code this}. Implementors might choose
-     * to override this method to improve performance, e.g. by mapping result columns once for the whole result set,
-     * and not for every row.
+     * to override this method to improve performance, e.g. by matching up column names to properties once for the
+     * entire result set, rather than repeating the process for every row.
      *
      * @param rs  the result set to specialize over
      * @param ctx the statement context to specialize over
      * @return a row mapper equivalent to this one, possibly specialized.
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
-     * @see org.jdbi.v3.core.mapper.reflect.BeanMapper for an example of memoization.
+     * @see org.jdbi.v3.core.mapper.reflect.BeanMapper for an example of specialization.
      */
     default RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         return this;
