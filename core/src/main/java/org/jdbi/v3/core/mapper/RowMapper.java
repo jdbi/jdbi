@@ -41,6 +41,8 @@ public interface RowMapper<T>
      * Returns an equivalent row mapper, optimized for the given result set. Overriding this method is optional--the
      * default implementation returns {@code this}. Implementors might choose to override this method to improve
      * performance, e.g. by mapping result columns once for the whole result set, instead of for every row.
+     * <p>
+     * The returned mapper should <em>only</em> be used to map values from the given result set.
      *
      * @param rs  the result set to specialize over
      * @param ctx the statement context to specialize over
