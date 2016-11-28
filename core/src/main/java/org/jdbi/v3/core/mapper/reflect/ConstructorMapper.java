@@ -92,11 +92,11 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
     @Override
     public T map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return memoize(rs, ctx).map(rs, ctx);
+        return specialize(rs, ctx).map(rs, ctx);
     }
 
     @Override
-    public RowMapper<T> memoize(ResultSet rs, StatementContext ctx) throws SQLException {
+    public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         final ResultSetMetaData metadata = rs.getMetaData();
         final List<String> columnNames = new ArrayList<>(metadata.getColumnCount());
 

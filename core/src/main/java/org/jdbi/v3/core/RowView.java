@@ -79,7 +79,7 @@ public class RowView
 
         RowMapper<?> mapper = ctx.findRowMapperFor(type)
                 .orElseThrow(() -> new UnableToExecuteStatementException("No row mapper for " + type, ctx))
-                .memoize(rs, ctx);
+                .specialize(rs, ctx);
         rowMappers.put(type, mapper);
 
         return mapper;

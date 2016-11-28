@@ -37,8 +37,8 @@ class DefaultGeneratedKeyMapper implements RowMapper<Object> {
     }
 
     @Override
-    public RowMapper<Object> memoize(ResultSet rs, StatementContext ctx) throws SQLException {
-        return rowMapperFor(ctx).memoize(rs, ctx);
+    public RowMapper<Object> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
+        return rowMapperFor(ctx).specialize(rs, ctx);
     }
 
     @SuppressWarnings("unchecked")

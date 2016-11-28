@@ -35,7 +35,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
                             ResultSet results,
                             StatementContext context) throws SQLException
     {
-        this.mapper = mapper.memoize(results, context);
+        this.mapper = mapper.specialize(results, context);
         this.context = context;
         this.results = results;
 

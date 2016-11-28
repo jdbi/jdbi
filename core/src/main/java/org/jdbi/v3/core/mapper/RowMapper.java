@@ -38,16 +38,17 @@ public interface RowMapper<T>
     T map(ResultSet rs, StatementContext ctx) throws SQLException;
 
     /**
-     * Returns a row mapper instance with the details of the result set memoized for performance. Overriding this
-     * method is optional--the default implementation simply returns {@code this}.
+     * Returns an equivalent row mapper, optimized for the given result set. Overriding this method is optional--the
+     * default implementation returns {@code this}. Implementors might choose to override this method to improve
+     * performance, e.g. by mapping result columns once for the whole result set, instead of for every row.
      *
-     * @param rs  the result set to memoize over
-     * @param ctx the statement context to memoize over
-     * @return a row mapper equivalent to this one, possibly memoized.
+     * @param rs  the result set to specialize over
+     * @param ctx the statement context to specialize over
+     * @return a row mapper equivalent to this one, possibly specialized.
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
      * @see org.jdbi.v3.core.mapper.reflect.BeanMapper for an example of memoization.
      */
-    default RowMapper<T> memoize(ResultSet rs, StatementContext ctx) throws SQLException {
+    default RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
         return this;
     }
 }

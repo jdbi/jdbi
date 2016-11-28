@@ -137,7 +137,7 @@ public class OracleReturning<ResultType> implements StatementCustomizer
         }
         this.results = new ArrayList<>();
         try {
-            RowMapper<ResultType> mapper = this.mapper.memoize(rs, context);
+            RowMapper<ResultType> mapper = this.mapper.specialize(rs, context);
             while (rs.next()) {
                 results.add(mapper.map(rs, context));
             }

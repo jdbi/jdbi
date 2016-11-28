@@ -85,13 +85,13 @@ public class JoinRowMapper implements RowMapper<JoinRowMapper.JoinRow>
     }
 
     @Override
-    public RowMapper<JoinRow> memoize(ResultSet r, StatementContext ctx) throws SQLException {
+    public RowMapper<JoinRow> specialize(ResultSet r, StatementContext ctx) throws SQLException {
         RowMapper[] mappers = new RowMapper[types.length];
         for (int i = 0; i < types.length; i++) {
             Type type = types[i];
             mappers[i] = ctx.findRowMapperFor(type)
                     .orElseThrow(() -> new IllegalArgumentException("No row mapper registered for " + type))
-                    .memoize(r, ctx);
+                    .specialize(r, ctx);
         }
 
         return (rs, context) -> {
