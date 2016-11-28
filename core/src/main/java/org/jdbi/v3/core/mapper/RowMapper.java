@@ -38,11 +38,14 @@ public interface RowMapper<T>
     T map(ResultSet rs, StatementContext ctx) throws SQLException;
 
     /**
-     * Returns an equivalent row mapper, optimized for the given result set. Overriding this method is optional--the
-     * default implementation returns {@code this}. Implementors might choose to override this method to improve
-     * performance, e.g. by mapping result columns once for the whole result set, instead of for every row.
+     * Returns a specialized row mapper, optimized for the given result set.
      * <p>
-     * The returned mapper should <em>only</em> be used to map values from the given result set.
+     * Before mapping the result set from a SQL statement, JDBI will first call this method to obtain a specialized
+     * instance. The returned mapper will then be used for each row in the result set, and discarded.
+     * <p>
+     * Implementing this method is optional; the default implementation returns {@code this}. Implementors might choose
+     * to override this method to improve performance, e.g. by mapping result columns once for the whole result set,
+     * and not for every row.
      *
      * @param rs  the result set to specialize over
      * @param ctx the statement context to specialize over
