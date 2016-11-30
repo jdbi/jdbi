@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.oracle;
 
+import static org.junit.Assume.assumeNoException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -46,18 +48,19 @@ public class OracleDatabaseRule extends ExternalResource implements DatabaseRule
 
     @Override
     protected void before() throws Throwable {
-        try {
-            dbi = Jdbi.create(uri, "hr", "oracle");
-        }
-        catch (Exception e) {
-            Assume.assumeNoException("Can't connect to Oracle database", e);
-        }
-
+        dbi = Jdbi.create(uri, "hr", "oracle");
         if (installPlugins) {
             dbi.installPlugins();
         }
         plugins.forEach(dbi::installPlugin);
-        sharedHandle = dbi.open();
+
+        try {
+            sharedHandle = dbi.open();
+        }
+        catch (Exception e) {
+            assumeNoException("Oracle database not available", e);
+        }
+
         sharedHandle.execute("create sequence something_id_sequence INCREMENT BY 1 START WITH 100");
         sharedHandle.execute("create table something (name varchar(200), id int, constraint something_id primary key (id))");
         con = sharedHandle.getConnection();

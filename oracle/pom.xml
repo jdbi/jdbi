@@ -75,5 +75,11 @@
             <version>12.1.0.2</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <optional>true</optional> <!-- for @Beta annotation -->
+        </dependency>
     </dependencies>
 </project>
