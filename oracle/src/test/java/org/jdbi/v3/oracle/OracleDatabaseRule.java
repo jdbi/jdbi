@@ -31,8 +31,10 @@ import org.junit.rules.ExternalResource;
  * Helper for a single, superuser privileged Oracle database.
  */
 public class OracleDatabaseRule extends ExternalResource implements DatabaseRule {
-    // Follow this guide to be able to run Oracle tests
-    // https://dimitrisli.wordpress.com/2012/08/08/how-to-install-oracle-database-on-mac-os-any-version/
+    /*
+     * Used this guide to install Oracle locally on a VirtualBox VM:
+     * https://dimitrisli.wordpress.com/2012/08/08/how-to-install-oracle-database-on-mac-os-any-version/
+     */
 
     // schema installed by default in Oracle DB Developer VM
     String uri = "jdbc:oracle:thin:@//127.0.0.1:1521/orcl";
