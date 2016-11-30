@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.oracle;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,12 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.jdbi.v3.sqlobject.Bind;
+import org.jdbi.v3.sqlobject.GetGeneratedKeys;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.sqlobject.SqlQuery;
+import org.jdbi.v3.sqlobject.SqlUpdate;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -35,29 +37,12 @@ import org.junit.Test;
  * @since 2014-10-18
  */
 public class TestGetGeneratedKeysOracle {
-
-    private Jdbi dbi;
-
-    @Before
-    public void setUp() throws Exception {
-        dbi = Jdbi.create("jdbc:oracle:thin:@localhost:test", "oracle", "oracle");
-        dbi.useHandle(handle -> {
-            handle.execute("create sequence something_id_sequence INCREMENT BY 1 START WITH 100");
-            handle.execute("create table something (name varchar(200), id int, constraint something_id primary key (id))");
-        });
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        dbi.useHandle(handle -> {
-            handle.execute("drop table something");
-            handle.execute("drop sequence something_id_sequence");
-        });
-    }
+    @Rule
+    public OracleDatabaseRule db = new OracleDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     /**
      * Oracle needs to be queried by index and not id (like
-     * {@link DefaultGeneratedKeyMapper} does).
+     * {@code DefaultGeneratedKeyMapper} does).
      */
     public static class OracleGeneratedKeyMapper implements RowMapper<Long> {
 
@@ -76,10 +61,9 @@ public class TestGetGeneratedKeysOracle {
         String findNameById(@Bind long id);
     }
 
-    @Ignore
     @Test
     public void testGetGeneratedKeys() throws Exception {
-        dbi.useExtension(DAO.class, dao -> {
+        db.getJdbi().useExtension(DAO.class, dao -> {
             Long fooId = dao.insert("Foo");
             long barId = dao.insert("Bar");
 
