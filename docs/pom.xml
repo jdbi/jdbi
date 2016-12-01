@@ -175,13 +175,13 @@
 
     <profiles>
         <profile>
-          <id>oracle</id>
-          <dependencies>
-            <dependency>
-              <groupId>org.jdbi</groupId>
-              <artifactId>jdbi3-oracle</artifactId>
-            </dependency>
-          </dependencies>
+            <id>oracle</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jdbi</groupId>
+                    <artifactId>jdbi3-oracle</artifactId>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>publish-docs</id>
