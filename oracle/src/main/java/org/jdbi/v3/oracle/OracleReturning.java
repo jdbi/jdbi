@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.oracle;
 
-import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -85,23 +84,10 @@ public class OracleReturning<ResultType> implements StatementCustomizer {
     public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {
         this.context = ctx;
 
-        if (stmt instanceof OraclePreparedStatement) {
-            this.stmt = OraclePreparedStatement.class.cast(stmt);
-        } else {
-            try {
-                // If it's an instance of Apache commons-dbcp DelegatingPreparedStatement
-                final Method getDelegate = stmt.getClass().getMethod("getDelegate");
-                final Object candidate = getDelegate.invoke(stmt);
-                if (candidate instanceof OraclePreparedStatement) {
-                    this.stmt = OraclePreparedStatement.class.cast(stmt);
-                } else {
-                    throw new Exception("Obtained delegate, but it still wasn't an OraclePreparedStatement");
-                }
-            } catch (Exception e) {
-                throw new IllegalStateException("Statement is not an OraclePreparedStatement, nor " +
-                        "one which we know how to find it from", e);
-            }
+        if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
+            throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
         }
+        this.stmt = stmt.unwrap(OraclePreparedStatement.class);
         for (int[] bind : binds) {
             try {
                 this.stmt.registerReturnParameter(bind[0], bind[1]);
