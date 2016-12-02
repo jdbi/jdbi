@@ -106,3 +106,9 @@ mvn clean install -U -Poracle
 ```
 
 The `oracle` profile adds the `jdbi3-oracle` artifact into the build process. 
+
+# Running Oracle unit tests
+
+The previous setup will allow the `jdbi3-oracle` artifact to build, but without an Oracle database running, all Oracle unit tests will simply be ignored.
+
+Follow this guide: [How to install Oracle Database on Mac](https://dimitrisli.wordpress.com/2012/08/08/how-to-install-oracle-database-on-mac-os-any-version/). With luck, your unit tests should start working after Step 4 in the guide.
