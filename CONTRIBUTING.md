@@ -1,4 +1,8 @@
-Hi! Welcome to JDBI, 
+Hi! Welcome to JDBI.
+
+We're glad you're thinking about contributing to the projects.
+
+Here's a few pointers to help you get set up:
 
 # Setting up your machine to build `jdbi3-oracle`
 
