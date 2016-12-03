@@ -76,7 +76,7 @@ Delete `src/build/travis-settings-security.xml` (unencrypted) so you don't accid
 * Navigate to https://travis-ci.org/jdbi/jdbi/settings
 * For the next two steps: make sure the "Display value in the log" toggle is set to "Off". 
 * Set the `secure_files_key` environment variable to the generated key (`239D2C53D5FF46FE67484B58C91A8C783C521485FCE8B630D77CBCEA17367EC8` in this example)
-* Set the `secure_files_iv` environemtn varaible to the generated iv (`FD0B8F77145D7561BAAAC1B3152BF329` in this example)
+* Set the `secure_files_iv` environment variable to the generated iv (`FD0B8F77145D7561BAAAC1B3152BF329` in this example)
 
 These environment variables are used in `.travis.yml` to decrypt the files in the `before_install` step.
 
