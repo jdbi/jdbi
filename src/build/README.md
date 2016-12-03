@@ -24,7 +24,7 @@ key=239D2C53D5FF46FE67484B58C91A8C783C521485FCE8B630D77CBCEA17367EC8
 iv =FD0B8F77145D7561BAAAC1B3152BF329
 ```
 
-Store these files in environment variables to make the next steps easier:
+Store the key and iv in environment variables to make the next steps easier:
 
 ```shell
 secure_files_key=239D2C53D5FF46FE67484B58C91A8C783C521485FCE8B630D77CBCEA17367EC8
