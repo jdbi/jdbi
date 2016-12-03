@@ -37,12 +37,7 @@ public interface ResultBearing<T> extends Iterable<T>
      * @param executor the StatementExecutor to use
      * @return the produced results
      */
-    <R> R execute(StatementExecutor<T, R> executor);
-
-    /**
-     * @return the current statement context
-     */
-    StatementContext getContext();
+    <R> R execute(ResultProducer<T, R> executor);
 
     /**
      * Stream all the rows of the result set out
@@ -51,10 +46,12 @@ public interface ResultBearing<T> extends Iterable<T>
      * @return the results as a streaming Iterator
      */
     @Override
-    default ResultIterator<T> iterator()
-    {
-        return execute(ResultSetResultIterator<T>::new);
-    }
+    ResultIterator<T> iterator();
+
+    /**
+     * @return the current statement context
+     */
+    StatementContext getContext();
 
     /**
      * Get the only row in the result set.
@@ -191,7 +188,7 @@ public interface ResultBearing<T> extends Iterable<T>
      * @return the final {@code U}
      */
     default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
-        return execute((mapper, rs, ctx) -> {
+        return execute((stmt, rs, ctx) -> {
             RowView rv = new RowView(rs, ctx);
             U result = seed;
             while (rs.next()) {
@@ -210,7 +207,7 @@ public interface ResultBearing<T> extends Iterable<T>
      * @return the final {@code U}
      */
     default <U> U reduceResultSet(U seed, ResultSetAccumulator<U> accumulator) {
-        return execute((mapper, rs, ctx) -> {
+        return execute((stmt, rs, ctx) -> {
             U result = seed;
             while (rs.next()) {
                 result = accumulator.apply(result, rs, ctx);

@@ -23,10 +23,10 @@ import java.util.Locale;
 
 import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.StatementCustomizers;
@@ -64,8 +64,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      */
     @SuppressWarnings("resource")
     @Override
-    public <R> R execute(
-            StatementExecutor<ResultType, R> executor)
+    public <R> R execute(ResultProducer<ResultType, R> producer)
     {
         final PreparedStatement stmt = internalExecute();
         final ResultSet rs;
@@ -80,7 +79,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
             throw new ResultSetException("Could not get result set", e, getContext());
         }
         try {
-            return executor.execute(mapper, rs, getContext());
+            return producer.produce(stmt, rs, getContext());
         } catch (SQLException e) {
             try {
                 close();
@@ -89,6 +88,12 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
             }
             throw new UnableToExecuteStatementException(e, getContext());
         }
+    }
+
+    @Override
+    public ResultIterator<ResultType> iterator()
+    {
+        return execute((stmt, rs, ctx) -> new ResultSetResultIterator<>(mapper, rs, getContext()));
     }
 
     /**

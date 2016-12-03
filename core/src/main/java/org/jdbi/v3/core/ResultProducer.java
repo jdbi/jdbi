@@ -13,25 +13,24 @@
  */
 package org.jdbi.v3.core;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.mapper.RowMapper;
-
 /**
- * A StatementExecutor generates the mapped results of a {@link SqlStatement},
+ * A {@code ResultProducer} generates the mapped results of a {@link SqlStatement},
  * potentially wrapped in a container object.
  */
 @FunctionalInterface
-public interface StatementExecutor<T, R>
+public interface ResultProducer<T, R>
 {
     /**
      * Produce a statement result.
-     * @param mapper the mapper the user's code told you to use
-     * @param rs the result set
+     * @param stmt the prepared statement
+     * @param rs the result set to iterate
      * @param ctx the statement context
      * @return an object of the type your caller expects
      * @throws SQLException sadness
      */
-    R execute(RowMapper<T> mapper, ResultSet rs, StatementContext ctx) throws SQLException;
+    R produce(PreparedStatement stmt, ResultSet rs, StatementContext ctx) throws SQLException;
 }
