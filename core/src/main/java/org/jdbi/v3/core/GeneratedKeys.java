@@ -27,7 +27,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
  *
  * @param <T> the key type returned
  */
-public class GeneratedKeys<T> implements ResultBearing<T>
+public class GeneratedKeys<T> implements ResultIterable<T>
 {
     private final RowMapper<T>             mapper;
     private final PreparedStatement        stmt;

@@ -41,7 +41,7 @@ import org.jdbi.v3.core.util.GenericType;
  * The default mapper also carries a performance penalty because it must
  * inspect metadata for each row.
  */
-public class Query<ResultType> extends SqlStatement<Query<ResultType>> implements ResultBearing<ResultType>
+public class Query<ResultType> extends SqlStatement<Query<ResultType>> implements ResultIterable<ResultType>
 {
     private final RowMapper<ResultType> mapper;
 
