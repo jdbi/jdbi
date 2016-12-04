@@ -110,6 +110,21 @@
          </plugins>
         </build>
       </profile>
+      <profile>
+        <id>oracle</id>
+        <modules>
+          <module>oracle</module>
+        </modules>
+        <dependencyManagement>
+          <dependencies>
+            <dependency>
+              <groupId>org.jdbi</groupId>
+              <artifactId>jdbi3-oracle</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+          </dependencies>
+        </dependencyManagement>
+      </profile>
     </profiles>
 
     <build>
@@ -124,6 +139,15 @@
               <compilerArguments>
                 <parameters />
               </compilerArguments>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>src/build/*</exclude>
+              </excludes>
             </configuration>
           </plugin>
         </plugins>

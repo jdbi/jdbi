@@ -12,20 +12,22 @@ cache:
 
 before_install:
     - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
+    - openssl aes-256-cbc -K $secure_files_key -iv $secure_files_iv -in src/build/travis-settings.xml.enc -out ~/.m2/settings.xml -d
+    - openssl aes-256-cbc -K $secure_files_key -iv $secure_files_iv -in src/build/travis-settings-security.xml.enc -out ~/.m2/settings-security.xml -d
 
-install: mvn -Ptoolchains -DskipTests=true -Dbasepom.check.skip-all=true -Dmaven.javadoc.skip=true -B install
+install: mvn -Ptoolchains,oracle -DskipTests=true -Dbasepom.check.skip-all=true -Dmaven.javadoc.skip=true -B install
 
 matrix:
   include:
     - env:
         - TESTS=Y
-      script: mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Ptoolchains -B verify
+      script: mvn -Dmaven.javadoc.skip=true -Dbasepom.check.skip-basic=true -Dbasepom.check.skip-findbugs=true -Dbasepom.check.skip-pmd=true -Dbasepom.check.skip-checkstyle=true -Ptoolchains,oracle -B verify
       jdk: oraclejdk8
     - env:
         - DOCUMENTATION=Y
-      script: mvn -DskipTests=true -Dbasepom.check.skip-all=true -Ptoolchains -B verify
+      script: mvn -DskipTests=true -Dbasepom.check.skip-all=true -Ptoolchains,oracle -B verify
       jdk: oraclejdk8
     - env:
         - CODE_STYLE=Y
-      script: mvn -DskipTests=true -Dmaven.javadoc.skip=true -Ptoolchains -B verify
+      script: mvn -DskipTests=true -Dmaven.javadoc.skip=true -Ptoolchains,oracle -B verify
       jdk: oraclejdk8
