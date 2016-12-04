@@ -13,26 +13,33 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.core.Something;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@BindingAnnotation(BindSomething.Factory.class)
+@SqlStatementCustomizingAnnotation(BindSomething.Factory.class)
 public @interface BindSomething
 {
     String value();
 
-    class Factory implements BinderFactory<BindSomething, Object>
-    {
+    class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public Binder<BindSomething, Object> build(BindSomething annotation)
-        {
-            return (q, param, index, bind, arg) -> {
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object arg) {
+            BindSomething bind = (BindSomething) annotation;
+            return q -> {
                 Something it = (Something) arg;
                 q.bind(bind.value() + ".id", it.getId());
                 q.bind(bind.value() + ".name", it.getName());

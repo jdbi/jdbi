@@ -174,20 +174,6 @@ public class SqlObjectFactory implements ExtensionFactory {
                                     method.getName(),
                                     type.getSimpleName()));
                         });
-
-                Stream.of(parameter.getAnnotations())
-                        .map(Annotation::annotationType)
-                        .filter(type -> type.isAnnotationPresent(BindingAnnotation.class))
-                        .findFirst()
-                        .ifPresent(type -> {
-                            throw new IllegalStateException(String.format(
-                                    "Default method %s.%s parameter %s has @%s annotation. Binding annotations " +
-                                            "don't work on default methods.",
-                                    sqlObjectType.getSimpleName(),
-                                    parameter.getName(),
-                                    method.getName(),
-                                    type.getSimpleName()));
-                        });
             }
 
             return new DefaultMethodHandler(method);

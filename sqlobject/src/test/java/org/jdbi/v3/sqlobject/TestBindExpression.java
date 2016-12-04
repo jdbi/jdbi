@@ -71,7 +71,8 @@ public class TestBindExpression
                                                              Class<?> sqlObjectType,
                                                              Method method,
                                                              Parameter param,
-                                                             final Object root)
+                                                             int index,
+                                                             Object root)
             {
                 final String root_name = ((BindRoot) annotation).value();
                 final JexlEngine engine = new JexlEngine();

@@ -61,7 +61,6 @@ class UpdateHandler extends CustomizingStatementHandler
         String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
         Update update = handle.getHandle().createUpdate(sql);
         applyCustomizers(update, args);
-        applyBinders(update, args);
         return this.returner.apply(update);
     }
 

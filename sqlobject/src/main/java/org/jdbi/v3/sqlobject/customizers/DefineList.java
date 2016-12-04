@@ -73,7 +73,12 @@ public @interface DefineList
     {
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, final Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object arg)
         {
             List<?> argsList;
             if (arg instanceof List) {

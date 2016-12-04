@@ -64,7 +64,12 @@ public @interface MaxRows
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object arg)
         {
             final Integer va = (Integer) arg;
             return q -> {

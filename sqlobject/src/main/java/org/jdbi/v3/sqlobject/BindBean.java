@@ -13,17 +13,20 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 /**
  * Binds the properties of a JavaBean to a SQL statement.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@BindingAnnotation(BindBean.Factory.class)
+@SqlStatementCustomizingAnnotation(BindBean.Factory.class)
 public @interface BindBean
 {
     /**
@@ -32,16 +35,22 @@ public @interface BindBean
      */
     String value() default "";
 
-    class Factory implements BinderFactory<BindBean, Object> {
+    class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public Binder<BindBean, Object> build(BindBean annotation) {
-            return (statement, param, index, bind, bean) -> {
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object bean) {
+            BindBean bind = (BindBean) annotation;
+            return stmt -> {
                 String prefix = bind.value();
                 if (prefix.isEmpty()) {
-                    statement.bindBean(bean);
+                    stmt.bindBean(bean);
                 }
                 else {
-                    statement.bindBean(prefix, bean);
+                    stmt.bindBean(prefix, bean);
                 }
             };
         }

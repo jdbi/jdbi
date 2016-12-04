@@ -36,7 +36,6 @@ class QueryHandler extends CustomizingStatementHandler
         String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
         Query<?> q = handle.getHandle().createQuery(sql);
         applyCustomizers(q, args);
-        applyBinders(q, args);
 
         return magic.map(method, q);
     }
