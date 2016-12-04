@@ -26,6 +26,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizers.TransactionIsolation;
@@ -36,7 +37,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 
-public class TestDoublyTransactional
+public class TestTransactional
 {
     private Jdbi    dbi;
     private Handle handle;
@@ -60,6 +61,15 @@ public class TestDoublyTransactional
             inTransaction.set(false);
             return null;
         });
+    }
+
+    @Test(expected = TransactionException.class)
+    public void testOnDemandBeginTransaction() throws Exception {
+        // Calling methods like begin() on an on-demand Transactional SQL object makes no sense--the transaction would
+        // begin and the connection would just close.
+        // JDBI should identify this scenario and throw an exception informing the user that they're not managing their
+        // transactions correctly.
+        dbi.onDemand(Transactional.class).begin();
     }
 
     @Before
