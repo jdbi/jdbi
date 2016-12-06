@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.core.extension.Extensions;
@@ -101,16 +102,29 @@ public class Handle implements Closeable, Configurable<Handle>
      * Closes the handle, its connection, and any other database resources it is holding.
      *
      * @throws UnableToCloseResourceException if any resources throw exception while closing
+     * @throws TransactionException if called while the handle has a transaction open. The open transaction will be
+     * rolled back.
      */
     @Override
     public void close() {
         extensionMethod.remove();
         if (!closed) {
+            boolean wasInTransaction = isInTransaction();
+            if (wasInTransaction) {
+                rollback();
+            }
+
             try {
                 statementBuilder.close(getConnection());
             } finally {
                 try {
                     connection.close();
+                    if (wasInTransaction) {
+                        throw new TransactionException("Improper transaction handling detected: A Handle with an open " +
+                                "transaction was closed. Transactions must be explicitly committed or rolled back " +
+                                "before closing the Handle. " +
+                                "JDBI has rolled back this transaction automatically.");
+                    }
                 }
                 catch (SQLException e) {
                     throw new UnableToCloseResourceException("Unable to close Connection", e);
