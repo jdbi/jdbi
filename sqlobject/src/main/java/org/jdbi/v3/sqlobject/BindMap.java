@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +30,7 @@ import java.util.Map;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@BindingAnnotation(BindMap.Factory.class)
+@SqlStatementCustomizingAnnotation(BindMap.Factory.class)
 public @interface BindMap
 {
     /**
@@ -50,30 +53,32 @@ public @interface BindMap
      */
     boolean convertKeys() default false;
 
-    class Factory implements BinderFactory<BindMap, Map<?, ?>>
-    {
+    class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public Binder<BindMap, Map<?, ?>> build(BindMap annotation)
-        {
+        public SqlStatementCustomizer createForParameter(Annotation a,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object arg) {
+            BindMap annotation = (BindMap) a;
             List<String> keys = Arrays.asList(annotation.keys());
             String prefix = annotation.value().isEmpty() ? "" : annotation.value() + ".";
+            Map<?, ?> map = (Map) arg;
+            Map<String, Object> toBind = new HashMap<>();
+            map.forEach((k, v) -> {
+                if (annotation.convertKeys() || k instanceof String) {
+                    String key = k.toString();
+                    if (keys.isEmpty() || keys.contains(key)) {
+                        toBind.put(prefix + key, v);
+                    }
+                } else {
+                    throw new IllegalArgumentException("Key " + k + " (of " + k.getClass() + ") must be a String");
+                }
+            });
+            keys.forEach(key -> toBind.putIfAbsent(prefix + key, null));
 
-            return (statement, param, index, bind, map) -> {
-                Map<String, Object> m = new HashMap<>();
-                map.forEach((k, v) -> {
-                  if (annotation.convertKeys() || k instanceof String) {
-                      String key = k.toString();
-                      if (keys.isEmpty() || keys.contains(key)) {
-                          m.put(prefix + key, v);
-                      }
-                  }
-                  else {
-                      throw new IllegalArgumentException("Key " + k + " (of " + k.getClass() + ") must be a String");
-                  }
-                });
-                keys.forEach(key -> m.putIfAbsent(prefix + key, null));
-                statement.bindMap(m);
-            };
+            return stmt -> stmt.bindMap(toBind);
         }
     }
 }

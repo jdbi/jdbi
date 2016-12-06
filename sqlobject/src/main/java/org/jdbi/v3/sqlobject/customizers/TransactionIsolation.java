@@ -61,7 +61,7 @@ public @interface TransactionIsolation
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg)
         {
             assert arg instanceof TransactionIsolationLevel;
             return new MyCustomizer((TransactionIsolationLevel) arg);

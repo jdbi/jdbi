@@ -24,6 +24,18 @@ import java.lang.reflect.Parameter;
 public interface SqlStatementCustomizerFactory
 {
     /**
+     * Used to create customizers for annotations on sql object interfaces
+     *
+     * @param annotation the annotation which lead to the method being called
+     * @param sqlObjectType sql object class (interface)
+     * @return the customizer which will be applied to the generated statement
+     */
+    default SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+    {
+        throw new UnsupportedOperationException("Not supported for type");
+    }
+
+    /**
      * Used to create customizers for annotations on methods.
      *
      * @param annotation the annotation which lead to the method being called
@@ -37,28 +49,22 @@ public interface SqlStatementCustomizerFactory
     }
 
     /**
-     * Used to create customizers for annotations on sql object interfaces
-     *
-     * @param annotation the annotation which lead to the method being called
-     * @param sqlObjectType sql object class (interface)
-     * @return the customizer which will be applied to the generated statement
-     */
-    default SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-    {
-        throw new UnsupportedOperationException("Not supported for type");
-    }
-
-    /**
      * Used to create customizers for annotations on parameters
      *
      * @param annotation the annotation which lead to the method being called
      * @param sqlObjectType sql object class (interface)
      * @param method the method which was annotated
      * @param param the parameter which was annotated
+     * @param index the method parameter index
      * @param arg the argument value for the annotated parameter
      * @return the customizer which will be applied to the generated statement
      */
-    default SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, Object arg)
+    default SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                      Class<?> sqlObjectType,
+                                                      Method method,
+                                                      Parameter param,
+                                                      int index,
+                                                      Object arg)
     {
         throw new UnsupportedOperationException("Not supported for parameter");
     }

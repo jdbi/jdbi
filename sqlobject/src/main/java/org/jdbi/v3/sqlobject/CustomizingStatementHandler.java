@@ -25,7 +25,6 @@ import org.jdbi.v3.core.SqlStatement;
 
 abstract class CustomizingStatementHandler implements Handler
 {
-    private final List<Bindifier<?>>                    binders                        = new ArrayList<>();
     private final List<FactoryAnnotationPair>           typeBasedCustomizerFactories   = new ArrayList<>();
     private final List<FactoryAnnotationPair>           methodBasedCustomizerFactories = new ArrayList<>();
     private final List<FactoryAnnotationParameterIndex> paramBasedCustomizerFactories  = new ArrayList<>();
@@ -74,23 +73,9 @@ abstract class CustomizingStatementHandler implements Handler
         final Annotation[][] paramAnnotations = method.getParameterAnnotations();
         final Parameter[] parameters = method.getParameters();
         for (int paramIndex = 0; paramIndex < paramAnnotations.length; paramIndex++) {
-            boolean thereBindingAnnotation = false;
+            boolean foundCustomizingAnnotations = false;
             for (final Annotation annotation : paramAnnotations[paramIndex]) {
                 final Class<? extends Annotation> annotationType = annotation.annotationType();
-
-
-                if (annotationType.isAnnotationPresent(BindingAnnotation.class)) {
-                    // we have a binder
-                    BindingAnnotation ba = annotationType.getAnnotation(BindingAnnotation.class);
-                    try {
-                        BinderFactory<Annotation, Object> fact = (BinderFactory<Annotation, Object>) ba.value().newInstance();
-                        binders.add(new Bindifier<>(this.method, annotation, paramIndex, fact.build(annotation)));
-                    }
-                    catch (Exception e) {
-                        throw new IllegalStateException("unable to instantiate customizer", e);
-                    }
-                    thereBindingAnnotation = true;
-                }
 
                 if (annotationType.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
                     SqlStatementCustomizingAnnotation sca = annotation.annotationType()
@@ -103,21 +88,14 @@ abstract class CustomizingStatementHandler implements Handler
                         throw new IllegalStateException("unable to instantiate sql statement customizer factory", e);
                     }
                     paramBasedCustomizerFactories.add(new FactoryAnnotationParameterIndex(f, annotation, parameters[paramIndex], paramIndex));
-                    thereBindingAnnotation = true;
+                    foundCustomizingAnnotations = true;
                 }
             }
-            if (!thereBindingAnnotation) {
-                // If there is no binding annotation on a parameter,
-                // then add a default parameter binder
-                binders.add(new Bindifier<>(method, null, paramIndex, new DefaultObjectBinder().build(null)));
-            }
-        }
-    }
 
-    protected void applyBinders(SqlStatement<?> q, Object[] args)
-    {
-        for (Bindifier<?> binder : binders) {
-            binder.bind(q, args);
+            if (!foundCustomizingAnnotations) {
+                // There are no customizing annotations on the parameter, so use default binder
+                paramBasedCustomizerFactories.add(new FactoryAnnotationParameterIndex(new Bind.Factory(), null, parameters[paramIndex], paramIndex));
+            }
         }
     }
 
@@ -145,7 +123,7 @@ abstract class CustomizingStatementHandler implements Handler
             for (FactoryAnnotationParameterIndex param : paramBasedCustomizerFactories) {
                 try {
                     param.factory
-                        .createForParameter(param.annotation, sqlObjectType, method, param.parameter, args[param.index])
+                        .createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index])
                         .apply(q);
                 }
                 catch (SQLException e) {

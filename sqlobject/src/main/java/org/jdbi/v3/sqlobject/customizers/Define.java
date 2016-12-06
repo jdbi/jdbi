@@ -46,7 +46,12 @@ public @interface Define
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, final Object arg)
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object arg)
         {
             Define define = (Define) annotation;
 

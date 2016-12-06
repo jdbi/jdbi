@@ -13,18 +13,66 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.sqlobject.BindingAnnotation;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@BindingAnnotation(BindJpaFactory.class)
+@SqlStatementCustomizingAnnotation(BindJpa.Factory.class)
 public @interface BindJpa {
-    String DEFAULT = "___jdbi_bare___";
+    String value() default "";
 
-    String value() default DEFAULT;
+    class Factory implements SqlStatementCustomizerFactory {
+        @Override
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object arg) {
+            BindJpa bind = (BindJpa) annotation;
+            return stmt -> {
+                final String prefix;
+                if (bind.value().isEmpty()) {
+                    prefix = "";
+                } else {
+                    prefix = bind.value() + ".";
+                }
+
+                JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
+                for (JpaMember member : jpaClass.members()) {
+                    stmt.bindByType(
+                            prefix + member.getColumnName(),
+                            readMember(arg, member),
+                            member.getType());
+                }
+            };
+        }
+
+        private static Object readMember(Object entity, JpaMember member) {
+            try {
+                return member.read(entity);
+            } catch (IllegalAccessException e) {
+                String message = String.format(
+                        "Unable to access property value for column %s",
+                        member.getColumnName());
+                throw new EntityMemberAccessException(message, e);
+            } catch (InvocationTargetException e) {
+                String message = String.format(
+                        "Exception thrown in accessor method for column %s",
+                        member.getColumnName());
+                throw new EntityMemberAccessException(message, e);
+            }
+        }
+    }
 }

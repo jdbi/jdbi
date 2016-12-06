@@ -142,9 +142,8 @@ class BatchHandler extends CustomizingStatementHandler
                 }
                 // execute a single chunk and buffer
                 PreparedBatch batch = handle.prepareBatch(sql);
-                applyCustomizers(batch, args);
                 for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
-                    applyBinders(batch.add(), batchArgs.next());
+                    applyCustomizers(batch.add(), batchArgs.next());
                 }
                 batchResult = executeBatch(handle, batch);
                 return hasNext(); // recurse to ensure we actually got elements
