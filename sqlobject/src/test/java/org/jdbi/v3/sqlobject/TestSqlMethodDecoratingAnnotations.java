@@ -144,9 +144,9 @@ public class TestSqlMethodDecoratingAnnotations {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, m, args, handle) -> {
+                return (obj, args, handle) -> {
                     invoked("foo");
-                    return base.invoke(obj, m, args, handle);
+                    return base.invoke(obj, args, handle);
                 };
             }
         }
@@ -159,9 +159,9 @@ public class TestSqlMethodDecoratingAnnotations {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, m, args, handle) -> {
+                return (obj, args, handle) -> {
                     invoked("bar");
-                    return base.invoke(obj, m, args, handle);
+                    return base.invoke(obj, args, handle);
                 };
             }
         }
@@ -173,7 +173,7 @@ public class TestSqlMethodDecoratingAnnotations {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, m, args, handle) -> {
+                return (obj, args, handle) -> {
                     invoked("abort");
                     return null;
                 };
@@ -187,7 +187,7 @@ public class TestSqlMethodDecoratingAnnotations {
         class Factory implements HandlerFactory {
             @Override
             public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-                return (obj, m, args, handle) -> {
+                return (obj, args, handle) -> {
                     invoked("method");
                     return null;
                 };

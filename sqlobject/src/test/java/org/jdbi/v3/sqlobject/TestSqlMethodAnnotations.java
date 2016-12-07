@@ -69,7 +69,7 @@ public class TestSqlMethodAnnotations
         class Factory implements HandlerFactory {
             @Override
             public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-                return (obj, m, args, handle) -> "foo";
+                return (obj, args, handle) -> "foo";
             }
         }
     }

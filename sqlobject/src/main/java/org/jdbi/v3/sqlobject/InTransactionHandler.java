@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.reflect.Method;
-
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 
@@ -22,7 +20,7 @@ class InTransactionHandler implements Handler
 {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public Object invoke(final Object target, Method method, Object[] args, HandleSupplier handle) throws Exception
+    public Object invoke(final Object target, Object[] args, HandleSupplier handle) throws Exception
     {
         final TransactionalCallback callback = (TransactionalCallback) args[0];
         return handle.getHandle().inTransaction(h -> callback.inTransaction(Transactional.class.cast(target)));

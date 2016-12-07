@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.reflect.Method;
-
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.extension.Extensions;
 
@@ -28,7 +26,7 @@ class CreateSqlObjectHandler implements Handler
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
+    public Object invoke(Object target, Object[] args, HandleSupplier handle)
     {
         return handle.getConfig(Extensions.class)
                 .findFactory(SqlObjectFactory.class)

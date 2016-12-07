@@ -15,8 +15,6 @@ package org.jdbi.v3.sqlobject;
 
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.INVALID_LEVEL;
 
-import java.lang.reflect.Method;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.exception.TransactionException;
@@ -35,7 +33,7 @@ class TransactionDecorator implements Handler
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle) throws Exception
+    public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception
     {
         Handle h = handle.getHandle();
 
@@ -43,7 +41,7 @@ class TransactionDecorator implements Handler
             TransactionIsolationLevel currentLevel = h.getTransactionIsolationLevel();
             if (currentLevel == isolation || isolation == INVALID_LEVEL) {
                 // Already in transaction. The outermost @Transaction method determines the transaction isolation level.
-                return delegate.invoke(target, method, args, handle);
+                return delegate.invoke(target, args, handle);
             }
             else {
                 throw new TransactionException("Tried to execute nested @Transaction(" + isolation+ "), " +
@@ -51,7 +49,7 @@ class TransactionDecorator implements Handler
             }
         }
 
-        TransactionCallback<Object, Exception> callback = th -> delegate.invoke(target, method, args, handle);
+        TransactionCallback<Object, Exception> callback = th -> delegate.invoke(target, args, handle);
 
         if (isolation == INVALID_LEVEL) {
             return h.inTransaction(callback);

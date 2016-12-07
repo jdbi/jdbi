@@ -13,14 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.reflect.Method;
-
 import org.jdbi.v3.core.HandleSupplier;
 
 class GetHandleHandler implements Handler
 {
     @Override
-    public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
+    public Object invoke(Object target, Object[] args, HandleSupplier handle)
     {
         return handle.getHandle();
     }
