@@ -67,7 +67,7 @@ class DefaultMethodHandler implements Handler {
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle) {
+    public Object invoke(Object target, Object[] args, HandleSupplier handle) {
         try {
             return methodHandle.bindTo(target).invokeWithArguments(args);
         } catch (RuntimeException | Error e) {

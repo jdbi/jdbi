@@ -259,7 +259,7 @@ public class SqlObjectFactory implements ExtensionFactory {
                     factory.createForMethod(annotation, sqlObjectType, method).accept(methodConfig));
 
             return handle.invokeInContext(new ExtensionMethod(sqlObjectType, method), methodConfig,
-                    () -> handler.invoke(proxy, method, args == null ? NO_ARGS : args, handle));
+                    () -> handler.invoke(proxy, args == null ? NO_ARGS : args, handle));
         };
     }
 
