@@ -68,7 +68,12 @@ public @interface BindList {
 
     final class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, Object arg) {
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object arg) {
             final BindList bindList = (BindList) annotation;
             final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
 

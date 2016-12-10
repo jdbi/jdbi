@@ -66,6 +66,7 @@ public @interface FetchDirection
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
+                                                         int index,
                                                          Object arg)
         {
             return create((Integer) arg);

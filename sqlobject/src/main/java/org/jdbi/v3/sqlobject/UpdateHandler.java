@@ -56,12 +56,11 @@ class UpdateHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, HandleSupplier handle)
+    public Object invoke(Object target, Object[] args, HandleSupplier handle)
     {
-        String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
+        String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, getMethod());
         Update update = handle.getHandle().createUpdate(sql);
         applyCustomizers(update, args);
-        applyBinders(update, args);
         return this.returner.apply(update);
     }
 

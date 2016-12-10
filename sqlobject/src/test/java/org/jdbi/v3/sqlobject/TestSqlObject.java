@@ -182,7 +182,7 @@ public class TestSqlObject
     @Test
     public void testRedundantParameterBindingAnnotation() {
         exception.expect(IllegalStateException.class);
-        exception.expectMessage("Binding annotations don't work on default methods.");
+        exception.expectMessage("Statement customizing annotations don't work on default methods.");
 
         handle.attach(RedundantParameterBindingAnnotation.class);
     }

@@ -18,15 +18,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 
+import org.jdbi.v3.core.exception.TransactionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class TestClosingHandle
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     private Handle h;
 
@@ -132,6 +137,19 @@ public class TestClosingHandle
         it.close();
         assertThat(it.hasNext()).isFalse();
         assertThat(h.isClosed()).isTrue();
+    }
+
+    @Test
+    public void testCloseWithOpenTransaction() throws Exception {
+        h.begin();
+
+        exception.expect(TransactionException.class);
+        try {
+            h.close();
+        }
+        finally {
+            assertThat(h.isClosed()).isTrue();
+        }
     }
 }
 

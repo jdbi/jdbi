@@ -156,6 +156,8 @@ public class TestTransactions
 
         assertThatExceptionOfType(TransactionException.class)
                 .isThrownBy(() -> h.rollbackToSavepoint("first"));
+
+        h.rollback();
     }
 
     @Test(expected = IllegalArgumentException.class)

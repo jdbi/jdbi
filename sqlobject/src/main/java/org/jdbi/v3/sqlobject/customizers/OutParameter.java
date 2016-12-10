@@ -20,10 +20,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.sql.SQLException;
 
 import org.jdbi.v3.core.Call;
-import org.jdbi.v3.core.SqlStatement;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -53,23 +51,23 @@ public @interface OutParameter {
     class Factory implements SqlStatementCustomizerFactory {
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, @SuppressWarnings("rawtypes") Class sqlObjectType) {
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
             throw new UnsupportedOperationException("Not allowed on Type");
         }
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, @SuppressWarnings("rawtypes") Class sqlObjectType, Method method) {
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             final OutParameter outParam = (OutParameter) annotation;
-            return new SqlStatementCustomizer() {
-                @Override
-                public void apply(@SuppressWarnings("rawtypes") SqlStatement q) throws SQLException {
-                    ((Call) q).registerOutParameter(outParam.name(), outParam.sqlType());
-                }
-            };
+            return stmt -> ((Call) stmt).registerOutParameter(outParam.name(), outParam.sqlType());
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, @SuppressWarnings("rawtypes") Class sqlObjectType, Method method, Parameter param, final Object arg) {
+        public SqlStatementCustomizer createForParameter(Annotation annotation,
+                                                         Class<?> sqlObjectType,
+                                                         Method method,
+                                                         Parameter param,
+                                                         int index,
+                                                         Object arg) {
             throw new UnsupportedOperationException("Not defined for parameter");
         }
     }

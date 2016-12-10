@@ -107,13 +107,13 @@ class BatchHandler extends CustomizingStatementHandler
     }
 
     @Override
-    public Object invoke(Object target, Method method, Object[] args, HandleSupplier h)
+    public Object invoke(Object target, Object[] args, HandleSupplier h)
     {
         final Handle handle = h.getHandle();
         final String sql = handle.getConfig().get(SqlObjects.class)
-                .getSqlLocator().locate(sqlObjectType, method);
+                .getSqlLocator().locate(sqlObjectType, getMethod());
         final int chunkSize = batchChunkSize.call(args);
-        final Iterator<Object[]> batchArgs = zipArgs(method, args);
+        final Iterator<Object[]> batchArgs = zipArgs(getMethod(), args);
 
         ResultIterator<Object> result = new ResultIterator<Object>() {
             ResultIterator<?> batchResult;
@@ -142,9 +142,8 @@ class BatchHandler extends CustomizingStatementHandler
                 }
                 // execute a single chunk and buffer
                 PreparedBatch batch = handle.prepareBatch(sql);
-                applyCustomizers(batch, args);
                 for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
-                    applyBinders(batch.add(), batchArgs.next());
+                    applyCustomizers(batch.add(), batchArgs.next());
                 }
                 batchResult = executeBatch(handle, batch);
                 return hasNext(); // recurse to ensure we actually got elements

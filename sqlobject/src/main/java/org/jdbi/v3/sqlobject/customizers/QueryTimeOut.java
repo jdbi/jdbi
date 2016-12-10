@@ -56,6 +56,7 @@ public @interface QueryTimeOut
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
+                                                         int index,
                                                          Object arg)
         {
             final Integer va = (Integer) arg;
