@@ -29,11 +29,10 @@ import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -159,18 +158,11 @@ public class ResultsTest {
         }
     }
 
-    static class UserNameColumnMapperFactory implements ColumnMapperFactory {
-        @Override
-        public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-            return type == UserName.class ?
-                    Optional.of((rs, index, cx) -> new UserName(rs.getString(index))) :
-                        Optional.empty();
-        }
-    }
+    final ColumnMapperFactory userNameFactory = ColumnMapperFactory.of(UserName.class, (rs, index, cx) -> new UserName(rs.getString(index)));
 
     @Test
     public void columnMapper() {
-        handle.registerColumnMapper(new UserNameColumnMapperFactory());
+        handle.registerColumnMapper(userNameFactory);
         handle.registerRowMapper(ConstructorMapper.of(NamedUser.class));
 
         NamedUser bob = handle.createQuery("SELECT id, name FROM user WHERE name = :name")

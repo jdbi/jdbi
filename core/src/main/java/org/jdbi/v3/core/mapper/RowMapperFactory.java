@@ -38,7 +38,7 @@ public interface RowMapperFactory {
      * Create a RowMapperFactory from a given {@link RowMapper} that matches
      * a {@link Type} exactly.
      *
-     * @param type the type to match with {@link Type#equals(Object)}
+     * @param type the type to match with equals.
      * @param mapper the mapper to return
      *
      * @return the factory
