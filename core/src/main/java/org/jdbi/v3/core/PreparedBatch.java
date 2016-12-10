@@ -16,7 +16,6 @@ package org.jdbi.v3.core;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -152,20 +151,20 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
         PreparedBatchPart current = parts.get(0);
         final String rawSql = getSql();
         final RewrittenStatement rewritten = getConfig(SqlStatements.class).getStatementRewriter().rewrite(rawSql, current.getParams(), getContext());
-        PreparedStatement stmt;
+
+        getContext().setReturningGeneratedKeys(generateKeys);
+        if (columnNames != null) {
+            getContext().setGeneratedKeysColumnNames(columnNames);
+        }
+
         try {
+            final PreparedStatement stmt;
+            String sql = rewritten.getSql();
             try {
+                StatementBuilder statementBuilder = getStatementBuilder();
                 Connection connection = getHandle().getConnection();
-                if (generateKeys) {
-                    if (columnNames != null) {
-                        stmt = connection.prepareStatement(rewritten.getSql(), columnNames);
-                    } else  {
-                        stmt = connection.prepareStatement(rewritten.getSql(), Statement.RETURN_GENERATED_KEYS);
-                    }
-                } else {
-                    stmt = connection.prepareStatement(rewritten.getSql(), Statement.NO_GENERATED_KEYS);
-                }
-                addCleanable(Cleanables.forStatement(stmt));
+                stmt = statementBuilder.create(connection, sql, getContext());
+                addCleanable(Cleanables.forStatementBuilder(statementBuilder, connection, sql, stmt));
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
@@ -188,7 +187,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
-                LOG.trace("Prepared batch of {} parts executed in {}ms", parts.size(), elapsedTime / 1000000L, rewritten.getSql());
+                LOG.trace("Prepared batch of {} parts executed in {}ms", parts.size(), elapsedTime / 1000000L, sql);
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
 
                 afterExecution(stmt);

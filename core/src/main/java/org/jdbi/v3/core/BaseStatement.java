@@ -20,17 +20,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 
 abstract class BaseStatement<This> implements Closeable, Configurable<This>
 {
     private final ConfigRegistry config;
+    private final StatementBuilder statementBuilder;
     private final StatementContext context;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
-    BaseStatement(ConfigRegistry config, StatementContext context)
+    BaseStatement(ConfigRegistry config, StatementBuilder statementBuilder, StatementContext context)
     {
         this.config = config;
+        this.statementBuilder = statementBuilder;
         this.context = context;
     }
 
@@ -45,6 +48,11 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
     public final StatementContext getContext()
     {
         return context;
+    }
+
+    protected StatementBuilder getStatementBuilder()
+    {
+        return statementBuilder;
     }
 
     void addCleanable(Cleanable cleanable)

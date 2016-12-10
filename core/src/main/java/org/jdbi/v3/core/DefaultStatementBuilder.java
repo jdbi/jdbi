@@ -27,6 +27,12 @@ import org.jdbi.v3.core.statement.StatementBuilder;
  */
 public class DefaultStatementBuilder implements StatementBuilder
 {
+    @Override
+    public Statement create(Connection conn, StatementContext ctx) throws SQLException
+    {
+        return conn.createStatement();
+    }
+
     /**
      * Create a new DefaultStatementBuilder which will always create a new PreparedStatement from
      * the Connection
@@ -57,7 +63,7 @@ public class DefaultStatementBuilder implements StatementBuilder
 
     /**
      * Called to close an individual prepared statement created from this builder.
-     * In this case, it closes imemdiately
+     * In this case, it closes immediately
      *
      * @param sql  the translated SQL which was prepared
      * @param stmt the statement

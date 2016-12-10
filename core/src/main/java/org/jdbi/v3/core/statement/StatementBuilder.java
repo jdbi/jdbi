@@ -19,8 +19,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.DefaultStatementBuilderFactory;
+import org.jdbi.v3.core.StatementContext;
 
 /**
  * Used to convert translated SQL into a prepared statement. The default implementation
@@ -33,7 +33,18 @@ import org.jdbi.v3.core.DefaultStatementBuilderFactory;
 public interface StatementBuilder
 {
     /**
-     * Called each time a prepared statement needs to be created
+     * Called each time a statement needs to be created.
+     * @param conn the JDBC Connection the statement is being created for
+     * @param ctx Statement context associated with the SqlStatement this is building for
+     *
+     * @return a Statement
+     *
+     * @throws SQLException if anything goes wrong getting the statement
+     */
+    Statement create(Connection conn, StatementContext ctx) throws SQLException;
+
+    /**
+     * Called each time a prepared statement needs to be created.
      *
      * @param conn the JDBC Connection the statement is being created for
      * @param sql the translated SQL which should be prepared
@@ -46,7 +57,7 @@ public interface StatementBuilder
     PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException;
 
     /**
-     * Called each time a Callable statement needs to be created
+     * Called each time a Callable statement needs to be created.
      *
      * @param conn the JDBC Connection the statement is being created for
      * @param sql the translated SQL which should be prepared
