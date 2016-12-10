@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-public interface ResultBearing<T>
+public interface ResultBearing
 {
     /**
      * Execute the statement.  The given {@code StatementExecutor}
@@ -24,7 +24,7 @@ public interface ResultBearing<T>
      * @param executor the StatementExecutor to use
      * @return the produced results
      */
-    <R> R execute(ResultProducer<T, R> executor);
+    <R> R execute(ResultProducer<R> executor);
 
     /**
      * @return the current statement context

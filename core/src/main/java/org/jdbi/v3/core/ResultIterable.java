@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
 
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -26,7 +27,7 @@ import java.util.stream.StreamSupport;
 import org.jdbi.v3.core.util.StreamCallback;
 import org.jdbi.v3.core.util.StreamConsumer;
 
-public interface ResultIterable<T> extends ResultBearing<T>, Iterable<T>
+public interface ResultIterable<T> extends ResultBearing, Iterable<T>
 {
     /**
      * Stream all the rows of the result set out
@@ -172,7 +173,8 @@ public interface ResultIterable<T> extends ResultBearing<T>, Iterable<T>
      * @return the final {@code U}
      */
     default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
-        return execute((stmt, rs, ctx) -> {
+        return execute((stmt, ctx) -> {
+            ResultSet rs = stmt.getResultSet();
             RowView rv = new RowView(rs, ctx);
             U result = seed;
             while (rs.next()) {
@@ -191,7 +193,8 @@ public interface ResultIterable<T> extends ResultBearing<T>, Iterable<T>
      * @return the final {@code U}
      */
     default <U> U reduceResultSet(U seed, ResultSetAccumulator<U> accumulator) {
-        return execute((stmt, rs, ctx) -> {
+        return execute((stmt, ctx) -> {
+            ResultSet rs = stmt.getResultSet();
             U result = seed;
             while (rs.next()) {
                 result = accumulator.apply(result, rs, ctx);

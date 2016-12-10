@@ -77,7 +77,7 @@ public class GeneratedKeys<T> implements ResultIterable<T>
         }
 
         try {
-            return new ResultSetResultIterator<>(mapper, results, context);
+            return new ResultSetResultIterator<>(results, mapper, context);
         }
         catch (SQLException e) {
             throw new UnableToExecuteStatementException(e, context);
@@ -85,10 +85,10 @@ public class GeneratedKeys<T> implements ResultIterable<T>
     }
 
     @Override
-    public <R> R execute(ResultProducer<T, R> producer)
+    public <R> R execute(ResultProducer<R> producer)
     {
         try {
-            return producer.produce(stmt, results, context);
+            return producer.produce(stmt, context);
         } catch (SQLException e) {
             throw new UnableToExecuteStatementException(e, context);
         }
