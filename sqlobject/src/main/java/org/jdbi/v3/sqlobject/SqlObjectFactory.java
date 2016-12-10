@@ -170,8 +170,8 @@ public class SqlObjectFactory implements ExtensionFactory {
                                     "Default method %s.%s parameter %s has @%s annotation. Statement customizing " +
                                             "annotations don't work on default methods.",
                                     sqlObjectType.getSimpleName(),
-                                    parameter.getName(),
                                     method.getName(),
+                                    parameter.getName(),
                                     type.getSimpleName()));
                         });
             }
