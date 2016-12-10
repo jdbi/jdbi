@@ -58,7 +58,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
     }
 
     /**
-     * Obtain a forward-only result set iterator. Note that you must explicitely close
+     * Obtain a forward-only result set iterator. Note that you must explicitly close
      * the iterator to close the underlying resources.
      */
     @SuppressWarnings("resource")
