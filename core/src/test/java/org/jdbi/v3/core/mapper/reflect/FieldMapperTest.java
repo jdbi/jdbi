@@ -61,10 +61,16 @@ public class FieldMapperTest {
         when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
     }
 
+    private void mockColumns(String... columns) throws SQLException {
+        when(resultSetMetaData.getColumnCount()).thenReturn(columns.length);
+        for (int i = 0; i < columns.length; i++) {
+            when(resultSetMetaData.getColumnLabel(i + 1)).thenReturn(columns[i]);
+        }
+    }
+
     @Test
     public void shouldSetValueOnPrivateField() throws Exception {
-        when(resultSetMetaData.getColumnCount()).thenReturn(1);
-        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
+        mockColumns("longField");
 
         Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
@@ -77,7 +83,7 @@ public class FieldMapperTest {
 
     @Test
     public void shouldHandleEmptyResult() throws Exception {
-        when(resultSetMetaData.getColumnCount()).thenReturn(0);
+        mockColumns();
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
@@ -86,8 +92,7 @@ public class FieldMapperTest {
 
     @Test
     public void shouldBeCaseInSensitiveOfColumnAndFieldNames() throws Exception {
-        when(resultSetMetaData.getColumnCount()).thenReturn(1);
-        when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
+        mockColumns("LoNgfielD");
 
         Long aLongVal = 100L;
         when(resultSet.getLong(1)).thenReturn(aLongVal);
@@ -101,8 +106,7 @@ public class FieldMapperTest {
 
     @Test
     public void shouldHandleNullValue() throws Exception {
-        when(resultSetMetaData.getColumnCount()).thenReturn(1);
-        when(resultSetMetaData.getColumnLabel(1)).thenReturn("LoNgfielD");
+        mockColumns("LoNgfielD");
 
         when(resultSet.getLong(1)).thenReturn(0L);
         when(resultSet.wasNull()).thenReturn(true);
@@ -112,13 +116,15 @@ public class FieldMapperTest {
         assertThat(sampleBean.getLongField()).isNull();
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnTotalMismatch() throws Exception {
+        mockColumns("somethingElseEntirely");
+        mapper.map(resultSet, ctx);
+    }
+
     @Test
     public void shouldSetValuesOnAllFieldAccessTypes() throws Exception {
-        when(resultSetMetaData.getColumnCount()).thenReturn(4);
-        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
-        when(resultSetMetaData.getColumnLabel(2)).thenReturn("protectedStringField");
-        when(resultSetMetaData.getColumnLabel(3)).thenReturn("packagePrivateIntField");
-        when(resultSetMetaData.getColumnLabel(4)).thenReturn("privateBigDecimalField");
+        mockColumns("longField", "protectedStringField", "packagePrivateIntField", "privateBigDecimalField");
 
         Long aLongVal = 100L;
         String aStringVal = "something";
@@ -140,9 +146,7 @@ public class FieldMapperTest {
 
     @Test
     public void shouldSetValuesInSuperClassFields() throws Exception {
-        when(resultSetMetaData.getColumnCount()).thenReturn(2);
-        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
-        when(resultSetMetaData.getColumnLabel(2)).thenReturn("blongField");
+        mockColumns("longField", "blongField");
 
         Long aLongVal = 100L;
         Long bLongVal = 200L;
@@ -163,9 +167,7 @@ public class FieldMapperTest {
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
         handle.registerColumnMapper(new ValueTypeMapper());
 
-        when(resultSetMetaData.getColumnCount()).thenReturn(2);
-        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
-        when(resultSetMetaData.getColumnLabel(2)).thenReturn("valueTypeField");
+        mockColumns("longField", "valueTypeField");
 
         when(resultSet.getLong(1)).thenReturn(123L);
         when(resultSet.getString(2)).thenReturn("foo");
@@ -180,14 +182,32 @@ public class FieldMapperTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnPropertyTypeWithoutRegisteredMapper() throws Exception {
-        when(resultSetMetaData.getColumnCount()).thenReturn(2);
-        when(resultSetMetaData.getColumnLabel(1)).thenReturn("longField");
-        when(resultSetMetaData.getColumnLabel(2)).thenReturn("valueTypeField");
+        mockColumns("longField", "valueTypeField");
 
         when(resultSet.getLong(1)).thenReturn(123L);
         when(resultSet.getObject(2)).thenReturn(new Object());
         when(resultSet.wasNull()).thenReturn(false);
 
+        mapper.map(resultSet, ctx);
+    }
+
+    @Test
+    public void shouldNotThrowOnMismatchedColumns() throws Exception {
+        mockColumns("longField", "extraColumn");
+
+        Long expected = 666L;
+        when(resultSet.getLong(1)).thenReturn(expected);
+        when(resultSet.getString(2)).thenReturn("foo");
+
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
+
+        assertThat(sampleBean.getLongField()).isEqualTo(expected);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnMismatchedColumnsStrictMatch() throws Exception {
+        ctx.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        mockColumns("longField", "misspelledField");
         mapper.map(resultSet, ctx);
     }
 

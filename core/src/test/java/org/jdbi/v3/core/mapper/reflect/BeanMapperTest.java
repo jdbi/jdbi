@@ -158,6 +158,12 @@ public class BeanMapperTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnTotalMismatch() throws Exception {
+        mockColumns("somethingElseEntirely");
+        mapper.map(resultSet, ctx);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnProtectedSetter() throws Exception {
         mockColumns("protectedStringField");
 
@@ -212,14 +218,14 @@ public class BeanMapperTest {
         handle.registerColumnMapper(new ValueTypeMapper());
 
         mockColumns("longField", "valueTypeField");
+        Long expected = 123L;
 
-        when(resultSet.getLong(1)).thenReturn(123L);
+        when(resultSet.getLong(1)).thenReturn(expected);
         when(resultSet.getString(2)).thenReturn("foo");
         when(resultSet.wasNull()).thenReturn(false);
 
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
-        Long expected = 123L;
         assertThat(sampleBean.getLongField()).isEqualTo(expected);
         assertThat(sampleBean.getValueTypeField()).isEqualTo(ValueType.valueOf("foo"));
     }
@@ -232,6 +238,26 @@ public class BeanMapperTest {
         when(resultSet.getObject(2)).thenReturn(new Object());
         when(resultSet.wasNull()).thenReturn(false);
 
+        mapper.map(resultSet, ctx);
+    }
+
+    @Test
+    public void shouldNotThrowOnMismatchedColumns() throws Exception {
+        mockColumns("longField", "extraColumn");
+
+        Long expected = 666L;
+        when(resultSet.getLong(1)).thenReturn(expected);
+        when(resultSet.getString(2)).thenReturn("foo");
+
+        SampleBean sampleBean = mapper.map(resultSet, ctx);
+
+        assertThat(sampleBean.getLongField()).isEqualTo(expected);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnMismatchedColumnsStrictMatch() throws Exception {
+        ctx.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        mockColumns("longField", "misspelledField");
         mapper.map(resultSet, ctx);
     }
 

@@ -136,6 +136,18 @@ public class BeanMapper<T> implements RowMapper<T>
             properties.add(descriptor);
         }
 
+        if (columnNumbers.isEmpty() && metadata.getColumnCount() > 0) {
+            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
+                    "didn't find any matching columns in result set", type));
+        }
+
+        if (    ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
+                columnNumbers.size() != metadata.getColumnCount()) {
+            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
+                    "only matched properties for %s of %s columns", type,
+                    columnNumbers.size(), metadata.getColumnCount()));
+        }
+
         return (r, c) -> {
             T bean;
             try {
