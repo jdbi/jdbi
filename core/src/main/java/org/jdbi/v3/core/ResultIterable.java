@@ -202,4 +202,9 @@ public interface ResultIterable<T> extends ResultBearing, Iterable<T>
             return result;
         });
     }
+
+    /**
+     * @return the current statement context
+     */
+    StatementContext getContext();
 }

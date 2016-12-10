@@ -93,7 +93,7 @@ abstract class ResultReturner
             return new ArrayResultReturner(returnClass.getComponentType());
         }
         else {
-            return new DefaultResultReturner(method, returnType);
+            return new DefaultResultReturner(returnType);
         }
     }
 
@@ -141,7 +141,7 @@ abstract class ResultReturner
     {
         private final Type returnType;
 
-        DefaultResultReturner(Method method, Type returnType)
+        DefaultResultReturner(Type returnType)
         {
             this.returnType = returnType;
         }

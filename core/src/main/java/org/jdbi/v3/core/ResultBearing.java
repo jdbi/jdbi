@@ -25,9 +25,4 @@ public interface ResultBearing
      * @return the produced results
      */
     <R> R execute(ResultProducer<R> executor);
-
-    /**
-     * @return the current statement context
-     */
-    StatementContext getContext();
 }
