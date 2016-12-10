@@ -45,7 +45,7 @@ public class FieldMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory of(Class<?> type) {
-        return of(type, new FieldMapper<>(type));
+        return RowMapperFactory.of(type, new FieldMapper<>(type));
     }
 
     /**
@@ -56,13 +56,7 @@ public class FieldMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory of(Class<?> type, String prefix) {
-        return of(type, new FieldMapper<>(type, prefix));
-    }
-
-    private static RowMapperFactory of(Class<?> type, RowMapper<?> mapper) {
-        return (t, ctx) -> t == type
-                ? Optional.of(mapper)
-                : Optional.empty();
+        return RowMapperFactory.of(type, new FieldMapper<>(type, prefix));
     }
 
     static final String DEFAULT_PREFIX = "";
@@ -125,13 +119,26 @@ public class FieldMapper<T> implements RowMapper<T>
             fields.add(field);
         }
 
+        if (columnNumbers.isEmpty() && metadata.getColumnCount() > 0) {
+            throw new IllegalArgumentException(String.format("Mapping fields for type %s " +
+                    "didn't find any matching columns in result set", type));
+        }
+
+        if (    ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
+                columnNumbers.size() != metadata.getColumnCount()) {
+            throw new IllegalArgumentException(String.format("Mapping fields for type %s " +
+                    "only matched properties for %s of %s columns", type,
+                    columnNumbers.size(), metadata.getColumnCount()));
+        }
+
+
         return (r, c) -> {
             T obj;
             try {
                 obj = type.newInstance();
             }
             catch (Exception e) {
-                throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
+                throw new IllegalArgumentException(String.format("A type, %s, was mapped " +
                         "which was not instantiable", type.getName()), e);
             }
 

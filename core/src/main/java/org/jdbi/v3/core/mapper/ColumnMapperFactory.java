@@ -32,4 +32,16 @@ public interface ColumnMapperFactory {
      * @see ConfigRegistry#findColumnMapperFor(Type) for composition
      */
     Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config);
+
+    /**
+     * Create a ColumnMapperFactory from a given {@link ColumnMapper} that
+     * matches a single Type exactly.
+     *
+     * @param type the type to match with equals.
+     * @param mapper the mapper to return
+     * @return the factory
+     */
+    public static ColumnMapperFactory of(Type type, ColumnMapper<?> mapper) {
+        return (t, c) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
+    }
 }

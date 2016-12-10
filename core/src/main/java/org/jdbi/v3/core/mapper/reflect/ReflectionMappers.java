@@ -22,6 +22,7 @@ import org.jdbi.v3.core.JdbiConfig;
 
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     private List<ColumnNameMatcher> columnNameMatchers;
+    private boolean strictMatching;
 
     public ReflectionMappers() {
         columnNameMatchers = Arrays.asList(
@@ -39,6 +40,19 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
 
     public ReflectionMappers setColumnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
         this.columnNameMatchers = new ArrayList<>(columnNameMatchers);
+        return this;
+    }
+
+    public boolean isStrictMatching() {
+        return this.strictMatching;
+    }
+
+    /**
+     * Throw an IllegalArgumentException if a the set of fields doesn't
+     * match to columns exactly.
+     */
+    public ReflectionMappers setStrictMatching(boolean strictMatching) {
+        this.strictMatching = strictMatching;
         return this;
     }
 

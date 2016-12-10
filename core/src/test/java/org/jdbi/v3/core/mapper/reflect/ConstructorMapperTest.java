@@ -35,10 +35,13 @@ public class ConstructorMapperTest {
         db.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");
     }
 
+    public ConstructorBean execute(String query) {
+        return db.getSharedHandle().createQuery(query).mapTo(ConstructorBean.class).findOnly();
+    }
 
     @Test
     public void testSimple() throws Exception {
-        ConstructorBean bean = db.getSharedHandle().createQuery("SELECT s, i FROM bean").mapTo(ConstructorBean.class).findOnly();
+        ConstructorBean bean = execute("SELECT s, i FROM bean");
 
         assertThat(bean.s).isEqualTo("3");
         assertThat(bean.i).isEqualTo(2);
@@ -46,7 +49,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void testReversed() throws Exception {
-        ConstructorBean bean = db.getSharedHandle().createQuery("SELECT i, s FROM bean").mapTo(ConstructorBean.class).findOnly();
+        ConstructorBean bean = execute("SELECT i, s FROM bean");
 
         assertThat(bean.s).isEqualTo("3");
         assertThat(bean.i).isEqualTo(2);
@@ -54,7 +57,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void testExtra() throws Exception {
-        ConstructorBean bean = db.getSharedHandle().createQuery("SELECT 1 as ignored, i, s FROM bean").mapTo(ConstructorBean.class).findOnly();
+        ConstructorBean bean = execute("SELECT 1 as ignored, i, s FROM bean");
 
         assertThat(bean.s).isEqualTo("3");
         assertThat(bean.i).isEqualTo(2);
@@ -62,12 +65,12 @@ public class ConstructorMapperTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testDuplicate() throws Exception {
-        db.getSharedHandle().createQuery("SELECT i, s, s FROM bean").mapTo(ConstructorBean.class).findOnly();
+        execute("SELECT i, s, s FROM bean");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMismatch() throws Exception {
-        db.getSharedHandle().createQuery("SELECT i, '7' FROM bean").mapTo(ConstructorBean.class).findOnly();
+        execute("SELECT i, '7' FROM bean");
     }
 
     @Test

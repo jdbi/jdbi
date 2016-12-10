@@ -53,7 +53,7 @@ public class BeanMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory of(Class<?> type) {
-        return of(type, new BeanMapper<>(type));
+        return RowMapperFactory.of(type, new BeanMapper<>(type));
     }
 
     /**
@@ -64,13 +64,7 @@ public class BeanMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory of(Class<?> type, String prefix) {
-        return of(type, new BeanMapper<>(type, prefix));
-    }
-
-    private static RowMapperFactory of(Class<?> type, RowMapper<?> mapper) {
-        return (t, ctx) -> t == type
-                ? Optional.of(mapper)
-                : Optional.empty();
+        return RowMapperFactory.of(type, new BeanMapper<>(type, prefix));
     }
 
     static final String DEFAULT_PREFIX = "";
@@ -140,6 +134,18 @@ public class BeanMapper<T> implements RowMapper<T>
             columnNumbers.add(i);
             mappers.add(mapper);
             properties.add(descriptor);
+        }
+
+        if (columnNumbers.isEmpty() && metadata.getColumnCount() > 0) {
+            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
+                    "didn't find any matching columns in result set", type));
+        }
+
+        if (    ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
+                columnNumbers.size() != metadata.getColumnCount()) {
+            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
+                    "only matched properties for %s of %s columns", type,
+                    columnNumbers.size(), metadata.getColumnCount()));
         }
 
         return (r, c) -> {

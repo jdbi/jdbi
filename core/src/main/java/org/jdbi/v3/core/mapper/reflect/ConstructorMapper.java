@@ -66,7 +66,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
     public static RowMapperFactory of(Constructor<?> constructor, String prefix) {
         final Class<?> type = constructor.getDeclaringClass();
         final RowMapper<?> mapper = new ConstructorMapper<>(constructor, prefix);
-        return (t, ctx) -> t == type ? Optional.of(mapper) : Optional.empty();
+        return RowMapperFactory.of(type, mapper);
     }
 
     @SuppressWarnings("unchecked")

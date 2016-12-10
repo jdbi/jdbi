@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.lang.reflect.Type;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
@@ -175,6 +176,17 @@ public interface Configurable<This> {
     }
 
     /**
+     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     *
+     * @param type
+     * @param mapper
+     * @return
+     */
+    default This registerColumnMapper(Type type, ColumnMapper<?> mapper) {
+        return configure(ColumnMappers.class, c -> c.register(type, mapper));
+    }
+
+    /**
      * Convenience method for {@code getConfig(ColumnMappers.class).register(factory)}
      *
      * @param factory column mapper factory
@@ -202,6 +214,17 @@ public interface Configurable<This> {
      */
     default This registerRowMapper(RowMapper<?> mapper) {
         return configure(RowMappers.class, c -> c.register(mapper));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
+     *
+     * @param type to match
+     * @param mapper row mapper
+     * @return this
+     */
+    default This registerRowMapper(Type type, RowMapper<?> mapper) {
+        return configure(RowMappers.class, c -> c.register(type, mapper));
     }
 
     /**
