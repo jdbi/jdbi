@@ -205,6 +205,7 @@ public class Handle implements Closeable, Configurable<Handle>
         ConfigRegistry batchConfig = getConfig().createCopy();
         return new Batch(batchConfig,
                          this.connection,
+                         statementBuilder,
                          new StatementContext(batchConfig, extensionMethod.get()));
     }
 

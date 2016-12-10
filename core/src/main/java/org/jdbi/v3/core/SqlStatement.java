@@ -65,7 +65,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     private final Binding          params;
     private final Handle           handle;
     private final String           sql;
-    private final StatementBuilder statementBuilder;
 
     /**
      * This will be set on execution, not before
@@ -81,13 +80,12 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                  String sql,
                  StatementContext ctx,
                  Collection<StatementCustomizer> statementCustomizers) {
-        super(config, ctx);
+        super(config, statementBuilder, ctx);
         assert verifyOurNastyDowncastIsOkay();
 
         addCustomizers(statementCustomizers);
 
         this.typedThis = (This) this;
-        this.statementBuilder = statementBuilder;
         this.handle = handle;
         this.sql = sql;
         this.params = params;
@@ -125,11 +123,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                 .map(GenericTypes::getErasedType)
                 .map(type -> type.isAssignableFrom(getClass()))
                 .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯
-    }
-
-    protected StatementBuilder getStatementBuilder()
-    {
-        return statementBuilder;
     }
 
     protected Binding getParams()
@@ -1341,10 +1334,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         getContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = statementBuilder.createCall(handle.getConnection(), rewritten.getSql(), getContext());
+                stmt = getStatementBuilder().createCall(handle.getConnection(), rewritten.getSql(), getContext());
             }
             else {
-                stmt = statementBuilder.create(handle.getConnection(), rewritten.getSql(), getContext());
+                stmt = getStatementBuilder().create(handle.getConnection(), rewritten.getSql(), getContext());
             }
         }
         catch (SQLException e) {
@@ -1353,7 +1346,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
         // caching statement builder relies on the statement *not* being closed.
-        addCleanable(Cleanables.forStatementBuilder(statementBuilder, handle.getConnection(), sql, stmt));
+        addCleanable(Cleanables.forStatementBuilder(getStatementBuilder(), handle.getConnection(), sql, stmt));
 
         getContext().setStatement(stmt);
 

@@ -22,11 +22,12 @@ import java.util.List;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.StatementBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents a group of non-prepared statements to be sent to the RDMBS in one "request"
+ * Represents a group of non-prepared statements to be sent to the RDMBS in one "request".
  */
 public class Batch extends BaseStatement<Batch>
 {
@@ -37,9 +38,10 @@ public class Batch extends BaseStatement<Batch>
 
     Batch(ConfigRegistry config,
           Connection connection,
+          StatementBuilder statementBuilder,
           StatementContext statementContext)
     {
-        super(config, statementContext);
+        super(config, statementBuilder, statementContext);
         this.connection = connection;
     }
 
@@ -73,7 +75,7 @@ public class Batch extends BaseStatement<Batch>
         {
             try
             {
-                stmt = connection.createStatement();
+                stmt = getStatementBuilder().create(connection, getContext());
                 addCleanable(Cleanables.forStatement(stmt));
             }
             catch (SQLException e)
