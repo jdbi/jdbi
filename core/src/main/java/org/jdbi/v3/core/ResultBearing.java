@@ -13,16 +13,24 @@
  */
 package org.jdbi.v3.core;
 
+import java.sql.PreparedStatement;
+
+/**
+ * Holds a {@code PreparedStatement}, determines execution strategy,
+ * and then produces a result.  Used to implement core and custom statement
+ * execution strategies.  Most users will not use this class directly.
+ *
+ * @see ResultIterable for the more commonly invoked interface
+ */
 public interface ResultBearing
 {
     /**
-     * Execute the statement.  The given {@code StatementExecutor}
-     * decides the execution strategy and return type.
+     * Execute the statement.  The given {@code ResultProducer}
+     * gets the post-execution {@link PreparedStatement} and constructs
+     * the value to return.
      *
-     * Most users will not use this method directly.
-     *
-     * @param executor the StatementExecutor to use
+     * @param producer given the executed statement, produce results
      * @return the produced results
      */
-    <R> R execute(ResultProducer<R> executor);
+    <R> R execute(ResultProducer<R> producer);
 }
