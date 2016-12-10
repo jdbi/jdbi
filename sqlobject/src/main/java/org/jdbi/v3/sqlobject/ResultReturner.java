@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.ResultBearing;
+import org.jdbi.v3.core.ResultIterable;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -53,7 +54,7 @@ abstract class ResultReturner
         if (method.getReturnType() == void.class) {
             return new ResultReturner() {
                 @Override
-                protected Object result(ResultBearing<?> bearer) {
+                protected Object result(ResultIterable<?> bearer) {
                     bearer.stream().forEach(i -> {}); // Make sure to consume the result
                     return null;
                 }
@@ -92,11 +93,11 @@ abstract class ResultReturner
             return new ArrayResultReturner(returnClass.getComponentType());
         }
         else {
-            return new DefaultResultReturner(method, returnType);
+            return new DefaultResultReturner(returnType);
         }
     }
 
-    protected abstract Object result(ResultBearing<?> bearer);
+    protected abstract Object result(ResultIterable<?> bearer);
 
     static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType) {
         if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
@@ -126,7 +127,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Stream<?> result(ResultBearing<?> bearer) {
+        protected Stream<?> result(ResultIterable<?> bearer) {
             return bearer.stream();
         }
 
@@ -140,14 +141,14 @@ abstract class ResultReturner
     {
         private final Type returnType;
 
-        DefaultResultReturner(Method method, Type returnType)
+        DefaultResultReturner(Type returnType)
         {
             this.returnType = returnType;
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        protected Object result(ResultBearing<?> bearer)
+        protected Object result(ResultIterable<?> bearer)
         {
             Collector collector = bearer.getContext().findCollectorFor(returnType).orElse(null);
             if (collector != null) {
@@ -174,7 +175,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> bearer)
+        protected Object result(ResultIterable<?> bearer)
         {
             return bearer.findFirst().orElse(null);
         }
@@ -200,7 +201,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> bearer)
+        protected Object result(ResultIterable<?> bearer)
         {
             return bearer;
         }
@@ -224,7 +225,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> bearer)
+        protected Object result(ResultIterable<?> bearer)
         {
             return bearer.iterator();
         }
@@ -245,7 +246,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultBearing<?> bearer) {
+        protected Object result(ResultIterable<?> bearer) {
             final List<?> list = bearer.list();
             Object result = Array.newInstance(componentType, list.size());
             for (int i = 0; i < list.size(); i++) {

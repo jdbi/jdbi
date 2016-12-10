@@ -26,10 +26,10 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.PreparedBatch;
-import org.jdbi.v3.core.ResultBearing;
+import org.jdbi.v3.core.ResultIterable;
 import org.jdbi.v3.core.ResultIterator;
+import org.jdbi.v3.core.ResultProducer;
 import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.StatementExecutor;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.util.ReflectionArrayIterator;
@@ -173,9 +173,9 @@ class BatchHandler extends CustomizingStatementHandler
         };
 
 
-        return magic.result(new ResultBearing<Object>() {
+        return magic.result(new ResultIterable() {
             @Override
-            public <R> R execute(StatementExecutor<Object, R> executor) {
+            public <R> R execute(ResultProducer<R> executor) {
                 throw new UnsupportedOperationException(
                         "@SqlBatch currently does not support custom execution modes like reduce");
             }

@@ -15,10 +15,10 @@ package org.jdbi.v3.core.util;
 
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.ResultBearing;
+import org.jdbi.v3.core.ResultIterable;
 
 /**
- * Callback for use with {@link ResultBearing#withStream(StreamCallback)}
+ * Callback for use with {@link ResultIterable#withStream(StreamCallback)}
  */
 @FunctionalInterface
 public interface StreamCallback<T, R, X extends Exception> {

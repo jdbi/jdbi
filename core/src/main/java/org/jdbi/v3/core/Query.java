@@ -21,12 +21,11 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
 
-import org.jdbi.v3.core.exception.ResultSetException;
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
-import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.exception.UnableToProduceResultException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.StatementCustomizers;
@@ -41,7 +40,7 @@ import org.jdbi.v3.core.util.GenericType;
  * The default mapper also carries a performance penalty because it must
  * inspect metadata for each row.
  */
-public class Query<ResultType> extends SqlStatement<Query<ResultType>> implements ResultBearing<ResultType>
+public class Query<ResultType> extends SqlStatement<Query<ResultType>> implements ResultIterable<ResultType>
 {
     private final RowMapper<ResultType> mapper;
 
@@ -64,31 +63,25 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      */
     @SuppressWarnings("resource")
     @Override
-    public <R> R execute(
-            StatementExecutor<ResultType, R> executor)
+    public <R> R execute(ResultProducer<R> producer)
     {
         final PreparedStatement stmt = internalExecute();
-        final ResultSet rs;
         try {
-            rs = stmt.getResultSet();
+            return producer.produce(stmt, getContext());
         } catch (SQLException e) {
             try {
                 close();
             } catch (Exception e1) {
                 e.addSuppressed(e1);
             }
-            throw new ResultSetException("Could not get result set", e, getContext());
+            throw new UnableToProduceResultException(e, getContext());
         }
-        try {
-            return executor.execute(mapper, rs, getContext());
-        } catch (SQLException e) {
-            try {
-                close();
-            } catch (Exception e1) {
-                e.addSuppressed(e1);
-            }
-            throw new UnableToExecuteStatementException(e, getContext());
-        }
+    }
+
+    @Override
+    public ResultIterator<ResultType> iterator()
+    {
+        return execute((stmt, ctx) -> new ResultSetResultIterator<>(stmt.getResultSet(), mapper, ctx));
     }
 
     /**

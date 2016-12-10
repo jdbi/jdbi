@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -26,10 +27,10 @@ import org.jdbi.v3.core.mapper.RowMapper;
  *
  * @param <T> the key type returned
  */
-public class GeneratedKeys<T> implements ResultBearing<T>
+public class GeneratedKeys<T> implements ResultIterable<T>
 {
     private final RowMapper<T>             mapper;
-    private final SqlStatement<?>          jdbiStatement;
+    private final PreparedStatement        stmt;
     private final ResultSet                results;
     private final StatementContext         context;
 
@@ -44,11 +45,12 @@ public class GeneratedKeys<T> implements ResultBearing<T>
      */
     GeneratedKeys(RowMapper<T> mapper,
                   SqlStatement<?> jdbiStatement,
-                  Statement stmt,
+                  PreparedStatement stmt,
                   StatementContext context)
     {
         this.mapper = mapper;
-        this.jdbiStatement = jdbiStatement;
+        this.stmt = stmt;
+        this.context = context;
         try {
             this.results = stmt.getGeneratedKeys();
         } catch (SQLException e) {
@@ -59,8 +61,7 @@ public class GeneratedKeys<T> implements ResultBearing<T>
             }
             throw new ResultSetException("Could not get generated keys", e, context);
         }
-        this.context = context;
-        this.jdbiStatement.addCleanable(Cleanables.forResultSet(results));
+        jdbiStatement.addCleanable(Cleanables.forResultSet(results));
     }
 
     /**
@@ -76,7 +77,7 @@ public class GeneratedKeys<T> implements ResultBearing<T>
         }
 
         try {
-            return new ResultSetResultIterator<>(mapper, results, context);
+            return new ResultSetResultIterator<>(results, mapper, context);
         }
         catch (SQLException e) {
             throw new UnableToExecuteStatementException(e, context);
@@ -84,10 +85,10 @@ public class GeneratedKeys<T> implements ResultBearing<T>
     }
 
     @Override
-    public <R> R execute(StatementExecutor<T, R> executor)
+    public <R> R execute(ResultProducer<R> producer)
     {
         try {
-            return executor.execute(mapper, results, context);
+            return producer.produce(stmt, context);
         } catch (SQLException e) {
             throw new UnableToExecuteStatementException(e, context);
         }

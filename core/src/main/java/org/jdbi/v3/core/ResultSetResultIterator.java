@@ -31,8 +31,8 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private volatile boolean hasNext = false;
     private volatile boolean closed = false;
 
-    ResultSetResultIterator(RowMapper<Type> mapper,
-                            ResultSet results,
+    ResultSetResultIterator(ResultSet results,
+                            RowMapper<Type> mapper,
                             StatementContext context) throws SQLException
     {
         this.mapper = mapper.specialize(results, context);
