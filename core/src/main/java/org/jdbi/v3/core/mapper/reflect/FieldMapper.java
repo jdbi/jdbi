@@ -45,7 +45,7 @@ public class FieldMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory of(Class<?> type) {
-        return of(type, new FieldMapper<>(type));
+        return RowMapperFactory.of(type, new FieldMapper<>(type));
     }
 
     /**
@@ -56,13 +56,7 @@ public class FieldMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory of(Class<?> type, String prefix) {
-        return of(type, new FieldMapper<>(type, prefix));
-    }
-
-    private static RowMapperFactory of(Class<?> type, RowMapper<?> mapper) {
-        return (t, ctx) -> t == type
-                ? Optional.of(mapper)
-                : Optional.empty();
+        return RowMapperFactory.of(type, new FieldMapper<>(type, prefix));
     }
 
     static final String DEFAULT_PREFIX = "";
