@@ -120,13 +120,13 @@ public class FieldMapper<T> implements RowMapper<T>
         }
 
         if (columnNumbers.isEmpty() && metadata.getColumnCount() > 0) {
-            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
+            throw new IllegalArgumentException(String.format("Mapping fields for type %s " +
                     "didn't find any matching columns in result set", type));
         }
 
         if (    ctx.getConfig(ReflectionMappers.class).isStrictMatching() &&
                 columnNumbers.size() != metadata.getColumnCount()) {
-            throw new IllegalArgumentException(String.format("Mapping bean type %s " +
+            throw new IllegalArgumentException(String.format("Mapping fields for type %s " +
                     "only matched properties for %s of %s columns", type,
                     columnNumbers.size(), metadata.getColumnCount()));
         }
@@ -138,7 +138,7 @@ public class FieldMapper<T> implements RowMapper<T>
                 obj = type.newInstance();
             }
             catch (Exception e) {
-                throw new IllegalArgumentException(String.format("A bean, %s, was mapped " +
+                throw new IllegalArgumentException(String.format("A type, %s, was mapped " +
                         "which was not instantiable", type.getName()), e);
             }
 

@@ -38,13 +38,13 @@ public interface RowMapperFactory {
      * Create a RowMapperFactory from a given {@link RowMapper} that matches
      * a {@link Type} exactly.
      *
-     * @param type the type to match with ==
-     * @param the mapper to return
+     * @param type the type to match with {@link Type#equals(Object)}
+     * @param mapper the mapper to return
      *
      * @return the factory
      */
     public static RowMapperFactory of(Type type, RowMapper<?> mapper) {
-        return (t, ctx) -> t == type
+        return (t, ctx) -> t.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();
     }
