@@ -14,7 +14,6 @@
 package org.jdbi.v3.core;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -22,15 +21,14 @@ import java.sql.SQLException;
  * potentially wrapped in a container object.
  */
 @FunctionalInterface
-public interface ResultProducer<T, R>
+public interface ResultProducer<R>
 {
     /**
      * Produce a statement result.
      * @param stmt the prepared statement
-     * @param rs the result set to iterate
      * @param ctx the statement context
      * @return an object of the type your caller expects
      * @throws SQLException sadness
      */
-    R produce(PreparedStatement stmt, ResultSet rs, StatementContext ctx) throws SQLException;
+    R produce(PreparedStatement stmt, StatementContext ctx) throws SQLException;
 }

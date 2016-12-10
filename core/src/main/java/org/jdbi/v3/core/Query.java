@@ -21,8 +21,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Locale;
 
-import org.jdbi.v3.core.exception.ResultSetException;
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.exception.UnableToProduceResultException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
@@ -64,36 +63,25 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      */
     @SuppressWarnings("resource")
     @Override
-    public <R> R execute(ResultProducer<ResultType, R> producer)
+    public <R> R execute(ResultProducer<R> producer)
     {
         final PreparedStatement stmt = internalExecute();
-        final ResultSet rs;
         try {
-            rs = stmt.getResultSet();
+            return producer.produce(stmt, getContext());
         } catch (SQLException e) {
             try {
                 close();
             } catch (Exception e1) {
                 e.addSuppressed(e1);
             }
-            throw new ResultSetException("Could not get result set", e, getContext());
-        }
-        try {
-            return producer.produce(stmt, rs, getContext());
-        } catch (SQLException e) {
-            try {
-                close();
-            } catch (Exception e1) {
-                e.addSuppressed(e1);
-            }
-            throw new UnableToExecuteStatementException(e, getContext());
+            throw new UnableToProduceResultException(e, getContext());
         }
     }
 
     @Override
     public ResultIterator<ResultType> iterator()
     {
-        return execute((stmt, rs, ctx) -> new ResultSetResultIterator<>(mapper, rs, getContext()));
+        return execute((stmt, ctx) -> new ResultSetResultIterator<>(stmt.getResultSet(), mapper, ctx));
     }
 
     /**

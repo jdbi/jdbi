@@ -173,9 +173,9 @@ class BatchHandler extends CustomizingStatementHandler
         };
 
 
-        return magic.result(new ResultIterable<Object>() {
+        return magic.result(new ResultIterable() {
             @Override
-            public <R> R execute(ResultProducer<Object, R> executor) {
+            public <R> R execute(ResultProducer<R> executor) {
                 throw new UnsupportedOperationException(
                         "@SqlBatch currently does not support custom execution modes like reduce");
             }
