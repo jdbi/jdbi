@@ -16,12 +16,13 @@ package org.skife.jdbi.v2.sqlobject;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeBindings;
 import com.fasterxml.classmate.members.ResolvedMethod;
-
 import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.ResultBearing;
 import org.skife.jdbi.v2.ResultIterator;
 import org.skife.jdbi.v2.exceptions.UnableToCreateStatementException;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+import org.skife.jdbi.v2.sqlobject.customizers.MaxRowCountConstraint;
+import org.skife.jdbi.v2.sqlobject.customizers.MaxRowCountExceedException;
 import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -78,6 +79,7 @@ abstract class ResultReturnThing
     {
         private final Class<?> returnType;
         private final Class<?> containerType;
+        private final int maxRowCount;
 
         SingleValueResultReturnThing(ResolvedMethod method)
         {
@@ -102,11 +104,32 @@ abstract class ResultReturnThing
                 this.containerType = null;
             }
 
+            maxRowCount = fetchMaxRowCount(method);
+        }
+
+        private int fetchMaxRowCount(ResolvedMethod method){
+            if(method.getRawMember().isAnnotationPresent(MaxRowCountConstraint.class)){
+                MaxRowCountConstraint mrc = method.getRawMember().getAnnotation(MaxRowCountConstraint.class);
+                return mrc.value() > 0 ? mrc.value() : 0;
+            }
+            return 0;
         }
 
         @Override
         protected Object result(ResultBearing q, HandleDing baton)
         {
+            if (maxRowCount == 0) {
+                return returnFirst(q);
+            }
+
+            if (q.list(maxRowCount + 1).size() > maxRowCount) {
+                throw new MaxRowCountExceedException(maxRowCount);
+            }
+
+            return returnFirst(q);
+        }
+
+        private Object returnFirst(ResultBearing q) {
             return null == containerType ? q.first() : q.first(containerType);
         }
 
