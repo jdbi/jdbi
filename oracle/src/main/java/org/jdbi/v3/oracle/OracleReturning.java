@@ -19,123 +19,84 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.core.ResultProducer;
+import org.jdbi.v3.core.ResultSetIterable;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.ResultSetException;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 
 import oracle.jdbc.OraclePreparedStatement;
 
 /**
- * BETA: Provides access to Oracle's "DML Returning" features introduced in 10.2. To use,
- * add the statement customizer to a DML statement and bind (positionally) the return
- * params. Sadly, I think they (and the mapper) have to be positional. Usage is
- * like this:
- * <pre>
- * public void testFoo() throws Exception
- * {
- *     Handle h = dbi.open();
- *
- *     OracleReturning&lt;Integer&gt; or = new OracleReturning&lt;Integer&gt;(new RowMapper&lt;Integer&gt;() {
- *         public Integer map(int index, ResultSet r) throws SQLException
- *         {
- *             return r.getInt(1);
- *         }
- *     });
- *
- *     or.registerReturnParam(1, OracleTypes.INTEGER);
- *
- *     h.createStatement("insert into something (id, name) values (17, 'Brian') returning id into ?")
- *             .addStatementCustomizer(or)
- *             .execute();
- *     List&lt;Integer&gt; ids = or.getReturnedResults();
- *
- *     assertEquals(1, ids.size());
- *     assertEquals(Integer.valueOf(17), ids.getAttribute(0));
- *     h.close();
- * }
- * </pre>
- * Though you can bind multiple params, and whatnot
+ * BETA: Returns a {@link ResultSetIterable} from Oracle's "DML Returning" features introduced in 10.2. To use,
+ * add a {@link #returnParameters()} customizer to the statement and register with one or more return parameters. Then
+ * execute the statement with {@link #returningDml()} result producer:
  * <p>
- * This class is beta, and may be changed incompatibly or removed at any time.
+ * <pre>
+ * List&lt;Integer&gt; ids = handle.createUpdate("insert into something (id, name) values (17, 'Brian') returning id into ?")
+ *     .addCustomizer(OracleReturning.returnParameters().register(1, OracleTypes.INTEGER))
+ *     .execute(OracleReturning.returningDml())
+ *     .list(int.class);
+ *
+ * assertThat(ids).containsExactly(17);
+ * </pre>
+ * <p>
+ * This class still is beta, and may be changed incompatibly or removed at any time.
  */
-public class OracleReturning<ResultType> implements StatementCustomizer {
-    private final RowMapper<ResultType> mapper;
-    private final List<int[]> binds = new ArrayList<>();
-    private StatementContext context;
-    private List<ResultType> results;
-    private OraclePreparedStatement stmt;
-
-    /**
-     * Provide a mapper which knows how to do positional access, sadly the
-     * {@link BeanMapper} uses the names in the result set
-     *
-     * @param mapper Must use only positional access to the result set
-     */
-    public OracleReturning(RowMapper<ResultType> mapper) {
-        this.mapper = mapper;
+public class OracleReturning {
+    public static ReturnParameters returnParameters() {
+        return new ReturnParameters();
     }
 
-    /**
-     * @see StatementCustomizer#beforeExecution(java.sql.PreparedStatement, StatementContext)
-     */
-    @Override
-    public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {
-        this.context = ctx;
+    public static class ReturnParameters implements StatementCustomizer {
+        private final List<int[]> binds = new ArrayList<>();
 
-        if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
-            throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
+        ReturnParameters() {
         }
-        this.stmt = stmt.unwrap(OraclePreparedStatement.class);
-        for (int[] bind : binds) {
+
+        @Override
+        public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {
+            if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
+                throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
+            }
+            OraclePreparedStatement statement = stmt.unwrap(OraclePreparedStatement.class);
+            for (int[] bind : binds) {
+                try {
+                    statement.registerReturnParameter(bind[0], bind[1]);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        /**
+         * Registers a return parameter on the Oracle prepared statement.
+         *
+         * @param position   1-based position of the return parameter
+         * @param oracleType one of the values from {@link oracle.jdbc.OracleTypes}
+         * @return The same instance, for method chaning
+         */
+        public ReturnParameters register(int position, int oracleType) {
+            binds.add(new int[]{position, oracleType});
+            return this;
+        }
+    }
+
+    public static ResultProducer<ResultSetIterable> returningDml() {
+        return (stmt, ctx) -> {
+            if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
+                throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
+            }
+            OraclePreparedStatement statement = stmt.unwrap(OraclePreparedStatement.class);
+            ResultSet rs;
             try {
-                this.stmt.registerReturnParameter(bind[0], bind[1]);
+                rs = statement.getReturnResultSet();
+                ctx.addCleanable(rs::close);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new ResultSetException("Unable to retrieve return result set", e, ctx);
             }
-        }
-    }
 
-    @Override
-    public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {
-        ResultSet rs;
-        try {
-            rs = this.stmt.getReturnResultSet();
-        } catch (Exception e) {
-            throw new ResultSetException("Unable to retrieve return result set", e, ctx);
-        }
-        this.results = new ArrayList<>();
-        try {
-            RowMapper<ResultType> mapper = this.mapper.specialize(rs, context);
-            while (rs.next()) {
-                results.add(mapper.map(rs, context));
-            }
-        } catch (SQLException e) {
-            throw new ResultSetException("Unable to retrieve results from returned result set", e, ctx);
-        }
-    }
-
-
-    /**
-     * Callable after the statement has been executed to obtain the mapped results.
-     *
-     * @return the mapped results
-     */
-    public List<ResultType> getReturnedResults() {
-        return results;
-    }
-
-    /**
-     * Used to specify the types (required) of the out parameters. You must
-     * register each of them.
-     *
-     * @param position   1 based position of the out parameter
-     * @param oracleType one of the values from oracle.jdbc.driver..OracleTypes
-     * @return The same instance, in case you want to chain things
-     */
-    public OracleReturning<ResultType> registerReturnParam(int position, int oracleType) {
-        binds.add(new int[]{position, oracleType});
-        return this;
+            return ResultSetIterable.of(rs, ctx);
+        };
     }
 }

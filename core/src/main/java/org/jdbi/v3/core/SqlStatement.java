@@ -97,21 +97,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     public This setFetchDirection(final int value)
     {
-        addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
-        return typedThis;
-    }
-
-    /**
-     * Provides a means for custom statement modification. Common cusotmizations
-     * have their own methods, such as {@link Query#setMaxRows(int)}
-     *
-     * @param customizer instance to be used to cstomize a statement
-     *
-     * @return modified statement
-     */
-    public This addStatementCustomizer(StatementCustomizer customizer)
-    {
-        super.addCustomizer(customizer);
+        addCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
         return typedThis;
     }
 
@@ -152,7 +138,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This setQueryTimeout(final int seconds)
     {
-        return addStatementCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
+        return addCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
     }
 
     /**

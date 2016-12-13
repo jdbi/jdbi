@@ -41,7 +41,7 @@ public @interface FetchSize
             final FetchSize fs = (FetchSize) annotation;
             return q -> {
                 assert q instanceof Query;
-                ((Query<?>) q).setFetchSize(fs.value());
+                ((Query) q).setFetchSize(fs.value());
             };
         }
 
@@ -51,7 +51,7 @@ public @interface FetchSize
             final FetchSize fs = (FetchSize) annotation;
             return q -> {
                 assert q instanceof Query;
-                ((Query<?>) q).setFetchSize(fs.value());
+                ((Query) q).setFetchSize(fs.value());
             };
         }
 
@@ -66,7 +66,7 @@ public @interface FetchSize
             final Integer va = (Integer) arg;
             return q -> {
                 assert q instanceof Query;
-                ((Query<?>) q).setFetchSize(va);
+                ((Query) q).setFetchSize(va);
             };
         }
     }

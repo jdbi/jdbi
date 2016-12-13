@@ -55,9 +55,17 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
         return statementBuilder;
     }
 
-    void addCleanable(Cleanable cleanable)
+    /**
+     * Registers the given {@link Cleanable} to be executed when this statement is closed.
+     *
+     * @param cleanable the cleanable to register
+     * @return this
+     */
+    @SuppressWarnings("unchecked")
+    public final This addCleanable(Cleanable cleanable)
     {
-        getContext().getCleanables().add(cleanable);
+        getContext().addCleanable(cleanable);
+        return (This) this;
     }
 
     void addCustomizers(final Collection<StatementCustomizer> customizers)
@@ -65,14 +73,18 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
         this.customizers.addAll(customizers);
     }
 
-    void addCustomizer(final StatementCustomizer customizer)
+    /**
+     * Provides a means for custom statement modification. Common customizations
+     * have their own methods, such as {@link Query#setMaxRows(int)}
+     *
+     * @param customizer instance to be used to customize a statement
+     * @return this
+     */
+    @SuppressWarnings("unchecked")
+    public final This addCustomizer(final StatementCustomizer customizer)
     {
         this.customizers.add(customizer);
-    }
-
-    Collection<StatementCustomizer> getStatementCustomizers()
-    {
-        return this.customizers;
+        return (This) this;
     }
 
     final void beforeExecution(final PreparedStatement stmt)

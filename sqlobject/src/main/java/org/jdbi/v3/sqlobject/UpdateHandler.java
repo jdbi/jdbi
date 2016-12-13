@@ -17,8 +17,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Function;
 
-import org.jdbi.v3.core.GeneratedKeys;
 import org.jdbi.v3.core.HandleSupplier;
+import org.jdbi.v3.core.ResultIterable;
 import org.jdbi.v3.core.Update;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.util.GenericTypes;
@@ -43,8 +43,8 @@ class UpdateHandler extends CustomizingStatementHandler
             final RowMapper<?> mapper = ResultReturner.rowMapperFor(ggk, returnType);
 
             this.returner = update -> {
-                GeneratedKeys<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
-                return magic.result(o);
+                ResultIterable<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
+                return magic.result(o, update.getContext());
             };
         } else if (isNumeric(method.getReturnType())) {
             this.returner = update -> update.execute();

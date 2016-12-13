@@ -92,7 +92,7 @@ public class TestDocumentation
         try (Handle h = db.openHandle()) {
             h.execute("insert into something (id, name) values (?, ?)", 3, "Patrick");
 
-            List<Map<String, Object>> rs = h.select("select id, name from something");
+            List<Map<String, Object>> rs = h.select("select id, name from something").mapToMap().list();
             assertThat(rs).containsExactlyElementsOf(ImmutableList.of(ImmutableMap.of("id", 3L, "name", "Patrick")));
          }
     }
@@ -132,7 +132,7 @@ public class TestDocumentation
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
-            Query<String> names = h.createQuery("select name from something order by id").mapTo(String.class);
+            ResultIterable<String> names = h.createQuery("select name from something order by id").mapTo(String.class);
             assertThat(names.iterator()).containsExactly("Brian", "Keith");
         }
     }
@@ -221,10 +221,10 @@ public class TestDocumentation
         }
     }
 
-    public interface QueryReturningQuery
+    public interface QueryReturningResultIterable
     {
         @SqlQuery("select name from something where id = :id")
-        Query<String> findById(@Bind("id") int id);
+        ResultIterable<String> findById(@Bind("id") int id);
     }
 
     @Test
@@ -235,11 +235,10 @@ public class TestDocumentation
                                                  new Something(3, "Patrick"),
                                                  new Something(2, "Robert"));
 
-            QueryReturningQuery qrq = h.attach(QueryReturningQuery.class);
+            QueryReturningResultIterable qrri = h.attach(QueryReturningResultIterable.class);
 
-            Query<String> q = qrq.findById(1);
-            q.setMaxFieldSize(100);
-            assertThat(q.findOnly()).isEqualTo("Brian");
+            ResultIterable<String> iterable = qrri.findById(1);
+            assertThat(iterable.findOnly()).isEqualTo("Brian");
         }
     }
 

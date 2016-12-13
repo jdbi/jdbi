@@ -37,6 +37,7 @@ public class StatementsTest
         // tag::query[]
         List<Map<String, Object>> users =
             handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
+                .mapToMap()
                 .list();
 
         assertThat(users).containsExactly(

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Query;
+import org.jdbi.v3.core.ResultIterable;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
@@ -67,13 +67,13 @@ public class TestReturningQuery
     public interface Spiffy
     {
         @SqlQuery("select id, name from something where id = :id")
-        Query<Something> findById(@Bind("id") int id);
+        ResultIterable<Something> findById(@Bind("id") int id);
     }
 
     public interface Spiffy2
     {
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)
-        Query<Something> findByIdWithExplicitMapper(@Bind("id") int id);
+        ResultIterable<Something> findByIdWithExplicitMapper(@Bind("id") int id);
     }
 }

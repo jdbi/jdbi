@@ -25,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.JdbiConfig;
 import org.jdbi.v3.core.Query;
+import org.jdbi.v3.core.util.GenericType;
 
 public class RowMappers implements JdbiConfig<RowMappers> {
     private final List<RowMapperFactory> factories = new CopyOnWriteArrayList<>();
@@ -82,6 +83,33 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * Obtain a row mapper for the given type in the given context.
      *
      * @param type the target type to map to
+     * @param config the config registry, for mapper composition
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Optional<RowMapper<T>> findFor(Class<T> type, ConfigRegistry config) {
+        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type, config).orElse(null);
+        return Optional.ofNullable(mapper);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in the given context.
+     *
+     * @param type the target type to map to
+     * @param config the config registry, for mapper composition
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Optional<RowMapper<T>> findFor(GenericType<T> type, ConfigRegistry config) {
+        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType(), config).orElse(null);
+        return Optional.ofNullable(mapper);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in the given context.
+     *
+     * @param type the target type to map to
+     * @param config the config registry, for mapper composition
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public Optional<RowMapper<?>> findFor(Type type, ConfigRegistry config) {

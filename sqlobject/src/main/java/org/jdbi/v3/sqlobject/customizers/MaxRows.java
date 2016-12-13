@@ -49,7 +49,7 @@ public @interface MaxRows
             final int va = ((MaxRows)annotation).value();
             return q -> {
                 assert q instanceof Query;
-                ((Query<?>)q).setMaxRows(va);
+                ((Query)q).setMaxRows(va);
             };
         }
 
@@ -59,7 +59,7 @@ public @interface MaxRows
             final int va = ((MaxRows)annotation).value();
             return q -> {
                 assert q instanceof Query;
-                ((Query<?>)q).setMaxRows(va);
+                ((Query)q).setMaxRows(va);
             };
         }
 
@@ -74,7 +74,7 @@ public @interface MaxRows
             final Integer va = (Integer) arg;
             return q -> {
                 assert q instanceof Query;
-                ((Query<?>)q).setMaxRows(va);
+                ((Query)q).setMaxRows(va);
             };
         }
     }

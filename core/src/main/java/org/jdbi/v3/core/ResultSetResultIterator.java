@@ -21,9 +21,13 @@ import org.jdbi.v3.core.exception.NoResultsException;
 import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.mapper.RowMapper;
 
-class ResultSetResultIterator<Type> implements ResultIterator<Type>
+public class ResultSetResultIterator<T> implements ResultIterator<T>
 {
-    private final RowMapper<Type> mapper;
+    public static <T> ResultIterator<T> of(ResultSet rs, RowMapper<T> mapper, StatementContext ctx) throws SQLException {
+        return new ResultSetResultIterator<>(rs, mapper, ctx);
+    }
+
+    private final RowMapper<T> mapper;
     private final ResultSet results;
     private final StatementContext context;
 
@@ -32,16 +36,16 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     private volatile boolean closed = false;
 
     ResultSetResultIterator(ResultSet results,
-                            RowMapper<Type> mapper,
+                            RowMapper<T> mapper,
                             StatementContext context) throws SQLException
     {
-        this.mapper = mapper.specialize(results, context);
-        this.context = context;
-        this.results = results;
-
         if (results == null) {
             throw new NoResultsException("No results to iterate over", context);
         }
+
+        this.mapper = mapper.specialize(results, context);
+        this.context = context;
+        this.results = results;
 
         this.context.getCleanables().add(Cleanables.forResultSet(results));
     }
@@ -77,7 +81,7 @@ class ResultSetResultIterator<Type> implements ResultIterator<Type>
     }
 
     @Override
-    public Type next()
+    public T next()
     {
         if (closed) {
             throw new IllegalStateException("iterator is closed");

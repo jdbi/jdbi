@@ -29,7 +29,7 @@ import java.util.Iterator;
  * The <code>remove()</code> operation is not supported in the default
  * version, and will raise an <code>UnsupportedOperationException</code>
  */
-public interface ResultIterator<Type> extends Iterator<Type>, Closeable
+public interface ResultIterator<T> extends Iterator<T>, Closeable
 {
     /**
      * Close the underlying result set.

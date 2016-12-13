@@ -15,7 +15,6 @@ package org.jdbi.v3.core;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
 
-import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -27,8 +26,24 @@ import java.util.stream.StreamSupport;
 import org.jdbi.v3.core.util.StreamCallback;
 import org.jdbi.v3.core.util.StreamConsumer;
 
-public interface ResultIterable<T> extends ResultBearing, Iterable<T>
-{
+/**
+ * An {@link Iterable} of values, usually mapped from a {@link java.sql.ResultSet}. Generally, ResultIterables may only
+ * be traversed once.
+ *
+ * @param <T> iterable element type
+ */
+@FunctionalInterface
+public interface ResultIterable<T> extends Iterable<T> {
+    /**
+     * Returns a ResultIterable backed by the given iterator.
+     * @param iterator the result iterator
+     * @param <T> iterator element type
+     * @return a ResultIterable
+     */
+    static <T> ResultIterable<T> of(ResultIterator<T> iterator) {
+        return () -> iterator;
+    }
+
     /**
      * Stream all the rows of the result set out
      * with an {@code Iterator}.  The {@code Iterator} must be
@@ -69,7 +84,7 @@ public interface ResultIterable<T> extends ResultBearing, Iterable<T>
     }
 
     /**
-     * Executes the query and returns the stream of results.
+     * Returns the stream of results.
      *
      * <p>
      * Note: the returned stream owns database resources, and must be closed via a call to {@link Stream#close()}, or
@@ -94,7 +109,7 @@ public interface ResultIterable<T> extends ResultBearing, Iterable<T>
     }
 
     /**
-     * Executes the query, and passes the stream of results to the consumer. Database resources owned by the query are
+     * Passes the stream of results to the consumer. Database resources owned by the query are
      * released before this method returns.
      *
      * @param consumer a consumer which receives the stream of results.
@@ -110,7 +125,7 @@ public interface ResultIterable<T> extends ResultBearing, Iterable<T>
     }
 
     /**
-     * Executes the query, and passes the stream of results to the callback. Database resources owned by the query are
+     * Passes the stream of results to the callback. Database resources owned by the query are
      * released before this method returns.
      *
      * @param callback a callback which receives the stream of results, and returns some result.
@@ -128,14 +143,16 @@ public interface ResultIterable<T> extends ResultBearing, Iterable<T>
     }
 
     /**
-     * @return the list of query results.
+     * Returns results in a {@link List}.
+     *
+     * @return results in a {@link List}.
      */
     default List<T> list() {
         return collect(Collectors.toList());
     }
 
     /**
-     * Collect the query results into a container specified by a collector.
+     * Collect the results into a container specified by a collector.
      *
      * @param collector       the collector
      * @param <R>             the generic type of the container
@@ -163,48 +180,4 @@ public interface ResultIterable<T> extends ResultBearing, Iterable<T>
                 });
         }
     }
-
-    /**
-     * Reduce the results.  Using a {@code BiFunction<U, RowView, U>}, repeatedly
-     * combine query results until only a single value remains.
-     *
-     * @param seed the {@code U} to combine with the first result
-     * @param accumulator the function to apply repeatedly
-     * @return the final {@code U}
-     */
-    default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
-        return execute((stmt, ctx) -> {
-            ResultSet rs = stmt.getResultSet();
-            RowView rv = new RowView(rs, ctx);
-            U result = seed;
-            while (rs.next()) {
-                result = accumulator.apply(result, rv);
-            }
-            return result;
-        });
-    }
-
-    /**
-     * Reduce the results.  Using a {@code ResultSetAccumulator}, repeatedly
-     * combine query results until only a single value remains.
-     *
-     * @param seed the {@code U} to combine with the first result
-     * @param accumulator the function to apply repeatedly
-     * @return the final {@code U}
-     */
-    default <U> U reduceResultSet(U seed, ResultSetAccumulator<U> accumulator) {
-        return execute((stmt, ctx) -> {
-            ResultSet rs = stmt.getResultSet();
-            U result = seed;
-            while (rs.next()) {
-                result = accumulator.apply(result, rs, ctx);
-            }
-            return result;
-        });
-    }
-
-    /**
-     * @return the current statement context
-     */
-    StatementContext getContext();
 }

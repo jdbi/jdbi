@@ -36,7 +36,7 @@ public class TestScript {
         Script s = h.createScript(findSqlOnClasspath("default-data"));
         s.execute();
 
-        assertThat(h.select("select * from something")).hasSize(2);
+        assertThat(h.select("select * from something").mapToMap()).hasSize(2);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class TestScript {
         Script script = h.createScript(findSqlOnClasspath("insert-script-with-comments"));
         script.execute();
 
-        assertThat(h.select("select * from something")).hasSize(3);
+        assertThat(h.select("select * from something").mapToMap()).hasSize(3);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class TestScript {
         Script script = h.createScript(findSqlOnClasspath("insert-with-string-semicolons"));
         script.execute();
 
-        assertThat(h.select("select * from something")).hasSize(3);
+        assertThat(h.select("select * from something").mapToMap()).hasSize(3);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class TestScript {
         Script script = h.createScript(findSqlOnClasspath("fuzzy-script"));
         script.executeAsSeparateStatements();
 
-        List<Map<String, Object>> rows = h.select("select id, name from something order by id");
+        List<Map<String, Object>> rows = h.select("select id, name from something order by id").mapToMap().list();
         assertThat(rows).isEqualTo(ImmutableList.of(
                 ImmutableMap.of("id", 1L, "name", "eric"),
                 ImmutableMap.of("id", 2L, "name", "sally;ann"),

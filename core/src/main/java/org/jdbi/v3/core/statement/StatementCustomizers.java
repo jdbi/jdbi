@@ -16,7 +16,6 @@ package org.jdbi.v3.core.statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.Query;
 import org.jdbi.v3.core.SqlStatement;
 import org.jdbi.v3.core.StatementContext;
 
@@ -25,12 +24,6 @@ public final class StatementCustomizers
     private StatementCustomizers()
     {
     }
-
-    /**
-     * Hint to the statement, that we want only a single row. Used by {@link Query#findFirst()} to limit the number
-     * of rows returned by the database.
-     */
-    public static final StatementCustomizer MAX_ROW_ONE = new MaxRowsCustomizer(1);
 
     /**
      * Sets the fetch direction on a query. Can be used as a Statement customizer or a SqlStatementCustomizer.

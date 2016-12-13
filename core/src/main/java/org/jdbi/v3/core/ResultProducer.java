@@ -21,8 +21,19 @@ import java.sql.SQLException;
  * potentially wrapped in a container object.
  */
 @FunctionalInterface
-public interface ResultProducer<R>
-{
+public interface ResultProducer<R> {
+    /**
+     * Invoked before the prepared statement is created. Result producers may override this method to perform
+     * just-in-time configuration required for a particular ResultProducer implementation (e.g.
+     * {@link ResultProducers#getGeneratedKeys(PreparedStatement, StatementContext)} configures generated key column
+     * names). The default implementation does nothing.
+     *
+     * @param stmt the JDBI statement.
+     */
+    default void beforeExecute(BaseStatement<?> stmt) {
+        // no-op
+    }
+
     /**
      * Produce a statement result.
      * @param stmt the prepared statement

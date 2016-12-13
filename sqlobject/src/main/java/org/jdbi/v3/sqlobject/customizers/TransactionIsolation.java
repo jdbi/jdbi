@@ -80,7 +80,7 @@ public @interface TransactionIsolation
         {
             final int initial_level = q.getContext().getConnection().getTransactionIsolation();
 
-            q.addStatementCustomizer(new StatementCustomizer()
+            q.addCustomizer(new StatementCustomizer()
             {
                 @Override
                 public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException

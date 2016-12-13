@@ -13,7 +13,8 @@
  */
 package org.jdbi.v3.core;
 
-import java.lang.reflect.Type;
+import static org.jdbi.v3.core.ResultProducers.returningResults;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,14 +23,9 @@ import java.util.Collection;
 import java.util.Locale;
 
 import org.jdbi.v3.core.exception.UnableToProduceResultException;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.StatementCustomizers;
-import org.jdbi.v3.core.util.GenericType;
 
 /**
  * Statement providing convenience result handling for SQL queries.
@@ -40,13 +36,10 @@ import org.jdbi.v3.core.util.GenericType;
  * The default mapper also carries a performance penalty because it must
  * inspect metadata for each row.
  */
-public class Query<ResultType> extends SqlStatement<Query<ResultType>> implements ResultIterable<ResultType>
+public class Query extends SqlStatement<Query> implements ResultBearing, ResultSetIterable
 {
-    private final RowMapper<ResultType> mapper;
-
     Query(ConfigRegistry config,
           Binding params,
-          RowMapper<ResultType> mapper,
           Handle handle,
           StatementBuilder cache,
           String sql,
@@ -54,17 +47,12 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
           Collection<StatementCustomizer> customizers)
     {
         super(config, params, handle, cache, sql, ctx, customizers);
-        this.mapper = mapper;
     }
 
-    /**
-     * Obtain a forward-only result set iterator. Note that you must explicitly close
-     * the iterator to close the underlying resources.
-     */
     @SuppressWarnings("resource")
-    @Override
     public <R> R execute(ResultProducer<R> producer)
     {
+        producer.beforeExecute(this);
         final PreparedStatement stmt = internalExecute();
         try {
             return producer.produce(stmt, getContext());
@@ -79,89 +67,8 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
     }
 
     @Override
-    public ResultIterator<ResultType> iterator()
-    {
-        return execute((stmt, ctx) -> new ResultSetResultIterator<>(stmt.getResultSet(), mapper, ctx));
-    }
-
-    /**
-     * Provide basic JavaBean mapping capabilities. Will instantiate an instance of resultType
-     * for each row and set the JavaBean properties which match fields in the result set.
-     *
-     * @param resultType JavaBean class to map result set fields into the properties of, by name
-     * @param <T> the JavaBean class to map result rows to.
-     *
-     * @return a Query which provides the bean property mapping
-     */
-    public <T> Query<T> mapToBean(Class<T> resultType)
-    {
-        return this.map(new BeanMapper<>(resultType));
-    }
-
-    /**
-     * Makes use of registered mappers to map the result rows to the desired type.
-     *
-     * @param resultType the type to map the query result rows to
-     * @param <T> the type to map result rows to
-     *
-     * @return a new query instance which will map to the desired type
-     *
-     * @see RowMappers#register(RowMapper)
-     * @see RowMappers#register(RowMapperFactory)
-     * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     */
-    @SuppressWarnings("unchecked")
-    public <T> Query<T> mapTo(Class<T> resultType)
-    {
-        return (Query<T>) this.mapTo((Type) resultType);
-    }
-
-    /**
-     * Makes use of registered mappers to map the result rows to the desired type.
-     *
-     * @param resultType the type to map the query result rows to
-     * @param <T> the type to map result rows to
-     *
-     * @return a new query instance which will map rows to the desired type
-     *
-     * @see RowMappers#register(RowMapper)
-     * @see RowMappers#register(RowMapperFactory)
-     * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     */
-    @SuppressWarnings("unchecked")
-    public <T> Query<T> mapTo(GenericType<T> resultType)
-    {
-        return (Query<T>) this.mapTo(resultType.getType());
-    }
-
-    /**
-     * Makes use of registered mappers to map the result rows to the desired type.
-     *
-     * @param resultType the type to map the query result rows to
-     *
-     * @return a new query instance which will map to the desired type
-     *
-     * @see RowMappers#register(RowMapper)
-     * @see RowMappers#register(RowMapperFactory)
-     * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(RowMapperFactory)
-     */
-    public Query<?> mapTo(Type resultType) {
-        return this.map(rowMapperForType(resultType));
-    }
-
-    public <T> Query<T> map(RowMapper<T> mapper)
-    {
-        return new Query<>(getConfig(),
-                getParams(),
-                mapper,
-                getHandle(),
-                getStatementBuilder(),
-                getSql(),
-                getContext(),
-                getStatementCustomizers());
+    public <R> R withResultSet(ResultSetCallback<R> callback) {
+        return execute(returningResults()).withResultSet(callback);
     }
 
     /**
@@ -174,10 +81,9 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return the modified query
      */
-    public Query<ResultType> setFetchSize(final int fetchSize)
+    public Query setFetchSize(final int fetchSize)
     {
-        this.addStatementCustomizer(new StatementCustomizers.FetchSizeCustomizer(fetchSize));
-        return this;
+        return addCustomizer(new StatementCustomizers.FetchSizeCustomizer(fetchSize));
     }
 
     /**
@@ -188,10 +94,9 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return modified query
      */
-    public Query<ResultType> setMaxRows(final int maxRows)
+    public Query setMaxRows(final int maxRows)
     {
-        this.addStatementCustomizer(new StatementCustomizers.MaxRowsCustomizer(maxRows));
-        return this;
+        return addCustomizer(new StatementCustomizers.MaxRowsCustomizer(maxRows));
     }
 
     /**
@@ -202,10 +107,9 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return modified query
      */
-    public Query<ResultType> setMaxFieldSize(final int maxFields)
+    public Query setMaxFieldSize(final int maxFields)
     {
-        this.addStatementCustomizer(new StatementCustomizers.MaxFieldSizeCustomizer(maxFields));
-        return this;
+        return addCustomizer(new StatementCustomizers.MaxFieldSizeCustomizer(maxFields));
     }
 
     /**
@@ -214,10 +118,9 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return the modified query
      */
-    public Query<ResultType> fetchReverse()
+    public Query fetchReverse()
     {
-        setFetchDirection(ResultSet.FETCH_REVERSE);
-        return this;
+        return setFetchDirection(ResultSet.FETCH_REVERSE);
     }
 
     /**
@@ -226,10 +129,9 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return the modified query
      */
-    public Query<ResultType> fetchForward()
+    public Query fetchForward()
     {
-        setFetchDirection(ResultSet.FETCH_FORWARD);
-        return this;
+        return setFetchDirection(ResultSet.FETCH_FORWARD);
     }
 
     /**
@@ -240,7 +142,7 @@ public class Query<ResultType> extends SqlStatement<Query<ResultType>> implement
      *
      * @return the modified query
      */
-    public Query<ResultType> concurrentUpdatable() {
+    public Query concurrentUpdatable() {
         getContext().setConcurrentUpdatable(true);
         return this;
     }

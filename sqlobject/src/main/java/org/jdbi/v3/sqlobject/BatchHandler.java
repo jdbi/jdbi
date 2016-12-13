@@ -28,7 +28,6 @@ import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.PreparedBatch;
 import org.jdbi.v3.core.ResultIterable;
 import org.jdbi.v3.core.ResultIterator;
-import org.jdbi.v3.core.ResultProducer;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -172,24 +171,9 @@ class BatchHandler extends CustomizingStatementHandler
             }
         };
 
+        ResultIterable<Object> iterable = ResultIterable.of(result);
 
-        return magic.result(new ResultIterable() {
-            @Override
-            public <R> R execute(ResultProducer<R> executor) {
-                throw new UnsupportedOperationException(
-                        "@SqlBatch currently does not support custom execution modes like reduce");
-            }
-
-            @Override
-            public ResultIterator<Object> iterator() {
-                return result;
-            }
-
-            @Override
-            public StatementContext getContext() {
-                return result.getContext();
-            }
-        });
+        return magic.result(iterable, result.getContext());
     }
 
     private Iterator<Object[]> zipArgs(Method method, Object[] args) {
