@@ -28,14 +28,10 @@ import java.util.NoSuchElementException;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.exception.UnableToProduceResultException;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
-import org.jdbi.v3.core.util.GenericType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

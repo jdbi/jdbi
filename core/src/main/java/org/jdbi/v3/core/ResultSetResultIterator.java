@@ -21,12 +21,8 @@ import org.jdbi.v3.core.exception.NoResultsException;
 import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.mapper.RowMapper;
 
-public class ResultSetResultIterator<T> implements ResultIterator<T>
+class ResultSetResultIterator<T> implements ResultIterator<T>
 {
-    public static <T> ResultIterator<T> of(ResultSet rs, RowMapper<T> mapper, StatementContext ctx) throws SQLException {
-        return new ResultSetResultIterator<>(rs, mapper, ctx);
-    }
-
     private final RowMapper<T> mapper;
     private final ResultSet results;
     private final StatementContext context;
