@@ -63,9 +63,9 @@ class BatchHandler extends CustomizingStatementHandler
             magic = ResultReturner.forMethod(sqlObjectType, method);
             final Function<StatementContext, RowMapper<?>> mapper = ctx -> ResultReturner.rowMapperFor(getGeneratedKeys, magic.elementType(ctx));
             if (getGeneratedKeys.columnName().isEmpty()) {
-                batchIntermediate = batch -> batch.executeAndGenerateKeys(mapper.apply(batch.getContext())).iterator();
+                batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys().map(mapper.apply(batch.getContext())).iterator();
             } else {
-                batchIntermediate = batch -> batch.executeAndGenerateKeys(mapper.apply(batch.getContext()), getGeneratedKeys.columnName()).iterator();
+                batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(getGeneratedKeys.columnName()).map(mapper.apply(batch.getContext())).iterator();
             }
         }
     }

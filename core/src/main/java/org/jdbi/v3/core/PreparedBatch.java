@@ -111,28 +111,8 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         };
     }
 
-    public <T> ResultIterable<T> executeAndGenerateKeys(Class<T> generatedKeyType,
-                                                        String... columnNames) {
-        return execute(returningGeneratedKeys(columnNames)).mapTo(generatedKeyType);
-    }
-
-    public <T> ResultIterable<T> executeAndGenerateKeys(GenericType<T> generatedKeyType,
-                                                        String... columnNames) {
-        return execute(returningGeneratedKeys(columnNames)).mapTo(generatedKeyType);
-    }
-
-    public <T> ResultIterable<T> executeAndGenerateKeys(RowMapper<T> mapper,
-                                                        String... columnNames) {
-        return execute(returningGeneratedKeys(columnNames)).map(mapper);
-    }
-
-    public <T> ResultIterable<T> executeAndGenerateKeys(ColumnMapper<T> mapper) {
-        return execute(returningGeneratedKeys()).map(mapper);
-    }
-
-    public <T> ResultIterable<T> executeAndGenerateKeys(ColumnMapper<T> mapper,
-                                                        String columnName) {
-        return execute(returningGeneratedKeys(columnName)).map(new SingleColumnMapper<T>(mapper, columnName));
+    public ResultSetIterable executeAndReturnGeneratedKeys(String... columnNames) {
+        return execute(returningGeneratedKeys(columnNames));
     }
 
     @Override

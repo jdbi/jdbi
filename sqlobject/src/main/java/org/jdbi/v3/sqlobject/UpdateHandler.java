@@ -43,7 +43,7 @@ class UpdateHandler extends CustomizingStatementHandler
             final RowMapper<?> mapper = ResultReturner.rowMapperFor(ggk, returnType);
 
             this.returner = update -> {
-                ResultIterable<?> o = update.executeAndReturnGeneratedKeys(mapper, ggk.columnName());
+                ResultIterable<?> o = update.executeAndReturnGeneratedKeys(ggk.columnName()).map(mapper);
                 return magic.result(o, update.getContext());
             };
         } else if (isNumeric(method.getReturnType())) {
