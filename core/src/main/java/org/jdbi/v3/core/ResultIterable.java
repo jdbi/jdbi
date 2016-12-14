@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -76,6 +77,13 @@ public interface ResultIterable<T> extends Iterable<T> {
      */
     @Override
     ResultIterator<T> iterator();
+
+    @Override
+    default void forEach(Consumer<? super T> action) {
+        try (ResultIterator<T> iterator = iterator()) {
+            iterator.forEachRemaining(action);
+        }
+    }
 
     /**
      * Get the only row in the result set.
