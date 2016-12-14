@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.TimingCollector;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.Timestamped;
@@ -47,19 +48,22 @@ public class TestTimestamped {
 
     @Test
     public void shouldInsertCreatedAndModifiedFields() {
+        // This is one way we can get the binding information of the executed query
+        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
+            assertThat(statementContext.getBinding().findForName("now")).isPresent();
+        });
+
         Person p = new Person("John", "Phiri");
         p.setId(1);
         personDAO.insert(p);
+
+        // Clear the timing colletor
+        h2DatabaseRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
         Person found = personDAO.get(1);
 
         assertThat(found.getCreated()).isNotNull();
         assertThat(found.getModified()).isNotNull();
-
-        // This is one way we can get the binding information of the executed query
-        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
-            assertThat(statementContext.getBinding().findForName("now")).isPresent();
-        });
     }
 
     @Test
@@ -68,8 +72,14 @@ public class TestTimestamped {
 
         Person p = new Person("John", "Phiri");
         p.setId(1);
+        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
+            assertThat(statementContext.getBinding().findForName("createdAt")).isPresent();
+        });
+
 
         personDAO.insertWithCustomTimestampFields(p);
+
+        h2DatabaseRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
         Person fetched = personDAO.get(1);
 
@@ -81,10 +91,6 @@ public class TestTimestamped {
         assertThat(fetched.getCreated()).isEqualTo(fetched.getModified());
 
         assertThat(timeBefore).isBefore(fetched.getCreated().toLocalDateTime());
-
-        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
-            assertThat(statementContext.getBinding().findForName("createdAt")).isPresent();
-        });
     }
 
     @Test
@@ -93,7 +99,13 @@ public class TestTimestamped {
 
         p.setId(3);
 
+        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
+            assertThat(statementContext.getBinding().findForName("now")).isPresent();
+        });
+
         personDAO.insert(p);
+
+        h2DatabaseRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
         Person personAfterCreate = personDAO.get(3);
 
@@ -108,10 +120,6 @@ public class TestTimestamped {
         assertThat(personAfterUpdate.getCreated()).isEqualTo(personAfterCreate.getCreated());
 
         assertThat(personAfterUpdate.getModified()).isAfter(personAfterCreate.getModified());
-
-        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
-            assertThat(statementContext.getBinding().findForName("now")).isPresent();
-        });
     }
 
     @RegisterRowMapper(PersonRowMapper.class)
