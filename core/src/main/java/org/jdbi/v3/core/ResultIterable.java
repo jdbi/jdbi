@@ -15,14 +15,19 @@ package org.jdbi.v3.core;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jdbi.v3.core.exception.ResultSetException;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.util.StreamCallback;
 import org.jdbi.v3.core.util.StreamConsumer;
 
@@ -34,6 +39,25 @@ import org.jdbi.v3.core.util.StreamConsumer;
  */
 @FunctionalInterface
 public interface ResultIterable<T> extends Iterable<T> {
+    /**
+     * Returns a ResultIterable backed by the given result set supplier, mapper, and context.
+     *
+     * @param supplier result set supplier
+     * @param mapper   row mapper
+     * @param ctx      statement context
+     * @param <T>      the mapped type
+     * @return
+     */
+    static <T> ResultIterable<T> of(Supplier<ResultSet> supplier, RowMapper<T> mapper, StatementContext ctx) {
+        return () -> {
+            try {
+                return new ResultSetResultIterator<>(supplier.get(), mapper, ctx);
+            } catch (SQLException e) {
+                throw new ResultSetException("Unable to iterator result set", e, ctx);
+            }
+        };
+    }
+
     /**
      * Returns a ResultIterable backed by the given iterator.
      * @param iterator the result iterator

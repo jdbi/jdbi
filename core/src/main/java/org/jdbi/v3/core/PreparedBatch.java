@@ -141,11 +141,8 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             throw new IllegalStateException("No PreparedBatchParts to execute");
         }
 
-        producer.beforeExecute(this);
-
-        ExecutedBatch executed = internalBatchExecute();
         try {
-            return producer.produce(executed.stmt, getContext());
+            return producer.produce(() -> internalBatchExecute().stmt, getContext());
         } catch (SQLException e) {
             throw new UnableToProduceResultException("Exception producing batch result", e, getContext());
         }

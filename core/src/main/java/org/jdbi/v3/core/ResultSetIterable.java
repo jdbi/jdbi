@@ -18,8 +18,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.core.exception.ResultSetException;
+import org.jdbi.v3.core.exception.UnableToProduceResultException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.MapMapper;
@@ -34,19 +36,20 @@ import org.jdbi.v3.core.util.GenericType;
  */
 public interface ResultSetIterable {
     /**
-     * Returns a ResultSetIterable backed by the given result set and context.
+     * Returns a ResultSetIterable backed by the given result set supplier and context.
      *
-     * @param rs  the result set
+     * @param resultSetSupplier result set supplier
      * @param ctx the statement context
      * @return a ResultSetIterable
      */
-    static ResultSetIterable of(ResultSet rs, StatementContext ctx) {
+    static ResultSetIterable of(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) {
         return new ResultSetIterable() {
             @Override
             public <R> R withResultSet(ResultSetCallback<R> callback) {
                 try {
-                    return callback.withResultSet(rs, ctx);
-                } catch (SQLException e) {
+                    return callback.withResultSet(resultSetSupplier, ctx);
+                }
+                catch (SQLException e) {
                     throw new ResultSetException("Error reading result set", e, ctx);
                 }
             }
@@ -104,11 +107,10 @@ public interface ResultSetIterable {
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
     default ResultIterable<?> mapTo(Type type) {
-        return withResultSet((rs, ctx) -> {
+        return withResultSet((supplier, ctx) -> {
             RowMapper<?> mapper = ctx.findRowMapperFor(type)
                     .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for type " + type));
-            ResultIterator<?> iterator = ResultSetResultIterator.of(rs, mapper, ctx);
-            return ResultIterable.of(iterator);
+            return ResultIterable.of(supplier, mapper, ctx);
         });
     }
 
@@ -152,10 +154,7 @@ public interface ResultSetIterable {
      * @return a {@link ResultIterable} of type {@code &lt;T&gt;}.
      */
     default <T> ResultIterable<T> map(RowMapper<T> mapper) {
-        return withResultSet((rs, ctx) -> {
-            ResultIterator<T> iterator = ResultSetResultIterator.of(rs, mapper, ctx);
-            return ResultIterable.of(iterator);
-        });
+        return withResultSet((supplier, ctx) -> ResultIterable.of(supplier, mapper, ctx));
     }
 
     /**
@@ -167,13 +166,21 @@ public interface ResultSetIterable {
      * @return the final {@code U}
      */
     default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
-        return withResultSet((rs, ctx) -> {
-            RowView rv = new RowView(rs, ctx);
-            U result = seed;
-            while (rs.next()) {
-                result = accumulator.apply(result, rv);
+        return withResultSet((supplier, ctx) -> {
+            try (ResultSet rs = supplier.get()) {
+                RowView rv = new RowView(rs, ctx);
+                U result = seed;
+                while (rs.next()) {
+                    result = accumulator.apply(result, rv);
+                }
+                return result;
             }
-            return result;
+            catch (SQLException e) {
+                throw new UnableToProduceResultException(e, ctx);
+            }
+            finally {
+                ctx.close();
+            }
         });
     }
 
@@ -186,12 +193,20 @@ public interface ResultSetIterable {
      * @return the final {@code U}
      */
     default <U> U reduceResultSet(U seed, ResultSetAccumulator<U> accumulator) {
-        return withResultSet((rs, ctx) -> {
-            U result = seed;
-            while (rs.next()) {
-                result = accumulator.apply(result, rs, ctx);
+        return withResultSet((supplier, ctx) -> {
+            try (ResultSet rs = supplier.get()) {
+                U result = seed;
+                while (rs.next()) {
+                    result = accumulator.apply(result, rs, ctx);
+                }
+                return result;
             }
-            return result;
+            catch (SQLException e) {
+                throw new UnableToProduceResultException(e, ctx);
+            }
+            finally {
+                ctx.close();
+            }
         });
     }
 }

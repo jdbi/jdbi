@@ -15,8 +15,39 @@ package org.jdbi.v3.core;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.function.Supplier;
 
+/**
+ * Produces a result from a {@link ResultSet}.
+ *
+ * @param <R> Result type
+ */
 @FunctionalInterface
 public interface ResultSetCallback<R> {
-    R withResultSet(ResultSet rs, StatementContext ctx) throws SQLException;
+    /**
+     * Produces a result from the supplied result set. The result set is not opened (and usually, the statement the
+     * result came from is not executed) until {@code resultSetSupplier.get()} is called.
+     * <p>
+     * Implementors that call {@code resultSetSupplier.get()} must ensure that the statement context is closed, to
+     * ensure that database resources are freed:
+     * <pre>
+     * try {
+     *     ResultSet resultSet = resultSetSupplier.get()
+     *     // generate and return result from the result set.
+     * }
+     * finally {
+     *     ctx.close();
+     * }
+     * </pre>
+     * <p>
+     * Alternatively, implementors may return some intermediate result object (e.g. {@link ResultIterable}) without
+     * calling {@code resultSetSupplier.get()}, in which case the burden of closing resources falls to whichever object
+     * ultimately does {@code get()} the result set.
+     *
+     * @param resultSetSupplier supplies a ResultSet.
+     * @param ctx               the statement context.
+     * @return
+     * @throws SQLException
+     */
+    R withResultSet(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) throws SQLException;
 }

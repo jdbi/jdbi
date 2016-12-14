@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.core.ResultProducer;
 import org.jdbi.v3.core.ResultSetIterable;
@@ -82,21 +83,36 @@ public class OracleReturning {
         }
     }
 
+    /**
+     * Result producer that returns a {@link ResultSetIterable} over the statement "DML returning" parameters. Used in
+     * conjunction with {@link #returnParameters()} to register return parameters.
+     *
+     * @return ResultSetIterable of returned columns.
+     * @see OraclePreparedStatement#getReturnResultSet()
+     */
     public static ResultProducer<ResultSetIterable> returningDml() {
-        return (stmt, ctx) -> {
-            if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
-                throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
-            }
-            OraclePreparedStatement statement = stmt.unwrap(OraclePreparedStatement.class);
-            ResultSet rs;
+        return (supplier, ctx) -> ResultSetIterable.of(getReturnResultSet(supplier, ctx), ctx);
+    }
+
+    private static Supplier<ResultSet> getReturnResultSet(Supplier<PreparedStatement> supplier, StatementContext ctx) {
+        return () -> {
+            PreparedStatement stmt = supplier.get();
             try {
-                rs = statement.getReturnResultSet();
-                ctx.addCleanable(rs::close);
-            } catch (Exception e) {
+                if (!stmt.isWrapperFor(OraclePreparedStatement.class)) {
+                    throw new IllegalStateException("Statement is not an instance of, nor a wrapper of, OraclePreparedStatement");
+                }
+
+                OraclePreparedStatement statement = stmt.unwrap(OraclePreparedStatement.class);
+
+                ResultSet rs = statement.getReturnResultSet();
+                if (rs != null) {
+                    ctx.addCleanable(rs::close);
+                }
+
+                return rs;
+            } catch (SQLException e) {
                 throw new ResultSetException("Unable to retrieve return result set", e, ctx);
             }
-
-            return ResultSetIterable.of(rs, ctx);
         };
     }
 }

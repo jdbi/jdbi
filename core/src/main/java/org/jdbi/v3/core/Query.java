@@ -15,7 +15,6 @@ package org.jdbi.v3.core;
 
 import static org.jdbi.v3.core.ResultProducers.returningResults;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -52,10 +51,8 @@ public class Query extends SqlStatement<Query> implements ResultBearing, ResultS
     @SuppressWarnings("resource")
     public <R> R execute(ResultProducer<R> producer)
     {
-        producer.beforeExecute(this);
-        final PreparedStatement stmt = internalExecute();
         try {
-            return producer.produce(stmt, getContext());
+            return producer.produce(this::internalExecute, getContext());
         } catch (SQLException e) {
             try {
                 close();

@@ -16,7 +16,6 @@ package org.jdbi.v3.core;
 import static org.jdbi.v3.core.ResultProducers.returningGeneratedKeys;
 import static org.jdbi.v3.core.ResultProducers.returningUpdateCount;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -58,11 +57,8 @@ public class Update extends SqlStatement<Update> implements ResultBearing
 
     @Override
     public <R> R execute(ResultProducer<R> producer) {
-        producer.beforeExecute(this);
-
-        final PreparedStatement stmt = internalExecute();
         try {
-            return producer.produce(stmt, getContext());
+            return producer.produce(this::internalExecute, getContext());
         }
         catch (SQLException e) {
             throw new UnableToProduceResultException("Could not produce statement result", e, getContext());
