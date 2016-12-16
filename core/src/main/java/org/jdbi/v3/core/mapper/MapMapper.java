@@ -72,7 +72,7 @@ public class MapMapper implements RowMapper<Map<String, Object>>
         }
 
         return (r, c) -> {
-            Map<String, Object> row = new HashMap<>();
+            Map<String, Object> row = new HashMap<>(columnCount);
 
             for (int i = 1; i <= columnCount; i++) {
                 row.put(columnNames[i], rs.getObject(i));
