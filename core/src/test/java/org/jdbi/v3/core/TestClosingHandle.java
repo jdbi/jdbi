@@ -50,7 +50,7 @@ public class TestClosingHandle
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
-        List<Map<String, Object>> results = h.createQuery("select * from something order by id").list();
+        List<Map<String, Object>> results = h.createQuery("select * from something order by id").mapToMap().list();
         assertThat(results).hasSize(2);
         assertThat(results.get(0)).containsEntry("name", "eric");
         assertThat(h.isClosed()).isFalse();
@@ -63,6 +63,7 @@ public class TestClosingHandle
 
         List<Map<String, Object>> results = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .list();
 
         assertThat(results).hasSize(2);
@@ -76,6 +77,7 @@ public class TestClosingHandle
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
+            .mapToMap()
             .iterator();
 
         assertThat(it).hasSize(2);
@@ -89,6 +91,7 @@ public class TestClosingHandle
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         assertThat(it).hasSize(2);
@@ -103,6 +106,7 @@ public class TestClosingHandle
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         assertThat(it.hasNext()).isTrue();
@@ -126,6 +130,7 @@ public class TestClosingHandle
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         assertThat(it.hasNext()).isTrue();

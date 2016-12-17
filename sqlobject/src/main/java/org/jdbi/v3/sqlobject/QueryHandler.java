@@ -36,7 +36,7 @@ class QueryHandler extends CustomizingStatementHandler
     public Object invoke(Object target, Object[] args, HandleSupplier handle)
     {
         String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
-        Query<?> q = handle.getHandle().createQuery(sql);
+        Query q = handle.getHandle().createQuery(sql);
         applyCustomizers(q, args);
 
         return magic.map(method, q);

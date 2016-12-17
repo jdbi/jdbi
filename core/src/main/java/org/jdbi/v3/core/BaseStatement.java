@@ -22,19 +22,36 @@ import java.util.Collection;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
+import org.jdbi.v3.core.util.GenericTypes;
 
 abstract class BaseStatement<This> implements Closeable, Configurable<This>
 {
+    final This typedThis;
+
     private final ConfigRegistry config;
     private final StatementBuilder statementBuilder;
     private final StatementContext context;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
+    @SuppressWarnings("unchecked")
     BaseStatement(ConfigRegistry config, StatementBuilder statementBuilder, StatementContext context)
     {
+        assert verifyOurNastyDowncastIsOkay();
+
+        this.typedThis = (This) this;
         this.config = config;
         this.statementBuilder = statementBuilder;
         this.context = context;
+    }
+
+    private boolean verifyOurNastyDowncastIsOkay()
+    {
+        // Prevent bogus signatures like Update extends SqlStatement<Query>
+        // SqlStatement's generic parameter must be supertype of getClass()
+        return GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
+                .map(GenericTypes::getErasedType)
+                .map(type -> type.isAssignableFrom(getClass()))
+                .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯
     }
 
     @Override
@@ -55,9 +72,17 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
         return statementBuilder;
     }
 
-    void addCleanable(Cleanable cleanable)
+    /**
+     * Registers the given {@link Cleanable} to be executed when this statement is closed.
+     *
+     * @param cleanable the cleanable to register
+     * @return this
+     */
+    @SuppressWarnings("unchecked")
+    This addCleanable(Cleanable cleanable)
     {
-        getContext().getCleanables().add(cleanable);
+        getContext().addCleanable(cleanable);
+        return typedThis;
     }
 
     void addCustomizers(final Collection<StatementCustomizer> customizers)
@@ -65,14 +90,18 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
         this.customizers.addAll(customizers);
     }
 
-    void addCustomizer(final StatementCustomizer customizer)
+    /**
+     * Provides a means for custom statement modification. Common customizations
+     * have their own methods, such as {@link Query#setMaxRows(int)}
+     *
+     * @param customizer instance to be used to customize a statement
+     * @return this
+     */
+    @SuppressWarnings("unchecked")
+    public final This addCustomizer(final StatementCustomizer customizer)
     {
         this.customizers.add(customizer);
-    }
-
-    Collection<StatementCustomizer> getStatementCustomizers()
-    {
-        return this.customizers;
+        return typedThis;
     }
 
     final void beforeExecution(final PreparedStatement stmt)

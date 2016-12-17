@@ -31,7 +31,7 @@ public class TestPreparedBatchGenerateKeys {
             PreparedBatch batch = h.prepareBatch("insert into something (name) values (?)");
             batch.add("Brian");
             batch.add("Thom");
-            List<Integer> ids = batch.executeAndGenerateKeys(int.class).list();
+            List<Integer> ids = batch.executeAndReturnGeneratedKeys().mapTo(int.class).list();
 
             assertThat(ids).containsExactly(10000, 10001);
 

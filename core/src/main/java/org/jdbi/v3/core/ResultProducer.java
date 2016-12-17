@@ -15,20 +15,38 @@ package org.jdbi.v3.core;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.function.Supplier;
 
 /**
- * A {@code ResultProducer} generates the mapped results of a {@link SqlStatement},
- * potentially wrapped in a container object.
+ * Produces a result from an executed {@link PreparedStatement}.
+ *
+ * @param <R> Result type
  */
 @FunctionalInterface
-public interface ResultProducer<R>
-{
+public interface ResultProducer<R> {
     /**
-     * Produce a statement result.
-     * @param stmt the prepared statement
-     * @param ctx the statement context
+     * Produces a statement result. The statement is not executed until {@code statementSupplier.get()} is called.
+     * <p>
+     * Implementors that call {@code statementSupplier.get()} must ensure that the statement context is closed before
+     * returning, to ensure that database resources are freed:
+     * <pre>
+     * try {
+     *     PreparedStatement statement = statementSupplier.get()
+     *     // generate and return result from the statement
+     * }
+     * finally {
+     *     ctx.close();
+     * }
+     * </pre>
+     * <p>
+     * Alternatively, implementors may return some intermediate result object (e.g. {@link ResultSetIterable} or
+     * {@link ResultIterable}) without calling {@code statementSupplier.get()}, in which case the burden of closing
+     * resources falls to whichever object ultimately does {@code get()} the statement.
+     *
+     * @param statementSupplier supplies a PreparedStatement, post-execution.
+     * @param ctx               the statement context
      * @return an object of the type your caller expects
      * @throws SQLException sadness
      */
-    R produce(PreparedStatement stmt, StatementContext ctx) throws SQLException;
+    R produce(Supplier<PreparedStatement> statementSupplier, StatementContext ctx) throws SQLException;
 }

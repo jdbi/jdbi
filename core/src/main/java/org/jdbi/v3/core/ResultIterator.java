@@ -15,6 +15,7 @@ package org.jdbi.v3.core;
 
 import java.io.Closeable;
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 /**
  * Represents a forward-only iterator over a result set, which will lazily iterate
@@ -29,8 +30,18 @@ import java.util.Iterator;
  * The <code>remove()</code> operation is not supported in the default
  * version, and will raise an <code>UnsupportedOperationException</code>
  */
-public interface ResultIterator<Type> extends Iterator<Type>, Closeable
+public interface ResultIterator<T> extends Iterator<T>, Closeable
 {
+    @Override
+    default void forEachRemaining(Consumer<? super T> action) {
+        try {
+            Iterator.super.forEachRemaining(action);
+        }
+        finally {
+            close();
+        }
+    }
+
     /**
      * Close the underlying result set.
      */

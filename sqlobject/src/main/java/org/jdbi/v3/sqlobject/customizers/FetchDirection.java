@@ -74,7 +74,7 @@ public @interface FetchDirection
 
         private static SqlStatementCustomizer create(Integer direction)
         {
-            return q -> q.addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(direction));
+            return q -> q.addCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(direction));
         }
     }
 }

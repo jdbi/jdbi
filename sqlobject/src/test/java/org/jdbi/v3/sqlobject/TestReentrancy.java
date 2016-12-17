@@ -57,7 +57,7 @@ public class TestReentrancy
         dao.withHandle(handle1 -> {
             dao.insert(new Something(7, "Martin"));
 
-            handle1.createQuery("SELECT 1").list();
+            handle1.createQuery("SELECT 1").mapToMap().list();
 
             return null;
         });
@@ -77,7 +77,7 @@ public class TestReentrancy
                         .list();
                 assertThat(rs).hasSize(1);
 
-                h.createQuery("SELECT 1").list();
+                h.createQuery("SELECT 1").mapTo(int.class).list();
             });
 
             return null;

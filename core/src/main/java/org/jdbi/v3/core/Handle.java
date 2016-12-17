@@ -19,15 +19,12 @@ import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.exception.UnableToCloseResourceException;
 import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
-import org.jdbi.v3.core.mapper.DefaultMapper;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.transaction.TransactionCallback;
@@ -165,18 +162,18 @@ public class Handle implements Closeable, Configurable<Handle>
     }
 
     /**
-     * Convenience method which executes a select with purely positional arguments
+     * Convenience method which creates a query with the given positional arguments
      * @param sql SQL or named statement
      * @param args arguments to bind positionally
-     * @return results of the query
+     * @return query object
      */
-    public List<Map<String, Object>> select(String sql, Object... args) {
-        Query<Map<String, Object>> query = this.createQuery(sql);
+    public Query select(String sql, Object... args) {
+        Query query = this.createQuery(sql);
         int position = 0;
         for (Object arg : args) {
             query.bind(position++, arg);
         }
-        return query.list();
+        return query;
     }
 
     /**
@@ -249,16 +246,15 @@ public class Handle implements Closeable, Configurable<Handle>
      *
      * @return the Query
      */
-    public Query<Map<String, Object>> createQuery(String sql) {
+    public Query createQuery(String sql) {
         ConfigRegistry queryConfig = getConfig().createCopy();
-        return new Query<>(queryConfig,
+        return new Query(queryConfig,
                 new Binding(),
-                new DefaultMapper(),
                 this,
                 statementBuilder,
                 sql,
                 new StatementContext(queryConfig, extensionMethod.get()),
-                Collections.<StatementCustomizer>emptyList());
+                Collections.emptyList());
     }
 
     /**

@@ -51,7 +51,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
         batch.add("Brian");
         batch.add("Thom");
 
-        List<Integer> ids = batch.executeAndGenerateKeys(Integer.class, "id").list();
+        List<Integer> ids = batch.executeAndReturnGeneratedKeys("id").mapTo(Integer.class).list();
         assertThat(ids).containsExactly(1, 2);
 
         List<Something> somethings = h.createQuery("select id, name from something")
@@ -66,9 +66,9 @@ public class TestPreparedBatchGenerateKeysPostgres {
         batch.add("Brian");
         batch.add("Thom");
 
-        List<IdCreateTime> ids = batch.executeAndGenerateKeys((r, ctx) -> {
-            return new IdCreateTime(r.getInt("id"), r.getDate("create_time"));
-        }, "id", "create_time").list();
+        List<IdCreateTime> ids = batch.executeAndReturnGeneratedKeys("id", "create_time")
+                .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getDate("create_time")))
+                .list();
 
         assertThat(ids).hasSize(2);
         assertThat(ids).extracting(ic -> ic.id).containsExactly(1, 2);

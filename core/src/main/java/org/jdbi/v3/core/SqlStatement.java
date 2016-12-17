@@ -49,7 +49,6 @@ import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.StatementCustomizers;
 import org.jdbi.v3.core.transaction.TransactionState;
 import org.jdbi.v3.core.util.GenericType;
-import org.jdbi.v3.core.util.GenericTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +60,6 @@ import org.slf4j.LoggerFactory;
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
     private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
 
-    private final This             typedThis;
     private final Binding          params;
     private final Handle           handle;
     private final String           sql;
@@ -81,11 +79,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                  StatementContext ctx,
                  Collection<StatementCustomizer> statementCustomizers) {
         super(config, statementBuilder, ctx);
-        assert verifyOurNastyDowncastIsOkay();
 
         addCustomizers(statementCustomizers);
 
-        this.typedThis = (This) this;
         this.handle = handle;
         this.sql = sql;
         this.params = params;
@@ -97,32 +93,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     public This setFetchDirection(final int value)
     {
-        addStatementCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
+        addCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
         return typedThis;
-    }
-
-    /**
-     * Provides a means for custom statement modification. Common cusotmizations
-     * have their own methods, such as {@link Query#setMaxRows(int)}
-     *
-     * @param customizer instance to be used to cstomize a statement
-     *
-     * @return modified statement
-     */
-    public This addStatementCustomizer(StatementCustomizer customizer)
-    {
-        super.addCustomizer(customizer);
-        return typedThis;
-    }
-
-    private boolean verifyOurNastyDowncastIsOkay()
-    {
-        // Prevent bogus signatures like Update extends SqlStatement<Query>
-        // SqlStatement's generic parameter must be supertype of getClass()
-        return GenericTypes.findGenericParameter(getClass(), SqlStatement.class)
-                .map(GenericTypes::getErasedType)
-                .map(type -> type.isAssignableFrom(getClass()))
-                .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯
     }
 
     protected Binding getParams()
@@ -152,7 +124,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This setQueryTimeout(final int seconds)
     {
-        return addStatementCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
+        return addCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
     }
 
     /**

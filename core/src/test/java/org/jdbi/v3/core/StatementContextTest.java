@@ -53,7 +53,7 @@ public class StatementContextTest {
 
     @Test
     public void testMapperForDelegatesToRegistry() {
-        ColumnMapper<?> mapper = new FooMapper();
+        ColumnMapper<Foo> mapper = new FooMapper();
 
         ConfigRegistry config = new ConfigRegistry();
         config.get(ColumnMappers.class).register(mapper);

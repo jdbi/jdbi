@@ -37,21 +37,21 @@ public class TestClasspathSqlLocator {
     public void testLocateNamed() throws Exception {
         Handle h = db.openHandle();
         h.insert(findSqlOnClasspath("insert-keith"));
-        assertThat(h.select("select name from something")).hasSize(1);
+        assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testCommentsInExternalSql() throws Exception {
         Handle h = db.openHandle();
         h.insert(findSqlOnClasspath("insert-eric-with-comments"));
-        assertThat(h.select("select name from something")).hasSize(1);
+        assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testNamedPositionalNamedParamsInPrepared() throws Exception {
         Handle h = db.openHandle();
         h.insert(findSqlOnClasspath("insert-id-name"), 3, "Tip");
-        assertThat(h.select("select name from something")).hasSize(1);
+        assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class TestClasspathSqlLocator {
                 .bind("id", 1)
                 .bind("name", "Tip")
                 .execute();
-        assertThat(h.select("select name from something")).hasSize(1);
+        assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test

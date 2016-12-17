@@ -22,7 +22,6 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Query;
-import org.jdbi.v3.core.ResultBearing;
 import org.jdbi.v3.core.ResultIterable;
 import org.jdbi.v3.core.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
@@ -32,8 +31,9 @@ import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 
 abstract class ResultReturner
 {
-    public Object map(Method method, Query<?> q)
+    public Object map(Method method, Query q)
     {
+        StatementContext ctx = q.getContext();
         if (method.isAnnotationPresent(UseRowMapper.class)) {
             final RowMapper<?> mapper;
             try {
@@ -42,10 +42,10 @@ abstract class ResultReturner
             catch (Exception e) {
                 throw new UnableToCreateStatementException("unable to access mapper", e, null);
             }
-            return result(q.map(mapper));
+            return result(q.map(mapper), ctx);
         }
         else {
-            return result(q.mapTo(elementType(q.getContext())));
+            return result(q.mapTo(elementType(ctx)), ctx);
         }
     }
 
@@ -54,7 +54,7 @@ abstract class ResultReturner
         if (method.getReturnType() == void.class) {
             return new ResultReturner() {
                 @Override
-                protected Object result(ResultIterable<?> bearer) {
+                protected Object result(ResultIterable<?> bearer, StatementContext ctx) {
                     bearer.stream().forEach(i -> {}); // Make sure to consume the result
                     return null;
                 }
@@ -77,8 +77,8 @@ abstract class ResultReturner
                     method.getDeclaringClass().getName(),
                     method.getName()));
         }
-        else if (ResultBearing.class.isAssignableFrom(returnClass)) {
-            return new ResultBearingResultReturner(returnType);
+        else if (ResultIterable.class.isAssignableFrom(returnClass)) {
+            return new ResultIterableResultReturner(returnType);
         }
         else if (Stream.class.isAssignableFrom(returnClass)) {
             return new StreamReturner(returnType);
@@ -97,7 +97,7 @@ abstract class ResultReturner
         }
     }
 
-    protected abstract Object result(ResultIterable<?> bearer);
+    protected abstract Object result(ResultIterable<?> bearer, StatementContext ctx);
 
     static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType) {
         if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
@@ -127,7 +127,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Stream<?> result(ResultIterable<?> bearer) {
+        protected Stream<?> result(ResultIterable<?> bearer, StatementContext ctx) {
             return bearer.stream();
         }
 
@@ -148,9 +148,9 @@ abstract class ResultReturner
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        protected Object result(ResultIterable<?> bearer)
+        protected Object result(ResultIterable<?> bearer, StatementContext ctx)
         {
-            Collector collector = bearer.getContext().findCollectorFor(returnType).orElse(null);
+            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
             if (collector != null) {
                 return bearer.collect(collector);
             }
@@ -175,7 +175,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> bearer)
+        protected Object result(ResultIterable<?> bearer, StatementContext ctx)
         {
             return bearer.findFirst().orElse(null);
         }
@@ -187,21 +187,21 @@ abstract class ResultReturner
         }
     }
 
-    static class ResultBearingResultReturner extends ResultReturner
+    static class ResultIterableResultReturner extends ResultReturner
     {
 
         private final Type elementType;
 
-        ResultBearingResultReturner(Type returnType)
+        ResultIterableResultReturner(Type returnType)
         {
             // extract T from Query<T>
-            elementType = GenericTypes.findGenericParameter(returnType, Query.class)
+            elementType = GenericTypes.findGenericParameter(returnType, ResultIterable.class)
                     .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect Query<T> element type T in method return type " + returnType));
+                            "Cannot reflect ResultIterable<T> element type T in method return type " + returnType));
         }
 
         @Override
-        protected Object result(ResultIterable<?> bearer)
+        protected Object result(ResultIterable<?> bearer, StatementContext ctx)
         {
             return bearer;
         }
@@ -225,7 +225,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> bearer)
+        protected Object result(ResultIterable<?> bearer, StatementContext ctx)
         {
             return bearer.iterator();
         }
@@ -246,7 +246,7 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> bearer) {
+        protected Object result(ResultIterable<?> bearer, StatementContext ctx) {
             final List<?> list = bearer.list();
             Object result = Array.newInstance(componentType, list.size());
             for (int i = 0; i < list.size(); i++) {

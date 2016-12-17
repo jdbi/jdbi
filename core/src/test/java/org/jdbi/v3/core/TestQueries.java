@@ -63,7 +63,7 @@ public class TestQueries
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
-        List<Map<String, Object>> results = h.createQuery("select * from something order by id").list();
+        List<Map<String, Object>> results = h.createQuery("select * from something order by id").mapToMap().list();
         assertThat(results).hasSize(2);
         assertThat(results.get(0).get("name")).isEqualTo("eric");
     }
@@ -74,7 +74,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        Query<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
+        ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
         assertThat(r.get(0)).isEqualTo(new Something(1, "eric"));
@@ -85,7 +85,7 @@ public class TestQueries
     {
         h.insert("insert into something (id, name, integerValue) values (1, 'eric', null)");
 
-        Query<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
+        ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
         Something eric = r.get(0);
@@ -98,7 +98,7 @@ public class TestQueries
     {
         h.insert("insert into something (id, name, intValue) values (1, 'eric', null)");
 
-        Query<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
+        ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
         Something eric = r.get(0);
@@ -112,7 +112,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        Query<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
+        ResultIterable<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
 
         String name = query.list().get(0);
         assertThat(name).isEqualTo("eric");
@@ -124,7 +124,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        List<Map<String, Object>> r = h.select("select * from something order by id");
+        List<Map<String, Object>> r = h.select("select * from something order by id").mapToMap().list();
         assertThat(r).hasSize(2);
         assertThat(r.get(0).get("name")).isEqualTo("eric");
     }
@@ -135,7 +135,7 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        List<Map<String, Object>> r = h.select("select * from something where id = ?", 1);
+        List<Map<String, Object>> r = h.select("select * from something where id = ?", 1).mapToMap().list();
         assertThat(r).hasSize(1);
         assertThat(r.get(0).get("name")).isEqualTo("eric");
     }
@@ -172,7 +172,7 @@ public class TestQueries
     @Test(expected = UnableToExecuteStatementException.class)
     public void testHelpfulErrorOnNothingSet() throws Exception
     {
-        h.createQuery("select * from something where name = :name").list();
+        h.createQuery("select * from something where name = :name").mapToMap().list();
     }
 
     @Test
@@ -262,11 +262,11 @@ public class TestQueries
     {
         h.createScript(findSqlOnClasspath("default-data")).execute();
 
-        Query<Something> q = h.createQuery("select id, name from something order by id").mapToBean(Something.class);
+        ResultIterable<Something> ri = h.createQuery("select id, name from something order by id")
+                .setFetchSize(1)
+                .mapToBean(Something.class);
 
-        q.setFetchSize(1);
-
-        ResultIterator<Something> r = q.iterator();
+        ResultIterator<Something> r = ri.iterator();
 
         assertThat(r.hasNext()).isTrue();
         r.next();
@@ -373,6 +373,6 @@ public class TestQueries
     {
         expectedException.expect(NoResultsException.class);
 
-        h.select("insert into something (id, name) values (?, ?)", 1, "hello");
+        h.select("insert into something (id, name) values (?, ?)", 1, "hello").mapToMap().list();
     }
 }

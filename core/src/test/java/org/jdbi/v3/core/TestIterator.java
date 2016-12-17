@@ -48,6 +48,7 @@ public class TestIterator
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         assertThat(it.hasNext()).isTrue();
@@ -63,6 +64,7 @@ public class TestIterator
     public void testEmptyWorksToo() throws Exception {
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         assertThat(it.hasNext()).isFalse();
@@ -76,6 +78,7 @@ public class TestIterator
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         assertThat(it.hasNext()).isTrue();
@@ -103,6 +106,7 @@ public class TestIterator
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         assertThat(it.hasNext()).isTrue();
@@ -120,6 +124,7 @@ public class TestIterator
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         it.next();
@@ -135,6 +140,7 @@ public class TestIterator
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         it.next();
@@ -154,6 +160,7 @@ public class TestIterator
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         assertThat(it.hasNext()).isTrue();
@@ -172,6 +179,7 @@ public class TestIterator
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         try {
@@ -195,6 +203,7 @@ public class TestIterator
 
         ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator();
 
         it.next();
@@ -208,6 +217,7 @@ public class TestIterator
         // used in this way (Hello Jackson!).
         final Map<String, Object> result = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator()
             .next();
 
@@ -224,6 +234,7 @@ public class TestIterator
         // used in this way (Hello Jackson!).
         final Map<String, Object> result = h.createQuery("select * from something order by id")
             .cleanupHandle()
+            .mapToMap()
             .iterator()
             .next();
 
@@ -248,6 +259,7 @@ public class TestIterator
 
         try (final ResultIterator<Map<String, Object>> it = h.createQuery("select * from something order by id")
                 .cleanupHandle()
+                .mapToMap()
                 .iterator()) {
             final Map<String, Object> result =  it.next();
             assertThat(result).containsEntry("id", 1L).containsEntry("name", "eric");

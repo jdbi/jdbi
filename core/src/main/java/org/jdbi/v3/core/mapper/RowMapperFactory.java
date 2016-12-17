@@ -43,7 +43,7 @@ public interface RowMapperFactory {
      *
      * @return the factory
      */
-    public static RowMapperFactory of(Type type, RowMapper<?> mapper) {
+    static RowMapperFactory of(Type type, RowMapper<?> mapper) {
         return (t, ctx) -> t.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();

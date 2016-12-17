@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.core;
 
+import static org.jdbi.v3.core.ResultProducers.returningGeneratedKeys;
+import static org.jdbi.v3.core.ResultProducers.returningResults;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,18 +24,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
 
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.exception.UnableToProduceResultException;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
-import org.jdbi.v3.core.util.GenericType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * a very efficient way to execute large numbers of the same statement where
  * the statement only varies by the arguments bound to it.
  */
-public class PreparedBatch extends SqlStatement<PreparedBatch>
+public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing, ResultSetIterable
 {
     private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
 
@@ -60,16 +59,27 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
         this.currentBinding = new Binding();
     }
 
+    @Override
+    public <R> R withResultSet(ResultSetCallback<R> callback) {
+        return execute(returningResults()).withResultSet(callback);
+    }
+
     /**
      * Execute the batch
      *
      * @return the number of rows modified or inserted per batch part.
      */
     public int[] execute() {
-        return (int[]) internalBatchExecute(null, null);
+        // short circuit empty batch
+        if (parts.isEmpty()) {
+            return new int[0];
+        }
+
+        return internalBatchExecute().updateCounts;
     }
 
     public ResultIterator<Integer> executeAndGetModCount() {
+        StatementContext ctx = getContext();
         final int[] modCount = execute();
         return new ResultIterator<Integer>() {
             int pos = 0;
@@ -88,7 +98,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
 
             @Override
             public StatementContext getContext() {
-                throw new UnsupportedOperationException("TODO XXX");
+                return ctx;
             }
 
             @Override
@@ -97,65 +107,41 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
         };
     }
 
-    @SuppressWarnings("unchecked")
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final RowMapper<GeneratedKeyType> mapper) {
-        return (GeneratedKeys<GeneratedKeyType>) internalBatchExecute(results ->
-                new GeneratedKeys<>(mapper,
-                                    PreparedBatch.this,
-                                    results,
-                                    getContext()), null);
+    public ResultSetIterable executeAndReturnGeneratedKeys(String... columnNames) {
+        return execute(returningGeneratedKeys(columnNames));
     }
 
-    @SuppressWarnings("unchecked")
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final RowMapper<GeneratedKeyType> mapper,
-                                                                                     String... columnNames) {
-        return (GeneratedKeys<GeneratedKeyType>) internalBatchExecute(results ->
-                new GeneratedKeys<>(mapper,
-                        PreparedBatch.this,
-                        results,
-                        getContext()), columnNames);
-    }
-
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(final ColumnMapper<GeneratedKeyType> mapper) {
-        return executeAndGenerateKeys(new SingleColumnMapper<>(mapper));
-    }
-
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(GenericType<GeneratedKeyType> generatedKeyType) {
-        return executeAndGenerateKeys(rowMapperForType(generatedKeyType));
-    }
-
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType) {
-        return executeAndGenerateKeys(rowMapperForType(generatedKeyType));
-    }
-
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(Class<GeneratedKeyType> generatedKeyType,
-                                                                                     String... columnNames) {
-        return executeAndGenerateKeys(rowMapperForType(generatedKeyType), columnNames);
-    }
-
-    public <GeneratedKeyType> GeneratedKeys<GeneratedKeyType> executeAndGenerateKeys(ColumnMapper<GeneratedKeyType> mapper,
-                                                                                     String columnName) {
-        return executeAndGenerateKeys(new SingleColumnMapper<>(mapper, columnName), new String[] { columnName });
-    }
-
-    private <Result> Object internalBatchExecute(Function<PreparedStatement, Result> munger, String[] columnNames) {
-        boolean generateKeys = munger != null;
-        // short circuit empty batch
-        if (parts.size() == 0) {
-            if (generateKeys) {
-                throw new IllegalArgumentException("Unable generate keys for a not prepared batch");
-            }
-            return new int[]{};
+    @Override
+    public <R> R execute(ResultProducer<R> producer) {
+        if (parts.isEmpty()) {
+            throw new IllegalStateException("No PreparedBatchParts to execute");
         }
 
-        PreparedBatchPart current = parts.get(0);
-        final String rawSql = getSql();
-        final RewrittenStatement rewritten = getConfig(SqlStatements.class).getStatementRewriter().rewrite(rawSql, current.getParams(), getContext());
-
-        getContext().setReturningGeneratedKeys(generateKeys);
-        if (columnNames != null) {
-            getContext().setGeneratedKeysColumnNames(columnNames);
+        try {
+            return producer.produce(() -> internalBatchExecute().stmt, getContext());
+        } catch (SQLException e) {
+            throw new UnableToProduceResultException("Exception producing batch result", e, getContext());
         }
+    }
+
+    private static class ExecutedBatch {
+        final PreparedStatement stmt;
+        final int[] updateCounts;
+
+        ExecutedBatch(PreparedStatement stmt, int[] updateCounts) {
+            this.stmt = stmt;
+            this.updateCounts = updateCounts;
+        }
+    }
+
+    private ExecutedBatch internalBatchExecute() {
+        if (parts.isEmpty()) {
+            throw new IllegalStateException("No PreparedBatchParts to execute");
+        }
+
+        RewrittenStatement rewritten = getConfig(SqlStatements.class)
+                .getStatementRewriter()
+                .rewrite(getSql(), parts.get(0).getParams(), getContext());
 
         try {
             final PreparedStatement stmt;
@@ -192,21 +178,14 @@ public class PreparedBatch extends SqlStatement<PreparedBatch>
 
                 afterExecution(stmt);
 
-                return generateKeys ? munger.apply(stmt) : rs;
+                return new ExecutedBatch(stmt, rs);
             }
             catch (SQLException e) {
                 throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), getContext());
             }
         }
         finally {
-            try {
-                if (!generateKeys) {
-                    close();
-                }
-            }
-            finally {
-                this.parts.clear();
-            }
+            parts.clear();
         }
     }
 

@@ -98,7 +98,7 @@ public class TestHStore {
     @Test
     public void testRaisesExceptionWhenReadsWithWrongType() {
         expectedException.expect(UnsupportedOperationException.class);
-        expectedException.expectMessage("No mapper registered for java.util.Map<java.lang.String, java.lang.Object>");
+        expectedException.expectMessage("No mapper registered for type java.util.Map<java.lang.String, java.lang.Object>");
 
         handle.createQuery("select caps from campaigns order by id")
                 .mapTo(new GenericType<Map<String, Object>>() {})

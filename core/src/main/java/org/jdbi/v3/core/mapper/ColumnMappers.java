@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.ConfigRegistry;
 import org.jdbi.v3.core.JdbiConfig;
 import org.jdbi.v3.core.array.SqlArrayMapperFactory;
+import org.jdbi.v3.core.util.GenericType;
 
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final List<ColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
@@ -78,6 +79,32 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         factories.add(0, factory);
         cache.clear();
         return this;
+    }
+
+    /**
+     * Obtain a column mapper for the given type.
+     *
+     * @param type the target type to map to
+     * @param config the configuration registry
+     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Optional<ColumnMapper<T>> findFor(Class<T> type, ConfigRegistry config) {
+        ColumnMapper<T> mapper = (ColumnMapper<T>) findFor((Type) type, config).orElse(null);
+        return Optional.ofNullable(mapper);
+    }
+
+    /**
+     * Obtain a column mapper for the given type.
+     *
+     * @param type the target type to map to
+     * @param config the configuration registry
+     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Optional<ColumnMapper<T>> findFor(GenericType<T> type, ConfigRegistry config) {
+        ColumnMapper<T> mapper = (ColumnMapper<T>) findFor(type.getType(), config).orElse(null);
+        return Optional.ofNullable(mapper);
     }
 
     /**

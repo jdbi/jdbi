@@ -41,7 +41,7 @@ public interface ColumnMapperFactory {
      * @param mapper the mapper to return
      * @return the factory
      */
-    public static ColumnMapperFactory of(Type type, ColumnMapper<?> mapper) {
+    static ColumnMapperFactory of(Type type, ColumnMapper<?> mapper) {
         return (t, c) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
     }
 }

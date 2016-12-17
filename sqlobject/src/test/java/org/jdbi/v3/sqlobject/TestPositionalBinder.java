@@ -62,7 +62,7 @@ public class TestPositionalBinder {
     public void testInsertWithPositionalParameters() {
         somethingDao.insertSomething(4, "Dave", 90);
 
-        List<Map<String, Object>> rows = handle.select("select * from something where something_id=?", 4);
+        List<Map<String, Object>> rows = handle.select("select * from something where something_id=?", 4).mapToMap().list();
         assertThat(rows).containsExactlyElementsOf(ImmutableList.of(
                 ImmutableMap.of("something_id", 4, "name", "Dave", "code", 90)));
     }
@@ -70,7 +70,7 @@ public class TestPositionalBinder {
     @Test
     public void testInsertWithDefaultParams(){
         somethingDao.insertWithDefaultParams("Greg",21);
-        List<Map<String, Object>> rows = handle.select("select * from something where something_id=?", 19);
+        List<Map<String, Object>> rows = handle.select("select * from something where something_id=?", 19).mapToMap().list();
         assertThat(rows).containsExactlyElementsOf(ImmutableList.of(
                 ImmutableMap.of("something_id", 19, "name", "Greg", "code", 21)));
     }
