@@ -16,8 +16,8 @@ package org.jdbi.v3.core.rewriter;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.Binding;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.Binding;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Return value from {@link StatementRewriter#rewrite(String, Binding, StatementContext)} calls

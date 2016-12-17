@@ -22,8 +22,8 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.jdbi.v3.core.Binding;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.Binding;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 

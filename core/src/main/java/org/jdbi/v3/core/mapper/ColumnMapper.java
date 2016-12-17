@@ -17,13 +17,14 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Maps result set columns to objects.
- * @see org.jdbi.v3.core.ConfigRegistry#findColumnMapperFor(Type)
+ * @see ConfigRegistry#findColumnMapperFor(Type)
  * @see StatementContext#findColumnMapperFor(Type)
- * @see ColumnMappers#findFor(java.lang.reflect.Type,org.jdbi.v3.core.ConfigRegistry)
+ * @see ColumnMappers#findFor(java.lang.reflect.Type, ConfigRegistry)
  */
 @FunctionalInterface
 public interface ColumnMapper<T>

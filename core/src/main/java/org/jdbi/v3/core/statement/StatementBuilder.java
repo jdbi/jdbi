@@ -19,9 +19,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.jdbi.v3.core.DefaultStatementBuilderFactory;
-import org.jdbi.v3.core.StatementContext;
-
 /**
  * Used to convert translated SQL into a prepared statement. The default implementation
  * created by {@link DefaultStatementBuilderFactory} creates a new statement on every call.

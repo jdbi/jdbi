@@ -17,7 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Generates {@link Consumer}&lt;{@link ConfigRegistry}&gt; instances to satisfy the contract of a

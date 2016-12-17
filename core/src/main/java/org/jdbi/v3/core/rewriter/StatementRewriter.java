@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import org.jdbi.v3.core.Binding;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.Binding;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Use to provide arbitrary statement rewriting.

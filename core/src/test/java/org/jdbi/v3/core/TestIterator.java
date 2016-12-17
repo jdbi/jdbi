@@ -16,6 +16,7 @@ package org.jdbi.v3.core;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.jdbi.v3.core.result.ResultIterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

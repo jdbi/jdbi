@@ -14,8 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.H2DatabaseRule;
-import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.TimingCollector;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizers.Timestamped;

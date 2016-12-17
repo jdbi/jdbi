@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.collector.JdbiCollectors;
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.Query;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.ConfiguringAnnotation;

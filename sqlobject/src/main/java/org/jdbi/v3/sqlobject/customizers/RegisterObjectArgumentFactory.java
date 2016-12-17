@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.ObjectArgumentFactory;
 import org.jdbi.v3.sqlobject.ConfigurerFactory;

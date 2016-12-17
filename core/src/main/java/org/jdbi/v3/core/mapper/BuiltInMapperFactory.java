@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -38,8 +38,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 
 /**

@@ -23,8 +23,8 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 
-import org.jdbi.v3.core.PreparedBatchPart;
-import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.core.statement.PreparedBatchPart;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**

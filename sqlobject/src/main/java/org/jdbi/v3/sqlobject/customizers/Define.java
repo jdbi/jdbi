@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -28,7 +29,7 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
  * Defines a named attribute as the argument passed to the annotated parameter. Attributes are stored on the
- * {@link org.jdbi.v3.core.StatementContext}, and may be used by statement customizers such as the statement rewriter.
+ * {@link StatementContext}, and may be used by statement customizers such as the statement rewriter.
  */
 @SqlStatementCustomizingAnnotation(Define.Factory.class)
 @Target(ElementType.PARAMETER)

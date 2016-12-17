@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
 
-import org.jdbi.v3.core.JdbiConfig;
+import org.jdbi.v3.core.config.JdbiConfig;
 
 /**
  * Registry of collector factories.

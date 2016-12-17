@@ -16,8 +16,6 @@ package org.jdbi.v3.core.statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.StatementContext;
-
 /**
  * Allows tweaking of statement behaviour.
  */

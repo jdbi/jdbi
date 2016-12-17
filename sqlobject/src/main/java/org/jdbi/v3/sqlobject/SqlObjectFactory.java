@@ -34,8 +34,8 @@ import java.util.function.BiConsumer;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.ExtensionMethod;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.HandleSupplier;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;

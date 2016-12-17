@@ -21,10 +21,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.JdbiConfig;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.array.SqlArrayMapperFactory;
-import org.jdbi.v3.core.util.GenericType;
+import org.jdbi.v3.core.generic.GenericType;
 
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final List<ColumnMapperFactory> factories = new CopyOnWriteArrayList<>();

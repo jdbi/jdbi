@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.Query;
-import org.jdbi.v3.core.ResultIterable;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.result.ResultIterable;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 
 abstract class ResultReturner

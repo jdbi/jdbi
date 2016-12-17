@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.util;
 
+import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

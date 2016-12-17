@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import java.sql.Types;
 
 import org.assertj.core.data.Offset;
+import org.jdbi.v3.core.statement.OutParameters;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;

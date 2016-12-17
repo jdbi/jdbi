@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.Types;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.OutParameters;
+import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.core.PgDatabaseRule;
 import org.jdbi.v3.sqlobject.customizers.OutParameter;
 import org.junit.Before;

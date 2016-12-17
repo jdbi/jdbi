@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Produces enum column mappers, which map enums from varchar columns using {@link Enum#valueOf(Class, String)}.

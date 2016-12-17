@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core.argument;
 
-import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -42,9 +42,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.SqlStatement;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.statement.SqlStatement;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * The BuiltInArgumentFactory provides instances of {@link Argument} for

@@ -15,6 +15,7 @@
 package org.jdbi.v3.sqlobject.customizers;
 
 
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
@@ -32,7 +33,7 @@ import java.util.List;
 
 /**
  * Defines a named attribute as a comma-separated {@link String} from the elements of the annotated array or
- * {@link List} argument. Attributes are stored on the {@link org.jdbi.v3.core.StatementContext}, and may be used by
+ * {@link List} argument. Attributes are stored on the {@link StatementContext}, and may be used by
  * statement customizers such as the statement rewriter. For example:
  *
  * <pre>

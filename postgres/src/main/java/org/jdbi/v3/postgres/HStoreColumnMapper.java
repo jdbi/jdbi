@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.postgres;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 
 import java.sql.ResultSet;

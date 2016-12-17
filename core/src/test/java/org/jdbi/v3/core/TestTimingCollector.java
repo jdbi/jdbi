@@ -20,7 +20,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
 import org.junit.After;
 import org.junit.Before;

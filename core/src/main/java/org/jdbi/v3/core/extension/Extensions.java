@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.HandleSupplier;
-import org.jdbi.v3.core.JdbiConfig;
+import org.jdbi.v3.core.config.JdbiConfig;
 
 public class Extensions implements JdbiConfig<Extensions> {
     private final List<ExtensionFactory> factories = new CopyOnWriteArrayList<>();

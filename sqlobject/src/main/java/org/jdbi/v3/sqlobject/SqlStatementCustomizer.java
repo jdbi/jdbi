@@ -15,7 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.SqlStatement;
+import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
  * Used with {@link org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory} to

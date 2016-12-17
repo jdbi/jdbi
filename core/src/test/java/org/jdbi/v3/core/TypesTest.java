@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.junit.Test;
 
 public class TypesTest {

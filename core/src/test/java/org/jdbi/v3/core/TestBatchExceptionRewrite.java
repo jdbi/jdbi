@@ -19,6 +19,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.statement.Batch;
+import org.jdbi.v3.core.statement.PreparedBatch;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

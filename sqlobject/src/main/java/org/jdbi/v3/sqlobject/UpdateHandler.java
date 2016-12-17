@@ -18,10 +18,10 @@ import java.lang.reflect.Type;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.HandleSupplier;
-import org.jdbi.v3.core.ResultSetIterable;
-import org.jdbi.v3.core.Update;
+import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 
 class UpdateHandler extends CustomizingStatementHandler

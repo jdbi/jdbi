@@ -21,6 +21,9 @@ import java.sql.Types;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jdbi.v3.core.argument.MapArguments;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,7 +38,7 @@ public class TestMapArguments
     @Mock
     PreparedStatement stmt;
 
-    StatementContext ctx = new StatementContext();
+    StatementContext ctx = StatementContextAccess.createContext();
 
     @Test
     public void testBind() throws Exception

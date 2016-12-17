@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.jdbi.v3.core.*;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;

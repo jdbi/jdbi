@@ -15,6 +15,9 @@ package org.jdbi.v3.core;
 
 import java.util.concurrent.Callable;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionMethod;
+
 class ConstantHandleSupplier implements HandleSupplier {
     private final Handle handle;
 

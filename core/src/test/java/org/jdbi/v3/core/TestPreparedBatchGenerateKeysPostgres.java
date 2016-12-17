@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Date;
 import java.util.List;
 
+import org.jdbi.v3.core.statement.PreparedBatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

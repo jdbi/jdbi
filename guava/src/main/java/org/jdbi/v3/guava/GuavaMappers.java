@@ -20,11 +20,11 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.core.generic.GenericTypes;
 
 /**
  * Provide mapper instances that map Guava types.

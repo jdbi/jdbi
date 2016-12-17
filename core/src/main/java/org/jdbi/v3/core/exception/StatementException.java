@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.exception;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
 
 public abstract class StatementException extends JdbiException
 {

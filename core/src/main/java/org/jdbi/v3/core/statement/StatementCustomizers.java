@@ -16,9 +16,6 @@ package org.jdbi.v3.core.statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.SqlStatement;
-import org.jdbi.v3.core.StatementContext;
-
 public final class StatementCustomizers
 {
     private StatementCustomizers()

@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Adapts a {@link ColumnMapper} into a {@link RowMapper} by mapping a single column.

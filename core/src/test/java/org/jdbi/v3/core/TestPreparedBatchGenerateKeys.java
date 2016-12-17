@@ -14,6 +14,8 @@
 package org.jdbi.v3.core;
 
 import java.util.List;
+
+import org.jdbi.v3.core.statement.PreparedBatch;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

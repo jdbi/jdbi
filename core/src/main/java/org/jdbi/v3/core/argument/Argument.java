@@ -16,7 +16,7 @@ package org.jdbi.v3.core.argument;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Represents an argument to a prepared statement. It will be called right before the

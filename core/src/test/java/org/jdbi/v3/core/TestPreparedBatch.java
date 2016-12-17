@@ -20,6 +20,8 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.PreparedBatchPart;
 import org.junit.Rule;
 import org.junit.Test;
 

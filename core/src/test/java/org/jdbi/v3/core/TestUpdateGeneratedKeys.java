@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Optional;
 
+import org.jdbi.v3.core.statement.Update;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

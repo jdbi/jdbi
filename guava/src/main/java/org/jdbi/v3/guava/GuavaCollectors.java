@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.guava;
 
-import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
-import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.util.Comparator;

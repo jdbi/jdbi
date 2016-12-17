@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jdbi.v3.core.exception.TransactionException;
+import org.jdbi.v3.core.result.ResultIterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

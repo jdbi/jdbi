@@ -24,11 +24,12 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.DerivedBean;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.JdbiAccess;
+import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SampleBean;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.ValueTypeMapper;
+import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,8 +52,8 @@ public class FieldMapperTest {
     @Mock
     ResultSetMetaData resultSetMetaData;
 
-    Handle handle = JdbiAccess.createHandle();
-    StatementContext ctx = JdbiAccess.createContext(handle);
+    Handle handle = HandleAccess.createHandle();
+    StatementContext ctx = StatementContextAccess.createContext(handle);
 
     FieldMapper<SampleBean> mapper = new FieldMapper<>(SampleBean.class);
 

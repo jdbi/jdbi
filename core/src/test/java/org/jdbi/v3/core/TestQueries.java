@@ -29,6 +29,8 @@ import com.google.common.collect.Maps;
 import org.jdbi.v3.core.exception.NoResultsException;
 import org.jdbi.v3.core.exception.StatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.result.ResultIterable;
+import org.jdbi.v3.core.result.ResultIterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

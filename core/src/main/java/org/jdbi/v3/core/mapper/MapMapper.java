@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Yo dawg, I heard you like maps, so I made you a mapper that maps rows into {@code Map&lt;String,Object&gt;}. Map

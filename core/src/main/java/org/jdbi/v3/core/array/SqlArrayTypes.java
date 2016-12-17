@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.JdbiConfig;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.JdbiConfig;
 
 /**
  * Configuration class for SQL array binding and mapping.
