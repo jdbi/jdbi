@@ -19,8 +19,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
+import org.jdbi.v3.core.exception.NoResultsException;
 import org.jdbi.v3.core.exception.ResultSetException;
 
 /**
@@ -57,9 +57,13 @@ public class ResultProducers {
         return () -> {
             try {
                 ResultSet rs = supplier.get().getResultSet();
-                if (rs != null) {
-                    ctx.addCleanable(forResultSet(rs));
+
+                if (rs == null) {
+                    throw new NoResultsException("Statement returned no results", ctx);
                 }
+
+                ctx.addCleanable(forResultSet(rs));
+
                 return rs;
             } catch (SQLException e) {
                 throw new ResultSetException("Could not get result set", e, ctx);
@@ -76,14 +80,10 @@ public class ResultProducers {
      */
     public static ResultProducer<ResultSetIterable> returningGeneratedKeys(String... generatedKeyColumnNames) {
         return (supplier, ctx) -> {
-            String[] columnNames = Stream.of(generatedKeyColumnNames)
-                    .filter(name -> name != null && !name.isEmpty())
-                    .toArray(String[]::new);
-
             ctx.setReturningGeneratedKeys(true);
 
-            if (columnNames.length > 0) {
-                ctx.setGeneratedKeysColumnNames(columnNames);
+            if (generatedKeyColumnNames.length > 0) {
+                ctx.setGeneratedKeysColumnNames(generatedKeyColumnNames);
             }
 
             return ResultSetIterable.of(getGeneratedKeys(supplier, ctx), ctx);
@@ -94,9 +94,13 @@ public class ResultProducers {
         return () -> {
             try {
                 ResultSet rs = supplier.get().getGeneratedKeys();
-                if (rs != null) {
-                    ctx.addCleanable(forResultSet(rs));
+
+                if (rs == null) {
+                    throw new NoResultsException("Statement returned no generated keys", ctx);
                 }
+
+                ctx.addCleanable(forResultSet(rs));
+
                 return rs;
             } catch (SQLException e) {
                 throw new ResultSetException("Could not get generated keys", e, ctx);

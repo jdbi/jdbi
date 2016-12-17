@@ -22,19 +22,36 @@ import java.util.Collection;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementCustomizer;
+import org.jdbi.v3.core.util.GenericTypes;
 
 abstract class BaseStatement<This> implements Closeable, Configurable<This>
 {
+    final This typedThis;
+
     private final ConfigRegistry config;
     private final StatementBuilder statementBuilder;
     private final StatementContext context;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
+    @SuppressWarnings("unchecked")
     BaseStatement(ConfigRegistry config, StatementBuilder statementBuilder, StatementContext context)
     {
+        assert verifyOurNastyDowncastIsOkay();
+
+        this.typedThis = (This) this;
         this.config = config;
         this.statementBuilder = statementBuilder;
         this.context = context;
+    }
+
+    private boolean verifyOurNastyDowncastIsOkay()
+    {
+        // Prevent bogus signatures like Update extends SqlStatement<Query>
+        // SqlStatement's generic parameter must be supertype of getClass()
+        return GenericTypes.findGenericParameter(getClass(), BaseStatement.class)
+                .map(GenericTypes::getErasedType)
+                .map(type -> type.isAssignableFrom(getClass()))
+                .orElse(true); // subclass is raw type.. ¯\_(ツ)_/¯
     }
 
     @Override
@@ -62,10 +79,10 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
      * @return this
      */
     @SuppressWarnings("unchecked")
-    public final This addCleanable(Cleanable cleanable)
+    This addCleanable(Cleanable cleanable)
     {
         getContext().addCleanable(cleanable);
-        return (This) this;
+        return typedThis;
     }
 
     void addCustomizers(final Collection<StatementCustomizer> customizers)
@@ -84,7 +101,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
     public final This addCustomizer(final StatementCustomizer customizer)
     {
         this.customizers.add(customizer);
-        return (This) this;
+        return typedThis;
     }
 
     final void beforeExecution(final PreparedStatement stmt)

@@ -13,18 +13,18 @@
  */
 package org.jdbi.v3.core;
 
+import static java.util.Objects.requireNonNull;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
-import org.jdbi.v3.core.exception.NoResultsException;
 import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.mapper.RowMapper;
 
-class ResultSetResultIterator<T> implements ResultIterator<T>
-{
-    private final RowMapper<T> mapper;
+class ResultSetResultIterator<T> implements ResultIterator<T> {
     private final ResultSet results;
+    private final RowMapper<T> mapper;
     private final StatementContext context;
 
     private volatile boolean alreadyAdvanced = false;
@@ -33,29 +33,22 @@ class ResultSetResultIterator<T> implements ResultIterator<T>
 
     ResultSetResultIterator(ResultSet results,
                             RowMapper<T> mapper,
-                            StatementContext context) throws SQLException
-    {
-        if (results == null) {
-            throw new NoResultsException("No results to iterate over", context);
-        }
-
+                            StatementContext context) throws SQLException {
+        this.results = requireNonNull(results);
         this.mapper = mapper.specialize(results, context);
         this.context = context;
-        this.results = results;
 
         this.context.getCleanables().add(Cleanables.forResultSet(results));
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         closed = true;
         context.close();
     }
 
     @Override
-    public boolean hasNext()
-    {
+    public boolean hasNext() {
         if (closed) {
             return false;
         }
@@ -68,8 +61,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T>
 
         if (hasNext) {
             alreadyAdvanced = true;
-        }
-        else {
+        } else {
             close();
         }
 
@@ -77,8 +69,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T>
     }
 
     @Override
-    public T next()
-    {
+    public T next() {
         if (closed) {
             throw new IllegalStateException("iterator is closed");
         }
@@ -90,11 +81,9 @@ class ResultSetResultIterator<T> implements ResultIterator<T>
 
         try {
             return mapper.map(results, context);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new ResultSetException("Error thrown mapping result set into return type", e, context);
-        }
-        finally {
+        } finally {
             alreadyAdvanced = safeNext();
             if (!alreadyAdvanced) {
                 close();
@@ -103,23 +92,19 @@ class ResultSetResultIterator<T> implements ResultIterator<T>
     }
 
     @Override
-    public StatementContext getContext()
-    {
+    public StatementContext getContext() {
         return context;
     }
 
     @Override
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException("Deleting from a result set iterator is not yet supported");
     }
 
-    private boolean safeNext()
-    {
+    private boolean safeNext() {
         try {
             return results.next();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new ResultSetException("Unable to advance result set", e, context);
         }
     }
