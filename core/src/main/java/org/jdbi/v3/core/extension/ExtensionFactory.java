@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.extension;
 
-import org.jdbi.v3.core.HandleSupplier;
-
 /**
  * Factory interface used to produce JDBI extension objects.
  */

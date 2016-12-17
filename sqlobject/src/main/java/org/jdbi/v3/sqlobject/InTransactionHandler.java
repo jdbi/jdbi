@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.HandleSupplier;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.sqlobject.mixins.Transactional;
 
 class InTransactionHandler implements Handler

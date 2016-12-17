@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.util;
+package org.jdbi.v3.core.internal;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

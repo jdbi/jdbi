@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Function;
 
-import org.jdbi.v3.core.HandleSupplier;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.result.ResultSetIterable;
 import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.core.mapper.RowMapper;

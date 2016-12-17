@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.statement;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -26,6 +26,10 @@ import java.util.Optional;
 
 import com.google.common.collect.Maps;
 
+import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandyMapThing;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.exception.NoResultsException;
 import org.jdbi.v3.core.exception.StatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;

@@ -11,18 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.util;
+package org.jdbi.v3.core.generic;
 
-import org.jdbi.v3.core.generic.GenericType;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericTypeTest {
 
     @Test
     public void generic() {
-        assertThat(new GenericType<String>() {}.getType()).isEqualTo(String.class);
+        Assertions.assertThat(new GenericType<String>() {}.getType()).isEqualTo(String.class);
     }
 
     @SuppressWarnings("rawtypes")

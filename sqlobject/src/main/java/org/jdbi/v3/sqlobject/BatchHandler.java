@@ -24,14 +24,14 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandleSupplier;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.exception.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.util.ReflectionArrayIterator;
+import org.jdbi.v3.core.internal.ReflectionArrayIterator;
 import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
 import org.jdbi.v3.sqlobject.exceptions.UnableToCreateSqlObjectException;
 

@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
-import org.jdbi.v3.core.HandleSupplier;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.mixins.GetHandle;
 import org.jdbi.v3.sqlobject.mixins.Transactional;

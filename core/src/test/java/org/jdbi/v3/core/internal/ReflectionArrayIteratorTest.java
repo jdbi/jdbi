@@ -11,46 +11,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.util;
-
-import static org.assertj.core.api.Assertions.assertThat;
+package org.jdbi.v3.core.internal;
 
 import java.util.Iterator;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public class ReflectionArrayIteratorTest
-{
+public class ReflectionArrayIteratorTest {
     @Test
-    public void testIntArray()
-    {
+    public void testIntArray() {
         final Iterator<Object> it = new ReflectionArrayIterator(new int[]{1, 2, 3});
 
-        assertThat(it).containsExactly(1, 2, 3);
+        Assertions.assertThat(it).containsExactly(1, 2, 3);
     }
 
     @Test
-    public void testEmptyArray()
-    {
+    public void testEmptyArray() {
         final Iterator<Object> it = new ReflectionArrayIterator(new int[]{});
 
-        assertThat(it).isEmpty();
+        Assertions.assertThat(it).isEmpty();
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void testOverflow()
-    {
+    public void testOverflow() {
         final Iterator<?> it = new ReflectionArrayIterator(new int[]{1});
 
-        assertThat(it.hasNext()).isTrue();
-        assertThat(it.next()).isEqualTo(1);
+        Assertions.assertThat(it.hasNext()).isTrue();
+        Assertions.assertThat(it.next()).isEqualTo(1);
 
         it.next();
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void testOverflowOnEmpty()
-    {
+    public void testOverflowOnEmpty() {
         final Iterator<?> it = new ReflectionArrayIterator(new int[]{});
 
         it.next();

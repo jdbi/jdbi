@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.INVALID_LEVEL;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandleSupplier;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.exception.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;

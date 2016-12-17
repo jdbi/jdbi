@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMethod;
+import org.jdbi.v3.core.extension.HandleSupplier;
 
 class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
     private final Jdbi jdbi;

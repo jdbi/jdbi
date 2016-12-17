@@ -11,13 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core;
+package org.jdbi.v3.core.extension;
 
 import java.util.concurrent.Callable;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.core.extension.ExtensionMethod;
 
 /**
  * A handle supplier for extension implementors.
