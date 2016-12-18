@@ -13,14 +13,15 @@
  */
 package org.jdbi.v3.core.generic;
 
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 
 public class GenericTypeTest {
 
     @Test
     public void generic() {
-        Assertions.assertThat(new GenericType<String>() {}.getType()).isEqualTo(String.class);
+        assertThat(new GenericType<String>() {}.getType()).isEqualTo(String.class);
     }
 
     @SuppressWarnings("rawtypes")

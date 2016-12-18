@@ -13,9 +13,10 @@
  */
 package org.jdbi.v3.core.internal;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Iterator;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class ReflectionArrayIteratorTest {
@@ -23,22 +24,22 @@ public class ReflectionArrayIteratorTest {
     public void testIntArray() {
         final Iterator<Object> it = new ReflectionArrayIterator(new int[]{1, 2, 3});
 
-        Assertions.assertThat(it).containsExactly(1, 2, 3);
+        assertThat(it).containsExactly(1, 2, 3);
     }
 
     @Test
     public void testEmptyArray() {
         final Iterator<Object> it = new ReflectionArrayIterator(new int[]{});
 
-        Assertions.assertThat(it).isEmpty();
+        assertThat(it).isEmpty();
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)
     public void testOverflow() {
         final Iterator<?> it = new ReflectionArrayIterator(new int[]{1});
 
-        Assertions.assertThat(it.hasNext()).isTrue();
-        Assertions.assertThat(it.next()).isEqualTo(1);
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.next()).isEqualTo(1);
 
         it.next();
     }
