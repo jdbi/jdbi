@@ -21,8 +21,6 @@ import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

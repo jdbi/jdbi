@@ -11,9 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core.statement;
 
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.JdbiException;
 
 public abstract class StatementException extends JdbiException
 {

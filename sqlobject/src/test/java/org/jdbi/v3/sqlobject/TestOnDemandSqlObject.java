@@ -33,9 +33,9 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.exception.JdbiException;
-import org.jdbi.v3.core.exception.TransactionException;
-import org.jdbi.v3.core.exception.UnableToCloseResourceException;
+import org.jdbi.v3.core.JdbiException;
+import org.jdbi.v3.core.transaction.TransactionException;
+import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.spi.JdbiPlugin;
@@ -93,7 +93,7 @@ public class TestOnDemandSqlObject
             public Handle customizeHandle(Handle handle) {
                 Handle h = spy(handle);
                 when(h.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
-                doThrow(new UnableToCloseResourceException("already closed", null)).when(h).close();
+                doThrow(new CloseException("already closed", null)).when(h).close();
                 return h;
             }
         };

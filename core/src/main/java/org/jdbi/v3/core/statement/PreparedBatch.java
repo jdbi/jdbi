@@ -33,9 +33,7 @@ import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetCallback;
 import org.jdbi.v3.core.result.ResultSetIterable;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
-import org.jdbi.v3.core.exception.UnableToProduceResultException;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,7 +163,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 StatementBuilder statementBuilder = getStatementBuilder();
                 Connection connection = getHandle().getConnection();
                 stmt = statementBuilder.create(connection, sql, getContext());
-                addCleanable(Cleanables.forStatementBuilder(statementBuilder, connection, sql, stmt));
+                addCleanable(() -> statementBuilder.close(connection, sql, stmt));
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());

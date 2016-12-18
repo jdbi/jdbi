@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.mixins;
 
+import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.TransactionalCallback;
 import org.jdbi.v3.sqlobject.TransactionalConsumer;
@@ -21,7 +22,7 @@ import org.jdbi.v3.sqlobject.TransactionalConsumer;
  * A mixin interface to expose transaction methods on the sql object.
  * <p>
  * Use caution with {@link org.jdbi.v3.core.Jdbi#onDemand(Class) on-demand} {@code Transactional} instances.
- * {@link org.jdbi.v3.core.Handle} throws {@link org.jdbi.v3.core.exception.TransactionException} if closed while a
+ * {@link org.jdbi.v3.core.Handle} throws {@link TransactionException} if closed while a
  * transaction is open. Since on-demand extensions open and close a handle around each method invocation, calling
  * {@link #begin()} on an on-demand {@code Transactional} will always leave a transaction open, and thus
  * <em>always</em> throw this exception.
@@ -35,7 +36,7 @@ public interface Transactional<This extends Transactional<This>> {
     /**
      * Begins a transaction.
      *
-     * @throws org.jdbi.v3.core.exception.TransactionException if called on an on-demand Transactional instance.
+     * @throws TransactionException if called on an on-demand Transactional instance.
      */
     void begin();
 

@@ -40,7 +40,6 @@ import java.util.UUID;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 
 /**
  * Column mapper factory which knows how to map JDBC-recognized types, along with some other well-known types
@@ -181,7 +180,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
         try {
             return hostname == null ? null : InetAddress.getByName(hostname);
         } catch (UnknownHostException e) {
-            throw new UnableToExecuteStatementException("Could not map InetAddress", e, ctx);
+            throw new MappingException("Could not map InetAddress", e);
         }
     }
 }

@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.Before;
 import org.junit.Test;
 

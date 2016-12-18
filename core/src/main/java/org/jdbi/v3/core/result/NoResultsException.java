@@ -11,24 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core.result;
 
-public class TransactionFailedException extends JdbiException
+import org.jdbi.v3.core.statement.StatementException;
+import org.jdbi.v3.core.statement.StatementContext;
+
+public class NoResultsException extends StatementException
 {
     private static final long serialVersionUID = 1L;
 
-    public TransactionFailedException(String string, Throwable throwable)
-    {
-        super(string, throwable);
+    public NoResultsException(String msg, Throwable e, StatementContext ctx) {
+        super(msg, e, ctx);
     }
 
-    public TransactionFailedException(Throwable cause)
-    {
-        super(cause);
+    public NoResultsException(Throwable e, StatementContext ctx) {
+        super(e, ctx);
     }
 
-    public TransactionFailedException(String message)
-    {
-        super(message);
+    public NoResultsException(String msg, StatementContext ctx) {
+        super(msg, ctx);
     }
 }

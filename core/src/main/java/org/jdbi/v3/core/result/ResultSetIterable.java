@@ -21,8 +21,6 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.core.exception.ResultSetException;
-import org.jdbi.v3.core.exception.UnableToProduceResultException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.MapMapper;

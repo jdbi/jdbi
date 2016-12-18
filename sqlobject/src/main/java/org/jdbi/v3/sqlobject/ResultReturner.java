@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.sqlobject.customizers.UseRowMapper;

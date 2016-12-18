@@ -11,21 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jpa;
+package org.jdbi.v3.core.transaction;
 
-import org.jdbi.v3.core.exception.JdbiException;
+import org.jdbi.v3.core.JdbiException;
 
-@SuppressWarnings("serial")
-public class NoSuchColumnMapperException extends JdbiException {
-    public NoSuchColumnMapperException(String string, Throwable throwable) {
-        super(string, throwable);
-    }
+public class UnableToRestoreAutoCommitStateException extends JdbiException {
 
-    public NoSuchColumnMapperException(Throwable cause) {
-        super(cause);
-    }
+    private static final long serialVersionUID = 2433069110223543423L;
 
-    public NoSuchColumnMapperException(String message) {
-        super(message);
+    public UnableToRestoreAutoCommitStateException(Throwable throwable) {
+        super(throwable);
     }
 }

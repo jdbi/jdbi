@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core;
 
-import org.jdbi.v3.core.exception.StatementException;
+import org.jdbi.v3.core.statement.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 

@@ -20,7 +20,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.rewriter.HashPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.statement.Binding;

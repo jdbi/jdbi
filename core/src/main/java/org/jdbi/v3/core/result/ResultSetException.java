@@ -11,23 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core.result;
 
+import org.jdbi.v3.core.statement.StatementException;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class NoResultsException extends StatementException
+public class ResultSetException extends StatementException
 {
     private static final long serialVersionUID = 1L;
 
-    public NoResultsException(String msg, Throwable e, StatementContext ctx) {
+    public ResultSetException(String msg, Exception e, StatementContext ctx) {
         super(msg, e, ctx);
-    }
-
-    public NoResultsException(Throwable e, StatementContext ctx) {
-        super(e, ctx);
-    }
-
-    public NoResultsException(String msg, StatementContext ctx) {
-        super(msg, ctx);
     }
 }

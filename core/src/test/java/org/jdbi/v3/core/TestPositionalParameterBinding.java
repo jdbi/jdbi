@@ -15,7 +15,7 @@ package org.jdbi.v3.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

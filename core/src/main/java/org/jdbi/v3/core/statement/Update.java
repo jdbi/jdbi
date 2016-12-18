@@ -21,11 +21,11 @@ import java.sql.Statement;
 import java.util.Collections;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetIterable;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.exception.UnableToProduceResultException;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements

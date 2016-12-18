@@ -18,25 +18,20 @@ import static java.util.Objects.requireNonNull;
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.core.exception.TransactionException;
-import org.jdbi.v3.core.exception.UnableToCloseResourceException;
-import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.core.transaction.TransactionException;
+import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.statement.Batch;
-import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Script;
 import org.jdbi.v3.core.statement.StatementBuilder;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionConsumer;
@@ -113,7 +108,7 @@ public class Handle implements Closeable, Configurable<Handle>
     /**
      * Closes the handle, its connection, and any other database resources it is holding.
      *
-     * @throws UnableToCloseResourceException if any resources throw exception while closing
+     * @throws CloseException if any resources throw exception while closing
      * @throws TransactionException if called while the handle has a transaction open. The open transaction will be
      * rolled back.
      */
@@ -139,7 +134,7 @@ public class Handle implements Closeable, Configurable<Handle>
                     }
                 }
                 catch (SQLException e) {
-                    throw new UnableToCloseResourceException("Unable to close Connection", e);
+                    throw new CloseException("Unable to close Connection", e);
                 } finally {
                     LOG.trace("Handle [{}] released", this);
                     closed = true;

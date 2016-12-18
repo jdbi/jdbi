@@ -16,7 +16,6 @@ package org.jdbi.v3.core.transaction;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.exception.TransactionException;
 
 /**
  * Handler designed to behave properly in a J2EE CMT environment. It will never

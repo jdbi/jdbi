@@ -16,7 +16,7 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 
 /**
- * Cleans up some JDBC resource e.g. after completion execution of a SQL statement. Arguments, mappers, and other
+ * Cleans up some JDBC resource e.g. after completing execution of a SQL statement. Arguments, mappers, and other
  * JDBI interface implementations that allocate database resources should register a Cleanable to ensure that
  * resources are freed after database operations are completed.
  *

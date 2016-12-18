@@ -19,8 +19,9 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.MappingException;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -69,7 +70,7 @@ public class RowView
         try {
             return rowMapperFor(type).map(rs, ctx);
         } catch (SQLException e) {
-            throw new UnableToExecuteStatementException(e, ctx);
+            throw new MappingException(e);
         }
     }
 
@@ -79,7 +80,7 @@ public class RowView
         }
 
         RowMapper<?> mapper = ctx.findRowMapperFor(type)
-                .orElseThrow(() -> new UnableToExecuteStatementException("No row mapper for " + type, ctx))
+                .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for " + type))
                 .specialize(rs, ctx);
         rowMappers.put(type, mapper);
 
@@ -93,6 +94,7 @@ public class RowView
     {
         return type.cast(getColumn(column, (Type) type));
     }
+
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
      */
@@ -109,6 +111,7 @@ public class RowView
     {
         return (T) getColumn(column, type.getType());
     }
+
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
      */
@@ -126,14 +129,8 @@ public class RowView
         try {
             return columnMapperFor(type).map(rs, column, ctx);
         } catch (SQLException e) {
-            throw new UnableToExecuteStatementException(e, ctx);
+            throw new MappingException(e);
         }
-    }
-
-    private ColumnMapper<?> columnMapperFor(Type type) {
-        return columnMappers.computeIfAbsent(type, t ->
-                ctx.findColumnMapperFor(t)
-                        .orElseThrow(() -> new UnableToExecuteStatementException("No column mapper for " + t, ctx)));
     }
 
     /**
@@ -142,11 +139,15 @@ public class RowView
     public Object getColumn(int column, Type type)
     {
         try {
-            return ctx.findColumnMapperFor(type)
-                    .orElseThrow(() -> new UnableToExecuteStatementException("No column mapper for " + type, ctx))
-                    .map(rs, column, ctx);
+            return columnMapperFor(type).map(rs, column, ctx);
         } catch (SQLException e) {
-            throw new UnableToExecuteStatementException(e, ctx);
+            throw new MappingException(e);
         }
+    }
+
+    private ColumnMapper<?> columnMapperFor(Type type) {
+        return columnMappers.computeIfAbsent(type, t ->
+                ctx.findColumnMapperFor(t)
+                        .orElseThrow(() -> new NoSuchMapperException("No column mapper registered for " + t)));
     }
 }

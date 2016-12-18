@@ -22,7 +22,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.jdbi.v3.core.exception.StatementException;
+import org.jdbi.v3.core.statement.StatementException;
 import org.jdbi.v3.core.statement.Script;
 import org.junit.Rule;
 import org.junit.Test;

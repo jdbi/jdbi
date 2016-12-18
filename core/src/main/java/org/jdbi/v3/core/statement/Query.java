@@ -28,7 +28,7 @@ import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetCallback;
 import org.jdbi.v3.core.result.ResultSetIterable;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.exception.UnableToProduceResultException;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 /**
  * Statement providing convenience result handling for SQL queries.

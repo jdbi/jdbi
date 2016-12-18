@@ -20,7 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 abstract class CustomizingStatementHandler implements Handler

@@ -19,14 +19,20 @@ import java.io.Closeable;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collector;
 
-import com.google.common.annotations.VisibleForTesting;
-
-import org.jdbi.v3.core.extension.ExtensionMethod;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
@@ -34,9 +40,11 @@ import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.CloseException;
+import org.jdbi.v3.core.extension.ExtensionMethod;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.generic.GenericType;
 
 /**
  * The statement context provides a means for passing client specific information through the
@@ -52,7 +60,7 @@ public class StatementContext implements Closeable
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
 
-    private final Cleanables cleanables = new Cleanables();
+    private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
     private String            rawSql;
     private String            rewrittenSql;
@@ -302,19 +310,42 @@ public class StatementContext implements Closeable
         return binding;
     }
 
-    Cleanables getCleanables()
-    {
-        return cleanables;
-    }
-
+    /**
+     * Registers a {@code Cleanable} to be invoked when the statement context is closed. Cleanables can be registered
+     * on a statement context, which will be cleaned up when
+     * the statement finishes or (in the case of a ResultIterator), the object representing the results is closed.
+     * <p>
+     * Resources cleaned up by JDBI include {@link ResultSet}, {@link Statement}, {@link Handle}.
+     * {@link java.sql.Array}, and {@link StatementBuilder}.
+     */
     public void addCleanable(Cleanable cleanable) {
-        getCleanables().add(cleanable);
+        cleanables.add(cleanable);
     }
 
     @Override
     public void close()
     {
-        cleanables.close();
+        SQLException exception = null;
+        try {
+            List<Cleanable> cleanables = new ArrayList<>(this.cleanables);
+            this.cleanables.clear();
+            Collections.reverse(cleanables);
+            for (Cleanable cleanable : cleanables) {
+                try {
+                    cleanable.close();
+                } catch (SQLException e) {
+                    if (exception == null) {
+                        exception = e;
+                    } else {
+                        exception.addSuppressed(e);
+                    }
+                }
+            }
+        } finally {
+            if (exception != null) {
+                throw new CloseException("Exception thrown while cleaning StatementContext", exception);
+            }
+        }
     }
 
     public ExtensionMethod getExtensionMethod()

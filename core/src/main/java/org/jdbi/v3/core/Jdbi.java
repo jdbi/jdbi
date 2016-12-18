@@ -28,7 +28,6 @@ import javax.sql.DataSource;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
 import org.jdbi.v3.core.extension.ExtensionCallback;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
@@ -286,7 +285,7 @@ public class Jdbi implements Configurable<Jdbi>
             return h;
         }
         catch (SQLException e) {
-            throw new UnableToObtainConnectionException(e);
+            throw new ConnectionException(e);
         }
     }
 

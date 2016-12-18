@@ -18,8 +18,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.exception.NoResultsException;
-import org.jdbi.v3.core.exception.ResultSetException;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**

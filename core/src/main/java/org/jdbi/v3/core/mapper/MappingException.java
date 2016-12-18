@@ -11,24 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core.mapper;
 
-public class TransactionException extends JdbiException
-{
-    private static final long serialVersionUID = 1L;
+import org.jdbi.v3.core.JdbiException;
 
-    public TransactionException(String string, Throwable throwable)
-    {
+@SuppressWarnings("serial")
+public class MappingException extends JdbiException {
+    public MappingException(String string, Throwable throwable) {
         super(string, throwable);
     }
 
-    public TransactionException(Throwable cause)
-    {
+    public MappingException(Throwable cause) {
         super(cause);
     }
 
-    public TransactionException(String msg)
-    {
-        super(msg);
+    public MappingException(String message) {
+        super(message);
     }
 }

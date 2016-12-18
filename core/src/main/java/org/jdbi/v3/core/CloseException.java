@@ -11,26 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core;
 
-import org.jdbi.v3.core.statement.StatementContext;
-
-public class UnableToCreateStatementException extends StatementException
+/**
+ * Thrown when an exception occurs while attempting to close a database resource.
+ */
+public class CloseException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 
-    public UnableToCreateStatementException(String string, Throwable throwable, StatementContext ctx)
+    public CloseException(String string, Throwable throwable)
     {
-        super(string, throwable, ctx);
-    }
-
-    public UnableToCreateStatementException(String string, StatementContext ctx)
-    {
-        super(string, ctx);
-    }
-
-    public UnableToCreateStatementException(Exception e, StatementContext ctx)
-    {
-        super(e, ctx);
+        super(string, throwable);
     }
 }

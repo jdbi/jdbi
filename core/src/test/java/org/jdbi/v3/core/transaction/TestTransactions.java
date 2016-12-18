@@ -22,7 +22,6 @@ import java.util.List;
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.exception.TransactionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

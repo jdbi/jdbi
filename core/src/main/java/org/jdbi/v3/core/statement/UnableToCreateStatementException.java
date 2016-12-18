@@ -11,25 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core.statement;
 
-import org.jdbi.v3.core.statement.StatementContext;
-
-public class UnableToExecuteStatementException extends StatementException
+public class UnableToCreateStatementException extends StatementException
 {
     private static final long serialVersionUID = 1L;
 
-    public UnableToExecuteStatementException(Exception e, StatementContext ctx) {
-        super(e, ctx);
-    }
-
-    public UnableToExecuteStatementException(String message, StatementContext ctx)
-    {
-        super(message, ctx);
-    }
-
-    public UnableToExecuteStatementException(String string, Throwable throwable, StatementContext ctx)
+    public UnableToCreateStatementException(String string, Throwable throwable, StatementContext ctx)
     {
         super(string, throwable, ctx);
+    }
+
+    public UnableToCreateStatementException(String string, StatementContext ctx)
+    {
+        super(string, ctx);
+    }
+
+    public UnableToCreateStatementException(Exception e, StatementContext ctx)
+    {
+        super(e, ctx);
     }
 }

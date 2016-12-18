@@ -11,13 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core.mapper;
 
-public class UnableToRestoreAutoCommitStateException extends JdbiException {
+import org.jdbi.v3.core.JdbiException;
 
-    private static final long serialVersionUID = 2433069110223543423L;
+@SuppressWarnings("serial")
+public class NoSuchMapperException extends JdbiException {
+    public NoSuchMapperException(String string, Throwable throwable) {
+        super(string, throwable);
+    }
 
-    public UnableToRestoreAutoCommitStateException(Throwable throwable) {
-        super(throwable);
+    public NoSuchMapperException(Throwable cause) {
+        super(cause);
+    }
+
+    public NoSuchMapperException(String message) {
+        super(message);
     }
 }

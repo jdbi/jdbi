@@ -11,14 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core.transaction;
 
-public class UnableToCloseResourceException extends JdbiException
+import java.sql.SQLException;
+
+import org.jdbi.v3.core.JdbiException;
+
+public class UnableToManipulateTransactionIsolationLevelException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 
-    public UnableToCloseResourceException(String string, Throwable throwable)
+    public UnableToManipulateTransactionIsolationLevelException(int i, SQLException e)
     {
-        super(string, throwable);
+        super("Unable to set isolation level to " + i, e);
+    }
+
+    public UnableToManipulateTransactionIsolationLevelException(String msg, SQLException e)
+    {
+        super(msg, e);
     }
 }

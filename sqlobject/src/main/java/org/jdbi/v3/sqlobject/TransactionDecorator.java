@@ -17,7 +17,7 @@ import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.INVALID_LEV
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.exception.TransactionException;
+import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 

@@ -11,14 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core.statement;
 
-public class UnableToObtainConnectionException extends JdbiException
+public class UnableToExecuteStatementException extends StatementException
 {
     private static final long serialVersionUID = 1L;
 
-    public UnableToObtainConnectionException(Throwable cause)
+    public UnableToExecuteStatementException(Exception e, StatementContext ctx) {
+        super(e, ctx);
+    }
+
+    public UnableToExecuteStatementException(String message, StatementContext ctx)
     {
-        super(cause);
+        super(message, ctx);
+    }
+
+    public UnableToExecuteStatementException(String string, Throwable throwable, StatementContext ctx)
+    {
+        super(string, throwable, ctx);
     }
 }

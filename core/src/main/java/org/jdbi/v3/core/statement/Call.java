@@ -25,7 +25,6 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 
 /**
  * Used for invoking stored procedures.

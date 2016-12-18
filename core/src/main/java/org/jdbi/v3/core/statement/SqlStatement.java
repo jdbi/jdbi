@@ -43,8 +43,6 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
-import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.transaction.TransactionState;
@@ -134,8 +132,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This cleanupHandle()
     {
-        super.addCleanable(Cleanables.forHandle(handle, TransactionState.ROLLBACK));
-        return typedThis;
+        return cleanupHandle(TransactionState.ROLLBACK);
     }
 
     /**
@@ -147,10 +144,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This cleanupHandle(final TransactionState state)
     {
-        super.addCleanable(Cleanables.forHandle(handle, state));
+        addCleanable(() -> {
+            if (handle != null) {
+                if (handle.isInTransaction()) {
+                    if (state == TransactionState.COMMIT) {
+                        handle.commit();
+                    } else {
+                        handle.rollback();
+                    }
+                }
+                handle.close();
+            }
+        });
         return typedThis;
     }
-
 
     /**
      * Used if you need to have some exotic parameter bound.
@@ -1318,7 +1325,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
         // caching statement builder relies on the statement *not* being closed.
-        addCleanable(Cleanables.forStatementBuilder(getStatementBuilder(), handle.getConnection(), sql, stmt));
+        addCleanable(() -> getStatementBuilder().close(handle.getConnection(), sql, stmt));
 
         getContext().setStatement(stmt);
 

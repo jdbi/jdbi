@@ -11,15 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.exception;
+package org.jdbi.v3.core;
 
-import org.jdbi.v3.core.statement.StatementContext;
-
-public class ResultSetException extends StatementException
+public class ConnectionException extends JdbiException
 {
     private static final long serialVersionUID = 1L;
 
-    public ResultSetException(String msg, Exception e, StatementContext ctx) {
-        super(msg, e, ctx);
+    public ConnectionException(Throwable cause)
+    {
+        super(cause);
     }
 }

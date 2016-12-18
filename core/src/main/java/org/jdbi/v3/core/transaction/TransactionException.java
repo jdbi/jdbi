@@ -11,41 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.result;
+package org.jdbi.v3.core.transaction;
 
-import java.util.NoSuchElementException;
+import org.jdbi.v3.core.JdbiException;
 
-import org.jdbi.v3.core.statement.StatementContext;
-
-class EmptyResultIterator<T> implements ResultIterator<T>
+public class TransactionException extends JdbiException
 {
-    private final StatementContext context;
+    private static final long serialVersionUID = 1L;
 
-    EmptyResultIterator(StatementContext context)
+    public TransactionException(String string, Throwable throwable)
     {
-        this.context = context;
+        super(string, throwable);
     }
 
-    @Override
-    public boolean hasNext()
+    public TransactionException(Throwable cause)
     {
-        return false;
+        super(cause);
     }
 
-    @Override
-    public T next()
+    public TransactionException(String msg)
     {
-        throw new NoSuchElementException();
-    }
-
-    @Override
-    public StatementContext getContext()
-    {
-        return context;
-    }
-
-    @Override
-    public void close()
-    {
+        super(msg);
     }
 }
