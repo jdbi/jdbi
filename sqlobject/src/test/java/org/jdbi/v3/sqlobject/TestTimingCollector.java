@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.*;
 import org.jdbi.v3.core.extension.ExtensionMethod;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TimingCollector;

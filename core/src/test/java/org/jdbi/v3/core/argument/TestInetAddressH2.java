@@ -19,8 +19,8 @@ import java.net.InetAddress;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jdbi.v3.core.DatabaseRule;
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 

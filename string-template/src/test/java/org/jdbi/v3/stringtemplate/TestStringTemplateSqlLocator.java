@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.statement.StatementContext;

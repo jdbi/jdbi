@@ -20,7 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;

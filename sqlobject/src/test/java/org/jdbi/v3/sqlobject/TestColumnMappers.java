@@ -19,10 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.net.URI;
 import java.util.List;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
-import org.jdbi.v3.core.ValueTypeMapper;
+import org.jdbi.v3.core.mapper.ValueTypeMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.customizers.RegisterColumnMapperFactory;
 import org.jdbi.v3.sqlobject.customizers.RegisterBeanMapper;

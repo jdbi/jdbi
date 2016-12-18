@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 

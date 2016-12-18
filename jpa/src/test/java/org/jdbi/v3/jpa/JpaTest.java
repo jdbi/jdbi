@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.assertj.core.api.AbstractListAssert;
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;

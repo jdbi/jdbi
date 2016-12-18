@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.Before;

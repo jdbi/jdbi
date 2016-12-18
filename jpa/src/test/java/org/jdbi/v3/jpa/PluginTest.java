@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlQuery;
 import org.jdbi.v3.sqlobject.SqlUpdate;
 import org.junit.Rule;

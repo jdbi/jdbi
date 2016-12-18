@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.junit.Before;

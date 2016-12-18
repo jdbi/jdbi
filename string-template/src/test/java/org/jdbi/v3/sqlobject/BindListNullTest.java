@@ -20,7 +20,7 @@ import static org.jdbi.v3.sqlobject.customizers.BindList.EmptyHandling.VOID;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdbi.v3.core.statement.Binding;
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;

@@ -26,9 +26,8 @@ import java.util.Optional;
 
 import com.google.common.collect.Maps;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandyMapThing;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
 import org.jdbi.v3.core.result.ResultIterable;

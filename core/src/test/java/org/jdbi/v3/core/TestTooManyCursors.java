@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.junit.Rule;
 import org.junit.Test;

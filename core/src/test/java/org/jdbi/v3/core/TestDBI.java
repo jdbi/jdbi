@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 

@@ -22,14 +22,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.DerivedBean;
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.SampleBean;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.ValueType;
-import org.jdbi.v3.core.ValueTypeMapper;
+import org.jdbi.v3.core.mapper.ValueTypeMapper;
 import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Before;
 import org.junit.Rule;

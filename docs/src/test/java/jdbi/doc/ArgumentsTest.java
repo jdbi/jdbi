@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.argument.Argument;

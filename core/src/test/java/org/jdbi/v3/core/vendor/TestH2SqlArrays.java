@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Before;

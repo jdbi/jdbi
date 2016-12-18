@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.junit.After;

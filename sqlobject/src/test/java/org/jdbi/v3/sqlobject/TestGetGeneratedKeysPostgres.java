@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdbi.v3.core.PgDatabaseRule;
+import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

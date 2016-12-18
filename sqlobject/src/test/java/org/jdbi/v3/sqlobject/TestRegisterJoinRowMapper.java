@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.mapper.JoinRowMapper.JoinRow;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest.Article;

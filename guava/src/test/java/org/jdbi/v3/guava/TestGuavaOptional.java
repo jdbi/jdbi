@@ -20,7 +20,7 @@ import java.util.List;
 import com.google.common.base.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.argument.Argument;
