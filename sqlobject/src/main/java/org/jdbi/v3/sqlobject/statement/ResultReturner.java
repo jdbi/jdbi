@@ -100,8 +100,8 @@ abstract class ResultReturner
     protected abstract Object result(ResultIterable<?> bearer, StatementContext ctx);
 
     static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType) {
-        if (DefaultGeneratedKeyMapper.class.equals(ggk.value())) {
-            return new DefaultGeneratedKeyMapper(returnType, ggk.columnName());
+        if (GetGeneratedKeys.DefaultMapper.class.equals(ggk.value())) {
+            return new GetGeneratedKeys.DefaultMapper(returnType, ggk.columnName());
         }
         else {
             try {

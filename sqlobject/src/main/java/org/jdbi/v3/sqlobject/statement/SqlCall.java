@@ -18,10 +18,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
+import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.statement.Call;
+import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
+import org.jdbi.v3.sqlobject.SqlObjects;
 
 /**
  * Support for stored proc invocation. Return value must be either null or OutParameters at present.
@@ -29,14 +35,48 @@ import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @SqlMethodAnnotation(SqlCall.Factory.class)
-public @interface SqlCall
-{
+public @interface SqlCall {
     String value() default "";
 
     class Factory implements HandlerFactory {
         @Override
         public Handler buildHandler(Class<?> sqlObjectType, Method method) {
             return new CallHandler(sqlObjectType, method);
+        }
+    }
+
+    class CallHandler extends CustomizingStatementHandler {
+        private final Class<?> sqlObjectType;
+        private final boolean returnOutParams;
+
+        CallHandler(Class<?> sqlObjectType, Method method) {
+            super(sqlObjectType, method);
+            this.sqlObjectType = sqlObjectType;
+
+            Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
+            Class<?> returnClass = GenericTypes.getErasedType(returnType);
+            if (Void.TYPE.equals(returnClass)) {
+                returnOutParams = false;
+            } else if (OutParameters.class.isAssignableFrom(returnClass)) {
+                returnOutParams = true;
+            } else {
+                throw new IllegalArgumentException("@SqlCall methods may only return null or OutParameters at present");
+            }
+        }
+
+        @Override
+        public Object invoke(Object target, Object[] args, HandleSupplier handle) {
+            String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, getMethod());
+            Call call = handle.getHandle().createCall(sql);
+            applyCustomizers(call, args);
+
+            OutParameters ou = call.invoke();
+
+            if (returnOutParams) {
+                return ou;
+            } else {
+                return null;
+            }
         }
     }
 }

@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
-import org.jdbi.v3.sqlobject.SqlAnnotations;
+import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
