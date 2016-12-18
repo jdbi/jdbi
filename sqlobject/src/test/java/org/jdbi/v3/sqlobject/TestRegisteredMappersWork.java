@@ -21,13 +21,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.result.ResultSetException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.result.ResultSetException;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -81,7 +81,7 @@ public class TestRegisteredMappersWork
         }
     }
 
-    public interface BeanMappingDao extends GetHandle
+    public interface BeanMappingDao extends SqlObject
     {
         @SqlUpdate("create table beans ( name varchar primary key, color varchar )")
         void createBeanTable();

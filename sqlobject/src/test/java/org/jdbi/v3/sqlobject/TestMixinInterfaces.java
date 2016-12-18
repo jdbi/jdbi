@@ -24,10 +24,10 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.UseRowMapper;
-import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
+import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -168,12 +168,12 @@ public class TestMixinInterfaces
         }
     }
 
-    public interface WithGetHandle extends GetHandle
+    public interface WithGetHandle extends SqlObject
     {
 
     }
 
-    public interface TransactionStuff extends Transactional<TransactionStuff>, GetHandle
+    public interface TransactionStuff extends Transactional<TransactionStuff>
     {
 
         @SqlQuery("select id, name from something where id = :id")

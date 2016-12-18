@@ -22,8 +22,8 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
@@ -35,7 +35,7 @@ public class TestReentrancy
     private Jdbi    dbi;
     private Handle handle;
 
-    public interface TheBasics extends GetHandle
+    public interface TheBasics extends SqlObject
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@BindBean Something something);

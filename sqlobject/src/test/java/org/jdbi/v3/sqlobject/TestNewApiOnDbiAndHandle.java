@@ -20,10 +20,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.jdbi.v3.core.ConnectionException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.ConnectionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -31,7 +31,6 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 
 public class TestNewApiOnDbiAndHandle
 {
@@ -120,7 +119,7 @@ public class TestNewApiOnDbiAndHandle
                 .attach(Spiffy.class);
     }
 
-    public interface Spiffy extends GetHandle
+    public interface Spiffy extends SqlObject
     {
         @SqlUpdate("insert into something (id, name) values (:it.id, :it.name)")
         void insert(@BindSomething("it") Something s);

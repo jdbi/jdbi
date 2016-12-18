@@ -24,6 +24,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -35,26 +36,21 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.sqlobject.transaction.Transactional;
 
 public class SqlObjectFactory implements ExtensionFactory {
     private static final Object[] NO_ARGS = new Object[0];
 
-    private final Map<Method, Handler> mixinHandlers = new HashMap<>();
     private final Map<Class<?>, Map<Method, Handler>> handlersCache = synchronizedMap(new WeakHashMap<>());
     private final Map<Class<? extends ConfigurerFactory>, ConfigurerFactory>
             configurerFactories = synchronizedMap(new WeakHashMap<>());
 
-    SqlObjectFactory() {
-        mixinHandlers.putAll(TransactionalHelper.handlers());
-        mixinHandlers.putAll(GetHandleHelper.handlers());
-    }
+    SqlObjectFactory() { }
 
     @Override
     public boolean accepts(Class<?> extensionType) {
@@ -66,8 +62,7 @@ public class SqlObjectFactory implements ExtensionFactory {
             throw new IllegalArgumentException("SQL Object types must be public.");
         }
 
-        if (GetHandle.class.isAssignableFrom(extensionType) ||
-                Transactional.class.isAssignableFrom(extensionType)) {
+        if (SqlObject.class.isAssignableFrom(extensionType)) {
             return true;
         }
 
@@ -104,10 +99,15 @@ public class SqlObjectFactory implements ExtensionFactory {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
             final Map<Method, Handler> handlers = new HashMap<>();
 
-            handlers.putAll(EqualsHandler.handler());
-            handlers.putAll(ToStringHandler.handler(sqlObjectType.getName()));
-            handlers.putAll(HashCodeHandler.handler());
-            handlers.putAll(FinalizeHandler.handlerFor(sqlObjectType));
+            handlers.putAll(handlerEntry((t, a, h) ->
+                    sqlObjectType.getName() + '@' + Integer.toHexString(t.hashCode()),
+                Object.class, "toString"));
+            handlers.putAll(handlerEntry((t, a, h) -> t == a[0], Object.class, "equals", Object.class));
+            handlers.putAll(handlerEntry((t, a, h) -> System.identityHashCode(t), Object.class, "hashCode"));
+            handlers.putAll(handlerEntry((t, a, h) -> h.getHandle(), SqlObject.class, "getHandle"));
+            try {
+                handlers.putAll(handlerEntry((t, a, h) -> null, sqlObjectType, "finalize"));
+            } catch (IllegalStateException expected) { } // optional implementation
 
             for (Method method : sqlObjectType.getMethods()) {
                 handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m));
@@ -118,10 +118,6 @@ public class SqlObjectFactory implements ExtensionFactory {
     }
 
     private Handler buildMethodHandler(Class<?> sqlObjectType, Method method) {
-        if (mixinHandlers.containsKey(method)) {
-            return mixinHandlers.get(method);
-        }
-
         Handler handler = buildBaseHandler(sqlObjectType, method);
         return addDecorators(handler, sqlObjectType, method);
     }
@@ -247,6 +243,15 @@ public class SqlObjectFactory implements ExtensionFactory {
             throw new IllegalStateException("Decorator class " + decoratorClass + "cannot be instantiated", e);
         }
         return decorator;
+    }
+
+    private static Map<Method, Handler> handlerEntry(Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
+        try {
+            return Collections.singletonMap(klass.getMethod(methodName, parameterTypes), handler);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException(
+                    String.format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
+        }
     }
 
     private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,

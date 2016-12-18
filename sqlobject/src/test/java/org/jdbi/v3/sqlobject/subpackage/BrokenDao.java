@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.subpackage;
 
-import org.jdbi.v3.sqlobject.GetHandle;
+import org.jdbi.v3.sqlobject.SqlObject;
 
-public interface BrokenDao extends GetHandle {
+public interface BrokenDao extends SqlObject {
     void totallyBroken();
 }

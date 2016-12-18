@@ -23,15 +23,15 @@ import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.transaction.TransactionException;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.customizer.MaxRows;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.subpackage.BrokenDao;
@@ -57,7 +57,6 @@ public class TestSqlObject
     public void setUp() throws Exception
     {
         handle = db.getSharedHandle();
-
     }
 
     @Test
@@ -198,7 +197,7 @@ public class TestSqlObject
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Dao extends GetHandle
+    public interface Dao extends SqlObject
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         boolean insert(@Bind("id") int id, @Bind("name") String name);
@@ -249,12 +248,12 @@ public class TestSqlObject
         }
     }
 
-    public interface UnimplementedDao extends GetHandle
+    public interface UnimplementedDao extends SqlObject
     {
         void totallyBroken();
     }
 
-    public interface RedundantDao extends GetHandle
+    public interface RedundantDao extends SqlObject
     {
         @SqlQuery("select * from something")
         @RegisterRowMapper(SomethingMapper.class)
@@ -266,20 +265,20 @@ public class TestSqlObject
         }
     }
 
-    public interface RedundantMethodStatementCustomizingAnnotation extends GetHandle {
+    public interface RedundantMethodStatementCustomizingAnnotation extends SqlObject {
         @MaxRows(10)
         default List<String> broken() {
             return emptyList();
         }
     }
 
-    public interface RedundantParameterStatementCustomizingAnnotation extends GetHandle {
+    public interface RedundantParameterStatementCustomizingAnnotation extends SqlObject {
         default List<String> broken(@Define int wut) {
             return emptyList();
         }
     }
 
-    public interface RedundantParameterBindingAnnotation extends GetHandle {
+    public interface RedundantParameterBindingAnnotation extends SqlObject {
         default String broken(@Bind int wat) {
             return "foo";
         }

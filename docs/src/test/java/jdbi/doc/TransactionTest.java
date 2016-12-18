@@ -25,16 +25,16 @@ import java.util.concurrent.Future;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
 import org.jdbi.v3.core.transaction.TransactionCallback;
+import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.postgres.PostgresDbRule;
+import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
-import org.jdbi.v3.sqlobject.GetHandle;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -127,7 +127,7 @@ public class TransactionTest {
         dao.outerMethodWithOneLevelCallsInnerMethodWithAnotherLevel();
     }
 
-    public interface NestedTransactionDao extends GetHandle {
+    public interface NestedTransactionDao extends SqlObject {
         // tag::sqlObjectNestedTransaction[]
         @Transaction(TransactionIsolationLevel.READ_UNCOMMITTED)
         default void outerMethodCallsInnerWithSameLevel() {

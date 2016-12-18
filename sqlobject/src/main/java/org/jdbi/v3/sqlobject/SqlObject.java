@@ -18,14 +18,15 @@ import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.HandleConsumer;
 
 /**
- * A mixin interface to define a method for obtaining the Handle attached to a sql object
+ * SqlObject base interface.  All synthesized implementations implement
+ * this interface, even if the declaration doesn't extend {@code SqlObject}.
+ *
+ * Custom mixins may be written as subinterfaces of this class with default methods.
  */
-public interface GetHandle
+public interface SqlObject
 {
     /**
-     * Obtain the handle associated to this sql object.
-     *
-     * @return the handle
+     * @return the handle open in the current sql object context.
      */
     Handle getHandle();
 

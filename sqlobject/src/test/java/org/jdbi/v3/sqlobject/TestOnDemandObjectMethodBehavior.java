@@ -26,7 +26,7 @@ public class TestOnDemandObjectMethodBehavior
     private Jdbi    dbi;
     private UselessDao dao;
 
-    public interface UselessDao extends GetHandle
+    public interface UselessDao extends SqlObject
     {
         void finalize();
     }
