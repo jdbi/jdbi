@@ -315,7 +315,7 @@ public class StatementContext implements Closeable
      * on a statement context, which will be cleaned up when
      * the statement finishes or (in the case of a ResultIterator), the object representing the results is closed.
      * <p>
-     * Resources cleaned up by JDBI include {@link ResultSet}, {@link Statement}, {@link Handle}.
+     * Resources cleaned up by JDBI include {@link ResultSet}, {@link Statement}, {@link Handle},
      * {@link java.sql.Array}, and {@link StatementBuilder}.
      */
     public void addCleanable(Cleanable cleanable) {
