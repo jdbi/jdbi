@@ -20,9 +20,9 @@ import java.util.Objects;
 import org.assertj.core.api.AbstractListAssert;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
-import org.jdbi.v3.sqlobject.customizers.RegisterRowMapperFactory;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 import org.junit.Rule;
 import org.junit.Test;
 

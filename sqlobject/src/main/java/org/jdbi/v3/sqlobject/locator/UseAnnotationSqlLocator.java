@@ -25,8 +25,8 @@ import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.SqlObjects;
-import org.jdbi.v3.sqlobject.ConfigurerFactory;
-import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 
 /**
  * Configures SQL Object to use AnnotationSqlLocator (the default SqlLocator).

@@ -14,8 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.sqlobject.customizers.BindList.EmptyHandling.NULL;
-import static org.jdbi.v3.sqlobject.customizers.BindList.EmptyHandling.VOID;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.NULL;
+import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,8 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
-import org.jdbi.v3.sqlobject.customizers.BindList;
+import org.jdbi.v3.sqlobject.customizer.BindList;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate.UseStringTemplateStatementRewriter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

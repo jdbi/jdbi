@@ -39,10 +39,12 @@ import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
-import org.jdbi.v3.sqlobject.mixins.Transactional;
+import org.jdbi.v3.sqlobject.transaction.Transactional;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -194,7 +196,7 @@ public class TestOnDemandSqlObject
         List<Something> findAll();
     }
 
-    static class CrashingMapper implements RowMapper<Something>
+    public static class CrashingMapper implements RowMapper<Something>
     {
         @Override
         public Something map(ResultSet r, StatementContext ctx) throws SQLException

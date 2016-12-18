@@ -14,7 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.sqlobject.mixins.Transactional;
+import org.jdbi.v3.sqlobject.transaction.Transactional;
+import org.jdbi.v3.sqlobject.transaction.TransactionalCallback;
 
 class InTransactionHandler implements Handler
 {
