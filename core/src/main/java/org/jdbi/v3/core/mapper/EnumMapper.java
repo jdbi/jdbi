@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
 
 public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     EnumMapper() {}

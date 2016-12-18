@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.sqlobject.SqlQuery;
-import org.jdbi.v3.sqlobject.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;

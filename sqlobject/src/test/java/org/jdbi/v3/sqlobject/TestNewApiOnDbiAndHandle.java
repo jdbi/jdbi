@@ -23,9 +23,11 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
+import org.jdbi.v3.core.ConnectionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,7 +96,7 @@ public class TestNewApiOnDbiAndHandle
         assertThat(spiffy.findNameById(2)).isEqualTo("Diego");
     }
 
-    @Test(expected = UnableToObtainConnectionException.class)
+    @Test(expected = ConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnDemand(){
         Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .installPlugin(new SqlObjectPlugin())
@@ -102,7 +104,7 @@ public class TestNewApiOnDbiAndHandle
                 .findNameById(1);
     }
 
-    @Test(expected = UnableToObtainConnectionException.class)
+    @Test(expected = ConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnOpen(){
         Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .installPlugin(new SqlObjectPlugin())
@@ -110,7 +112,7 @@ public class TestNewApiOnDbiAndHandle
                 .attach(Spiffy.class);
     }
 
-    @Test(expected = UnableToObtainConnectionException.class)
+    @Test(expected = ConnectionException.class)
     public void testCorrectExceptionIfUnableToConnectOnAttach(){
         Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
                 .installPlugin(new SqlObjectPlugin())

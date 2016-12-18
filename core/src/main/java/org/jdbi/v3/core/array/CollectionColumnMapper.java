@@ -18,7 +18,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 
 class CollectionColumnMapper<T, C extends Collection<T>> implements ColumnMapper<C> {

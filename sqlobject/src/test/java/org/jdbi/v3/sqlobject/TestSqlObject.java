@@ -23,17 +23,20 @@ import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.exception.TransactionException;
+import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.sqlobject.customizers.Define;
-import org.jdbi.v3.sqlobject.customizers.MaxRows;
-import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.Define;
+import org.jdbi.v3.sqlobject.customizer.MaxRows;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.subpackage.BrokenDao;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
+import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

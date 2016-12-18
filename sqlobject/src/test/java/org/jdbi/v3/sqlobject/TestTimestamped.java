@@ -13,12 +13,17 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.H2DatabaseRule;
-import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.TimingCollector;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
-import org.jdbi.v3.sqlobject.customizers.Timestamped;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.customizer.Timestamped;
+import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

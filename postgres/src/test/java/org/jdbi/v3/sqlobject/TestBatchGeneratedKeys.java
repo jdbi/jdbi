@@ -19,12 +19,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.PgDatabaseRule;
+import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.postgres.PostgresJdbiPlugin;
-import org.jdbi.v3.sqlobject.customizers.BatchChunkSize;
-import org.jdbi.v3.sqlobject.customizers.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
+import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

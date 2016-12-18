@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import static org.jdbi.v3.core.util.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * A generic RowMapperFactory that reflectively inspects a

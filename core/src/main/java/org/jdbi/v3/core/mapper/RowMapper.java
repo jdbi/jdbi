@@ -16,8 +16,8 @@ package org.jdbi.v3.core.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.Query;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Used with a {@link Query#map(RowMapper)} call to specify

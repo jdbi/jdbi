@@ -22,11 +22,15 @@ import java.util.SortedSet;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.guava.GuavaCollectors;
-import org.jdbi.v3.sqlobject.customizers.RegisterCollectorFactory;
+import org.jdbi.v3.sqlobject.config.RegisterCollectorFactory;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 

@@ -17,8 +17,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
-
 class GetHandleHelper
 {
     static Map<Method, Handler> handlers()

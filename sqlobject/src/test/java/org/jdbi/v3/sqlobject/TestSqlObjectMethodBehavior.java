@@ -18,11 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.Connection;
 import java.util.concurrent.Callable;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.ExtensionMethod;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandleSupplier;
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.Before;
 import org.junit.Test;
 

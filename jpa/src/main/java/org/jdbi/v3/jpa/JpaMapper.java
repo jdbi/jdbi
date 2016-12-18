@@ -13,7 +13,8 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class JpaMapper<C> implements RowMapper<C> {
             if (member != null) {
                 Type memberType = member.getType();
                 ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(memberType)
-                        .orElseThrow(() -> new NoSuchColumnMapperException("No column mapper for " + memberType));
+                        .orElseThrow(() -> new NoSuchMapperException("No column mapper for " + memberType));
                 Object value = columnMapper.map(rs, columnLabel, ctx);
                 member.write(obj, value);
             }

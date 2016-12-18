@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.exception.TransactionException;
-import org.jdbi.v3.core.exception.UnableToRestoreAutoCommitStateException;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions

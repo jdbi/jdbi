@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.subpackage;
 
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
+import org.jdbi.v3.sqlobject.GetHandle;
 
 public interface BrokenDao extends GetHandle {
     void totallyBroken();

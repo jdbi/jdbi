@@ -18,11 +18,11 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.PgDatabaseRule;
+import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.postgres.PostgresJdbiPlugin;
-import org.jdbi.v3.sqlobject.GetGeneratedKeys;
-import org.jdbi.v3.sqlobject.SqlBatch;
+import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
+import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.Before;
 import org.junit.Rule;

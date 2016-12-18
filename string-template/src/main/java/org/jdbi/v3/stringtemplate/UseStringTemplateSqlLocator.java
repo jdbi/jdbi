@@ -26,14 +26,14 @@ import java.util.function.Consumer;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
-import org.jdbi.v3.sqlobject.SqlAnnotations;
+import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjects;
-import org.jdbi.v3.sqlobject.ConfigurerFactory;
-import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 /**

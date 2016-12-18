@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.PgDatabaseRule;
-import org.jdbi.v3.core.util.GenericType;
+import org.jdbi.v3.core.rule.PgDatabaseRule;
+import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

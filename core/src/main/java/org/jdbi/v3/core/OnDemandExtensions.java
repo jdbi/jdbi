@@ -18,7 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-public class OnDemandExtensions {
+class OnDemandExtensions {
     private static final Method EQUALS_METHOD;
     private static final Method HASHCODE_METHOD;
     private static final Method TOSTRING_METHOD;
@@ -34,7 +34,7 @@ public class OnDemandExtensions {
         }
     }
 
-    public static <E> E create(Jdbi dbi, Class<E> extensionType) {
+    static <E> E create(Jdbi dbi, Class<E> extensionType) {
         ThreadLocal<E> threadExtension = new ThreadLocal<>();
 
         InvocationHandler handler = (proxy, method, args) -> {

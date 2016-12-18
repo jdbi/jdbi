@@ -20,9 +20,10 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableSet;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.sqlobject.customizers.BindList;
+import org.jdbi.v3.sqlobject.customizer.BindList;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

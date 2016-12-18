@@ -18,15 +18,21 @@ import static java.util.Objects.requireNonNull;
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 
-import org.jdbi.v3.core.exception.TransactionException;
-import org.jdbi.v3.core.exception.UnableToCloseResourceException;
-import org.jdbi.v3.core.exception.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.Configurable;
+import org.jdbi.v3.core.transaction.TransactionException;
+import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
+import org.jdbi.v3.core.statement.Batch;
+import org.jdbi.v3.core.statement.Call;
+import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.statement.Script;
 import org.jdbi.v3.core.statement.StatementBuilder;
-import org.jdbi.v3.core.statement.StatementCustomizer;
+import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionConsumer;
 import org.jdbi.v3.core.transaction.TransactionHandler;
@@ -85,6 +91,10 @@ public class Handle implements Closeable, Configurable<Handle>
         return this.connection;
     }
 
+    public StatementBuilder getStatementBuilder() {
+        return statementBuilder;
+    }
+
     /**
      * Specify the statement builder to use for this handle.
      * @param builder StatementBuilder to be used
@@ -98,7 +108,7 @@ public class Handle implements Closeable, Configurable<Handle>
     /**
      * Closes the handle, its connection, and any other database resources it is holding.
      *
-     * @throws UnableToCloseResourceException if any resources throw exception while closing
+     * @throws CloseException if any resources throw exception while closing
      * @throws TransactionException if called while the handle has a transaction open. The open transaction will be
      * rolled back.
      */
@@ -124,7 +134,7 @@ public class Handle implements Closeable, Configurable<Handle>
                     }
                 }
                 catch (SQLException e) {
-                    throw new UnableToCloseResourceException("Unable to close Connection", e);
+                    throw new CloseException("Unable to close Connection", e);
                 } finally {
                     LOG.trace("Handle [{}] released", this);
                     closed = true;
@@ -199,11 +209,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @see Handle#prepareBatch(String)
      */
     public Batch createBatch() {
-        ConfigRegistry batchConfig = getConfig().createCopy();
-        return new Batch(batchConfig,
-                         this.connection,
-                         statementBuilder,
-                         new StatementContext(batchConfig, extensionMethod.get()));
+        return Batch.create(this);
     }
 
     /**
@@ -214,13 +220,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return a batch which can have "statements" added
      */
     public PreparedBatch prepareBatch(String sql) {
-        ConfigRegistry batchConfig = getConfig().createCopy();
-        return new PreparedBatch(batchConfig,
-                                 this,
-                                 statementBuilder,
-                                 sql,
-                                 new StatementContext(batchConfig, extensionMethod.get()),
-                                 Collections.<StatementCustomizer>emptyList());
+        return PreparedBatch.create(this, sql);
     }
 
     /**
@@ -231,13 +231,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Call
      */
     public Call createCall(String sql) {
-        ConfigRegistry callConfig = getConfig().createCopy();
-        return new Call(callConfig,
-                        this,
-                        statementBuilder,
-                        sql,
-                        new StatementContext(callConfig, extensionMethod.get()),
-                        Collections.<StatementCustomizer>emptyList());
+        return Call.create(this, sql);
     }
 
     /**
@@ -247,14 +241,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Query
      */
     public Query createQuery(String sql) {
-        ConfigRegistry queryConfig = getConfig().createCopy();
-        return new Query(queryConfig,
-                new Binding(),
-                this,
-                statementBuilder,
-                sql,
-                new StatementContext(queryConfig, extensionMethod.get()),
-                Collections.emptyList());
+        return Query.create(this, sql);
     }
 
     /**
@@ -265,7 +252,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the created Script.
      */
     public Script createScript(String sql) {
-        return new Script(this, sql);
+        return Script.create(this, sql);
     }
 
     /**
@@ -276,12 +263,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Update
      */
     public Update createUpdate(String sql) {
-        ConfigRegistry updateConfig = getConfig().createCopy();
-        return new Update(updateConfig,
-                          this,
-                          statementBuilder,
-                          sql,
-                          new StatementContext(updateConfig, extensionMethod.get()));
+        return Update.create(this, sql);
     }
 
     /**

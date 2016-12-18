@@ -17,12 +17,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.mapper.JoinRowMapper.JoinRow;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest.Article;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest.User;
-import org.jdbi.v3.sqlobject.customizers.RegisterJoinRowMapper;
+import org.jdbi.v3.sqlobject.config.RegisterJoinRowMapper;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

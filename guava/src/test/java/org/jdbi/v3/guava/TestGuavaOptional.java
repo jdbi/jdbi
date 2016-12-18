@@ -19,13 +19,13 @@ import java.lang.reflect.Type;
 import java.util.List;
 import com.google.common.base.Optional;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.H2DatabaseRule;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.util.GenericType;
+import org.jdbi.v3.core.generic.GenericType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

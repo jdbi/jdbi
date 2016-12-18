@@ -34,12 +34,14 @@ import java.util.function.BiConsumer;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.ExtensionMethod;
-import org.jdbi.v3.core.HandleSupplier;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionMethod;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.extension.ExtensionFactory;
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
-import org.jdbi.v3.sqlobject.mixins.Transactional;
+import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.transaction.Transactional;
 
 public class SqlObjectFactory implements ExtensionFactory {
     private static final Object[] NO_ARGS = new Object[0];

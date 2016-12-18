@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.mockito.Mockito.verify;
 
 import java.lang.reflect.Type;
@@ -22,10 +22,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.JdbiAccess;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.HandleAccess;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,8 +40,8 @@ public class TestArgumentsRegistry
 
     private static final String I_AM_A_STRING = "I am a String";
 
-    private final Handle handle = JdbiAccess.createHandle();
-    private final StatementContext ctx = JdbiAccess.createContext(handle);
+    private final Handle handle = HandleAccess.createHandle();
+    private final StatementContext ctx = StatementContextAccess.createContext(handle);
 
     @Mock
     public PreparedStatement stmt;

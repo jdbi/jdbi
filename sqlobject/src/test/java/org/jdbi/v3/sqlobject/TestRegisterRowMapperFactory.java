@@ -14,7 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.util.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -22,13 +22,16 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.v3.core.ConfigRegistry;
-import org.jdbi.v3.core.H2DatabaseRule;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.sqlobject.TestRegisterRowMapperFactory.Foo.FooMapper;
-import org.jdbi.v3.sqlobject.customizers.RegisterRowMapperFactory;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Rule;
 import org.junit.Test;
 

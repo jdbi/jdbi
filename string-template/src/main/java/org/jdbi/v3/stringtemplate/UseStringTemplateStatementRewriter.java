@@ -22,16 +22,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
-import org.jdbi.v3.sqlobject.ConfigurerFactory;
-import org.jdbi.v3.sqlobject.ConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.customizer.Define;
 
 /**
  * Configures a SQL object class or method to rewrite SQL statements using StringTemplate. Method parameters annotated
- * with {@link org.jdbi.v3.sqlobject.customizers.Define @Define} are passed to the StringTemplate as template
+ * with {@link Define @Define} are passed to the StringTemplate as template
  * attributes.
  */
 @ConfiguringAnnotation(UseStringTemplateStatementRewriter.Factory.class)

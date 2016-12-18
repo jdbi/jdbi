@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.exception.UnableToObtainConnectionException;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -46,7 +46,7 @@ public class TestDBI
             }
             catch (SQLException e)
             {
-                throw new UnableToObtainConnectionException(e);
+                throw new ConnectionException(e);
             }
         });
         try (Handle h = dbi.open()) {
@@ -54,7 +54,7 @@ public class TestDBI
         }
     }
 
-    @Test(expected = UnableToObtainConnectionException.class)
+    @Test(expected = ConnectionException.class)
     public void testCorrectExceptionOnSQLException() throws Exception
     {
         Jdbi dbi = Jdbi.create(() -> {

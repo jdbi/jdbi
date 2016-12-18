@@ -16,7 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Factory interface used to produce column mappers.

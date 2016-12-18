@@ -28,10 +28,10 @@ import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.ConfigRegistry;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.util.GenericTypes;
+import org.jdbi.v3.core.generic.GenericTypes;
 
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
     private final Map<Class<?>, Supplier<Collection<?>>> suppliers = new HashMap<>();

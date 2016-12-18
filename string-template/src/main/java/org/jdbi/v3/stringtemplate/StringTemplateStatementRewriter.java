@@ -17,8 +17,8 @@ import static java.util.Objects.requireNonNull;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
-import org.jdbi.v3.core.Binding;
-import org.jdbi.v3.core.StatementContext;
+import org.jdbi.v3.core.statement.Binding;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.rewriter.StatementRewriter;

@@ -30,19 +30,21 @@ import java.util.UUID;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.ResultIterator;
+import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.exception.JdbiException;
-import org.jdbi.v3.core.exception.TransactionException;
-import org.jdbi.v3.core.exception.UnableToCloseResourceException;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.JdbiException;
+import org.jdbi.v3.core.transaction.TransactionException;
+import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.jdbi.v3.sqlobject.customizers.UseRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
-import org.jdbi.v3.sqlobject.mixins.GetHandle;
-import org.jdbi.v3.sqlobject.mixins.Transactional;
+import org.jdbi.v3.sqlobject.transaction.Transactional;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +95,7 @@ public class TestOnDemandSqlObject
             public Handle customizeHandle(Handle handle) {
                 Handle h = spy(handle);
                 when(h.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
-                doThrow(new UnableToCloseResourceException("already closed", null)).when(h).close();
+                doThrow(new CloseException("already closed", null)).when(h).close();
                 return h;
             }
         };
@@ -194,7 +196,7 @@ public class TestOnDemandSqlObject
         List<Something> findAll();
     }
 
-    static class CrashingMapper implements RowMapper<Something>
+    public static class CrashingMapper implements RowMapper<Something>
     {
         @Override
         public Something map(ResultSet r, StatementContext ctx) throws SQLException

@@ -16,10 +16,7 @@ package org.jdbi.v3.core.statement;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jdbi.v3.core.JdbiConfig;
-import org.jdbi.v3.core.SqlStatement;
-import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.TimingCollector;
+import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 

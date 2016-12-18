@@ -19,6 +19,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
+import org.jdbi.v3.core.extension.Extensions;
+
 /**
  * Use this annotation on a sql object method to create a new sql object with the same underlying handle as the sql
  * object the method is invoked on. Not supported with on-demand SQL objects.
@@ -31,7 +33,10 @@ public @interface CreateSqlObject
     class Factory implements HandlerFactory {
         @Override
         public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new CreateSqlObjectHandler(method.getReturnType());
+            return (target, args, handle) -> handle.getConfig(Extensions.class)
+                    .findFactory(SqlObjectFactory.class)
+                    .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
+                    .attach(method.getReturnType(), handle);
         }
     }
 }

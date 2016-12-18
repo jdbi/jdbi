@@ -18,8 +18,9 @@ import java.util.UUID;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.exception.UnableToCreateStatementException;
-import org.jdbi.v3.sqlobject.customizers.BindList;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.jdbi.v3.sqlobject.customizer.BindList;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

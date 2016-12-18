@@ -17,6 +17,8 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.stream.Collector;
 
+import org.jdbi.v3.core.statement.StatementContext;
+
 /**
  * Factory for building Collectors to assemble containers of elements.
  * The collector produces only objects of the type of the container elements.
@@ -33,7 +35,7 @@ public interface CollectorFactory {
      * @param containerType the container type
      *
      * @return the container element type if it can be discovered through reflection; empty otherwise.
-     * @see org.jdbi.v3.core.StatementContext#findElementTypeFor(Type)
+     * @see StatementContext#findElementTypeFor(Type)
      */
     Optional<Type> elementType(Type containerType);
 
@@ -42,7 +44,7 @@ public interface CollectorFactory {
      *
      * @return a {@link Collector} for the given container type.
      *
-     * @see org.jdbi.v3.core.StatementContext#findCollectorFor(Type)
+     * @see StatementContext#findCollectorFor(Type)
      * @see JdbiCollectors#findFor(Type)
      */
     Collector<?, ?, ?> build(Type containerType);

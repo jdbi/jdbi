@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.jdbi.v3.core.JdbiConfig;
+import org.jdbi.v3.core.config.JdbiConfig;
 
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     private List<ColumnNameMatcher> columnNameMatchers;
