@@ -13,18 +13,17 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.core.mapper.NoSuchMapperException;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 
 public class JpaMapper<C> implements RowMapper<C> {
 
@@ -32,29 +31,23 @@ public class JpaMapper<C> implements RowMapper<C> {
     private final JpaClass<C> jpaClass;
 
     JpaMapper(Class<C> clazz) {
-        logger.debug("init {}", clazz);
         this.clazz = clazz;
         this.jpaClass = JpaClass.get(clazz);
     }
 
     @Override
-    public C map(ResultSet rs, StatementContext ctx) throws SQLException {
-        logger.debug("map {}", clazz);
+    public RowMapper<C> specialize(ResultSet rs, StatementContext ctx) throws SQLException
+    {
+        Constructor<C> constructor;
         try {
-            return tryMap(rs, ctx);
-        } catch (NoSuchMethodException |
-                InstantiationException |
-                IllegalAccessException |
-                InvocationTargetException e) {
-            throw new EntityMemberAccessException(String.format("Unable to map %s entity", clazz), e);
+            constructor = clazz.getDeclaredConstructor();
+        } catch (ReflectiveOperationException e) {
+            throw new EntityMemberAccessException("Unable to get constructor for " + clazz, e);
         }
-    }
-
-    private C tryMap(ResultSet rs, StatementContext ctx)
-            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, SQLException {
-        Constructor<C> constructor = clazz.getDeclaredConstructor();
         constructor.setAccessible(true);
-        C obj = constructor.newInstance();
+
+        List<MemberSetter<C>> setters = new ArrayList<>();
+
         for (int colIndex = rs.getMetaData().getColumnCount(); colIndex >= 1; colIndex--) {
             String columnLabel = rs.getMetaData().getColumnLabel(colIndex);
             JpaMember member = jpaClass.lookupMember(columnLabel);
@@ -62,12 +55,34 @@ public class JpaMapper<C> implements RowMapper<C> {
                 Type memberType = member.getType();
                 ColumnMapper<?> columnMapper = ctx.findColumnMapperFor(memberType)
                         .orElseThrow(() -> new NoSuchMapperException("No column mapper for " + memberType));
-                Object value = columnMapper.map(rs, columnLabel, ctx);
-                member.write(obj, value);
+
+                final int columnIndex = colIndex;
+                setters.add(obj -> member.write(obj, columnMapper.map(rs, columnIndex, ctx)));
             }
         }
-        return obj;
+
+        return (r, c) -> {
+            C obj;
+            try {
+                obj = constructor.newInstance();
+            } catch (ReflectiveOperationException e) {
+                throw new EntityMemberAccessException("Unable to invoke " + constructor, e);
+            }
+            for (MemberSetter<C> setter : setters) {
+                setter.mapAndSetMember(obj);
+            }
+            return obj;
+        };
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(JpaMapper.class);
+    @Override
+    public C map(ResultSet rs, StatementContext ctx) throws SQLException
+    {
+        return specialize(rs, ctx).map(rs, ctx);
+    }
+
+    @FunctionalInterface
+    private interface MemberSetter<C> {
+        void mapAndSetMember(C object) throws SQLException;
+    }
 }
