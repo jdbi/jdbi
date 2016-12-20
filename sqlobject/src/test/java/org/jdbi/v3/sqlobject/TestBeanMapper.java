@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
@@ -200,7 +200,7 @@ public class TestBeanMapper
         }
     }
 
-    public interface DocumentDao extends GetHandle {
+    public interface DocumentDao extends SqlObject {
         @SqlBatch("insert into folders (id, name) values (:id, :name)")
         void insertFolders(@BindBean Folder... folders);
 

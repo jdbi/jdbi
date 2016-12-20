@@ -28,23 +28,23 @@ import java.util.List;
 import java.util.UUID;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.result.ResultIterator;
-import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.JdbiException;
-import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.CloseException;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.JdbiException;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
-import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
+import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -156,7 +156,7 @@ public class TestOnDemandSqlObject
         assertThat(all).hasSize(2);
     }
 
-    public interface Spiffy extends GetHandle
+    public interface Spiffy
     {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") long id, @Bind("name") String name);
@@ -175,7 +175,7 @@ public class TestOnDemandSqlObject
 
     }
 
-    public interface TransactionStuff extends GetHandle, Transactional<TransactionStuff>
+    public interface TransactionStuff extends Transactional<TransactionStuff>
     {
         @SqlQuery("select id, name from something where id = :id")
         @UseRowMapper(SomethingMapper.class)
@@ -189,7 +189,7 @@ public class TestOnDemandSqlObject
     }
 
     @UseClasspathSqlLocator
-    public interface ExternalSql extends GetHandle
+    public interface ExternalSql
     {
         @SqlQuery("all-something")
         @UseRowMapper(SomethingMapper.class)

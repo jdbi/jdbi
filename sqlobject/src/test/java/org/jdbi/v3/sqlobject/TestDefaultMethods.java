@@ -17,14 +17,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.extension.ExtensionMethod;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -88,7 +88,7 @@ public class TestDefaultMethods
         db.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
     }
 
-    public interface StatementContextExtensionMethodDao extends GetHandle {
+    public interface StatementContextExtensionMethodDao extends SqlObject {
         default void check() throws Exception {
             Class<StatementContextExtensionMethodDao> extensionMethodDaoClass = StatementContextExtensionMethodDao.class;
             Method checkMethod = extensionMethodDaoClass.getMethod("check");

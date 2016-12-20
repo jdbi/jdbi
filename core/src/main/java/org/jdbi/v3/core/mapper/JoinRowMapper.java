@@ -86,7 +86,7 @@ public class JoinRowMapper implements RowMapper<JoinRowMapper.JoinRow>
 
     @Override
     public RowMapper<JoinRow> specialize(ResultSet r, StatementContext ctx) throws SQLException {
-        RowMapper[] mappers = new RowMapper[types.length];
+        RowMapper<?>[] mappers = new RowMapper[types.length];
         for (int i = 0; i < types.length; i++) {
             Type type = types[i];
             mappers[i] = ctx.findRowMapperFor(type)

@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.transaction;
 
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.sqlobject.SqlObject;
 
 /**
  * A mixin interface to expose transaction methods on the sql object.
@@ -30,44 +31,56 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
  *
  * @param <This> must match the interface that is extending this one.
  */
-public interface Transactional<This extends Transactional<This>> {
+public interface Transactional<This extends Transactional<This>> extends SqlObject {
     /**
      * Begins a transaction.
      *
      * @throws TransactionException if called on an on-demand Transactional instance.
      */
-    void begin();
+    default void begin() {
+        getHandle().begin();
+    }
 
     /**
      * Commits the open transaction.
      */
-    void commit();
+    default void commit() {
+        getHandle().commit();
+    }
 
     /**
      * Rolls back the open transaction.
      */
-    void rollback();
+    default void rollback() {
+        getHandle().rollback();
+    }
 
     /**
      * Creates a savepoint with the given name on the transaction.
      *
      * @param savepointName the savepoint name.
      */
-    void savepoint(String savepointName);
+    default void savepoint(String savepointName) {
+        getHandle().savepoint(savepointName);
+    }
 
     /**
      * Rolls back to the given savepoint.
      *
      * @param savepointName the savepoint name.
      */
-    void rollbackToSavepoint(String savepointName);
+    default void rollbackToSavepoint(String savepointName) {
+        getHandle().rollbackToSavepoint(savepointName);
+    }
 
     /**
      * Releases the given savepoint.
      *
      * @param savepointName the savepoint name.
      */
-    void releaseSavepoint(String savepointName);
+    default void releaseSavepoint(String savepointName) {
+        getHandle().release(savepointName);
+    }
 
     /**
      * Executes the given callback within a transaction, returning the value returned by the callback.
@@ -78,7 +91,10 @@ public interface Transactional<This extends Transactional<This>> {
      * @return the value returned by the callback.
      * @throws X any exception thrown by the callback.
      */
-    <R, X extends Exception> R inTransaction(TransactionalCallback<R, This, X> callback) throws X;
+    @SuppressWarnings("unchecked")
+    default <R, X extends Exception> R inTransaction(TransactionalCallback<R, This, X> callback) throws X {
+        return getHandle().inTransaction(h -> callback.inTransaction((This) this));
+    }
 
     /**
      * Executes the given callback within a transaction, returning the value returned by the callback.
@@ -90,8 +106,11 @@ public interface Transactional<This extends Transactional<This>> {
      * @return the value returned by the callback.
      * @throws X any exception thrown by the callback.
      */
-    <R, X extends Exception> R inTransaction(TransactionIsolationLevel isolation,
-                                             TransactionalCallback<R, This, X> callback) throws X;
+    @SuppressWarnings("unchecked")
+    default <R, X extends Exception> R inTransaction(
+            TransactionIsolationLevel isolation, TransactionalCallback<R, This, X> callback) throws X {
+        return getHandle().inTransaction(isolation, h -> callback.inTransaction((This) this));
+    }
 
     /**
      * Executes the given callback within a transaction.
