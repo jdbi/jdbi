@@ -21,8 +21,6 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.core.transaction.TransactionException;
-import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
@@ -35,8 +33,10 @@ import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionConsumer;
+import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,7 +209,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @see Handle#prepareBatch(String)
      */
     public Batch createBatch() {
-        return Batch.create(this);
+        return new Batch(this);
     }
 
     /**
@@ -220,7 +220,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return a batch which can have "statements" added
      */
     public PreparedBatch prepareBatch(String sql) {
-        return PreparedBatch.create(this, sql);
+        return new PreparedBatch(this, sql);
     }
 
     /**
@@ -231,7 +231,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Call
      */
     public Call createCall(String sql) {
-        return Call.create(this, sql);
+        return new Call(this, sql);
     }
 
     /**
@@ -241,7 +241,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Query
      */
     public Query createQuery(String sql) {
-        return Query.create(this, sql);
+        return new Query(this, sql);
     }
 
     /**
@@ -252,7 +252,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the created Script.
      */
     public Script createScript(String sql) {
-        return Script.create(this, sql);
+        return new Script(this, sql);
     }
 
     /**
@@ -263,7 +263,7 @@ public class Handle implements Closeable, Configurable<Handle>
      * @return the Update
      */
     public Update createUpdate(String sql) {
-        return Update.create(this, sql);
+        return new Update(this, sql);
     }
 
     /**

@@ -13,21 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.*;
-import org.jdbi.v3.core.extension.ExtensionMethod;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.PreparedBatch;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.TimingCollector;
-import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.SqlBatch;
-import org.jdbi.v3.sqlobject.statement.SqlCall;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -38,14 +24,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.extension.ExtensionMethod;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.TimingCollector;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
+import org.jdbi.v3.sqlobject.statement.SqlBatch;
+import org.jdbi.v3.sqlobject.statement.SqlCall;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 public class TestTimingCollector {
 
     @Rule
     public H2DatabaseRule h2DatabaseRule = new H2DatabaseRule().withPlugins();
 
-    private CustomTimingCollector timingCollector = new CustomTimingCollector();
+    private final CustomTimingCollector timingCollector = new CustomTimingCollector();
     private DAO dao;
     private Jdbi jdbi;
 
@@ -118,8 +118,8 @@ public class TestTimingCollector {
 
     private static class CustomTimingCollector implements TimingCollector {
 
-        private Set<String> statementNames = new HashSet<>();
-        private SqlObjectStrategy statementNameStrategy = new SqlObjectStrategy();
+        private final Set<String> statementNames = new HashSet<>();
+        private final SqlObjectStrategy statementNameStrategy = new SqlObjectStrategy();
 
         @Override
         public void collect(long elapsedTime, StatementContext ctx) {

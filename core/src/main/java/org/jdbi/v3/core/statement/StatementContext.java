@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 
+import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
@@ -40,7 +41,6 @@ import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -66,7 +66,7 @@ public class StatementContext implements Closeable
     private String            rewrittenSql;
     private PreparedStatement statement;
     private Connection        connection;
-    private Binding           binding;
+    private Binding           binding = new Binding();
     private boolean           returningGeneratedKeys;
     private boolean           concurrentUpdatable;
     private String[]          generatedKeysColumnNames;
@@ -95,6 +95,14 @@ public class StatementContext implements Closeable
      */
     public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
         return config.get(configClass);
+    }
+
+
+    /**
+     * @return the {@code ConfigRegistry} this context owns
+     */
+    public ConfigRegistry getConfig() {
+        return config;
     }
 
     /**
@@ -234,9 +242,10 @@ public class StatementContext implements Closeable
         return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
     }
 
-    void setRawSql(String rawSql)
+    StatementContext setRawSql(String rawSql)
     {
         this.rawSql = rawSql;
+        return this;
     }
 
     /**
@@ -285,9 +294,10 @@ public class StatementContext implements Closeable
         return statement;
     }
 
-    void setConnection(Connection connection)
+    StatementContext setConnection(Connection connection)
     {
         this.connection = connection;
+        return this;
     }
 
     /**
@@ -300,9 +310,10 @@ public class StatementContext implements Closeable
         return connection;
     }
 
-    void setBinding(Binding b)
+    StatementContext setBinding(Binding b)
     {
         this.binding = b;
+        return this;
     }
 
     public Binding getBinding()

@@ -18,15 +18,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.PreparedBatch;
-import org.jdbi.v3.core.statement.PreparedBatchPart;
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 public class TestPreparedBatch
 {
@@ -34,14 +32,14 @@ public class TestPreparedBatch
     public H2DatabaseRule db = new H2DatabaseRule();
 
     @Test
-    public void testDesignApi() throws Exception
+    public void testBindBatch() throws Exception
     {
         Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        PreparedBatchPart p = b.add();
-        p = p.bind("id", 1).bind("name", "Eric").next();
-        p.bind("id", 2).bind("name", "Brian").next().bind("id", 3).bind("name", "Keith");
+        b.bind("id", 1).bind("name", "Eric").add();
+        b.bind("id", 2).bind("name", "Brian").add();
+        b.bind("id", 3).bind("name", "Keith").add();
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
@@ -58,7 +56,7 @@ public class TestPreparedBatch
         int count = 100;
         for (int i = 0; i < count; ++i)
         {
-            b.add().bind("id", i).bind("name", "A Name");
+            b.bind("id", i).bind("name", "A Name").add();
 
         }
         b.execute();
@@ -91,8 +89,7 @@ public class TestPreparedBatch
         Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        Map<String, Object> one = ImmutableMap.of("id", 0, "name", "Keith");
-        b.add(one);
+        b.add(ImmutableMap.of("id", 0, "name", "Keith"));
         b.add(ImmutableMap.of("id", 1, "name", "Eric"));
         b.add(ImmutableMap.of("id", 2, "name", "Brian"));
 
@@ -110,7 +107,7 @@ public class TestPreparedBatch
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         Map<String, Object> one = ImmutableMap.of("id", 0);
-        b.add(one).bind("name", "Keith");
+        b.bind("name", "Keith").add(one);
         b.execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
@@ -123,14 +120,14 @@ public class TestPreparedBatch
         Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
-        b.add().bind(0, 0).bind(1, "Keith").submit().execute();
+        b.bind(0, 0).bind(1, "Keith").add().execute();
 
         List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertThat(r).extracting(Something::getName).containsExactly("Keith");
     }
 
     @Test
-    public void testSetOnTheBatchItself() throws Exception
+    public void testForgotFinalAdd() throws Exception
     {
         Handle h = db.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
@@ -141,25 +138,7 @@ public class TestPreparedBatch
 
         b.bind("id", 2);
         b.bind("name", "Tom");
-        b.add();
-
-        b.execute();
-
-        assertThat(h.createQuery("select name from something order by id").mapTo(String.class).list())
-                .containsExactly("Jeff", "Tom");
-    }
-
-    @Test
-    public void testMixedBatchSetting() throws Exception
-    {
-        Handle h = db.openHandle();
-        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
-
-        b.bind("id", 1);
-        b.add().bind("name", "Jeff");
-
-        b.bind("id", 2);
-        b.add().bind("name", "Tom");
+        // forgot to add() here but we fix it up
 
         b.execute();
 

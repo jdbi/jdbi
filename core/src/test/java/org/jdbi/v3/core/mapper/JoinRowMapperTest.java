@@ -18,15 +18,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 public class JoinRowMapperTest
 {
@@ -59,10 +59,10 @@ public class JoinRowMapperTest
             h.execute("INSERT INTO article (aid, title) VALUES (?, ?)", a, "a" + a));
 
         h.prepareBatch("INSERT INTO author (uid, aid) VALUES (?,?)")
-            .add().bind(0, 1).bind(1, 2)
-            .next().bind(0, 3).bind(1, 1)
-            .next().bind(0, 3).bind(1, 3)
-            .submit().execute();
+            .bind(0, 1).bind(1, 2).add()
+            .bind(0, 3).bind(1, 1).add()
+            .bind(0, 3).bind(1, 3).add()
+            .execute();
 
         // tag::mapperSetup[]
         h.registerRowMapper(ConstructorMapper.of(User.class));

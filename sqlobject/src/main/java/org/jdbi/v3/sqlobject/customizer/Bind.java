@@ -23,8 +23,8 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 
-import org.jdbi.v3.core.statement.PreparedBatchPart;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
@@ -59,7 +59,7 @@ public @interface Bind
             return stmt -> {
                 Type type = param.getParameterizedType();
 
-                if (stmt instanceof PreparedBatchPart && !param.isAnnotationPresent(SingleValue.class)) {
+                if (stmt instanceof PreparedBatch && !param.isAnnotationPresent(SingleValue.class)) {
                     Class<?> erasedType = GenericTypes.getErasedType(type);
                     if (Iterable.class.isAssignableFrom(erasedType)) {
                         type = GenericTypes.findGenericParameter(type, Iterable.class).get();

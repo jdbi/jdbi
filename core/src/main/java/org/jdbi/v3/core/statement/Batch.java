@@ -13,14 +13,12 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,26 +27,13 @@ import org.slf4j.LoggerFactory;
  */
 public class Batch extends BaseStatement<Batch>
 {
-    public static Batch create(Handle handle) {
-        ConfigRegistry config = handle.getConfig().createCopy();
-        return new Batch(config,
-                handle.getConnection(),
-                handle.getStatementBuilder(),
-                new StatementContext(config, handle.getExtensionMethod()));
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
 
     private final List<String> parts = new ArrayList<>();
-    private final Connection connection;
 
-    private Batch(ConfigRegistry config,
-                  Connection connection,
-                  StatementBuilder statementBuilder,
-                  StatementContext statementContext)
+    public Batch(Handle handle)
     {
-        super(config, statementBuilder, statementContext);
-        this.connection = connection;
+        super(handle);
     }
 
     /**
@@ -81,7 +66,7 @@ public class Batch extends BaseStatement<Batch>
         {
             try
             {
-                stmt = getStatementBuilder().create(connection, getContext());
+                stmt = getHandle().getStatementBuilder().create(getHandle().getConnection(), getContext());
                 addCleanable(stmt::close);
             }
             catch (SQLException e)

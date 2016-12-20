@@ -18,8 +18,6 @@ import static org.jdbi.v3.core.result.ResultProducers.returningResults;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Locale;
 
 import org.jdbi.v3.core.Handle;
@@ -27,7 +25,6 @@ import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetCallback;
 import org.jdbi.v3.core.result.ResultSetIterable;
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 /**
@@ -41,28 +38,12 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
  */
 public class Query extends SqlStatement<Query> implements ResultBearing, ResultSetIterable
 {
-    public static Query create(Handle handle, String sql) {
-        ConfigRegistry queryConfig = handle.getConfig().createCopy();
-        return new Query(queryConfig,
-                new Binding(),
-                handle,
-                handle.getStatementBuilder(),
-                sql,
-                new StatementContext(queryConfig, handle.getExtensionMethod()),
-                Collections.emptyList());
-    }
-
-    Query(ConfigRegistry config,
-          Binding params,
-          Handle handle,
-          StatementBuilder cache,
-          String sql,
-          StatementContext ctx,
-          Collection<StatementCustomizer> customizers)
+    public Query(Handle handle, String sql)
     {
-        super(config, params, handle, cache, sql, ctx, customizers);
+        super(handle, sql);
     }
 
+    @Override
     @SuppressWarnings("resource")
     public <R> R execute(ResultProducer<R> producer)
     {

@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import static java.util.Arrays.asList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Iterator;
@@ -22,22 +21,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import org.jdbi.v3.core.*;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
-import org.jdbi.v3.sqlobject.statement.UseRowMapper;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 public class TestDocumentation
 {
@@ -177,11 +179,11 @@ public class TestDocumentation
     {
         try (Handle h = db.openHandle()) {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
-                .add().bind("id", 1).bind("name", "Brian")
-                .next().bind("id", 2).bind("name", "Robert")
-                .next().bind("id", 3).bind("name", "Patrick")
-                .next().bind("id", 4).bind("name", "Maniax")
-                .submit().execute();
+                .bind("id", 1).bind("name", "Brian").add()
+                .bind("id", 2).bind("name", "Robert").add()
+                .bind("id", 3).bind("name", "Patrick").add()
+                .bind("id", 4).bind("name", "Maniax").add()
+                .execute();
 
             SomeQueries sq = h.attach(SomeQueries.class);
             assertThat(sq.findName(2)).isEqualTo("Robert");

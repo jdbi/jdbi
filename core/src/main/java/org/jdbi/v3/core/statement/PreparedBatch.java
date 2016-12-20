@@ -20,8 +20,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -32,44 +30,33 @@ import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetCallback;
 import org.jdbi.v3.core.result.ResultSetIterable;
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents a prepared batch statement. That is, a sql statement compiled as a prepared
- * statement, and then executed multiple times in a single batch. This is, generally,
+ * Represents a prepared batch statement.  Multiple bindings are added to the
+ * compiled statement and then executed in a single operation. This is, generally,
  * a very efficient way to execute large numbers of the same statement where
  * the statement only varies by the arguments bound to it.
+ *
+ * The statement starts with an empty binding.  You bind a single batch of parameters
+ * with the usual {@link SqlStatement} binding methods, and then call
+ * {@link PreparedBatch#add()} to add the current binding as a batch and then clear it.
+ *
+ * An entire batch can be bound and added in one go with {@link PreparedBatch#add(Map)}
+ * or {@link PreparedBatch#add(Object...)}.
  */
 public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing, ResultSetIterable
 {
-    public static PreparedBatch create(Handle handle, String sql) {
-        ConfigRegistry batchConfig = handle.getConfig().createCopy();
-        return new PreparedBatch(batchConfig,
-                handle,
-                handle.getStatementBuilder(),
-                sql,
-                new StatementContext(batchConfig, handle.getExtensionMethod()),
-                Collections.<StatementCustomizer>emptyList());
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
 
-    private final List<PreparedBatchPart> parts = new ArrayList<>();
-    private Binding currentBinding;
+    private final List<Binding> bindings = new ArrayList<>();
 
-    PreparedBatch(ConfigRegistry config,
-                  Handle handle,
-                  StatementBuilder statementBuilder,
-                  String sql,
-                  StatementContext ctx,
-                  Collection<StatementCustomizer> statementCustomizers)
+    public PreparedBatch(Handle handle, String sql)
     {
-        super(config, new Binding(), handle, statementBuilder, sql, ctx, statementCustomizers);
-        this.currentBinding = new Binding();
+        super(handle, sql);
     }
 
     @Override
@@ -83,11 +70,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * @return the number of rows modified or inserted per batch part.
      */
     public int[] execute() {
-        // short circuit empty batch
-        if (parts.isEmpty()) {
-            return new int[0];
-        }
-
         return internalBatchExecute().updateCounts;
     }
 
@@ -126,10 +108,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
     @Override
     public <R> R execute(ResultProducer<R> producer) {
-        if (parts.isEmpty()) {
-            throw new IllegalStateException("No PreparedBatchParts to execute");
-        }
-
         try {
             return producer.produce(() -> internalBatchExecute().stmt, getContext());
         } catch (SQLException e) {
@@ -148,19 +126,22 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     private ExecutedBatch internalBatchExecute() {
-        if (parts.isEmpty()) {
-            throw new IllegalStateException("No PreparedBatchParts to execute");
+        if (!getBinding().isEmpty()) {
+            add();
+        }
+        if (bindings.isEmpty()) {
+            throw new IllegalStateException("No batch parts to execute");
         }
 
         RewrittenStatement rewritten = getConfig(SqlStatements.class)
                 .getStatementRewriter()
-                .rewrite(getSql(), parts.get(0).getParams(), getContext());
+                .rewrite(getSql(), bindings.get(0), getContext());
 
         try {
             final PreparedStatement stmt;
             String sql = rewritten.getSql();
             try {
-                StatementBuilder statementBuilder = getStatementBuilder();
+                StatementBuilder statementBuilder = getHandle().getStatementBuilder();
                 Connection connection = getHandle().getConnection();
                 stmt = statementBuilder.create(connection, sql, getContext());
                 addCleanable(() -> statementBuilder.close(connection, sql, stmt));
@@ -171,8 +152,8 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
 
             try {
-                for (PreparedBatchPart part : parts) {
-                    rewritten.bind(part.getParams(), stmt);
+                for (Binding binding : bindings) {
+                    rewritten.bind(binding, stmt);
                     stmt.addBatch();
                 }
             }
@@ -186,7 +167,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
-                LOG.trace("Prepared batch of {} parts executed in {}ms", parts.size(), elapsedTime / 1000000L, sql);
+                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, sql);
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
 
                 afterExecution(stmt);
@@ -198,66 +179,54 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             }
         }
         finally {
-            parts.clear();
+            bindings.clear();
         }
     }
 
     /**
-     * Add a statement (part) to this batch. You'll need to bindBinaryStream any arguments to the
-     * part.
-     *
-     * @return A part which can be used to bindBinaryStream parts to the statement
+     * Add the current binding as a saved batch and clear the binding.
      */
-    public PreparedBatchPart add()
+    public PreparedBatch add()
     {
-        PreparedBatchPart part = new PreparedBatchPart(getConfig(),
-                                                       this.currentBinding,
-                                                       this,
-                                                       getHandle(),
-                                                       getStatementBuilder(),
-                                                       getSql(),
-                                                       getContext());
-        parts.add(part);
-        this.currentBinding = new Binding();
-        return part;
-    }
-
-    public PreparedBatch add(Object... args)
-    {
-        PreparedBatchPart part = add();
-        for (int i = 0; i < args.length; ++i) {
-            part.bind(i, args[i]);
-        }
+        bindings.add(getBinding());
+        getContext().setBinding(new Binding());
         return this;
     }
 
-
     /**
-     * Create a new batch part by binding values looked up in <code>args</code> to
-     * named parameters on the statement.
-     *
-     * @param args map to bind arguments from for named parameters on the statement
-     *
-     * @return the new batch part
+     * Bind arguments positionally, add the binding as a saved batch, and
+     * then clear the current binding.
+     * @param args the positional arguments to bind
+     * @return this
      */
-    public PreparedBatchPart add(Map<String, ?> args)
+    public PreparedBatch add(Object... args)
     {
-        PreparedBatchPart part = add();
-        part.bindMap(args);
-        return part;
+        for(int i = 0; i < args.length; i++) {
+            bind(i, args[i]);
+        }
+        add();
+        return this;
     }
 
     /**
-     * @return the number of statements which are in this batch
+     * Bind arguments from a Map, add the binding as a saved batch,
+     * then clear the current binding.
+     *
+     * @param args map to bind arguments from for named parameters on the statement
+     * @return this
+     */
+    public PreparedBatch add(Map<String, ?> args)
+    {
+        bindMap(args);
+        add();
+        return this;
+    }
+
+    /**
+     * @return the number of bindings which are in this batch
      */
     public int size()
     {
-        return parts.size();
-    }
-
-    @Override
-    protected Binding getParams()
-    {
-        return this.currentBinding;
+        return bindings.size();
     }
 }

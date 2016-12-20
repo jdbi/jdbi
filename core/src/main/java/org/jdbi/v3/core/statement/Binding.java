@@ -119,4 +119,9 @@ public class Binding
         named.clear();
         namedArgumentFinder.clear();
     }
+
+    public boolean isEmpty()
+    {
+        return positionals.isEmpty() && named.isEmpty() && namedArgumentFinder.isEmpty();
+    }
 }

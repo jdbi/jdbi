@@ -5,13 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.jdbi.v3.core.statement.Batch;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.Batch;
 import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,13 +52,8 @@ public class BatchTest {
     public void testPreparedBatch() {
         PreparedBatch batch = handle.prepareBatch("INSERT INTO fruit VALUES(:id, :name)");
 
-        batch.bind("id", 0);
-        batch.bind("name", "apple");
-        batch.add();
-
-        batch.bind("id", 1);
-        batch.bind("name", "banana");
-        batch.add();
+        batch.bind("id", 0).bind("name", "apple").add();
+        batch.bind("id", 1).bind("name", "banana").add();
 
         int[] rowsModified = batch.execute();
         assertThat(rowsModified).containsExactly(1, 1);

@@ -25,14 +25,10 @@ import org.jdbi.v3.core.internal.SqlScriptParser;
  */
 public class Script
 {
-    public static Script create(Handle handle, String sql) {
-        return new Script(handle, sql);
-    }
-
     private final Handle handle;
     private final String sql;
 
-    Script(Handle h, String sql)
+    public Script(Handle h, String sql)
     {
         this.handle = h;
         this.sql = sql;

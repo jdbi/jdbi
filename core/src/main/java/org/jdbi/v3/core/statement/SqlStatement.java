@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -42,11 +41,10 @@ import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.transaction.TransactionState;
-import org.jdbi.v3.core.generic.GenericType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,51 +56,37 @@ import org.slf4j.LoggerFactory;
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
     private static final Logger LOG = LoggerFactory.getLogger(SqlStatement.class);
 
-    private final Binding          params;
-    private final Handle handle;
-    private final String           sql;
+    private final Handle  handle;
+    private final String  sql;
 
     /**
      * This will be set on execution, not before
      */
-    private       RewrittenStatement rewritten;
-    private       PreparedStatement  stmt;
+    private RewrittenStatement rewritten;
+    private PreparedStatement  stmt;
 
     @SuppressWarnings("unchecked")
-    SqlStatement(ConfigRegistry config,
-                 Binding params,
-                 Handle handle,
-                 StatementBuilder statementBuilder,
-                 String sql,
-                 StatementContext ctx,
-                 Collection<StatementCustomizer> statementCustomizers) {
-        super(config, statementBuilder, ctx);
-
-        addCustomizers(statementCustomizers);
+    SqlStatement(Handle handle,
+                 String sql) {
+        super(handle);
 
         this.handle = handle;
         this.sql = sql;
-        this.params = params;
 
-        ctx.setConnection(handle.getConnection());
-        ctx.setRawSql(sql);
-        ctx.setBinding(params);
+        getContext()
+            .setConnection(handle.getConnection())
+            .setRawSql(sql);
+    }
+
+    protected Binding getBinding()
+    {
+        return getContext().getBinding();
     }
 
     public This setFetchDirection(final int value)
     {
         addCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
         return typedThis;
-    }
-
-    protected Binding getParams()
-    {
-        return params;
-    }
-
-    protected Handle getHandle()
-    {
-        return handle;
     }
 
     /**
@@ -170,7 +154,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     @SuppressWarnings("unchecked")
     public This bind(int position, Argument argument)
     {
-        getParams().addPositional(position, argument);
+        getBinding().addPositional(position, argument);
         return (This) this;
     }
 
@@ -184,7 +168,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bind(String name, Argument argument)
     {
-        getParams().addNamed(name, argument);
+        getBinding().addNamed(name, argument);
         return typedThis;
     }
 
@@ -238,7 +222,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     public This bindNamedArgumentFinder(final NamedArgumentFinder namedArgumentFinder)
     {
         if (namedArgumentFinder != null) {
-            getParams().addNamedArgumentFinder(namedArgumentFinder);
+            getBinding().addNamedArgumentFinder(namedArgumentFinder);
         }
 
         return typedThis;
@@ -1309,14 +1293,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     {
         rewritten = getConfig(SqlStatements.class)
                 .getStatementRewriter()
-                .rewrite(sql, getParams(), getContext());
+                .rewrite(sql, getBinding(), getContext());
         getContext().setRewrittenSql(rewritten.getSql());
         try {
             if (getClass().isAssignableFrom(Call.class)) {
-                stmt = getStatementBuilder().createCall(handle.getConnection(), rewritten.getSql(), getContext());
+                stmt = handle.getStatementBuilder().createCall(handle.getConnection(), rewritten.getSql(), getContext());
             }
             else {
-                stmt = getStatementBuilder().create(handle.getConnection(), rewritten.getSql(), getContext());
+                stmt = handle.getStatementBuilder().create(handle.getConnection(), rewritten.getSql(), getContext());
             }
         }
         catch (SQLException e) {
@@ -1325,12 +1309,12 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         // The statement builder might (or might not) clean up the statement when called. E.g. the
         // caching statement builder relies on the statement *not* being closed.
-        addCleanable(() -> getStatementBuilder().close(handle.getConnection(), sql, stmt));
+        addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), sql, stmt));
 
         getContext().setStatement(stmt);
 
         try {
-            rewritten.bind(getParams(), stmt);
+            rewritten.bind(getBinding(), stmt);
         }
         catch (SQLException e) {
             throw new UnableToExecuteStatementException("Unable to bind parameters to query", e, getContext());

@@ -177,7 +177,8 @@ public @interface SqlBatch {
                     // execute a single chunk and buffer
                     PreparedBatch batch = handle.prepareBatch(sql);
                     for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
-                        applyCustomizers(batch.add(), batchArgs.next());
+                        applyCustomizers(batch, batchArgs.next());
+                        batch.add();
                     }
                     batchResult = executeBatch(handle, batch);
                     return hasNext(); // recurse to ensure we actually got elements

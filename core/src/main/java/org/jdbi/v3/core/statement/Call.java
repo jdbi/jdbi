@@ -18,39 +18,21 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Used for invoking stored procedures.
  */
 public class Call extends SqlStatement<Call>
 {
-    public static Call create(Handle handle, String sql) {
-        ConfigRegistry callConfig = handle.getConfig().createCopy();
-        return new Call(callConfig,
-                handle,
-                handle.getStatementBuilder(),
-                sql,
-                new StatementContext(callConfig, handle.getExtensionMethod()),
-                Collections.<StatementCustomizer>emptyList());
-    }
-
     private final List<OutParamArgument> params = new ArrayList<>();
 
-    Call(ConfigRegistry config,
-         Handle handle,
-         StatementBuilder cache,
-         String sql,
-         StatementContext ctx,
-         Collection<StatementCustomizer> customizers)
+    public Call(Handle handle, String sql)
     {
-        super(config, new Binding(), handle, cache, sql, ctx, customizers);
+        super(handle, sql);
     }
 
     /**
@@ -73,7 +55,7 @@ public class Call extends SqlStatement<Call>
      */
     public Call registerOutParameter(int position, int sqlType, CallableStatementMapper mapper)
     {
-        getParams().addPositional(position, new OutParamArgument(sqlType, mapper, null));
+        getBinding().addPositional(position, new OutParamArgument(sqlType, mapper, null));
         return this;
     }
 
@@ -97,7 +79,7 @@ public class Call extends SqlStatement<Call>
      */
     public Call registerOutParameter(String name, int sqlType, CallableStatementMapper mapper)
     {
-        getParams().addNamed(name, new OutParamArgument(sqlType, mapper, name));
+        getBinding().addNamed(name, new OutParamArgument(sqlType, mapper, name));
         return this;
     }
 

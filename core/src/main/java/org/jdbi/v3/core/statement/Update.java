@@ -18,10 +18,8 @@ import static org.jdbi.v3.core.result.ResultProducers.returningUpdateCount;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetIterable;
@@ -31,21 +29,8 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
  * Used for INSERT, UPDATE, and DELETE statements
  */
 public class Update extends SqlStatement<Update> implements ResultBearing {
-    public static Update create(Handle handle, String sql) {
-        ConfigRegistry updateConfig = handle.getConfig().createCopy();
-        return new Update(updateConfig,
-                handle,
-                handle.getStatementBuilder(),
-                sql,
-                new StatementContext(updateConfig, handle.getExtensionMethod()));
-    }
-
-    Update(ConfigRegistry config,
-           Handle handle,
-           StatementBuilder statementBuilder,
-           String sql,
-           StatementContext ctx) {
-        super(config, new Binding(), handle, statementBuilder, sql, ctx, Collections.emptyList());
+    public Update(Handle handle, String sql) {
+        super(handle, sql);
     }
 
     /**

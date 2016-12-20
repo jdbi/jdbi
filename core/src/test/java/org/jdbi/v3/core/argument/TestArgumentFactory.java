@@ -21,8 +21,6 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.PreparedBatch;
@@ -84,8 +82,8 @@ public class TestArgumentFactory
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         batch.registerArgument(new NameAF());
 
-        batch.add().bind("id", 1).bind("name", new Name("Brian", "McCallister"));
-        batch.add().bind("id", 2).bind("name", new Name("Henning", "S"));
+        batch.bind("id", 1).bind("name", new Name("Brian", "McCallister")).add();
+        batch.bind("id", 2).bind("name", new Name("Henning", "S")).add();
         batch.execute();
 
         List<String> rs = h.createQuery("select name from something order by id")

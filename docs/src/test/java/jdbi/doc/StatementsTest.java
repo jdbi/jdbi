@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.junit.Before;
 import org.junit.Rule;
