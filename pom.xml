@@ -113,7 +113,7 @@
       <profile>
         <id>oracle</id>
         <modules>
-          <module>oracle</module>
+          <module>oracle12</module>
         </modules>
         <dependencyManagement>
           <dependencies>
@@ -375,12 +375,12 @@
     <modules>
         <module>core</module>
         <module>sqlobject</module>
-        <module>string-template</module>
+        <module>stringtemplate3</module>
         <module>guava</module>
-        <module>jodatime</module>
+        <module>jodatime2</module>
         <module>jpa</module>
         <module>postgres</module>
-        <module>spring</module>
+        <module>spring4</module>
         <module>docs</module>
     </modules>
 </project>
