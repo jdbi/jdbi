@@ -35,6 +35,11 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>

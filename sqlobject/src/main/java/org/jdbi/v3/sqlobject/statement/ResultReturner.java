@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.sqlobject.collector.JdbiCollectors;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -150,7 +151,7 @@ abstract class ResultReturner
         @SuppressWarnings({ "unchecked", "rawtypes" })
         protected Object result(ResultIterable<?> bearer, StatementContext ctx)
         {
-            Collector collector = ctx.findCollectorFor(returnType).orElse(null);
+            Collector collector = ctx.getConfig(JdbiCollectors.class).findFor(returnType).orElse(null);
             if (collector != null) {
                 return bearer.collect(collector);
             }
@@ -161,7 +162,7 @@ abstract class ResultReturner
         protected Type elementType(StatementContext ctx)
         {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return ctx.findElementTypeFor(returnType).orElse(returnType);
+            return ctx.getConfig(JdbiCollectors.class).findElementTypeFor(returnType).orElse(returnType);
         }
     }
 

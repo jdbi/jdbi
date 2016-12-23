@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
@@ -38,7 +37,6 @@ import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypes;
-import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -219,26 +217,6 @@ public class StatementContext implements Closeable
      */
     public <T> Optional<RowMapper<T>> findRowMapperFor(GenericType<T> type) {
         return getConfig(RowMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a collector for the given type.
-     *
-     * @param containerType the container type.
-     * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
-     */
-    public Optional<Collector<?,?,?>> findCollectorFor(Type containerType) {
-        return getConfig(JdbiCollectors.class).findFor(containerType);
-    }
-
-    /**
-     * Returns the element type for the given container type.
-     *
-     * @param containerType the container type.
-     * @return the element type for the given container type, if available.
-     */
-    public Optional<Type> findElementTypeFor(Type containerType) {
-        return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
     }
 
     StatementContext setRawSql(String rawSql)

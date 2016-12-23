@@ -17,13 +17,14 @@ import com.google.auto.service.AutoService;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.sqlobject.collector.JdbiCollectors;
 
 @AutoService(JdbiPlugin.class)
 public class GuavaPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(GuavaArguments.factory());
-        jdbi.registerCollector(GuavaCollectors.factory());
+        jdbi.getConfig(JdbiCollectors.class).register(GuavaCollectors.factory());
         jdbi.registerColumnMapper(GuavaMappers.columnFactory());
     }
 }

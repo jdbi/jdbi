@@ -17,13 +17,10 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import com.google.common.collect.ImmutableList;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.guava.GuavaCollectors;
-import org.jdbi.v3.sqlobject.config.RegisterCollectorFactory;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
@@ -73,13 +70,12 @@ public class TestPaging
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    @RegisterCollectorFactory(GuavaCollectors.Factory.class)
     public interface Sql
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")
         int[] insert(@Bind("id") Iterable<Integer> ids, @Bind("name") Iterable<String> names);
 
         @SqlQuery("select id, name from something where id > :end_of_last_page order by id limit :size")
-        ImmutableList<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
+        List<Something> loadPage(@Bind("end_of_last_page") int last, @Bind("size") int size);
     }
 }
