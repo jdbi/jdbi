@@ -33,7 +33,7 @@ public interface ArgumentFactory
      * @return an argument for the given value if this factory supports it, or <code>Optional.empty()</code> otherwise.
      * @see ConfigRegistry#findArgumentFor(Type, Object) for composeable argument types.
      * @see StatementContext#findArgumentFor(Type, Object)
-     * @see Arguments#findFor(Type, Object, ConfigRegistry)
+     * @see Arguments#findFor(Type, Object)
      */
     Optional<Argument> build(Type type, Object value, ConfigRegistry config);
 }

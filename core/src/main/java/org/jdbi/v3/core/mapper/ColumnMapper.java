@@ -18,13 +18,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Maps result set columns to objects.
- * @see ConfigRegistry#findColumnMapperFor(Type)
  * @see StatementContext#findColumnMapperFor(Type)
- * @see ColumnMappers#findFor(java.lang.reflect.Type, ConfigRegistry)
+ * @see ColumnMappers#findFor(java.lang.reflect.Type)
  */
 @FunctionalInterface
 public interface ColumnMapper<T>

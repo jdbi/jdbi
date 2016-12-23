@@ -29,8 +29,7 @@ public interface RowMapperFactory {
      * @param type   the target type to map to
      * @param config the config registry, for composition
      * @return a row mapper for the given type if this factory supports it; <code>Optional.empty()</code> otherwise.
-     * @see ConfigRegistry#findRowMapperFor(Type) for composition
-     * @see ConfigRegistry#findColumnMapperFor(Type) for composition
+     * @see RowMappers for composition
      */
     Optional<RowMapper<?>> build(Type type, ConfigRegistry config);
 

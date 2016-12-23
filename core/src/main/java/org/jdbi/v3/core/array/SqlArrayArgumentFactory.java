@@ -28,7 +28,7 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         Function<Type, Optional<SqlArrayType<?>>> lookup =
-                eT -> config.get(SqlArrayTypes.class).findFor(eT, config);
+                eT -> config.get(SqlArrayTypes.class).findFor(eT);
         if (erasedType.isArray()) {
             Class<?> elementType = erasedType.getComponentType();
             return lookup.apply(elementType)

@@ -1078,7 +1078,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     private Argument toArgument(Type type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value, getConfig())
+        return getConfig(Arguments.class).findFor(type, value)
                 .orElseThrow(() -> new UnsupportedOperationException("No argument factory registered for '" + value + "' of type " + type));
     }
 
@@ -1361,7 +1361,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     RowMapper<?> rowMapperForType(Type type)
     {
-        return getConfig(RowMappers.class).findFor(type, getConfig())
+        return getConfig(RowMappers.class).findFor(type)
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 }

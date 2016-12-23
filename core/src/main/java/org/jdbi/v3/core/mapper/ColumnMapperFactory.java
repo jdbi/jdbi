@@ -29,7 +29,7 @@ public interface ColumnMapperFactory {
      * @param type   the target type to map to
      * @param config the config registry, for composition
      * @return a column mapper for the given type if this factory supports it, or <code>Optional.empty()</code> otherwise.
-     * @see ConfigRegistry#findColumnMapperFor(Type) for composition
+     * @see ColumnMappers for composition
      */
     Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config);
 

@@ -33,7 +33,11 @@ public class ConfigRegistry {
     }
 
     private ConfigRegistry(ConfigRegistry that) {
-        that.cache.forEach((type, config) -> cache.put(type, config.createCopy()));
+        that.cache.forEach((type, config) -> {
+            JdbiConfig<?> copy = config.createCopy();
+            copy.setRegistry(ConfigRegistry.this);
+            cache.put(type, copy);
+        });
     }
 
     /**
@@ -47,7 +51,9 @@ public class ConfigRegistry {
     public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
         return configClass.cast(cache.computeIfAbsent(configClass, type -> {
             try {
-                return configClass.getDeclaredConstructor().newInstance();
+                C config = configClass.getDeclaredConstructor().newInstance();
+                config.setRegistry(ConfigRegistry.this);
+                return config;
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Unable to instantiate config class " + configClass +
                         ". Is there a public no-arg constructor?", e);

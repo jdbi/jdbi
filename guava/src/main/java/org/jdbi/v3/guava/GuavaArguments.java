@@ -49,7 +49,7 @@ public class GuavaArguments {
             if (value instanceof com.google.common.base.Optional) {
                 Object nestedValue = ((com.google.common.base.Optional<?>) value).orNull();
                 Type nestedType = findOptionalType(expectedType, nestedValue);
-                return config.get(Arguments.class).findFor(nestedType, nestedValue, config);
+                return config.get(Arguments.class).findFor(nestedType, nestedValue);
             }
 
             return Optional.empty();

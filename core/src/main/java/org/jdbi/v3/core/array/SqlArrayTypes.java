@@ -29,9 +29,15 @@ import org.jdbi.v3.core.config.JdbiConfig;
 public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     private final List<SqlArrayTypeFactory> factories = new CopyOnWriteArrayList<>();
     private SqlArrayArgumentStrategy argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
+    private ConfigRegistry registry;
 
     public SqlArrayTypes() {
         argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
+    }
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     private SqlArrayTypes(SqlArrayTypes that) {
@@ -100,12 +106,11 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * Obtain an {@link SqlArrayType} for the given array element type in the given context
      *
      * @param elementType the array element type.
-     * @param config      the config registry, for composition
      * @return an {@link SqlArrayType} for the given element type.
      */
-    public Optional<SqlArrayType<?>> findFor(Type elementType, ConfigRegistry config) {
+    public Optional<SqlArrayType<?>> findFor(Type elementType) {
         return factories.stream()
-                .flatMap(factory -> toStream(factory.build(elementType, config)))
+                .flatMap(factory -> toStream(factory.build(elementType, registry)))
                 .findFirst();
     }
 
