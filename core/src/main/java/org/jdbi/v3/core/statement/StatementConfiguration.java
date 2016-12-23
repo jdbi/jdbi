@@ -27,9 +27,9 @@ public class StatementConfiguration implements JdbiConfig<StatementConfiguration
     private String[] generatedKeysColumnNames;
     private boolean  concurrentUpdatable;
 
-    StatementConfiguration() { }
+    public StatementConfiguration() { }
 
-    StatementConfiguration(StatementConfiguration other)
+    private StatementConfiguration(StatementConfiguration other)
     {
         this.returningGeneratedKeys = other.returningGeneratedKeys;
         this.generatedKeysColumnNames = other.generatedKeysColumnNames.clone();
