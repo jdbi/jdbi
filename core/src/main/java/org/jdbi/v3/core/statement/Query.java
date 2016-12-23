@@ -136,7 +136,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing, ResultS
      * @return the modified query
      */
     public Query concurrentUpdatable() {
-        getContext().setConcurrentUpdatable(true);
+        getConfig(StatementConfiguration.class).setConcurrentUpdatable(true);
         return this;
     }
 }
