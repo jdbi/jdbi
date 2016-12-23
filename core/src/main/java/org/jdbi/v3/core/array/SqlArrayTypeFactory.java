@@ -29,8 +29,7 @@ public interface SqlArrayTypeFactory {
      * @param elementType the array element type
      * @param config the config registry, for composition
      * @return an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
-     * @see ConfigRegistry#findSqlArrayTypeFor(Type)
-     * @see SqlArrayTypes#findFor(Type, ConfigRegistry)
+     * @see SqlArrayTypes#findFor(Type)
      */
     Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config);
 }

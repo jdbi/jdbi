@@ -21,18 +21,24 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.generic.GenericType;
 
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final List<ColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<Type, ColumnMapper<?>> cache = new ConcurrentHashMap<>();
+    private ConfigRegistry registry;
 
     public ColumnMappers() {
         factories.add(new BuiltInMapperFactory());
         factories.add(new SqlArrayMapperFactory());
+    }
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     private ColumnMappers(ColumnMappers that) {
@@ -85,12 +91,11 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Obtain a column mapper for the given type.
      *
      * @param type the target type to map to
-     * @param config the configuration registry
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     @SuppressWarnings("unchecked")
-    public <T> Optional<ColumnMapper<T>> findFor(Class<T> type, ConfigRegistry config) {
-        ColumnMapper<T> mapper = (ColumnMapper<T>) findFor((Type) type, config).orElse(null);
+    public <T> Optional<ColumnMapper<T>> findFor(Class<T> type) {
+        ColumnMapper<T> mapper = (ColumnMapper<T>) findFor((Type) type).orElse(null);
         return Optional.ofNullable(mapper);
     }
 
@@ -98,12 +103,11 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Obtain a column mapper for the given type.
      *
      * @param type the target type to map to
-     * @param config the configuration registry
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     @SuppressWarnings("unchecked")
-    public <T> Optional<ColumnMapper<T>> findFor(GenericType<T> type, ConfigRegistry config) {
-        ColumnMapper<T> mapper = (ColumnMapper<T>) findFor(type.getType(), config).orElse(null);
+    public <T> Optional<ColumnMapper<T>> findFor(GenericType<T> type) {
+        ColumnMapper<T> mapper = (ColumnMapper<T>) findFor(type.getType()).orElse(null);
         return Optional.ofNullable(mapper);
     }
 
@@ -111,10 +115,9 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Obtain a column mapper for the given type.
      *
      * @param type the target type to map to
-     * @param config the configuration registry
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
-    public Optional<ColumnMapper<?>> findFor(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> findFor(Type type) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
@@ -125,7 +128,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         }
 
         Optional<ColumnMapper<?>> mapper = factories.stream()
-                .flatMap(factory -> toStream(factory.build(type, config)))
+                .flatMap(factory -> toStream(factory.build(type, registry)))
                 .findFirst();
 
         mapper.ifPresent(m -> cache.put(type, m));

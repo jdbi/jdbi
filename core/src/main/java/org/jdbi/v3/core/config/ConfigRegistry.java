@@ -15,20 +15,8 @@ package org.jdbi.v3.core.config;
 
 import static java.util.Collections.synchronizedMap;
 
-import java.lang.reflect.Type;
 import java.util.Map;
-import java.util.Optional;
 import java.util.WeakHashMap;
-
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.array.SqlArrayType;
-import org.jdbi.v3.core.array.SqlArrayTypes;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMappers;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.generic.GenericType;
 
 /**
  * A registry of {@link JdbiConfig} instances by type.
@@ -36,7 +24,7 @@ import org.jdbi.v3.core.generic.GenericType;
  * @see Configurable
  */
 public class ConfigRegistry {
-    private final Map<Class<? extends JdbiConfig>, JdbiConfig<?>> cache = synchronizedMap(new WeakHashMap<>());
+    private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> cache = synchronizedMap(new WeakHashMap<>());
 
     /**
      * Creates a new config registry.
@@ -45,7 +33,11 @@ public class ConfigRegistry {
     }
 
     private ConfigRegistry(ConfigRegistry that) {
-        that.cache.forEach((type, config) -> cache.put(type, config.createCopy()));
+        that.cache.forEach((type, config) -> {
+            JdbiConfig<?> copy = config.createCopy();
+            copy.setRegistry(ConfigRegistry.this);
+            cache.put(type, copy);
+        });
     }
 
     /**
@@ -59,7 +51,9 @@ public class ConfigRegistry {
     public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
         return configClass.cast(cache.computeIfAbsent(configClass, type -> {
             try {
-                return configClass.getDeclaredConstructor().newInstance();
+                C config = configClass.getDeclaredConstructor().newInstance();
+                config.setRegistry(ConfigRegistry.this);
+                return config;
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Unable to instantiate config class " + configClass +
                         ". Is there a public no-arg constructor?", e);
@@ -77,86 +71,4 @@ public class ConfigRegistry {
     public ConfigRegistry createCopy() {
         return new ConfigRegistry(this);
     }
-
-    /**
-     * Obtain an argument for given value
-     *
-     * @param type  the type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
-     */
-    public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return get(Arguments.class).findFor(type, value, this);
-    }
-
-    /**
-     * Obtain an {@link SqlArrayType} for the given array element type
-     *
-     * @param elementType the array element type.
-     * @return an {@link SqlArrayType} for the given element type.
-     */
-    public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
-        return get(SqlArrayTypes.class).findFor(elementType, this);
-    }
-
-    /**
-     * Obtain a column mapper for the given type
-     *
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(Class<T> type) {
-        return get(ColumnMappers.class).findFor(type, this);
-    }
-
-    /**
-     * Obtain a column mapper for the given type
-     *
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(GenericType<T> type) {
-        return get(ColumnMappers.class).findFor(type, this);
-    }
-
-    /**
-     * Obtain a column mapper for the given type
-     *
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
-        return get(ColumnMappers.class).findFor(type, this);
-    }
-
-    /**
-     * Obtain a row mapper for the given type
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findRowMapperFor(Type type) {
-        return get(RowMappers.class).findFor(type, this);
-    }
-
-    /**
-     * Obtain a row mapper for the given type
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findRowMapperFor(Class<T> type) {
-        return get(RowMappers.class).findFor(type, this);
-    }
-
-    /**
-     * Obtain a row mapper for the given type
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findRowMapperFor(GenericType<T> type) {
-        return get(RowMappers.class).findFor(type, this);
-    }
-
 }

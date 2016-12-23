@@ -29,9 +29,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
     private final Map<Class<?>, Supplier<Collection<?>>> suppliers = new HashMap<>();
@@ -70,7 +71,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
     }
 
     private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, ConfigRegistry config) {
-        Optional<ColumnMapper<?>> mapper = config.findColumnMapperFor(elementType);
+        Optional<ColumnMapper<?>> mapper = config.get(ColumnMappers.class).findFor(elementType);
 
         if (!mapper.isPresent() && elementType == Object.class) {
             return Optional.of((rs, num, context) -> rs.getObject(num));

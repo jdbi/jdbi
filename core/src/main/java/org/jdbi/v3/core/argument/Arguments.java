@@ -20,16 +20,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
+    private ConfigRegistry registry;
 
     public Arguments() {
         register(BuiltInArgumentFactory.INSTANCE);
         register(new SqlArrayArgumentFactory());
+    }
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     private Arguments(Arguments that) {
@@ -46,12 +52,11 @@ public class Arguments implements JdbiConfig<Arguments> {
      *
      * @param type  the type of the argument.
      * @param value the argument value.
-     * @param config the config registry, for composition
      * @return an Argument for the given value.
      */
-    public Optional<Argument> findFor(Type type, Object value, ConfigRegistry config) {
+    public Optional<Argument> findFor(Type type, Object value) {
         return argumentFactories.stream()
-                .flatMap(factory -> toStream(factory.build(type, value, config)))
+                .flatMap(factory -> toStream(factory.build(type, value, registry)))
                 .findFirst();
     }
 
