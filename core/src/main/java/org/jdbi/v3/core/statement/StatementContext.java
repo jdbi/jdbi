@@ -34,6 +34,7 @@ import java.util.stream.Collector;
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypes;
@@ -43,7 +44,9 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMappers;
 
 /**
  * The statement context provides access to statement-local configuration.
@@ -138,7 +141,7 @@ public class StatementContext implements Closeable
      * @return an Argument for the given value.
      */
     public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return config.findArgumentFor(type, value);
+        return getConfig(Arguments.class).findFor(type, value, getConfig());
     }
 
     /**
@@ -155,7 +158,7 @@ public class StatementContext implements Closeable
      * @return an {@link SqlArrayType} for the given element type.
      */
     public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
-        return config.findSqlArrayTypeFor(elementType);
+        return getConfig(SqlArrayTypes.class).findFor(elementType, getConfig());
     }
 
     /**
@@ -165,7 +168,7 @@ public class StatementContext implements Closeable
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public <T> Optional<ColumnMapper<T>> findColumnMapperFor(Class<T> type) {
-        return config.findColumnMapperFor(type);
+        return getConfig(ColumnMappers.class).findFor(type, config);
     }
 
     /**
@@ -175,7 +178,7 @@ public class StatementContext implements Closeable
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public <T> Optional<ColumnMapper<T>> findColumnMapperFor(GenericType<T> type) {
-        return config.findColumnMapperFor(type);
+        return getConfig(ColumnMappers.class).findFor(type, getConfig());
     }
 
     /**
@@ -185,7 +188,7 @@ public class StatementContext implements Closeable
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
-        return config.findColumnMapperFor(type);
+        return getConfig(ColumnMappers.class).findFor(type, getConfig());
     }
 
     /**
@@ -195,7 +198,7 @@ public class StatementContext implements Closeable
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public Optional<RowMapper<?>> findRowMapperFor(Type type) {
-        return config.findRowMapperFor(type);
+        return getConfig(RowMappers.class).findFor(type, getConfig());
     }
 
     /**
@@ -205,7 +208,7 @@ public class StatementContext implements Closeable
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public <T> Optional<RowMapper<T>> findRowMapperFor(Class<T> type) {
-        return config.findRowMapperFor(type);
+        return getConfig(RowMappers.class).findFor(type, getConfig());
     }
 
     /**
@@ -215,7 +218,7 @@ public class StatementContext implements Closeable
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public <T> Optional<RowMapper<T>> findRowMapperFor(GenericType<T> type) {
-        return config.findRowMapperFor(type);
+        return getConfig(RowMappers.class).findFor(type, getConfig());
     }
 
     /**

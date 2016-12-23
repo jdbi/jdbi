@@ -100,7 +100,7 @@ public class TestArgumentFactory
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
-                return config.findArgumentFor(String.class, nameValue.getFullName());
+                return config.get(Arguments.class).findFor(String.class, nameValue.getFullName(), config);
             }
             return Optional.empty();
         }

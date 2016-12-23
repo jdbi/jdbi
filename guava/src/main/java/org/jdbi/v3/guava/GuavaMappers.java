@@ -18,13 +18,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableList;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
-import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.statement.StatementContext;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Provide mapper instances that map Guava types.
@@ -51,7 +52,7 @@ public class GuavaMappers {
 
             if (ImmutableList.class.equals(erasedType)) {
                 return GenericTypes.findGenericParameter(type, ImmutableList.class)
-                        .flatMap(config::findColumnMapperFor)
+                        .flatMap(t -> config.get(ColumnMappers.class).findFor(t, config))
                         .map(ImmutableListArrayColumnMapper::new);
             }
 

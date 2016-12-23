@@ -16,24 +16,27 @@ package org.jdbi.v3.core.array;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 
 public class SqlArrayArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
+        Function<Type, Optional<SqlArrayType<?>>> lookup =
+                eT -> config.get(SqlArrayTypes.class).findFor(eT, config);
         if (erasedType.isArray()) {
             Class<?> elementType = erasedType.getComponentType();
-            return config.findSqlArrayTypeFor(elementType)
+            return lookup.apply(elementType)
                     .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
         }
         if (Collection.class.isAssignableFrom(erasedType)) {
             return GenericTypes.findGenericParameter(type, Collection.class)
-                    .flatMap(config::findSqlArrayTypeFor)
+                    .flatMap(lookup)
                     .map(arrayType -> new SqlArrayArgument<>(arrayType, (Collection<?>) value));
         }
         return Optional.empty();
