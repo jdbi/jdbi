@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.ResultProducer;
-import org.jdbi.v3.core.ResultSetIterable;
-import org.jdbi.v3.core.StatementContext;
-import org.jdbi.v3.core.exception.ResultSetException;
+import org.jdbi.v3.core.result.ResultProducer;
+import org.jdbi.v3.core.result.ResultSetException;
+import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 
 import oracle.jdbc.OraclePreparedStatement;

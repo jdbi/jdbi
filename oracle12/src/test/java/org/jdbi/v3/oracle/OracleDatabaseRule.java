@@ -22,11 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.core.ConnectionFactory;
-import org.jdbi.v3.core.DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.rule.DatabaseRule;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.junit.Assume;
 import org.junit.rules.ExternalResource;
 
 /**
