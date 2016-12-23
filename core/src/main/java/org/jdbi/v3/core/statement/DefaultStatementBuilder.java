@@ -44,14 +44,15 @@ public class DefaultStatementBuilder implements StatementBuilder
     @Override
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
-        if (ctx.isReturningGeneratedKeys()) {
-            String[] columnNames = ctx.getGeneratedKeysColumnNames();
+        StatementConfiguration cfg = ctx.getConfig(StatementConfiguration.class);
+        if (cfg.isReturningGeneratedKeys()) {
+            String[] columnNames = cfg.getGeneratedKeysColumnNames();
             if (columnNames != null && columnNames.length > 0) {
                 return conn.prepareStatement(sql, columnNames);
             }
             return conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         }
-        else if (ctx.isConcurrentUpdatable()) {
+        else if (cfg.isConcurrentUpdatable()) {
             return conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
         }
         else {

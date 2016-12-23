@@ -13,17 +13,15 @@
  */
 package org.jdbi.v3.core.statement;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatementContextTest {
 
@@ -31,17 +29,19 @@ public class StatementContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
         final StatementContext context = StatementContextAccess.createContext();
+        final StatementConfiguration cfg = context.getConfig(StatementConfiguration.class);
 
-        context.setReturningGeneratedKeys(true);
-        context.setConcurrentUpdatable(true);
+        cfg.setReturningGeneratedKeys(true);
+        cfg.setConcurrentUpdatable(true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
         final StatementContext context = StatementContextAccess.createContext();
+        final StatementConfiguration cfg = context.getConfig(StatementConfiguration.class);
 
-        context.setConcurrentUpdatable(true);
-        context.setReturningGeneratedKeys(true);
+        cfg.setConcurrentUpdatable(true);
+        cfg.setReturningGeneratedKeys(true);
     }
 
     private static class Foo {
