@@ -29,6 +29,8 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.sqlobject.SingleValue;
 
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+
 abstract class ResultReturner
 {
     public Object map(Method method, Query q)
@@ -70,7 +72,7 @@ abstract class ResultReturner
     static ResultReturner forMethod(Class<?> extensionType, Method method)
     {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
-        Class<?> returnClass = GenericTypes.getErasedType(returnType);
+        Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             throw new IllegalStateException(String.format(
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
@@ -154,7 +156,7 @@ abstract class ResultReturner
             if (collector != null) {
                 return bearer.collect(collector);
             }
-            return bearer.findFirst().orElse(null);
+            return bearer.findFirst().map(Object.class::cast).orElseGet(() -> DefaultResult.forType(returnType));
         }
 
         @Override
@@ -177,13 +179,41 @@ abstract class ResultReturner
         @Override
         protected Object result(ResultIterable<?> bearer, StatementContext ctx)
         {
-            return bearer.findFirst().orElse(null);
+            return bearer.findFirst().map(Object.class::cast).orElseGet(() -> DefaultResult.forType(returnType));
         }
 
         @Override
         protected Type elementType(StatementContext ctx)
         {
             return returnType;
+        }
+    }
+
+    static class DefaultResult {
+        public static Object forType(Type type) {
+            Class<?> clazz = getErasedType(type);
+            if (clazz.isPrimitive()) {
+                if (clazz.equals(boolean.class)) {
+                    return false;
+                } else if (clazz.equals(byte.class)) {
+                    return (byte) 0;
+                } else if (clazz.equals(short.class)) {
+                    return (short) 0;
+                } else if (clazz.equals(int.class)) {
+                    return 0;
+                } else if (clazz.equals(long.class)) {
+                    return 0L;
+                } else if (clazz.equals(char.class)) {
+                    return (char) 0;
+                } else if (clazz.equals(float.class)) {
+                    return 0f;
+                } else if (clazz.equals(double.class)) {
+                    return 0d;
+                } else {
+                    throw new UnsupportedOperationException("Unsupported primitive return type " + clazz);
+                }
+            }
+            return null;
         }
     }
 
