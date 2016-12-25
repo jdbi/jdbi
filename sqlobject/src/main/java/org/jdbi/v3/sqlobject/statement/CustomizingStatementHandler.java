@@ -35,7 +35,6 @@ abstract class CustomizingStatementHandler implements Handler
     private final Class<?> sqlObjectType;
     private final Method method;
 
-    @SuppressWarnings("unchecked")
     CustomizingStatementHandler(Class<?> sqlObjectType, Method method)
     {
         this.sqlObjectType = sqlObjectType;
@@ -105,35 +104,22 @@ abstract class CustomizingStatementHandler implements Handler
 
     protected void applyCustomizers(SqlStatement<?> stmt, Object[] args)
     {
-        for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
-            try {
+        try {
+            for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
                 pair.factory.createForType(pair.annotation, sqlObjectType).apply(stmt);
             }
-            catch (SQLException e) {
-                throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
-            }
-        }
 
-        for (FactoryAnnotationPair pair : methodBasedCustomizerFactories) {
-            try {
+            for (FactoryAnnotationPair pair : methodBasedCustomizerFactories) {
                 pair.factory.createForMethod(pair.annotation, sqlObjectType, method).apply(stmt);
             }
-            catch (SQLException e) {
-                throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
-            }
-        }
 
-        if (args != null) {
             for (FactoryAnnotationParameterIndex param : paramBasedCustomizerFactories) {
-                try {
-                    param.factory
-                        .createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index])
-                        .apply(stmt);
-                }
-                catch (SQLException e) {
-                    throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
-                }
+                param.factory
+                    .createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index])
+                    .apply(stmt);
             }
+        } catch (SQLException e) {
+            throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
         }
     }
 
