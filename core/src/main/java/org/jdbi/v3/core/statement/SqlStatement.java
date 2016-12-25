@@ -67,7 +67,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     private RewrittenStatement rewritten;
     private PreparedStatement  stmt;
 
-    @SuppressWarnings("unchecked")
     SqlStatement(Handle handle,
                  String sql) {
         super(handle);

@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class BindListUtilTest
 {
@@ -134,7 +134,7 @@ public class BindListUtilTest
         assertThat(out).containsExactly(1, 2);
     }
 
-    private static Object[] toArray(final Iterator iterator)
+    private static Object[] toArray(final Iterator<?> iterator)
     {
         final List<Object> out = new ArrayList<Object>();
         while (iterator.hasNext())
