@@ -19,11 +19,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
-import org.jdbi.v3.Query;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+
 
 /**
  * Used to specify a polymorphic return type parameter on a query method.
@@ -34,7 +36,7 @@ import org.jdbi.v3.sqlobject.SqlStatementCustomizingAnnotation;
 public @interface MapTo {
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Object arg) {
+        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg) {
             if (! (arg instanceof Class)) {
                 throw new UnsupportedOperationException("@MapAs must take a Class, got a " + arg.getClass().getName());
             }
@@ -42,7 +44,7 @@ public @interface MapTo {
                 if (! (s instanceof Query)) {
                     throw new UnsupportedOperationException("@MapAs only makes sense on a @SqlQuery");
                 }
-                Query<?> q = (Query<?>) s;
+                Query q = (Query) s;
                 q.mapTo((Class<?>) arg);
             };
         }

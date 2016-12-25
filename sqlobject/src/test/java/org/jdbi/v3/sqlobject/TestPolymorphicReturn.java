@@ -2,17 +2,17 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.jdbi.v3.H2DatabaseRule;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.customizers.MapTo;
-import org.jdbi.v3.sqlobject.customizers.RegisterMapperFactory;
-import org.jdbi.v3.tweak.BeanMapperFactory;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestPolymorphicReturn {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private SheepDao dao;
 
@@ -41,8 +41,9 @@ public class TestPolymorphicReturn {
     }
 
 
-    @RegisterMapperFactory(BeanMapperFactory.class)
-    interface SheepDao {
+    @RegisterBeanMapper(Sheep.class)
+    public interface SheepDao {
+        @RegisterBeanMapper(FlyingSheep.class)
         @SqlQuery("select name, intValue as numWings from something where name=:name")
         <T extends Sheep> T get(@MapTo Class<T> klass, String name);
 
