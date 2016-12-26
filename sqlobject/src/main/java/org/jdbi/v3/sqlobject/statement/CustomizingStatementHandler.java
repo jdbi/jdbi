@@ -20,14 +20,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.Handler;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
-abstract class CustomizingStatementHandler implements Handler
+abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler
 {
     private final List<FactoryAnnotationPair>           typeBasedCustomizerFactories   = new ArrayList<>();
     private final List<FactoryAnnotationPair>           methodBasedCustomizerFactories = new ArrayList<>();
@@ -35,7 +38,6 @@ abstract class CustomizingStatementHandler implements Handler
     private final Class<?> sqlObjectType;
     private final Method method;
 
-    @SuppressWarnings("unchecked")
     CustomizingStatementHandler(Class<?> sqlObjectType, Method method)
     {
         this.sqlObjectType = sqlObjectType;
@@ -103,37 +105,43 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    protected void applyCustomizers(SqlStatement<?> stmt, Object[] args)
+    @Override
+    public Object invoke(Object target, Object[] args, HandleSupplier hs) throws Exception {
+        final Handle h = hs.getHandle();
+        final String locatedSql = locateSql(h);
+        final StatementType stmt = createStatement(h, locatedSql);
+        final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
+        configureReturner(stmt, cfg);
+        applyCustomizers(stmt, args);
+        return cfg.getReturner().get();
+    }
+
+    abstract void configureReturner(StatementType stmt, SqlObjectStatementConfiguration cfg);
+    abstract StatementType createStatement(Handle handle, String locatedSql);
+
+    String locateSql(final Handle h)
     {
-        for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
-            try {
+        return h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
+    }
+
+    void applyCustomizers(SqlStatement<?> stmt, Object[] args)
+    {
+        try {
+            for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
                 pair.factory.createForType(pair.annotation, sqlObjectType).apply(stmt);
             }
-            catch (SQLException e) {
-                throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
-            }
-        }
 
-        for (FactoryAnnotationPair pair : methodBasedCustomizerFactories) {
-            try {
+            for (FactoryAnnotationPair pair : methodBasedCustomizerFactories) {
                 pair.factory.createForMethod(pair.annotation, sqlObjectType, method).apply(stmt);
             }
-            catch (SQLException e) {
-                throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
-            }
-        }
 
-        if (args != null) {
             for (FactoryAnnotationParameterIndex param : paramBasedCustomizerFactories) {
-                try {
-                    param.factory
-                        .createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index])
-                        .apply(stmt);
-                }
-                catch (SQLException e) {
-                    throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
-                }
+                param.factory
+                    .createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index])
+                    .apply(stmt);
             }
+        } catch (SQLException e) {
+            throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
         }
     }
 
@@ -168,7 +176,7 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    protected Method getMethod()
+    Method getMethod()
     {
         return method;
     }

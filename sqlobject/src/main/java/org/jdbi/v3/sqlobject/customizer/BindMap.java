@@ -64,7 +64,7 @@ public @interface BindMap
             BindMap annotation = (BindMap) a;
             List<String> keys = Arrays.asList(annotation.keys());
             String prefix = annotation.value().isEmpty() ? "" : annotation.value() + ".";
-            Map<?, ?> map = (Map) arg;
+            Map<?, ?> map = (Map<?, ?>) arg;
             Map<String, Object> toBind = new HashMap<>();
             map.forEach((k, v) -> {
                 if (annotation.convertKeys() || k instanceof String) {

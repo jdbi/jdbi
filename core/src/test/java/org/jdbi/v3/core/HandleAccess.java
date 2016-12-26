@@ -15,7 +15,6 @@ package org.jdbi.v3.core;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
 
 /**

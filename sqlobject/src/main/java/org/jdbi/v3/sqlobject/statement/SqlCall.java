@@ -20,14 +20,13 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
-import org.jdbi.v3.sqlobject.SqlObjects;
 
 /**
  * Support for stored proc invocation. Return value must be either null or OutParameters at present.
@@ -45,13 +44,11 @@ public @interface SqlCall {
         }
     }
 
-    class CallHandler extends CustomizingStatementHandler {
-        private final Class<?> sqlObjectType;
+    class CallHandler extends CustomizingStatementHandler<Call> {
         private final boolean returnOutParams;
 
         CallHandler(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
-            this.sqlObjectType = sqlObjectType;
 
             Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
             Class<?> returnClass = GenericTypes.getErasedType(returnType);
@@ -65,18 +62,20 @@ public @interface SqlCall {
         }
 
         @Override
-        public Object invoke(Object target, Object[] args, HandleSupplier handle) {
-            String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, getMethod());
-            Call call = handle.getHandle().createCall(sql);
-            applyCustomizers(call, args);
+        Call createStatement(Handle handle, String locatedSql) {
+            return handle.createCall(locatedSql);
+        }
 
-            OutParameters ou = call.invoke();
-
-            if (returnOutParams) {
-                return ou;
-            } else {
-                return null;
-            }
+        @Override
+        void configureReturner(Call c, SqlObjectStatementConfiguration cfg) {
+            cfg.setReturner(() -> {
+                OutParameters ou = c.invoke();
+                if (returnOutParams) {
+                    return ou;
+                } else {
+                    return null;
+                }
+            });
         }
     }
 }

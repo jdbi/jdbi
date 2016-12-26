@@ -19,12 +19,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
-import org.jdbi.v3.sqlobject.SqlObjects;
 
 /**
  * Used to indicate that a method should execute a query.
@@ -45,29 +44,26 @@ public @interface SqlQuery {
     class Factory implements HandlerFactory {
         @Override
         public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new QueryHandler(sqlObjectType, method, ResultReturner.forMethod(sqlObjectType, method));
+            return new QueryHandler(sqlObjectType, method);
         }
     }
 
-    class QueryHandler extends CustomizingStatementHandler {
-        private final Class<?> sqlObjectType;
-        private final Method method;
+    class QueryHandler extends CustomizingStatementHandler<Query> {
         private final ResultReturner magic;
 
-        QueryHandler(Class<?> sqlObjectType, Method method, ResultReturner magic) {
+        QueryHandler(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
-            this.sqlObjectType = sqlObjectType;
-            this.method = method;
-            this.magic = magic;
+            this.magic = ResultReturner.forMethod(sqlObjectType, method);
         }
 
         @Override
-        public Object invoke(Object target, Object[] args, HandleSupplier handle) {
-            String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
-            Query q = handle.getHandle().createQuery(sql);
-            applyCustomizers(q, args);
+        void configureReturner(Query q, SqlObjectStatementConfiguration cfg) {
+            cfg.setReturner(() -> magic.map(q, q.getContext()));
+        }
 
-            return magic.map(method, q);
+        @Override
+        Query createStatement(Handle handle, String locatedSql) {
+            return handle.createQuery(locatedSql);
         }
     }
 }

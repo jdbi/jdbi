@@ -33,7 +33,6 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
     private final StatementContext ctx;
     private final Collection<StatementCustomizer> customizers = new ArrayList<>();
 
-    @SuppressWarnings("unchecked")
     BaseStatement(Handle handle)
     {
         this.handle = handle;
@@ -75,7 +74,6 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
      * @param cleanable the cleanable to register
      * @return this
      */
-    @SuppressWarnings("unchecked")
     This addCleanable(Cleanable cleanable)
     {
         getContext().addCleanable(cleanable);
@@ -94,7 +92,6 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This>
      * @param customizer instance to be used to customize a statement
      * @return this
      */
-    @SuppressWarnings("unchecked")
     public final This addCustomizer(final StatementCustomizer customizer)
     {
         this.customizers.add(customizer);

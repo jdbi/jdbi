@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.postgres;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.generic.GenericTypes;
-
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
+
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericTypes;
 
 /**
  * An argument factory which binds Java's {@link Map} to Postgres' hstore type.
@@ -28,7 +28,6 @@ import java.util.Optional;
 public class HStoreArgumentFactory implements ArgumentFactory {
 
     @Override
-    @SuppressWarnings("unchecked")
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         if (Map.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
             return Optional.of((i, p, cx) -> p.setObject(i, value));

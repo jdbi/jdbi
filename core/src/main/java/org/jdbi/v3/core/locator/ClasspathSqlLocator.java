@@ -21,11 +21,11 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import net.jodah.expiringmap.ExpirationPolicy;
-import net.jodah.expiringmap.ExpiringMap;
-
 import org.antlr.runtime.ANTLRInputStream;
 import org.jdbi.v3.core.internal.SqlScriptParser;
+
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 
 /**
  * Locates SQL in <code>.sql</code> files on the classpath.
@@ -36,11 +36,12 @@ public final class ClasspathSqlLocator {
 
     private static final SqlScriptParser SQL_SCRIPT_PARSER = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
 
+    @SuppressWarnings("unchecked")
     private static final Map<Entry<ClassLoader, String>, String> CACHE = ExpiringMap.builder()
             .expiration(10, TimeUnit.MINUTES)
             .expirationPolicy(ExpirationPolicy.ACCESSED)
             .entryLoader(obj -> {
-                Entry<ClassLoader, String> entry = (Entry) obj;
+                Entry<ClassLoader, String> entry = (Entry<ClassLoader, String>) obj;
                 return readResource(entry.getKey(), entry.getValue());
             })
             .build();

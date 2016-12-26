@@ -201,7 +201,7 @@ public class TestOnDemandSqlObject
         @Override
         public Something map(ResultSet r, StatementContext ctx) throws SQLException
         {
-            throw new SQLException("protocol error");
+            throw new SQLException("fake protocol error");
         }
     }
 
