@@ -23,8 +23,6 @@ import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.v3.core.array.SqlArrayType;
 import org.jdbi.v3.core.array.SqlArrayTypeFactory;
 import org.jdbi.v3.core.array.SqlArrayTypes;
-import org.jdbi.v3.core.collector.CollectorFactory;
-import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -154,16 +152,6 @@ public interface Configurable<This> {
      */
     default This registerArrayType(SqlArrayTypeFactory factory) {
         return configure(SqlArrayTypes.class, c -> c.register(factory));
-    }
-
-    /**
-     * Convenience method for {@code getConfig(JdbiCollectors.class).register(factory)}
-     *
-     * @param factory collector factory
-     * @return this
-     */
-    default This registerCollector(CollectorFactory factory) {
-        return configure(JdbiCollectors.class, c -> c.register(factory));
     }
 
     /**

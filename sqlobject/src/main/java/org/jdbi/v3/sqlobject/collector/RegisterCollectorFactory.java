@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.config;
+package org.jdbi.v3.sqlobject.collector;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.Query;
-import org.jdbi.v3.core.collector.CollectorFactory;
+import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 
 /**
  * Used to register container mappers on the current {@link Query}

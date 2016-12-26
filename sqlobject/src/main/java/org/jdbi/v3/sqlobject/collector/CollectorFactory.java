@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.collector;
+package org.jdbi.v3.sqlobject.collector;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.stream.Collector;
-
-import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Factory for building Collectors to assemble containers of elements.
@@ -35,7 +33,7 @@ public interface CollectorFactory {
      * @param containerType the container type
      *
      * @return the container element type if it can be discovered through reflection; empty otherwise.
-     * @see StatementContext#findElementTypeFor(Type)
+     * @see JdbiCollectors#findElementTypeFor(Type)
      */
     Optional<Type> elementType(Type containerType);
 
@@ -44,7 +42,6 @@ public interface CollectorFactory {
      *
      * @return a {@link Collector} for the given container type.
      *
-     * @see StatementContext#findCollectorFor(Type)
      * @see JdbiCollectors#findFor(Type)
      */
     Collector<?, ?, ?> build(Type containerType);

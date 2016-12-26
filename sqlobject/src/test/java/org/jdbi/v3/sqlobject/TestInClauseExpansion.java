@@ -18,8 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableSet;
-
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.customizer.BindList;
@@ -31,7 +29,7 @@ import org.junit.Test;
 public class TestInClauseExpansion
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugins(); // Guava
+    public H2DatabaseRule db = new H2DatabaseRule().withPlugins();
     private Handle handle;
 
     @Before
@@ -53,7 +51,7 @@ public class TestInClauseExpansion
     public interface DAO
     {
         @SqlQuery("select name from something where id in (<names>)")
-        ImmutableSet<String> findIdsForNames(@BindList List<Integer> names);
+        List<String> findIdsForNames(@BindList List<Integer> names);
     }
 
 }
