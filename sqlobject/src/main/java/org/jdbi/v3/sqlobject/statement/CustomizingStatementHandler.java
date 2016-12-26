@@ -30,7 +30,7 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
-abstract class CustomizingStatementHandler implements Handler
+abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler
 {
     private final List<FactoryAnnotationPair>           typeBasedCustomizerFactories   = new ArrayList<>();
     private final List<FactoryAnnotationPair>           methodBasedCustomizerFactories = new ArrayList<>();
@@ -109,15 +109,15 @@ abstract class CustomizingStatementHandler implements Handler
     public Object invoke(Object target, Object[] args, HandleSupplier hs) throws Exception {
         final Handle h = hs.getHandle();
         final String locatedSql = locateSql(h);
-        final SqlStatement<?> stmt = createStatement(h, locatedSql);
+        final StatementType stmt = createStatement(h, locatedSql);
         final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
         configureReturner(stmt, cfg);
         applyCustomizers(stmt, args);
         return cfg.getReturner().get();
     }
 
-    abstract void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg);
-    abstract SqlStatement<?> createStatement(Handle handle, String locatedSql);
+    abstract void configureReturner(StatementType stmt, SqlObjectStatementConfiguration cfg);
+    abstract StatementType createStatement(Handle handle, String locatedSql);
 
     String locateSql(final Handle h)
     {

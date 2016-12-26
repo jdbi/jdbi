@@ -39,16 +39,18 @@ public @interface MapTo {
     class Factory implements SqlStatementCustomizerFactory {
         @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg) {
+            final Type type;
             if (arg instanceof GenericType) {
-                arg = ((GenericType<?>) arg).getType();
-            }
-            if (! (arg instanceof Type)) {
+                type = ((GenericType<?>) arg).getType();
+            } else if (! (arg instanceof Type)) {
                 throw new UnsupportedOperationException("@MapTo must take a Type, got a " + arg.getClass().getName());
+            } else {
+                type = (Type) arg;
             }
             return s -> {
                 ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
                 s.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                        () -> returner.result(((ResultSetIterable) s).mapTo((Type) arg)));
+                        () -> returner.result(((ResultSetIterable) s).mapTo(type), s.getContext()));
             };
         }
     }

@@ -55,7 +55,7 @@ public @interface UseRowMapper
 
             final ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
             return q -> q.getConfig(SqlObjectStatementConfiguration.class)
-                    .setReturner(() -> returner.result(((ResultSetIterable) q).map(mapper)));
+                    .setReturner(() -> returner.result(((ResultSetIterable) q).map(mapper), q.getContext()));
         }
     }
 }

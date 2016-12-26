@@ -34,7 +34,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.Handler;
@@ -79,7 +78,7 @@ public @interface SqlBatch {
         }
     }
 
-    class BatchHandler extends CustomizingStatementHandler {
+    class BatchHandler extends CustomizingStatementHandler<PreparedBatch> {
         private final SqlBatch sqlBatch;
         private final ChunkSizeFunction batchChunkSize;
         private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
@@ -140,12 +139,12 @@ public @interface SqlBatch {
         }
 
         @Override
-        SqlStatement<?> createStatement(Handle handle, String locatedSql) {
+        PreparedBatch createStatement(Handle handle, String locatedSql) {
             return handle.prepareBatch(locatedSql);
         }
 
         @Override
-        void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg) {
+        void configureReturner(PreparedBatch stmt, SqlObjectStatementConfiguration cfg) {
         }
 
         @Override

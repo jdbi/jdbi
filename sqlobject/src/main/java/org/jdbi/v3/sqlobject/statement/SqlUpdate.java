@@ -25,7 +25,6 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultSetIterable;
-import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
@@ -55,7 +54,7 @@ public @interface SqlUpdate {
         }
     }
 
-    class UpdateHandler extends CustomizingStatementHandler {
+    class UpdateHandler extends CustomizingStatementHandler<Update> {
         private final Function<Update, Object> returner;
 
         UpdateHandler(Class<?> sqlObjectType, Method method) {
@@ -86,13 +85,13 @@ public @interface SqlUpdate {
         }
 
         @Override
-        SqlStatement<?> createStatement(Handle handle, String locatedSql) {
+        Update createStatement(Handle handle, String locatedSql) {
             return handle.createUpdate(locatedSql);
         }
 
         @Override
-        void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg) {
-            cfg.setReturner(() -> returner.apply((Update) stmt));
+        void configureReturner(Update u, SqlObjectStatementConfiguration cfg) {
+            cfg.setReturner(() -> returner.apply(u));
         }
 
         private boolean isNumeric(Class<?> type) {

@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.Query;
-import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
@@ -49,7 +48,7 @@ public @interface SqlQuery {
         }
     }
 
-    class QueryHandler extends CustomizingStatementHandler {
+    class QueryHandler extends CustomizingStatementHandler<Query> {
         private final ResultReturner magic;
 
         QueryHandler(Class<?> sqlObjectType, Method method) {
@@ -58,12 +57,12 @@ public @interface SqlQuery {
         }
 
         @Override
-        void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg) {
-            cfg.setReturner(() -> magic.map((Query) stmt, stmt.getContext()));
+        void configureReturner(Query q, SqlObjectStatementConfiguration cfg) {
+            cfg.setReturner(() -> magic.map(q, q.getContext()));
         }
 
         @Override
-        SqlStatement<?> createStatement(Handle handle, String locatedSql) {
+        Query createStatement(Handle handle, String locatedSql) {
             return handle.createQuery(locatedSql);
         }
     }

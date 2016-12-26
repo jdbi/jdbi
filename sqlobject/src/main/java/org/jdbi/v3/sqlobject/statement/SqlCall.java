@@ -24,7 +24,6 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.OutParameters;
-import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
@@ -45,7 +44,7 @@ public @interface SqlCall {
         }
     }
 
-    class CallHandler extends CustomizingStatementHandler {
+    class CallHandler extends CustomizingStatementHandler<Call> {
         private final boolean returnOutParams;
 
         CallHandler(Class<?> sqlObjectType, Method method) {
@@ -63,14 +62,14 @@ public @interface SqlCall {
         }
 
         @Override
-        SqlStatement<?> createStatement(Handle handle, String locatedSql) {
+        Call createStatement(Handle handle, String locatedSql) {
             return handle.createCall(locatedSql);
         }
 
         @Override
-        void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg) {
+        void configureReturner(Call c, SqlObjectStatementConfiguration cfg) {
             cfg.setReturner(() -> {
-                OutParameters ou = ((Call)stmt).invoke();
+                OutParameters ou = c.invoke();
                 if (returnOutParams) {
                     return ou;
                 } else {
