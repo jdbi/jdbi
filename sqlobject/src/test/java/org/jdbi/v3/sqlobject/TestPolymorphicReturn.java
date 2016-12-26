@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
-import org.jdbi.v3.sqlobject.customizers.MapTo;
+import org.jdbi.v3.sqlobject.statement.MapTo;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.customizers;
+package org.jdbi.v3.sqlobject.statement;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -20,8 +20,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
-import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.result.ResultSetIterable;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
@@ -37,15 +39,16 @@ public @interface MapTo {
     class Factory implements SqlStatementCustomizerFactory {
         @Override
         public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg) {
-            if (! (arg instanceof Class)) {
-                throw new UnsupportedOperationException("@MapAs must take a Class, got a " + arg.getClass().getName());
+            if (arg instanceof GenericType) {
+                arg = ((GenericType<?>) arg).getType();
+            }
+            if (! (arg instanceof Type)) {
+                throw new UnsupportedOperationException("@MapTo must take a Type, got a " + arg.getClass().getName());
             }
             return s -> {
-                if (! (s instanceof Query)) {
-                    throw new UnsupportedOperationException("@MapAs only makes sense on a @SqlQuery");
-                }
-                Query q = (Query) s;
-                q.mapTo((Class<?>) arg);
+                ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
+                s.getConfig(SqlObjectStatementConfiguration.class).setReturner(
+                        () -> returner.result(((ResultSetIterable) s).mapTo((Type) arg)));
             };
         }
     }
