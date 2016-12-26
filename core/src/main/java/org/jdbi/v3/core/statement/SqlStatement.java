@@ -1226,9 +1226,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * Examples:
      * <pre>
      *
-     * List&lt;Things&gt; thingsToSearchBy = ...
+     * List&lt;ThingKey&gt; thingKeys = ...
      * List&lt;Thing&gt; things = handle.createQuery("select * from things where (id, foo) in (&lt;thingKeys&gt;)")
-     *     .bindBeanList("thingKeys", thingsToSearchBy)
+     *     .bindBeanList("thingKeys", thingKeys, Arrays.asList("id", "foo"))
      *     .mapTo(Contact.class)
      *     .list();
      * </pre>
@@ -1237,7 +1237,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @param values list of values that will be comma-spliced into the defined attribute value.
      * @param propertyNames list of properties that will be invoked on the values.
      * @return this
-     * @throws IllegalArgumentException if the list is empty.
+     * @throws IllegalArgumentException if the list of values or properties is empty.
      */
     public final This bindBeanList(String key, List<?> values, List<String> propertyNames) {
         if (values.isEmpty()) {
