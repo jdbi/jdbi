@@ -34,13 +34,13 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
-import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 
 /**
@@ -80,7 +80,6 @@ public @interface SqlBatch {
     }
 
     class BatchHandler extends CustomizingStatementHandler {
-        private final Class<?> sqlObjectType;
         private final SqlBatch sqlBatch;
         private final ChunkSizeFunction batchChunkSize;
         private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
@@ -88,7 +87,6 @@ public @interface SqlBatch {
 
         BatchHandler(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
-            this.sqlObjectType = sqlObjectType;
 
             this.sqlBatch = method.getAnnotation(SqlBatch.class);
             this.batchChunkSize = determineBatchChunkSize(sqlObjectType, method);
@@ -142,10 +140,18 @@ public @interface SqlBatch {
         }
 
         @Override
+        SqlStatement<?> createStatement(Handle handle, String locatedSql) {
+            return handle.prepareBatch(locatedSql);
+        }
+
+        @Override
+        void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg) {
+        }
+
+        @Override
         public Object invoke(Object target, Object[] args, HandleSupplier h) {
             final Handle handle = h.getHandle();
-            final String sql = handle.getConfig().get(SqlObjects.class)
-                    .getSqlLocator().locate(sqlObjectType, getMethod());
+            final String sql = locateSql(handle);
             final int chunkSize = batchChunkSize.call(args);
             final Iterator<Object[]> batchArgs = zipArgs(getMethod(), args);
 

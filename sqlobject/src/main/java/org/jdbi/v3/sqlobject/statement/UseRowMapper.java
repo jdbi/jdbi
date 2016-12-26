@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.result.ResultSetIterable;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -53,7 +53,9 @@ public @interface UseRowMapper
                 throw new UnableToCreateStatementException("Could not create mapper " + mapperAnnotation.value().getName(), e, null);
             }
 
-            return q -> ((Query)q).map(mapper);
+            final ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
+            return q -> q.getConfig(SqlObjectStatementConfiguration.class)
+                    .setReturner(() -> returner.result(((ResultSetIterable) q).map(mapper)));
         }
     }
 }

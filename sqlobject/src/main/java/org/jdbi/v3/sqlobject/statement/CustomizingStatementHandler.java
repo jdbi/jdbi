@@ -20,9 +20,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.Handler;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
@@ -102,7 +105,26 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    protected void applyCustomizers(SqlStatement<?> stmt, Object[] args)
+    @Override
+    public Object invoke(Object target, Object[] args, HandleSupplier hs) throws Exception {
+        final Handle h = hs.getHandle();
+        final String locatedSql = locateSql(h);
+        final SqlStatement<?> stmt = createStatement(h, locatedSql);
+        final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
+        configureReturner(stmt, cfg);
+        applyCustomizers(stmt, args);
+        return cfg.getReturner().get();
+    }
+
+    abstract void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg);
+    abstract SqlStatement<?> createStatement(Handle handle, String locatedSql);
+
+    String locateSql(final Handle h)
+    {
+        return h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
+    }
+
+    void applyCustomizers(SqlStatement<?> stmt, Object[] args)
     {
         try {
             for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
@@ -154,7 +176,7 @@ abstract class CustomizingStatementHandler implements Handler
         }
     }
 
-    protected Method getMethod()
+    Method getMethod()
     {
         return method;
     }

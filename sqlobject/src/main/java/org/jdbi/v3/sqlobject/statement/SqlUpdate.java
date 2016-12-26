@@ -21,15 +21,15 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Function;
 
-import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
-import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 
 /**
@@ -56,12 +56,10 @@ public @interface SqlUpdate {
     }
 
     class UpdateHandler extends CustomizingStatementHandler {
-        private final Class<?> sqlObjectType;
         private final Function<Update, Object> returner;
 
         UpdateHandler(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
-            this.sqlObjectType = sqlObjectType;
 
             boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 
@@ -88,11 +86,13 @@ public @interface SqlUpdate {
         }
 
         @Override
-        public Object invoke(Object target, Object[] args, HandleSupplier handle) {
-            String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, getMethod());
-            Update update = handle.getHandle().createUpdate(sql);
-            applyCustomizers(update, args);
-            return this.returner.apply(update);
+        SqlStatement<?> createStatement(Handle handle, String locatedSql) {
+            return handle.createUpdate(locatedSql);
+        }
+
+        @Override
+        void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg) {
+            cfg.setReturner(() -> returner.apply((Update) stmt));
         }
 
         private boolean isNumeric(Class<?> type) {

@@ -19,12 +19,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
-import org.jdbi.v3.sqlobject.SqlObjects;
 
 /**
  * Used to indicate that a method should execute a query.
@@ -50,24 +50,21 @@ public @interface SqlQuery {
     }
 
     class QueryHandler extends CustomizingStatementHandler {
-        private final Class<?> sqlObjectType;
-        private final Method method;
         private final ResultReturner magic;
 
         QueryHandler(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
-            this.sqlObjectType = sqlObjectType;
-            this.method = method;
             this.magic = ResultReturner.forMethod(sqlObjectType, method);
         }
 
         @Override
-        public Object invoke(Object target, Object[] args, HandleSupplier handle) {
-            String sql = handle.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method);
-            Query q = handle.getHandle().createQuery(sql);
-            applyCustomizers(q, args);
+        void configureReturner(SqlStatement<?> stmt, SqlObjectStatementConfiguration cfg) {
+            cfg.setReturner(() -> magic.map((Query) stmt, stmt.getContext()));
+        }
 
-            return magic.map(method, q);
+        @Override
+        SqlStatement<?> createStatement(Handle handle, String locatedSql) {
+            return handle.createQuery(locatedSql);
         }
     }
 }
