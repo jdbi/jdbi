@@ -1238,8 +1238,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @param propertyNames list of properties that will be invoked on the values.
      * @return this
      * @throws IllegalArgumentException if the list of values or properties is empty.
+     * @throws UnableToCreateStatementException If a property can't be found on an value or we can't find a Argument for it.
      */
-    public final This bindBeanList(String key, List<?> values, List<String> propertyNames) {
+    public final This bindBeanList(String key, List<?> values, List<String> propertyNames) throws UnableToCreateStatementException {
         if (values.isEmpty()) {
             throw new IllegalArgumentException(
                     getClass().getSimpleName() + ".bindBeanList was called with no values.");
@@ -1268,7 +1269,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                 String propertyName = propertyNames.get(propertyIndex);
                 String name = "__" + key + "_" + valueIndex + "_" + propertyName;
                 names.append(':').append(name);
-                bind(name, beanProperties.find(propertyName).get());
+                Argument argument = beanProperties.find(propertyName)
+                        .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + propertyName + " argument for " + bean, getContext()));
+                bind(name, argument);
             }
             names.append(")");
         }
