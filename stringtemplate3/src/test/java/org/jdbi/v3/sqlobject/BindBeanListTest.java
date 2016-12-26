@@ -37,6 +37,8 @@ public class BindBeanListTest
 {
     private static Handle handle;
 
+    private static List<Something> expectedSomethings;
+
     @ClassRule
     public static final H2DatabaseRule db = new H2DatabaseRule();
 
@@ -53,6 +55,8 @@ public class BindBeanListTest
 
         // "control group" element that should *not* be returned by the queries
         handle.execute("insert into something(id, name) values(3, '3')");
+
+        expectedSomethings = Arrays.asList(new Something(1, "1"), new Something(2, "2"));
     }
 
     @AfterClass
@@ -72,7 +76,7 @@ public class BindBeanListTest
                 new SomethingKey(1, "1"),
                 new SomethingKey(2, "2"));
 
-        assertThat(out).hasSize(2);
+        assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @UseStringTemplateStatementRewriter
@@ -93,7 +97,7 @@ public class BindBeanListTest
                 new SomethingKey(1, "1"),
                 new SomethingKey(2, "2"));
 
-        assertThat(out).hasSize(2);
+        assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -138,7 +142,7 @@ public class BindBeanListTest
                 new SomethingKey(1, "1"),
                 new SomethingKey(2, "2"));
 
-        assertThat(out).hasSize(2);
+        assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @UseStringTemplateStatementRewriter
@@ -159,7 +163,7 @@ public class BindBeanListTest
                 new SomethingKey(2, "2"))
                 .iterator());
 
-        assertThat(out).hasSize(2);
+        assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @Test(expected = IllegalArgumentException.class)
