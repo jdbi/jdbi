@@ -13,14 +13,16 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
+
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Binds the named parameter <code>:now</code> or a custom named parameter with
@@ -57,7 +59,7 @@ public @interface Timestamped {
     class Factory implements SqlStatementCustomizerFactory {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
             final String parameterName = ((Timestamped) annotation).value();
 
             return q -> {

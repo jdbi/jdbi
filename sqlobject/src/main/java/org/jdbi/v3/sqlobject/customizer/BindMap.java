@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+
 /**
  * Binds the entries of a {@code Map<String, Object>} to a SQL statement.
  */
@@ -55,30 +57,31 @@ public @interface BindMap
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation a,
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                         Annotation a,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object arg) {
+                                                         int index) {
             BindMap annotation = (BindMap) a;
             List<String> keys = Arrays.asList(annotation.keys());
             String prefix = annotation.value().isEmpty() ? "" : annotation.value() + ".";
-            Map<?, ?> map = (Map<?, ?>) arg;
-            Map<String, Object> toBind = new HashMap<>();
-            map.forEach((k, v) -> {
-                if (annotation.convertKeys() || k instanceof String) {
-                    String key = k.toString();
-                    if (keys.isEmpty() || keys.contains(key)) {
-                        toBind.put(prefix + key, v);
+            return (stmt, arg) -> {
+                Map<?, ?> map = (Map<?, ?>) arg;
+                Map<String, Object> toBind = new HashMap<>();
+                map.forEach((k, v) -> {
+                    if (annotation.convertKeys() || k instanceof String) {
+                        String key = k.toString();
+                        if (keys.isEmpty() || keys.contains(key)) {
+                            toBind.put(prefix + key, v);
+                        }
+                    } else {
+                        throw new IllegalArgumentException("Key " + k + " (of " + k.getClass() + ") must be a String");
                     }
-                } else {
-                    throw new IllegalArgumentException("Key " + k + " (of " + k.getClass() + ") must be a String");
-                }
-            });
-            keys.forEach(key -> toBind.putIfAbsent(prefix + key, null));
-
-            return stmt -> stmt.bindMap(toBind);
+                });
+                keys.forEach(key -> toBind.putIfAbsent(prefix + key, null));
+                stmt.bindMap(toBind);
+            };
         }
     }
 }

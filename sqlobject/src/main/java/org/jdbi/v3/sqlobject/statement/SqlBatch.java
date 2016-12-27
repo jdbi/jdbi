@@ -28,6 +28,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.ReflectionArrayIterator;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -73,8 +74,8 @@ public @interface SqlBatch {
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new BatchHandler(sqlObjectType, method);
+        public Handler buildHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
+            return new BatchHandler(registry, sqlObjectType, method);
         }
     }
 
@@ -84,8 +85,8 @@ public @interface SqlBatch {
         private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
         private final ResultReturner magic;
 
-        BatchHandler(Class<?> sqlObjectType, Method method) {
-            super(sqlObjectType, method);
+        BatchHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
+            super(registry, sqlObjectType, method);
 
             this.sqlBatch = method.getAnnotation(SqlBatch.class);
             this.batchChunkSize = determineBatchChunkSize(sqlObjectType, method);

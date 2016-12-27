@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultSetIterable;
@@ -49,16 +50,16 @@ public @interface SqlUpdate {
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new UpdateHandler(sqlObjectType, method);
+        public Handler buildHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
+            return new UpdateHandler(registry, sqlObjectType, method);
         }
     }
 
     class UpdateHandler extends CustomizingStatementHandler<Update> {
         private final Function<Update, Object> returner;
 
-        UpdateHandler(Class<?> sqlObjectType, Method method) {
-            super(sqlObjectType, method);
+        UpdateHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
+            super(registry, sqlObjectType, method);
 
             boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
 

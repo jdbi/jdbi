@@ -14,19 +14,20 @@
 package org.jdbi.v3.sqlobject;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSqlMethodAnnotations
 {
@@ -70,7 +71,7 @@ public class TestSqlMethodAnnotations
     public @interface Foo {
         class Factory implements HandlerFactory {
             @Override
-            public Handler buildHandler(Class<?> sqlObjectType, Method method) {
+            public Handler buildHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
                 return (obj, args, handle) -> "foo";
             }
         }

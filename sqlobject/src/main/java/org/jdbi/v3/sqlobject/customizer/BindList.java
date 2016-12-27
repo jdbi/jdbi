@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.ReflectionArrayIterator;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
@@ -65,36 +66,39 @@ public @interface BindList {
 
     final class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                         Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object arg) {
+                                                         int index) {
             final BindList bindList = (BindList) annotation;
             final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
-
-            if (arg == null || Util.isEmpty(arg)) {
-                switch (bindList.onEmpty()) {
+            return (stmt, arg) -> {
+                if (arg == null || Util.isEmpty(arg)) {
+                    switch (bindList.onEmpty()) {
                     case VOID:
-                        return stmt -> stmt.define(name, "");
+                        stmt.define(name, "");
+                        return;
                     case NULL:
-                        return stmt -> stmt.define(name, "null");
+                        stmt.define(name, "null");
+                        return;
                     case THROW:
                         throw new IllegalArgumentException(arg == null
-                                ? "argument is null; null was explicitly forbidden on this instance of BindList"
+                        ? "argument is null; null was explicitly forbidden on this instance of BindList"
                                 : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
                     default:
                         throw new IllegalStateException(EmptyHandling.valueNotHandledMessage);
+                    }
                 }
-            }
 
-            List<Object> list = new ArrayList<>();
-            for (Iterator<?> iter = Util.toIterator(arg); iter.hasNext();) {
-                list.add(iter.next());
-            }
+                List<Object> list = new ArrayList<>();
+                for (Iterator<?> iter = Util.toIterator(arg); iter.hasNext();) {
+                    list.add(iter.next());
+                }
 
-            return stmt -> stmt.bindList(name, list);
+                stmt.bindList(name, list);
+            };
         }
 
     }

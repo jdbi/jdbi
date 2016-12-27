@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
@@ -44,17 +45,17 @@ public @interface Define
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                         Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object arg)
+                                                         int index)
         {
             Define define = (Define) annotation;
 
             final String name = ParameterUtil.getParameterName(define, define.value(), param);
-            return stmt -> stmt.define(name, arg);
+            return (stmt, arg) -> stmt.define(name, arg);
         }
     }
 }

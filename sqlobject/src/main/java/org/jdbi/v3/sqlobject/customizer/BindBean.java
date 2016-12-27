@@ -21,6 +21,8 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+
 /**
  * Binds the properties of a JavaBean to a SQL statement.
  */
@@ -37,14 +39,14 @@ public @interface BindBean
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                         Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object bean) {
+                                                         int index) {
             BindBean bind = (BindBean) annotation;
-            return stmt -> {
+            return (stmt, bean) -> {
                 String prefix = bind.value();
                 if (prefix.isEmpty()) {
                     stmt.bindBean(bean);

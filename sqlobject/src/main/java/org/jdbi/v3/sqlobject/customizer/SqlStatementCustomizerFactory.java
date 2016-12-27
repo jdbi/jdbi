@@ -17,6 +17,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+
 /**
  * Interface used in conjunction with {@link SqlStatementCustomizingAnnotation} to generate
  * {@link SqlStatementCustomizer} instances.
@@ -26,11 +28,12 @@ public interface SqlStatementCustomizerFactory
     /**
      * Used to create customizers for annotations on sql object interfaces
      *
+     * @param registry the configuration registry
      * @param annotation the annotation which lead to the method being called
      * @param sqlObjectType sql object class (interface)
      * @return the customizer which will be applied to the generated statement
      */
-    default SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+    default SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
         throw new UnsupportedOperationException("Not supported for type");
     }
@@ -38,12 +41,13 @@ public interface SqlStatementCustomizerFactory
     /**
      * Used to create customizers for annotations on methods.
      *
+     * @param registry the configuration registry
      * @param annotation the annotation which lead to the method being called
      * @param sqlObjectType sql object class (interface)
      * @param method the method which was annotated
      * @return the customizer which will be applied to the generated statement
      */
-    default SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+    default SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
     {
         throw new UnsupportedOperationException("Not supported for method");
     }
@@ -51,6 +55,7 @@ public interface SqlStatementCustomizerFactory
     /**
      * Used to create customizers for annotations on parameters
      *
+     * @param registry the configuration registry
      * @param annotation the annotation which lead to the method being called
      * @param sqlObjectType sql object class (interface)
      * @param method the method which was annotated
@@ -59,13 +64,20 @@ public interface SqlStatementCustomizerFactory
      * @param arg the argument value for the annotated parameter
      * @return the customizer which will be applied to the generated statement
      */
-    default SqlStatementCustomizer createForParameter(Annotation annotation,
+    default SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                      Annotation annotation,
                                                       Class<?> sqlObjectType,
                                                       Method method,
                                                       Parameter param,
-                                                      int index,
-                                                      Object arg)
+                                                      int index)
     {
         throw new UnsupportedOperationException("Not supported for parameter");
     }
+
+    /**
+     * Empty SqlStatementCustomizer.  Useful for implementations that
+     * change the configuration {@code registry} but do not do
+     * further per-statement customizations.
+     */
+    static SqlStatementCustomizer NONE = s -> {};
 }

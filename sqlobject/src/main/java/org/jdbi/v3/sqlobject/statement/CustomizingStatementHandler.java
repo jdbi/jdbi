@@ -19,89 +19,58 @@ import java.lang.reflect.Parameter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler
 {
-    private final List<FactoryAnnotationPair>           typeBasedCustomizerFactories   = new ArrayList<>();
-    private final List<FactoryAnnotationPair>           methodBasedCustomizerFactories = new ArrayList<>();
-    private final List<FactoryAnnotationParameterIndex> paramBasedCustomizerFactories  = new ArrayList<>();
+    private final List<SqlStatementCustomizer>                typeBasedCustomizers;
+    private final List<SqlStatementCustomizer>                methodBasedCustomizers;
+    private final List<ParamCustomizer> paramBasedCustomizers = new ArrayList<>();
     private final Class<?> sqlObjectType;
     private final Method method;
 
-    CustomizingStatementHandler(Class<?> sqlObjectType, Method method)
+    CustomizingStatementHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method)
     {
         this.sqlObjectType = sqlObjectType;
         this.method = method;
 
-        for (final Annotation annotation : sqlObjectType.getAnnotations()) {
-            if (annotation.annotationType().isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
-                final SqlStatementCustomizingAnnotation a = annotation.annotationType()
-                                                                      .getAnnotation(SqlStatementCustomizingAnnotation.class);
-                final SqlStatementCustomizerFactory f;
-                try {
-                    f = a.value().newInstance();
-                }
-                catch (Exception e) {
-                    throw new IllegalStateException("unable to create sql statement customizer factory", e);
-                }
-                typeBasedCustomizerFactories.add(new FactoryAnnotationPair(f, annotation));
-            }
-        }
+        typeBasedCustomizers = Stream.of(sqlObjectType.getAnnotations())
+            .flatMap(a -> instantiateFactory(a).map(f -> f.createForType(registry, a, sqlObjectType)))
+            .collect(Collectors.toList());
 
+        methodBasedCustomizers = Stream.of(method.getAnnotations())
+                .flatMap(a -> instantiateFactory(a).map(f -> f.createForMethod(registry, a, sqlObjectType, method)))
+                .collect(Collectors.toList());
 
-        for (final Annotation annotation : method.getAnnotations()) {
-            final Class<? extends Annotation> annotationType = annotation.annotationType();
-            if (annotationType.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
-                final SqlStatementCustomizingAnnotation scf =
-                    annotationType.getAnnotation(SqlStatementCustomizingAnnotation.class);
-                final SqlStatementCustomizerFactory f;
-                try {
-                    f = scf.value().newInstance();
-                }
-                catch (Exception e) {
-                    throw new IllegalStateException("unable to instantiate statement customizer factory", e);
-                }
-                methodBasedCustomizerFactories.add(new FactoryAnnotationPair(f, annotation));
-            }
-
-        }
-
-        final Annotation[][] paramAnnotations = method.getParameterAnnotations();
         final Parameter[] parameters = method.getParameters();
-        for (int paramIndex = 0; paramIndex < paramAnnotations.length; paramIndex++) {
-            boolean foundCustomizingAnnotations = false;
-            for (final Annotation annotation : paramAnnotations[paramIndex]) {
-                final Class<? extends Annotation> annotationType = annotation.annotationType();
-
-                if (annotationType.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
-                    SqlStatementCustomizingAnnotation sca = annotation.annotationType()
-                                                                      .getAnnotation(SqlStatementCustomizingAnnotation.class);
-                    final SqlStatementCustomizerFactory f;
-                    try {
-                        f = sca.value().newInstance();
-                    }
-                    catch (Exception e) {
-                        throw new IllegalStateException("unable to instantiate sql statement customizer factory", e);
-                    }
-                    paramBasedCustomizerFactories.add(new FactoryAnnotationParameterIndex(f, annotation, parameters[paramIndex], paramIndex));
-                    foundCustomizingAnnotations = true;
-                }
+        final Annotation[][] paramAnnotations = method.getParameterAnnotations();
+        for (int paramIndex = 0; paramIndex < parameters.length; paramIndex++) {
+            final int capturedParamIndex = paramIndex;
+            final Parameter param = parameters[paramIndex];
+            final List<SqlStatementParameterCustomizer> customizers =
+                    Stream.of(paramAnnotations[paramIndex])
+                        .flatMap(a -> instantiateFactory(a).map(f ->
+                                f.createForParameter(registry, a, sqlObjectType, method, param, capturedParamIndex)))
+                        .collect(Collectors.toCollection(ArrayList::new));
+            if (customizers.isEmpty()) {
+                customizers.add(new Bind.Factory().createForParameter(
+                        registry, null, sqlObjectType, method, param, paramIndex));
             }
-
-            if (!foundCustomizingAnnotations) {
-                // There are no customizing annotations on the parameter, so use default binder
-                paramBasedCustomizerFactories.add(new FactoryAnnotationParameterIndex(new Bind.Factory(), null, parameters[paramIndex], paramIndex));
-            }
+            customizers.forEach(c -> paramBasedCustomizers.add((stmt, args) -> c.apply(stmt, args[capturedParamIndex])));
         }
     }
 
@@ -127,57 +96,43 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     void applyCustomizers(SqlStatement<?> stmt, Object[] args)
     {
         try {
-            for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
-                pair.factory.createForType(pair.annotation, sqlObjectType).apply(stmt);
+            for (SqlStatementCustomizer c : typeBasedCustomizers) {
+                c.apply(stmt);
             }
-
-            for (FactoryAnnotationPair pair : methodBasedCustomizerFactories) {
-                pair.factory.createForMethod(pair.annotation, sqlObjectType, method).apply(stmt);
+            for (SqlStatementCustomizer c : methodBasedCustomizers) {
+                c.apply(stmt);
             }
-
-            for (FactoryAnnotationParameterIndex param : paramBasedCustomizerFactories) {
-                param.factory
-                    .createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index])
-                    .apply(stmt);
+            for (ParamCustomizer c : paramBasedCustomizers) {
+                c.apply(stmt, args);
             }
         } catch (SQLException e) {
             throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
         }
     }
 
-    private static class FactoryAnnotationPair
-    {
-        private final SqlStatementCustomizerFactory factory;
-        private final Annotation                    annotation;
-
-        FactoryAnnotationPair(SqlStatementCustomizerFactory factory, Annotation annotation)
-        {
-            this.factory = factory;
-            this.annotation = annotation;
-        }
-    }
-
-    private static class FactoryAnnotationParameterIndex
-    {
-        private final SqlStatementCustomizerFactory factory;
-        private final Annotation                    annotation;
-        private final Parameter                     parameter;
-        private final int                           index;
-
-        FactoryAnnotationParameterIndex(SqlStatementCustomizerFactory factory,
-                                        Annotation annotation,
-                                        Parameter parameter,
-                                        int index)
-        {
-            this.factory = factory;
-            this.annotation = annotation;
-            this.parameter = parameter;
-            this.index = index;
-        }
-    }
-
     Method getMethod()
     {
         return method;
+    }
+
+    Stream<SqlStatementCustomizerFactory> instantiateFactory(Annotation annotation)
+    {
+        final Class<? extends Annotation> annotationType = annotation.annotationType();
+        if (!annotationType.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
+            return Stream.empty();
+        }
+        final SqlStatementCustomizingAnnotation scf =
+            annotationType.getAnnotation(SqlStatementCustomizingAnnotation.class);
+        try {
+            return Stream.of(scf.value().getConstructor().newInstance());
+        }
+        catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("unable to instantiate statement customizer factory", e);
+        }
+    }
+
+    interface ParamCustomizer
+    {
+        void apply(SqlStatement<?> stmt, Object[] args) throws SQLException;
     }
 }

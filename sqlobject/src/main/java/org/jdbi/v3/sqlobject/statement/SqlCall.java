@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.OutParameters;
@@ -39,16 +40,16 @@ public @interface SqlCall {
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new CallHandler(sqlObjectType, method);
+        public Handler buildHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
+            return new CallHandler(registry, sqlObjectType, method);
         }
     }
 
     class CallHandler extends CustomizingStatementHandler<Call> {
         private final boolean returnOutParams;
 
-        CallHandler(Class<?> sqlObjectType, Method method) {
-            super(sqlObjectType, method);
+        CallHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
+            super(registry, sqlObjectType, method);
 
             Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
             Class<?> returnClass = GenericTypes.getErasedType(returnType);

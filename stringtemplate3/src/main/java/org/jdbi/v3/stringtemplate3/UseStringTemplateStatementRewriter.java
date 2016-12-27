@@ -20,42 +20,39 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
-import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.customizer.Define;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 /**
  * Configures a SQL object class or method to rewrite SQL statements using StringTemplate. Method parameters annotated
  * with {@link Define @Define} are passed to the StringTemplate as template
  * attributes.
  */
-@ConfiguringAnnotation(UseStringTemplateStatementRewriter.Factory.class)
+@SqlStatementCustomizingAnnotation(UseStringTemplateStatementRewriter.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UseStringTemplateStatementRewriter {
     Class<? extends StatementRewriter> value() default ColonPrefixStatementRewriter.class;
 
-    class Factory implements ConfigurerFactory {
+    class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return create((UseStringTemplateStatementRewriter) annotation);
-        }
-
-        @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            return create((UseStringTemplateStatementRewriter) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(UseStringTemplateStatementRewriter annotation) {
-            StatementRewriter delegate = createDelegate(annotation.value());
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+            StatementRewriter delegate = createDelegate(((UseStringTemplateStatementRewriter) annotation).value());
             StatementRewriter rewriter = new StringTemplateStatementRewriter(delegate);
-            return config -> config.get(SqlStatements.class).setStatementRewriter(rewriter);
+            registry.get(SqlStatements.class).setStatementRewriter(rewriter);
+            return NONE;
+        }
+
+        @Override
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
+            return createForType(registry, annotation, sqlObjectType);
         }
 
         private StatementRewriter createDelegate(Class<? extends StatementRewriter> type) {
