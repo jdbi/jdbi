@@ -39,6 +39,8 @@ public class BindListTest
 {
     private static Handle handle;
 
+    private static List<Something> expectedSomethings;
+
     @ClassRule
     public static final H2DatabaseRule db = new H2DatabaseRule();
 
@@ -55,6 +57,8 @@ public class BindListTest
 
         // "control group" element that should *not* be returned by the queries
         handle.execute("insert into something(id, name) values(3, '3')");
+
+        expectedSomethings = Arrays.asList(new Something(1, "1"), new Something(2, "2"));
     }
 
     @AfterClass
@@ -72,7 +76,7 @@ public class BindListTest
 
         final List<Something> out = s.get(1, 2);
 
-        assertThat(out).hasSize(2);
+        assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @UseStringTemplateStatementRewriter
@@ -91,7 +95,7 @@ public class BindListTest
 
         final List<Something> out = s.get(1, 2);
 
-        assertThat(out).hasSize(2);
+        assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @UseStringTemplateStatementRewriter
@@ -110,7 +114,7 @@ public class BindListTest
 
         final List<Something> out = s.get(new int[]{1, 2});
 
-        assertThat(out).hasSize(2);
+        assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @Test
@@ -172,16 +176,14 @@ public class BindListTest
     {
         final SomethingByIterableHandleDefault s = handle.attach(SomethingByIterableHandleDefault.class);
 
-        final List<Something> out = s.get(new Iterable<Integer>()
-        {
+        final List<Something> out = s.get(new Iterable<Integer>() {
             @Override
-            public Iterator<Integer> iterator()
-            {
+            public Iterator<Integer> iterator() {
                 return Arrays.asList(1, 2).iterator();
             }
         });
 
-        assertThat(out).hasSize(2);
+        assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @Test
@@ -189,7 +191,7 @@ public class BindListTest
     {
         final SomethingByIterableHandleDefault s = handle.attach(SomethingByIterableHandleDefault.class);
 
-        final List<Something> out = s.get(new ArrayList<Integer>());
+        final List<Something> out = s.get(new ArrayList<>());
 
         assertThat(out).isEmpty();
     }
@@ -208,7 +210,7 @@ public class BindListTest
     {
         final SomethingByIterableHandleThrow s = handle.attach(SomethingByIterableHandleThrow.class);
 
-        s.get(new ArrayList<Integer>());
+        s.get(new ArrayList<>());
     }
 
     @UseStringTemplateStatementRewriter
