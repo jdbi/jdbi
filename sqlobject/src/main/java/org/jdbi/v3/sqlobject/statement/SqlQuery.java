@@ -20,6 +20,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
@@ -43,16 +44,16 @@ public @interface SqlQuery {
 
     class Factory implements HandlerFactory {
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new QueryHandler(sqlObjectType, method);
+        public Handler buildHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
+            return new QueryHandler(registry, sqlObjectType, method);
         }
     }
 
     class QueryHandler extends CustomizingStatementHandler<Query> {
         private final ResultReturner magic;
 
-        QueryHandler(Class<?> sqlObjectType, Method method) {
-            super(sqlObjectType, method);
+        QueryHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
+            super(registry, sqlObjectType, method);
             this.magic = ResultReturner.forMethod(sqlObjectType, method);
         }
 

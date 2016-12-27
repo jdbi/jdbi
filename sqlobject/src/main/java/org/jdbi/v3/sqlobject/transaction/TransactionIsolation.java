@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementCustomizer;
@@ -31,6 +32,7 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 /**
  * Used to specify the transaction isolation level for an object or method (via annotating the method
@@ -49,22 +51,21 @@ public @interface TransactionIsolation
     {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             return new MyCustomizer(((TransactionIsolation) annotation).value());
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
             return new MyCustomizer(((TransactionIsolation) annotation).value());
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg)
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index)
         {
-            assert arg instanceof TransactionIsolationLevel;
-            return new MyCustomizer((TransactionIsolationLevel) arg);
+            return (stmt, arg) -> new MyCustomizer((TransactionIsolationLevel) arg).apply(stmt);
         }
     }
 

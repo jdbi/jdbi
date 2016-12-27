@@ -17,7 +17,6 @@ import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
-import java.util.function.BiConsumer;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
@@ -39,16 +37,12 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 public class SqlObjectFactory implements ExtensionFactory {
     private static final Object[] NO_ARGS = new Object[0];
 
-    private final Map<Class<?>, Map<Method, Handler>> handlersCache = synchronizedMap(new WeakHashMap<>());
-    private final Map<Class<? extends ConfigurerFactory>, ConfigurerFactory>
-            configurerFactories = synchronizedMap(new WeakHashMap<>());
+    private final Map<Class<?>, Map<Method, HandlerEntry>> handlersCache = synchronizedMap(new WeakHashMap<>());
 
     SqlObjectFactory() { }
 
@@ -81,13 +75,11 @@ public class SqlObjectFactory implements ExtensionFactory {
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-        Map<Method, Handler> handlers = methodHandlersFor(extensionType);
+        ConfigRegistry handleConfig = handle.getConfig();
+        Map<Method, HandlerEntry> handlers = methodHandlersFor(handleConfig, extensionType);
 
-        ConfigRegistry instanceConfig = handle.getConfig().createCopy();
-        forEachConfigurerFactory(extensionType, (factory, annotation) ->
-                factory.createForType(annotation, extensionType).accept(instanceConfig));
 
-        InvocationHandler invocationHandler = createInvocationHandler(extensionType, instanceConfig, handlers, handle);
+        InvocationHandler invocationHandler = createInvocationHandler(extensionType, handlers, handle);
         return extensionType.cast(
                 Proxy.newProxyInstance(
                         extensionType.getClassLoader(),
@@ -95,34 +87,35 @@ public class SqlObjectFactory implements ExtensionFactory {
                         invocationHandler));
     }
 
-    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType) {
+    private Map<Method, HandlerEntry> methodHandlersFor(ConfigRegistry handleConfig, Class<?> sqlObjectType) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
-            final Map<Method, Handler> handlers = new HashMap<>();
+            final Map<Method, HandlerEntry> handlers = new HashMap<>();
 
-            handlers.putAll(handlerEntry((t, a, h) ->
+            handlers.putAll(handlerEntry(handleConfig, (t, a, h) ->
                     sqlObjectType.getName() + '@' + Integer.toHexString(t.hashCode()),
                 Object.class, "toString"));
-            handlers.putAll(handlerEntry((t, a, h) -> t == a[0], Object.class, "equals", Object.class));
-            handlers.putAll(handlerEntry((t, a, h) -> System.identityHashCode(t), Object.class, "hashCode"));
-            handlers.putAll(handlerEntry((t, a, h) -> h.getHandle(), SqlObject.class, "getHandle"));
+            handlers.putAll(handlerEntry(handleConfig, (t, a, h) -> t == a[0], Object.class, "equals", Object.class));
+            handlers.putAll(handlerEntry(handleConfig, (t, a, h) -> System.identityHashCode(t), Object.class, "hashCode"));
+            handlers.putAll(handlerEntry(handleConfig, (t, a, h) -> h.getHandle(), SqlObject.class, "getHandle"));
             try {
-                handlers.putAll(handlerEntry((t, a, h) -> null, sqlObjectType, "finalize"));
+                handlers.putAll(handlerEntry(handleConfig, (t, a, h) -> null, sqlObjectType, "finalize"));
             } catch (IllegalStateException expected) { } // optional implementation
 
             for (Method method : sqlObjectType.getMethods()) {
-                handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m));
+                handlers.computeIfAbsent(method, m -> buildMethodHandler(handleConfig, sqlObjectType, m));
             }
 
             return handlers;
         });
     }
 
-    private Handler buildMethodHandler(Class<?> sqlObjectType, Method method) {
-        Handler handler = buildBaseHandler(sqlObjectType, method);
-        return addDecorators(handler, sqlObjectType, method);
+    private HandlerEntry buildMethodHandler(ConfigRegistry handleConfig, Class<?> sqlObjectType, Method method) {
+        final ConfigRegistry handlerConfig = handleConfig.createCopy();
+        final Handler handler = buildBaseHandler(handlerConfig, sqlObjectType, method);
+        return new HandlerEntry(addDecorators(handler, sqlObjectType, method), handlerConfig);
     }
 
-    private Handler buildBaseHandler(Class<?> sqlObjectType, Method method) {
+    private Handler buildBaseHandler(ConfigRegistry handlerConfig, Class<?> sqlObjectType, Method method) {
         List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
                 .map(Annotation::annotationType)
                 .filter(type -> type.isAnnotationPresent(SqlMethodAnnotation.class))
@@ -180,7 +173,7 @@ public class SqlObjectFactory implements ExtensionFactory {
         return sqlMethodAnnotations.stream()
                 .map(type -> type.getAnnotation(SqlMethodAnnotation.class))
                 .map(a -> buildFactory(a.value()))
-                .map(factory -> factory.buildHandler(sqlObjectType, method))
+                .map(factory -> factory.buildHandler(handlerConfig, sqlObjectType, method))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(String.format(
                         "Method %s.%s must be default or be annotated with a SQL method annotation.",
@@ -245,9 +238,9 @@ public class SqlObjectFactory implements ExtensionFactory {
         return decorator;
     }
 
-    private static Map<Method, Handler> handlerEntry(Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
+    private static Map<Method, HandlerEntry> handlerEntry(ConfigRegistry registry, Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
         try {
-            return Collections.singletonMap(klass.getMethod(methodName, parameterTypes), handler);
+            return Collections.singletonMap(klass.getMethod(methodName, parameterTypes), new HandlerEntry(handler, registry.createCopy()));
         } catch (NoSuchMethodException | SecurityException e) {
             throw new IllegalStateException(
                     String.format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
@@ -255,39 +248,23 @@ public class SqlObjectFactory implements ExtensionFactory {
     }
 
     private InvocationHandler createInvocationHandler(Class<?> sqlObjectType,
-                                                      ConfigRegistry instanceConfig,
-                                                      Map<Method, Handler> handlers,
+                                                      Map<Method, HandlerEntry> handlers,
                                                       HandleSupplier handle) {
         return (proxy, method, args) -> {
-            Handler handler = handlers.get(method);
+            HandlerEntry e = handlers.get(method);
 
-            ConfigRegistry methodConfig = instanceConfig.createCopy();
-            forEachConfigurerFactory(method, (factory, annotation) ->
-                    factory.createForMethod(annotation, sqlObjectType, method).accept(methodConfig));
-
-            return handle.invokeInContext(new ExtensionMethod(sqlObjectType, method), methodConfig,
-                    () -> handler.invoke(proxy, args == null ? NO_ARGS : args, handle));
+            return handle.invokeInContext(new ExtensionMethod(sqlObjectType, method),
+                    e.registry.createCopy(),
+                    () -> e.handler.invoke(proxy, args == null ? NO_ARGS : args, handle));
         };
     }
 
-    private void forEachConfigurerFactory(AnnotatedElement element, BiConsumer<ConfigurerFactory, Annotation> consumer) {
-        Stream.of(element.getAnnotations())
-                .filter(a -> a.annotationType().isAnnotationPresent(ConfiguringAnnotation.class))
-                .forEach(a -> {
-                    ConfiguringAnnotation meta = a.annotationType()
-                            .getAnnotation(ConfiguringAnnotation.class);
-
-                    consumer.accept(getConfigurerFactory(meta.value()), a);
-                });
-    }
-
-    private ConfigurerFactory getConfigurerFactory(Class<? extends ConfigurerFactory> factoryClass) {
-        return configurerFactories.computeIfAbsent(factoryClass, c -> {
-            try {
-                return c.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new IllegalStateException("Unable to instantiate configurer factory class " + factoryClass, e);
-            }
-        });
+    private static class HandlerEntry {
+        final Handler handler;
+        final ConfigRegistry registry;
+        HandlerEntry(Handler handler, ConfigRegistry registry) {
+            this.handler = handler;
+            this.registry = registry;
+        }
     }
 }

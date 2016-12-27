@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.Query;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,7 +34,7 @@ public @interface FetchSize
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final FetchSize fs = (FetchSize) annotation;
             return q -> {
@@ -43,7 +44,7 @@ public @interface FetchSize
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
             final FetchSize fs = (FetchSize) annotation;
             return q -> {
@@ -53,17 +54,15 @@ public @interface FetchSize
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                         Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object arg)
+                                                         int index)
         {
-            final Integer va = (Integer) arg;
-            return q -> {
-                assert q instanceof Query;
-                ((Query) q).setFetchSize(va);
+            return (stmt, arg) -> {
+                ((Query) stmt).setFetchSize((Integer) arg);
             };
         }
     }

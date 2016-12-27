@@ -23,6 +23,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.sqlobject.SingleValue;
@@ -46,17 +47,17 @@ public @interface Bind
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                                  Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             Bind b = (Bind) annotation;
             String nameFromAnnotation = b == null ? "" : b.value();
             final String name = ParameterUtil.getParameterName(b, nameFromAnnotation, param);
 
-            return stmt -> {
+            return (stmt, arg) -> {
                 Type type = param.getParameterizedType();
 
                 if (stmt instanceof PreparedBatch && !param.isAnnotationPresent(SingleValue.class)) {

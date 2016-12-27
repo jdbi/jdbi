@@ -21,6 +21,8 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+
 /**
  * Specify the query timeout in seconds. May be used on a method or parameter, the parameter must be of an int type.
  */
@@ -34,31 +36,27 @@ public @interface QueryTimeOut
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
+        {
+            return createForType(registry, annotation, sqlObjectType);
+        }
+
+        @Override
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
             final QueryTimeOut fs = (QueryTimeOut) annotation;
             return q -> q.setQueryTimeout(fs.value());
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return q -> q.setQueryTimeout(fs.value());
-        }
-
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                         Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object arg)
+                                                         int index)
         {
-            final Integer va = (Integer) arg;
-            return q -> q.setQueryTimeout(va);
+            return (stmt, arg) -> stmt.setQueryTimeout((Integer) arg);
         }
     }
-
-
 }

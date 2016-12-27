@@ -21,10 +21,11 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.Query;
 
 /**
- * Used to specify the maximum numb er of rows to return on a result set. Passes through to
+ * Used to specify the maximum number of rows to return on a result set. Passes through to
  * setMaxRows on the JDBC prepared statement.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -41,7 +42,7 @@ public @interface MaxRows
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final int va = ((MaxRows)annotation).value();
             return q -> {
@@ -51,7 +52,7 @@ public @interface MaxRows
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
             final int va = ((MaxRows)annotation).value();
             return q -> {
@@ -61,17 +62,15 @@ public @interface MaxRows
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                         Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object arg)
+                                                         int index)
         {
-            final Integer va = (Integer) arg;
-            return q -> {
-                assert q instanceof Query;
-                ((Query)q).setMaxRows(va);
+            return (stmt, arg) -> {
+                ((Query)stmt).setMaxRows((Integer) arg);
             };
         }
     }

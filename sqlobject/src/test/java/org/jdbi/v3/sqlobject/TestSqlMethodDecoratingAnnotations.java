@@ -22,8 +22,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -186,7 +187,7 @@ public class TestSqlMethodDecoratingAnnotations {
     public @interface CustomSqlMethod {
         class Factory implements HandlerFactory {
             @Override
-            public Handler buildHandler(Class<?> sqlObjectType, Method method) {
+            public Handler buildHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method) {
                 return (obj, args, handle) -> {
                     invoked("method");
                     return null;

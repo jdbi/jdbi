@@ -127,8 +127,8 @@ public class BeanMapper<T> implements RowMapper<T>
             }
 
             final PropertyDescriptor descriptor = maybeDescriptor.get();
-            final Type type = descriptor.getReadMethod().getGenericReturnType();
-            final ColumnMapper<?> mapper = ctx.findColumnMapperFor(type)
+            final Type returnType = descriptor.getReadMethod().getGenericReturnType();
+            final ColumnMapper<?> mapper = ctx.findColumnMapperFor(returnType)
                     .orElse((r, n, c) -> r.getObject(n));
 
             columnNumbers.add(i);

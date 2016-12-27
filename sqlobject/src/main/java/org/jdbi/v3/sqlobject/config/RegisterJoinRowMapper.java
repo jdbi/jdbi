@@ -19,17 +19,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.JoinRowMapper;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 /**
  * Used to register a {@link JoinRowMapper} factory.  Will attempt to map all
  * types given in the annotation declaration.
  */
-@ConfiguringAnnotation(RegisterJoinRowMapper.Factory.class)
+@SqlStatementCustomizingAnnotation(RegisterJoinRowMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterJoinRowMapper
@@ -39,24 +41,18 @@ public @interface RegisterJoinRowMapper
      */
     Class<?>[] value();
 
-    class Factory implements ConfigurerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
-
         @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            return create((RegisterJoinRowMapper) annotation);
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+            RegisterJoinRowMapper rjrm = (RegisterJoinRowMapper) annotation;
+            registry.get(RowMappers.class).register(JoinRowMapper.forTypes(rjrm.value()));
+            return NONE;
         }
 
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            return create((RegisterJoinRowMapper) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterJoinRowMapper annotation) {
-            return config -> config.get(RowMappers.class)
-                    .register(JoinRowMapper.forTypes(annotation.value()));
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
+            return createForType(registry, annotation, sqlObjectType);
         }
     }
 }

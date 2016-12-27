@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementCustomizers;
 
 /**
@@ -45,28 +46,28 @@ public @interface FetchDirection
         }
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final FetchDirection fs = (FetchDirection) annotation;
             return create(fs.value());
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
             final FetchDirection fs = (FetchDirection) annotation;
             return create(fs.value());
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementParameterCustomizer createForParameter(ConfigRegistry registry,
+                                                         Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object arg)
+                                                         int index)
         {
-            return create((Integer) arg);
+            return (stmt, arg) -> create((Integer) arg).apply(stmt);
         }
 
         private static SqlStatementCustomizer create(Integer direction)

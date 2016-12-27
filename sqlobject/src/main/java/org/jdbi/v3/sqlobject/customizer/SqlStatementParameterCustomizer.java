@@ -11,24 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.reflect.Method;
+import java.sql.SQLException;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
- * Creates Handler objects for methods annotated with a specific SQL method annotation, which satisfy the contract of
- * that annotation.
- *
- * @see SqlMethodAnnotation
+ * Customize a {@link SqlStatement} according to the value
+ * of a given parameter.
  */
-public interface HandlerFactory {
+public interface SqlStatementParameterCustomizer
+{
     /**
-     * Returns a {@link Handler} instance for executing the given SQL Object method.
-     *
-     * @param sqlObjectType the SQL Object type
-     * @param method        the method
+     * Invoked to customize the sql statement, given the parameter
+     * list
+     * @param stmt the statement being customized
+     * @param arg the argument passed to the method
+     * @throws SQLException will abort statement creation
      */
-    Handler buildHandler(ConfigRegistry registry, Class<?> sqlObjectType, Method method);
+    void apply(SqlStatement<?> stmt, Object arg) throws SQLException;
 }

@@ -20,20 +20,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.ObjectArgumentFactory;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 /**
  * Used to register argument factories for types which are compatible with
  * {@link java.sql.PreparedStatement#setObject(int, Object)}.
  */
-@ConfiguringAnnotation(RegisterObjectArgumentFactory.Factory.class)
+@SqlStatementCustomizingAnnotation(RegisterObjectArgumentFactory.Factory.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterObjectArgumentFactory
@@ -52,38 +51,31 @@ public @interface RegisterObjectArgumentFactory
      */
     int[] sqlType() default {};
 
-    class Factory implements ConfigurerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            return create((RegisterObjectArgumentFactory) annotation);
-        }
-
-        @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            return create((RegisterObjectArgumentFactory) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterObjectArgumentFactory annotation)
-        {
-            Class<?>[] classes = annotation.value();
-            int[] sqlTypes = annotation.sqlType();
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+            RegisterObjectArgumentFactory roaf = (RegisterObjectArgumentFactory) annotation;
+            Class<?>[] classes = roaf.value();
+            int[] sqlTypes = roaf.sqlType();
 
             if (sqlTypes.length != 0 && sqlTypes.length != classes.length) {
                 throw new IllegalStateException("RegisterObjectArgumentFactory.sqlTypes() must have the same number of elements as value()");
             }
 
-            List<ArgumentFactory> factories = new ArrayList<>(classes.length);
+            Arguments arguments = registry.get(Arguments.class);
             for (int i = 0; i < classes.length; i++) {
                 Class<?> clazz = classes[i];
                 Integer sqlType = sqlTypes.length == 0 ? null : sqlTypes[i];
 
-                factories.add(ObjectArgumentFactory.create(clazz, sqlType));
+                arguments.register(ObjectArgumentFactory.create(clazz, sqlType));
             }
+            return NONE;
+        }
 
-            return config -> factories.forEach(config.get(Arguments.class)::register);
+        @Override
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
+            return createForType(registry, annotation, sqlObjectType);
         }
     }
 }

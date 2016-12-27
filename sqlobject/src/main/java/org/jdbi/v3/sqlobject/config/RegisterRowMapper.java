@@ -19,18 +19,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 /**
  * Used to register a row mapper with either a sql object type or for a specific method.
  */
-@ConfiguringAnnotation(RegisterRowMapper.Factory.class)
+@SqlStatementCustomizingAnnotation(RegisterRowMapper.Factory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterRowMapper
@@ -41,32 +41,26 @@ public @interface RegisterRowMapper
      */
     Class<? extends RowMapper<?>>[] value();
 
-    class Factory implements ConfigurerFactory
+    class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            return create((RegisterRowMapper) annotation);
-        }
-
-        @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            return create((RegisterRowMapper) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterRowMapper ma) {
-            final List<RowMapper<?>> m = new ArrayList<RowMapper<?>>(ma.value().length);
+        public SqlStatementCustomizer createForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+            RowMappers mappers = registry.get(RowMappers.class);
             try {
-                Class<? extends RowMapper<?>>[] mcs = ma.value();
+                Class<? extends RowMapper<?>>[] mcs = ((RegisterRowMapper) annotation).value();
                 for (int i = 0; i < mcs.length; i++) {
-                    m.add(mcs[i].newInstance());
+                    mappers.register(mcs[i].newInstance());
                 }
             }
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified row mapper", e);
             }
-            return config -> m.forEach(config.get(RowMappers.class)::register);
+            return NONE;
+        }
+
+        @Override
+        public SqlStatementCustomizer createForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
+            return createForType(registry, annotation, sqlObjectType);
         }
     }
 }
