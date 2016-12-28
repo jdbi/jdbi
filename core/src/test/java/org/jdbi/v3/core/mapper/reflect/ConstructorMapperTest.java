@@ -84,6 +84,11 @@ public class ConstructorMapperTest {
         private final String s;
         private final int i;
 
+        ConstructorBean(int some, String other, long constructor) {
+            throw new UnsupportedOperationException("You don't belong here!");
+        }
+
+        @JdbiConstructor
         ConstructorBean(String s, int i) {
             this.s = s;
             this.i = i;
