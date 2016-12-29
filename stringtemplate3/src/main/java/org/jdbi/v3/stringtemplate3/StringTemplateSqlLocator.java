@@ -52,7 +52,7 @@ public class StringTemplateSqlLocator {
      * @param name the template name in the StringTemplate group.
      * @return the located SQL.
      */
-    public static StringTemplate findStringTemplateSql(Class<?> type, String name) {
+    public static StringTemplate findStringTemplate(Class<?> type, String name) {
         StringTemplateGroup group = findStringTemplateGroup(type);
 
         if (!group.isDefined(name)) {

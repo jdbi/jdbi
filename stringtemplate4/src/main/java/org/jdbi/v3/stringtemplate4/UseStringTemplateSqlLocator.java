@@ -37,7 +37,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * Configures SQL Object to locate SQL using the {@link StringTemplateSqlLocator#findStringTemplateSql(Class, String)}
+ * Configures SQL Object to locate SQL using the {@link StringTemplateSqlLocator#findStringTemplate(Class, String)}
  * method. If the SQL annotation (e.g. <code>@SqlQuery</code>) defines a value (e.g. <code>@SqlQuery("hello")</code>),
  * that value (<code>"hello"</code>) will be used for the <code>name</code> parameter; if undefined, the name of the SQL
  * object method will be used:

@@ -37,7 +37,7 @@ import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 /**
- * Configures SQL Object to locate SQL using the {@link StringTemplateSqlLocator#findStringTemplateSql(Class, String)}
+ * Configures SQL Object to locate SQL using the {@link StringTemplateSqlLocator#findStringTemplate(Class, String)}
  * method. If the SQL annotation (e.g. <code>@SqlQuery</code>) defines a value (e.g. <code>@SqlQuery("hello")</code>),
  * that value (<code>"hello"</code>) will be used for the <code>name</code> parameter; if undefined, the name of the SQL
  * object method will be used:
@@ -46,10 +46,10 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
  *     &#064;UseStringTemplateSqlLocator
  *     interface Viccini {
  *         &#064;SqlUpdate
- *         void doTheThing(long id);     // =&gt; StringTemplateSqlLocator.findStringTemplateSql(Viccini.class, "doTheThing")
+ *         void doTheThing(long id);     // =&gt; StringTemplateSqlLocator.findStringTemplate(Viccini.class, "doTheThing")
  *
  *         &#064;SqlUpdate("thatOtherThing")
- *         void doTheThing(String name); // =&gt; StringTemplateSqlLocator.findStringTemplateSql(Viccini.class, "thatOtherThing")
+ *         void doTheThing(String name); // =&gt; StringTemplateSqlLocator.findStringTemplate(Viccini.class, "thatOtherThing")
  *     }
  * </pre>
  */
