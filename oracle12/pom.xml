@@ -21,7 +21,7 @@
         <version>3.0.0-alpha8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3-oracle</artifactId>
+    <artifactId>jdbi3-oracle12</artifactId>
     <name>JDBI Oracle</name>
     <description>
         JDBI Oracle-specific features

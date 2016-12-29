@@ -66,7 +66,7 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-jodatime</artifactId>
+        <artifactId>jdbi3-jodatime2</artifactId>
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
@@ -78,7 +78,7 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-spring</artifactId>
+        <artifactId>jdbi3-spring4</artifactId>
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
@@ -86,7 +86,7 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-string-template</artifactId>
+        <artifactId>jdbi3-stringtemplate3</artifactId>
       </dependency>
 
       <dependency>
@@ -179,7 +179,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.jdbi</groupId>
-                    <artifactId>jdbi3-oracle</artifactId>
+                    <artifactId>jdbi3-oracle12</artifactId>
                 </dependency>
             </dependencies>
         </profile>

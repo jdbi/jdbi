@@ -18,13 +18,13 @@ parameter names.
 * Click Apply, then OK.
 * Build -> Rebuild Project
 
-# Setting up your machine to build `jdbi3-oracle`
+# Setting up your machine to build `jdbi3-oracle12`
 
 If you don't use Oracle, you can skip this section.
 
-Oracle keeps their JDBC drivers on a password-gated Maven repository, so we exclude the `jdbi3-oracle` artifact from Maven builds by default. This is so folks who don't use Oracle don't have to go through a bunch of setup that doesn't matter to them.
+Oracle keeps their JDBC drivers on a password-gated Maven repository, so we exclude the `jdbi3-oracle12` artifact from Maven builds by default. This is so folks who don't use Oracle don't have to go through a bunch of setup that doesn't matter to them.
 
-To build `jdbi3-oracle` on your machine, you'll need to do the following:
+To build `jdbi3-oracle12` on your machine, you'll need to do the following:
 
 ## Set up an Oracle Single Sign-On account
 
@@ -123,10 +123,10 @@ cd /path/to/jdbi/project
 mvn clean install -U -Poracle
 ```
 
-The `oracle` profile adds the `jdbi3-oracle` artifact into the build process. 
+The `oracle` profile adds the `jdbi3-oracle12` artifact into the build process.
 
 # Running Oracle unit tests
 
-The previous setup will allow the `jdbi3-oracle` artifact to build, but without an Oracle database running, all Oracle unit tests will simply be ignored.
+The previous setup will allow the `jdbi3-oracle12` artifact to build, but without an Oracle database running, all Oracle unit tests will simply be ignored.
 
 Follow this guide: [How to install Oracle Database on Mac](https://dimitrisli.wordpress.com/2012/08/08/how-to-install-oracle-database-on-mac-os-any-version/). With luck, your unit tests should start working after Step 4 in the guide.
