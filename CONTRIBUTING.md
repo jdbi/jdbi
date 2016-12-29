@@ -1,8 +1,22 @@
 Hi! Welcome to JDBI.
 
-We're glad you're thinking about contributing to the projects.
+We're glad you're thinking about contributing to the project.
 
 Here's a few pointers to help you get set up:
+
+# Enable `-parameters` compiler flag in your IDE:
+
+Most of our SQL Object tests rely on SQL method parameter names. However by default, `javac` does not compile these
+parameter names into `.class` files. Thus, in order for unit tests to pass, the compiler must be configured to output
+parameter names.
+
+## IntelliJ
+
+* File -> Settings
+* Build, Execution, Deployment -> Compiler -> Java Compiler
+* Additional command-line parameters: `-parameters`
+* Click Apply, then OK.
+* Build -> Rebuild Project
 
 # Setting up your machine to build `jdbi3-oracle12`
 

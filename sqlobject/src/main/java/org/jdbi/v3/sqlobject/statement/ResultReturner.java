@@ -29,6 +29,8 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SingleValue;
 
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+
 /**
  * Helper class used by the {@link CustomizingStatementHandler}s to assemble
  * the result Collection, Iterable, etc.
@@ -81,7 +83,7 @@ abstract class ResultReturner
     static ResultReturner forMethod(Class<?> extensionType, Method method)
     {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
-        Class<?> returnClass = GenericTypes.getErasedType(returnType);
+        Class<?> returnClass = getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
             throw new IllegalStateException(String.format(
                     "Method %s#%s is annotated as if it should return a value, but the method is void.",
@@ -165,7 +167,7 @@ abstract class ResultReturner
             if (collector != null) {
                 return bearer.collect(collector);
             }
-            return bearer.findFirst().orElse(null);
+            return checkResult(bearer.findFirst().orElse(null), returnType);
         }
 
         @Override
@@ -188,7 +190,7 @@ abstract class ResultReturner
         @Override
         protected Object result(ResultIterable<?> bearer, StatementContext ctx)
         {
-            return bearer.findFirst().orElse(null);
+            return checkResult(bearer.findFirst().orElse(null), returnType);
         }
 
         @Override
@@ -196,6 +198,13 @@ abstract class ResultReturner
         {
             return returnType;
         }
+    }
+
+    private static Object checkResult(Object result, Type type) {
+        if (result == null && getErasedType(type).isPrimitive()) {
+            throw new IllegalStateException("SQL method returns primitive " + type + ", but statement returned no results");
+        }
+        return result;
     }
 
     static class ResultIterableResultReturner extends ResultReturner
