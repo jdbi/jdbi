@@ -51,6 +51,6 @@ public class StringTemplateStatementRewriter implements StatementRewriter {
 
         ctx.getAttributes().forEach(template::add);
 
-        return delegate.rewrite(template.toString(), params, ctx);
+        return delegate.rewrite(template.render(), params, ctx);
     }
 }

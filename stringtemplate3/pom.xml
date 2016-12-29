@@ -25,7 +25,7 @@
     <name>jdbi String Template</name>
     <packaging>jar</packaging>
     <description>
-        jdbi-string-template locates SQL statements in StringTemplate files on the classpath
+        jdbi-stringtemplate3 locates SQL statements in StringTemplate 3 files on the classpath
     </description>
     <url>http://jdbi.org/</url>
 
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>stringtemplate</artifactId>
-            <optional>true</optional>
+            <version>3.2.1</version>
         </dependency>
 
         <dependency>

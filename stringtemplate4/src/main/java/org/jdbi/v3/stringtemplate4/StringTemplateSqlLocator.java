@@ -13,7 +13,10 @@
  */
 package org.jdbi.v3.stringtemplate4;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -90,8 +93,9 @@ public class StringTemplateSqlLocator {
         Reader in = new InputStreamReader(inputStream, "UTF-8");
         for (; ; ) {
             int rsz = in.read(buffer, 0, buffer.length);
-            if (rsz < 0)
+            if (rsz < 0){
                 break;
+            }
             out.append(buffer, 0, rsz);
         }
         return out.toString();

@@ -269,13 +269,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>stringtemplate</artifactId>
-                <version>3.2.1</version>
-                <optional>true</optional>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
                 <version>2.1.1</version>
