@@ -120,7 +120,7 @@
           <dependencies>
             <dependency>
               <groupId>org.jdbi</groupId>
-              <artifactId>jdbi3-oracle</artifactId>
+              <artifactId>jdbi3-oracle12</artifactId>
               <version>${project.version}</version>
             </dependency>
           </dependencies>
@@ -176,7 +176,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-jodatime</artifactId>
+                <artifactId>jdbi3-jodatime2</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -197,7 +197,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring</artifactId>
+                <artifactId>jdbi3-spring4</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -213,7 +213,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-string-template</artifactId>
+                <artifactId>jdbi3-stringtemplate3</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -21,7 +21,7 @@
         <version>3.0.0-alpha8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3-string-template</artifactId>
+    <artifactId>jdbi3-stringtemplate3</artifactId>
     <name>jdbi String Template</name>
     <packaging>jar</packaging>
     <description>
