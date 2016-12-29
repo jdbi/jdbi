@@ -94,7 +94,11 @@ public class Call extends SqlStatement<Call>
             OutParameters out = new OutParameters();
             for ( OutParamArgument param : params ) {
                 Object obj = param.map((CallableStatement)stmt);
-                out.getMap().put(param.position, obj);
+
+                // convert from JDBC 1-based position to JDBI's 0-based
+                int index = param.position - 1;
+                out.getMap().put(index, obj);
+
                 if ( param.name != null ) {
                     out.getMap().put(param.name, obj);
                 }

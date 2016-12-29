@@ -21,7 +21,6 @@ import java.sql.Types;
 import org.assertj.core.data.Offset;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.OutParameters;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -49,13 +48,12 @@ public class TestCallable
                 .bind(1, 100.0d)
                 .invoke();
 
-        // JDBI oddity : register or bind is 0-indexed, which JDBC is 1-indexed.
         Double expected = Math.toDegrees(100.0d);
-        assertThat(ret.getDouble(1)).isEqualTo(expected, Offset.offset(0.001));
-        assertThat(ret.getLong(1).longValue()).isEqualTo(expected.longValue());
-        assertThat(ret.getShort(1).shortValue()).isEqualTo(expected.shortValue());
-        assertThat(ret.getInt(1).intValue()).isEqualTo(expected.intValue());
-        assertThat(ret.getFloat(1).floatValue()).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
+        assertThat(ret.getDouble(0)).isEqualTo(expected, Offset.offset(0.001));
+        assertThat(ret.getLong(0).longValue()).isEqualTo(expected.longValue());
+        assertThat(ret.getShort(0).shortValue()).isEqualTo(expected.shortValue());
+        assertThat(ret.getInt(0).intValue()).isEqualTo(expected.intValue());
+        assertThat(ret.getFloat(0).floatValue()).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
 
         assertThatExceptionOfType(Exception.class).isThrownBy(()->{
             ret.getDate(1);
@@ -95,8 +93,7 @@ public class TestCallable
                 .registerOutParameter(1, Types.VARCHAR)
                 .invoke();
 
-        // JDBI oddity : register or bind is 0-indexed, which JDBC is 1-indexed.
-        String out = ret.getString(2);
+        String out = ret.getString(1);
         assertThat(out).isNull();
     }
 
