@@ -19,6 +19,7 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,6 +27,9 @@ public class TestPrimitiveQueryResult
 {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     PrimitiveDao dao;
 
@@ -38,49 +42,65 @@ public class TestPrimitiveQueryResult
     @Test
     public void testBoolean() {
         assertThat(dao.getBoolean(1)).isTrue();
-        assertThat(dao.getBoolean(2)).isFalse();
+
+        exception.expect(IllegalStateException.class);
+        dao.getBoolean(2);
     }
 
     @Test
     public void testByte() {
         assertThat(dao.getByte(1)).isEqualTo((byte) 1);
-        assertThat(dao.getByte(2)).isEqualTo((byte) 0);
+
+        exception.expect(IllegalStateException.class);
+        dao.getByte(2);
     }
 
     @Test
     public void testChar() {
         assertThat(dao.getChar(1)).isEqualTo('a');
-        assertThat(dao.getChar(2)).isEqualTo('\0');
+
+        exception.expect(IllegalStateException.class);
+        dao.getChar(2);
     }
 
     @Test
     public void testShort() {
         assertThat(dao.getShort(1)).isEqualTo((short) 1);
-        assertThat(dao.getShort(2)).isEqualTo((short) 0);
+
+        exception.expect(IllegalStateException.class);
+        dao.getShort(2);
     }
 
     @Test
     public void testInt() {
         assertThat(dao.getInt(1)).isEqualTo(1);
-        assertThat(dao.getInt(2)).isEqualTo(0);
+
+        exception.expect(IllegalStateException.class);
+        dao.getInt(2);
     }
 
     @Test
     public void testLong() {
         assertThat(dao.getLong(1)).isEqualTo(1L);
-        assertThat(dao.getLong(2)).isEqualTo(0L);
+
+        exception.expect(IllegalStateException.class);
+        dao.getLong(2);
     }
 
     @Test
     public void testFloat() {
         assertThat(dao.getFloat(1)).isEqualTo(1f);
-        assertThat(dao.getFloat(2)).isEqualTo(0f);
+
+        exception.expect(IllegalStateException.class);
+        dao.getFloat(2);
     }
 
     @Test
     public void testDouble() {
         assertThat(dao.getDouble(1)).isEqualTo(1d);
-        assertThat(dao.getDouble(2)).isEqualTo(0d);
+
+        exception.expect(IllegalStateException.class);
+        dao.getDouble(2);
     }
 
     public interface PrimitiveDao {
