@@ -67,7 +67,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     private RewrittenStatement rewritten;
     private PreparedStatement  stmt;
 
-    @SuppressWarnings("unchecked")
     SqlStatement(Handle handle,
                  String sql) {
         super(handle);
@@ -1211,6 +1210,69 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             names.append(':').append(name);
 
             bind(name, values.get(i));
+        }
+
+        return define(key, names.toString());
+    }
+
+    /**
+     * Bind a parameter for each value in the given list * number of property names,
+     * and defines an attribute as the comma-separated list of parameter references (using colon prefix).
+     *
+     * Used to create query similar to:
+     * select * from things where (id, foo) in ((1,'abc'),(2,'def'),(3,'ghi'))
+     * <p>
+     * Examples:
+     * <pre>
+     *
+     * List&lt;ThingKey&gt; thingKeys = ...
+     * List&lt;Thing&gt; things = handle.createQuery("select * from things where (id, foo) in (&lt;thingKeys&gt;)")
+     *     .bindBeanList("thingKeys", thingKeys, Arrays.asList("id", "foo"))
+     *     .mapTo(Contact.class)
+     *     .list();
+     * </pre>
+     *
+     * @param key    attribute name
+     * @param values list of values that will be comma-spliced into the defined attribute value.
+     * @param propertyNames list of properties that will be invoked on the values.
+     * @return this
+     * @throws IllegalArgumentException if the list of values or properties is empty.
+     * @throws UnableToCreateStatementException If a property can't be found on an value or we can't find a Argument for it.
+     */
+    public final This bindBeanList(String key, List<?> values, List<String> propertyNames) throws UnableToCreateStatementException {
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".bindBeanList was called with no values.");
+        }
+
+        if (propertyNames.isEmpty()) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + ".bindBeanList was called with no properties.");
+        }
+
+        StringBuilder names = new StringBuilder();
+
+        for (int valueIndex = 0; valueIndex < values.size(); valueIndex++) {
+            if (valueIndex > 0) {
+                names.append(',');
+            }
+
+            Object bean = values.get(valueIndex);
+            BeanPropertyArguments beanProperties = new BeanPropertyArguments(null, bean, getContext());
+
+            names.append("(");
+            for (int propertyIndex = 0; propertyIndex < propertyNames.size(); propertyIndex++) {
+                if (propertyIndex > 0) {
+                    names.append(",");
+                }
+                String propertyName = propertyNames.get(propertyIndex);
+                String name = "__" + key + "_" + valueIndex + "_" + propertyName;
+                names.append(':').append(name);
+                Argument argument = beanProperties.find(propertyName)
+                        .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + propertyName + " argument for " + bean, getContext()));
+                bind(name, argument);
+            }
+            names.append(")");
         }
 
         return define(key, names.toString());

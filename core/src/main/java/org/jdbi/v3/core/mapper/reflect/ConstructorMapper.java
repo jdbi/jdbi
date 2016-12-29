@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findConstructorFor;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -23,10 +25,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * A row mapper which maps the fields in a result set into a constructor. The default implementation will perform a
@@ -49,7 +51,7 @@ public class ConstructorMapper<T> implements RowMapper<T>
      * Use the only declared constructor to map a class.
      */
     public static RowMapperFactory of(Class<?> clazz, String prefix) {
-        return of(findOnlyConstructor(clazz), prefix);
+        return of(findConstructorFor(clazz), prefix);
     }
 
     /**
@@ -66,15 +68,6 @@ public class ConstructorMapper<T> implements RowMapper<T>
         final Class<?> type = constructor.getDeclaringClass();
         final RowMapper<?> mapper = new ConstructorMapper<>(constructor, prefix);
         return RowMapperFactory.of(type, mapper);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Constructor<T> findOnlyConstructor(Class<T> type) {
-        final Constructor<?>[] constructors = type.getDeclaredConstructors();
-        if (constructors.length != 1) {
-            throw new IllegalArgumentException(type + " must have exactly one constructor, or specify it explicitly");
-        }
-        return (Constructor<T>) constructors[0];
     }
 
     static final String DEFAULT_PREFIX = "";

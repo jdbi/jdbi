@@ -18,16 +18,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jdbi.v3.core.internal.ReflectionArrayIterator;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
@@ -74,7 +70,7 @@ public @interface BindList {
             final BindList bindList = (BindList) annotation;
             final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
 
-            if (arg == null || Util.isEmpty(arg)) {
+            if (arg == null || BindListUtil.isEmpty(arg)) {
                 switch (bindList.onEmpty()) {
                     case VOID:
                         return stmt -> stmt.define(name, "");
@@ -90,62 +86,13 @@ public @interface BindList {
             }
 
             List<Object> list = new ArrayList<>();
-            for (Iterator<?> iter = Util.toIterator(arg); iter.hasNext();) {
+            for (Iterator<?> iter = BindListUtil.toIterator(arg); iter.hasNext();) {
                 list.add(iter.next());
             }
 
             return stmt -> stmt.bindList(name, list);
         }
 
-    }
-
-    final class Util {
-        private Util() {
-        }
-
-        static Iterator<?> toIterator(final Object obj) {
-            if (obj == null) {
-                throw new IllegalArgumentException("cannot make iterator of null");
-            }
-
-            if (obj instanceof Iterable) {
-                return ((Iterable<?>) obj).iterator();
-            }
-
-            if (obj.getClass().isArray()) {
-                if (obj instanceof Object[]) {
-                    return Arrays.asList((Object[]) obj).iterator();
-                } else {
-                    return ReflectionArrayIterator.of(obj);
-                }
-            }
-
-            throw new IllegalArgumentException(getTypeWarning(obj.getClass()));
-        }
-
-        static boolean isEmpty(final Object obj) {
-            if (obj == null) {
-                throw new IllegalArgumentException("cannot determine emptiness of null");
-            }
-
-            if (obj instanceof Collection) {
-                return ((Collection<?>)obj).isEmpty();
-            }
-
-            if (obj instanceof Iterable) {
-                return !((Iterable<?>)obj).iterator().hasNext();
-            }
-
-            if (obj.getClass().isArray()) {
-                return Array.getLength(obj) == 0;
-            }
-
-            throw new IllegalArgumentException(getTypeWarning(obj.getClass()));
-        }
-
-        private static String getTypeWarning(final Class<?> type) {
-            return "argument must be one of the following: Iterable, or an array/varargs (primitive or complex type); was " + type.getName() + " instead";
-        }
     }
 
     /**

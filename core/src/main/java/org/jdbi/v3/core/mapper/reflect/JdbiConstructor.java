@@ -11,18 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.core.mapper.reflect;
 
-import java.lang.annotation.ElementType;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicate to SqlObject that a type that looks like a container
- * should be treated as a single element.
+ * Indicate to {@link ConstructorMapper} and other reflective mappers
+ * which constructor they should prefer, in case the class has more than one.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.PARAMETER })
-public @interface SingleValue {
-}
+@Retention(RUNTIME)
+@Target(CONSTRUCTOR)
+public @interface JdbiConstructor { }

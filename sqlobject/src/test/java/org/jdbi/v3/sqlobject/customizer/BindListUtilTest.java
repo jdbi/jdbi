@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,51 +23,49 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class BindListUtilTest
 {
     @Test(expected = IllegalArgumentException.class)
     public void testObjectToIterator()
     {
-        BindList.Util.toIterator(new Object());
+        BindListUtil.toIterator(new Object());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testOtherClassToIterator()
     {
-        BindList.Util.toIterator("bla"); // or any other kind of object that isn't a java.lang.Object
+        BindListUtil.toIterator("bla"); // or any other kind of object that isn't a java.lang.Object
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPrimitiveToIterator()
     {
-        BindList.Util.toIterator(1);
+        BindListUtil.toIterator(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIteratorToIterator()
     {
-        BindList.Util.toIterator(new ArrayList<Object>().iterator());
+        BindListUtil.toIterator(new ArrayList<>().iterator());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullToIterator()
     {
-        BindList.Util.toIterator(null);
+        BindListUtil.toIterator(null);
     }
 
     @Test
     public void testEmptyArrayToIterator()
     {
-        final Object[] out = toArray(BindList.Util.toIterator(new int[]{}));
+        final Object[] out = toArray(BindListUtil.toIterator(new int[]{}));
         assertThat(out).isEmpty();
     }
 
     @Test
     public void testEmptyListToIterator()
     {
-        final Object[] out = toArray(BindList.Util.toIterator(new ArrayList<Integer>()));
+        final Object[] out = toArray(BindListUtil.toIterator(new ArrayList<Integer>()));
         assertThat(out).isEmpty();
     }
 
@@ -76,7 +76,7 @@ public class BindListUtilTest
         in.add("1");
         in.add("2");
 
-        final Object[] out = toArray(BindList.Util.toIterator(in));
+        final Object[] out = toArray(BindListUtil.toIterator(in));
 
         assertThat(out).containsExactly("1", "2");
     }
@@ -88,7 +88,7 @@ public class BindListUtilTest
         in.add("1");
         in.add("2");
 
-        final Object[] out = toArray(BindList.Util.toIterator(in));
+        final Object[] out = toArray(BindListUtil.toIterator(in));
 
         assertThat(out).containsExactly("1", "2");
     }
@@ -109,7 +109,7 @@ public class BindListUtilTest
             }
         };
 
-        final Object[] out = toArray(BindList.Util.toIterator(in));
+        final Object[] out = toArray(BindListUtil.toIterator(in));
 
         assertThat(out).containsExactly("1", "2");
     }
@@ -119,7 +119,7 @@ public class BindListUtilTest
     {
         final String[] in = new String[]{"1", "2"};
 
-        final Object[] out = toArray(BindList.Util.toIterator(in));
+        final Object[] out = toArray(BindListUtil.toIterator(in));
 
         assertThat(out).containsExactly("1", "2");
     }
@@ -129,12 +129,12 @@ public class BindListUtilTest
     {
         final int[] in = new int[]{1, 2};
 
-        final Object[] out = toArray(BindList.Util.toIterator(in));
+        final Object[] out = toArray(BindListUtil.toIterator(in));
 
         assertThat(out).containsExactly(1, 2);
     }
 
-    private static Object[] toArray(final Iterator iterator)
+    private static Object[] toArray(final Iterator<?> iterator)
     {
         final List<Object> out = new ArrayList<Object>();
         while (iterator.hasNext())
@@ -147,25 +147,25 @@ public class BindListUtilTest
     @Test
     public void testIsEmptyPrimitiveArray()
     {
-        assertThat(BindList.Util.isEmpty(new int[]{1, 2, 3})).isFalse();
+        assertThat(BindListUtil.isEmpty(new int[]{1, 2, 3})).isFalse();
     }
 
     @Test
     public void testIsEmptyEmptyPrimitiveArray()
     {
-        assertThat(BindList.Util.isEmpty(new int[]{})).isTrue();
+        assertThat(BindListUtil.isEmpty(new int[]{})).isTrue();
     }
 
     @Test
     public void testIsEmptyObjectArray()
     {
-        assertThat(BindList.Util.isEmpty(new Object[]{"1", "2", "3"})).isFalse();
+        assertThat(BindListUtil.isEmpty(new Object[]{"1", "2", "3"})).isFalse();
     }
 
     @Test
     public void testIsEmptyEmptyObjectArray()
     {
-        assertThat(BindList.Util.isEmpty(new Object[]{})).isTrue();
+        assertThat(BindListUtil.isEmpty(new Object[]{})).isTrue();
     }
 
     @Test
@@ -176,30 +176,30 @@ public class BindListUtilTest
         in.add("2");
         in.add("3");
 
-        assertThat(BindList.Util.isEmpty(in)).isFalse();
+        assertThat(BindListUtil.isEmpty(in)).isFalse();
     }
 
     @Test
     public void testIsEmptyEmptyList()
     {
-        assertThat(BindList.Util.isEmpty(new ArrayList<String>())).isTrue();
+        assertThat(BindListUtil.isEmpty(new ArrayList<String>())).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIsEmptyObject()
     {
-        BindList.Util.isEmpty(new Object());
+        BindListUtil.isEmpty(new Object());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIsEmptyPrimitive()
     {
-        BindList.Util.isEmpty(5);
+        BindListUtil.isEmpty(5);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIsEmptyNull()
     {
-        BindList.Util.isEmpty(null);
+        BindListUtil.isEmpty(null);
     }
 }

@@ -21,36 +21,40 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
+import org.jdbi.v3.core.result.ResultSetIterable;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.sqlobject.SingleValue;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
+/**
+ * Helper class used by the {@link CustomizingStatementHandler}s to assemble
+ * the result Collection, Iterable, etc.
+ */
 abstract class ResultReturner
 {
-    public Object map(Method method, Query q)
+    /**
+     * Given a {@link ResultSetIterable}, map to the element
+     * type and construct the result container.
+     * @param r the ResultSetIterable
+     * @return the filled result container
+     */
+    public Object map(ResultSetIterable r, StatementContext ctx)
     {
-        StatementContext ctx = q.getContext();
-        if (method.isAnnotationPresent(UseRowMapper.class)) {
-            final RowMapper<?> mapper;
-            try {
-                mapper = method.getAnnotation(UseRowMapper.class).value().newInstance();
-            }
-            catch (Exception e) {
-                throw new UnableToCreateStatementException("unable to access mapper", e, null);
-            }
-            return result(q.map(mapper), ctx);
-        }
-        else {
-            return result(q.mapTo(elementType(ctx)), ctx);
-        }
+        return result(r.mapTo(elementType(ctx)), ctx);
     }
 
+    /**
+     * If the return type is {@code void}, swallow results.
+     * @param extensionType
+     * @param method
+     * @see ResultReturner#forMethod(Class, Method) if the return type is not void
+     * @return
+     */
     static ResultReturner forOptionalReturn(Class<?> extensionType, Method method)
     {
         if (method.getReturnType() == void.class) {
@@ -69,6 +73,13 @@ abstract class ResultReturner
         return forMethod(extensionType, method);
     }
 
+    /**
+     * Inspect a Method for its return type, and choose a ResultReturner subclass
+     * that handles any container that might wrap the results.
+     * @param extensionType the type that owns the Method
+     * @param method the method whose return type chooses the ResultReturner
+     * @return an instance that takes a ResultIterable and constructs the return value
+     */
     static ResultReturner forMethod(Class<?> extensionType, Method method)
     {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
@@ -100,8 +111,10 @@ abstract class ResultReturner
     }
 
     protected abstract Object result(ResultIterable<?> bearer, StatementContext ctx);
+    protected abstract Type elementType(StatementContext ctx);
 
-    static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType) {
+    static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType)
+    {
         if (GetGeneratedKeys.DefaultMapper.class.equals(ggk.value())) {
             return new GetGeneratedKeys.DefaultMapper(returnType, ggk.columnName());
         }
@@ -114,8 +127,6 @@ abstract class ResultReturner
             }
         }
     }
-
-    protected abstract Type elementType(StatementContext ctx);
 
     static class StreamReturner extends ResultReturner
     {
