@@ -60,6 +60,7 @@
 
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
+        <basepom.release.profiles>basepom.oss-release,oracle</basepom.release.profiles>
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
         <basepom.test.timeout>240</basepom.test.timeout>

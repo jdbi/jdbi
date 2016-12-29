@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.0.0-alpha7-SNAPSHOT</version>
+        <version>3.0.0-alpha8-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-oracle</artifactId>
@@ -74,4 +74,18 @@
             <version>12.1.0.2</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <forkCount>1</forkCount>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
