@@ -16,11 +16,12 @@ package org.jdbi.v3.core.transaction;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
 
 /**
  * A TransactionHandler that automatically retries transactions that fail due to
  * serialization failures, which can generally be resolved by automatically
- * retrying the transaction.  Any TransactionCallback used under this runner
+ * retrying the transaction.  Any HandleCallback used under this runner
  * should be aware that it may be invoked multiple times.
  */
 public class SerializableTransactionRunner extends DelegatingTransactionHandler implements TransactionHandler
@@ -43,7 +44,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionCallback<R, X> callback) throws X
+                                                    HandleCallback<R, X> callback) throws X
     {
         int retriesRemaining = configuration.maxRetries;
 
@@ -64,7 +65,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
-                                                    TransactionCallback<R, X> callback) throws X
+                                                    HandleCallback<R, X> callback) throws X
     {
         final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
         try

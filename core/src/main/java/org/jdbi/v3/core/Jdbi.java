@@ -38,8 +38,6 @@ import org.jdbi.v3.core.statement.DefaultStatementBuilderFactory;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementBuilderFactory;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
-import org.jdbi.v3.core.transaction.TransactionCallback;
-import org.jdbi.v3.core.transaction.TransactionConsumer;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.slf4j.Logger;
@@ -336,24 +334,74 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @throws X any exception thrown by the callback
      */
-    public <R, X extends Exception> R inTransaction(final TransactionCallback<R, X> callback) throws X
+    public <R, X extends Exception> R inTransaction(final HandleCallback<R, X> callback) throws X
     {
         return withHandle(handle -> handle.<R, X>inTransaction(callback));
     }
 
-    public <X extends Exception> void useTransaction(final TransactionConsumer<X> callback) throws X
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients. The handle will be in a transaction when the callback is invoked, and
+     * that transaction will be committed if the callback finishes normally, or rolled back if the
+     * callback raises an exception.
+     *
+     * @param callback A callback which will receive an open Handle, in a transaction
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @throws X any exception thrown by the callback
+     */
+    public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X
     {
         useHandle(handle -> handle.useTransaction(callback));
     }
 
-    public <R, X extends Exception> R inTransaction(final TransactionIsolationLevel isolation, final TransactionCallback<R, X> callback) throws X
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients. The handle will be in a transaction when the callback is invoked, and
+     * that transaction will be committed if the callback finishes normally, or rolled back if the
+     * callback raises an exception.
+     *
+     * <p>
+     * This form accepts a transaction isolation level which will be applied to the connection
+     * for the scope of this transaction, after which the original isolation level will be restored.
+     * </p>
+     *
+     * @param level the transaction isolation level which will be applied to the connection for the scope of this
+     *              transaction, after which the original isolation level will be restored.
+     * @param callback A callback which will receive an open Handle, in a transaction
+     * @param <R> type returned by the callback
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @return the value returned by callback
+     *
+     * @throws X any exception thrown by the callback
+     */
+    public <R, X extends Exception> R inTransaction(final TransactionIsolationLevel level, final HandleCallback<R, X> callback) throws X
     {
-        return withHandle(handle -> handle.<R, X>inTransaction(isolation, callback));
+        return withHandle(handle -> handle.<R, X>inTransaction(level, callback));
     }
 
-    public <X extends Exception> void useTransaction(final TransactionIsolationLevel isolation, final TransactionConsumer<X> callback) throws X
+    /**
+     * A convenience function which manages the lifecycle of a handle and yields it to a callback
+     * for use by clients. The handle will be in a transaction when the callback is invoked, and
+     * that transaction will be committed if the callback finishes normally, or rolled back if the
+     * callback raises an exception.
+     *
+     * <p>
+     * This form accepts a transaction isolation level which will be applied to the connection
+     * for the scope of this transaction, after which the original isolation level will be restored.
+     * </p>
+     *
+     * @param level the transaction isolation level which will be applied to the connection for the scope of this
+     *              transaction, after which the original isolation level will be restored.
+     * @param callback A callback which will receive an open Handle, in a transaction
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @throws X any exception thrown by the callback
+     */
+    public <X extends Exception> void useTransaction(final TransactionIsolationLevel level, final HandleConsumer<X> callback) throws X
     {
-        useHandle(handle -> handle.useTransaction(isolation, callback));
+        useHandle(handle -> handle.useTransaction(level, callback));
     }
 
     /**
