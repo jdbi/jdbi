@@ -24,7 +24,7 @@ import java.util.function.Function;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
@@ -70,10 +70,10 @@ public @interface SqlUpdate {
 
                 this.returner = update -> {
                     String columnName = ggk.columnName();
-                    ResultSetIterable resultSetIterable = columnName.isEmpty()
+                    ResultBearing resultBearing = columnName.isEmpty()
                             ? update.executeAndReturnGeneratedKeys()
                             : update.executeAndReturnGeneratedKeys(columnName);
-                    return magic.result(resultSetIterable.map(mapper), update.getContext());
+                    return magic.result(resultBearing.map(mapper), update.getContext());
                 };
             } else if (isNumeric(method.getReturnType())) {
                 this.returner = update -> update.execute();

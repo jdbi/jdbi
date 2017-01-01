@@ -20,16 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetException;
-import org.jdbi.v3.core.result.ResultSetIterable;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 
 import oracle.jdbc.OraclePreparedStatement;
 
 /**
- * BETA: Returns a {@link ResultSetIterable} from Oracle's "DML Returning" features introduced in 10.2. To use,
+ * BETA: Returns a {@link ResultBearing} from Oracle's "DML Returning" features introduced in 10.2. To use,
  * add a {@link #returnParameters()} customizer to the statement and register with one or more return parameters. Then
  * execute the statement with {@link #returningDml()} result producer:
  * <p>
@@ -84,14 +84,14 @@ public class OracleReturning {
     }
 
     /**
-     * Result producer that returns a {@link ResultSetIterable} over the statement "DML returning" parameters. Used in
+     * Result producer that returns a {@link ResultBearing} over the statement "DML returning" parameters. Used in
      * conjunction with {@link #returnParameters()} to register return parameters.
      *
-     * @return ResultSetIterable of returned columns.
+     * @return ResultBearing of returned columns.
      * @see OraclePreparedStatement#getReturnResultSet()
      */
-    public static ResultProducer<ResultSetIterable> returningDml() {
-        return (supplier, ctx) -> ResultSetIterable.of(getReturnResultSet(supplier, ctx), ctx);
+    public static ResultProducer<ResultBearing> returningDml() {
+        return (supplier, ctx) -> ResultBearing.of(getReturnResultSet(supplier, ctx), ctx);
     }
 
     private static Supplier<ResultSet> getReturnResultSet(Supplier<PreparedStatement> supplier, StatementContext ctx) {

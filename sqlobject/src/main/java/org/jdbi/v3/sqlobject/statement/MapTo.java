@@ -23,7 +23,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.generic.GenericType;
-import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
@@ -50,7 +50,7 @@ public @interface MapTo {
             return s -> {
                 ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
                 s.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                        () -> returner.result(((ResultSetIterable) s).mapTo(type), s.getContext()));
+                        () -> returner.result(((ResultBearing) s).mapTo(type), s.getContext()));
             };
         }
     }

@@ -18,32 +18,29 @@ import static org.jdbi.v3.core.result.ResultProducers.returningResults;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Locale;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
-import org.jdbi.v3.core.result.ResultSetCallback;
-import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.result.ResultSetMapper;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 /**
  * Statement providing convenience result handling for SQL queries.
- * The default mapping to {@code Map<String, Object>} unfortunately
- * does not mesh well with SQL's case-insensitivity, so all
- * identifiers are converted to lower-case using {@link Locale#ROOT}.
- * If you require different behavior, implement a custom mapper.
- * The default mapper also carries a performance penalty because it must
- * inspect metadata for each row.
  */
-public class Query extends SqlStatement<Query> implements ResultBearing, ResultSetIterable
+public class Query extends SqlStatement<Query> implements ResultBearing
 {
     public Query(Handle handle, String sql)
     {
         super(handle, sql);
     }
 
-    @Override
+    /**
+     * Executes the query, returning the result obtained from the given {@link ResultProducer}.
+     *
+     * @param producer the result producer.
+     * @return value returned by the result producer.
+     */
     @SuppressWarnings("resource")
     public <R> R execute(ResultProducer<R> producer)
     {
@@ -60,8 +57,8 @@ public class Query extends SqlStatement<Query> implements ResultBearing, ResultS
     }
 
     @Override
-    public <R> R withResultSet(ResultSetCallback<R> callback) {
-        return execute(returningResults()).withResultSet(callback);
+    public <R> R mapResultSet(ResultSetMapper<R> mapper) {
+        return execute(returningResults()).mapResultSet(mapper);
     }
 
     /**

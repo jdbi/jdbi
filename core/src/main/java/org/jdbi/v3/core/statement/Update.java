@@ -20,21 +20,20 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
-import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 /**
  * Used for INSERT, UPDATE, and DELETE statements
  */
-public class Update extends SqlStatement<Update> implements ResultBearing {
+public class Update extends SqlStatement<Update> {
     public Update(Handle handle, String sql) {
         super(handle, sql);
     }
 
     /**
-     * Execute the statement
+     * Executes the statement, returning the update count.
      *
      * @return the number of rows modified
      */
@@ -42,11 +41,21 @@ public class Update extends SqlStatement<Update> implements ResultBearing {
         return execute(returningUpdateCount());
     }
 
-    @Override
+    /**
+     * Executes the update, returning the result obtained from the given {@link ResultProducer}.
+     *
+     * @param producer the result producer.
+     * @return value returned by the result producer.
+     */
     public <R> R execute(ResultProducer<R> producer) {
         try {
             return producer.produce(this::internalExecute, getContext());
         } catch (SQLException e) {
+            try {
+                close();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
             throw new UnableToProduceResultException("Could not produce statement result", e, getContext());
         }
     }
@@ -56,9 +65,9 @@ public class Update extends SqlStatement<Update> implements ResultBearing {
      * the {@link Statement#getGeneratedKeys()} method.
      *
      * @param generatedKeyColumnNames optional list of generated key column names.
-     * @return ResultSetIterable of generated keys
+     * @return ResultBearing of generated keys
      */
-    public ResultSetIterable executeAndReturnGeneratedKeys(String... generatedKeyColumnNames) {
+    public ResultBearing executeAndReturnGeneratedKeys(String... generatedKeyColumnNames) {
         return execute(returningGeneratedKeys(generatedKeyColumnNames));
     }
 }

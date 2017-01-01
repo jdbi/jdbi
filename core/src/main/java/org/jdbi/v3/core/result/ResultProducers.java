@@ -42,13 +42,13 @@ public class ResultProducers {
     }
 
     /**
-     * Result producer that returns a {@link ResultSetIterable} over the statement result rows.
+     * Result producer that returns a {@link ResultBearing} over the statement result rows.
      *
-     * @return ResultSetIterable of result rows.
+     * @return ResultBearing of result rows.
      * @see PreparedStatement#getResultSet()
      */
-    public static ResultProducer<ResultSetIterable> returningResults() {
-        return (supplier, ctx) -> ResultSetIterable.of(getResultSet(supplier, ctx), ctx);
+    public static ResultProducer<ResultBearing> returningResults() {
+        return (supplier, ctx) -> ResultBearing.of(getResultSet(supplier, ctx), ctx);
     }
 
     private static Supplier<ResultSet> getResultSet(Supplier<PreparedStatement> supplier, StatementContext ctx) {
@@ -70,13 +70,13 @@ public class ResultProducers {
     }
 
     /**
-     * Result producer that returns a {@link ResultSetIterable} over the statement-generated keys.
+     * Result producer that returns a {@link ResultBearing} over the statement-generated keys.
      *
      * @param generatedKeyColumnNames optional list of generated key column names.
-     * @return ResultSetIterable of generated keys
+     * @return ResultBearing of generated keys
      * @see PreparedStatement#getGeneratedKeys()
      */
-    public static ResultProducer<ResultSetIterable> returningGeneratedKeys(String... generatedKeyColumnNames) {
+    public static ResultProducer<ResultBearing> returningGeneratedKeys(String... generatedKeyColumnNames) {
         return (supplier, ctx) -> {
             StatementConfiguration cfg = ctx.getConfig(StatementConfiguration.class);
             cfg.setReturningGeneratedKeys(true);
@@ -85,7 +85,7 @@ public class ResultProducers {
                 cfg.setGeneratedKeysColumnNames(generatedKeyColumnNames);
             }
 
-            return ResultSetIterable.of(getGeneratedKeys(supplier, ctx), ctx);
+            return ResultBearing.of(getGeneratedKeys(supplier, ctx), ctx);
         };
     }
 

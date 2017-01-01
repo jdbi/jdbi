@@ -25,7 +25,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * @param <R> Result type
  */
 @FunctionalInterface
-public interface ResultSetCallback<R> {
+public interface ResultSetMapper<R> {
     /**
      * Produces a result from the supplied result set. The result set is not opened (and usually, the statement the
      * result came from is not executed) until {@code resultSetSupplier.get()} is called.
@@ -48,8 +48,8 @@ public interface ResultSetCallback<R> {
      *
      * @param resultSetSupplier supplies a ResultSet.
      * @param ctx               the statement context.
-     * @return
+     * @return the produced result
      * @throws SQLException
      */
-    R withResultSet(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) throws SQLException;
+    R map(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) throws SQLException;
 }
