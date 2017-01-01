@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-stringtemplate3</artifactId>
-    <name>jdbi String Template</name>
+    <name>jdbi String Template 3 integration</name>
     <packaging>jar</packaging>
     <description>
         jdbi-stringtemplate3 locates SQL statements in StringTemplate 3 files on the classpath
