@@ -47,7 +47,7 @@ public interface ResultBearing {
             @Override
             public <R> R mapResultSet(ResultSetMapper<R> mapper) {
                 try {
-                    return mapper.map(resultSetSupplier, ctx);
+                    return mapper.mapResultSet(resultSetSupplier, ctx);
                 }
                 catch (SQLException e) {
                     throw new ResultSetException("Error reading result set", e, ctx);
