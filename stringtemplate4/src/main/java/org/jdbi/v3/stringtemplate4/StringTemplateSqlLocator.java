@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +25,8 @@ import net.jodah.expiringmap.ExpiringMap;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupString;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Locates SQL in <code>.sql.stg</code> StringTemplate group files on the classpath.
@@ -37,7 +38,6 @@ public class StringTemplateSqlLocator {
             .entryLoader(o -> readStringTemplateGroup((Class) o))
             .build();
 
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
     private static final String TEMPLATE_GROUP_EXTENSION = ".sql.stg";
 
     private StringTemplateSqlLocator() {
@@ -90,7 +90,7 @@ public class StringTemplateSqlLocator {
         final int bufferSize = 1024;
         final char[] buffer = new char[bufferSize];
         final StringBuilder out = new StringBuilder();
-        Reader in = new InputStreamReader(inputStream, "UTF-8");
+        Reader in = new InputStreamReader(inputStream, UTF_8);
         for (; ; ) {
             int rsz = in.read(buffer, 0, buffer.length);
             if (rsz < 0){
