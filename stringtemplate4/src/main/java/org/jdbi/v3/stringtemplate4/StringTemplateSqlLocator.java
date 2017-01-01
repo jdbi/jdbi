@@ -87,15 +87,10 @@ public class StringTemplateSqlLocator {
     }
 
     private static String toString(InputStream inputStream) throws IOException {
-        final int bufferSize = 1024;
-        final char[] buffer = new char[bufferSize];
-        final StringBuilder out = new StringBuilder();
+        char[] buffer = new char[1024];
+        StringBuilder out = new StringBuilder();
         Reader in = new InputStreamReader(inputStream, UTF_8);
-        for (; ; ) {
-            int rsz = in.read(buffer, 0, buffer.length);
-            if (rsz < 0){
-                break;
-            }
+        for (int rsz; (rsz = in.read(buffer, 0, buffer.length)) >= 0;) {
             out.append(buffer, 0, rsz);
         }
         return out.toString();
