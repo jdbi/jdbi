@@ -24,10 +24,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.transaction.SerializableTransactionRunner;
-import org.jdbi.v3.core.transaction.TransactionCallback;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.postgres.PostgresDbRule;
@@ -170,7 +170,7 @@ public class TransactionTest {
         void insert(int value);
     }
 
-    static class SumAndInsert implements Callable<Integer>, TransactionCallback<Integer, Exception> {
+    static class SumAndInsert implements Callable<Integer>, HandleCallback<Integer, Exception> {
         private final Jdbi jdbi;
         private final CountDownLatch latch;
 
@@ -180,7 +180,7 @@ public class TransactionTest {
         }
 
         @Override
-        public Integer inTransaction(Handle handle) throws Exception {
+        public Integer withHandle(Handle handle) throws Exception {
             IntListDao dao = handle.attach(IntListDao.class);
             int sum = dao.sum();
 

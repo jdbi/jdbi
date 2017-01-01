@@ -28,7 +28,7 @@ public class CallTest
                 .registerOutParameter(0, Types.INTEGER)
                 .bind(1, 13)
                 .invoke()
-                .getInt(1))
+                .getInt(0))
             .isEqualTo(42);
         // end::call[]
     }

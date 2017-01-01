@@ -16,6 +16,7 @@ package org.jdbi.v3.core.transaction;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
 
 /**
  * Handler designed to behave properly in a J2EE CMT environment. It will never
@@ -97,15 +98,15 @@ public class CMTTransactionHandler implements TransactionHandler
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionCallback<R, X> callback) throws X
+                                                    HandleCallback<R, X> callback) throws X
     {
-        return callback.inTransaction(handle);
+        return callback.withHandle(handle);
     }
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
-                                                    TransactionCallback<R, X> callback) throws X
+                                                    HandleCallback<R, X> callback) throws X
     {
         return inTransaction(handle, callback);
     }
