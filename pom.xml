@@ -216,6 +216,11 @@
                 <artifactId>jdbi3-stringtemplate3</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-stringtemplate4</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -260,13 +265,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${dep.spring.version}</version>
-                <optional>true</optional>
-            </dependency>
-
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>stringtemplate</artifactId>
-                <version>3.2.1</version>
                 <optional>true</optional>
             </dependency>
 
@@ -377,6 +375,7 @@
         <module>core</module>
         <module>sqlobject</module>
         <module>stringtemplate3</module>
+        <module>stringtemplate4</module>
         <module>guava</module>
         <module>jodatime2</module>
         <module>jpa</module>

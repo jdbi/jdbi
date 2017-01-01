@@ -11,9 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.stringtemplate3;
+package org.jdbi.v3.stringtemplate4;
 
-import static org.jdbi.v3.stringtemplate3.StringTemplateSqlLocator.findStringTemplateGroup;
+import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTemplateGroup;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -24,8 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
@@ -35,6 +33,8 @@ import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
 
 /**
  * Configures SQL Object to locate SQL using the {@link StringTemplateSqlLocator#findStringTemplate(Class, String)}
@@ -46,10 +46,10 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
  *     &#064;UseStringTemplateSqlLocator
  *     interface Viccini {
  *         &#064;SqlUpdate
- *         void doTheThing(long id);     // =&gt; StringTemplateSqlLocator.findStringTemplate(Viccini.class, "doTheThing")
+ *         void doTheThing(long id);     // =&gt; StringTemplateSqlLocator.findStringTemplateSql(Viccini.class, "doTheThing")
  *
  *         &#064;SqlUpdate("thatOtherThing")
- *         void doTheThing(String name); // =&gt; StringTemplateSqlLocator.findStringTemplate(Viccini.class, "thatOtherThing")
+ *         void doTheThing(String name); // =&gt; StringTemplateSqlLocator.findStringTemplateSql(Viccini.class, "thatOtherThing")
  *     }
  * </pre>
  */
@@ -73,7 +73,7 @@ public @interface UseStringTemplateSqlLocator {
         private Consumer<ConfigRegistry> create(UseStringTemplateSqlLocator annotation, Class<?> sqlObjectType) {
             SqlLocator locator = (type, method) -> {
                 String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-                StringTemplateGroup group = findStringTemplateGroup(type);
+                STGroup group = findStringTemplateGroup(type);
                 if (!group.isDefined(templateName)) {
                     throw new IllegalStateException("No StringTemplate group " + templateName + " for class " + sqlObjectType);
                 }
@@ -84,9 +84,10 @@ public @interface UseStringTemplateSqlLocator {
             StatementRewriter locatingRewriter = (sql, params, ctx) -> {
                 String templateName = sql;
 
-                StringTemplateGroup group = findStringTemplateGroup(sqlObjectType);
-                StringTemplate template = group.getInstanceOf(templateName, ctx.getAttributes());
-                String rewritten = template.toString();
+                STGroup group = findStringTemplateGroup(sqlObjectType);
+                ST template = group.getInstanceOf(templateName);
+                ctx.getAttributes().forEach(template::add);
+                String rewritten = template.render();
 
                 return delegate.rewrite(rewritten, params, ctx);
             };

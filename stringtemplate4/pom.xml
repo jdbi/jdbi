@@ -21,11 +21,11 @@
         <version>3.0.0-alpha8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3-stringtemplate3</artifactId>
-    <name>jdbi String Template 3 integration</name>
+    <artifactId>jdbi3-stringtemplate4</artifactId>
+    <name>jdbi String Template 4 integration</name>
     <packaging>jar</packaging>
     <description>
-        jdbi-stringtemplate3 locates SQL statements in StringTemplate 3 files on the classpath
+        jdbi-stringtemplate4 locates SQL statements in StringTemplate 4 files on the classpath
     </description>
     <url>http://jdbi.org/</url>
 
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>stringtemplate</artifactId>
-            <version>3.2.1</version>
+            <version>4.0.2</version>
         </dependency>
 
         <dependency>
