@@ -31,8 +31,6 @@ import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Script;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.Update;
-import org.jdbi.v3.core.transaction.TransactionCallback;
-import org.jdbi.v3.core.transaction.TransactionConsumer;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
@@ -358,7 +356,7 @@ public class Handle implements Closeable, Configurable<Handle>
      *
      * @throws X any exception thrown by the callback
      */
-    public <R, X extends Exception> R inTransaction(TransactionCallback<R, X> callback) throws X {
+    public <R, X extends Exception> R inTransaction(HandleCallback<R, X> callback) throws X {
         return transactions.inTransaction(this, callback);
     }
 
@@ -370,9 +368,9 @@ public class Handle implements Closeable, Configurable<Handle>
      *
      * @throws X any exception thrown by the callback
      */
-    public <X extends Exception> void useTransaction(final TransactionConsumer<X> callback) throws X {
+    public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X {
         transactions.inTransaction(this, handle -> {
-            callback.useTransaction(handle);
+            callback.useHandle(handle);
             return null;
         });
     }
@@ -394,7 +392,7 @@ public class Handle implements Closeable, Configurable<Handle>
      *
      * @throws X any exception thrown by the callback
      */
-    public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, TransactionCallback<R, X> callback) throws X {
+    public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
         try (TransactionResetter tr = new TransactionResetter(getTransactionIsolationLevel())) {
             setTransactionIsolation(level);
             return transactions.inTransaction(this, level, callback);
@@ -428,9 +426,9 @@ public class Handle implements Closeable, Configurable<Handle>
      * @param <X> exception type thrown by the callback, if any
      * @throws X any exception thrown by the callback
      */
-    public <X extends Exception> void useTransaction(TransactionIsolationLevel level, TransactionConsumer<X> callback) throws X {
+    public <X extends Exception> void useTransaction(TransactionIsolationLevel level, HandleConsumer<X> callback) throws X {
         inTransaction(level, handle -> {
-            callback.useTransaction(handle);
+            callback.useHandle(handle);
             return null;
         });
     }

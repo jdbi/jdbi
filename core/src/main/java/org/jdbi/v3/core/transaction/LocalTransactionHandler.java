@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
 
 /**
  * This <code>TransactionHandler</code> uses local JDBC transactions
@@ -137,7 +138,7 @@ public class LocalTransactionHandler implements TransactionHandler
     @SuppressWarnings("unchecked")
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionCallback<R, X> callback) throws X
+                                                    HandleCallback<R, X> callback) throws X
     {
         if (isInTransaction(handle)) {
             throw new IllegalStateException("Already in transaction");
@@ -146,7 +147,7 @@ public class LocalTransactionHandler implements TransactionHandler
         final R returnValue;
         try {
             handle.begin();
-            returnValue = callback.inTransaction(handle);
+            returnValue = callback.withHandle(handle);
             if (!didTxnRollback.get()) {
                 handle.commit();
             }
@@ -167,7 +168,7 @@ public class LocalTransactionHandler implements TransactionHandler
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
-                                                    TransactionCallback<R, X> callback) throws X
+                                                    HandleCallback<R, X> callback) throws X
     {
         final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
         try {

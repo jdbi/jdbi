@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.transaction.TransactionCallback;
+import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.Handler;
@@ -60,7 +60,7 @@ public @interface Transaction {
                     }
                 }
 
-                TransactionCallback<Object, Exception> callback = th -> base.invoke(target, args, handle);
+                HandleCallback<Object, Exception> callback = th -> base.invoke(target, args, handle);
 
                 if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
                     return h.inTransaction(callback);

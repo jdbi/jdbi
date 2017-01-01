@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.transaction;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
 
 public class DelegatingTransactionHandler implements TransactionHandler
 {
@@ -73,7 +74,7 @@ public class DelegatingTransactionHandler implements TransactionHandler
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionCallback<R, X> callback) throws X
+                                                    HandleCallback<R, X> callback) throws X
     {
         return delegate.inTransaction(handle, callback);
     }
@@ -81,7 +82,7 @@ public class DelegatingTransactionHandler implements TransactionHandler
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
-                                                    TransactionCallback<R, X> callback) throws X
+                                                    HandleCallback<R, X> callback) throws X
     {
         return delegate.inTransaction(handle, level, callback);
     }

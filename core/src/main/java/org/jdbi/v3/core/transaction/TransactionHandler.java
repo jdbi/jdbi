@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.transaction;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
 
 /**
  * Interface which defines callbacks to be used when transaction methods are called on a handle.
@@ -89,10 +90,10 @@ public interface TransactionHandler
      * @return the value returned by the callback.
      *
      * @throws X any exception thrown by the callback.
-     * @see Handle#inTransaction(TransactionCallback)
+     * @see Handle#inTransaction(HandleCallback)
      */
     <R, X extends Exception> R inTransaction(Handle handle,
-                                             TransactionCallback<R, X> callback) throws X;
+                                             HandleCallback<R, X> callback) throws X;
 
     /**
      * Run a transaction.
@@ -106,10 +107,10 @@ public interface TransactionHandler
      * @return the value returned by the callback.
      *
      * @throws X any exception thrown by the callback.
-     * @see Handle#inTransaction(TransactionIsolationLevel, TransactionCallback)
+     * @see Handle#inTransaction(TransactionIsolationLevel, HandleCallback)
      */
     <R, X extends Exception> R inTransaction(Handle handle,
                                              TransactionIsolationLevel level,
-                                             TransactionCallback<R, X> callback) throws X;
+                                             HandleCallback<R, X> callback) throws X;
 
 }
