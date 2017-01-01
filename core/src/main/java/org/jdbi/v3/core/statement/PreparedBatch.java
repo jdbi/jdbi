@@ -115,6 +115,11 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         try {
             return producer.produce(() -> internalBatchExecute().stmt, getContext());
         } catch (SQLException e) {
+            try {
+                close();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
             throw new UnableToProduceResultException("Exception producing batch result", e, getContext());
         }
     }

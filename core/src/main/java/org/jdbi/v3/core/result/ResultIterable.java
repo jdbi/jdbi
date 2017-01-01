@@ -52,6 +52,11 @@ public interface ResultIterable<T> extends Iterable<T> {
             try {
                 return new ResultSetResultIterator<>(supplier.get(), mapper, ctx);
             } catch (SQLException e) {
+                try {
+                    ctx.close();
+                } catch (Exception e1) {
+                    e.addSuppressed(e1);
+                }
                 throw new ResultSetException("Unable to iterator result set", e, ctx);
             }
         };
