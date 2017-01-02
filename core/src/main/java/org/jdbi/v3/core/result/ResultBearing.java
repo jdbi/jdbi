@@ -129,7 +129,7 @@ public interface ResultBearing {
      * Maps this result set to a {@link ResultIterable} of {@code Map<String,Object>}. Keys are column names, and
      * values are column values.
      *
-     * @return a {@link ResultIterable ResultBearing<Map<String,Object>>}.
+     * @return a {@link ResultIterable ResultIterable&lt;Map&lt;String,Object&gt;&gt;}.
      */
     default ResultIterable<Map<String, Object>> mapToMap() {
         return map(new MapMapper());
