@@ -15,35 +15,34 @@ package org.jdbi.v3.sqlobject.config;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
- * Generates {@link Consumer}&lt;{@link ConfigRegistry}&gt; instances to satisfy the contract of a
+ * Configures {@link ConfigRegistry} instances to satisfy the contract of a
  * {@link ConfiguringAnnotation}-annotated annotation.
  */
-public interface ConfigurerFactory {
+public interface Configurer {
     /**
-     * Create a configurer for the given annotation on a sql object type.
+     * Configures the registry for the given annotation on a sql object type.
      *
+     * @param registry      the registry to configure
      * @param annotation    the annotation
      * @param sqlObjectType the sql object type which was annotated
-     * @return a configurer which will be applied to the {@link ConfigRegistry}.
      */
-    default Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
+    default void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         throw new UnsupportedOperationException("Not supported for type");
     }
 
     /**
-     * Create a configurer for the given annotation on a sql object method.
+     * Configures the registry for the given annotation on a sql object method.
      *
+     * @param registry      the registry to configure
      * @param annotation    the annotation
      * @param sqlObjectType the sql object type
      * @param method        the method which was annotated
-     * @return a configurer which will be applied to the {@link ConfigRegistry}.
      */
-    default Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+    default void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         throw new UnsupportedOperationException("Not supported for method");
     }
 }

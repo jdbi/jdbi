@@ -39,7 +39,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
@@ -47,8 +47,7 @@ public class SqlObjectFactory implements ExtensionFactory {
     private static final Object[] NO_ARGS = new Object[0];
 
     private final Map<Class<?>, Map<Method, Handler>> handlersCache = synchronizedMap(new WeakHashMap<>());
-    private final Map<Class<? extends ConfigurerFactory>, ConfigurerFactory>
-            configurerFactories = synchronizedMap(new WeakHashMap<>());
+    private final Map<Class<? extends Configurer>, Configurer> configurers = synchronizedMap(new WeakHashMap<>());
 
     SqlObjectFactory() { }
 
@@ -84,8 +83,8 @@ public class SqlObjectFactory implements ExtensionFactory {
         Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
         ConfigRegistry instanceConfig = handle.getConfig().createCopy();
-        forEachConfigurerFactory(extensionType, (factory, annotation) ->
-                factory.createForType(annotation, extensionType).accept(instanceConfig));
+        forEachConfigurer(extensionType, (configurer, annotation) ->
+                configurer.configureForType(instanceConfig, annotation, extensionType));
 
         InvocationHandler invocationHandler = createInvocationHandler(extensionType, instanceConfig, handlers, handle);
         return extensionType.cast(
@@ -262,27 +261,27 @@ public class SqlObjectFactory implements ExtensionFactory {
             Handler handler = handlers.get(method);
 
             ConfigRegistry methodConfig = instanceConfig.createCopy();
-            forEachConfigurerFactory(method, (factory, annotation) ->
-                    factory.createForMethod(annotation, sqlObjectType, method).accept(methodConfig));
+            forEachConfigurer(method, (configurer, annotation) ->
+                    configurer.configureForMethod(methodConfig, annotation, sqlObjectType, method));
 
             return handle.invokeInContext(new ExtensionMethod(sqlObjectType, method), methodConfig,
                     () -> handler.invoke(proxy, args == null ? NO_ARGS : args, handle));
         };
     }
 
-    private void forEachConfigurerFactory(AnnotatedElement element, BiConsumer<ConfigurerFactory, Annotation> consumer) {
+    private void forEachConfigurer(AnnotatedElement element, BiConsumer<Configurer, Annotation> consumer) {
         Stream.of(element.getAnnotations())
                 .filter(a -> a.annotationType().isAnnotationPresent(ConfiguringAnnotation.class))
                 .forEach(a -> {
                     ConfiguringAnnotation meta = a.annotationType()
                             .getAnnotation(ConfiguringAnnotation.class);
 
-                    consumer.accept(getConfigurerFactory(meta.value()), a);
+                    consumer.accept(getConfigurer(meta.value()), a);
                 });
     }
 
-    private ConfigurerFactory getConfigurerFactory(Class<? extends ConfigurerFactory> factoryClass) {
-        return configurerFactories.computeIfAbsent(factoryClass, c -> {
+    private Configurer getConfigurer(Class<? extends Configurer> factoryClass) {
+        return configurers.computeIfAbsent(factoryClass, c -> {
             try {
                 return c.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {

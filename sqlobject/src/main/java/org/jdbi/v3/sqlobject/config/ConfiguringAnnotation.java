@@ -28,10 +28,9 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 public @interface ConfiguringAnnotation
 {
     /**
-     * A {@link ConfigurerFactory} type, which will be used to create
-     * {@link java.util.function.Consumer}&lt;{@link ConfigRegistry}&gt; instances.
+     * A {@link Configurer} type, which will be used to configure {@link ConfigRegistry} instances.
      *
-     * @return a factory used to crate customizers for the customizing annotation
+     * @return the Configurer type used to configure a {@link ConfigRegistry} for the configuring annotation.
      */
-    Class<? extends ConfigurerFactory> value();
+    Class<? extends Configurer> value();
 }

@@ -19,17 +19,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(RegisterFieldMapper.Factory.class)
+@ConfiguringAnnotation(RegisterFieldMapper.Impl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterFieldMapper
 {
@@ -48,38 +44,33 @@ public @interface RegisterFieldMapper
      */
     String[] prefix() default {};
 
-    class Factory implements ConfigurerFactory
+    class Impl implements Configurer
     {
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return create((RegisterFieldMapper) annotation);
-        }
-
-        @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            return create((RegisterFieldMapper) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterFieldMapper annotation) {
-            Class<?>[] types = annotation.value();
-            String[] prefixes = annotation.prefix();
-            List<RowMapperFactory> mappers = new ArrayList<>(types.length);
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+            RegisterFieldMapper registerFieldMapper = (RegisterFieldMapper) annotation;
+            Class<?>[] types = registerFieldMapper.value();
+            String[] prefixes = registerFieldMapper.prefix();
+            RowMappers mappers = registry.get(RowMappers.class);
             if (prefixes.length == 0) {
                 for (Class<?> type : types) {
-                    mappers.add(FieldMapper.of(type));
+                    mappers.register(FieldMapper.of(type));
                 }
             }
             else if (prefixes.length == types.length) {
                 for (int i = 0; i < types.length; i++) {
-                    mappers.add(FieldMapper.of(types[i], prefixes[i]));
+                    mappers.register(FieldMapper.of(types[i], prefixes[i]));
                 }
             }
             else {
                 throw new IllegalStateException("RegisterFieldMapper.prefix() must have the same number of elements as value()");
             }
+        }
 
-            return config -> mappers.forEach(config.get(RowMappers.class)::register);
+        @Override
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
+        {
+            configureForType(registry, annotation, sqlObjectType);
         }
     }
 }

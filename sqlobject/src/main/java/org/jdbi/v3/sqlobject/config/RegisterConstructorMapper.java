@@ -19,19 +19,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 
 /**
  * Used to register a constructor mapper factory for the only constructor of a type.
  */
-@ConfiguringAnnotation(RegisterConstructorMapper.Factory.class)
+@ConfiguringAnnotation(RegisterConstructorMapper.Impl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterConstructorMapper
@@ -51,40 +47,35 @@ public @interface RegisterConstructorMapper
      */
     String[] prefix() default {};
 
-    class Factory implements ConfigurerFactory
+    class Impl implements Configurer
     {
 
         @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return create((RegisterConstructorMapper) annotation);
+            configureForType(registry, annotation, sqlObjectType);
         }
 
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
-            return create((RegisterConstructorMapper) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterConstructorMapper rcm) {
-            Class<?>[] types = rcm.value();
-            String[] prefixes = rcm.prefix();
-            List<RowMapperFactory> mappers = new ArrayList<>(types.length);
+            RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
+            RowMappers mappers = registry.get(RowMappers.class);
+            Class<?>[] types = registerConstructorMapper.value();
+            String[] prefixes = registerConstructorMapper.prefix();
             if (prefixes.length == 0) {
                 for (Class<?> type : types) {
-                    mappers.add(ConstructorMapper.of(type));
+                    mappers.register(ConstructorMapper.of(type));
                 }
             }
             else if (prefixes.length == types.length) {
                 for (int i = 0; i < types.length; i++) {
-                    mappers.add(ConstructorMapper.of(types[i], prefixes[i]));
+                    mappers.register(ConstructorMapper.of(types[i], prefixes[i]));
                 }
             }
             else {
                 throw new IllegalStateException("RegisterConstructorMapper.prefix() must have the same number of elements as value()");
             }
-
-            return config -> mappers.forEach(config.get(RowMappers.class)::register);
         }
     }
 }

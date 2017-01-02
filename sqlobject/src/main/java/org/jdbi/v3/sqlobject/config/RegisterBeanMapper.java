@@ -19,17 +19,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(RegisterBeanMapper.Factory.class)
+@ConfiguringAnnotation(RegisterBeanMapper.Impl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterBeanMapper
 {
@@ -48,38 +44,33 @@ public @interface RegisterBeanMapper
      */
     String[] prefix() default {};
 
-    class Factory implements ConfigurerFactory
+    class Impl implements Configurer
     {
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return create((RegisterBeanMapper) annotation);
-        }
-
-        @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            return create((RegisterBeanMapper) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterBeanMapper annotation) {
-            Class<?>[] beanClasses = annotation.value();
-            String[] prefixes = annotation.prefix();
-            List<RowMapperFactory> mappers = new ArrayList<>(beanClasses.length);
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+            RegisterBeanMapper registerBeanMapper = (RegisterBeanMapper) annotation;
+            Class<?>[] beanClasses = registerBeanMapper.value();
+            String[] prefixes = registerBeanMapper.prefix();
+            RowMappers mappers = registry.get(RowMappers.class);
             if (prefixes.length == 0) {
                 for (Class<?> beanClass : beanClasses) {
-                    mappers.add(BeanMapper.of(beanClass));
+                    mappers.register(BeanMapper.of(beanClass));
                 }
             }
             else if (prefixes.length == beanClasses.length) {
                 for (int i = 0; i < beanClasses.length; i++) {
-                    mappers.add(BeanMapper.of(beanClasses[i], prefixes[i]));
+                    mappers.register(BeanMapper.of(beanClasses[i], prefixes[i]));
                 }
             }
             else {
                 throw new IllegalStateException("RegisterBeanMapper.prefix() must have the same number of elements as value()");
             }
+        }
 
-            return config -> mappers.forEach(config.get(RowMappers.class)::register);
+        @Override
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
+        {
+            configureForType(registry, annotation, sqlObjectType);
         }
     }
 }

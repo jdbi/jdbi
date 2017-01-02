@@ -20,7 +20,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
@@ -31,7 +30,7 @@ import org.jdbi.v3.core.rewriter.StatementRewriter;
  * or method level.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(OverrideStatementRewriterWith.Factory.class)
+@ConfiguringAnnotation(OverrideStatementRewriterWith.Impl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface OverrideStatementRewriterWith
 {
@@ -41,15 +40,15 @@ public @interface OverrideStatementRewriterWith
      */
     Class<? extends StatementRewriter> value();
 
-    class Factory implements ConfigurerFactory
+    class Impl implements Configurer
     {
         @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, method);
-                return config -> config.get(SqlStatements.class).setStatementRewriter(rw);
+                registry.get(SqlStatements.class).setStatementRewriter(rw);
             }
             catch (Exception e) {
                 throw new IllegalStateException(e);
@@ -57,12 +56,12 @@ public @interface OverrideStatementRewriterWith
         }
 
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
             OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, null);
-                return config -> config.get(SqlStatements.class).setStatementRewriter(rw);
+                registry.get(SqlStatements.class).setStatementRewriter(rw);
             }
             catch (Exception e) {
                 throw new IllegalStateException(e);

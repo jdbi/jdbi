@@ -19,9 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMappers;
@@ -30,7 +27,7 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 /**
  * Used to register a column mapper with either a sql object type or for a specific method.
  */
-@ConfiguringAnnotation(RegisterColumnMapper.Factory.class)
+@ConfiguringAnnotation(RegisterColumnMapper.Impl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterColumnMapper
@@ -41,32 +38,28 @@ public @interface RegisterColumnMapper
      */
     Class<? extends ColumnMapper<?>>[] value();
 
-    class Factory implements ConfigurerFactory
+    class Impl implements Configurer
     {
         @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return create((RegisterColumnMapper) annotation);
+            configureForType(registry, annotation, sqlObjectType);
         }
 
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
-            return create((RegisterColumnMapper) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterColumnMapper ma) {
-            final List<ColumnMapper<?>> m = new ArrayList<ColumnMapper<?>>(ma.value().length);
+            RegisterColumnMapper registerColumnMapper = (RegisterColumnMapper) annotation;
+            ColumnMappers mappers = registry.get(ColumnMappers.class);
             try {
-                Class<? extends ColumnMapper<?>>[] mcs = ma.value();
-                for (int i = 0; i < mcs.length; i++) {
-                    m.add(mcs[i].newInstance());
+                Class<? extends ColumnMapper<?>>[] columnMapperTypes = registerColumnMapper.value();
+                for (int i = 0; i < columnMapperTypes.length; i++) {
+                    mappers.register(columnMapperTypes[i].newInstance());
                 }
             }
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified column mapper", e);
             }
-            return config -> m.forEach(config.get(ColumnMappers.class)::register);
         }
     }
 }

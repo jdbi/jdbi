@@ -19,7 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMappers;
@@ -29,7 +28,7 @@ import org.jdbi.v3.core.mapper.JoinRowMapper;
  * Used to register a {@link JoinRowMapper} factory.  Will attempt to map all
  * types given in the annotation declaration.
  */
-@ConfiguringAnnotation(RegisterJoinRowMapper.Factory.class)
+@ConfiguringAnnotation(RegisterJoinRowMapper.Impl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterJoinRowMapper
@@ -39,24 +38,20 @@ public @interface RegisterJoinRowMapper
      */
     Class<?>[] value();
 
-    class Factory implements ConfigurerFactory
+    class Impl implements Configurer
     {
 
         @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return create((RegisterJoinRowMapper) annotation);
+            configureForType(registry, annotation, sqlObjectType);
         }
 
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
-            return create((RegisterJoinRowMapper) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterJoinRowMapper annotation) {
-            return config -> config.get(RowMappers.class)
-                    .register(JoinRowMapper.forTypes(annotation.value()));
+            RegisterJoinRowMapper registerJoinRowMapper = (RegisterJoinRowMapper) annotation;
+            registry.get(RowMappers.class).register(JoinRowMapper.forTypes(registerJoinRowMapper.value()));
         }
     }
 }

@@ -19,9 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -30,7 +27,7 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 /**
  * Used to register an argument factory with either a sql object type or for a specific method.
  */
-@ConfiguringAnnotation(RegisterArgumentFactory.Factory.class)
+@ConfiguringAnnotation(RegisterArgumentFactory.Impl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterArgumentFactory
@@ -41,33 +38,27 @@ public @interface RegisterArgumentFactory
      */
     Class<? extends ArgumentFactory>[] value();
 
-    class Factory implements ConfigurerFactory
+    class Impl implements Configurer
     {
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
-            return create(annotation);
-        }
-
-        @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            return create(annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(Annotation annotation)
-        {
-            final RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;
-            final List<ArgumentFactory> ary = new ArrayList<>(raf.value().length);
+            RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;
+            Arguments arguments = registry.get(Arguments.class);
             for (Class<? extends ArgumentFactory> aClass : raf.value()) {
                 try {
-                    ary.add(aClass.newInstance());
+                    arguments.register(aClass.newInstance());
                 }
                 catch (Exception e) {
                     throw new IllegalStateException("unable to instantiate specified argument factory", e);
                 }
             }
-            return config -> ary.forEach(config.get(Arguments.class)::register);
+        }
+
+        @Override
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
+        {
+            configureForType(registry, annotation, sqlObjectType);
         }
     }
 }
