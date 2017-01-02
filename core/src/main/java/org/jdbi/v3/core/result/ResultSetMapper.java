@@ -20,15 +20,16 @@ import java.util.function.Supplier;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
- * Produces a result from a {@link ResultSet}.
+ * Maps result sets to objects.
  *
- * @param <R> Result type
+ * @param <T> the mapped type
+ * @see org.jdbi.v3.core.result.ResultBearing#mapResultSet(ResultSetMapper)
  */
 @FunctionalInterface
-public interface ResultSetCallback<R> {
+public interface ResultSetMapper<T> {
     /**
-     * Produces a result from the supplied result set. The result set is not opened (and usually, the statement the
-     * result came from is not executed) until {@code resultSetSupplier.get()} is called.
+     * Maps the lazily-supplied result set into an object. The result set is not opened (and typically, the statement
+     * the result came from is not executed) until {@code resultSetSupplier.get()} is called.
      * <p>
      * Implementors that call {@code resultSetSupplier.get()} must ensure that the statement context is closed, to
      * ensure that database resources are freed:
@@ -48,8 +49,8 @@ public interface ResultSetCallback<R> {
      *
      * @param resultSetSupplier supplies a ResultSet.
      * @param ctx               the statement context.
-     * @return
+     * @return the mapped result
      * @throws SQLException
      */
-    R withResultSet(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) throws SQLException;
+    T mapResultSet(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) throws SQLException;
 }

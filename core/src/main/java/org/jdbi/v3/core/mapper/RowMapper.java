@@ -13,24 +13,29 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
- * Used with a {@link Query#map(RowMapper)} call to specify
- * what to do with each row of a result set
+ * Maps result set rows to objects.
+ *
+ * @param <T> the mapped type.
+ * @see RowMappers
+ * @see RowMapperFactory
+ * @see org.jdbi.v3.core.result.ResultBearing#map(RowMapper)
+ * @see org.jdbi.v3.core.config.Configurable#registerRowMapper(RowMapper)
+ * @see org.jdbi.v3.core.config.Configurable#registerRowMapper(Type, RowMapper)
  */
 @FunctionalInterface
-public interface RowMapper<T>
-{
+public interface RowMapper<T> {
     /**
      * Map the row the result set is at when passed in. This method should not cause the result
      * set to advance, allow jDBI to do that, please.
      *
-     * @param rs the result set being iterated
+     * @param rs  the result set being iterated
      * @param ctx the statement context
      * @return the value to return for this row
      * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it

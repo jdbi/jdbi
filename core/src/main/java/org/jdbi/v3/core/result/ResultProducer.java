@@ -27,7 +27,8 @@ import org.jdbi.v3.core.statement.StatementContext;
 @FunctionalInterface
 public interface ResultProducer<R> {
     /**
-     * Produces a statement result. The statement is not executed until {@code statementSupplier.get()} is called.
+     * Produces a statement result from a lazily supplied {@link PreparedStatement}. The statement is not executed until
+     * {@code statementSupplier.get()} is invoked.
      * <p>
      * Implementors that call {@code statementSupplier.get()} must ensure that the statement context is closed before
      * returning, to ensure that database resources are freed:
@@ -41,14 +42,14 @@ public interface ResultProducer<R> {
      * }
      * </pre>
      * <p>
-     * Alternatively, implementors may return some intermediate result object (e.g. {@link ResultSetIterable} or
+     * Alternatively, implementors may return some intermediate result object (e.g. {@link ResultBearing} or
      * {@link ResultIterable}) without calling {@code statementSupplier.get()}, in which case the burden of closing
      * resources falls to whichever object ultimately does {@code get()} the statement.
      *
      * @param statementSupplier supplies a PreparedStatement, post-execution.
      * @param ctx               the statement context
      * @return an object of the type your caller expects
-     * @throws SQLException sadness
+     * @throws SQLException if an error occurs while producing the result.
      */
     R produce(Supplier<PreparedStatement> statementSupplier, StatementContext ctx) throws SQLException;
 }

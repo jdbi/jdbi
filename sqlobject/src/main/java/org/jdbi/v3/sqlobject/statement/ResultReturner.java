@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
-import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SingleValue;
@@ -38,12 +38,12 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 abstract class ResultReturner
 {
     /**
-     * Given a {@link ResultSetIterable}, map to the element
+     * Given a {@link ResultBearing}, map to the element
      * type and construct the result container.
-     * @param r the ResultSetIterable
+     * @param r the ResultBearing
      * @return the filled result container
      */
-    public Object map(ResultSetIterable r, StatementContext ctx)
+    public Object map(ResultBearing r, StatementContext ctx)
     {
         return result(r.mapTo(elementType(ctx)), ctx);
     }

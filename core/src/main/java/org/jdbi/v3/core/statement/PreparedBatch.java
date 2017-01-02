@@ -28,8 +28,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultProducer;
-import org.jdbi.v3.core.result.ResultSetCallback;
-import org.jdbi.v3.core.result.ResultSetIterable;
+import org.jdbi.v3.core.result.ResultSetMapper;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * An entire batch can be bound and added in one go with {@link PreparedBatch#add(Map)}
  * or {@link PreparedBatch#add(Object...)}.
  */
-public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing, ResultSetIterable
+public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing
 {
     private static final Logger LOG = LoggerFactory.getLogger(PreparedBatch.class);
 
@@ -60,8 +59,8 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     @Override
-    public <R> R withResultSet(ResultSetCallback<R> callback) {
-        return execute(returningResults()).withResultSet(callback);
+    public <R> R mapResultSet(ResultSetMapper<R> mapper) {
+        return execute(returningResults()).mapResultSet(mapper);
     }
 
     /**
@@ -102,15 +101,25 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         };
     }
 
-    public ResultSetIterable executeAndReturnGeneratedKeys(String... columnNames) {
+    public ResultBearing executeAndReturnGeneratedKeys(String... columnNames) {
         return execute(returningGeneratedKeys(columnNames));
     }
 
-    @Override
+    /**
+     * Executes the batch, returning the result obtained from the given {@link ResultProducer}.
+     *
+     * @param producer the result producer.
+     * @return value returned by the result producer.
+     */
     public <R> R execute(ResultProducer<R> producer) {
         try {
             return producer.produce(() -> internalBatchExecute().stmt, getContext());
         } catch (SQLException e) {
+            try {
+                close();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
             throw new UnableToProduceResultException("Exception producing batch result", e, getContext());
         }
     }
