@@ -28,7 +28,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private TimingCollector timingCollector;
 
     private boolean returningGeneratedKeys;
-    private String[] generatedKeysColumnNames;
+    private String[] generatedKeysColumnNames = new String[0];
     private boolean concurrentUpdatable;
 
     public SqlStatements() {
@@ -42,7 +42,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.statementRewriter = that.statementRewriter;
         this.timingCollector = that.timingCollector;
         this.returningGeneratedKeys = that.returningGeneratedKeys;
-        this.generatedKeysColumnNames = that.generatedKeysColumnNames == null ? null : that.generatedKeysColumnNames.clone();
+        this.generatedKeysColumnNames = that.generatedKeysColumnNames;
         this.concurrentUpdatable = that.concurrentUpdatable;
     }
 
@@ -140,7 +140,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public boolean isReturningGeneratedKeys()
     {
-        return returningGeneratedKeys || generatedKeysColumnNames != null && generatedKeysColumnNames.length > 0;
+        return returningGeneratedKeys || generatedKeysColumnNames.length > 0;
     }
 
     /**
@@ -148,9 +148,6 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public String[] getGeneratedKeysColumnNames()
     {
-        if (generatedKeysColumnNames == null) {
-            return new String[0];
-        }
         return Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
     }
 
