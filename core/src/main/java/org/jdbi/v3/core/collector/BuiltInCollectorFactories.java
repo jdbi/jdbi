@@ -43,6 +43,7 @@ public class BuiltInCollectorFactories
                 fromSupplier(List.class, Collectors::toList),
                 fromSupplier(Set.class, Collectors::toSet),
                 fromSupplier(SortedSet.class, () -> Collectors.toCollection(TreeSet::new)),
+                new ArrayCollectorFactory(),
                 new OptionalCollectorFactory()
             );
     }

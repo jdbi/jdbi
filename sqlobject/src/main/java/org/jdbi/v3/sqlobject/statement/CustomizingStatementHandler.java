@@ -16,12 +16,14 @@ package org.jdbi.v3.sqlobject.statement;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.Handler;
@@ -179,5 +181,20 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     Method getMethod()
     {
         return method;
+    }
+
+    static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType)
+    {
+        if (GetGeneratedKeys.DefaultMapper.class.equals(ggk.value())) {
+            return new GetGeneratedKeys.DefaultMapper(returnType, ggk.columnName());
+        }
+        else {
+            try {
+                return ggk.value().getConstructor().newInstance();
+            }
+            catch (Exception e) {
+                throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
+            }
+        }
     }
 }

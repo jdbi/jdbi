@@ -99,7 +99,7 @@ public @interface SqlBatch {
                 magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
             } else {
                 magic = ResultReturner.forMethod(sqlObjectType, method);
-                final Function<StatementContext, RowMapper<?>> mapper = ctx -> ResultReturner.rowMapperFor(getGeneratedKeys, magic.elementType(ctx));
+                final Function<StatementContext, RowMapper<?>> mapper = ctx -> rowMapperFor(getGeneratedKeys, magic.elementType(ctx));
                 if (getGeneratedKeys.columnName().isEmpty()) {
                     batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys().map(mapper.apply(batch.getContext())).iterator();
                 } else {
