@@ -63,7 +63,7 @@ public final class ClasspathSqlLocator {
      */
     public static String findSqlOnClasspath(Class<?> type, String name) {
         String path = resourcePathFor(type, name);
-        return findSqlOnClasspath(type.getClassLoader(), path);
+        return getResourceOnClasspath(type.getClassLoader(), path);
     }
 
     /**
@@ -75,7 +75,7 @@ public final class ClasspathSqlLocator {
      */
     public static String findSqlOnClasspath(String name) {
         String path = resourcePathFor(name);
-        return findSqlOnClasspath(selectClassLoader(), path);
+        return getResourceOnClasspath(selectClassLoader(), path);
     }
 
     private static String resourcePathFor(Class<?> extensionType, String methodName) {
@@ -86,7 +86,29 @@ public final class ClasspathSqlLocator {
         return fullyQualifiedName.replace(PACKAGE_DELIMITER, PATH_DELIMITER) + SQL_EXTENSION;
     }
 
-    private static String findSqlOnClasspath(ClassLoader classLoader, String path) {
+    /**
+     * Returns resource's contents as a string at the specified path. The path should point directly
+     * to the resource at the classpath. The resource is loaded by the current thread's classloader.
+     *
+     * @param path the resource path
+     * @return the resource's contents
+     * @see ClassLoader#getResource(String)
+     */
+    public static String getResourceOnClasspath(String path) {
+        return getResourceOnClasspath(selectClassLoader(), path);
+    }
+
+    /**
+     * Returns resource's contents as a string at the specified path by the specified classloader.
+     * The path should point directly to the resource at the classpath. The classloader should have
+     * access to the resource.
+     *
+     * @param classLoader the classloader which loads the resource
+     * @param path the resource path
+     * @return the resource's contents
+     * @see ClassLoader#getResource(String)
+     */
+    public static String getResourceOnClasspath(ClassLoader classLoader, String path) {
         return CACHE.get(new AbstractMap.SimpleEntry<>(classLoader, path));
     }
 

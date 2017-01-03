@@ -16,6 +16,7 @@ package org.jdbi.v3.core.statement;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.locator.ClasspathSqlLocator.getResourceOnClasspath;
 
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class TestScript {
     @Test
     public void testScriptWithComments() throws Exception {
         Handle h = db.openHandle();
-        Script script = h.createScript(findSqlOnClasspath("insert-script-with-comments"));
+        Script script = h.createScript(getResourceOnClasspath("script/insert-script-with-comments.sql"));
         script.execute();
 
         assertThat(h.select("select * from something").mapToMap()).hasSize(3);
@@ -55,7 +56,7 @@ public class TestScript {
     @Test
     public void testScriptWithStringSemicolon() throws Exception {
         Handle h = db.openHandle();
-        Script script = h.createScript(findSqlOnClasspath("insert-with-string-semicolons"));
+        Script script = h.createScript(getResourceOnClasspath("script/insert-with-string-semicolons.sql"));
         script.execute();
 
         assertThat(h.select("select * from something").mapToMap()).hasSize(3);
@@ -64,7 +65,7 @@ public class TestScript {
     @Test
     public void testFuzzyScript() throws Exception {
         Handle h = db.openHandle();
-        Script script = h.createScript(findSqlOnClasspath("fuzzy-script"));
+        Script script = h.createScript(getResourceOnClasspath("script/fuzzy-script.sql"));
         script.executeAsSeparateStatements();
 
         List<Map<String, Object>> rows = h.select("select id, name from something order by id").mapToMap().list();
@@ -80,7 +81,7 @@ public class TestScript {
         assertThatExceptionOfType(StatementException.class)
                 .isThrownBy(() -> {
                     Handle h = db.openHandle();
-                    Script script = h.createScript(findSqlOnClasspath("malformed-sql-script"));
+                    Script script = h.createScript(getResourceOnClasspath("script/malformed-sql-script.sql"));
                     script.executeAsSeparateStatements();
                 })
                 .satisfies(e -> assertThat(e.getStatementContext().getRawSql().trim())
