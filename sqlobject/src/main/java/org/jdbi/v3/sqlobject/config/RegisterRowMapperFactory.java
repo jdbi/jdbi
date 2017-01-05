@@ -19,9 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMappers;
@@ -30,41 +27,36 @@ import org.jdbi.v3.core.mapper.RowMapperFactory;
 /**
  * Used to register a row mapper factory with either a sql object type or for a specific method.
  */
-@ConfiguringAnnotation(RegisterRowMapperFactory.Factory.class)
+@ConfiguringAnnotation(RegisterRowMapperFactory.Impl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterRowMapperFactory
 {
     Class<? extends RowMapperFactory>[] value();
 
-    class Factory implements ConfigurerFactory
+    class Impl implements Configurer
     {
 
         @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return create((RegisterRowMapperFactory) annotation);
+            configureForType(registry, annotation, sqlObjectType);
         }
 
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
-            return create((RegisterRowMapperFactory) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterRowMapperFactory ma) {
-            final List<RowMapperFactory> m = new ArrayList<RowMapperFactory>(ma.value().length);
+            RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
+            RowMappers mappers = registry.get(RowMappers.class);
             try {
-                Class<? extends RowMapperFactory>[] mcs = ma.value();
-                for (int i = 0; i < mcs.length; i++) {
-                    m.add(mcs[i].newInstance());
+                Class<? extends RowMapperFactory>[] factoryTypes = registerRowMapperFactory.value();
+                for (int i = 0; i < factoryTypes.length; i++) {
+                    mappers.register(factoryTypes[i].newInstance());
                 }
-
             }
             catch (Exception e) {
                 throw new IllegalStateException("unable to create a specified row mapper factory", e);
             }
-            return config -> m.forEach(config.get(RowMappers.class)::register);
         }
     }
 }

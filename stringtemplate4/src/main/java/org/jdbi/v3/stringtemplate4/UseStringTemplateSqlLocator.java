@@ -22,7 +22,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatements;
@@ -30,7 +29,7 @@ import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 import org.jdbi.v3.sqlobject.SqlObjects;
-import org.jdbi.v3.sqlobject.config.ConfigurerFactory;
+import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 import org.stringtemplate.v4.ST;
@@ -53,24 +52,16 @@ import org.stringtemplate.v4.STGroup;
  *     }
  * </pre>
  */
-@ConfiguringAnnotation(UseStringTemplateSqlLocator.Factory.class)
+@ConfiguringAnnotation(UseStringTemplateSqlLocator.Impl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseStringTemplateSqlLocator {
     Class<? extends StatementRewriter> value() default ColonPrefixStatementRewriter.class;
 
-    class Factory implements ConfigurerFactory {
+    class Impl implements Configurer {
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return create((UseStringTemplateSqlLocator) annotation, sqlObjectType);
-        }
-
-        @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            return create((UseStringTemplateSqlLocator) annotation, sqlObjectType);
-        }
-
-        private Consumer<ConfigRegistry> create(UseStringTemplateSqlLocator annotation, Class<?> sqlObjectType) {
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+            UseStringTemplateSqlLocator useStringTemplateSqlLocator = (UseStringTemplateSqlLocator) annotation;
             SqlLocator locator = (type, method) -> {
                 String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
                 STGroup group = findStringTemplateGroup(type);
@@ -80,7 +71,7 @@ public @interface UseStringTemplateSqlLocator {
 
                 return templateName;
             };
-            StatementRewriter delegate = createDelegate(annotation.value());
+            StatementRewriter delegate = createDelegate(useStringTemplateSqlLocator.value());
             StatementRewriter locatingRewriter = (sql, params, ctx) -> {
                 String templateName = sql;
 
@@ -91,10 +82,13 @@ public @interface UseStringTemplateSqlLocator {
 
                 return delegate.rewrite(rewritten, params, ctx);
             };
-            return config -> {
-                config.get(SqlObjects.class).setSqlLocator(locator);
-                config.get(SqlStatements.class).setStatementRewriter(locatingRewriter);
-            };
+            registry.get(SqlObjects.class).setSqlLocator(locator);
+            registry.get(SqlStatements.class).setStatementRewriter(locatingRewriter);
+        }
+
+        @Override
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
+            configureForType(registry, annotation, sqlObjectType);
         }
 
         private StatementRewriter createDelegate(Class<? extends StatementRewriter> type) {

@@ -19,9 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -32,35 +29,30 @@ import org.jdbi.v3.core.collector.CollectorFactory;
  * Used to register container mappers on the current {@link Query}
  * either for a sql object type or for a method.
  */
-@ConfiguringAnnotation(RegisterCollectorFactory.Factory.class)
+@ConfiguringAnnotation(RegisterCollectorFactory.Impl.class)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterCollectorFactory {
 
     Class<? extends CollectorFactory>[] value();
 
-    class Factory implements ConfigurerFactory {
+    class Impl implements Configurer {
         @Override
-        public Consumer<ConfigRegistry> createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            return create((RegisterCollectorFactory) annotation);
+        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
+            configureForType(registry, annotation, sqlObjectType);
         }
 
         @Override
-        public Consumer<ConfigRegistry> createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return create((RegisterCollectorFactory) annotation);
-        }
-
-        private Consumer<ConfigRegistry> create(RegisterCollectorFactory annotation) {
-            List<CollectorFactory> factories = new ArrayList<>();
-            for (Class<? extends CollectorFactory> type : annotation.value()) {
+        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+            RegisterCollectorFactory registerCollectorFactory = (RegisterCollectorFactory) annotation;
+            JdbiCollectors collectors = registry.get(JdbiCollectors.class);
+            for (Class<? extends CollectorFactory> type : registerCollectorFactory.value()) {
                 try {
-                    factories.add(type.newInstance());
+                    collectors.register(type.newInstance());
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new IllegalStateException("Unable to instantiate container factory", e);
                 }
             }
-
-            return config -> factories.forEach(config.get(JdbiCollectors.class)::register);
         }
     }
 }
