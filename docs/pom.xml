@@ -33,16 +33,6 @@
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>stringtemplate</artifactId>
-                <version>3.2.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
       <dependency>
         <groupId>org.jdbi</groupId>
@@ -96,10 +86,6 @@
       </dependency>
       <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-stringtemplate3</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-stringtemplate4</artifactId>
       </dependency>
 
@@ -136,7 +122,6 @@
                         <ignoredDependencies>
                             <ignoredDependency>org.jdbi:*</ignoredDependency>
                             <ignoredDependency>com.google.auto.service:auto-service</ignoredDependency>
-                            <ignoredDependency>org.antlr:stringtemplate</ignoredDependency>
                         </ignoredDependencies>
                     </configuration>
                 </plugin>
@@ -184,20 +169,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.ning.maven.plugins</groupId>
-                <artifactId>maven-dependency-versions-check-plugin</artifactId>
-                <configuration>
-                    <exceptions>
-                        <exception>
-                            <groupId>org.antlr</groupId>
-                            <artifactId>stringtemplate</artifactId>
-                            <expectedVersion>4.0.2</expectedVersion>
-                            <resolvedVersion>3.2.1</resolvedVersion>
-                        </exception>
-                    </exceptions>
-                </configuration>
             </plugin>
         </plugins>
     </build>

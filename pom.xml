@@ -213,11 +213,6 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-stringtemplate3</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-stringtemplate4</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -374,7 +369,6 @@
     <modules>
         <module>core</module>
         <module>sqlobject</module>
-        <module>stringtemplate3</module>
         <module>stringtemplate4</module>
         <module>guava</module>
         <module>jodatime2</module>

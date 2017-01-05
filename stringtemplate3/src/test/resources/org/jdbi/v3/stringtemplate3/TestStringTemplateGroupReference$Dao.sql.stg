@@ -1,7 +1,0 @@
-group Dao;
-
-insert() ::= << insert into something (id, name) values (:id, :name) >>
-
-list(sort,sortBy) ::= << select id from something <orderBy(sort=sort,sortBy=sortBy)> >>
-
-orderBy(sort,sortBy) ::= << order by <if(sort)> <sortBy>, <endif> id >>
