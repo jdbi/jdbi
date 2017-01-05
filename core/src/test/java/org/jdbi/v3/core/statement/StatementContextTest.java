@@ -29,7 +29,7 @@ public class StatementContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineGeneratedKeysAndConcurrentUpdatable() throws Exception {
         final StatementContext context = StatementContextAccess.createContext();
-        final StatementConfiguration cfg = context.getConfig(StatementConfiguration.class);
+        final SqlStatements cfg = context.getConfig(SqlStatements.class);
 
         cfg.setReturningGeneratedKeys(true);
         cfg.setConcurrentUpdatable(true);
@@ -38,7 +38,7 @@ public class StatementContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testShouldNotBeAbleToCombineConcurrentUpdatableAndGeneratedKeys() throws Exception {
         final StatementContext context = StatementContextAccess.createContext();
-        final StatementConfiguration cfg = context.getConfig(StatementConfiguration.class);
+        final SqlStatements cfg = context.getConfig(SqlStatements.class);
 
         cfg.setConcurrentUpdatable(true);
         cfg.setReturningGeneratedKeys(true);

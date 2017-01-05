@@ -44,7 +44,7 @@ public class DefaultStatementBuilder implements StatementBuilder
     @Override
     public PreparedStatement create(Connection conn, String sql, StatementContext ctx) throws SQLException
     {
-        StatementConfiguration cfg = ctx.getConfig(StatementConfiguration.class);
+        SqlStatements cfg = ctx.getConfig(SqlStatements.class);
         if (cfg.isReturningGeneratedKeys()) {
             String[] columnNames = cfg.getGeneratedKeysColumnNames();
             if (columnNames != null && columnNames.length > 0) {
