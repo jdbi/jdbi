@@ -20,7 +20,7 @@ import java.util.List;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.postgres.PostgresJdbiPlugin;
+import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
@@ -32,7 +32,7 @@ public class GeneratedKeysTest {
     @Rule
     public PgDatabaseRule db = new PgDatabaseRule()
         .withPlugin(new SqlObjectPlugin())
-        .withPlugin(new PostgresJdbiPlugin());
+        .withPlugin(new PostgresPlugin());
     private Jdbi dbi;
 
     @Before
