@@ -13,20 +13,16 @@
  */
 package org.jdbi.v3.sqlobject.statement;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Iterator;
-import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SingleValue;
 
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
@@ -58,17 +54,7 @@ abstract class ResultReturner
     static ResultReturner forOptionalReturn(Class<?> extensionType, Method method)
     {
         if (method.getReturnType() == void.class) {
-            return new ResultReturner() {
-                @Override
-                protected Object result(ResultIterable<?> bearer, StatementContext ctx) {
-                    bearer.stream().forEach(i -> {}); // Make sure to consume the result
-                    return null;
-                }
-                @Override
-                protected Type elementType(StatementContext ctx) {
-                    return null;
-                }
-            };
+            return new VoidReturner();
         }
         return forMethod(extensionType, method);
     }
@@ -102,29 +88,25 @@ abstract class ResultReturner
         else if (method.isAnnotationPresent(SingleValue.class)) {
             return new SingleValueResultReturner(returnType);
         }
-        else if (returnClass.isArray()) {
-            return new ArrayResultReturner(returnClass.getComponentType());
-        }
         else {
-            return new DefaultResultReturner(returnType);
+            return new CollectedResultReturner(returnType);
         }
     }
 
-    protected abstract Object result(ResultIterable<?> bearer, StatementContext ctx);
+    protected abstract Object result(ResultIterable<?> iterable, StatementContext ctx);
     protected abstract Type elementType(StatementContext ctx);
 
-    static RowMapper<?> rowMapperFor(GetGeneratedKeys ggk, Type returnType)
+    static class VoidReturner extends ResultReturner
     {
-        if (GetGeneratedKeys.DefaultMapper.class.equals(ggk.value())) {
-            return new GetGeneratedKeys.DefaultMapper(returnType, ggk.columnName());
+        @Override
+        protected Object result(ResultIterable<?> iterable, StatementContext ctx) {
+            iterable.stream().forEach(i -> {}); // Make sure to consume the result
+            return null;
         }
-        else {
-            try {
-                return ggk.value().getConstructor().newInstance();
-            }
-            catch (Exception e) {
-                throw new UnableToCreateStatementException("Unable to instantiate row mapper for statement", e, null);
-            }
+
+        @Override
+        protected Type elementType(StatementContext ctx) {
+            return null;
         }
     }
 
@@ -140,8 +122,8 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Stream<?> result(ResultIterable<?> bearer, StatementContext ctx) {
-            return bearer.stream();
+        protected Stream<?> result(ResultIterable<?> iterable, StatementContext ctx) {
+            return iterable.stream();
         }
 
         @Override
@@ -150,24 +132,24 @@ abstract class ResultReturner
         }
     }
 
-    static class DefaultResultReturner extends ResultReturner
+    static class CollectedResultReturner extends ResultReturner
     {
         private final Type returnType;
 
-        DefaultResultReturner(Type returnType)
+        CollectedResultReturner(Type returnType)
         {
             this.returnType = returnType;
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        protected Object result(ResultIterable<?> bearer, StatementContext ctx)
+        protected Object result(ResultIterable<?> iterable, StatementContext ctx)
         {
             Collector collector = ctx.findCollectorFor(returnType).orElse(null);
             if (collector != null) {
-                return bearer.collect(collector);
+                return iterable.collect(collector);
             }
-            return checkResult(bearer.findFirst().orElse(null), returnType);
+            return checkResult(iterable.findFirst().orElse(null), returnType);
         }
 
         @Override
@@ -188,9 +170,9 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> bearer, StatementContext ctx)
+        protected Object result(ResultIterable<?> iterable, StatementContext ctx)
         {
-            return checkResult(bearer.findFirst().orElse(null), returnType);
+            return checkResult(iterable.findFirst().orElse(null), returnType);
         }
 
         @Override
@@ -221,9 +203,9 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> bearer, StatementContext ctx)
+        protected Object result(ResultIterable<?> iterable, StatementContext ctx)
         {
-            return bearer;
+            return iterable;
         }
 
         @Override
@@ -245,39 +227,15 @@ abstract class ResultReturner
         }
 
         @Override
-        protected Object result(ResultIterable<?> bearer, StatementContext ctx)
+        protected Object result(ResultIterable<?> iterable, StatementContext ctx)
         {
-            return bearer.iterator();
+            return iterable.iterator();
         }
 
         @Override
         protected Type elementType(StatementContext ctx)
         {
             return elementType;
-        }
-    }
-
-    static class ArrayResultReturner extends ResultReturner
-    {
-        private final Class<?> componentType;
-
-        ArrayResultReturner(Class<?> componentType) {
-            this.componentType = componentType;
-        }
-
-        @Override
-        protected Object result(ResultIterable<?> bearer, StatementContext ctx) {
-            final List<?> list = bearer.list();
-            Object result = Array.newInstance(componentType, list.size());
-            for (int i = 0; i < list.size(); i++) {
-                Array.set(result, i, list.get(i));
-            }
-            return result;
-        }
-
-        @Override
-        protected Type elementType(StatementContext ctx) {
-            return componentType;
         }
     }
 }

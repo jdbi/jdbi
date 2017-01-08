@@ -66,7 +66,7 @@ public @interface SqlUpdate {
             if (isGetGeneratedKeys) {
                 final ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
                 final GetGeneratedKeys ggk = method.getAnnotation(GetGeneratedKeys.class);
-                final RowMapper<?> mapper = ResultReturner.rowMapperFor(ggk, returnType);
+                final RowMapper<?> mapper = rowMapperFor(ggk, returnType);
 
                 this.returner = update -> {
                     String columnName = ggk.columnName();
