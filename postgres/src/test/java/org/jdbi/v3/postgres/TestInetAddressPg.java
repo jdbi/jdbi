@@ -18,7 +18,7 @@ import org.jdbi.v3.core.argument.TestInetAddressH2;
 
 public class TestInetAddressPg extends TestInetAddressH2
 {
-    { db = new PgDatabaseRule().withPlugin(new PostgresJdbiPlugin()); }
+    { db = new PgDatabaseRule().withPlugin(new PostgresPlugin()); }
 
     @Override
     protected String getInetType()

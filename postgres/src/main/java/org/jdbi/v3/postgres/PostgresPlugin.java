@@ -18,7 +18,7 @@ import java.util.UUID;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
-public class PostgresJdbiPlugin implements JdbiPlugin {
+public class PostgresPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(new TypedEnumArgumentFactory());

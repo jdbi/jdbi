@@ -38,7 +38,7 @@ public class PostgresDbRule implements TestRule {
             @Override
             public void evaluate() throws Throwable {
                 db = Jdbi.create(pg.getEmbeddedPostgres().getDatabase("postgres", "postgres"))
-                        .installPlugin(new PostgresJdbiPlugin())
+                        .installPlugin(new PostgresPlugin())
                         .installPlugin(new SqlObjectPlugin());
                 h = db.open();
 

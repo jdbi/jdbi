@@ -61,10 +61,6 @@
         <artifactId>jdbi3-guava</artifactId>
       </dependency>
       <dependency>
-        <groupId>com.google.auto.service</groupId>
-        <artifactId>auto-service</artifactId>
-      </dependency>
-      <dependency>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-jodatime2</artifactId>
       </dependency>
@@ -121,7 +117,6 @@
                         <!-- Don't care, just want javadocs -->
                         <ignoredDependencies>
                             <ignoredDependency>org.jdbi:*</ignoredDependency>
-                            <ignoredDependency>com.google.auto.service:auto-service</ignoredDependency>
                         </ignoredDependencies>
                     </configuration>
                 </plugin>

@@ -22,7 +22,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.postgres.PostgresJdbiPlugin;
+import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -39,7 +39,7 @@ public class TestBatchGeneratedKeys
     @Rule
     public PgDatabaseRule db = new PgDatabaseRule()
             .withPlugin(new SqlObjectPlugin())
-            .withPlugin(new PostgresJdbiPlugin());
+            .withPlugin(new PostgresPlugin());
     private Handle handle;
     private UsesBatching b;
 
