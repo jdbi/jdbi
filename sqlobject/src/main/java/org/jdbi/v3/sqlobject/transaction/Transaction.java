@@ -39,33 +39,58 @@ import org.jdbi.v3.sqlobject.SqlMethodDecoratingAnnotation;
 @Target({ElementType.METHOD})
 @SqlMethodDecoratingAnnotation(Transaction.Decorator.class)
 public @interface Transaction {
+    /**
+     * @return the transaction isolation level.  If not specified, invoke with the default isolation level.
+     */
     TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
+    /**
+     * Set the connection readOnly property before the transaction starts, and restore it before it returns.
+     * Databases may use this as a performance or concurrency hint.
+     * @return whether the transaction is read only
+     */
+    boolean readOnly() default false;
 
     class Decorator implements HandlerDecorator {
         @Override
         public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-            final TransactionIsolationLevel isolation = method.getAnnotation(Transaction.class).value();
+            final Transaction txnAnnotation = method.getAnnotation(Transaction.class);
+            final TransactionIsolationLevel isolation = txnAnnotation.value();
+            final boolean readOnly = txnAnnotation.readOnly();
 
             return (target, args, handle) -> {
                 Handle h = handle.getHandle();
 
                 if (h.isInTransaction()) {
+                    // Already in transaction. The outermost @Transaction method determines the transaction isolation level.
                     TransactionIsolationLevel currentLevel = h.getTransactionIsolationLevel();
-                    if (currentLevel == isolation || isolation == TransactionIsolationLevel.INVALID_LEVEL) {
-                        // Already in transaction. The outermost @Transaction method determines the transaction isolation level.
-                        return base.invoke(target, args, handle);
-                    } else {
+                    if (currentLevel != isolation && isolation != TransactionIsolationLevel.INVALID_LEVEL) {
                         throw new TransactionException("Tried to execute nested @Transaction(" + isolation + "), " +
                                 "but already running in a transaction with isolation level " + currentLevel + ".");
                     }
+                    if (h.isReadOnly() && !readOnly) {
+                        throw new TransactionException("Tried to execute a nested @Transaction(readOnly=false) "
+                                + "inside a readOnly transaction");
+                    }
+                    return base.invoke(target, args, handle);
                 }
 
                 HandleCallback<Object, Exception> callback = th -> base.invoke(target, args, handle);
 
-                if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
-                    return h.inTransaction(callback);
-                } else {
-                    return h.inTransaction(isolation, callback);
+                final boolean flipReadOnly = readOnly != h.isReadOnly();
+                if (flipReadOnly) {
+                    h.setReadOnly(readOnly);
+                }
+
+                try {
+                    if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
+                        return h.inTransaction(callback);
+                    } else {
+                        return h.inTransaction(isolation, callback);
+                    }
+                } finally {
+                    if (flipReadOnly) {
+                        h.setReadOnly(!readOnly);
+                    }
                 }
             };
         }
