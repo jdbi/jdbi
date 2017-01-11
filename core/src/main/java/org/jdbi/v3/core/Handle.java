@@ -346,6 +346,36 @@ public class Handle implements Closeable, Configurable<Handle>
     }
 
     /**
+     * @see Connection#isReadOnly()
+     * @return whether the connection is in read-only mode
+     */
+    public boolean isReadOnly() {
+        try {
+            return connection.isReadOnly();
+        } catch (SQLException e) {
+            throw new UnableToManipulateTransactionIsolationLevelException("Could not getReadOnly", e);
+        }
+    }
+
+    /**
+     * Set the Handle readOnly.
+     * This acts as a hint to the database to improve performance or concurrency.
+     *
+     * May not be called in an active transaction!
+     *
+     * @see Connection#setReadOnly(boolean)
+     * @param readOnly whether the Handle is readOnly
+     */
+    public Handle setReadOnly(boolean readOnly) {
+        try {
+            connection.setReadOnly(readOnly);
+        } catch (SQLException e) {
+            throw new UnableToManipulateTransactionIsolationLevelException("Could not setReadOnly", e);
+        }
+        return this;
+    }
+
+    /**
      * Executes <code>callback</code> in a transaction, and returns the result of the callback.
      *
      * @param callback a callback which will receive an open handle, in a transaction.
