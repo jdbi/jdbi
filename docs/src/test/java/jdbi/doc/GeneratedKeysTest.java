@@ -30,14 +30,14 @@ import org.junit.Test;
 
 public class GeneratedKeysTest {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule()
+    public PgDatabaseRule dbRule = new PgDatabaseRule()
         .withPlugin(new SqlObjectPlugin())
         .withPlugin(new PostgresPlugin());
-    private Jdbi dbi;
+    private Jdbi db;
 
     @Before
     public void getHandle() {
-        dbi = db.getJdbi();
+        db = dbRule.getJdbi();
     }
 
     // tag::setup[]
@@ -53,15 +53,15 @@ public class GeneratedKeysTest {
 
     @Before
     public void setUp() throws Exception {
-        dbi.useHandle(h -> h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)"));
-        dbi.registerRowMapper(ConstructorMapper.of(User.class));
+        db.useHandle(h -> h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)"));
+        db.registerRowMapper(ConstructorMapper.of(User.class));
     }
     // end::setup[]
 
     @Test
     // tag::fluent[]
     public void fluentInsertKeys() {
-        dbi.useHandle(handle -> {
+        db.useHandle(handle -> {
             User data = handle.createUpdate("INSERT INTO users (name) VALUES(?)")
                     .bind(0, "Data")
                     .executeAndReturnGeneratedKeys()
@@ -77,7 +77,7 @@ public class GeneratedKeysTest {
     @Test
     // tag::sqlObject[]
     public void sqlObjectBatchKeys() {
-        dbi.useExtension(UserDao.class, dao -> {
+        db.useExtension(UserDao.class, dao -> {
             List<User> users = dao.createUsers("Alice", "Bob", "Charlie");
             assertEquals(3, users.size());
 

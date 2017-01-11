@@ -25,16 +25,16 @@ import org.junit.Test;
 
 public class TestUuid {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    public Jdbi jdbi;
+    public Jdbi db;
     public Handle h;
 
     @Before
     public void setupDbi() throws Exception {
-        jdbi = db.getJdbi();
+        db = dbRule.getJdbi();
 
-        h = jdbi.open();
+        h = db.open();
         h.execute("CREATE TABLE foo (bar UUID)");
     }
 

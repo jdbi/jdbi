@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.statement;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -23,13 +22,13 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TestStatementExceptionContext {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testFoo() throws Exception {
 
         assertThatExceptionOfType(StatementException.class)
-                .isThrownBy(()-> db.openHandle().insert("WOOF", 7, "Tom"))
+                .isThrownBy(()-> dbRule.openHandle().insert("WOOF", 7, "Tom"))
                 .satisfies(e -> assertThat(e.getStatementContext().getRawSql()).isEqualTo("WOOF"));
     }
 }

@@ -28,20 +28,20 @@ import org.junit.Test;
 
 public class TestOutParameterAnnotation {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
-    private Jdbi dbi;
+    private Jdbi db;
 
     @Before
     public void setUp() throws Exception {
-        dbi = db.getJdbi();
-        dbi.useHandle(h ->
+        db = dbRule.getJdbi();
+        db.useHandle(h ->
             h.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam := 100; END; $$ LANGUAGE plpgsql"));
     }
 
     @Test
     public void testOutParameter() {
-        MyDao myDao = dbi.onDemand(MyDao.class);
+        MyDao myDao = db.onDemand(MyDao.class);
 
         OutParameters outParameters = myDao.callStoredProc();
 

@@ -27,7 +27,7 @@ import org.junit.Test;
 public class TestGetGeneratedKeys
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     public interface DAO
     {
@@ -46,7 +46,7 @@ public class TestGetGeneratedKeys
     @Test
     public void testFoo() throws Exception
     {
-        db.getJdbi().useExtension(DAO.class, dao -> {
+        dbRule.getJdbi().useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 

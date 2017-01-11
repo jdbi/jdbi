@@ -44,12 +44,12 @@ import com.google.common.collect.ImmutableMap;
 public class TestDocumentation
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testFiveMinuteFluentApi() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (?, ?)", 1, "Brian");
 
             String name = h.createQuery("select name from something where id = :id")
@@ -72,7 +72,7 @@ public class TestDocumentation
     @Test
     public void testFiveMinuteSqlObjectExample() throws Exception
     {
-        db.getJdbi().useExtension(MyDAO.class, dao -> {
+        dbRule.getJdbi().useExtension(MyDAO.class, dao -> {
             dao.insert(2, "Aaron");
 
             String name = dao.findNameById(2);
@@ -85,20 +85,20 @@ public class TestDocumentation
     @Test
     public void testObtainHandleViaOpen() throws Exception
     {
-        try (Handle handle = db.getJdbi().open()) { }
+        try (Handle handle = dbRule.getJdbi().open()) { }
     }
 
     @Test
     public void testObtainHandleInCallback() throws Exception
     {
-        Jdbi dbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi.useHandle(handle -> handle.execute("create table silly (id int)"));
+        Jdbi db = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
+        db.useHandle(handle -> handle.execute("create table silly (id int)"));
     }
 
     @Test
     public void testExecuteSomeStatements() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (?, ?)", 3, "Patrick");
 
             List<Map<String, Object>> rs = h.select("select id, name from something").mapToMap().list();
@@ -109,7 +109,7 @@ public class TestDocumentation
     @Test
     public void testFluentUpdate() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.createUpdate("insert into something(id, name) values (:id, :name)")
                 .bind("id", 4)
                 .bind("name", "Martin")
@@ -120,7 +120,7 @@ public class TestDocumentation
     @Test
     public void testMappingExampleChainedIterator2() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
@@ -137,7 +137,7 @@ public class TestDocumentation
     @Test
     public void testMappingExampleChainedIterator3() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.execute("insert into something (id, name) values (1, 'Brian')");
             h.execute("insert into something (id, name) values (2, 'Keith')");
 
@@ -149,7 +149,7 @@ public class TestDocumentation
     @Test
     public void testAttachToObject() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             MyDAO dao = h.attach(MyDAO.class);
             dao.insert(1, "test");
         }
@@ -158,7 +158,7 @@ public class TestDocumentation
     @Test
     public void testOnDemandDao() throws Exception
     {
-        MyDAO dao = db.getJdbi().onDemand(MyDAO.class);
+        MyDAO dao = dbRule.getJdbi().onDemand(MyDAO.class);
         dao.insert(2, "test");
     }
 
@@ -177,7 +177,7 @@ public class TestDocumentation
     @Test
     public void testSomeQueriesWorkCorrectly() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.prepareBatch("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1).bind("name", "Brian").add()
                 .bind("id", 2).bind("name", "Robert").add()
@@ -217,7 +217,7 @@ public class TestDocumentation
     @Test
     public void testAnotherCoupleInterfaces() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
                     new Something(3, "Patrick"),
                     new Something(2, "Robert"));
@@ -239,7 +239,7 @@ public class TestDocumentation
     @Test
     public void testFoo() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.attach(BatchInserter.class).insert(new Something(1, "Brian"),
                                                  new Something(3, "Patrick"),
                                                  new Something(2, "Robert"));
@@ -263,7 +263,7 @@ public class TestDocumentation
     @Test
     public void testUpdateAPI() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             Update u = h.attach(Update.class);
             u.insert(17, "David");
             u.update(new Something(17, "David P."));
@@ -290,7 +290,7 @@ public class TestDocumentation
     @Test
     public void testBatchExample() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             BatchExample b = h.attach(BatchExample.class);
 
             List<Integer> ids = asList(1, 2, 3, 4, 5);

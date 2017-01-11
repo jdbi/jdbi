@@ -26,18 +26,16 @@ import com.google.common.collect.ImmutableMap;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.StatementException;
-import org.jdbi.v3.core.statement.Script;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestScript {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testScriptStuff() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         Script s = h.createScript(findSqlOnClasspath("default-data"));
         s.execute();
 
@@ -46,7 +44,7 @@ public class TestScript {
 
     @Test
     public void testScriptWithComments() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/insert-script-with-comments.sql"));
         script.execute();
 
@@ -55,7 +53,7 @@ public class TestScript {
 
     @Test
     public void testScriptWithStringSemicolon() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/insert-with-string-semicolons.sql"));
         script.execute();
 
@@ -64,7 +62,7 @@ public class TestScript {
 
     @Test
     public void testFuzzyScript() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         Script script = h.createScript(getResourceOnClasspath("script/fuzzy-script.sql"));
         script.executeAsSeparateStatements();
 
@@ -80,7 +78,7 @@ public class TestScript {
     public void testScriptAsSetOfSeparateStatements() throws Exception {
         assertThatExceptionOfType(StatementException.class)
                 .isThrownBy(() -> {
-                    Handle h = db.openHandle();
+                    Handle h = dbRule.openHandle();
                     Script script = h.createScript(getResourceOnClasspath("script/malformed-sql-script.sql"));
                     script.executeAsSeparateStatements();
                 })

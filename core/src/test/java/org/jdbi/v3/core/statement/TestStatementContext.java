@@ -23,12 +23,12 @@ import org.junit.Test;
 public class TestStatementContext
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testFoo() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         final int inserted = h.createUpdate("insert into <table> (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", "Martin")

@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginTest {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
 
     @Entity
     static class Thing {
@@ -71,7 +71,7 @@ public class PluginTest {
         Thing brian = new Thing(1, "Brian");
         Thing keith = new Thing(2, "Keith");
 
-        ThingDao dao = db.getSharedHandle().attach(ThingDao.class);
+        ThingDao dao = dbRule.getSharedHandle().attach(ThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 

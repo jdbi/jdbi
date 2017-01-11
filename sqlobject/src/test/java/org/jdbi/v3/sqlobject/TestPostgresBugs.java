@@ -35,12 +35,12 @@ import org.junit.Test;
 public class TestPostgresBugs
 {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void setUp() throws Exception
     {
-        db.getJdbi().useHandle(handle -> {
+        dbRule.getJdbi().useHandle(handle -> {
             handle.execute("create table if not exists something (id int primary key, name varchar(100))");
             handle.execute("delete from something");
         });
@@ -49,7 +49,7 @@ public class TestPostgresBugs
     @Test
     public void testConnected() throws Exception
     {
-        int four = db.getJdbi().withHandle(handle ->
+        int four = dbRule.getJdbi().withHandle(handle ->
                 handle.createQuery("select 2 + 2").mapTo(Integer.class).findOnly());
 
         assertThat(four).isEqualTo(4);
@@ -58,7 +58,7 @@ public class TestPostgresBugs
     @Test
     public void testTransactions() throws Exception
     {
-        Dao dao = db.getJdbi().onDemand(Dao.class);
+        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
 
         Something s = dao.insertAndFetch(1, "Brian");
         assertThat(s).isEqualTo(new Something(1, "Brian"));
@@ -67,7 +67,7 @@ public class TestPostgresBugs
     @Test
     public void testExplicitTransaction() throws Exception
     {
-        Dao dao = db.getJdbi().onDemand(Dao.class);
+        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
 
         Something s = dao.inTransaction(transactional -> {
             transactional.insert(1, "Brian");

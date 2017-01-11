@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.rewriter.NoOpStatementRewriter;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,21 +26,21 @@ import org.junit.Test;
 public class TestNoOpStatementRewriter
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    private Jdbi dbi;
+    private Jdbi db;
 
     @Before
     public void setUp() throws Exception
     {
-        this.dbi = db.getJdbi();
-        dbi.setStatementRewriter(new NoOpStatementRewriter());
+        this.db = dbRule.getJdbi();
+        db.setStatementRewriter(new NoOpStatementRewriter());
     }
 
     @Test
     public void testFoo() throws Exception
     {
-        Handle h = dbi.open();
+        Handle h = db.open();
         h.insert("insert into something (id, name) values (1, 'Keith')");
 
         String name = h.createQuery("select name from something where id = ?")
@@ -55,7 +54,7 @@ public class TestNoOpStatementRewriter
     @Test
     public void testBar() throws Exception
     {
-        Handle h = dbi.open();
+        Handle h = db.open();
         h.insert("insert into something (id, name) values (1, 'Keith')");
 
         String name = h.createQuery("select name from something where id = ? and name = ?")
@@ -70,7 +69,7 @@ public class TestNoOpStatementRewriter
     @Test
     public void testBaz() throws Exception
     {
-        Handle h = dbi.open();
+        Handle h = db.open();
         h.insert("insert into something (id, name) values (1, 'Keith')");
     }
 }

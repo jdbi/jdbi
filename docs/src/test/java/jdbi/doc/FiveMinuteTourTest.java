@@ -29,22 +29,22 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FiveMinuteTourTest {
-    private Jdbi dbi;
+    private Jdbi db;
     private Handle handle;
 
     @Before
     public void setUp() {
         // tag::createJdbi[]
         // H2 in-memory database
-        Jdbi dbi = Jdbi.create("jdbc:h2:mem:test");
+        Jdbi db = Jdbi.create("jdbc:h2:mem:test");
         // end::createJdbi[]
 
         // shared handle to keep database open
-        this.dbi = dbi;
-        this.handle = dbi.open();
+        this.db = db;
+        this.handle = db.open();
 
         // tag::useHandle[]
-        dbi.useHandle(handle -> {
+        db.useHandle(handle -> {
             handle.execute("create table something (id int primary key, name varchar(100))");
             handle.insert("insert into something (id, name) values (?, ?)", 1, "Alice");
             handle.insert("insert into something (id, name) values (?, ?)", 2, "Bob");
@@ -65,7 +65,7 @@ public class FiveMinuteTourTest {
     @Test
     public void tryWithResources() {
         // tag::openHandle[]
-        try (Handle handle = dbi.open()) {
+        try (Handle handle = db.open()) {
             // do stuff
         }
         // end::openHandle[]

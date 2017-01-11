@@ -26,7 +26,7 @@ import org.junit.Test;
 public class TestEnums
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     public static class SomethingElse
     {
@@ -62,7 +62,7 @@ public class TestEnums
     @Test
     public void testMapEnumValues() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -75,7 +75,7 @@ public class TestEnums
     @Test
     public void testMapToEnum() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
@@ -88,7 +88,7 @@ public class TestEnums
     @Test(expected = IllegalArgumentException.class)
     public void testMapInvalidEnumValue() throws SQLException
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, 'joe')").execute();
 
         h.createQuery("select * from something order by id")

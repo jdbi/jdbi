@@ -27,11 +27,11 @@ import org.junit.Test;
 public class TestInetAddressH2
 {
     @Rule
-    public DatabaseRule db = new H2DatabaseRule();
+    public DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testInetAddress() throws Exception {
-        db.getJdbi().useHandle(h -> {
+        dbRule.getJdbi().useHandle(h -> {
             h.execute("CREATE TABLE addrs (addr " + getInetType() + " PRIMARY KEY)");
 
             String insert = "INSERT INTO addrs VALUES(?)";

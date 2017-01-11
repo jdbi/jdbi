@@ -25,13 +25,13 @@ import org.junit.Test;
 public class TestDBI
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testDataSourceConstructor() throws Exception
     {
-        Jdbi dbi = Jdbi.create(db.getConnectionString());
-        try (Handle h = dbi.open()) {
+        Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
+        try (Handle h = db.open()) {
             assertThat(h).isNotNull();
         }
     }
@@ -39,17 +39,17 @@ public class TestDBI
     @Test
     public void testConnectionFactoryCtor() throws Exception
     {
-        Jdbi dbi = Jdbi.create(() -> {
+        Jdbi db = Jdbi.create(() -> {
             try
             {
-                return DriverManager.getConnection(db.getConnectionString());
+                return DriverManager.getConnection(this.dbRule.getConnectionString());
             }
             catch (SQLException e)
             {
                 throw new ConnectionException(e);
             }
         });
-        try (Handle h = dbi.open()) {
+        try (Handle h = db.open()) {
             assertThat(h).isNotNull();
         }
     }
@@ -57,18 +57,18 @@ public class TestDBI
     @Test(expected = ConnectionException.class)
     public void testCorrectExceptionOnSQLException() throws Exception
     {
-        Jdbi dbi = Jdbi.create(() -> {
+        Jdbi db = Jdbi.create(() -> {
             throw new SQLException();
         });
 
-        dbi.open();
+        db.open();
     }
 
     @Test
     public void testWithHandle() throws Exception
     {
-        Jdbi dbi = Jdbi.create(db.getConnectionString());
-        String value = dbi.withHandle(handle -> {
+        Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
+        String value = db.withHandle(handle -> {
             handle.insert("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
         });
@@ -78,8 +78,8 @@ public class TestDBI
     @Test
     public void testUseHandle() throws Exception
     {
-        Jdbi dbi = Jdbi.create(db.getConnectionString());
-        dbi.useHandle(handle -> {
+        Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
+        db.useHandle(handle -> {
             handle.insert("insert into something (id, name) values (1, 'Brian')");
             String value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
             assertThat(value).isEqualTo("Brian");

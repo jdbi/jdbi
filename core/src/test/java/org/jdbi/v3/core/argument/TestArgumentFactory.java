@@ -30,14 +30,14 @@ import org.junit.Test;
 public class TestArgumentFactory
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testRegisterOnDBI() throws Exception
     {
-        final Jdbi dbi = db.getJdbi();
-        dbi.registerArgument(new NameAF());
-        try (Handle h = dbi.open()) {
+        final Jdbi db = dbRule.getJdbi();
+        db.registerArgument(new NameAF());
+        try (Handle h = db.open()) {
             h.createUpdate("insert into something (id, name) values (:id, :name)")
               .bind("id", 7)
               .bind("name", new Name("Brian", "McCallister"))
@@ -52,7 +52,7 @@ public class TestArgumentFactory
     @Test
     public void testRegisterOnHandle() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.registerArgument(new NameAF());
             h.createUpdate("insert into something (id, name) values (:id, :name)")
              .bind("id", 7)
@@ -68,7 +68,7 @@ public class TestArgumentFactory
     @Test
     public void testRegisterOnStatement() throws Exception
     {
-        db.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
+        dbRule.getSharedHandle().createUpdate("insert into something (id, name) values (:id, :name)")
          .registerArgument(new NameAF())
          .bind("id", 1)
          .bind("name", new Name("Brian", "McCallister"))
@@ -78,7 +78,7 @@ public class TestArgumentFactory
     @Test
     public void testOnPreparedBatch() throws Exception
     {
-        Handle h = db.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         batch.registerArgument(new NameAF());
 

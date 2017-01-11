@@ -37,7 +37,7 @@ import org.junit.Test;
 public class TestBatchGeneratedKeys
 {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule()
+    public PgDatabaseRule dbRule = new PgDatabaseRule()
             .withPlugin(new SqlObjectPlugin())
             .withPlugin(new PostgresPlugin());
     private Handle handle;
@@ -46,7 +46,7 @@ public class TestBatchGeneratedKeys
     @Before
     public void setUp() throws Exception
     {
-        handle = db.openHandle();
+        handle = dbRule.openHandle();
         handle.execute("create table something (id serial primary key, name varchar)");
         b = handle.attach(UsesBatching.class);
     }

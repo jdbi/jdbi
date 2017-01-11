@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public class TestDefineList {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle handle;
 
@@ -36,7 +36,7 @@ public class TestDefineList {
 
     @Before
     public void setUp() throws Exception {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 1, "foo1", "bar1", "baz1");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 2, "foo2", "bar2", "baz2");

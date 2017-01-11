@@ -43,19 +43,19 @@ import org.junit.Test;
 public class TestTimingCollector {
 
     @Rule
-    public H2DatabaseRule h2DatabaseRule = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
 
     private final CustomTimingCollector timingCollector = new CustomTimingCollector();
     private DAO dao;
-    private Jdbi jdbi;
+    private Jdbi db;
 
     @Before
     public void setUp() throws Exception {
-        jdbi = h2DatabaseRule.getJdbi();
-        jdbi.useHandle(h -> h.execute("CREATE ALIAS custom_insert FOR " +
+        db = dbRule.getJdbi();
+        db.useHandle(h -> h.execute("CREATE ALIAS custom_insert FOR " +
                 "\"org.jdbi.v3.sqlobject.TestTimingCollector.customInsert\";"));
-        jdbi.setTimingCollector(timingCollector);
-        dao = jdbi.onDemand(DAO.class);
+        db.setTimingCollector(timingCollector);
+        dao = db.onDemand(DAO.class);
     }
 
 
@@ -82,7 +82,7 @@ public class TestTimingCollector {
 
     @Test
     public void testSqlQuery() {
-        AdvancedDAO advancedDAO = jdbi.onDemand(AdvancedDAO.class);
+        AdvancedDAO advancedDAO = db.onDemand(AdvancedDAO.class);
         advancedDAO.insertBatch(Arrays.asList(1, 2, 3), Arrays.asList("Mary", "David", "Kate"));
         String name = advancedDAO.findNameById(3);
         assertThat(name).isEqualTo("Kate");
@@ -93,14 +93,14 @@ public class TestTimingCollector {
 
     @Test
     public void testRawSql() {
-        jdbi.useHandle(h -> {
+        db.useHandle(h -> {
             PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (?, ?)");
             batch.add(1, "Mary");
             batch.add(2, "David");
             batch.add(3, "Kate");
             batch.execute();
         });
-        List<String> names = jdbi.withHandle(h -> h.createQuery("select name from something order by name")
+        List<String> names = db.withHandle(h -> h.createQuery("select name from something order by name")
                 .mapTo(String.class)
                 .list());
         assertThat(names).containsExactly("David", "Kate", "Mary");

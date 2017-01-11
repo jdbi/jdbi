@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TestTimingCollector
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
@@ -40,8 +40,8 @@ public class TestTimingCollector
     {
         tc = new TTC();
 
-        db.getJdbi().getConfig(SqlStatements.class).setTimingCollector(tc);
-        return db.getJdbi().open();
+        dbRule.getJdbi().getConfig(SqlStatements.class).setTimingCollector(tc);
+        return dbRule.getJdbi().open();
     }
 
 

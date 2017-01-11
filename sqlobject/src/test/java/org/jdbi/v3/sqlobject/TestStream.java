@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TestStream
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testReturnStream() throws Exception {
@@ -38,7 +38,7 @@ public class TestStream
         Something two = new Something(4, "bar");
         Something thr = new Something(5, "baz");
 
-        Spiffy dao = db.getJdbi().open().attach(Spiffy.class);
+        Spiffy dao = dbRule.getJdbi().open().attach(Spiffy.class);
         dao.insert(one);
         dao.insert(thr);
         dao.insert(two);

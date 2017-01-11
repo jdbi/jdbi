@@ -36,7 +36,7 @@ import com.google.common.collect.ImmutableMap;
 public class TestFoldToObjectGraph
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private Map<String, Team> expected;
@@ -44,7 +44,7 @@ public class TestFoldToObjectGraph
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.execute("create table team ( name varchar(100), " +
                        "                    mascot varchar(100)," +
                        "                    primary key (name) )");

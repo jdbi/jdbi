@@ -32,13 +32,13 @@ import org.junit.Test;
 
 public class TestJsr310 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     Handle h;
 
     @Before
     public void setUp() {
-        h = db.getSharedHandle();
+        h = dbRule.getSharedHandle();
         h.execute("create table stuff (ts timestamp, d date)");
     }
 

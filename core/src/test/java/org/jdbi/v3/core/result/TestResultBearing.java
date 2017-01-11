@@ -24,12 +24,12 @@ import org.junit.Test;
 public class TestResultBearing
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
     public void setUp() throws Exception
     {
-        Handle h = db.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
         h.execute("CREATE TABLE reduce (u INT)");
         for (int u = 0; u < 5; u++)
         {
@@ -41,7 +41,7 @@ public class TestResultBearing
     public void testReduceBiFunction() throws Exception
     {
         assertThat(
-            db.getSharedHandle().createQuery("SELECT * FROM reduce")
+            dbRule.getSharedHandle().createQuery("SELECT * FROM reduce")
                 .mapTo(Integer.class)
                 .reduce(0, TestResultBearing::add))
             .isEqualTo(10);

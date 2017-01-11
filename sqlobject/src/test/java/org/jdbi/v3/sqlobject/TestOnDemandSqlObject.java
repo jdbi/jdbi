@@ -51,7 +51,7 @@ import org.junit.Test;
 
 public class TestOnDemandSqlObject
 {
-    private Jdbi    dbi;
+    private Jdbi db;
     private Handle handle;
     private final HandleTracker tracker = new HandleTracker();
     private JdbcDataSource ds;
@@ -62,12 +62,12 @@ public class TestOnDemandSqlObject
         ds = new JdbcDataSource();
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = Jdbi.create(ds);
-        dbi.installPlugin(new SqlObjectPlugin());
-        handle = dbi.open();
+        db = Jdbi.create(ds);
+        db.installPlugin(new SqlObjectPlugin());
+        handle = db.open();
         handle.execute("create table something (id int primary key, name varchar(100))");
 
-        dbi.installPlugin(tracker);
+        db.installPlugin(tracker);
     }
 
     @After
@@ -79,11 +79,11 @@ public class TestOnDemandSqlObject
     @Test
     public void testAPIWorks() throws Exception
     {
-        Spiffy s = dbi.onDemand(Spiffy.class);
+        Spiffy s = db.onDemand(Spiffy.class);
 
         s.insert(7, "Bill");
 
-        String bill = dbi.open().createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
+        String bill = db.open().createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
         assertThat(bill).isEqualTo("Bill");
     }
@@ -99,15 +99,15 @@ public class TestOnDemandSqlObject
                 return h;
             }
         };
-        dbi.installPlugin(plugin);
+        db.installPlugin(plugin);
 
-        Spiffy s = dbi.onDemand(Spiffy.class);
+        Spiffy s = db.onDemand(Spiffy.class);
         s.insert(1, "Tom");
     }
 
     @Test
     public void testIteratorCloseHandleOnError() throws Exception {
-        Spiffy s = dbi.onDemand(Spiffy.class);
+        Spiffy s = db.onDemand(Spiffy.class);
         assertThatExceptionOfType(JdbiException.class).isThrownBy(s::crashNow);
 
         assertThat(tracker.hasOpenedHandle()).isFalse();
@@ -115,7 +115,7 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorClosedOnReadError() throws Exception {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
+        Spiffy spiffy = db.onDemand(Spiffy.class);
         spiffy.insert(1, "Tom");
 
         Iterator<Something> i = spiffy.crashOnFirstRead();
@@ -126,7 +126,7 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorClosedIfEmpty() throws Exception {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
+        Spiffy spiffy = db.onDemand(Spiffy.class);
 
         spiffy.findAll();
 
@@ -135,7 +135,7 @@ public class TestOnDemandSqlObject
 
     @Test
     public void testIteratorPrepatureClose() throws Exception {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
+        Spiffy spiffy = db.onDemand(Spiffy.class);
         spiffy.insert(1, "Tom");
 
         try (ResultIterator<Something> all = spiffy.findAll()) {}
@@ -146,8 +146,8 @@ public class TestOnDemandSqlObject
     @Test
     public void testSqlFromExternalFileWorks() throws Exception
     {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
-        ExternalSql external = dbi.onDemand(ExternalSql.class);
+        Spiffy spiffy = db.onDemand(Spiffy.class);
+        ExternalSql external = db.onDemand(ExternalSql.class);
 
         spiffy.insert(1, "Tom");
         spiffy.insert(2, "Sam");

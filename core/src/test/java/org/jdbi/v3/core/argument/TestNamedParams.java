@@ -29,12 +29,12 @@ import org.junit.Test;
 public class TestNamedParams
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testInsert() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         Update insert = h.createUpdate("insert into something (id, name) values (:id, :name)");
         insert.bind("id", 1);
         insert.bind("name", "Brian");
@@ -45,7 +45,7 @@ public class TestNamedParams
     @Test
     public void testDemo() throws Exception
     {
-        Handle h = db.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
         h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("id", 1)
                 .bind("name", "Brian")
@@ -66,7 +66,7 @@ public class TestNamedParams
     @Test
     public void testBeanPropertyBinding() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         s.bindBean(new Something(0, "Keith"));
         int insert_count = s.execute();
@@ -76,7 +76,7 @@ public class TestNamedParams
     @Test
     public void testMapKeyBinding() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);
@@ -89,7 +89,7 @@ public class TestNamedParams
     @Test
     public void testCascadedLazyArgs() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         Update s = h.createUpdate("insert into something (id, name) values (:id, :name)");
         Map<String, Object> args = new HashMap<>();
         args.put("id", 0);

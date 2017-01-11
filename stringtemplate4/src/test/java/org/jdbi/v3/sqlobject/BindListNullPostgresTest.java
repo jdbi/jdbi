@@ -32,13 +32,13 @@ import org.junit.Test;
 
 public class BindListNullPostgresTest {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
     public void init() {
-        handle = db.openHandle();
+        handle = dbRule.openHandle();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
         handle.execute("insert into something(id, name) values(1, null)");

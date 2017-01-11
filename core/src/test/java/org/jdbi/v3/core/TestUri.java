@@ -25,12 +25,12 @@ public class TestUri
 {
     private static final URI TEST_URI = URI.create("http://example.invalid/wat.jpg");
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testUri() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         h.createUpdate("insert into something (id, name) values (1, :uri)")
             .bind("uri", TEST_URI).execute();
 

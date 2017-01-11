@@ -34,12 +34,12 @@ import org.junit.Test;
 public class ArgumentsTest {
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
     private Handle handle;
 
     @Before
     public void getHandle() {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
     }
 
     @Test

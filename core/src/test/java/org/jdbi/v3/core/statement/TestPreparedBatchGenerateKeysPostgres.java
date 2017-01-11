@@ -22,7 +22,6 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiPreparer;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
-import org.jdbi.v3.core.statement.PreparedBatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,7 +30,7 @@ import org.junit.Test;
 public class TestPreparedBatchGenerateKeysPostgres {
 
     @Rule
-    public PgDatabaseRule pgdb = new PgDatabaseRule().withPreparer(new JdbiPreparer() {
+    public PgDatabaseRule dbRule = new PgDatabaseRule().withPreparer(new JdbiPreparer() {
         @Override
         protected void prepare(Handle handle) {
             handle.execute("create table something (id serial, name varchar(50), create_time timestamp default now())");
@@ -42,7 +41,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
 
     @Before
     public void getHandle() {
-        h = pgdb.getJdbi().open();
+        h = dbRule.getJdbi().open();
     }
 
     @After

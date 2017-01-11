@@ -32,7 +32,7 @@ import org.junit.Test;
 public class TestFieldMapper
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     public static class TestObject
     {
@@ -60,7 +60,7 @@ public class TestFieldMapper
 
     @Before
     public void createTable() throws Exception {
-        h = db.openHandle();
+        h = dbRule.openHandle();
         h.createUpdate("create table testBean (valueType varchar(50))").execute();
         dao = h.attach(TestDao.class);
     }

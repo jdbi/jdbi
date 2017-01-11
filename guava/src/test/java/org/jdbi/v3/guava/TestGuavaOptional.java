@@ -37,7 +37,7 @@ public class TestGuavaOptional {
             "order by id";
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -46,7 +46,7 @@ public class TestGuavaOptional {
 
     @Before
     public void createTestData() {
-        handle = db.openHandle();
+        handle = dbRule.openHandle();
         handle.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         handle.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
     }

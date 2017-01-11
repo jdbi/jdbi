@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,14 +25,14 @@ import org.junit.Test;
 public class TestPositionalParameterBinding
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
     @Before
     public void setUp() throws Exception
     {
-        h = db.openHandle();
+        h = dbRule.openHandle();
     }
 
     @Test

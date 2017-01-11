@@ -19,7 +19,6 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.Update;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,13 +28,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestUpdateGeneratedKeys
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
     public void setUp() throws Exception
     {
-        try (   final Connection conn = db.getConnectionFactory().openConnection();
-                final Statement create = conn.createStatement())
+        try (final Connection conn = dbRule.getConnectionFactory().openConnection();
+             final Statement create = conn.createStatement())
         {
             create.execute("create table something_else ( id integer not null generated always as identity, name varchar(50) )");
         }
@@ -44,7 +43,7 @@ public class TestUpdateGeneratedKeys
     @Test
     public void testInsert() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
 
         Update insert1 = h.createUpdate("insert into something_else (name) values (:name)");
         insert1.bind("name", "Brian");
@@ -63,7 +62,7 @@ public class TestUpdateGeneratedKeys
     @Test
     public void testUpdate() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");
@@ -82,7 +81,7 @@ public class TestUpdateGeneratedKeys
     @Test
     public void testDelete() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
 
         Update insert = h.createUpdate("insert into something_else (name) values (:name)");
         insert.bind("name", "Brian");

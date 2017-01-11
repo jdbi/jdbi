@@ -42,15 +42,15 @@ public class BindListTest
     private static List<Something> expectedSomethings;
 
     @ClassRule
-    public static final H2DatabaseRule db = new H2DatabaseRule();
+    public static final H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @BeforeClass
     public static void init()
     {
-        final Jdbi dbi = db.getJdbi();
-        dbi.installPlugin(new SqlObjectPlugin());
-        dbi.registerRowMapper(new SomethingMapper());
-        handle = dbi.open();
+        final Jdbi db = dbRule.getJdbi();
+        db.installPlugin(new SqlObjectPlugin());
+        db.registerRowMapper(new SomethingMapper());
+        handle = db.open();
 
         handle.execute("insert into something(id, name) values(1, '1')");
         handle.execute("insert into something(id, name) values(2, '2')");

@@ -17,14 +17,14 @@ import org.junit.Test;
 public class StatementsTest
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle handle;
 
     @Before
     public void setUp()
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name VARCHAR)");
         handle.execute("INSERT INTO user VALUES (1, 'Alice')");
         handle.execute("INSERT INTO user VALUES (2, 'Bob')");

@@ -23,20 +23,20 @@ import org.junit.Test;
 public class ConstructorMapperTest {
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
     public void setUp() throws Exception {
-        db.getSharedHandle()
+        dbRule.getSharedHandle()
                 .registerRowMapper(ConstructorMapper.of(ConstructorBean.class))
                 .registerRowMapper(ConstructorMapper.of(NamedParameterBean.class));
-        db.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
+        dbRule.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
 
-        db.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");
+        dbRule.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");
     }
 
     public ConstructorBean execute(String query) {
-        return db.getSharedHandle().createQuery(query).mapTo(ConstructorBean.class).findOnly();
+        return dbRule.getSharedHandle().createQuery(query).mapTo(ConstructorBean.class).findOnly();
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void testName() throws Exception {
-        NamedParameterBean nb = db.getSharedHandle().createQuery("SELECT 3 AS xyz")
+        NamedParameterBean nb = dbRule.getSharedHandle().createQuery("SELECT 3 AS xyz")
                 .mapTo(NamedParameterBean.class).findOnly();
         assertThat(nb.i).isEqualTo(3);
     }

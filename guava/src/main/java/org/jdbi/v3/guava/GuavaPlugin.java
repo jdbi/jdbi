@@ -18,9 +18,9 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class GuavaPlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.registerArgument(GuavaArguments.factory());
-        jdbi.registerCollector(GuavaCollectors.factory());
-        jdbi.registerColumnMapper(GuavaMappers.columnFactory());
+    public void customizeJdbi(Jdbi db) {
+        db.registerArgument(GuavaArguments.factory());
+        db.registerCollector(GuavaCollectors.factory());
+        db.registerColumnMapper(GuavaMappers.columnFactory());
     }
 }

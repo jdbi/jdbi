@@ -42,7 +42,7 @@ public class JpaTest {
     public static final String NAME_ANNOTATION_NAME = "bar";
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     interface Thing {
         int getId();
@@ -78,7 +78,7 @@ public class JpaTest {
         EntityThing brian = new EntityThing(1, "Brian");
         EntityThing keith = new EntityThing(2, "Keith");
 
-        EntityThingDao dao = db.getSharedHandle().attach(EntityThingDao.class);
+        EntityThingDao dao = dbRule.getSharedHandle().attach(EntityThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -116,7 +116,7 @@ public class JpaTest {
         FieldThing brian = new FieldThing(1, "Brian");
         FieldThing keith = new FieldThing(2, "Keith");
 
-        FieldThingDao dao = db.getSharedHandle().attach(FieldThingDao.class);
+        FieldThingDao dao = dbRule.getSharedHandle().attach(FieldThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -153,7 +153,7 @@ public class JpaTest {
         NamedFieldThing brian = new NamedFieldThing(1, "Brian");
         NamedFieldThing keith = new NamedFieldThing(2, "Keith");
 
-        NamedFieldThingDao dao = db.getSharedHandle().attach(NamedFieldThingDao.class);
+        NamedFieldThingDao dao = dbRule.getSharedHandle().attach(NamedFieldThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -191,7 +191,7 @@ public class JpaTest {
         GetterThing brian = new GetterThing(1, "Brian");
         GetterThing keith = new GetterThing(2, "Keith");
 
-        GetterThingDao dao = db.getSharedHandle().attach(GetterThingDao.class);
+        GetterThingDao dao = dbRule.getSharedHandle().attach(GetterThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -229,7 +229,7 @@ public class JpaTest {
         NamedGetterThing brian = new NamedGetterThing(1, "Brian");
         NamedGetterThing keith = new NamedGetterThing(2, "Keith");
 
-        NamedGetterThingDao dao = db.getSharedHandle().attach(NamedGetterThingDao.class);
+        NamedGetterThingDao dao = dbRule.getSharedHandle().attach(NamedGetterThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -267,7 +267,7 @@ public class JpaTest {
         SetterThing brian = new SetterThing(1, "Brian");
         SetterThing keith = new SetterThing(2, "Keith");
 
-        SetterThingDao dao = db.getSharedHandle().attach(SetterThingDao.class);
+        SetterThingDao dao = dbRule.getSharedHandle().attach(SetterThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -305,7 +305,7 @@ public class JpaTest {
         NamedSetterThing brian = new NamedSetterThing(1, "Brian");
         NamedSetterThing keith = new NamedSetterThing(2, "Keith");
 
-        NamedSetterThingDao dao = db.getSharedHandle().attach(NamedSetterThingDao.class);
+        NamedSetterThingDao dao = dbRule.getSharedHandle().attach(NamedSetterThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -344,7 +344,7 @@ public class JpaTest {
         ExtendsMappedSuperclassThing brian = new ExtendsMappedSuperclassThing(1, "Brian");
         ExtendsMappedSuperclassThing keith = new ExtendsMappedSuperclassThing(2, "Keith");
 
-        MappedSuperclassThingDao dao = db.getSharedHandle().attach(MappedSuperclassThingDao.class);
+        MappedSuperclassThingDao dao = dbRule.getSharedHandle().attach(MappedSuperclassThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -382,7 +382,7 @@ public class JpaTest {
         AnnotationPriorityThing brian = new AnnotationPriorityThing(1, "Brian");
         AnnotationPriorityThing keith = new AnnotationPriorityThing(2, "Keith");
 
-        AnnotationPriorityThingDao dao = db.getSharedHandle().attach(AnnotationPriorityThingDao.class);
+        AnnotationPriorityThingDao dao = dbRule.getSharedHandle().attach(AnnotationPriorityThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -404,7 +404,7 @@ public class JpaTest {
         FieldThing brian = new FieldThing(1, "Brian");
         FieldThing keith = new FieldThing(2, "Keith");
 
-        SuperfluousColumnDao dao = db.getSharedHandle().attach(SuperfluousColumnDao.class);
+        SuperfluousColumnDao dao = dbRule.getSharedHandle().attach(SuperfluousColumnDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -426,7 +426,7 @@ public class JpaTest {
         FieldThing brian = new FieldThing(1, "Brian");
         FieldThing keith = new FieldThing(2, "Keith");
 
-        MissingColumnDao dao = db.getSharedHandle().attach(MissingColumnDao.class);
+        MissingColumnDao dao = dbRule.getSharedHandle().attach(MissingColumnDao.class);
         dao.insert(brian);
         dao.insert(keith);
 
@@ -471,7 +471,7 @@ public class JpaTest {
         OverridingSubclassThing brian = new OverridingSubclassThing(1, "Brian");
         OverridingSubclassThing keith = new OverridingSubclassThing(2, "Keith");
 
-        OverridingSubclassThingDao dao = db.getSharedHandle().attach(OverridingSubclassThingDao.class);
+        OverridingSubclassThingDao dao = dbRule.getSharedHandle().attach(OverridingSubclassThingDao.class);
         dao.insert(brian);
         dao.insert(keith);
 

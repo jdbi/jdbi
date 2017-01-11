@@ -20,15 +20,15 @@ import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
 
 class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
-    private final Jdbi jdbi;
+    private final Jdbi db;
     private final ThreadLocal<ConfigRegistry> config;
     private final ThreadLocal<ExtensionMethod> extensionMethod = new ThreadLocal<>();
 
     private volatile Handle handle;
     private volatile boolean closed = false;
 
-    LazyHandleSupplier(Jdbi jdbi, ConfigRegistry config) {
-        this.jdbi = jdbi;
+    LazyHandleSupplier(Jdbi db, ConfigRegistry config) {
+        this.db = db;
         this.config = ThreadLocal.withInitial(() -> config);
     }
 
@@ -50,7 +50,7 @@ class LazyHandleSupplier implements HandleSupplier, AutoCloseable {
                 throw new IllegalStateException("Handle is closed");
             }
 
-            Handle handle = jdbi.open();
+            Handle handle = db.open();
             // share extension method thread local with handle,
             // so extension methods set in other threads are preserved
             handle.setExtensionMethodThreadLocal(extensionMethod);

@@ -31,12 +31,12 @@ import org.junit.Test;
 public class TestReducing
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
     public void setUp()
     {
-        Handle h = db.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
         h.execute("CREATE TABLE something_location (id int, location varchar)");
         h.execute("INSERT INTO something (id, name) VALUES (1, 'tree')");
         h.execute("INSERT INTO something (id, name) VALUES (2, 'apple')");
@@ -49,7 +49,7 @@ public class TestReducing
     @Test
     public void testLeftJoinRowView() throws Exception
     {
-        Map<Integer, SomethingWithLocations> result = db.getSharedHandle()
+        Map<Integer, SomethingWithLocations> result = dbRule.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
             .reduceRows(new HashMap<Integer, SomethingWithLocations>(), (map, rr) -> {
                 map.computeIfAbsent(rr.getColumn("id", Integer.class),
@@ -66,7 +66,7 @@ public class TestReducing
     @Test
     public void testLeftJoinResultSet() throws Exception
     {
-        Map<Integer, SomethingWithLocations> result = db.getSharedHandle()
+        Map<Integer, SomethingWithLocations> result = dbRule.getSharedHandle()
             .createQuery("SELECT something.id, name, location FROM something NATURAL JOIN something_location")
             .reduceResultSet(new HashMap<Integer, SomethingWithLocations>(), (map, rs, ctx) -> {
                 final String name = rs.getString("name");

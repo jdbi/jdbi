@@ -40,7 +40,7 @@ import org.junit.Test;
 public class TestRegisteredMappersWork
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
 
     public interface BooleanDao {
@@ -51,7 +51,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testFoo() throws Exception
     {
-        boolean world_is_right = db.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
+        boolean world_is_right = dbRule.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
         assertThat(world_is_right).isTrue();
     }
 
@@ -105,7 +105,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testBeanMapperFactory() throws Exception
     {
-        BeanMappingDao bdb = db.getSharedHandle().attach(BeanMappingDao.class);
+        BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
         Bean lima = new Bean();
@@ -122,7 +122,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testBeanMapperFactoryDefaultMethod() throws Exception
     {
-        BeanMappingDao bdb = db.getSharedHandle().attach(BeanMappingDao.class);
+        BeanMappingDao bdb = dbRule.getSharedHandle().attach(BeanMappingDao.class);
         bdb.createBeanTable();
 
         Bean lima = new Bean();
@@ -141,9 +141,9 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegistered() throws Exception
     {
-        db.getSharedHandle().registerRowMapper(new SomethingMapper());
+        dbRule.getSharedHandle().registerRowMapper(new SomethingMapper());
 
-        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -154,7 +154,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testBuiltIn() throws Exception
     {
-        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
 
         s.insert(1, "Tatu");
 
@@ -164,7 +164,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testRegisterRowMapperAnnotationWorks() throws Exception
     {
-        Kabob bob = db.getJdbi().onDemand(Kabob.class);
+        Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         bob.insert(1, "Henning");
         Something henning = bob.find(1);
@@ -175,7 +175,7 @@ public class TestRegisteredMappersWork
     @Test(expected = UnsupportedOperationException.class)
     public void testNoRootRegistrations() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.insert("insert into something (id, name) values (1, 'Henning')");
             h.createQuery("select id, name from something where id = 1")
                                  .mapTo(Something.class)
@@ -186,7 +186,7 @@ public class TestRegisteredMappersWork
     @Test
     public void testNoErrorOnNoData() throws Exception
     {
-        Kabob bob = db.getJdbi().onDemand(Kabob.class);
+        Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
         assertThat(henning).isNull();
@@ -199,7 +199,7 @@ public class TestRegisteredMappersWork
     @Test(expected = ResultSetException.class)
     public void testIteratorCloses() throws Exception
     {
-        Kabob bob = db.getJdbi().onDemand(Kabob.class);
+        Kabob bob = dbRule.getJdbi().onDemand(Kabob.class);
 
         Iterator<Something> itty = bob.iterateAll();
         itty.hasNext();

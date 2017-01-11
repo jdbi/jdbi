@@ -35,19 +35,19 @@ import org.junit.Test;
 public class TestRegisterArgumentFactory
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
-    private Jdbi dbi;
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    private Jdbi db;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = db.getJdbi();
+        db = dbRule.getJdbi();
     }
 
     @Test
     public void testFoo() throws Exception
     {
-        dbi.useExtension(Waffle.class, w -> {
+        db.useExtension(Waffle.class, w -> {
             w.insert(1, new Name("Brian", "McCallister"));
 
             assertThat(w.findName(1)).isEqualTo("Brian McCallister");

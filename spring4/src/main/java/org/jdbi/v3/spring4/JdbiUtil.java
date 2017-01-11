@@ -31,18 +31,18 @@ public class JdbiUtil
     /**
      * Obtain a Handle instance, either the transactionally bound one if we are in a transaction,
      * or a new one otherwise.
-     * @param dbi the Jdbi instance from which to obtain the handle
+     * @param db the Jdbi instance from which to obtain the handle
      *
      * @return the Handle instance
      */
-    public static Handle getHandle(Jdbi dbi)
+    public static Handle getHandle(Jdbi db)
     {
-        Handle bound = (Handle) TransactionSynchronizationManager.getResource(dbi);
+        Handle bound = (Handle) TransactionSynchronizationManager.getResource(db);
         if (bound == null) {
-            bound = dbi.open();
+            bound = db.open();
             if (TransactionSynchronizationManager.isSynchronizationActive()) {
-                TransactionSynchronizationManager.bindResource(dbi, bound);
-                TransactionSynchronizationManager.registerSynchronization(new Adapter(dbi, bound));
+                TransactionSynchronizationManager.bindResource(db, bound);
+                TransactionSynchronizationManager.registerSynchronization(new Adapter(db, bound));
                 TRANSACTIONAL_HANDLES.add(bound);
             }
         }
@@ -62,31 +62,31 @@ public class JdbiUtil
     }
 
     private static class Adapter extends TransactionSynchronizationAdapter {
-        private final Jdbi dbi;
+        private final Jdbi db;
         private final Handle handle;
 
-        Adapter(Jdbi dbi, Handle handle) {
-            this.dbi = dbi;
+        Adapter(Jdbi db, Handle handle) {
+            this.db = db;
             this.handle = handle;
         }
 
         @Override
         public void resume()
         {
-            TransactionSynchronizationManager.bindResource(dbi, handle);
+            TransactionSynchronizationManager.bindResource(db, handle);
         }
 
         @Override
         public void suspend()
         {
-            TransactionSynchronizationManager.unbindResource(dbi);
+            TransactionSynchronizationManager.unbindResource(db);
         }
 
         @Override
         public void beforeCompletion()
         {
             TRANSACTIONAL_HANDLES.remove(handle);
-            TransactionSynchronizationManager.unbindResource(dbi);
+            TransactionSynchronizationManager.unbindResource(db);
         }
     }
 }

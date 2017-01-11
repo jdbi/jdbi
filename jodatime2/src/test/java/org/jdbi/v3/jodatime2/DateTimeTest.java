@@ -23,11 +23,11 @@ import org.junit.Test;
 
 public class DateTimeTest {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new JodaTimePlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new JodaTimePlugin());
 
     @Test
     public void dateTime() throws Exception {
-        Handle h = db.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
         h.execute("create table stuff(ts timestamp)");
 
         DateTime dt = new DateTime();

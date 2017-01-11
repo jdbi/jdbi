@@ -35,7 +35,7 @@ import org.junit.rules.ExpectedException;
 public class TestVariousOddities
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -43,7 +43,7 @@ public class TestVariousOddities
     @Test
     public void testAttach() throws Exception
     {
-        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
         s.insert(new Something(14, "Tom"));
 
         Something tom = s.byId(14);
@@ -53,8 +53,8 @@ public class TestVariousOddities
     @Test
     public void testEquals()
     {
-        Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
-        Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s1 = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = dbRule.getSharedHandle().attach(Spiffy.class);
         assertThat(s1).isEqualTo(s1);
         assertThat(s1).isNotSameAs(s2);
         assertThat(s1).isNotEqualTo(s2);
@@ -63,8 +63,8 @@ public class TestVariousOddities
     @Test
     public void testToString()
     {
-        Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
-        Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s1 = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = dbRule.getSharedHandle().attach(Spiffy.class);
         assertThat(s1.toString()).isNotNull();
         assertThat(s2.toString()).isNotNull();
         assertThat(s1.toString()).isNotEqualTo(s2.toString());
@@ -73,8 +73,8 @@ public class TestVariousOddities
     @Test
     public void testHashCode()
     {
-        Spiffy s1 = db.getSharedHandle().attach(Spiffy.class);
-        Spiffy s2 = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s1 = dbRule.getSharedHandle().attach(Spiffy.class);
+        Spiffy s2 = dbRule.getSharedHandle().attach(Spiffy.class);
         assertThat(s1.hashCode()).isNotZero();
         assertThat(s2.hashCode()).isNotZero();
         assertThat(s1.hashCode()).isNotEqualTo(s2.hashCode());
@@ -84,7 +84,7 @@ public class TestVariousOddities
     public void testConcurrentHashCode() throws ExecutionException, InterruptedException
     {
         Callable<SpiffyConcurrent> callable = () ->
-                db.getSharedHandle().attach(SpiffyConcurrent.class);
+                dbRule.getSharedHandle().attach(SpiffyConcurrent.class);
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
         Future<SpiffyConcurrent> f1 = pool.submit(callable);
@@ -106,7 +106,7 @@ public class TestVariousOddities
                 "Method org.jdbi.v3.sqlobject.TestVariousOddities$SpiffyBoom#returnNothing " +
                         "is annotated as if it should return a value, but the method is void.");
 
-        db.getSharedHandle().attach(SpiffyBoom.class);
+        dbRule.getSharedHandle().attach(SpiffyBoom.class);
     }
 
     public interface Spiffy

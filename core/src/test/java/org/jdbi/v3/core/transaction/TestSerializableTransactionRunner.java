@@ -29,22 +29,22 @@ import org.junit.Test;
 public class TestSerializableTransactionRunner
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
-    private Jdbi dbi;
+    private Jdbi db;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = Jdbi.create(db.getConnectionFactory());
-        dbi.setTransactionHandler(new SerializableTransactionRunner());
+        db = Jdbi.create(dbRule.getConnectionFactory());
+        db.setTransactionHandler(new SerializableTransactionRunner());
     }
 
     @Test
     public void testEventuallyFails() throws Exception
     {
         final AtomicInteger tries = new AtomicInteger(5);
-        Handle handle = dbi.open();
+        Handle handle = db.open();
 
         assertThatExceptionOfType(SQLException.class)
                 .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
@@ -60,7 +60,7 @@ public class TestSerializableTransactionRunner
     public void testEventuallySucceeds() throws Exception
     {
         final AtomicInteger tries = new AtomicInteger(3);
-        Handle handle = dbi.open();
+        Handle handle = db.open();
 
         handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
             if (tries.decrementAndGet() == 0)

@@ -28,35 +28,35 @@ import org.junit.rules.ExpectedException;
 
 public class TestClasspathSqlLocator {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void testLocateNamed() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         h.insert(findSqlOnClasspath("insert-keith"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testCommentsInExternalSql() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         h.insert(findSqlOnClasspath("insert-eric-with-comments"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testNamedPositionalNamedParamsInPrepared() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         h.insert(findSqlOnClasspath("insert-id-name"), 3, "Tip");
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testNamedParamsInExternal() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         h.createUpdate(findSqlOnClasspath("insert-id-name"))
                 .bind("id", 1)
                 .bind("name", "Tip")
@@ -66,7 +66,7 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testUsefulExceptionForBackTracing() throws Exception {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
 
         exception.expect(StatementException.class);
         exception.expectMessage("insert into something(id, name) values (:id, :name)");

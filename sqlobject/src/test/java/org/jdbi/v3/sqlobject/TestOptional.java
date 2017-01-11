@@ -31,13 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestOptional {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private DAO dao;
 
     @Before
     public void setUp() throws Exception {
-        dao = db.getSharedHandle().attach(DAO.class);
+        dao = dbRule.getSharedHandle().attach(DAO.class);
         dao.insert(1, "brian");
         dao.insert(2, "eric");
     }

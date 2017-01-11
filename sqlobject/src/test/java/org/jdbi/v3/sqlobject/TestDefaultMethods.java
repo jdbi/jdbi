@@ -31,24 +31,24 @@ import org.junit.Test;
 public class TestDefaultMethods
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testDefaultMethod() throws Exception {
-        Spiffy dao = db.getJdbi().onDemand(Spiffy.class);
+        Spiffy dao = dbRule.getJdbi().onDemand(Spiffy.class);
         Something test = dao.insertAndReturn(3, "test");
         assertThat(test).isEqualTo(new Something(3, "test"));
     }
 
     @Test
     public void testOverride() throws Exception {
-        SpiffyOverride dao = db.getJdbi().onDemand(SpiffyOverride.class);
+        SpiffyOverride dao = dbRule.getJdbi().onDemand(SpiffyOverride.class);
         assertThat(dao.insertAndReturn(123, "fake")).isNull();
     }
 
     @Test
     public void testOverrideWithDefault() throws Exception {
-        SpiffyOverrideWithDefault dao = db.getJdbi().onDemand(SpiffyOverrideWithDefault.class);
+        SpiffyOverrideWithDefault dao = dbRule.getJdbi().onDemand(SpiffyOverrideWithDefault.class);
         assertThat(dao.insertAndReturn(123, "fake").getId()).isEqualTo(-6);
     }
 
@@ -85,7 +85,7 @@ public class TestDefaultMethods
 
     @Test
     public void testHandleHasExtensionMethodSet() throws Exception {
-        db.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
+        dbRule.getJdbi().useExtension(StatementContextExtensionMethodDao.class, dao -> dao.check());
     }
 
     public interface StatementContextExtensionMethodDao extends SqlObject {

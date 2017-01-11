@@ -29,14 +29,14 @@ import org.junit.Test;
 public class TestCallable
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
 
     @Before
     public void setUp() throws Exception {
-        h = db.getJdbi().open();
+        h = dbRule.getJdbi().open();
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
         h.execute("CREATE ALIAS TEST_PROCEDURE FOR \"org.jdbi.v3.core.statement.TestCallable.testProcedure\"");
     }

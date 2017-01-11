@@ -17,5 +17,5 @@ import org.jdbi.v3.core.Jdbi;
 
 public interface Callback
 {
-    void call(Jdbi dbi);
+    void call(Jdbi db);
 }

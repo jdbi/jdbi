@@ -34,7 +34,7 @@ import org.junit.Test;
 
 public class TestNewApiOnDbiAndHandle
 {
-    private Jdbi    dbi;
+    private Jdbi db;
     private Handle handle;
 
     @Before
@@ -42,10 +42,10 @@ public class TestNewApiOnDbiAndHandle
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
-        dbi = Jdbi.create(ds);
-        dbi.installPlugin(new SqlObjectPlugin());
-        dbi.registerRowMapper(new SomethingMapper());
-        handle = dbi.open();
+        db = Jdbi.create(ds);
+        db.installPlugin(new SqlObjectPlugin());
+        db.registerRowMapper(new SomethingMapper());
+        handle = db.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
@@ -62,7 +62,7 @@ public class TestNewApiOnDbiAndHandle
     {
         final AtomicReference<Connection> c = new AtomicReference<>();
 
-        dbi.useExtension(Spiffy.class, spiffy -> {
+        db.useExtension(Spiffy.class, spiffy -> {
             spiffy.insert(new Something(1, "Tim"));
             spiffy.insert(new Something(2, "Diego"));
 
@@ -76,7 +76,7 @@ public class TestNewApiOnDbiAndHandle
     @Test
     public void testOnDemandSpiffy() throws Exception
     {
-        Spiffy spiffy = dbi.onDemand(Spiffy.class);
+        Spiffy spiffy = db.onDemand(Spiffy.class);
 
         spiffy.insert(new Something(1, "Tim"));
         spiffy.insert(new Something(2, "Diego"));

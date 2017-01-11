@@ -34,14 +34,14 @@ import org.junit.Test;
 public class TestBatchingSingleValue
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new H2DatabasePlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new H2DatabasePlugin());
     private Handle handle;
     private SingleValueBatching b;
 
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.execute("create table batching (id integer, values array)");
         b = handle.attach(SingleValueBatching.class);
     }

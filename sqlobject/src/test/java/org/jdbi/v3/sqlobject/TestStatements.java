@@ -25,16 +25,16 @@ import org.junit.Test;
 public class TestStatements
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testInsert() throws Exception
     {
-        db.getJdbi().useExtension(Inserter.class, i -> {
+        dbRule.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             int rows_affected = i.insert(2, "Diego");
 
-            String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
+            String name = dbRule.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
 
             assertThat(rows_affected).isEqualTo(1);
             assertThat(name).isEqualTo("Diego");
@@ -44,11 +44,11 @@ public class TestStatements
     @Test
     public void testInsertWithVoidReturn() throws Exception
     {
-        db.getJdbi().useExtension(Inserter.class, i -> {
+        dbRule.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
             i.insertWithVoidReturn(2, "Diego");
 
-            String name = db.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
+            String name = dbRule.getSharedHandle().createQuery("select name from something where id = 2").mapTo(String.class).findOnly();
 
             assertThat(name).isEqualTo("Diego");
         });
@@ -57,7 +57,7 @@ public class TestStatements
     @Test
     public void testDoubleArgumentBind() throws Exception
     {
-        db.getJdbi().useExtension(Doubler.class, d -> assertThat(d.doubleTest("wooooot")).isTrue());
+        dbRule.getJdbi().useExtension(Doubler.class, d -> assertThat(d.doubleTest("wooooot")).isTrue());
     }
 
     public interface Inserter

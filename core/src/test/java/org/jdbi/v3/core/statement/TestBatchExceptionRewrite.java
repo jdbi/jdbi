@@ -27,17 +27,17 @@ import org.slf4j.LoggerFactory;
 public class TestBatchExceptionRewrite
 {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule();
+    public PgDatabaseRule dbRule = new PgDatabaseRule();
 
     @Before
     public void createTable() {
-        db.getJdbi().useHandle(h -> h.execute("create table something ( id int primary key, name varchar(50), integerValue integer, intValue integer )"));
+        dbRule.getJdbi().useHandle(h -> h.execute("create table something ( id int primary key, name varchar(50), integerValue integer, intValue integer )"));
     }
 
     @Test
     public void testSimpleBatch() throws Exception
     {
-        Batch b = db.openHandle().createBatch();
+        Batch b = dbRule.openHandle().createBatch();
         b.add("insert into something (id, name) values (0, 'Keith')");
         b.add("insert into something (id, name) values (0, 'Keith')");
         assertThatExceptionOfType(UnableToExecuteStatementException.class)
@@ -48,7 +48,7 @@ public class TestBatchExceptionRewrite
     @Test
     public void testPreparedBatch() throws Exception
     {
-        PreparedBatch b = db.openHandle().prepareBatch("insert into something (id, name) values (?,?)");
+        PreparedBatch b = dbRule.openHandle().prepareBatch("insert into something (id, name) values (?,?)");
         b.add(0, "a");
         b.add(0, "a");
         assertThatExceptionOfType(UnableToExecuteStatementException.class)
