@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class TestOnDemandObjectMethodBehavior
 {
-    private Jdbi    dbi;
+    private Jdbi db;
     private UselessDao dao;
 
     public interface UselessDao extends SqlObject
@@ -43,9 +43,9 @@ public class TestOnDemandObjectMethodBehavior
                 throw new UnsupportedOperationException();
             }
         };
-        dbi = Jdbi.create(ds);
-        dbi.installPlugin(new SqlObjectPlugin());
-        dao = dbi.onDemand(UselessDao.class);
+        db = Jdbi.create(ds);
+        db.installPlugin(new SqlObjectPlugin());
+        dao = db.onDemand(UselessDao.class);
     }
 
     /**

@@ -28,13 +28,13 @@ import org.junit.Test;
 public class TestCustomBinder
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testFoo() throws Exception
     {
-        db.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
-        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
+        dbRule.getSharedHandle().execute("insert into something (id, name) values (2, 'Martin')");
+        dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findSame(new Something(2, "Unknown"));
             assertThat(s.getName()).isEqualTo("Martin");
         });
@@ -43,7 +43,7 @@ public class TestCustomBinder
     @Test
     public void testCustomBindingAnnotation() throws Exception
     {
-        Spiffy s = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy s = dbRule.getSharedHandle().attach(Spiffy.class);
 
         s.insert(new Something(2, "Keith"));
 

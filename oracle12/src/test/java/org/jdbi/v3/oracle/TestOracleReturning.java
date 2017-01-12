@@ -29,11 +29,11 @@ import oracle.jdbc.OracleTypes;
 public class TestOracleReturning {
 
     @Rule
-    public OracleDatabaseRule db = new OracleDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public OracleDatabaseRule dbRule = new OracleDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testReturningDml() {
-        Handle h = db.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
 
         List<Integer> ids = h.createUpdate("insert into something(id, name) values (17, 'Brian') returning id into ?")
                 .addCustomizer(returnParameters().register(1, OracleTypes.INTEGER))

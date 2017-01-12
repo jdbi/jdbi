@@ -38,7 +38,7 @@ import org.junit.Test;
  */
 public class TestGetGeneratedKeysOracle {
     @Rule
-    public OracleDatabaseRule db = new OracleDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public OracleDatabaseRule dbRule = new OracleDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     /**
      * Oracle needs to be queried by index and not id (like
@@ -63,7 +63,7 @@ public class TestGetGeneratedKeysOracle {
 
     @Test
     public void testGetGeneratedKeys() throws Exception {
-        db.getJdbi().useExtension(DAO.class, dao -> {
+        dbRule.getJdbi().useExtension(DAO.class, dao -> {
             Long fooId = dao.insert("Foo");
             long barId = dao.insert("Bar");
 

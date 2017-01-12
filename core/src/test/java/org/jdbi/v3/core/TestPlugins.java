@@ -25,33 +25,33 @@ import org.junit.Test;
 
 public class TestPlugins {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testCustomizeHandle() throws Exception {
         Handle h = mock(Handle.class);
 
-        db.getJdbi().installPlugin(new JdbiPlugin() {
+        dbRule.getJdbi().installPlugin(new JdbiPlugin() {
             @Override
             public Handle customizeHandle(Handle handle) {
                 return h;
             }
         });
 
-        assertThat(h).isSameAs(db.getJdbi().open());
+        assertThat(h).isSameAs(dbRule.getJdbi().open());
     }
 
     @Test
     public void testCustomizeConnection() throws Exception {
         Connection c = mock(Connection.class);
 
-        db.getJdbi().installPlugin(new JdbiPlugin() {
+        dbRule.getJdbi().installPlugin(new JdbiPlugin() {
             @Override
             public Connection customizeConnection(Connection conn) {
                 return c;
             }
         });
 
-        assertThat(c).isSameAs(db.getJdbi().open().getConnection());
+        assertThat(c).isSameAs(dbRule.getJdbi().open().getConnection());
     }
 }

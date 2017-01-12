@@ -18,7 +18,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class JpaPlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.registerRowMapper(new JpaMapperFactory());
+    public void customizeJdbi(Jdbi db) {
+        db.registerRowMapper(new JpaMapperFactory());
     }
 }

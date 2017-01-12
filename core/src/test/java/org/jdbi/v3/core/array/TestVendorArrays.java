@@ -24,17 +24,17 @@ import org.junit.Test;
 
 public class TestVendorArrays {
 
-    private void init(Jdbi jdbi) {
-        jdbi.registerArrayType(Integer.class, "int");
-        jdbi.registerArrayType(String.class, "varchar");
+    private void init(Jdbi db) {
+        db.registerArrayType(Integer.class, "int");
+        db.registerArrayType(String.class, "varchar");
     }
 
     @Test
     public void testHsqlDb() {
-        Jdbi jdbi = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID());
-        init(jdbi);
+        Jdbi db = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID());
+        init(db);
 
-        try (Handle handle = jdbi.open()) {
+        try (Handle handle = db.open()) {
             handle.execute("create table player_stats (" +
                     "name varchar(64) primary key, " +
                     "seasons varchar(36) array, " +

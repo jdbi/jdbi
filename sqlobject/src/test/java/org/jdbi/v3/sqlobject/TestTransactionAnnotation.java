@@ -40,7 +40,7 @@ import org.junit.rules.ExpectedException;
 public class TestTransactionAnnotation
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -50,7 +50,7 @@ public class TestTransactionAnnotation
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
     }
 
     @Test
@@ -78,7 +78,7 @@ public class TestTransactionAnnotation
     @Test
     public void testTxActuallyCommits() throws Exception
     {
-        Handle h2 = db.openHandle();
+        Handle h2 = this.dbRule.openHandle();
         Dao one = handle.attach(Dao.class);
         Dao two = h2.attach(Dao.class);
 
@@ -98,7 +98,7 @@ public class TestTransactionAnnotation
         final CountDownLatch inserted = new CountDownLatch(1);
         final CountDownLatch committed = new CountDownLatch(1);
 
-        final Other o = db.getJdbi().onDemand(Other.class);
+        final Other o = dbRule.getJdbi().onDemand(Other.class);
         Future<Void> rf = es.submit(() -> {
             try {
                 o.insert(inserted, 1, "diwaker");

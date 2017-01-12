@@ -33,11 +33,11 @@ import org.junit.Test;
 public class TestGetGeneratedKeysPostgres
 {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
+    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void setUp() throws Exception {
-        db.getJdbi().useHandle(handle -> {
+        dbRule.getJdbi().useHandle(handle -> {
             handle.execute("create sequence id_sequence INCREMENT 1 START WITH 100");
             handle.execute("create table if not exists something (name text, id int DEFAULT nextval('id_sequence'), CONSTRAINT something_id PRIMARY KEY ( id ));");
         });
@@ -45,7 +45,7 @@ public class TestGetGeneratedKeysPostgres
 
     @After
     public void tearDown() throws Exception {
-        db.getJdbi().useHandle(handle -> {
+        dbRule.getJdbi().useHandle(handle -> {
             handle.execute("drop table something");
             handle.execute("drop sequence id_sequence");
         });
@@ -66,7 +66,7 @@ public class TestGetGeneratedKeysPostgres
 
     @Test
     public void testFoo() throws Exception {
-        db.getJdbi().useExtension(DAO.class, dao -> {
+        dbRule.getJdbi().useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
@@ -77,7 +77,7 @@ public class TestGetGeneratedKeysPostgres
 
     @Test
     public void testBatch() throws Exception {
-        db.getJdbi().useExtension(DAO.class, dao -> {
+        dbRule.getJdbi().useExtension(DAO.class, dao -> {
             int[] ids = dao.insert(Arrays.asList("Burt", "Macklin"));
             assertThat(dao.findNameById(ids[0])).isEqualTo("Burt");
             assertThat(dao.findNameById(ids[1])).isEqualTo("Macklin");

@@ -43,7 +43,7 @@ public class BeanMapperTest {
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Mock
     ResultSet resultSet;
@@ -286,7 +286,7 @@ public class BeanMapperTest {
 
     @Test
     public void testColumnNameAnnotation() {
-        Handle handle = db.getSharedHandle();
+        Handle handle = dbRule.getSharedHandle();
         handle.registerRowMapper(BeanMapper.of(ColumnNameBean.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");

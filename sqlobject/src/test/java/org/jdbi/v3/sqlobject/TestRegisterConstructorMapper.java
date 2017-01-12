@@ -28,13 +28,13 @@ import org.junit.Test;
 public class TestRegisterConstructorMapper {
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Dao dao;
 
     @Before
     public void setUp() throws Exception {
-        dao = db.getSharedHandle().attach(Dao.class);
+        dao = dbRule.getSharedHandle().attach(Dao.class);
     }
 
     @Test

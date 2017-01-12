@@ -26,14 +26,14 @@ import org.junit.Test;
 public class TestStatements
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
     @Before
     public void setUp() throws Exception
     {
-        h = db.openHandle();
+        h = dbRule.openHandle();
     }
 
     @After

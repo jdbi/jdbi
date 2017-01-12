@@ -20,38 +20,38 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class DummyService implements Service
 {
-    private final Jdbi dbi;
+    private final Jdbi db;
 
-    public DummyService(Jdbi dbi)
+    public DummyService(Jdbi db)
     {
-        this.dbi = dbi;
+        this.db = db;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void inPropagationRequired(Callback c)
     {
-        c.call(dbi);
+        c.call(db);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void inRequiresNew(Callback c)
     {
-        c.call(dbi);
+        c.call(db);
     }
 
     @Override
     @Transactional(propagation = Propagation.NESTED)
     public void inNested(Callback c)
     {
-        c.call(dbi);
+        c.call(db);
     }
 
     @Override
     @Transactional(propagation=Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
     public void inRequiresNewReadUncommitted(Callback c)
     {
-        c.call(dbi);
+        c.call(db);
     }
 }

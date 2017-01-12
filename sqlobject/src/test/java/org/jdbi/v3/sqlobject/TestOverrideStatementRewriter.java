@@ -36,18 +36,18 @@ import org.junit.Test;
 public class TestOverrideStatementRewriter
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        Jdbi dbi = db.getJdbi();
+        Jdbi db = dbRule.getJdbi();
 
         // this is the default, but be explicit for sake of clarity in test
-        dbi.setStatementRewriter(new ColonPrefixStatementRewriter());
-        handle = dbi.open();
+        db.setStatementRewriter(new ColonPrefixStatementRewriter());
+        handle = db.open();
     }
 
     @Test

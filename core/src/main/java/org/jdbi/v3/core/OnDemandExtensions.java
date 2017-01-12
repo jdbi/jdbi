@@ -34,7 +34,7 @@ class OnDemandExtensions {
         }
     }
 
-    static <E> E create(Jdbi dbi, Class<E> extensionType) {
+    static <E> E create(Jdbi db, Class<E> extensionType) {
         ThreadLocal<E> threadExtension = new ThreadLocal<>();
 
         InvocationHandler handler = (proxy, method, args) -> {
@@ -54,7 +54,7 @@ class OnDemandExtensions {
                 if (threadExtension.get() != null) {
                     return method.invoke(threadExtension.get(), args);
                 }
-                return dbi.withExtension(extensionType, extension -> {
+                return db.withExtension(extensionType, extension -> {
                     threadExtension.set(extension);
                     try {
                         return method.invoke(extension, args);

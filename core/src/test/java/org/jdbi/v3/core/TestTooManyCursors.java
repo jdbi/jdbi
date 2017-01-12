@@ -36,16 +36,16 @@ import org.junit.Test;
 public class TestTooManyCursors
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testFoo() throws Exception
     {
-        ConnectionFactory cf = db.getConnectionFactory();
+        ConnectionFactory cf = dbRule.getConnectionFactory();
         ConnectionFactory errorCf = new ErrorProducingConnectionFactory(cf, 99);
-        Jdbi dbi = Jdbi.create(errorCf);
+        Jdbi db = Jdbi.create(errorCf);
 
-        dbi.useHandle(handle -> {
+        db.useHandle(handle -> {
             handle.setStatementBuilder(new DefaultStatementBuilder());
             for (int idx = 0; idx < 100; idx++) {
                 handle.createQuery("SELECT " + idx + " FROM something").mapTo(int.class).findFirst();

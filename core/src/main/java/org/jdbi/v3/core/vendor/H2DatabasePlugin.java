@@ -21,9 +21,9 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class H2DatabasePlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY);
-        jdbi.registerArrayType(UUID.class, "uuid");
-        jdbi.registerArrayType(int.class, "integer");
+    public void customizeJdbi(Jdbi db) {
+        db.setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY);
+        db.registerArrayType(UUID.class, "uuid");
+        db.registerArrayType(int.class, "integer");
     }
 }

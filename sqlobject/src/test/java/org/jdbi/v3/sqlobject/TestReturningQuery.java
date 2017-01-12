@@ -31,13 +31,13 @@ import org.junit.Test;
 public class TestReturningQuery
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
 
     }
 
@@ -46,7 +46,7 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
+        dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
             Something s = spiffy.findById(7).findOnly();
 
             assertThat(s.getName()).isEqualTo("Tim");
@@ -58,7 +58,7 @@ public class TestReturningQuery
     {
         handle.execute("insert into something (id, name) values (7, 'Tim')");
 
-        db.getJdbi().useExtension(Spiffy2.class, spiffy -> {
+        dbRule.getJdbi().useExtension(Spiffy2.class, spiffy -> {
             Something s = spiffy.findByIdWithExplicitMapper(7).findOnly();
 
             assertThat(s.getName()).isEqualTo("Tim");

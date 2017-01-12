@@ -30,7 +30,7 @@ import org.junit.rules.ExpectedException;
 public class TestClosingHandle
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -39,7 +39,7 @@ public class TestClosingHandle
 
     @Before
     public void setUp() throws Exception {
-        h = db.openHandle();
+        h = dbRule.openHandle();
     }
 
     @After

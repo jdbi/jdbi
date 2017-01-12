@@ -31,7 +31,7 @@ import org.junit.rules.ExpectedException;
 
 public class TestSqlMethodDecoratingAnnotations {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -42,7 +42,7 @@ public class TestSqlMethodDecoratingAnnotations {
 
     @Before
     public void setUp() throws Exception {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         invocations.get().clear();
     }
 

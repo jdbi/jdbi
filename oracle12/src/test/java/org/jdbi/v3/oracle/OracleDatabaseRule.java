@@ -40,21 +40,21 @@ public class OracleDatabaseRule extends ExternalResource implements DatabaseRule
     // schema installed by default in Oracle DB Developer VM
     String uri = "jdbc:oracle:thin:@//127.0.0.1:1521/orcl";
     private Connection con;
-    private Jdbi dbi;
+    private Jdbi db;
     private Handle sharedHandle;
     private boolean installPlugins = false;
     private final List<JdbiPlugin> plugins = new ArrayList<>();
 
     @Override
     protected void before() throws Throwable {
-        dbi = Jdbi.create(uri, "hr", "oracle");
+        db = Jdbi.create(uri, "hr", "oracle");
         if (installPlugins) {
-            dbi.installPlugins();
+            db.installPlugins();
         }
-        plugins.forEach(dbi::installPlugin);
+        plugins.forEach(db::installPlugin);
 
         try {
-            sharedHandle = dbi.open();
+            sharedHandle = db.open();
         }
         catch (Exception e) {
             assumeNoException("Oracle database not available", e);
@@ -93,7 +93,7 @@ public class OracleDatabaseRule extends ExternalResource implements DatabaseRule
 
     @Override
     public Jdbi getJdbi() {
-        return dbi;
+        return db;
     }
 
     public Handle getSharedHandle() {

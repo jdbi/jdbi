@@ -43,7 +43,7 @@ public class TestOnDemandMethodBehavior {
     @Mock
     private UselessDao mockDao;
 
-    private Jdbi dbi;
+    private Jdbi db;
 
     private UselessDao onDemand;
 
@@ -71,10 +71,10 @@ public class TestOnDemandMethodBehavior {
                 throw new UnsupportedOperationException();
             }
         };
-        dbi = Jdbi.create(ds);
-        dbi.registerExtension(mockExtensionFactory);
-        onDemand = dbi.onDemand(UselessDao.class);
-        anotherOnDemand = dbi.onDemand(UselessDao.class);
+        db = Jdbi.create(ds);
+        db.registerExtension(mockExtensionFactory);
+        onDemand = db.onDemand(UselessDao.class);
+        anotherOnDemand = db.onDemand(UselessDao.class);
     }
 
     @Test

@@ -46,7 +46,7 @@ import org.mockito.Mockito;
 public class TestSqlObject
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -56,7 +56,7 @@ public class TestSqlObject
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
     }
 
     @Test
@@ -106,7 +106,7 @@ public class TestSqlObject
     @Test
     public void testSimpleTransactionsSucceed() throws Exception
     {
-        SomethingDao dao = db.getJdbi().onDemand(SomethingDao.class);
+        SomethingDao dao = dbRule.getJdbi().onDemand(SomethingDao.class);
 
         dao.insertInSingleTransaction(10, "Linda");
     }
@@ -114,14 +114,14 @@ public class TestSqlObject
     @Test
     public void testTransactionAnnotationWorksOnInterfaceDefaultMethod() throws Exception
     {
-        Dao dao = db.getSharedHandle().attach(Dao.class);
+        Dao dao = dbRule.getSharedHandle().attach(Dao.class);
         assertThat(dao.doesTransactionAnnotationWork()).isTrue();
     }
 
     @Test
     public void testNestedTransactionsCollapseIntoSingleTransaction()
     {
-        Handle handle = Mockito.spy(db.getSharedHandle());
+        Handle handle = Mockito.spy(dbRule.getSharedHandle());
         Dao dao = handle.attach(Dao.class);
 
         dao.threeNestedTransactions();
@@ -135,7 +135,7 @@ public class TestSqlObject
 
     @Test
     public void testNestedTransactionWithSameIsolation() {
-        Handle handle = Mockito.spy(db.getSharedHandle());
+        Handle handle = Mockito.spy(dbRule.getSharedHandle());
         Dao dao = handle.attach(Dao.class);
 
         dao.nestedTransactionWithSameIsolation();
@@ -145,7 +145,7 @@ public class TestSqlObject
 
     @Test(expected = TransactionException.class)
     public void testNestedTransactionWithDifferentIsoltion() {
-        Handle handle = Mockito.spy(db.getSharedHandle());
+        Handle handle = Mockito.spy(dbRule.getSharedHandle());
         Dao dao = handle.attach(Dao.class);
 
         dao.nestedTransactionWithDifferentIsolation();
@@ -153,7 +153,7 @@ public class TestSqlObject
 
     @Test
     public void testSqlUpdateWithTransaction() {
-        Handle handle = Mockito.spy(db.getSharedHandle());
+        Handle handle = Mockito.spy(dbRule.getSharedHandle());
         Dao dao = handle.attach(Dao.class);
 
         dao.insert(1, "foo");

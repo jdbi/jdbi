@@ -43,7 +43,7 @@ public class FieldMapperTest {
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Mock
     ResultSet resultSet;
@@ -221,7 +221,7 @@ public class FieldMapperTest {
 
     @Test
     public void testColumnNameAnnotation() {
-        Handle handle = db.getSharedHandle();
+        Handle handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
         ColumnNameThing thing = handle.createQuery("select * from something")

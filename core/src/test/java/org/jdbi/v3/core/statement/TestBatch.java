@@ -20,19 +20,18 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.statement.Batch;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TestBatch
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testBasics() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
 
         Batch b = h.createBatch();
         b.add("insert into something (id, name) values (0, 'Keith')");

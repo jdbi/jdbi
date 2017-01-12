@@ -38,12 +38,12 @@ import org.junit.Test;
 public class TestRegisterRowMapperFactory
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testSimple() throws Exception
     {
-        FooDao fooDao = db.getJdbi().onDemand(FooDao.class);
+        FooDao fooDao = dbRule.getJdbi().onDemand(FooDao.class);
 
         List<Foo> foos = fooDao.select();
         assertThat(foos).isEmpty();

@@ -29,12 +29,12 @@ import com.google.common.collect.ImmutableMap;
 public class TestPreparedBatch
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testBindBatch() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1).bind("name", "Eric").add();
@@ -50,7 +50,7 @@ public class TestPreparedBatch
     @Test
     public void testBigishBatch() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         int count = 100;
@@ -69,7 +69,7 @@ public class TestPreparedBatch
     @Test
     public void testBindProperties() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.add(0, "Keith");
@@ -86,7 +86,7 @@ public class TestPreparedBatch
     @Test
     public void testBindMaps() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.add(ImmutableMap.of("id", 0, "name", "Keith"));
@@ -103,7 +103,7 @@ public class TestPreparedBatch
     @Test
     public void testMixedModeBatch() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         Map<String, Object> one = ImmutableMap.of("id", 0);
@@ -117,7 +117,7 @@ public class TestPreparedBatch
     @Test
     public void testPositionalBinding() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind(0, 0).bind(1, "Keith").add().execute();
@@ -129,7 +129,7 @@ public class TestPreparedBatch
     @Test
     public void testForgotFinalAdd() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bind("id", 1);

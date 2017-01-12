@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class TestBindBean {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
@@ -35,7 +35,7 @@ public class TestBindBean {
 
     @Before
     public void setUp() {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
 
         dao = handle.attach(Dao.class);
     }

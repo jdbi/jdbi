@@ -35,15 +35,15 @@ import org.junit.rules.ExpectedException;
 public class TestCreateSqlObjectAnnotation
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        db.getJdbi().registerRowMapper(new SomethingMapper());
-        handle = db.getSharedHandle();
+        dbRule.getJdbi().registerRowMapper(new SomethingMapper());
+        handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }
 
@@ -68,7 +68,7 @@ public class TestCreateSqlObjectAnnotation
     @Test
     public void testTransactionPropagates() throws Exception
     {
-        Foo foo = db.getJdbi().open().attach(Foo.class);
+        Foo foo = dbRule.getJdbi().open().attach(Foo.class);
 
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> foo.insertAndFail(1, "Jeff"));
 
@@ -118,7 +118,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate " +
                 "so should return void, boolean, or Number but is returning: java.util.List<java.lang.String>");
 
-        db.getJdbi().open().attach(BogusSqlUpdateDao.class);
+        dbRule.getJdbi().open().attach(BogusSqlUpdateDao.class);
     }
 
     public interface BogusSqlUpdateDao {
@@ -132,7 +132,7 @@ public class TestCreateSqlObjectAnnotation
         expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch " +
                 "so should return void or int[] but is returning: int");
 
-        db.getJdbi().open().attach(BogusSqlBatchDao.class);
+        dbRule.getJdbi().open().attach(BogusSqlBatchDao.class);
     }
 
     public interface BogusSqlBatchDao {

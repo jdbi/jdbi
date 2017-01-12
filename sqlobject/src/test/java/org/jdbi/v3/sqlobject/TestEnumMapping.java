@@ -28,12 +28,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestEnumMapping
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testEnums() throws Exception
     {
-        Spiffy spiffy = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy spiffy = dbRule.getSharedHandle().attach(Spiffy.class);
 
         int bobId = spiffy.addCoolName(CoolName.BOB);
         int joeId = spiffy.addCoolName(CoolName.JOE);

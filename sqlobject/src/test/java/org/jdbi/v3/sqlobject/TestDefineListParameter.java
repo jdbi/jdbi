@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestDefineListParameter
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private List<String> testColumns;
@@ -46,7 +46,7 @@ public class TestDefineListParameter
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.execute("create table test (id identity primary key, name varchar(50))");
         handle.execute("create table testNullable (id identity primary key, name varchar(50) null)");
         testColumns = new ArrayList<>();

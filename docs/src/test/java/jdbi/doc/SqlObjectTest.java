@@ -20,7 +20,7 @@ import org.junit.Test;
 public class SqlObjectTest
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     // tag::defn[]
     @RegisterRowMapper(SomethingMapper.class)
@@ -39,7 +39,7 @@ public class SqlObjectTest
     @Before
     public void setUp()
     {
-        final Handle handle = db.getSharedHandle();
+        final Handle handle = dbRule.getSharedHandle();
         dao = handle.attach(SomethingDao.class);
     }
 

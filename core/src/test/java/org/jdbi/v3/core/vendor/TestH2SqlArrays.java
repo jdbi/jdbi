@@ -41,13 +41,13 @@ public class TestH2SqlArrays {
     private static final String U_INSERT = "INSERT INTO uuids VALUES(:u)";
 
     @ClassRule
-    public static H2DatabaseRule db = new H2DatabaseRule().withPlugin(new H2DatabasePlugin());
+    public static H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new H2DatabasePlugin());
 
     private Handle h;
 
     @Before
     public void setUp() {
-        h = db.getSharedHandle();
+        h = dbRule.getSharedHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
             th.execute("CREATE TABLE uuids (u ARRAY)");

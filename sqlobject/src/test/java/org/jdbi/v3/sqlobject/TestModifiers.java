@@ -39,13 +39,13 @@ import org.junit.Test;
 public class TestModifiers
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }
 
@@ -125,8 +125,8 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnMethod() throws Exception
     {
-        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
-            db.getJdbi().useExtension(IsoLevels.class, iso -> {
+        dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
+            dbRule.getJdbi().useExtension(IsoLevels.class, iso -> {
                 spiffy.begin();
                 spiffy.insert(1, "Tom");
 
@@ -144,8 +144,8 @@ public class TestModifiers
     @Test
     public void testIsolationLevelOnParam() throws Exception
     {
-        db.getJdbi().useExtension(Spiffy.class, spiffy -> {
-            db.getJdbi().useExtension(IsoLevels.class, iso -> {
+        dbRule.getJdbi().useExtension(Spiffy.class, spiffy -> {
+            dbRule.getJdbi().useExtension(IsoLevels.class, iso -> {
                 spiffy.begin();
                 spiffy.insert(1, "Tom");
 

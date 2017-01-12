@@ -34,7 +34,7 @@ import org.junit.Test;
 
 public class TestMixinInterfaces
 {
-    private Jdbi dbi;
+    private Jdbi db;
     private Handle handle;
 
     @Before
@@ -42,9 +42,9 @@ public class TestMixinInterfaces
     {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = Jdbi.create(ds);
-        dbi.installPlugin(new SqlObjectPlugin());
-        handle = dbi.open();
+        db = Jdbi.create(ds);
+        db.installPlugin(new SqlObjectPlugin());
+        handle = db.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
     }
@@ -135,7 +135,7 @@ public class TestMixinInterfaces
     public void testTransactionIsolationActuallyHappens() throws Exception
     {
         TransactionStuff txl = handle.attach(TransactionStuff.class);
-        dbi.useExtension(TransactionStuff.class, tx2 -> {
+        db.useExtension(TransactionStuff.class, tx2 -> {
             txl.insert(8, "Mike");
 
             txl.begin();
@@ -153,8 +153,8 @@ public class TestMixinInterfaces
     @Test
     public void testJustJdbiTransactions() throws Exception
     {
-        try (Handle h1 = dbi.open();
-             Handle h2 = dbi.open()) {
+        try (Handle h1 = db.open();
+             Handle h2 = db.open()) {
             h1.execute("insert into something (id, name) values (8, 'Mike')");
 
             h1.begin();

@@ -29,7 +29,7 @@ import com.opentable.db.postgres.junit.PreparedDbRule;
 
 public class PgDatabaseRule extends ExternalResource implements DatabaseRule
 {
-    private Jdbi jdbi;
+    private Jdbi db;
     private final List<JdbiPlugin> plugins = new ArrayList<>();
     private JdbiPreparer preparer;
     private PreparedDbRule innerRule;
@@ -46,20 +46,20 @@ public class PgDatabaseRule extends ExternalResource implements DatabaseRule
     @Override
     protected void before() throws Throwable
     {
-        jdbi = Jdbi.create(innerRule.getTestDatabase());
-        plugins.forEach(jdbi::installPlugin);
+        db = Jdbi.create(innerRule.getTestDatabase());
+        plugins.forEach(db::installPlugin);
     }
 
     @Override
     protected void after()
     {
-        jdbi = null;
+        db = null;
     }
 
     @Override
     public Jdbi getJdbi()
     {
-        return jdbi;
+        return db;
     }
 
     public Handle openHandle()

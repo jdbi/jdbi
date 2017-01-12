@@ -42,15 +42,15 @@ public class BindListNullTest
     private static Handle handle;
 
     @ClassRule
-    public static final H2DatabaseRule db = new H2DatabaseRule();
+    public static final H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @BeforeClass
     public static void init()
     {
-        final Jdbi dbi = db.getJdbi();
-        dbi.registerRowMapper(new SomethingMapper());
-        dbi.installPlugin(new SqlObjectPlugin());
-        handle = dbi.open();
+        final Jdbi db = dbRule.getJdbi();
+        db.registerRowMapper(new SomethingMapper());
+        db.installPlugin(new SqlObjectPlugin());
+        handle = db.open();
 
         handle.execute("insert into something(id, name) values(1, null)");
         handle.execute("insert into something(id, name) values(2, null)");

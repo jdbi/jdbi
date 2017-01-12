@@ -42,19 +42,19 @@ public class TestTimestamped {
     public PersonDAO personDAO;
 
     @Rule
-    public H2DatabaseRule h2DatabaseRule = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Before
     public void beforeEach() {
-        h2DatabaseRule.getJdbi().installPlugin(new SqlObjectPlugin());
-        personDAO = h2DatabaseRule.getJdbi().onDemand(PersonDAO.class);
+        dbRule.getJdbi().installPlugin(new SqlObjectPlugin());
+        personDAO = dbRule.getJdbi().onDemand(PersonDAO.class);
         personDAO.createTable();
     }
 
     @Test
     public void shouldInsertCreatedAndModifiedFields() {
         // This is one way we can get the binding information of the executed query
-        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
+        dbRule.getJdbi().setTimingCollector((l, statementContext) -> {
             assertThat(statementContext.getBinding().findForName("now")).isPresent();
         });
 
@@ -63,7 +63,7 @@ public class TestTimestamped {
         personDAO.insert(p);
 
         // Clear the timing colletor
-        h2DatabaseRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
+        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
         Person found = personDAO.get(1);
 
@@ -77,14 +77,14 @@ public class TestTimestamped {
 
         Person p = new Person("John", "Phiri");
         p.setId(1);
-        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
+        dbRule.getJdbi().setTimingCollector((l, statementContext) -> {
             assertThat(statementContext.getBinding().findForName("createdAt")).isPresent();
         });
 
 
         personDAO.insertWithCustomTimestampFields(p);
 
-        h2DatabaseRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
+        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
         Person fetched = personDAO.get(1);
 
@@ -104,13 +104,13 @@ public class TestTimestamped {
 
         p.setId(3);
 
-        h2DatabaseRule.getJdbi().setTimingCollector((l, statementContext) -> {
+        dbRule.getJdbi().setTimingCollector((l, statementContext) -> {
             assertThat(statementContext.getBinding().findForName("now")).isPresent();
         });
 
         personDAO.insert(p);
 
-        h2DatabaseRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
+        dbRule.getJdbi().setTimingCollector(TimingCollector.NOP_TIMING_COLLECTOR);
 
         Person personAfterCreate = personDAO.get(3);
 

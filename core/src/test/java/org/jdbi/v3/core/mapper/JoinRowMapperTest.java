@@ -31,14 +31,14 @@ import com.google.common.collect.Multimap;
 public class JoinRowMapperTest
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle h;
 
     @Before
     public void setUp()
     {
-        h = db.getSharedHandle();
+        h = dbRule.getSharedHandle();
         h.execute("CREATE TABLE user (" +
                     "uid INTEGER NOT NULL," +
                     "name VARCHAR NOT NULL" +

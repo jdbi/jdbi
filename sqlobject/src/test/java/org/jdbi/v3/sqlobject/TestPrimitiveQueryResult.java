@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestPrimitiveQueryResult
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -35,7 +35,7 @@ public class TestPrimitiveQueryResult
 
     @Before
     public void setUp() {
-      dao = db.getSharedHandle().attach(PrimitiveDao.class);
+      dao = dbRule.getSharedHandle().attach(PrimitiveDao.class);
       dao.insert(1, "foo");
     }
 

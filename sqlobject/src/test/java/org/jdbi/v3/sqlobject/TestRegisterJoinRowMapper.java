@@ -34,12 +34,12 @@ import com.google.common.collect.Multimap;
 public class TestRegisterJoinRowMapper
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Before
     public void setUp() {
         JoinRowMapperTest t = new JoinRowMapperTest();
-        t.db = db;
+        t.dbRule = dbRule;
         t.setUp();
     }
 
@@ -47,7 +47,7 @@ public class TestRegisterJoinRowMapper
     @Test
     public void testSqlObjectJoinRow()
     {
-        UserArticleDao dao = db.getSharedHandle().attach(UserArticleDao.class);
+        UserArticleDao dao = dbRule.getSharedHandle().attach(UserArticleDao.class);
         Multimap<User, Article> joined = HashMultimap.create();
         dao.getAuthorship()
             .forEach(jr -> joined.put(jr.get(User.class), jr.get(Article.class)));

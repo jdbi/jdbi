@@ -28,16 +28,16 @@ import com.google.common.collect.ImmutableList;
 
 public class TestGuavaMappers {
     @Rule
-    public PgDatabaseRule db = new PgDatabaseRule().withPlugin(new GuavaPlugin());
+    public PgDatabaseRule dbRule = new PgDatabaseRule().withPlugin(new GuavaPlugin());
 
     private Handle h;
 
     @Before
     public void setUp() {
-        db.getJdbi()
+        dbRule.getJdbi()
                 .registerArrayType(Integer.class, "integer")
                 .registerArrayType(UUID.class, "uuid");
-        h = db.openHandle();
+        h = dbRule.openHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS arrays");
             th.execute("CREATE TABLE arrays (u UUID[], i INT[])");

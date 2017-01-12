@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TestTransactions
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     int begin, commit, rollback;
 
@@ -63,8 +63,8 @@ public class TestTransactions
     @Before
     public void setUp()
     {
-        db.getJdbi().setTransactionHandler(txSpy);
-        h = db.openHandle();
+        dbRule.getJdbi().setTransactionHandler(txSpy);
+        h = dbRule.openHandle();
     }
 
     @After

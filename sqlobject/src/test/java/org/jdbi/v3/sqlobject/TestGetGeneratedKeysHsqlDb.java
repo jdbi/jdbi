@@ -31,13 +31,13 @@ import org.junit.Test;
 
 public class TestGetGeneratedKeysHsqlDb {
 
-    private Jdbi dbi;
+    private Jdbi db;
 
     @Before
     public void setUp() throws Exception {
-        dbi = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
+        db = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
                 .installPlugin(new SqlObjectPlugin());
-        dbi.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
+        db.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
     }
 
     public interface DAO {
@@ -55,7 +55,7 @@ public class TestGetGeneratedKeysHsqlDb {
 
     @Test
     public void testFoo() throws Exception {
-        dbi.useExtension(DAO.class, dao -> {
+        db.useExtension(DAO.class, dao -> {
             long brian_id = dao.insert("Brian");
             long keith_id = dao.insert("Keith");
 
@@ -66,7 +66,7 @@ public class TestGetGeneratedKeysHsqlDb {
 
     @Test
     public void testBatch() throws Exception {
-        dbi.useExtension(DAO.class, dao -> {
+        db.useExtension(DAO.class, dao -> {
             int[] ids = dao.insert(Arrays.asList("Burt", "Macklin"));
             assertThat(dao.findNameById(ids[0])).isEqualTo("Burt");
             assertThat(dao.findNameById(ids[1])).isEqualTo("Macklin");

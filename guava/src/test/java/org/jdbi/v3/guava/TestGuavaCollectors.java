@@ -32,7 +32,7 @@ import org.junit.Test;
 
 public class TestGuavaCollectors {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugins();
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugins();
 
     private Collection<Integer> expected;
 
@@ -40,7 +40,7 @@ public class TestGuavaCollectors {
     public void addData() {
         ImmutableList.Builder<Integer> expected = ImmutableList.builder();
         for (int i = 0; i < 10; i++) {
-            db.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i);
+            dbRule.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i);
             expected.add(i);
         }
         this.expected = expected.build();
@@ -48,7 +48,7 @@ public class TestGuavaCollectors {
 
     @Test
     public void immutableList() {
-        ImmutableList<Integer> list = db.getSharedHandle().createQuery("select intValue from something")
+        ImmutableList<Integer> list = dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
                 .collect(GuavaCollectors.toImmutableList());
 
@@ -57,7 +57,7 @@ public class TestGuavaCollectors {
 
     @Test
     public void immutableSet() {
-        ImmutableSet<Integer> set = db.getSharedHandle().createQuery("select intValue from something")
+        ImmutableSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
                 .collect(GuavaCollectors.toImmutableSet());
 
@@ -66,7 +66,7 @@ public class TestGuavaCollectors {
 
     @Test
     public void immutableSortedSet() {
-        ImmutableSortedSet<Integer> set = db.getSharedHandle().createQuery("select intValue from something")
+        ImmutableSortedSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
                 .collect(GuavaCollectors.toImmutableSortedSet());
 
@@ -76,7 +76,7 @@ public class TestGuavaCollectors {
     @Test
     public void immutableSortedSetWithComparator() {
         Comparator<Integer> comparator = Comparator.<Integer>naturalOrder().reversed();
-        ImmutableSortedSet<Integer> set = db.getSharedHandle().createQuery("select intValue from something")
+        ImmutableSortedSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
                 .collect(GuavaCollectors.toImmutableSortedSet(comparator));
 
@@ -87,7 +87,7 @@ public class TestGuavaCollectors {
 
     @Test
     public void optionalPresent() {
-        Optional<Integer> shouldBePresent = db.getSharedHandle().createQuery("select intValue from something where intValue = 1")
+        Optional<Integer> shouldBePresent = dbRule.getSharedHandle().createQuery("select intValue from something where intValue = 1")
                 .mapTo(int.class)
                 .collect(GuavaCollectors.toOptional());
         assertThat(shouldBePresent).contains(1);
@@ -95,7 +95,7 @@ public class TestGuavaCollectors {
 
     @Test
     public void optionalAbsent() {
-        Optional<Integer> shouldBeAbsent = db.getSharedHandle().createQuery("select intValue from something where intValue = 100")
+        Optional<Integer> shouldBeAbsent = dbRule.getSharedHandle().createQuery("select intValue from something where intValue = 100")
                 .mapTo(int.class)
                 .collect(GuavaCollectors.toOptional());
         assertThat(shouldBeAbsent).isAbsent();
@@ -103,7 +103,7 @@ public class TestGuavaCollectors {
 
     @Test(expected = IllegalStateException.class)
     public void optionalMultiple() {
-        db.getSharedHandle().createQuery("select intValue from something")
+        dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
                 .collect(GuavaCollectors.toOptional());
     }

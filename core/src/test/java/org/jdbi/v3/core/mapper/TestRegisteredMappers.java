@@ -25,20 +25,20 @@ import org.junit.Test;
 public class TestRegisteredMappers
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
-    private Jdbi dbi;
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
+    private Jdbi db;
 
     @Before
     public void setUp() throws Exception
     {
-        dbi = db.getJdbi();
+        db = dbRule.getJdbi();
     }
 
     @Test
     public void testRegisterInferredOnDBI() throws Exception
     {
-        dbi.registerRowMapper(new SomethingMapper());
-        Something sam = dbi.withHandle(handle1 -> {
+        db.registerRowMapper(new SomethingMapper());
+        Something sam = db.withHandle(handle1 -> {
             handle1.insert("insert into something (id, name) values (18, 'Sam')");
 
             return handle1.createQuery("select id, name from something where id = :id")

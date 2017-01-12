@@ -29,13 +29,13 @@ import org.junit.Test;
 public class TestBindAutomaticNames
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @Before
     public void setUp() throws Exception
     {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (7, 'Tim')");
     }
 
@@ -50,7 +50,7 @@ public class TestBindAutomaticNames
     @Test
     public void testNoAnnotation() throws Exception
     {
-        Spiffy spiffy = db.getSharedHandle().attach(Spiffy.class);
+        Spiffy spiffy = dbRule.getSharedHandle().attach(Spiffy.class);
         Something s = spiffy.findByIdNoAnnotation(7);
         assertThat(s.getName()).isEqualTo("Tim");
     }

@@ -29,13 +29,13 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class TestBindBeanList {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     private Handle handle;
 
     @Before
     public void setUp() {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.registerRowMapper(FieldMapper.of(Thing.class));
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 1, "foo1", "bar1", "baz1");

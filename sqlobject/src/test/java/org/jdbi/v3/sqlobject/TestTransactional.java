@@ -41,7 +41,7 @@ import com.google.common.collect.ImmutableSet;
 
 public class TestTransactional
 {
-    private Jdbi    dbi;
+    private Jdbi db;
     private Handle handle;
     private final AtomicBoolean inTransaction = new AtomicBoolean();
 
@@ -55,7 +55,7 @@ public class TestTransactional
     @Test
     public void testDoublyTransactional() throws Exception
     {
-        final TheBasics dao = dbi.onDemand(TheBasics.class);
+        final TheBasics dao = db.onDemand(TheBasics.class);
         dao.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactional -> {
             transactional.insert(new Something(1, "2"));
             inTransaction.set(true);
@@ -71,7 +71,7 @@ public class TestTransactional
         // begin and the connection would just close.
         // JDBI should identify this scenario and throw an exception informing the user that they're not managing their
         // transactions correctly.
-        dbi.onDemand(Transactional.class).begin();
+        db.onDemand(Transactional.class).begin();
     }
 
     @Before
@@ -89,11 +89,11 @@ public class TestTransactional
         };
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
-        dbi = Jdbi.create(ds);
-        dbi.installPlugin(new SqlObjectPlugin());
-        dbi.registerRowMapper(new SomethingMapper());
+        db = Jdbi.create(ds);
+        db.installPlugin(new SqlObjectPlugin());
+        db.registerRowMapper(new SomethingMapper());
 
-        handle = dbi.open();
+        handle = db.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
     }

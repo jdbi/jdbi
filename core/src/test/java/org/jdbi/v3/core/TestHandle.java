@@ -22,12 +22,12 @@ import org.junit.Test;
 public class TestHandle
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
     public void testInTransaction() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
 
         String value = h.inTransaction(handle -> {
             handle.insert("insert into something (id, name) values (1, 'Brian')");
@@ -39,11 +39,11 @@ public class TestHandle
     @Test
     public void testSillyNumberOfCallbacks() throws Exception
     {
-        try (Handle h = db.openHandle()) {
+        try (Handle h = dbRule.openHandle()) {
             h.insert("insert into something (id, name) values (1, 'Keith')");
         }
 
-        String value = db.getJdbi().withHandle(handle ->
+        String value = dbRule.getJdbi().withHandle(handle ->
                 handle.inTransaction(handle1 ->
                         handle1.createQuery("select name from something where id = 1").mapTo(String.class).findOnly()));
 
@@ -54,7 +54,7 @@ public class TestHandle
     @Test
     public void testIsClosed() throws Exception
     {
-        Handle h = db.openHandle();
+        Handle h = dbRule.openHandle();
         assertThat(h.isClosed()).isFalse();
         h.close();
         assertThat(h.isClosed()).isTrue();

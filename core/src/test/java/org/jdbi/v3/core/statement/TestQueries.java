@@ -41,7 +41,7 @@ import com.google.common.collect.Maps;
 public class TestQueries
 {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule();
+    public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -51,7 +51,7 @@ public class TestQueries
     @Before
     public void setUp() throws Exception
     {
-        h = db.openHandle();
+        h = dbRule.openHandle();
     }
 
     @After

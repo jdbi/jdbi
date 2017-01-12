@@ -44,7 +44,7 @@ public class TestPluginInstall {
         public JdbiPlugin pluginA() {
             return new JdbiPlugin() {
                 @Override
-                public void customizeJdbi(Jdbi jdbi) {
+                public void customizeJdbi(Jdbi db) {
                     pluginACalled = true;
                 }
             };
@@ -54,7 +54,7 @@ public class TestPluginInstall {
         public JdbiPlugin pluginB() {
             return new JdbiPlugin() {
                 @Override
-                public void customizeJdbi(Jdbi jdbi) {
+                public void customizeJdbi(Jdbi db) {
                     pluginBCalled = true;
                 }
             };
@@ -65,11 +65,11 @@ public class TestPluginInstall {
     Config config;
 
     @Autowired
-    Jdbi dbi;
+    Jdbi db;
 
     @Test
     public void testPluginsInstalled() {
-        assertThat(dbi).isNotNull();
+        assertThat(db).isNotNull();
         assertThat(config.pluginACalled).isTrue();
         assertThat(config.pluginBCalled).isTrue();
     }

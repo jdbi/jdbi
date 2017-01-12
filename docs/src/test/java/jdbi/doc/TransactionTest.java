@@ -46,18 +46,18 @@ import jdbi.doc.ResultsTest.User;
 public class TransactionTest {
 
     @ClassRule
-    public static PostgresDbRule db = new PostgresDbRule();
+    public static PostgresDbRule dbRule = new PostgresDbRule();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     private Handle handle;
-    private Jdbi jdbi;
+    private Jdbi db;
 
     @Before
     public void getHandle() {
-        jdbi = db.getJdbi();
-        handle = db.getSharedHandle();
+        db = dbRule.getJdbi();
+        handle = dbRule.getSharedHandle();
         handle.registerRowMapper(ConstructorMapper.of(User.class));
     }
 
@@ -171,12 +171,12 @@ public class TransactionTest {
     }
 
     static class SumAndInsert implements Callable<Integer>, HandleCallback<Integer, Exception> {
-        private final Jdbi jdbi;
+        private final Jdbi db;
         private final CountDownLatch latch;
 
-        public SumAndInsert(CountDownLatch latch, Jdbi jdbi) {
+        public SumAndInsert(CountDownLatch latch, Jdbi db) {
             this.latch = latch;
-            this.jdbi = jdbi;
+            this.db = db;
         }
 
         @Override
@@ -196,14 +196,14 @@ public class TransactionTest {
         @Override
         public Integer call() throws Exception {
             // Get a connection and run the transaction
-            return jdbi.inTransaction(TransactionIsolationLevel.SERIALIZABLE, this);
+            return db.inTransaction(TransactionIsolationLevel.SERIALIZABLE, this);
         }
     }
 
     @Test
     public void serializableTransaction() throws Exception {
         // Automatically rerun transactions
-        jdbi.setTransactionHandler(new SerializableTransactionRunner());
+        db.setTransactionHandler(new SerializableTransactionRunner());
 
         // Set up some values
         IntListDao dao = handle.attach(IntListDao.class);
@@ -215,8 +215,8 @@ public class TransactionTest {
         CountDownLatch latch = new CountDownLatch(2);
 
         // Both of these would calculate 10 + 20 = 30, but that violates serialization!
-        SumAndInsert txn1 = new SumAndInsert(latch, jdbi);
-        SumAndInsert txn2 = new SumAndInsert(latch, jdbi);
+        SumAndInsert txn1 = new SumAndInsert(latch, db);
+        SumAndInsert txn2 = new SumAndInsert(latch, db);
 
         Future<Integer> result1 = executor.submit(txn1);
         Future<Integer> result2 = executor.submit(txn2);

@@ -32,7 +32,7 @@ import org.junit.Test;
 
 public class TestReentrancy
 {
-    private Jdbi    dbi;
+    private Jdbi db;
     private Handle handle;
 
     public interface TheBasics extends SqlObject
@@ -44,7 +44,7 @@ public class TestReentrancy
     @Test(expected = UnableToCreateStatementException.class)
     public void testGetHandleProvidesSeperateHandle() throws Exception
     {
-        final TheBasics dao = dbi.onDemand(TheBasics.class);
+        final TheBasics dao = db.onDemand(TheBasics.class);
         Handle h = dao.getHandle();
 
         h.execute("insert into something (id, name) values (1, 'Stephen')");
@@ -53,7 +53,7 @@ public class TestReentrancy
     @Test
     public void testHandleReentrant() throws Exception
     {
-        final TheBasics dao = dbi.onDemand(TheBasics.class);
+        final TheBasics dao = db.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
             dao.insert(new Something(7, "Martin"));
@@ -67,7 +67,7 @@ public class TestReentrancy
     @Test
     public void testTxnReentrant() throws Exception
     {
-        final TheBasics dao = dbi.onDemand(TheBasics.class);
+        final TheBasics dao = db.onDemand(TheBasics.class);
 
         dao.withHandle(handle1 -> {
             handle1.useTransaction(h -> {
@@ -93,11 +93,11 @@ public class TestReentrancy
         // in MVCC mode h2 doesn't shut down immediately on all connections closed, so need random db name
         ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
 
-        dbi = Jdbi.create(ds);
-        dbi.installPlugin(new SqlObjectPlugin());
-        dbi.registerRowMapper(new SomethingMapper());
+        db = Jdbi.create(ds);
+        db.installPlugin(new SqlObjectPlugin());
+        db.registerRowMapper(new SomethingMapper());
 
-        handle = dbi.open();
+        handle = db.open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
     }

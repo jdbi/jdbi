@@ -30,13 +30,13 @@ import org.junit.Test;
 
 public class TestUseClasspathSqlLocator {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
     @Before
     public void setUp() throws Exception {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         handle.execute("insert into something (id, name) values (6, 'Martin')");
     }
 

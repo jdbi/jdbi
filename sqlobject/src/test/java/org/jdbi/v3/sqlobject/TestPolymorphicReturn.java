@@ -25,14 +25,14 @@ import org.junit.Test;
 
 public class TestPolymorphicReturn {
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private SheepDao dao;
 
     @Before
     public void makeSheep() {
-        db.getSharedHandle().execute("insert into something(name, intValue) values('Fluffy', 5)");
-        dao = db.getSharedHandle().attach(SheepDao.class);
+        dbRule.getSharedHandle().execute("insert into something(name, intValue) values('Fluffy', 5)");
+        dao = dbRule.getSharedHandle().attach(SheepDao.class);
     }
 
     @Test

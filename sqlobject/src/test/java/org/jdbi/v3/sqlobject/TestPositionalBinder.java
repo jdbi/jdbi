@@ -32,14 +32,14 @@ import org.junit.Test;
 public class TestPositionalBinder {
 
     @Rule
-    public H2DatabaseRule db = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private SomethingDao somethingDao;
 
     @Before
     public void setUp() throws Exception {
-        handle = db.getSharedHandle();
+        handle = dbRule.getSharedHandle();
         somethingDao = handle.attach(SomethingDao.class);
 
         handle.execute("drop table something");

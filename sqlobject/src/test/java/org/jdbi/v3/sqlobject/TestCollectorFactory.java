@@ -37,11 +37,11 @@ import org.junit.Test;
 public class TestCollectorFactory {
 
     @Rule
-    public H2DatabaseRule h2 = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testExists() throws Exception {
-        Handle h = h2.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -54,7 +54,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testDoesNotExist() throws Exception {
-        Handle h = h2.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Coda')");
 
         Optional<String> rs = h.createQuery("select name from something where id = :id")
@@ -67,7 +67,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testOnList() throws Exception {
-        Handle h = h2.getSharedHandle();
+        Handle h = dbRule.getSharedHandle();
 
         h.execute("insert into something (id, name) values (1, 'Coda')");
         h.execute("insert into something (id, name) values (2, 'Brian')");
@@ -81,7 +81,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObject() throws Exception {
-        Dao dao = h2.getJdbi().onDemand(Dao.class);
+        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
@@ -91,7 +91,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObjectSingleValue() throws Exception {
-        Dao dao = h2.getJdbi().onDemand(Dao.class);
+        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
@@ -107,7 +107,7 @@ public class TestCollectorFactory {
 
     @Test
     public void testWithSqlObjectSetReturnValue() throws Exception {
-        Dao dao = h2.getJdbi().onDemand(Dao.class);
+        Dao dao = dbRule.getJdbi().onDemand(Dao.class);
         dao.insert(new Something(1, "Coda"));
         dao.insert(new Something(2, "Brian"));
 
