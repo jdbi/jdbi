@@ -76,7 +76,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public final Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
         if (!isInstance.test(type, value)) {
             return Optional.empty();
         }
