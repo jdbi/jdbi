@@ -34,7 +34,18 @@ public class TestDuration {
 
     @Before
     public void setUp() throws Exception {
-        handle = IntervalTestCommon.setUp(postgresDbRule);
+        handle = postgresDbRule.getSharedHandle();
+        handle.useTransaction(h -> {
+            h.execute("drop table if exists intervals");
+            h.execute("create table intervals(id int not null, foo interval)");
+
+            // Can be durations.
+            h.execute("insert into intervals(id, foo) values(1, interval '1 day 15:00:00')");
+            h.execute("insert into intervals(id, foo) values(2, interval '40 days 22 minutes')");
+
+            // Can't be.
+            h.execute("insert into intervals(id, foo) values(3, interval '10 years -3 months 100 seconds')");
+        });
     }
 
     @Test
@@ -51,9 +62,9 @@ public class TestDuration {
 
     @Test
     public void testTrivialDuration() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)",6, Duration.ZERO);
+        handle.insert("insert into intervals(id, foo) values(?, ?)",4, Duration.ZERO);
         Duration d = handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 6)
+                .bind(0, 4)
                 .mapTo(Duration.class)
                 .findOnly();
         assertThat(d.isZero());
@@ -61,9 +72,9 @@ public class TestDuration {
 
     @Test
     public void testHandlesNulls() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)",7, null);
+        handle.insert("insert into intervals(id, foo) values(?, ?)", 5, null);
         final Duration d = handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 7)
+                .bind(0, 5)
                 .mapTo(Duration.class)
                 .findOnly();
         assertThat(d).isNull();
@@ -71,9 +82,9 @@ public class TestDuration {
 
     @Test
     public void testWritesViaFluentApi() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)", 8, testDuration);
+        handle.insert("insert into intervals(id, foo) values(?, ?)", 6, testDuration);
         final Duration d = handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 8)
+                .bind(0, 6)
                 .mapTo(Duration.class)
                 .findOnly();
         assertThat(d).isEqualTo(testDuration);
@@ -82,16 +93,16 @@ public class TestDuration {
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidDuration() {
         handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 5)
+                .bind(0, 3) // The bad one.
                 .mapTo(Duration.class)
                 .findOnly();
     }
 
     @Test
     public void testReadNegativeDuration() {
-        handle.insert("insert into intervals(id, foo) values(?, interval '-2 days -3 hours')", 9);
+        handle.insert("insert into intervals(id, foo) values(?, interval '-2 days -3 hours')", 7);
         final Duration d = handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 9)
+                .bind(0, 7)
                 .mapTo(Duration.class)
                 .findOnly();
         assertThat(d).isEqualTo(Duration.ofDays(-2).plusHours(-3));
@@ -100,9 +111,9 @@ public class TestDuration {
     @Test
     public void testWriteReadNegativeDuration() {
         handle.insert("insert into intervals(id, foo) values(?, ?)",
-                10, Duration.ofDays(-3).plusMinutes(2));
+                8, Duration.ofDays(-3).plusMinutes(2));
         final Duration d = handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 10)
+                .bind(0, 8)
                 .mapTo(Duration.class)
                 .findOnly();
         assertThat(d).isEqualTo(Duration.ofDays(-3).plusMinutes(2));
@@ -111,7 +122,7 @@ public class TestDuration {
     @Test(expected = IllegalArgumentException.class)
     public void testWriteDurationTooBig() {
         handle.insert("insert into intervals(id, foo) values(?, ?)",
-                11, Duration.ofDays((long)Integer.MAX_VALUE + 1));
+                9, Duration.ofDays((long)Integer.MAX_VALUE + 1));
     }
 
     /**
@@ -121,14 +132,14 @@ public class TestDuration {
     @Test(expected = ArithmeticException.class)
     public void testWriteDurationTooSmall() {
         handle.insert("insert into intervals(id, foo) values(?, ?)",
-                12, Duration.ofSeconds(Long.MIN_VALUE));
+                10, Duration.ofSeconds(Long.MIN_VALUE));
     }
 
     @Test
     public void testTinyDuration() {
-        handle.insert("insert into intervals(id, foo) values(?, interval '13us')", 13);
+        handle.insert("insert into intervals(id, foo) values(?, interval '13us')", 11);
         final Duration d = handle.createQuery("select foo from intervals where id=?")
-                .bind(0, 13)
+                .bind(0, 11)
                 .mapTo(Duration.class)
                 .findOnly();
         assertThat(d).isEqualTo(Duration.ofNanos(13_000));
@@ -137,7 +148,7 @@ public class TestDuration {
     @Test(expected = IllegalArgumentException.class)
     public void testDurationTooPrecise() {
         handle.insert("insert into intervals(id, foo) values(?, ?)",
-                14, Duration.ofNanos(100));
+                12, Duration.ofNanos(100));
     }
 
     // We guard against reading intervals with seconds too big or too small (i.e., more extreme than Long minimum and
