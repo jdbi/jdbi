@@ -15,6 +15,7 @@ package org.jdbi.v3.postgres;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.util.PGInterval;
 
@@ -48,7 +49,7 @@ public class DurationArgumentFactory implements ArgumentFactory {
             return Optional.empty();
         }
         if (null == value) {
-            return Optional.of((i, p, cx) -> p.setNull(i, Types.OTHER));
+            return Optional.of(new NullArgument(Types.OTHER));
         }
         Duration duration = (Duration)value;
         final boolean isNegative = duration.isNegative();
