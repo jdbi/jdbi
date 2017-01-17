@@ -44,8 +44,11 @@ import java.util.Optional;
 public class DurationArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (!(value instanceof Duration)) {
+        if (Duration.class != type) {
             return Optional.empty();
+        }
+        if (null == value) {
+            return Optional.of((i, p, cx) -> p.setNull(i, Types.OTHER));
         }
         Duration duration = (Duration)value;
         final boolean isNegative = duration.isNegative();

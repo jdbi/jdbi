@@ -29,8 +29,11 @@ import java.util.Optional;
 public class PeriodArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (!(value instanceof Period)) {
+        if (Period.class != type) {
             return Optional.empty();
+        }
+        if (null == value) {
+            return Optional.of((i, p, cx) -> p.setNull(i, Types.OTHER));
         }
         final Period period = (Period)value;
         final PGInterval interval = new PGInterval(
