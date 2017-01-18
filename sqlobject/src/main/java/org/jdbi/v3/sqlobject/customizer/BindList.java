@@ -59,33 +59,35 @@ public @interface BindList {
 
     final class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             final BindList bindList = (BindList) annotation;
             final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
 
-            if (arg == null || IterableLike.isEmpty(arg)) {
-                switch (bindList.onEmpty()) {
+            return (stmt, arg) -> {
+                if (arg == null || IterableLike.isEmpty(arg)) {
+                    switch (bindList.onEmpty()) {
                     case VOID:
-                        return stmt -> stmt.define(name, "");
+                        stmt.define(name, "");
+                        return;
                     case NULL:
-                        return stmt -> stmt.define(name, "null");
+                        stmt.define(name, "null");
+                        return;
                     case THROW:
                         throw new IllegalArgumentException(arg == null
-                                ? "argument is null; null was explicitly forbidden on this instance of BindList"
+                        ? "argument is null; null was explicitly forbidden on this instance of BindList"
                                 : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
                     default:
                         throw new IllegalStateException(EmptyHandling.valueNotHandledMessage);
+                    }
                 }
-            }
 
-            return stmt -> stmt.bindList(name, IterableLike.toList(arg));
+                stmt.bindList(name, IterableLike.toList(arg));
+            };
         }
-
     }
 
     /**

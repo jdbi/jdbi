@@ -63,20 +63,21 @@ public @interface BindBeanList {
 
     final class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             final BindBeanList bindBeanList = (BindBeanList) annotation;
             final String name = ParameterUtil.getParameterName(bindBeanList, bindBeanList.value(), param);
 
-            if (arg == null) {
-                throw new IllegalArgumentException("argument is null; null was explicitly forbidden on BindBeanList");
-            }
+            return (stmt, arg) -> {
+                if (arg == null) {
+                    throw new IllegalArgumentException("argument is null; null was explicitly forbidden on BindBeanList");
+                }
 
-            return stmt -> stmt.bindBeanList(name, IterableLike.toList(arg), Arrays.asList(bindBeanList.propertyNames()));
+                stmt.bindBeanList(name, IterableLike.toList(arg), Arrays.asList(bindBeanList.propertyNames()));
+            };
         }
 
     }

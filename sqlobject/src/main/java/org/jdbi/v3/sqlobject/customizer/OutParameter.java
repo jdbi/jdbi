@@ -59,12 +59,11 @@ public @interface OutParameter {
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             throw new UnsupportedOperationException("Not defined for parameter");
         }
     }

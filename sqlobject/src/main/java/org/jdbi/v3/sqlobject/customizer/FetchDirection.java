@@ -59,14 +59,13 @@ public @interface FetchDirection
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
         {
-            return create((Integer) arg);
+            return (q, arg) -> q.addCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer((Integer) arg));
         }
 
         private static SqlStatementCustomizer create(Integer direction)

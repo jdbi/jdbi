@@ -31,6 +31,7 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 /**
  * Used to specify the transaction isolation level for an object or method (via annotating the method
@@ -61,10 +62,9 @@ public @interface TransactionIsolation
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg)
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index)
         {
-            assert arg instanceof TransactionIsolationLevel;
-            return new MyCustomizer((TransactionIsolationLevel) arg);
+            return (q, arg) -> new MyCustomizer((TransactionIsolationLevel) arg).apply(q);
         }
     }
 
