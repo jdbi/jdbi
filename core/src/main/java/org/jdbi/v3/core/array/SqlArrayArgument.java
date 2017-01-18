@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.internal.ReflectionArrayIterator;
+import org.jdbi.v3.core.internal.IterableLike;
 
 class SqlArrayArgument<T> implements Argument {
 
@@ -35,7 +35,7 @@ class SqlArrayArgument<T> implements Argument {
 
         List<Object> elements = new ArrayList<>(
                 newArray.getClass().isArray() ? Array.getLength(newArray) : 10);
-        ReflectionArrayIterator.of(newArray).forEachRemaining(
+        IterableLike.of(newArray).forEachRemaining(
                 e -> elements.add(arrayType.convertArrayElement((T) e)));
         array = elements.toArray();
     }

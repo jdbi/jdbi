@@ -13,6 +13,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
@@ -25,13 +32,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class BindBeanListTest
 {
@@ -185,13 +185,15 @@ public class BindBeanListTest
 
     //
 
-    @Test(expected = IllegalArgumentException.class)
     public void testSomethingByIterator()
     {
         final SomethingByIterator s = handle.attach(SomethingByIterator.class);
 
-        s.get(Arrays.asList(new SomethingKey(1, "1"),
-                new SomethingKey(2, "2")).iterator());
+        List<Something> results = s.get(Arrays.asList(
+                new SomethingKey(1, "1"),
+                new SomethingKey(2, "2"))
+            .iterator());
+        assertThat(results).hasSameElementsAs(expectedSomethings);
     }
 
     @UseStringTemplateStatementRewriter
@@ -202,8 +204,8 @@ public class BindBeanListTest
     }
 
     public static class SomethingKey {
-        private int id;
-        private String name;
+        private final int id;
+        private final String name;
 
         SomethingKey(int id, String name) {
             this.id = id;

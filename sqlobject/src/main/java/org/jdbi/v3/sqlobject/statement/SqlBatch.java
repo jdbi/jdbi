@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.internal.ReflectionArrayIterator;
+import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
@@ -223,8 +223,8 @@ public @interface SqlBatch {
             for (int paramIdx = 0; paramIdx < method.getParameterCount(); paramIdx++) {
                 final boolean singleValue = method.getParameters()[paramIdx].isAnnotationPresent(SingleValue.class);
                 final Object arg = args[paramIdx];
-                if (!singleValue && ReflectionArrayIterator.isIterable(arg)) {
-                    extras.add(ReflectionArrayIterator.of(arg));
+                if (!singleValue && IterableLike.isIterable(arg)) {
+                    extras.add(IterableLike.of(arg));
                     foundIterator = true;
                 } else {
                     extras.add(Stream.generate(() -> arg).iterator());

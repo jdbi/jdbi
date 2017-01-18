@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import org.jdbi.v3.sqlobject.internal.ParameterUtil;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,10 +20,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+
+import org.jdbi.v3.core.internal.IterableLike;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
  * Binds each property for each value in the annotated {@link Iterable} or array/varargs argument,
@@ -78,12 +76,7 @@ public @interface BindBeanList {
                 throw new IllegalArgumentException("argument is null; null was explicitly forbidden on BindBeanList");
             }
 
-            List<Object> list = new ArrayList<>();
-            for (Iterator<?> iter = BindListUtil.toIterator(arg); iter.hasNext(); ) {
-                list.add(iter.next());
-            }
-
-            return stmt -> stmt.bindBeanList(name, list, Arrays.asList(bindBeanList.propertyNames()));
+            return stmt -> stmt.bindBeanList(name, IterableLike.toList(arg), Arrays.asList(bindBeanList.propertyNames()));
         }
 
     }

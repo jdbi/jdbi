@@ -20,10 +20,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
+import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
@@ -70,7 +68,7 @@ public @interface BindList {
             final BindList bindList = (BindList) annotation;
             final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
 
-            if (arg == null || BindListUtil.isEmpty(arg)) {
+            if (arg == null || IterableLike.isEmpty(arg)) {
                 switch (bindList.onEmpty()) {
                     case VOID:
                         return stmt -> stmt.define(name, "");
@@ -85,12 +83,7 @@ public @interface BindList {
                 }
             }
 
-            List<Object> list = new ArrayList<>();
-            for (Iterator<?> iter = BindListUtil.toIterator(arg); iter.hasNext();) {
-                list.add(iter.next());
-            }
-
-            return stmt -> stmt.bindList(name, list);
+            return stmt -> stmt.bindList(name, IterableLike.toList(arg));
         }
 
     }
