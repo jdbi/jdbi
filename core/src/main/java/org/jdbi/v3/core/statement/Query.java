@@ -133,7 +133,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      * @return the modified query
      */
     public Query concurrentUpdatable() {
-        getConfig(SqlStatements.class).setConcurrentUpdatable(true);
+        getContext().setConcurrentUpdatable(true);
         return this;
     }
 }
