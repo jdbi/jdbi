@@ -18,7 +18,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -78,11 +77,10 @@ public class ResultProducers {
      */
     public static ResultProducer<ResultBearing> returningGeneratedKeys(String... generatedKeyColumnNames) {
         return (supplier, ctx) -> {
-            SqlStatements cfg = ctx.getConfig(SqlStatements.class);
-            cfg.setReturningGeneratedKeys(true);
+            ctx.setReturningGeneratedKeys(true);
 
             if (generatedKeyColumnNames.length > 0) {
-                cfg.setGeneratedKeysColumnNames(generatedKeyColumnNames);
+                ctx.setGeneratedKeysColumnNames(generatedKeyColumnNames);
             }
 
             return ResultBearing.of(getGeneratedKeys(supplier, ctx), ctx);

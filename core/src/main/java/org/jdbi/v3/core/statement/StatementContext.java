@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -69,6 +70,10 @@ public class StatementContext implements Closeable
     private PreparedStatement statement;
     private Connection        connection;
     private Binding           binding = new Binding();
+
+    private boolean returningGeneratedKeys = false;
+    private String[] generatedKeysColumnNames = new String[0];
+    private boolean concurrentUpdatable = false;
 
     StatementContext() {
         this(new ConfigRegistry());
@@ -318,6 +323,74 @@ public class StatementContext implements Closeable
     public Binding getBinding()
     {
         return binding;
+    }
+
+    /**
+     * Sets whether the current statement returns generated keys.
+     * @param b return generated keys?
+     */
+    public void setReturningGeneratedKeys(boolean b)
+    {
+        if (isConcurrentUpdatable() && b) {
+            throw new IllegalArgumentException("Cannot create a result set that is concurrent "
+                    + "updatable and is returning generated keys.");
+        }
+        this.returningGeneratedKeys = b;
+    }
+
+    /**
+     * @return whether the statement being generated is expected to return generated keys.
+     */
+    public boolean isReturningGeneratedKeys()
+    {
+        return returningGeneratedKeys || generatedKeysColumnNames.length > 0;
+    }
+
+    /**
+     * @return the generated key column names, if any
+     */
+    public String[] getGeneratedKeysColumnNames()
+    {
+        return Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
+    }
+
+    /**
+     * Set the generated key column names.
+     * @param generatedKeysColumnNames the generated key column names
+     */
+    public void setGeneratedKeysColumnNames(String[] generatedKeysColumnNames)
+    {
+        this.generatedKeysColumnNames = Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
+    }
+
+    /**
+     * Return if the statement should be concurrent updatable.
+     *
+     * If this returns true, the concurrency level of the created ResultSet will be
+     * {@link java.sql.ResultSet#CONCUR_UPDATABLE}, otherwise the result set is not updatable,
+     * and will have concurrency level {@link java.sql.ResultSet#CONCUR_READ_ONLY}.
+     *
+     * @return if the statement generated should be concurrent updatable.
+     */
+    public boolean isConcurrentUpdatable() {
+        return concurrentUpdatable;
+    }
+
+    /**
+     * Set the context to create a concurrent updatable result set.
+     *
+     * This cannot be combined with {@link #isReturningGeneratedKeys()}, only
+     * one option may be selected. It does not make sense to combine these either, as one
+     * applies to queries, and the other applies to updates.
+     *
+     * @param concurrentUpdatable if the result set should be concurrent updatable.
+     */
+    public void setConcurrentUpdatable(final boolean concurrentUpdatable) {
+        if (concurrentUpdatable && isReturningGeneratedKeys()) {
+            throw new IllegalArgumentException("Cannot create a result set that is concurrent "
+                    + "updatable and is returning generated keys.");
+        }
+        this.concurrentUpdatable = concurrentUpdatable;
     }
 
     /**
