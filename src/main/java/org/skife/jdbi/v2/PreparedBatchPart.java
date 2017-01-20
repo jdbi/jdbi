@@ -50,7 +50,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
     /**
      * Submit this statement to the batch, yielding the batch. The statement is already,
      * actually part of the batch before it is submitted. This method is really just
-     * a convenient way to getAttribute the prepared batch back.
+     * a convenient way to get the prepared batch back.
      *
      * @return the PreparedBatch which this is a part of
      */
@@ -62,7 +62,7 @@ public class PreparedBatchPart extends SQLStatement<PreparedBatchPart>
     /**
      * Submit this part of the batch and open a fresh one
      *
-     * @return a fresh PrepatedBatchPart on the same batch
+     * @return a fresh PreparedBatchPart on the same batch
      */
     public PreparedBatchPart next()
     {
