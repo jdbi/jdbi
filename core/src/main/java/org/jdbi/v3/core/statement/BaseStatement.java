@@ -27,7 +27,7 @@ import org.jdbi.v3.core.generic.GenericTypes;
 abstract class BaseStatement<This> implements Closeable, Configurable<This>
 {
     @SuppressWarnings("unchecked")
-    protected final This typedThis = (This) this;
+    final This typedThis = (This) this;
 
     private final Handle handle;
     private final StatementContext ctx;

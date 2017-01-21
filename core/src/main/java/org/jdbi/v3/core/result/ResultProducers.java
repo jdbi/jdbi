@@ -24,6 +24,9 @@ import org.jdbi.v3.core.statement.StatementContext;
  * Commonly used ResultProducer implementations.
  */
 public class ResultProducers {
+    private ResultProducers() {
+    }
+
     /**
      * Result producer that eagerly executes the statement, returning the update count
      *
