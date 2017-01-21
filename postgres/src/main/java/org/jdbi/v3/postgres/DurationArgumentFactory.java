@@ -13,14 +13,13 @@
  */
 package org.jdbi.v3.postgres;
 
-import org.jdbi.v3.core.argument.AbstractArgumentFactory;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.NullArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.postgresql.util.PGInterval;
-
 import java.sql.Types;
 import java.time.Duration;
+
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.postgresql.util.PGInterval;
 
 /**
  * Postgres version of argument factory for {@link Duration}.
@@ -42,7 +41,7 @@ import java.time.Duration;
  */
 public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
 
-    public DurationArgumentFactory(){
+    public DurationArgumentFactory() {
         super(Types.OTHER);
     }
 

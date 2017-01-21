@@ -13,13 +13,11 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.lang.reflect.Type;
-import java.util.Optional;
+import java.sql.Types;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Default {@code jdbi} behavior is to bind {@code Enum} subclasses as
@@ -27,12 +25,13 @@ import org.jdbi.v3.core.generic.GenericTypes;
  * If instead you bind it as {@code java.sql.Types.OTHER}, Postgres will
  * autodetect the enum correctly.
  */
-public class TypedEnumArgumentFactory implements ArgumentFactory {
+public class TypedEnumArgumentFactory extends AbstractArgumentFactory<Enum<?>> {
+    public TypedEnumArgumentFactory() {
+        super(Types.OTHER);
+    }
+
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (!GenericTypes.getErasedType(type).isEnum()) {
-            return Optional.empty();
-        }
-        return Optional.of((p, s, c) -> s.setObject(p, value, java.sql.Types.OTHER));
+    protected Argument build(Enum<?> value, ConfigRegistry config) {
+        return (p, s, c) -> s.setObject(p, value, Types.OTHER);
     }
 }

@@ -13,25 +13,25 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.lang.reflect.Type;
+import java.sql.Types;
 import java.util.Map;
-import java.util.Optional;
 
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.generic.GenericTypes;
 
 /**
  * An argument factory which binds Java's {@link Map} to Postgres' hstore type.
  */
-public class HStoreArgumentFactory implements ArgumentFactory {
+// We must use a raw type to ensure we match all Map types rather than any particular generic type
+@SuppressWarnings("rawtypes")
+public class HStoreArgumentFactory extends AbstractArgumentFactory<Map> {
+    public HStoreArgumentFactory() {
+        super(Types.OTHER);
+    }
 
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (Map.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
-            return Optional.of((i, p, cx) -> p.setObject(i, value));
-        }
-        return Optional.empty();
+    protected Argument build(Map value, ConfigRegistry config) {
+        return (i, p, cx) -> p.setObject(i, value);
     }
 }
