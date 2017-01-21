@@ -20,5 +20,5 @@ test-output
 dependency-reduced-pom.xml
 travis-settings.xml
 travis-settings-security.xml
-
+.build-oracle
 .factorypath
