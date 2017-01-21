@@ -13,16 +13,14 @@
  */
 package org.jdbi.v3.postgres;
 
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.util.PGInterval;
 
-import java.lang.reflect.Type;
 import java.sql.Types;
 import java.time.Duration;
-import java.util.Optional;
 
 /**
  * Postgres version of argument factory for {@link Duration}.
@@ -42,16 +40,14 @@ import java.util.Optional;
  * The handling of the second is subject to revision in the future; for example, it would be reasonable to have a
  * configurable truncation option.
  */
-public class DurationArgumentFactory implements ArgumentFactory {
+public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
+
+    public DurationArgumentFactory(){
+        super(Types.OTHER);
+    }
+
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (Duration.class != type) {
-            return Optional.empty();
-        }
-        if (null == value) {
-            return Optional.of(new NullArgument(Types.OTHER));
-        }
-        Duration duration = (Duration)value;
+    public Argument build(Duration duration, ConfigRegistry config) {
         final boolean isNegative = duration.isNegative();
         if (isNegative) {
             duration = duration.negated();
@@ -76,6 +72,6 @@ public class DurationArgumentFactory implements ArgumentFactory {
         if (isNegative) {
             interval.scale(-1);
         }
-        return Optional.of((i, p, cx) -> p.setObject(i, interval, Types.OTHER));
+        return (i, p, cx) -> p.setObject(i, interval, Types.OTHER);
     }
 }
