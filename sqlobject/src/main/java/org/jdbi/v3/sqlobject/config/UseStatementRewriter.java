@@ -26,13 +26,18 @@ import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 
 /**
- * Use this to override the statement rewriter on a sql object, May be specified on either the interface
- * or method level.
+ * Use the specified {@link StatementRewriter} class to rewrite SQL for the annotated SQL object class or method. The
+ * given {@link StatementRewriter} class must have a public constructor with any of the following signatures:
+ * <ul>
+ * <li>RewriterClass() // no arguments</li>
+ * <li>RewriterClass(Class)</li>
+ * <li>RewriterClass(Class,Method)</li>
+ * </ul>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(OverrideStatementRewriterWith.Impl.class)
+@ConfiguringAnnotation(UseStatementRewriter.Impl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface OverrideStatementRewriterWith
+public @interface UseStatementRewriter
 {
     /**
      * Specify the StatementRewriter class to use.
@@ -45,7 +50,7 @@ public @interface OverrideStatementRewriterWith
         @Override
         public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
+            UseStatementRewriter anno = (UseStatementRewriter) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, method);
                 registry.get(SqlStatements.class).setStatementRewriter(rw);
@@ -58,7 +63,7 @@ public @interface OverrideStatementRewriterWith
         @Override
         public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
         {
-            OverrideStatementRewriterWith anno = (OverrideStatementRewriterWith) annotation;
+            UseStatementRewriter anno = (UseStatementRewriter) annotation;
             try {
                 final StatementRewriter rw = instantiate(anno.value(), sqlObjectType, null);
                 registry.get(SqlStatements.class).setStatementRewriter(rw);

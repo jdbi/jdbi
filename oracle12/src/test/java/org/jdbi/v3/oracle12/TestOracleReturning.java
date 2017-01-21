@@ -11,11 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.oracle;
+package org.jdbi.v3.oracle12;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.oracle.OracleReturning.returnParameters;
-import static org.jdbi.v3.oracle.OracleReturning.returningDml;
+import static org.jdbi.v3.oracle12.OracleReturning.returnParameters;
+import static org.jdbi.v3.oracle12.OracleReturning.returningDml;
 
 import java.util.List;
 
