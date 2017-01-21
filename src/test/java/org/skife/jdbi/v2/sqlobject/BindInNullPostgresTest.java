@@ -33,12 +33,9 @@ public class BindInNullPostgresTest {
     private static Handle handle;
 
     @BeforeClass
-    public static void isPostgresInstalled() {
-        assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
-    }
-
-    @BeforeClass
     public static void init() {
+        assumeTrue(Boolean.parseBoolean(System.getenv("TRAVIS")));
+
         handle = new DBI("jdbc:postgresql:jdbi_test", "postgres", "").open();
 
         handle.execute("create table something (id int primary key, name varchar(100))");
@@ -50,8 +47,10 @@ public class BindInNullPostgresTest {
 
     @AfterClass
     public static void exit() {
-        handle.execute("drop table something");
-        handle.close();
+        if (handle != null) {
+            handle.execute("drop table something");
+            handle.close();
+        }
     }
 
     @Test
