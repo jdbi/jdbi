@@ -32,13 +32,8 @@ public class PeriodArgumentFactory extends AbstractArgumentFactory<Period> {
     }
 
     @Override
-    public Argument build(Period value, ConfigRegistry config) {
-        if (null == value) {
-            return new NullArgument(Types.OTHER);
-        }
-        final Period period = (Period)value;
-        final PGInterval interval = new PGInterval(
-                period.getYears(), period.getMonths(), period.getDays(), 0, 0, 0);
+    public Argument build(Period period, ConfigRegistry config) {
+        PGInterval interval = new PGInterval(period.getYears(), period.getMonths(), period.getDays(), 0, 0, 0);
         return (i, p, cx) -> p.setObject(i, interval, Types.OTHER);
     }
 }

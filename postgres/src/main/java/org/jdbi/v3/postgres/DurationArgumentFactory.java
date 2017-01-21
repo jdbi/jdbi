@@ -47,11 +47,7 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
     }
 
     @Override
-    public Argument build( Duration value, ConfigRegistry config) {
-        if (null == value) {
-            return new NullArgument(Types.OTHER);
-        }
-        Duration duration = (Duration)value;
+    public Argument build(Duration duration, ConfigRegistry config) {
         final boolean isNegative = duration.isNegative();
         if (isNegative) {
             duration = duration.negated();
