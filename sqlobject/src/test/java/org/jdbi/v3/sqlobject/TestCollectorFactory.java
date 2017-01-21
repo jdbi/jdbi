@@ -74,7 +74,7 @@ public class TestCollectorFactory {
 
         ImmutableList<String> rs = h.createQuery("select name from something order by id")
                 .mapTo(String.class)
-                .collect(GuavaCollectors.toImmutableList());
+                .collect(ImmutableList.toImmutableList());
 
         assertThat(rs).containsExactly("Coda", "Brian");
     }

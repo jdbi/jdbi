@@ -50,7 +50,7 @@ public class TestGuavaCollectors {
     public void immutableList() {
         ImmutableList<Integer> list = dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
-                .collect(GuavaCollectors.toImmutableList());
+                .collect(ImmutableList.toImmutableList());
 
         assertThat(list).containsOnlyElementsOf(expected);
     }
@@ -59,7 +59,7 @@ public class TestGuavaCollectors {
     public void immutableSet() {
         ImmutableSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
-                .collect(GuavaCollectors.toImmutableSet());
+                .collect(ImmutableSet.toImmutableSet());
 
         assertThat(set).containsOnlyElementsOf(expected);
     }
@@ -68,7 +68,7 @@ public class TestGuavaCollectors {
     public void immutableSortedSet() {
         ImmutableSortedSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
-                .collect(GuavaCollectors.toImmutableSortedSet());
+                .collect(ImmutableSortedSet.toImmutableSortedSet(Comparator.naturalOrder()));
 
         assertThat(set).containsExactlyElementsOf(expected);
     }
@@ -78,7 +78,7 @@ public class TestGuavaCollectors {
         Comparator<Integer> comparator = Comparator.<Integer>naturalOrder().reversed();
         ImmutableSortedSet<Integer> set = dbRule.getSharedHandle().createQuery("select intValue from something")
                 .mapTo(int.class)
-                .collect(GuavaCollectors.toImmutableSortedSet(comparator));
+                .collect(ImmutableSortedSet.toImmutableSortedSet(comparator));
 
         assertThat(set).containsExactlyElementsOf(expected.stream()
                 .sorted(comparator)
