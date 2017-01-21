@@ -13,32 +13,32 @@
  */
 package org.jdbi.v3.postgres;
 
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.postgresql.util.PGInterval;
 
-import java.lang.reflect.Type;
 import java.sql.Types;
 import java.time.Period;
-import java.util.Optional;
 
 /**
  * Postgres version of argument factory for {@link Period}.
  */
-public class PeriodArgumentFactory implements ArgumentFactory {
+public class PeriodArgumentFactory extends AbstractArgumentFactory<Period> {
+
+    public PeriodArgumentFactory(){
+        super(Types.OTHER);
+    }
+
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (Period.class != type) {
-            return Optional.empty();
-        }
+    public Argument build(Period value, ConfigRegistry config) {
         if (null == value) {
-            return Optional.of(new NullArgument(Types.OTHER));
+            return new NullArgument(Types.OTHER);
         }
         final Period period = (Period)value;
         final PGInterval interval = new PGInterval(
                 period.getYears(), period.getMonths(), period.getDays(), 0, 0, 0);
-        return Optional.of((i, p, cx) -> p.setObject(i, interval, Types.OTHER));
+        return (i, p, cx) -> p.setObject(i, interval, Types.OTHER);
     }
 }
