@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.sqlobject.config;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,8 +23,7 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
 import org.jdbi.v3.core.rewriter.HashPrefixStatementRewriter;
-import org.jdbi.v3.sqlobject.config.OverrideStatementRewriterWith;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -33,7 +32,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestOverrideStatementRewriter
+public class TestUseStatementRewriter
 {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
@@ -62,7 +61,7 @@ public class TestOverrideStatementRewriter
     }
 
 
-    @OverrideStatementRewriterWith(HashPrefixStatementRewriter.class)
+    @UseStatementRewriter(HashPrefixStatementRewriter.class)
     @RegisterRowMapper(SomethingMapper.class)
     public interface Hashed
     {
