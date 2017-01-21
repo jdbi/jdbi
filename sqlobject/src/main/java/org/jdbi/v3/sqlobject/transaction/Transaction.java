@@ -42,7 +42,7 @@ public @interface Transaction {
     /**
      * @return the transaction isolation level.  If not specified, invoke with the default isolation level.
      */
-    TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
+    TransactionIsolationLevel value() default TransactionIsolationLevel.UNKNOWN;
     /**
      * Set the connection readOnly property before the transaction starts, and restore it before it returns.
      * Databases may use this as a performance or concurrency hint.
@@ -63,7 +63,7 @@ public @interface Transaction {
                 if (h.isInTransaction()) {
                     // Already in transaction. The outermost @Transaction method determines the transaction isolation level.
                     TransactionIsolationLevel currentLevel = h.getTransactionIsolationLevel();
-                    if (currentLevel != isolation && isolation != TransactionIsolationLevel.INVALID_LEVEL) {
+                    if (currentLevel != isolation && isolation != TransactionIsolationLevel.UNKNOWN) {
                         throw new TransactionException("Tried to execute nested @Transaction(" + isolation + "), " +
                                 "but already running in a transaction with isolation level " + currentLevel + ".");
                     }
@@ -82,7 +82,7 @@ public @interface Transaction {
                 }
 
                 try {
-                    if (isolation == TransactionIsolationLevel.INVALID_LEVEL) {
+                    if (isolation == TransactionIsolationLevel.UNKNOWN) {
                         return h.inTransaction(callback);
                     } else {
                         return h.inTransaction(isolation, callback);

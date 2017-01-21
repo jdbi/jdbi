@@ -43,7 +43,7 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 public @interface TransactionIsolation
 {
 
-    TransactionIsolationLevel value() default TransactionIsolationLevel.INVALID_LEVEL;
+    TransactionIsolationLevel value() default TransactionIsolationLevel.UNKNOWN;
 
     class Factory implements SqlStatementCustomizerFactory
     {
