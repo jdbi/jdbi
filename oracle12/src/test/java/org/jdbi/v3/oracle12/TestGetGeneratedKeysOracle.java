@@ -54,7 +54,7 @@ public class TestGetGeneratedKeysOracle {
 
     public interface DAO {
         @SqlUpdate("insert into something (name, id) values (:name, something_id_sequence.nextval)")
-        @GetGeneratedKeys(columnName = "id", value = OracleGeneratedKeyMapper.class)
+        @GetGeneratedKeys("id")
         long insert(@Bind("name") String name);
 
         @SqlQuery("select name from something where id = :it")

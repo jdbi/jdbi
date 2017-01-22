@@ -16,15 +16,22 @@ package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,11 +60,11 @@ public class TestGetGeneratedKeysPostgres
 
     public interface DAO {
         @SqlUpdate("insert into something (name, id) values (:name, nextval('id_sequence'))")
-        @GetGeneratedKeys(columnName = "id")
+        @GetGeneratedKeys("id")
         long insert(@Bind("name") String name);
 
         @SqlBatch("insert into something (name) values (:name)")
-        @GetGeneratedKeys(columnName = "id")
+        @GetGeneratedKeys("id")
         int[] insert(@Bind("name") List<String> names);
 
         @SqlQuery("select name from something where id = :id")
@@ -82,5 +89,64 @@ public class TestGetGeneratedKeysPostgres
             assertThat(dao.findNameById(ids[0])).isEqualTo("Burt");
             assertThat(dao.findNameById(ids[1])).isEqualTo("Macklin");
         });
+    }
+
+    @Test
+    public void testUpdateMultipleGeneratedKeys() throws Exception {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("drop table something");
+            handle.execute("create table something (id serial, name varchar(50), created_on timestamp default now())");
+
+            GetMultipleGeneratedKeysDao dao = handle.attach(GetMultipleGeneratedKeysDao.class);
+
+            IdCreateTime result = dao.insert("foo");
+            assertThat(result.id).isEqualTo(1);
+            assertThat(result.createdOn).isNotNull();
+        });
+    }
+
+    @Test
+    public void testBatchMultipleGeneratedKeys() throws Exception {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("drop table something");
+            handle.execute("create table something (id serial, name varchar(50), created_on timestamp default now())");
+
+            GetMultipleGeneratedKeysDao dao = handle.attach(GetMultipleGeneratedKeysDao.class);
+
+            List<IdCreateTime> results = dao.insertBatch("foo", "bar");
+            assertThat(results).extracting(ic -> ic.id).containsExactly(1L, 2L);
+            assertThat(results).extracting(ic -> ic.createdOn).hasSize(2).doesNotContainNull();
+        });
+    }
+
+    public interface GetMultipleGeneratedKeysDao {
+        @SqlUpdate("insert into something(name) values (:name)")
+        @GetGeneratedKeys
+        @UseRowMapper(IdCreateTimeMapper.class)
+        IdCreateTime insert(String name);
+
+        @SqlBatch("insert into something(name) values (:name)")
+        @GetGeneratedKeys
+        @UseRowMapper(IdCreateTimeMapper.class)
+        List<IdCreateTime> insertBatch(String... name);
+    }
+
+    public static class IdCreateTimeMapper implements RowMapper<IdCreateTime> {
+        @Override
+        public IdCreateTime map(ResultSet rs, StatementContext ctx) throws SQLException {
+            return new IdCreateTime(
+                    rs.getLong("id"),
+                    rs.getTimestamp("created_on").toInstant().atOffset(ZoneOffset.UTC));
+        }
+    }
+
+    public static class IdCreateTime {
+        final long id;
+        final OffsetDateTime createdOn;
+
+        public IdCreateTime(long id, OffsetDateTime createdOn) {
+            this.id = id;
+            this.createdOn = createdOn;
+        }
     }
 }

@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.result.ResultIterable;
-import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
 
@@ -33,17 +32,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  */
 abstract class ResultReturner
 {
-    /**
-     * Given a {@link ResultBearing}, map to the element
-     * type and construct the result container.
-     * @param r the ResultBearing
-     * @return the filled result container
-     */
-    public Object map(ResultBearing r, StatementContext ctx)
-    {
-        return result(r.mapTo(elementType(ctx)), ctx);
-    }
-
     /**
      * If the return type is {@code void}, swallow results.
      * @param extensionType

@@ -31,6 +31,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.PreparedBatch;
@@ -98,12 +99,19 @@ public @interface SqlBatch {
                 batchIntermediate = PreparedBatch::executeAndGetModCount;
                 magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
             } else {
+                String[] columnNames = getGeneratedKeys.value();
                 magic = ResultReturner.forMethod(sqlObjectType, method);
-                final Function<StatementContext, RowMapper<?>> mapper = ctx -> rowMapperFor(getGeneratedKeys, magic.elementType(ctx));
-                if (getGeneratedKeys.columnName().isEmpty()) {
-                    batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys().map(mapper.apply(batch.getContext())).iterator();
-                } else {
-                    batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(getGeneratedKeys.columnName()).map(mapper.apply(batch.getContext())).iterator();
+
+                if (method.isAnnotationPresent(UseRowMapper.class)) {
+                    RowMapper<?> mapper = rowMapperFor(method.getAnnotation(UseRowMapper.class));
+                    batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
+                            .map(mapper)
+                            .iterator();
+                }
+                else {
+                    batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
+                            .mapTo(magic.elementType(batch.getContext()))
+                            .iterator();
                 }
             }
         }

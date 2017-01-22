@@ -23,8 +23,8 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultBearing;
+import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
@@ -64,16 +64,19 @@ public @interface SqlUpdate {
 
             Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
             if (isGetGeneratedKeys) {
-                final ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
-                final GetGeneratedKeys ggk = method.getAnnotation(GetGeneratedKeys.class);
-                final RowMapper<?> mapper = rowMapperFor(ggk, returnType);
+                ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
+
+                String[] columnNames = method.getAnnotation(GetGeneratedKeys.class).value();
 
                 this.returner = update -> {
-                    String columnName = ggk.columnName();
-                    ResultBearing resultBearing = columnName.isEmpty()
-                            ? update.executeAndReturnGeneratedKeys()
-                            : update.executeAndReturnGeneratedKeys(columnName);
-                    return magic.result(resultBearing.map(mapper), update.getContext());
+                    ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(columnNames);
+
+                    UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
+                    ResultIterable<?> iterable = useRowMapper == null
+                            ? resultBearing.mapTo(returnType)
+                            : resultBearing.map(rowMapperFor(useRowMapper));
+
+                    return magic.result(iterable, update.getContext());
                 };
             } else if (isNumeric(method.getReturnType())) {
                 this.returner = update -> update.execute();
