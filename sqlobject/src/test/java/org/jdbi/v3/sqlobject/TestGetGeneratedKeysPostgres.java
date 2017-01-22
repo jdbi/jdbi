@@ -26,6 +26,7 @@ import java.util.List;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.PgDatabaseRule;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
@@ -92,12 +93,12 @@ public class TestGetGeneratedKeysPostgres
     }
 
     @Test
-    public void testUpdateMultipleGeneratedKeys() throws Exception {
+    public void testUseRowMapperUpdate() throws Exception {
         dbRule.getJdbi().useHandle(handle -> {
             handle.execute("drop table something");
             handle.execute("create table something (id serial, name varchar(50), created_on timestamp default now())");
 
-            GetMultipleGeneratedKeysDao dao = handle.attach(GetMultipleGeneratedKeysDao.class);
+            UseRowMapperDao dao = handle.attach(UseRowMapperDao.class);
 
             IdCreateTime result = dao.insert("foo");
             assertThat(result.id).isEqualTo(1);
@@ -106,12 +107,12 @@ public class TestGetGeneratedKeysPostgres
     }
 
     @Test
-    public void testBatchMultipleGeneratedKeys() throws Exception {
+    public void testUseRowMapperBatch() throws Exception {
         dbRule.getJdbi().useHandle(handle -> {
             handle.execute("drop table something");
             handle.execute("create table something (id serial, name varchar(50), created_on timestamp default now())");
 
-            GetMultipleGeneratedKeysDao dao = handle.attach(GetMultipleGeneratedKeysDao.class);
+            UseRowMapperDao dao = handle.attach(UseRowMapperDao.class);
 
             List<IdCreateTime> results = dao.insertBatch("foo", "bar");
             assertThat(results).extracting(ic -> ic.id).containsExactly(1L, 2L);
@@ -119,15 +120,55 @@ public class TestGetGeneratedKeysPostgres
         });
     }
 
-    public interface GetMultipleGeneratedKeysDao {
+    public interface UseRowMapperDao {
         @SqlUpdate("insert into something(name) values (:name)")
-        @GetGeneratedKeys
+        @GetGeneratedKeys({"id", "created_on"})
         @UseRowMapper(IdCreateTimeMapper.class)
         IdCreateTime insert(String name);
 
         @SqlBatch("insert into something(name) values (:name)")
-        @GetGeneratedKeys
+        @GetGeneratedKeys({"id", "created_on"})
         @UseRowMapper(IdCreateTimeMapper.class)
+        List<IdCreateTime> insertBatch(String... name);
+    }
+
+    @Test
+    public void testRegisterRowMapperUpdate() throws Exception {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("drop table something");
+            handle.execute("create table something (id serial, name varchar(50), created_on timestamp default now())");
+
+            RegisterRowMapperDao dao = handle.attach(RegisterRowMapperDao.class);
+
+            IdCreateTime result = dao.insert("foo");
+            assertThat(result.id).isEqualTo(1);
+            assertThat(result.createdOn).isNotNull();
+        });
+    }
+
+    @Test
+    public void testRegisterRowMapperBatch() throws Exception {
+        dbRule.getJdbi().useHandle(handle -> {
+            handle.execute("drop table something");
+            handle.execute("create table something (id serial, name varchar(50), created_on timestamp default now())");
+
+            RegisterRowMapperDao dao = handle.attach(RegisterRowMapperDao.class);
+
+            List<IdCreateTime> results = dao.insertBatch("foo", "bar");
+            assertThat(results).extracting(ic -> ic.id).containsExactly(1L, 2L);
+            assertThat(results).extracting(ic -> ic.createdOn).hasSize(2).doesNotContainNull();
+        });
+    }
+
+    public interface RegisterRowMapperDao {
+        @SqlUpdate("insert into something(name) values (:name)")
+        @GetGeneratedKeys({"id", "created_on"})
+        @RegisterRowMapper(IdCreateTimeMapper.class)
+        IdCreateTime insert(String name);
+
+        @SqlBatch("insert into something(name) values (:name)")
+        @GetGeneratedKeys({"id", "created_on"})
+        @RegisterRowMapper(IdCreateTimeMapper.class)
         List<IdCreateTime> insertBatch(String... name);
     }
 
