@@ -32,7 +32,6 @@ public interface SqlStatementCustomizer
      * @param statement the {@link SqlStatement} to customize.
      * @param annotation the annotation which led to the method being called
      * @param sqlObjectType sql object class (interface) which was annotated
-     * @return the customizer which will be applied to the generated statement
      */
     default void customizeForType(SqlStatement<?> statement,
                                   Annotation annotation,
@@ -47,7 +46,6 @@ public interface SqlStatementCustomizer
      * @param annotation the annotation which lead to the method being called
      * @param sqlObjectType sql object class (interface)
      * @param method the method which was annotated
-     * @return the customizer which will be applied to the generated statement
      */
     default void customizeForMethod(SqlStatement<?> statement,
                                     Annotation annotation,
@@ -66,7 +64,6 @@ public interface SqlStatementCustomizer
      * @param param the parameter which was annotated
      * @param index the method parameter index
      * @param arg the argument value for the annotated parameter
-     * @return the customizer which will be applied to the generated statement
      */
     default void customizeForParameter(SqlStatement<?> statement,
                                        Annotation annotation,
