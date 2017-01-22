@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
+import org.jdbi.v3.core.statement.SqlStatement;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,24 +37,23 @@ public @interface BindBean
      */
     String value() default "";
 
-    class Factory implements SqlStatementCustomizerFactory {
+    class Factory implements SqlStatementCustomizer {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object bean) {
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object bean) {
             BindBean bind = (BindBean) annotation;
-            return stmt -> {
-                String prefix = bind.value();
-                if (prefix.isEmpty()) {
-                    stmt.bindBean(bean);
-                }
-                else {
-                    stmt.bindBean(prefix, bean);
-                }
-            };
+            String prefix = bind.value();
+            if (prefix.isEmpty()) {
+                statement.bindBean(bean);
+            }
+            else {
+                statement.bindBean(prefix, bean);
+            }
         }
     }
 }

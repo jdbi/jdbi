@@ -24,8 +24,8 @@ import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.result.ResultBearing;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 
@@ -36,9 +36,15 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 @Target(ElementType.PARAMETER)
 @SqlStatementCustomizingAnnotation(MapTo.Factory.class)
 public @interface MapTo {
-    class Factory implements SqlStatementCustomizerFactory {
+    class Factory implements SqlStatementCustomizer {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg) {
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg) {
             final Type type;
             if (arg instanceof GenericType) {
                 type = ((GenericType<?>) arg).getType();
@@ -47,11 +53,9 @@ public @interface MapTo {
             } else {
                 type = (Type) arg;
             }
-            return s -> {
-                ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
-                s.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                        () -> returner.result(((ResultBearing) s).mapTo(type), s.getContext()));
-            };
+            ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
+            statement.getConfig(SqlObjectStatementConfiguration.class).setReturner(
+                    () -> returner.result(((ResultBearing) statement).mapTo(type), statement.getContext()));
         }
     }
 }

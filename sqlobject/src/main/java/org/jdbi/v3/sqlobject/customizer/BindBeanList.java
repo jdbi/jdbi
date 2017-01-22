@@ -23,6 +23,7 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 import org.jdbi.v3.core.internal.IterableLike;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
@@ -61,14 +62,15 @@ public @interface BindBeanList {
      */
     String[] propertyNames();
 
-    final class Factory implements SqlStatementCustomizerFactory {
+    final class Factory implements SqlStatementCustomizer {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg) {
             final BindBeanList bindBeanList = (BindBeanList) annotation;
             final String name = ParameterUtil.getParameterName(bindBeanList, bindBeanList.value(), param);
 
@@ -76,8 +78,7 @@ public @interface BindBeanList {
                 throw new IllegalArgumentException("argument is null; null was explicitly forbidden on BindBeanList");
             }
 
-            return stmt -> stmt.bindBeanList(name, IterableLike.toList(arg), Arrays.asList(bindBeanList.propertyNames()));
+            statement.bindBeanList(name, IterableLike.toList(arg), Arrays.asList(bindBeanList.propertyNames()));
         }
-
     }
 }

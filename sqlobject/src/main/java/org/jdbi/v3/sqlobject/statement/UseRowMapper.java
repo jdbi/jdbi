@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultBearing;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 /**
@@ -41,10 +41,13 @@ public @interface UseRowMapper
      */
     Class<? extends RowMapper<?>> value();
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizer
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        public void customizeForMethod(SqlStatement<?> statement,
+                                       Annotation annotation,
+                                       Class<?> sqlObjectType,
+                                       Method method) {
             final UseRowMapper mapperAnnotation = (UseRowMapper) annotation;
             RowMapper<?> mapper;
             try {
@@ -54,8 +57,8 @@ public @interface UseRowMapper
             }
 
             final ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
-            return q -> q.getConfig(SqlObjectStatementConfiguration.class)
-                    .setReturner(() -> returner.result(((ResultBearing) q).map(mapper), q.getContext()));
+            statement.getConfig(SqlObjectStatementConfiguration.class)
+                    .setReturner(() -> returner.result(((ResultBearing) statement).map(mapper), statement.getContext()));
         }
     }
 }

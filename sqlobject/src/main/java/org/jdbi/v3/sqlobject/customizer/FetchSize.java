@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.statement.SqlStatement;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
@@ -30,41 +31,39 @@ public @interface FetchSize
 {
     int value() default 0;
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizer
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public void customizeForType(SqlStatement<?> statement,
+                                     Annotation annotation,
+                                     Class<?> sqlObjectType)
         {
             final FetchSize fs = (FetchSize) annotation;
-            return q -> {
-                assert q instanceof Query;
-                ((Query) q).setFetchSize(fs.value());
-            };
+            assert statement instanceof Query;
+            ((Query) statement).setFetchSize(fs.value());
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void customizeForMethod(SqlStatement<?> statement,
+                                       Annotation annotation,
+                                       Class<?> sqlObjectType,
+                                       Method method)
         {
-            final FetchSize fs = (FetchSize) annotation;
-            return q -> {
-                assert q instanceof Query;
-                ((Query) q).setFetchSize(fs.value());
-            };
+            customizeForType(statement, annotation, sqlObjectType);
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg)
         {
             final Integer va = (Integer) arg;
-            return q -> {
-                assert q instanceof Query;
-                ((Query) q).setFetchSize(va);
-            };
+            assert statement instanceof Query;
+            ((Query) statement).setFetchSize(va);
         }
     }
 }

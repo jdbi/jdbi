@@ -13,20 +13,69 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.sql.SQLException;
-
 import org.jdbi.v3.core.statement.SqlStatement;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.sql.SQLException;
+
 /**
- * Used with {@link SqlStatementCustomizerFactory} to
- * customize sql statements via annotations
+ * Customizes {@link SqlStatement} instances based on the presence of declarative annotations on a SQL object type,
+ * method, or method parameter.
  */
 public interface SqlStatementCustomizer
 {
     /**
-     * Invoked to customize the sql statement
-     * @param q the statement being customized
-     * @throws SQLException will abort statement creation
+     * Customize the SQL statement according to the annotation on the SQL object type.
+     *
+     * @param statement the {@link SqlStatement} to customize.
+     * @param annotation the annotation which led to the method being called
+     * @param sqlObjectType sql object class (interface) which was annotated
+     * @return the customizer which will be applied to the generated statement
      */
-    void apply(SqlStatement<?> q) throws SQLException;
+    default void customizeForType(SqlStatement<?> statement,
+                                  Annotation annotation,
+                                  Class<?> sqlObjectType) throws SQLException
+    {
+        throw new UnsupportedOperationException("Not supported for type");
+    }
+
+    /**
+     * Customize the SQL statement according to the annotation on the SQL object method
+     *
+     * @param annotation the annotation which lead to the method being called
+     * @param sqlObjectType sql object class (interface)
+     * @param method the method which was annotated
+     * @return the customizer which will be applied to the generated statement
+     */
+    default void customizeForMethod(SqlStatement<?> statement,
+                                    Annotation annotation,
+                                    Class<?> sqlObjectType,
+                                    Method method) throws SQLException
+    {
+        throw new UnsupportedOperationException("Not supported for method");
+    }
+
+    /**
+     * Used to create customizers for annotations on parameters
+     *
+     * @param annotation the annotation which lead to the method being called
+     * @param sqlObjectType sql object class (interface)
+     * @param method the method which was annotated
+     * @param param the parameter which was annotated
+     * @param index the method parameter index
+     * @param arg the argument value for the annotated parameter
+     * @return the customizer which will be applied to the generated statement
+     */
+    default void customizeForParameter(SqlStatement<?> statement,
+                                       Annotation annotation,
+                                       Class<?> sqlObjectType,
+                                       Method method,
+                                       Parameter param, // TODO could this be elided?
+                                       int index,
+                                       Object arg) throws SQLException
+    {
+        throw new UnsupportedOperationException("Not supported for parameter");
+    }
 }

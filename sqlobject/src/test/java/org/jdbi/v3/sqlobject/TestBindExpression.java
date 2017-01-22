@@ -30,10 +30,10 @@ import org.apache.commons.jexl2.MapContext;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -65,29 +65,30 @@ public class TestBindExpression
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @SqlStatementCustomizingAnnotation(BindRoot.BindExpressionCustomizerFactory.class)
+    @SqlStatementCustomizingAnnotation(BindRoot.BindExpressionCustomizer.class)
     public @interface BindRoot
     {
         String value();
 
-        class BindExpressionCustomizerFactory implements SqlStatementCustomizerFactory
+        class BindExpressionCustomizer implements SqlStatementCustomizer
         {
             @Override
-            public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                             Class<?> sqlObjectType,
-                                                             Method method,
-                                                             Parameter param,
-                                                             int index,
-                                                             Object root)
+            public void customizeForParameter(SqlStatement<?> statement,
+                                              Annotation annotation,
+                                              Class<?> sqlObjectType,
+                                              Method method,
+                                              Parameter param,
+                                              int index,
+                                              Object root)
             {
                 final String root_name = ((BindRoot) annotation).value();
                 final JexlEngine engine = new JexlEngine();
-                return q -> q.bindNamedArgumentFinder(name -> {
+                statement.bindNamedArgumentFinder(name -> {
                     Expression e = engine.createExpression(name);
                     final Object it = e.evaluate(new MapContext(ImmutableMap.of(root_name, root)));
                     return it == null
                             ? Optional.empty()
-                            : Optional.of((position, statement, ctx) -> statement.setObject(position, it));
+                            : Optional.of((position, stmt, ctx) -> stmt.setObject(position, it));
                 });
             }
         }
