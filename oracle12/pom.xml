@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>jdbi3-oracle12</artifactId>
-    <name>JDBI Oracle</name>
+    <name>jdbi Oracle 12</name>
     <description>
         JDBI Oracle-specific features
     </description>

@@ -29,7 +29,7 @@ import org.jdbi.v3.core.statement.StatementCustomizer;
 import oracle.jdbc.OraclePreparedStatement;
 
 /**
- * BETA: Returns a {@link ResultBearing} from Oracle's "DML Returning" features introduced in 10.2. To use,
+ * Returns a {@link ResultBearing} from Oracle's "DML Returning" features introduced in 10.2. To use,
  * add a {@link #returnParameters()} customizer to the statement and register with one or more return parameters. Then
  * execute the statement with {@link #returningDml()} result producer:
  * <p>

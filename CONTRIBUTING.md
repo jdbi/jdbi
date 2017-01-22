@@ -125,6 +125,9 @@ mvn clean install -U -Poracle
 
 The `oracle` profile adds the `jdbi3-oracle12` artifact into the build process.
 
+You can enable this profile on a checkout with `jdbi3/$ touch .build-oracle`
+All release managers must do this to ensure the Oracle jars actually get released.
+
 # Running Oracle unit tests
 
 The previous setup will allow the `jdbi3-oracle12` artifact to build, but without an Oracle database running, all Oracle unit tests will simply be ignored.

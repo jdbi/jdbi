@@ -113,6 +113,11 @@
       </profile>
       <profile>
         <id>oracle</id>
+        <activation>
+          <file>
+            <exists>.build-oracle</exists>
+          </file>
+        </activation>
         <modules>
           <module>oracle12</module>
         </modules>
