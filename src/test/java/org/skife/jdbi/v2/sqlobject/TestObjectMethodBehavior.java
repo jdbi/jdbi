@@ -21,13 +21,15 @@ import org.skife.jdbi.v2.DBI;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Sometimes the GC will call {@link #finalize()} on a SqlObject from
- * extremely sensitive places from within the GC machinery.  JDBI should not
- * open a {@link Connection} just to satisfy a (no-op) finalizer.
+ * extremely sensitive places from within the GC machinery.
  * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
+ * Other methods also do not use a {@link Connection} and can cause issues acquiring one.
  */
-public class TestFinalizeBehavior
+public class TestObjectMethodBehavior
 {
     private DBI    dbi;
 
@@ -41,6 +43,29 @@ public class TestFinalizeBehavior
     {
         final UselessDao dao = dbi.onDemand(UselessDao.class);
         dao.finalize(); // Normally GC would do this, but just fake it
+    }
+
+    @Test
+    public void testHashCodeDoesntConnect() throws Exception
+    {
+        final UselessDao dao = dbi.onDemand(UselessDao.class);
+        //noinspection ResultOfMethodCallIgnored
+        dao.hashCode();
+    }
+
+    @Test
+    public void testEqualsDoesntConnect() throws Exception
+    {
+        final UselessDao dao = dbi.onDemand(UselessDao.class);
+        assertEquals(dao, dao);
+    }
+
+    @Test
+    public void testToStringDoesntConnect() throws Exception
+    {
+        final UselessDao dao = dbi.onDemand(UselessDao.class);
+        //noinspection ResultOfMethodCallIgnored
+        dao.toString();
     }
 
     @Before
