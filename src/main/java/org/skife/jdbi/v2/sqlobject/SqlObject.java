@@ -187,9 +187,7 @@ class SqlObject
         // this is an implicit mixin, not an explicit one, so we need to *always* add it
         handlers.putAll(CloseInternalDoNotUseThisClass.Helper.handlers());
 
-        handlers.putAll(EqualsHandler.handler());
         handlers.putAll(ToStringHandler.handler(sqlObjectType.getName()));
-        handlers.putAll(HashCodeHandler.handler());
 
         handlersCache.put(sqlObjectType, handlers);
 
@@ -214,6 +212,10 @@ class SqlObject
         // If there is no handler, pretend we are just an Object and don't open a connection (Issue #82)
         if (handler == null) {
             return mp.invokeSuper(proxy, args);
+        }
+
+        if (method.getDeclaringClass() == Object.class) {
+            return handler.invoke(ding, proxy, args, mp);
         }
 
         Throwable doNotMask = null;
