@@ -24,9 +24,9 @@ import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.result.ResultBearing;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 
 /**
@@ -38,19 +38,19 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 public @interface MapTo {
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg) {
-            final Type type;
-            if (arg instanceof GenericType) {
-                type = ((GenericType<?>) arg).getType();
-            } else if (! (arg instanceof Type)) {
-                throw new UnsupportedOperationException("@MapTo must take a Type, got a " + arg.getClass().getName());
-            } else {
-                type = (Type) arg;
-            }
-            return s -> {
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index) {
+            return (stmt, arg) -> {
+                final Type type;
+                if (arg instanceof GenericType) {
+                    type = ((GenericType<?>) arg).getType();
+                } else if (! (arg instanceof Type)) {
+                    throw new UnsupportedOperationException("@MapTo must take a Type, got a " + arg.getClass().getName());
+                } else {
+                    type = (Type) arg;
+                }
                 ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
-                s.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                        () -> returner.result(((ResultBearing) s).mapTo(type), s.getContext()));
+                stmt.getConfig(SqlObjectStatementConfiguration.class).setReturner(
+                        () -> returner.result(((ResultBearing) stmt).mapTo(type), stmt.getContext()));
             };
         }
     }

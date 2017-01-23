@@ -60,9 +60,7 @@ public @interface Timestamped {
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             final String parameterName = ((Timestamped) annotation).value();
 
-            return q -> {
-                q.bind(parameterName, OffsetDateTime.now());
-            };
+            return stmt -> stmt.bind(parameterName, OffsetDateTime.now());
         }
     }
 }

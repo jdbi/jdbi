@@ -130,17 +130,18 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     {
         try {
             for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
-                pair.factory.createForType(pair.annotation, sqlObjectType).apply(stmt);
+                pair.factory.createForType(pair.annotation, sqlObjectType)
+                        .apply(stmt);
             }
 
             for (FactoryAnnotationPair pair : methodBasedCustomizerFactories) {
-                pair.factory.createForMethod(pair.annotation, sqlObjectType, method).apply(stmt);
+                pair.factory.createForMethod(pair.annotation, sqlObjectType, method)
+                        .apply(stmt);
             }
 
             for (FactoryAnnotationParameterIndex param : paramBasedCustomizerFactories) {
-                param.factory
-                    .createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index])
-                    .apply(stmt);
+                param.factory.createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index)
+                        .apply(stmt, args[param.index]);
             }
         } catch (SQLException e) {
             throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());

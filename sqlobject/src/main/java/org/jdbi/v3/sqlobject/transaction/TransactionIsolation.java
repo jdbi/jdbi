@@ -31,6 +31,7 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 /**
  * Used to specify the transaction isolation level for an object or method (via annotating the method
@@ -47,40 +48,33 @@ public @interface TransactionIsolation
 
     class Factory implements SqlStatementCustomizerFactory
     {
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        {
+            TransactionIsolationLevel level = ((TransactionIsolation) annotation).value();
+            return stmt -> setTxnIsolation(stmt, level);
+        }
 
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            return new MyCustomizer(((TransactionIsolation) annotation).value());
+            return createForType(annotation, sqlObjectType);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index)
         {
-            return new MyCustomizer(((TransactionIsolation) annotation).value());
+            return (stmt, arg) -> {
+                assert arg instanceof TransactionIsolationLevel;
+                setTxnIsolation(stmt, (TransactionIsolationLevel) arg);
+            };
         }
 
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg)
+        private void setTxnIsolation(SqlStatement<?> stmt, TransactionIsolationLevel level) throws SQLException
         {
-            assert arg instanceof TransactionIsolationLevel;
-            return new MyCustomizer((TransactionIsolationLevel) arg);
-        }
-    }
+            final int initialLevel = stmt.getContext().getConnection().getTransactionIsolation();
 
-    class MyCustomizer implements SqlStatementCustomizer
-    {
-
-        private final TransactionIsolationLevel level;
-
-        MyCustomizer(TransactionIsolationLevel level) { this.level = level; }
-
-        @Override
-        public void apply(SqlStatement<?> q) throws SQLException
-        {
-            final int initial_level = q.getContext().getConnection().getTransactionIsolation();
-
-            q.addCustomizer(new StatementCustomizer()
+            stmt.addCustomizer(new StatementCustomizer()
             {
                 @Override
                 public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
@@ -91,7 +85,7 @@ public @interface TransactionIsolation
                 @Override
                 public void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException
                 {
-                    setTxnIsolation(ctx, initial_level);
+                    setTxnIsolation(ctx, initialLevel);
                 }
 
                 private void setTxnIsolation(StatementContext ctx, int level) throws SQLException

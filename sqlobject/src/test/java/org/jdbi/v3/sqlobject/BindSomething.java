@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
@@ -35,17 +35,16 @@ public @interface BindSomething
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             BindSomething bind = (BindSomething) annotation;
-            return q -> {
+            return (stmt, arg) -> {
                 Something it = (Something) arg;
-                q.bind(bind.value() + ".id", it.getId());
-                q.bind(bind.value() + ".name", it.getName());
+                stmt.bind(bind.value() + ".id", it.getId());
+                stmt.bind(bind.value() + ".name", it.getName());
             };
         }
     }

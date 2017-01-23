@@ -34,29 +34,26 @@ public @interface QueryTimeOut
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return q -> q.setQueryTimeout(fs.value());
-        }
-
-        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return q -> q.setQueryTimeout(fs.value());
+            int queryTimeout = ((QueryTimeOut) annotation).value();
+            return stmt -> stmt.setQueryTimeout(queryTimeout);
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final Integer va = (Integer) arg;
-            return q -> q.setQueryTimeout(va);
+            return createForType(annotation, sqlObjectType);
+        }
+
+        @Override
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
+        {
+            return (stmt, queryTimeout) -> stmt.setQueryTimeout((Integer) queryTimeout);
         }
     }
 

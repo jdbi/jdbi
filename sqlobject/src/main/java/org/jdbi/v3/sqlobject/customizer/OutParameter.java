@@ -46,26 +46,10 @@ public @interface OutParameter {
     int sqlType();
 
     class Factory implements SqlStatementCustomizerFactory {
-
-        @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
-            throw new UnsupportedOperationException("Not allowed on Type");
-        }
-
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
             final OutParameter outParam = (OutParameter) annotation;
             return stmt -> ((Call) stmt).registerOutParameter(outParam.name(), outParam.sqlType());
-        }
-
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
-            throw new UnsupportedOperationException("Not defined for parameter");
         }
     }
 }

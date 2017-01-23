@@ -56,15 +56,13 @@ public interface SqlStatementCustomizerFactory
      * @param method the method which was annotated
      * @param param the parameter which was annotated
      * @param index the method parameter index
-     * @param arg the argument value for the annotated parameter
      * @return the customizer which will be applied to the generated statement
      */
-    default SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                      Class<?> sqlObjectType,
-                                                      Method method,
-                                                      Parameter param,
-                                                      int index,
-                                                      Object arg)
+    default SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                               Class<?> sqlObjectType,
+                                                               Method method,
+                                                               Parameter param,
+                                                               int index)
     {
         throw new UnsupportedOperationException("Not supported for parameter");
     }

@@ -46,17 +46,16 @@ public @interface Bind
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
-            Bind b = (Bind) annotation;
-            String nameFromAnnotation = b == null ? "" : b.value();
-            final String name = ParameterUtil.getParameterName(b, nameFromAnnotation, param);
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
+            Bind bind = (Bind) annotation;
+            String nameFromAnnotation = bind == null ? "" : bind.value();
+            String name = ParameterUtil.getParameterName(bind, nameFromAnnotation, param);
 
-            return stmt -> {
+            return (stmt, arg) -> {
                 Type type = param.getParameterizedType();
 
                 if (stmt instanceof PreparedBatch && !param.isAnnotationPresent(SingleValue.class)) {

@@ -33,37 +33,31 @@ public @interface FetchSize
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            final FetchSize fs = (FetchSize) annotation;
-            return q -> {
-                assert q instanceof Query;
-                ((Query) q).setFetchSize(fs.value());
-            };
-        }
-
-        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            final FetchSize fs = (FetchSize) annotation;
-            return q -> {
-                assert q instanceof Query;
-                ((Query) q).setFetchSize(fs.value());
+            int fetchSize = ((FetchSize) annotation).value();
+            return stmt -> {
+                assert stmt instanceof Query;
+                ((Query) stmt).setFetchSize(fetchSize);
             };
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final Integer va = (Integer) arg;
-            return q -> {
-                assert q instanceof Query;
-                ((Query) q).setFetchSize(va);
+            return createForType(annotation, sqlObjectType);
+        }
+
+        @Override
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
+        {
+            return (stmt, fetchSize) -> {
+                assert stmt instanceof Query;
+                ((Query) stmt).setFetchSize((Integer) fetchSize);
             };
         }
     }

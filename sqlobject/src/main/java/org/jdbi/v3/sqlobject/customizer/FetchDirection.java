@@ -21,8 +21,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import org.jdbi.v3.core.statement.StatementCustomizers;
-
 /**
  * Used to specify the fetch direction, per JDBC, of a result set.
  */
@@ -39,39 +37,28 @@ public @interface FetchDirection
 
     class Factory implements SqlStatementCustomizerFactory
     {
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Object arg)
+        @Override
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            return create((Integer) arg);
+            int fetchDirection = ((FetchDirection) annotation).value();
+            return stmt -> stmt.setFetchDirection(fetchDirection);
         }
 
         @Override
         public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final FetchDirection fs = (FetchDirection) annotation;
-            return create(fs.value());
+            return createForType(annotation, sqlObjectType);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
         {
-            final FetchDirection fs = (FetchDirection) annotation;
-            return create(fs.value());
+            return (stmt, fetchDirection) -> stmt.setFetchDirection((Integer) fetchDirection);
         }
 
-        @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
-        {
-            return create((Integer) arg);
-        }
-
-        private static SqlStatementCustomizer create(Integer direction)
-        {
-            return q -> q.addCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(direction));
-        }
     }
 }

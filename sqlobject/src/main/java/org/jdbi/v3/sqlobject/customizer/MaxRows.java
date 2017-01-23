@@ -41,37 +41,31 @@ public @interface MaxRows
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            final int va = ((MaxRows)annotation).value();
-            return q -> {
-                assert q instanceof Query;
-                ((Query)q).setMaxRows(va);
-            };
-        }
-
-        @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            final int va = ((MaxRows)annotation).value();
-            return q -> {
-                assert q instanceof Query;
-                ((Query)q).setMaxRows(va);
+            final int maxRows = ((MaxRows)annotation).value();
+            return stmt -> {
+                assert stmt instanceof Query;
+                ((Query)stmt).setMaxRows(maxRows);
             };
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final Integer va = (Integer) arg;
-            return q -> {
-                assert q instanceof Query;
-                ((Query)q).setMaxRows(va);
+            return createForType(annotation, sqlObjectType);
+        }
+
+        @Override
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
+        {
+            return (stmt, maxRows) -> {
+                assert stmt instanceof Query;
+                ((Query)stmt).setMaxRows((Integer) maxRows);
             };
         }
     }

@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -34,21 +34,20 @@ public @interface BindJpa {
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             BindJpa bind = (BindJpa) annotation;
-            return stmt -> {
-                final String prefix;
-                if (bind.value().isEmpty()) {
-                    prefix = "";
-                } else {
-                    prefix = bind.value() + ".";
-                }
+            final String prefix;
+            if (bind.value().isEmpty()) {
+                prefix = "";
+            } else {
+                prefix = bind.value() + ".";
+            }
 
+            return (stmt, arg) -> {
                 JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
                 for (JpaMember member : jpaClass.members()) {
                     stmt.bindByType(
