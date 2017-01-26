@@ -25,6 +25,7 @@ import java.util.Iterator;
 
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
@@ -44,37 +45,36 @@ public @interface Bind
      */
     String value() default "";
 
-    class Factory implements SqlStatementCustomizerFactory {
+    class Factory implements SqlStatementCustomizer {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg) {
             Bind b = (Bind) annotation;
             String nameFromAnnotation = b == null ? "" : b.value();
             final String name = ParameterUtil.getParameterName(b, nameFromAnnotation, param);
 
-            return stmt -> {
-                Type type = param.getParameterizedType();
+            Type type = param.getParameterizedType();
 
-                if (stmt instanceof PreparedBatch && !param.isAnnotationPresent(SingleValue.class)) {
-                    Class<?> erasedType = GenericTypes.getErasedType(type);
-                    if (Iterable.class.isAssignableFrom(erasedType)) {
-                        type = GenericTypes.findGenericParameter(type, Iterable.class).get();
-                    }
-                    else if (Iterator.class.isAssignableFrom(erasedType)) {
-                        type = GenericTypes.findGenericParameter(type, Iterator.class).get();
-                    }
-                    else if (GenericTypes.isArray(type)) {
-                        type = ((Class<?>) type).getComponentType();
-                    }
+            if (statement instanceof PreparedBatch && !param.isAnnotationPresent(SingleValue.class)) {
+                Class<?> erasedType = GenericTypes.getErasedType(type);
+                if (Iterable.class.isAssignableFrom(erasedType)) {
+                    type = GenericTypes.findGenericParameter(type, Iterable.class).get();
                 }
+                else if (Iterator.class.isAssignableFrom(erasedType)) {
+                    type = GenericTypes.findGenericParameter(type, Iterator.class).get();
+                }
+                else if (GenericTypes.isArray(type)) {
+                    type = ((Class<?>) type).getComponentType();
+                }
+            }
 
-                stmt.bindByType(index, arg, type);
-                stmt.bindByType(name, arg, type);
-            };
+            statement.bindByType(index, arg, type);
+            statement.bindByType(name, arg, type);
         }
     }
 }

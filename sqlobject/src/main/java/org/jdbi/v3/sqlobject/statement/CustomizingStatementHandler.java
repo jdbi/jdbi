@@ -29,7 +29,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler
@@ -49,7 +49,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
             if (annotation.annotationType().isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
                 final SqlStatementCustomizingAnnotation a = annotation.annotationType()
                                                                       .getAnnotation(SqlStatementCustomizingAnnotation.class);
-                final SqlStatementCustomizerFactory f;
+                final SqlStatementCustomizer f;
                 try {
                     f = a.value().newInstance();
                 }
@@ -66,7 +66,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
             if (annotationType.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
                 final SqlStatementCustomizingAnnotation scf =
                     annotationType.getAnnotation(SqlStatementCustomizingAnnotation.class);
-                final SqlStatementCustomizerFactory f;
+                final SqlStatementCustomizer f;
                 try {
                     f = scf.value().newInstance();
                 }
@@ -88,7 +88,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                 if (annotationType.isAnnotationPresent(SqlStatementCustomizingAnnotation.class)) {
                     SqlStatementCustomizingAnnotation sca = annotation.annotationType()
                                                                       .getAnnotation(SqlStatementCustomizingAnnotation.class);
-                    final SqlStatementCustomizerFactory f;
+                    final SqlStatementCustomizer f;
                     try {
                         f = sca.value().newInstance();
                     }
@@ -130,17 +130,16 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     {
         try {
             for (FactoryAnnotationPair pair : typeBasedCustomizerFactories) {
-                pair.factory.createForType(pair.annotation, sqlObjectType).apply(stmt);
+                pair.factory.customizeForType(stmt, pair.annotation, sqlObjectType);
             }
 
             for (FactoryAnnotationPair pair : methodBasedCustomizerFactories) {
-                pair.factory.createForMethod(pair.annotation, sqlObjectType, method).apply(stmt);
+                pair.factory.customizeForMethod(stmt, pair.annotation, sqlObjectType, method);
             }
 
             for (FactoryAnnotationParameterIndex param : paramBasedCustomizerFactories) {
                 param.factory
-                    .createForParameter(param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index])
-                    .apply(stmt);
+                    .customizeForParameter(stmt, param.annotation, sqlObjectType, method, param.parameter, param.index, args[param.index]);
             }
         } catch (SQLException e) {
             throw new UnableToCreateStatementException("unable to apply customizer", e, stmt.getContext());
@@ -149,10 +148,10 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
     private static class FactoryAnnotationPair
     {
-        private final SqlStatementCustomizerFactory factory;
+        private final SqlStatementCustomizer factory;
         private final Annotation                    annotation;
 
-        FactoryAnnotationPair(SqlStatementCustomizerFactory factory, Annotation annotation)
+        FactoryAnnotationPair(SqlStatementCustomizer factory, Annotation annotation)
         {
             this.factory = factory;
             this.annotation = annotation;
@@ -161,12 +160,12 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
     private static class FactoryAnnotationParameterIndex
     {
-        private final SqlStatementCustomizerFactory factory;
+        private final SqlStatementCustomizer factory;
         private final Annotation                    annotation;
         private final Parameter                     parameter;
         private final int                           index;
 
-        FactoryAnnotationParameterIndex(SqlStatementCustomizerFactory factory,
+        FactoryAnnotationParameterIndex(SqlStatementCustomizer factory,
                                         Annotation annotation,
                                         Parameter parameter,
                                         int index)

@@ -15,6 +15,7 @@
 package org.jdbi.v3.sqlobject.customizer;
 
 
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
@@ -67,16 +68,17 @@ public @interface DefineList
      */
     String value() default "";
 
-    final class Factory implements SqlStatementCustomizerFactory
+    final class Factory implements SqlStatementCustomizer
     {
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg)
         {
             List<?> argsList;
             if (arg instanceof List) {
@@ -102,7 +104,7 @@ public @interface DefineList
             DefineList d = (DefineList) annotation;
             final String name = ParameterUtil.getParameterName(d, d.value(), param);
 
-            return stmt -> stmt.defineList(name, argsList);
+            statement.defineList(name, argsList);
         }
     }
 }

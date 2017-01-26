@@ -20,16 +20,16 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation used to build customizing annotations. Use this to annotate an annotation. See examples
- * in the org.jdbi.v3.sqlobject.customizers package.
+ * in the org.jdbi.v3.sqlobject.customizer package.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface SqlStatementCustomizingAnnotation
 {
     /**
-     * Specify a sql statement customizer factory which will be used to create
+     * Specify a sql statement customizer which will be used to create
      * sql statement customizers.
-     * @return a factory used to create customizers for the customizing annotation
+     * @return a type used to customizers SQL statements for the customizing annotation
      */
-    Class<? extends SqlStatementCustomizerFactory> value();
+    Class<? extends SqlStatementCustomizer> value();
 }

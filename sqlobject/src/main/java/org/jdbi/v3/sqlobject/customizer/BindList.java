@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.core.internal.IterableLike;
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
@@ -57,23 +58,26 @@ public @interface BindList {
      */
     EmptyHandling onEmpty() default EmptyHandling.THROW;
 
-    final class Factory implements SqlStatementCustomizerFactory {
+    final class Factory implements SqlStatementCustomizer {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg) {
             final BindList bindList = (BindList) annotation;
             final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
 
             if (arg == null || IterableLike.isEmpty(arg)) {
                 switch (bindList.onEmpty()) {
                     case VOID:
-                        return stmt -> stmt.define(name, "");
+                        statement.define(name, "");
+                        return;
                     case NULL:
-                        return stmt -> stmt.define(name, "null");
+                        statement.define(name, "null");
+                        return;
                     case THROW:
                         throw new IllegalArgumentException(arg == null
                                 ? "argument is null; null was explicitly forbidden on this instance of BindList"
@@ -83,7 +87,7 @@ public @interface BindList {
                 }
             }
 
-            return stmt -> stmt.bindList(name, IterableLike.toList(arg));
+            statement.bindList(name, IterableLike.toList(arg));
         }
 
     }

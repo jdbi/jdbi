@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.jpa;
 
+import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 import java.lang.annotation.Annotation;
@@ -32,31 +32,30 @@ import java.lang.reflect.Parameter;
 public @interface BindJpa {
     String value() default "";
 
-    class Factory implements SqlStatementCustomizerFactory {
+    class Factory implements SqlStatementCustomizer {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg) {
             BindJpa bind = (BindJpa) annotation;
-            return stmt -> {
-                final String prefix;
-                if (bind.value().isEmpty()) {
-                    prefix = "";
-                } else {
-                    prefix = bind.value() + ".";
-                }
+            final String prefix;
+            if (bind.value().isEmpty()) {
+                prefix = "";
+            } else {
+                prefix = bind.value() + ".";
+            }
 
-                JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
-                for (JpaMember member : jpaClass.members()) {
-                    stmt.bindByType(
-                            prefix + member.getColumnName(),
-                            readMember(arg, member),
-                            member.getType());
-                }
-            };
+            JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
+            for (JpaMember member : jpaClass.members()) {
+                statement.bindByType(
+                        prefix + member.getColumnName(),
+                        readMember(arg, member),
+                        member.getType());
+            }
         }
 
         private static Object readMember(Object entity, JpaMember member) {

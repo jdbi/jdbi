@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
+import org.jdbi.v3.core.statement.SqlStatement;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -53,14 +55,15 @@ public @interface BindMap
      */
     boolean convertKeys() default false;
 
-    class Factory implements SqlStatementCustomizerFactory {
+    class Factory implements SqlStatementCustomizer {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation a,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public void customizeForParameter(SqlStatement<?> stmt,
+                                          Annotation a,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg) {
             BindMap annotation = (BindMap) a;
             List<String> keys = Arrays.asList(annotation.keys());
             String prefix = annotation.value().isEmpty() ? "" : annotation.value() + ".";
@@ -77,8 +80,7 @@ public @interface BindMap
                 }
             });
             keys.forEach(key -> toBind.putIfAbsent(prefix + key, null));
-
-            return stmt -> stmt.bindMap(toBind);
+            stmt.bindMap(toBind);
         }
     }
 }

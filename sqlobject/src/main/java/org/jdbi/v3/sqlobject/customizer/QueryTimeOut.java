@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
+import org.jdbi.v3.core.statement.SqlStatement;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -31,32 +33,36 @@ public @interface QueryTimeOut
 {
     int value() default Integer.MAX_VALUE;
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizer
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public void customizeForType(SqlStatement<?> statement,
+                                     Annotation annotation,
+                                     Class<?> sqlObjectType)
         {
             final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return q -> q.setQueryTimeout(fs.value());
+            statement.setQueryTimeout(fs.value());
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void customizeForMethod(SqlStatement<?> statement,
+                                       Annotation annotation, Class<?> sqlObjectType, Method method)
         {
             final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return q -> q.setQueryTimeout(fs.value());
+            statement.setQueryTimeout(fs.value());
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg)
         {
             final Integer va = (Integer) arg;
-            return q -> q.setQueryTimeout(va);
+            statement.setQueryTimeout(va);
         }
     }
 

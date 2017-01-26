@@ -29,7 +29,6 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 /**
@@ -45,42 +44,43 @@ public @interface TransactionIsolation
 
     TransactionIsolationLevel value() default TransactionIsolationLevel.UNKNOWN;
 
-    class Factory implements SqlStatementCustomizerFactory
+    class Factory implements SqlStatementCustomizer
     {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public void customizeForType(SqlStatement<?> statement,
+                                     Annotation annotation,
+                                     Class<?> sqlObjectType) throws SQLException
         {
-            return new MyCustomizer(((TransactionIsolation) annotation).value());
+            customize(statement, ((TransactionIsolation) annotation).value());
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public void customizeForMethod(SqlStatement<?> statement,
+                                       Annotation annotation,
+                                       Class<?> sqlObjectType,
+                                       Method method) throws SQLException
         {
-            return new MyCustomizer(((TransactionIsolation) annotation).value());
+            customizeForType(statement, annotation, sqlObjectType);
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index, Object arg)
+        public void customizeForParameter(SqlStatement<?> statement,
+                                          Annotation annotation,
+                                          Class<?> sqlObjectType,
+                                          Method method,
+                                          Parameter param,
+                                          int index,
+                                          Object arg) throws SQLException
         {
             assert arg instanceof TransactionIsolationLevel;
-            return new MyCustomizer((TransactionIsolationLevel) arg);
+            customize(statement, (TransactionIsolationLevel) arg);
         }
-    }
 
-    class MyCustomizer implements SqlStatementCustomizer
-    {
+        private void customize(SqlStatement<?> statement, TransactionIsolationLevel level) throws SQLException {
+            final int initial_level = statement.getContext().getConnection().getTransactionIsolation();
 
-        private final TransactionIsolationLevel level;
-
-        MyCustomizer(TransactionIsolationLevel level) { this.level = level; }
-
-        @Override
-        public void apply(SqlStatement<?> q) throws SQLException
-        {
-            final int initial_level = q.getContext().getConnection().getTransactionIsolation();
-
-            q.addCustomizer(new StatementCustomizer()
+            statement.addCustomizer(new StatementCustomizer()
             {
                 @Override
                 public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException

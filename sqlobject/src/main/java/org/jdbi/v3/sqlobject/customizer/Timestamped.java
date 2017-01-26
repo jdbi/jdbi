@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
+import org.jdbi.v3.core.statement.SqlStatement;
+
 import java.lang.annotation.Target;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -54,15 +56,14 @@ public @interface Timestamped {
      */
     String value() default "now";
 
-    class Factory implements SqlStatementCustomizerFactory {
+    class Factory implements SqlStatementCustomizer {
 
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        public void customizeForMethod(SqlStatement<?> statement,
+                                       Annotation annotation,
+                                       Class<?> sqlObjectType,
+                                       Method method) {
             final String parameterName = ((Timestamped) annotation).value();
-
-            return q -> {
-                q.bind(parameterName, OffsetDateTime.now());
-            };
-        }
+            statement.bind(parameterName, OffsetDateTime.now());        }
     }
 }
