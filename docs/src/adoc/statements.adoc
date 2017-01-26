@@ -46,7 +46,7 @@ A *Call* invokes a database stored procedure.
 
 [source,java,indent=0]
 -------------------------------------------
-include::CallTest.java[tags=script]
+include::CallTest.java[tags=call]
 -------------------------------------------
 
 This section needs some help, in particular, how the hell
