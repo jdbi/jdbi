@@ -10,6 +10,9 @@ cache:
   directories:
     - '$HOME/.m2/repository'
 
+before_script:
+    - echo "MAVEN_OPTS='-Xmx1g'" > ~/.mavenrc
+
 before_install:
     - cp src/build/travis-toolchains.xml ~/.m2/toolchains.xml
     - '[ "$TRAVIS_SECURE_ENV_VARS" != "true" ] || openssl aes-256-cbc -K $secure_files_key -iv $secure_files_iv -in src/build/travis-settings.xml.enc -out ~/.m2/settings.xml -d'
