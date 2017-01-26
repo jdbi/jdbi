@@ -1,2 +1,2 @@
 #!/bin/sh
-exec mvn clean deploy -Ppublish-docs
+exec mvn clean deploy -Ppublish-docs,oracle
