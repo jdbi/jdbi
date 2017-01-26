@@ -22,14 +22,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -39,6 +37,8 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 public class TestBindExpression
 {
@@ -79,11 +79,11 @@ public class TestBindExpression
                                                                       Parameter param,
                                                                       int index)
             {
-                final String root_name = ((BindRoot) annotation).value();
+                final String rootName = ((BindRoot) annotation).value();
                 final JexlEngine engine = new JexlEngine();
                 return (q, root) -> q.bindNamedArgumentFinder(name -> {
                     Expression e = engine.createExpression(name);
-                    final Object it = e.evaluate(new MapContext(ImmutableMap.of(root_name, root)));
+                    final Object it = e.evaluate(new MapContext(ImmutableMap.of(rootName, root)));
                     return it == null
                             ? Optional.empty()
                             : Optional.of((position, statement, ctx) -> statement.setObject(position, it));

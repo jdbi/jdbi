@@ -36,13 +36,14 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 @SqlStatementCustomizingAnnotation(Bind.Factory.class)
 public @interface Bind
 {
+    static final String NO_VALUE = "";
     /**
      * The name to bind the argument to. If omitted, the name of the annotated parameter is used. It is an
      * error to omit the name when there is no parameter naming information in your class files.
      *
      * @return the name to which the argument will be bound.
      */
-    String value() default "";
+    String value() default NO_VALUE;
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
@@ -51,9 +52,9 @@ public @interface Bind
                                                                   Method method,
                                                                   Parameter param,
                                                                   int index) {
-            Bind bind = (Bind) annotation;
-            String nameFromAnnotation = bind == null ? "" : bind.value();
-            String name = ParameterUtil.getParameterName(bind, nameFromAnnotation, param);
+            Bind b = (Bind) annotation;
+            String nameFromAnnotation = b == null ? "" : b.value();
+            final String name = ParameterUtil.getParameterName(b, nameFromAnnotation, param);
 
             return (stmt, arg) -> {
                 Type type = param.getParameterizedType();
@@ -76,4 +77,16 @@ public @interface Bind
             };
         }
     }
+
+    public static final Bind DEFAULT = new Bind() {
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return Bind.class;
+        }
+
+        @Override
+        public String value() {
+            return NO_VALUE;
+        }
+    };
 }

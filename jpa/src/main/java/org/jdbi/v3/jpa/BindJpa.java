@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.jpa;
 
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,6 +21,10 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
@@ -46,7 +46,6 @@ public @interface BindJpa {
             } else {
                 prefix = bind.value() + ".";
             }
-
             return (stmt, arg) -> {
                 JpaClass<?> jpaClass = JpaClass.get(arg.getClass());
                 for (JpaMember member : jpaClass.members()) {

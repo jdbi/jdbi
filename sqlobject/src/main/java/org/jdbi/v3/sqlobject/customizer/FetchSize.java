@@ -36,10 +36,7 @@ public @interface FetchSize
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             int fetchSize = ((FetchSize) annotation).value();
-            return stmt -> {
-                assert stmt instanceof Query;
-                ((Query) stmt).setFetchSize(fetchSize);
-            };
+            return stmt -> ((Query) stmt).setFetchSize(fetchSize);
         }
 
         @Override
@@ -55,10 +52,7 @@ public @interface FetchSize
                                                                   Parameter param,
                                                                   int index)
         {
-            return (stmt, fetchSize) -> {
-                assert stmt instanceof Query;
-                ((Query) stmt).setFetchSize((Integer) fetchSize);
-            };
+            return (stmt, fetchSize) -> ((Query) stmt).setFetchSize((Integer) fetchSize);
         }
     }
 }

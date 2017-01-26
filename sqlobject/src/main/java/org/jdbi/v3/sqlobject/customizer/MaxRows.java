@@ -44,10 +44,7 @@ public @interface MaxRows
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
             final int maxRows = ((MaxRows)annotation).value();
-            return stmt -> {
-                assert stmt instanceof Query;
-                ((Query)stmt).setMaxRows(maxRows);
-            };
+            return stmt -> ((Query)stmt).setMaxRows(maxRows);
         }
 
         @Override
@@ -63,10 +60,7 @@ public @interface MaxRows
                                                                   Parameter param,
                                                                   int index)
         {
-            return (stmt, maxRows) -> {
-                assert stmt instanceof Query;
-                ((Query)stmt).setMaxRows((Integer) maxRows);
-            };
+            return (stmt, maxRows) -> ((Query)stmt).setMaxRows((Integer) maxRows);
         }
     }
 }

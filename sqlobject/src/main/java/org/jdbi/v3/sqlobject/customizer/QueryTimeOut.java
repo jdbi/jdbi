@@ -56,6 +56,4 @@ public @interface QueryTimeOut
             return (stmt, queryTimeout) -> stmt.setQueryTimeout((Integer) queryTimeout);
         }
     }
-
-
 }

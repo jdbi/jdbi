@@ -70,25 +70,24 @@ public @interface BindList {
             return (stmt, arg) -> {
                 if (arg == null || IterableLike.isEmpty(arg)) {
                     switch (bindList.onEmpty()) {
-                        case VOID:
-                            stmt.define(name, "");
-                            return;
-                        case NULL:
-                            stmt.define(name, "null");
-                            return;
-                        case THROW:
-                            throw new IllegalArgumentException(arg == null
-                                    ? "argument is null; null was explicitly forbidden on this instance of BindList"
-                                    : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
-                        default:
-                            throw new IllegalStateException(EmptyHandling.valueNotHandledMessage);
+                    case VOID:
+                        stmt.define(name, "");
+                        return;
+                    case NULL:
+                        stmt.define(name, "null");
+                        return;
+                    case THROW:
+                        throw new IllegalArgumentException(arg == null
+                        ? "argument is null; null was explicitly forbidden on this instance of BindList"
+                                : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
+                    default:
+                        throw new IllegalStateException(EmptyHandling.valueNotHandledMessage);
                     }
                 }
 
                 stmt.bindList(name, IterableLike.toList(arg));
             };
         }
-
     }
 
     /**

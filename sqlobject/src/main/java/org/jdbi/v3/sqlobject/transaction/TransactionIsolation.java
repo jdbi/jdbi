@@ -64,10 +64,7 @@ public @interface TransactionIsolation
         @Override
         public SqlStatementParameterCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index)
         {
-            return (stmt, arg) -> {
-                assert arg instanceof TransactionIsolationLevel;
-                setTxnIsolation(stmt, (TransactionIsolationLevel) arg);
-            };
+            return (stmt, level) -> setTxnIsolation(stmt, (TransactionIsolationLevel) level);
         }
 
         private void setTxnIsolation(SqlStatement<?> stmt, TransactionIsolationLevel level) throws SQLException

@@ -18,7 +18,7 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
- * Customize a {@link SqlStatement} according to the value to an annotated parameter.
+ * Customize a {@link SqlStatement} according to the value of an annotated parameter.
  */
 public interface SqlStatementParameterCustomizer
 {

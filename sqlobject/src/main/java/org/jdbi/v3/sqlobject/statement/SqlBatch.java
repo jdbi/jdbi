@@ -31,6 +31,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.PreparedBatch;
@@ -98,12 +99,19 @@ public @interface SqlBatch {
                 batchIntermediate = PreparedBatch::executeAndGetModCount;
                 magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
             } else {
+                String[] columnNames = getGeneratedKeys.value();
                 magic = ResultReturner.forMethod(sqlObjectType, method);
-                final Function<StatementContext, RowMapper<?>> mapper = ctx -> rowMapperFor(getGeneratedKeys, magic.elementType(ctx));
-                if (getGeneratedKeys.columnName().isEmpty()) {
-                    batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys().map(mapper.apply(batch.getContext())).iterator();
-                } else {
-                    batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(getGeneratedKeys.columnName()).map(mapper.apply(batch.getContext())).iterator();
+
+                if (method.isAnnotationPresent(UseRowMapper.class)) {
+                    RowMapper<?> mapper = rowMapperFor(method.getAnnotation(UseRowMapper.class));
+                    batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
+                            .map(mapper)
+                            .iterator();
+                }
+                else {
+                    batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
+                            .mapTo(magic.elementType(batch.getContext()))
+                            .iterator();
                 }
             }
         }
@@ -154,63 +162,91 @@ public @interface SqlBatch {
             final int chunkSize = batchChunkSize.call(args);
             final Iterator<Object[]> batchArgs = zipArgs(getMethod(), args);
 
-            ResultIterator<Object> result = new ResultIterator<Object>() {
-                ResultIterator<?> batchResult;
-                boolean closed = false;
+            ResultIterator<Object> result;
 
-                {
-                    hasNext(); // Ensure our batchResult is prepared, so we can get its context
-                }
+            if (batchArgs.hasNext()) {
+                result = new ResultIterator<Object>() {
+                    ResultIterator<?> batchResult;
+                    boolean closed = false;
 
-                @Override
-                public boolean hasNext() {
-                    if (closed) {
-                        throw new IllegalStateException("closed");
+                    {
+                        hasNext(); // Ensure our batchResult is prepared, so we can get its context
                     }
-                    // first, any elements already buffered?
-                    if (batchResult != null) {
-                        if (batchResult.hasNext()) {
-                            return true;
+
+                    @Override
+                    public boolean hasNext() {
+                        if (closed) {
+                            throw new IllegalStateException("closed");
                         }
-                        // no more in this chunk, release resources
+                        // first, any elements already buffered?
+                        if (batchResult != null) {
+                            if (batchResult.hasNext()) {
+                                return true;
+                            }
+                            // no more in this chunk, release resources
+                            batchResult.close();
+                        }
+                        // more chunks?
+                        if (!batchArgs.hasNext()) {
+                            return false;
+                        }
+                        // execute a single chunk and buffer
+                        PreparedBatch batch = handle.prepareBatch(sql);
+                        for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
+                            applyCustomizers(batch, batchArgs.next());
+                            batch.add();
+                        }
+                        batchResult = executeBatch(handle, batch);
+                        return hasNext(); // recurse to ensure we actually got elements
+                    }
+
+                    @Override
+                    public Object next() {
+                        if (closed) {
+                            throw new IllegalStateException("closed");
+                        }
+                        if (!hasNext()) {
+                            throw new NoSuchElementException();
+                        }
+                        return batchResult.next();
+                    }
+
+                    @Override
+                    public StatementContext getContext() {
+                        return batchResult.getContext();
+                    }
+
+                    @Override
+                    public void close() {
+                        closed = true;
                         batchResult.close();
                     }
-                    // more chunks?
-                    if (!batchArgs.hasNext()) {
+                };
+            }
+            else {
+                PreparedBatch dummy = handle.prepareBatch(sql);
+                result = new ResultIterator<Object>() {
+                    @Override
+                    public void close() {
+                        // no op
+                    }
+
+                    @Override
+                    public StatementContext getContext() {
+                        return dummy.getContext();
+                    }
+
+                    @Override
+                    public boolean hasNext() {
                         return false;
                     }
-                    // execute a single chunk and buffer
-                    PreparedBatch batch = handle.prepareBatch(sql);
-                    for (int i = 0; i < chunkSize && batchArgs.hasNext(); i++) {
-                        applyCustomizers(batch, batchArgs.next());
-                        batch.add();
-                    }
-                    batchResult = executeBatch(handle, batch);
-                    return hasNext(); // recurse to ensure we actually got elements
-                }
 
-                @Override
-                public Object next() {
-                    if (closed) {
-                        throw new IllegalStateException("closed");
-                    }
-                    if (!hasNext()) {
+                    @Override
+                    public Object next() {
                         throw new NoSuchElementException();
                     }
-                    return batchResult.next();
-                }
-
-                @Override
-                public StatementContext getContext() {
-                    return batchResult.getContext();
-                }
-
-                @Override
-                public void close() {
-                    closed = true;
-                    batchResult.close();
-                }
-            };
+                };
+            }
 
             ResultIterable<Object> iterable = ResultIterable.of(result);
 
