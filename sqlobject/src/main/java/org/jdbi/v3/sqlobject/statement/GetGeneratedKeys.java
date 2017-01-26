@@ -17,51 +17,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Type;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.SingleColumnMapper;
-import org.jdbi.v3.core.statement.StatementContext;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface GetGeneratedKeys {
-    Class<? extends RowMapper<?>> value() default DefaultMapper.class;
-
-    String columnName() default "";
-
-    class DefaultMapper implements RowMapper<Object> {
-        private final Type returnType;
-        private final String columnName;
-
-        DefaultMapper(Type returnType, String columnName) {
-            this.returnType = returnType;
-            this.columnName = columnName;
-        }
-
-        @Override
-        public Object map(ResultSet rs, StatementContext ctx) throws SQLException {
-            return rowMapperFor(ctx).map(rs, ctx);
-        }
-
-        @Override
-        public RowMapper<Object> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-            return rowMapperFor(ctx).specialize(rs, ctx);
-        }
-
-        @SuppressWarnings("unchecked")
-        private RowMapper<Object> rowMapperFor(StatementContext ctx) {
-            ColumnMapper<Object> columnMapper = (ColumnMapper<Object>) ctx.findColumnMapperFor(returnType).orElse(null);
-            if (columnMapper != null) {
-                return "".equals(columnName)
-                        ? new SingleColumnMapper<>(columnMapper, 1)
-                        : new SingleColumnMapper<>(columnMapper, columnName);
-            }
-            return (RowMapper<Object>) ctx.findRowMapperFor(returnType)
-                    .orElseThrow(() -> new IllegalStateException("No column or row mapper for " + returnType));
-        }
-    }
+    /**
+     * Column names of the generated key(s) from a SQL statement.
+     */
+    String[] value() default {};
 }

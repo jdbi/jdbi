@@ -18,9 +18,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
@@ -58,7 +61,15 @@ public @interface SqlQuery {
 
         @Override
         void configureReturner(Query q, SqlObjectStatementConfiguration cfg) {
-            cfg.setReturner(() -> magic.map(q, q.getContext()));
+            cfg.setReturner(() -> {
+                StatementContext ctx = q.getContext();
+                Type elementType = magic.elementType(ctx);
+                UseRowMapper useRowMapper = getMethod().getAnnotation(UseRowMapper.class);
+                ResultIterable<?> iterable = useRowMapper == null
+                        ? q.mapTo(elementType)
+                        : q.map(rowMapperFor(useRowMapper));
+                return magic.result(iterable, ctx);
+            });
         }
 
         @Override
