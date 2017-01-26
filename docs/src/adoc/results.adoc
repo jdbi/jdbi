@@ -101,7 +101,7 @@ and so on.
 
 
 
-= ResultBearing
+== ResultBearing
 
 The *ResultBearing* interface determines how the statement results
 are gathered and returned to you.  The methods are designed to

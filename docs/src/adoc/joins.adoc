@@ -42,5 +42,5 @@ You can also use it with SqlObject:
 
 [source,java,indent=0]
 -------------------------------------------
-include::../../../../../../core/src/test/java/org/jdbi/v3/core/mapper/JoinRowMapperTest.java[tags=sqlobject-joinrow]
+include::../../../../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject/TestRegisterJoinRowMapper.java[tags=joinrow]
 -------------------------------------------

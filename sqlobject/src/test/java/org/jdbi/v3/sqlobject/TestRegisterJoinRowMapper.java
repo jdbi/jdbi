@@ -43,7 +43,7 @@ public class TestRegisterJoinRowMapper
         t.setUp();
     }
 
-    // tag::joinrow
+    // tag::joinrow[]
     @Test
     public void testSqlObjectJoinRow()
     {
@@ -60,5 +60,5 @@ public class TestRegisterJoinRowMapper
         @SqlQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")
         Stream<JoinRow> getAuthorship();
     }
-    // end::joinrow
+    // end::joinrow[]
 }
