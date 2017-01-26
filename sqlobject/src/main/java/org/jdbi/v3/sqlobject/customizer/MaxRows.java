@@ -41,21 +41,16 @@ public @interface MaxRows
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            final int va = ((MaxRows)annotation).value();
-            return q -> {
-                ((Query)q).setMaxRows(va);
-            };
+            final int maxRows = ((MaxRows)annotation).value();
+            return stmt -> ((Query)stmt).setMaxRows(maxRows);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final int va = ((MaxRows)annotation).value();
-            return q -> {
-                ((Query)q).setMaxRows(va);
-            };
+            return createForType(annotation, sqlObjectType);
         }
 
         @Override
@@ -65,9 +60,7 @@ public @interface MaxRows
                                                                   Parameter param,
                                                                   int index)
         {
-            return (q, arg) -> {
-                ((Query)q).setMaxRows((Integer) arg);
-            };
+            return (stmt, maxRows) -> ((Query)stmt).setMaxRows((Integer) maxRows);
         }
     }
 }

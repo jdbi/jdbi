@@ -35,10 +35,10 @@ public @interface BindJpa {
     class Factory implements SqlStatementCustomizerFactory {
         @Override
         public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index) {
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             BindJpa bind = (BindJpa) annotation;
             final String prefix;
             if (bind.value().isEmpty()) {

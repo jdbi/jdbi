@@ -86,11 +86,10 @@ public @interface DefineList
                     argsList = (List<?>) arg;
                 } else if (arg instanceof Object[]) {
                     argsList = Arrays.asList((Object[]) arg);
+                } else if (arg == null) {
+                    throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. " +
+                            "@DefineList is only supported on List and array arguments");
                 } else {
-                    if (arg == null) {
-                        throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. " +
-                                "@DefineList is only supported on List and array arguments");
-                    }
                     throw new IllegalArgumentException("A " + arg.getClass() + " object was passed as a @DefineList " +
                             "parameter. @DefineList is only supported on List and array arguments");
                 }

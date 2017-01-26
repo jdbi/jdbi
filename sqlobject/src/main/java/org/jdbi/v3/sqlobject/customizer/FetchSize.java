@@ -33,21 +33,16 @@ public @interface FetchSize
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            final FetchSize fs = (FetchSize) annotation;
-            return q -> {
-                ((Query) q).setFetchSize(fs.value());
-            };
+            int fetchSize = ((FetchSize) annotation).value();
+            return stmt -> ((Query) stmt).setFetchSize(fetchSize);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final FetchSize fs = (FetchSize) annotation;
-            return q -> {
-                ((Query) q).setFetchSize(fs.value());
-            };
+            return createForType(annotation, sqlObjectType);
         }
 
         @Override
@@ -57,9 +52,7 @@ public @interface FetchSize
                                                                   Parameter param,
                                                                   int index)
         {
-            return (q, arg) -> {
-                ((Query) q).setFetchSize((Integer) arg);
-            };
+            return (stmt, fetchSize) -> ((Query) stmt).setFetchSize((Integer) fetchSize);
         }
     }
 }

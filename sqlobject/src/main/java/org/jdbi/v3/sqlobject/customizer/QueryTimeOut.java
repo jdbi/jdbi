@@ -34,27 +34,26 @@ public @interface QueryTimeOut
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
+        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
         {
-            final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return q -> q.setQueryTimeout(fs.value());
+            int queryTimeout = ((QueryTimeOut) annotation).value();
+            return stmt -> stmt.setQueryTimeout(queryTimeout);
         }
 
         @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
+        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
         {
-            final QueryTimeOut fs = (QueryTimeOut) annotation;
-            return q -> q.setQueryTimeout(fs.value());
+            return createForType(annotation, sqlObjectType);
         }
 
         @Override
         public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index)
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
         {
-            return (q, arg) -> q.setQueryTimeout((Integer) arg);
+            return (stmt, queryTimeout) -> stmt.setQueryTimeout((Integer) queryTimeout);
         }
     }
 }

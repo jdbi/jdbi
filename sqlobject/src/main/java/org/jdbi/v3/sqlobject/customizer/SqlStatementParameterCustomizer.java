@@ -18,13 +18,12 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
- * Customize a {@link SqlStatement} according to the value
- * of a given parameter.
+ * Customize a {@link SqlStatement} according to the value of an annotated parameter.
  */
 public interface SqlStatementParameterCustomizer
 {
     /**
-     * Invoked to customize the sql statement, given the parameter.
+     * Applies the customization to the SQL statement using the argument passed to the method.
      * @param stmt the statement being customized
      * @param arg the argument passed to the method
      * @throws SQLException will abort statement creation

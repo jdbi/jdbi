@@ -39,7 +39,7 @@ public @interface MapTo {
     class Factory implements SqlStatementCustomizerFactory {
         @Override
         public SqlStatementParameterCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index) {
-            return (s, arg) -> {
+            return (stmt, arg) -> {
                 final Type type;
                 if (arg instanceof GenericType) {
                     type = ((GenericType<?>) arg).getType();
@@ -49,8 +49,8 @@ public @interface MapTo {
                     type = (Type) arg;
                 }
                 ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
-                s.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                        () -> returner.result(((ResultBearing) s).mapTo(type), s.getContext()));
+                stmt.getConfig(SqlObjectStatementConfiguration.class).setReturner(
+                        () -> returner.result(((ResultBearing) stmt).mapTo(type), stmt.getContext()));
             };
         }
     }

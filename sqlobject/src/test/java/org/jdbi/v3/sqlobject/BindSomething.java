@@ -41,10 +41,10 @@ public @interface BindSomething
                                                                   Parameter param,
                                                                   int index) {
             BindSomething bind = (BindSomething) annotation;
-            return (q, arg) -> {
+            return (stmt, arg) -> {
                 Something it = (Something) arg;
-                q.bind(bind.value() + ".id", it.getId());
-                q.bind(bind.value() + ".name", it.getName());
+                stmt.bind(bind.value() + ".id", it.getId());
+                stmt.bind(bind.value() + ".name", it.getName());
             };
         }
     }
