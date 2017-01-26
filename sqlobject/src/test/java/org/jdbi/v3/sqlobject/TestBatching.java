@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
@@ -156,6 +157,14 @@ public class TestBatching
         handle.execute("CREATE TABLE test (id varchar)");
         UsesBatching b = handle.attach(UsesBatching.class);
         b.invalidInsertString("bob");
+    }
+
+    @Test
+    public void testEmptyBatch() throws Exception
+    {
+        handle.execute("CREATE TABLE test (id varchar)");
+        UsesBatching b = handle.attach(UsesBatching.class);
+        assertThat(b.insertBeans(emptySet())).isEmpty();
     }
 
     @BatchChunkSize(4)
