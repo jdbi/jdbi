@@ -15,9 +15,6 @@
 package org.jdbi.v3.sqlobject.customizer;
 
 
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.sqlobject.internal.ParameterUtil;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,6 +24,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
+
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
  * Defines a named attribute as a comma-separated {@link String} from the elements of the annotated array or
@@ -71,38 +71,39 @@ public @interface DefineList
     {
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
         {
-            List<?> argsList;
-            if (arg instanceof List) {
-                argsList = (List<?>) arg;
-            } else if (arg instanceof Object[]) {
-                argsList = Arrays.asList((Object[]) arg);
-            } else {
-                if (arg == null) {
-                    throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. " +
-                            "@DefineList is only supported on List and array arguments");
-                }
-                throw new IllegalArgumentException("A " + arg.getClass() + " object was passed as a @DefineList " +
-                        "parameter. @DefineList is only supported on List and array arguments");
-            }
-            if (argsList.isEmpty()) {
-                throw new IllegalArgumentException("An empty list was passed as a @DefineList parameter. Can't define " +
-                        "an empty attribute.");
-            }
-            if (argsList.contains(null)) {
-                throw new IllegalArgumentException("A @DefineList parameter was passed a list with null values in it.");
-            }
-
-            DefineList d = (DefineList) annotation;
+            final DefineList d = (DefineList) annotation;
             final String name = ParameterUtil.getParameterName(d, d.value(), param);
 
-            return stmt -> stmt.defineList(name, argsList);
+            return (stmt, arg) -> {
+                List<?> argsList;
+                if (arg instanceof List) {
+                    argsList = (List<?>) arg;
+                } else if (arg instanceof Object[]) {
+                    argsList = Arrays.asList((Object[]) arg);
+                } else {
+                    if (arg == null) {
+                        throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. " +
+                                "@DefineList is only supported on List and array arguments");
+                    }
+                    throw new IllegalArgumentException("A " + arg.getClass() + " object was passed as a @DefineList " +
+                            "parameter. @DefineList is only supported on List and array arguments");
+                }
+                if (argsList.isEmpty()) {
+                    throw new IllegalArgumentException("An empty list was passed as a @DefineList parameter. Can't define " +
+                            "an empty attribute.");
+                }
+                if (argsList.contains(null)) {
+                    throw new IllegalArgumentException("A @DefineList parameter was passed a list with null values in it.");
+                }
+
+                stmt.defineList(name, argsList);
+            };
         }
     }
 }

@@ -37,7 +37,6 @@ public @interface FetchSize
         {
             final FetchSize fs = (FetchSize) annotation;
             return q -> {
-                assert q instanceof Query;
                 ((Query) q).setFetchSize(fs.value());
             };
         }
@@ -47,23 +46,19 @@ public @interface FetchSize
         {
             final FetchSize fs = (FetchSize) annotation;
             return q -> {
-                assert q instanceof Query;
                 ((Query) q).setFetchSize(fs.value());
             };
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
         {
-            final Integer va = (Integer) arg;
-            return q -> {
-                assert q instanceof Query;
-                ((Query) q).setFetchSize(va);
+            return (q, arg) -> {
+                ((Query) q).setFetchSize((Integer) arg);
             };
         }
     }

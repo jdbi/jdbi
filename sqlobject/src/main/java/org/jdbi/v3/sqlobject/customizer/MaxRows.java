@@ -45,7 +45,6 @@ public @interface MaxRows
         {
             final int va = ((MaxRows)annotation).value();
             return q -> {
-                assert q instanceof Query;
                 ((Query)q).setMaxRows(va);
             };
         }
@@ -55,23 +54,19 @@ public @interface MaxRows
         {
             final int va = ((MaxRows)annotation).value();
             return q -> {
-                assert q instanceof Query;
                 ((Query)q).setMaxRows(va);
             };
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
         {
-            final Integer va = (Integer) arg;
-            return q -> {
-                assert q instanceof Query;
-                ((Query)q).setMaxRows(va);
+            return (q, arg) -> {
+                ((Query)q).setMaxRows((Integer) arg);
             };
         }
     }

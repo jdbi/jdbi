@@ -55,30 +55,31 @@ public @interface BindMap
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation a,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg) {
+        public SqlStatementParameterCustomizer createForParameter(Annotation a,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             BindMap annotation = (BindMap) a;
             List<String> keys = Arrays.asList(annotation.keys());
             String prefix = annotation.value().isEmpty() ? "" : annotation.value() + ".";
-            Map<?, ?> map = (Map<?, ?>) arg;
-            Map<String, Object> toBind = new HashMap<>();
-            map.forEach((k, v) -> {
-                if (annotation.convertKeys() || k instanceof String) {
-                    String key = k.toString();
-                    if (keys.isEmpty() || keys.contains(key)) {
-                        toBind.put(prefix + key, v);
-                    }
-                } else {
-                    throw new IllegalArgumentException("Key " + k + " (of " + k.getClass() + ") must be a String");
-                }
-            });
-            keys.forEach(key -> toBind.putIfAbsent(prefix + key, null));
 
-            return stmt -> stmt.bindMap(toBind);
+            return (stmt, arg) -> {
+                Map<?, ?> map = (Map<?, ?>) arg;
+                Map<String, Object> toBind = new HashMap<>();
+                map.forEach((k, v) -> {
+                    if (annotation.convertKeys() || k instanceof String) {
+                        String key = k.toString();
+                        if (keys.isEmpty() || keys.contains(key)) {
+                            toBind.put(prefix + key, v);
+                        }
+                    } else {
+                        throw new IllegalArgumentException("Key " + k + " (of " + k.getClass() + ") must be a String");
+                    }
+                });
+                keys.forEach(key -> toBind.putIfAbsent(prefix + key, null));
+                stmt.bindMap(toBind);
+            };
         }
     }
 }

@@ -37,14 +37,13 @@ public @interface BindBean
 
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object bean) {
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index) {
             BindBean bind = (BindBean) annotation;
-            return stmt -> {
+            return (stmt, bean) -> {
                 String prefix = bind.value();
                 if (prefix.isEmpty()) {
                     stmt.bindBean(bean);

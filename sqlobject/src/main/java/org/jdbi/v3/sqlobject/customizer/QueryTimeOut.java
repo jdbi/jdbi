@@ -48,17 +48,13 @@ public @interface QueryTimeOut
         }
 
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
                                                          Class<?> sqlObjectType,
                                                          Method method,
                                                          Parameter param,
-                                                         int index,
-                                                         Object arg)
+                                                         int index)
         {
-            final Integer va = (Integer) arg;
-            return q -> q.setQueryTimeout(va);
+            return (q, arg) -> q.setQueryTimeout((Integer) arg);
         }
     }
-
-
 }

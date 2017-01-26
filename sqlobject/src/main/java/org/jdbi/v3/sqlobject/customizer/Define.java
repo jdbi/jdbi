@@ -44,17 +44,16 @@ public @interface Define
     class Factory implements SqlStatementCustomizerFactory
     {
         @Override
-        public SqlStatementCustomizer createForParameter(Annotation annotation,
-                                                         Class<?> sqlObjectType,
-                                                         Method method,
-                                                         Parameter param,
-                                                         int index,
-                                                         Object arg)
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index)
         {
             Define define = (Define) annotation;
 
             final String name = ParameterUtil.getParameterName(define, define.value(), param);
-            return stmt -> stmt.define(name, arg);
+            return (stmt, arg) -> stmt.define(name, arg);
         }
     }
 }
