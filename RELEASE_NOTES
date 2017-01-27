@@ -1,3 +1,6 @@
+2.79
+  - various SqlObject methods like hashCode and equals no longer open connections
+
 2.78
   - @BindIn: fix handling of empty lists on Postgres
   - clear SqlObject ThreadLocals on close, fixes leak on e.g. webapp reload
