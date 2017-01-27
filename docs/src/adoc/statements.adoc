@@ -1,0 +1,66 @@
+= Statements
+
+*jdbi* provides fluent builders for various types of queries, updates, and
+batch statements.
+
+== Query
+
+A *Query* is a *Statement* that returns a result set from the database.
+
+[source,java,indent=0]
+-------------------------------------------
+include::StatementsTest.java[tags=query]
+-------------------------------------------
+
+Queries may have <<arguments#,arguments>> bound by name or by position.
+
+They also have a <<results,#result type>>.  The default is *Map<String, Object>*.
+The keys are column labels, and values are *jdbi*'s best guess at a reasonable type.
+
+Declaring a class that closely maps to your database table makes mapping to
+or from database rows simple:
+
+== Update
+
+*Update*s are operations that return an integer number of rows modified,
+such as a database *INSERT*, *UPDATE*, or *DELETE*.
+
+[source,java,indent=0]
+-------------------------------------------
+include::StatementsTest.java[tags=update]
+-------------------------------------------
+
+== Script
+
+A *Script* parses a String into semicolon terminated statements.
+The statements can be executed in a single *Batch* or individually.
+
+[source,java,indent=0]
+-------------------------------------------
+include::StatementsTest.java[tags=script]
+-------------------------------------------
+
+== Call
+
+A *Call* invokes a database stored procedure.
+
+[source,java,indent=0]
+-------------------------------------------
+include::CallTest.java[tags=call]
+-------------------------------------------
+
+This section needs some help, in particular, how the hell
+does the out parameter mapping above work?
+
+== Batch
+
+A *Batch* or *PreparedBatch* sends many rows to the server
+in bulk.  After opening the batch, repeatedly add bound
+parameters or statements, and invoke *add*.
+
+The result is a list of modified row count.
+
+[source,java,indent=0]
+-------------------------------------------
+include::StatementsTest.java[tags=batch]
+-------------------------------------------

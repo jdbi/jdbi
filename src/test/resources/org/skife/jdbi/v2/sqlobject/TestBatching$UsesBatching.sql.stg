@@ -1,3 +1,0 @@
-group UsesBatching;
-
-insertChunked() ::= << insert into something (id, name) values (:it.id, :it.name) >>

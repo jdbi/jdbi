@@ -1,0 +1,142 @@
+= Results
+
+After executing a database query, you need to interpret the results.
+JDBC provides the *ResultSet* class which can do simple mapping to
+Java primitives and built in classes, but the API is often cumbersome
+to use.  *jdbi* provides configurable mapping, including
+the ability to register custom mappers for rows and columns.
+
+A *RowMapper* converts a row of a *ResultSet* into a result object.
+
+A *ColumnMapper* converts a single column's value into a Java object.
+It can be used as a *RowMapper* if there is only one column present,
+or it can be used to build more complex *RowMapper*s.
+
+The mapper is selected based on the declared result type of your query.
+
+*jdbi* iterates over the rows in the ResultSet and presents the mapped results
+to you in a container such as a *List*, *Stream*, *Optional*, or *Iterator*.
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=headlineExample]
+-------------------------------------------
+
+== Row Mapper
+
+The row mapper is called once for every row as *jdbi* iterates
+through the result set.
+
+Row mappers are either configured on a fluent query, or
+can be registered to handle a type:
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=rowMapper]
+-------------------------------------------
+
+This *RowMapper* is equivalent to the lambda mapper above but more explicit.
+We also introduce the *Query.list()* method which collects all rows into a
+*List<T>* object.
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=rowMapperFactory]
+-------------------------------------------
+
+The Factory is allowed to consider whether it can handle any given *Type*
+and provides the above RowMapper to do the actual work.
+
+*Stream* integration allows you to use a RowMapper to adapt a ResultSet into
+the new Java 8 Streams framework.  As long as your database supports streaming
+results (for example, PostgreSQL will do it as long as you are in a transaction
+and set a fetch size), the stream will lazily fetch rows from the database as
+necessary.
+
+== Constructor Mapper
+
+*jdbi* provides a simple constructor mapper which uses reflection to assign
+columns to constructor parameters by name.  Unfortunately parameter names
+are not enabled by default and require a compiler option, but once you
+have that enabled the result is quite concise:
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=constructorMapper]
+-------------------------------------------
+
+The parameter names "id", "name" match the database column names
+and as such no custom mapper code is required at all.
+
+== Column Mapper
+
+Sometimes you only wish to fetch a single value, or need
+to build a larger object out of multiple individually mappable
+elements.  A column mapper works on a single column instead of
+by row:
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=columnMapper]
+-------------------------------------------
+
+Notice how the ConstructorMapper, which usually would not know
+what to do with a custom *UserName* object, now automatically
+uses the column mapper to fill in the constructor parameter.
+
+== Bean Mapper
+
+We also provide basic support for beans:
+
+[source,java,indent=0]
+-------------------------------------------
+include::ResultsTest.java[tags=beanMapper]
+-------------------------------------------
+
+== Annotations
+
+You can register mappers declaratively on SqlObjects using e.g.
+`@RegisterRowMapper`, `@RegisterColumnMapper`, `@RegisterConstructorMapper`,
+and so on.
+
+
+
+== ResultBearing
+
+The *ResultBearing* interface determines how the statement results
+are gathered and returned to you.  The methods are designed to
+interact well with the new Java 8 *@FunctionalInterface*s and
+*Stream* library.  Given a type T that can be mapped by the registered
+mappers,
+
+== Find a Single Result
+
+*ResultBearing#findOnly* returns the only row in the result set.  If zero
+or multiple rows are encountered, it will throw *IllegalStateException*.
+
+*#findFirst* returns an *Optional<T>* with the first row, if any.
+
+== Stream
+
+*#stream* returns a *Stream<T>*.  You should then process the stream and
+produce a result.  This stream must be closed to release any database
+resources held, so we recommend using a *try-with-resources* block to
+ensure that no resources are leaked.
+
+*#withStream* and *#useStream* handle closing the stream for you.  You
+provide a *StreamCallback* that produces a result or a *StreamConsumer*
+that produces no result, respectively.
+
+== Collections
+
+*#list* emits a *List<T>*.  This necessarily buffers all results in memory.
+
+*#collect* takes a *Collector<T, ? , R>* that builds a resulting collection
+*R<T>*.  The *java.util.stream.Collectors* class has a number of interesting
+*Collector*s to start with.
+
+== Reduction
+
+*#reduce* provides a simplified *Stream#reduce*.  Given an identity
+starting value and a *BiFunction<U, T, U>* it will repeatedly combine
+*U*s until only a single remains, and then return that.

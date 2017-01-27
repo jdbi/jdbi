@@ -13,6 +13,7 @@
 ~   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.basepom</groupId>
@@ -20,12 +21,11 @@
         <version>19</version>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi</artifactId>
-    <name>jDBI</name>
-    <version>2.79-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <artifactId>jdbi3-parent</artifactId>
+    <name>jdbi Parent</name>
+    <version>3.0.0-beta1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <description>
         jDBI is designed to provide convenient tabular data access in
         Java(tm). It uses the Java collections framework for query
@@ -47,348 +47,333 @@
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
         <url>https://github.com/jdbi/jdbi/</url>
-      <tag>HEAD</tag>
-  </scm>
-
-    <developers>
-        <developer>
-            <id>brianm</id>
-            <name>Brian McCallister</name>
-            <email>brianm@skife.org</email>
-        </developer>
-        <developer>
-            <id>martint</id>
-            <name>Martin Traverso</name>
-        </developer>
-        <developer>
-            <id>hgschmie</id>
-            <name>Henning Schmiedehausen</name>
-        </developer>
-        <developer>
-            <id>arosien</id>
-            <name>Adam Rosien</name>
-        </developer>
-        <developer>
-            <id>tomdz</id>
-            <name>Thomas Dudziak</name>
-        </developer>
-        <developer>
-            <id>stevenschlansker</id>
-            <name>Steven Schlansker</name>
-        </developer>
-    </developers>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
-        <project.build.targetJdk>1.6</project.build.targetJdk>
-        <basepom.maven.version>2.0.9</basepom.maven.version>
+        <project.build.targetJdk>1.8</project.build.targetJdk>
+        <basepom.maven.version>3.2.5</basepom.maven.version>
+
         <dep.antlr.version>3.4</dep.antlr.version>
-        <dep.spring.version>3.0.0.RELEASE</dep.spring.version>
+        <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
+        <dep.slf4j.version>1.7.21</dep.slf4j.version>
+
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
-        <basepom.test.fork-count>8</basepom.test.fork-count>
-        <basepom.test.timeout>120</basepom.test.timeout>
+        <basepom.release.profiles>basepom.oss-release,oracle</basepom.release.profiles>
+        <basepom.test.fork-count>4</basepom.test.fork-count>
+        <basepom.test.reuse-vm>true</basepom.test.reuse-vm>
+        <basepom.test.timeout>240</basepom.test.timeout>
     </properties>
 
-    <dependencies>
+    <profiles>
+      <profile>
+        <id>toolchains</id>
+        <build>
+         <pluginManagement>
+           <plugins>
+             <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-compiler-plugin</artifactId>
+               <configuration>
+                 <compilerArguments>
+                   <parameters />
+                 </compilerArguments>
+               </configuration>
+             </plugin>
+             <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-toolchains-plugin</artifactId>
+               <version>1.1</version>
+               <configuration>
+                 <toolchains>
+                   <jdk>
+                     <version>${project.build.targetJdk}</version>
+                     <vendor>oracle</vendor>
+                   </jdk>
+                 </toolchains>
+               </configuration>
+             </plugin>
+           </plugins>
+         </pluginManagement>
+         <plugins>
+           <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-toolchains-plugin</artifactId>
+             <executions>
+               <execution>
+                 <goals>
+                   <goal>toolchain</goal>
+                 </goals>
+               </execution>
+             </executions>
+           </plugin>
+         </plugins>
+        </build>
+      </profile>
+      <profile>
+        <id>oracle</id>
+        <activation>
+          <file>
+            <exists>.build-oracle</exists>
+          </file>
+        </activation>
+        <modules>
+          <module>oracle12</module>
+        </modules>
+        <dependencyManagement>
+          <dependencies>
+            <dependency>
+              <groupId>org.jdbi</groupId>
+              <artifactId>jdbi3-oracle12</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+          </dependencies>
+        </dependencyManagement>
+      </profile>
+    </profiles>
 
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>3.2.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml</groupId>
-            <artifactId>classmate</artifactId>
-            <version>1.1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr-runtime</artifactId>
-            <version>${dep.antlr.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>${dep.spring.version}</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${dep.spring.version}</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <version>${dep.spring.version}</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.12</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>stringtemplate</artifactId>
-            <version>3.2.1</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-            <!-- needs to be a JDK 6 compatible version, otherwise
-                 the Java 6 compiler will fail to build the jar -->
-            <version>2.0.3</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>3.3</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>cglib</groupId>
-                    <artifactId>cglib-nodep</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>19.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-jexl</artifactId>
-            <version>2.1.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${dep.spring.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.3.173</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <artifactId>derby</artifactId>
-            <groupId>org.apache.derby</groupId>
-            <version>10.10.1.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>9.1-901-1.jdbc4</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.3.2</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <build>
+      <pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>${project.build.targetJdk}</source>
+                <target>${project.build.targetJdk}</target>
+              <compilerArguments>
+                <parameters />
+              </compilerArguments>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>src/build/*</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </pluginManagement>
+    </build>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>5.1</version>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
             </dependency>
 
             <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-guava</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-jodatime2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-jpa</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-postgres</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-postgres</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-spring4</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-sqlobject</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-sqlobject</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-stringtemplate4</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>21.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.jodah</groupId>
+                <artifactId>expiringmap</artifactId>
+                <version>0.5.6</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr-runtime</artifactId>
+                <version>${dep.antlr.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${dep.spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${dep.spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${dep.spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${dep.spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-jexl</artifactId>
+                <version>2.1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${dep.spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>1.3.173</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>9.4.1212</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.opentable.components</groupId>
+                <artifactId>otj-pg-embedded</artifactId>
+                <version>0.7.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${dep.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${dep.slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>annotations</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>2.1.0-RC.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.5.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-guava</artifactId>
+                <version>3.1.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.antlr</groupId>
-                    <artifactId>antlr3-maven-plugin</artifactId>
-                    <version>${dep.antlr.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <configuration>
-                        <links>
-                            <link>http://docs.oracle.com/javase/6/docs/api/</link>
-                        </links>
-                        <nodeprecated>true</nodeprecated>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <configuration>
-                        <excludeFilterFile>${project.basedir}/src/build/findbugs-exclude.xml</excludeFilterFile>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <configuration>
-                        <suppressionsLocation>${project.basedir}/src/build/checkstyle-suppressions.xml</suppressionsLocation>
-                        <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <configuration>
-                        <header>${project.basedir}/src/build/LICENSE-HEADER.txt</header>
-                        <excludes combine.children="append">
-                            <exclude>**/*.stg</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-toolchains-plugin</artifactId>
-                    <version>1.1</version>
-                    <configuration>
-                        <toolchains>
-                            <jdk>
-                                <version>${project.build.targetJdk}</version>
-                                <vendor>sun</vendor>
-                            </jdk>
-                        </toolchains>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <configuration>
-                        <forkCount>1</forkCount>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-toolchains-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>toolchain</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr3-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>antlr</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.antlr:antlr-runtime</include>
-                                    <include>com.fasterxml:classmate</include>
-                                    <include>cglib:cglib</include>
-                                    <include>org.ow2.asm:asm</include>
-                                </includes>
-                            </artifactSet>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.antlr.runtime</pattern>
-                                    <shadedPattern>org.skife.jdbi.org.antlr.runtime</shadedPattern>
-                                </relocation>
-
-                                <relocation>
-                                    <pattern>net.sf.cglib</pattern>
-                                    <shadedPattern>org.skife.jdbi.cglib</shadedPattern>
-                                </relocation>
-
-                                <relocation>
-                                    <pattern>org.objectweb.asm</pattern>
-                                    <shadedPattern>org.skife.jdbi.asm</shadedPattern>
-                                </relocation>
-
-                                <relocation>
-                                    <pattern>com.fasterxml.classmate</pattern>
-                                    <shadedPattern>org.skife.jdbi.com.fasterxml.classmate</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <modules>
+        <module>core</module>
+        <module>sqlobject</module>
+        <module>stringtemplate4</module>
+        <module>guava</module>
+        <module>jodatime2</module>
+        <module>jpa</module>
+        <module>postgres</module>
+        <module>spring4</module>
+        <module>docs</module>
+    </modules>
 </project>

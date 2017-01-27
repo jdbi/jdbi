@@ -1,0 +1,3 @@
+group Dao;
+
+findLocated(sort,sortBy) ::= << select id from something order by <if(sort)> <sortBy>, <endif> id >>
