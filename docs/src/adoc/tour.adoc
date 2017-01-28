@@ -1,6 +1,4 @@
-= Five Minute Tour
-
-== Jdbi
+=== Jdbi
 
 The `Jdbi` object is basically a fancy wrapper around a
 `javax.sql.DataSource`. Typically an application will create one
@@ -11,10 +9,10 @@ For now let's just use the out-of-the-box configuration:
 
 [source,java,indent=0]
 -------------------------------------------
-include::FiveMinuteTourTest.java[tags=createJdbi]
+include::{exampledir}/FiveMinuteTourTest.java[tags=createJdbi]
 -------------------------------------------
 
-== Handles
+=== Handles
 
 The `Handle` is likewise a wrapper around a
 `java.sql.Connection`. Care must be taken to close handles
@@ -30,7 +28,7 @@ result, or `useHandle` if no result is returned.
 
 [source,java,indent=0]
 -------------------------------------------
-include::FiveMinuteTourTest.java[tags=useHandle]
+include::{exampledir}/FiveMinuteTourTest.java[tags=useHandle]
 -------------------------------------------
 
 If you do use `Jdbi.open()`, we recommend doing so in a
@@ -38,10 +36,10 @@ try-with-resources block for safety.
 
 [source,java,indent=0]
 -------------------------------------------------
-include::FiveMinuteTourTest.java[tags=openHandle]
+include::{exampledir}/FiveMinuteTourTest.java[tags=openHandle]
 -------------------------------------------------
 
-== Row Mappers
+=== Row Mappers
 
 By default, queries map each row in the result set into a
 `Map<String, Object>` which maps the column name to the column
@@ -50,9 +48,9 @@ using `Query.map(RowMapper<T>)`:
 
 [source,java,indent=0]
 ---------------------------------------------------------
-include::FiveMinuteTourTest.java[tags=defineCustomMapper]
+include::{exampledir}/FiveMinuteTourTest.java[tags=defineCustomMapper]
 
-include::FiveMinuteTourTest.java[tags=useCustomMapper]
+include::{exampledir}/FiveMinuteTourTest.java[tags=useCustomMapper]
 ---------------------------------------------------------
 
 Registering a `RowMapper` with the `Handle` or the `Jdbi` (before
@@ -61,10 +59,10 @@ without having to specify the mapper type everywhere:
 
 [source,java,indent=0]
 -----------------------------------------------------------
-include::FiveMinuteTourTest.java[tags=registerCustomMapper]
+include::{exampledir}/FiveMinuteTourTest.java[tags=registerCustomMapper]
 -----------------------------------------------------------
 
-== Named Parameters
+=== Named Parameters
 
 Out of the box, any time you use a colon-prefixed token like
 `:name` in a SQL statement, *jdbi* replaces it with the value
@@ -72,5 +70,5 @@ you bind to that name:
 
 [source,java,indent=0]
 ------------------------------------------------------
-include::FiveMinuteTourTest.java[tags=namedParameters]
+include::{exampledir}/FiveMinuteTourTest.java[tags=namedParameters]
 ------------------------------------------------------

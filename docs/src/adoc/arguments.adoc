@@ -1,5 +1,3 @@
-= Arguments and Binding
-
 Most non-trivial queries require binding arguments from Java land
 to the statement.  In addition to binding by index (which is zero-based
 in *jdbi*, unlike JDBC's bizarre one-indexing scheme), named parameters
@@ -9,7 +7,7 @@ All primitive and many core Java types come with predefined bindings.
 
 [source,java,indent=0]
 -------------------------------------------
-include::ArgumentsTest.java[tags=bindValue]
+include::{exampledir}/ArgumentsTest.java[tags=bindValue]
 -------------------------------------------
 
 You also have a couple of options to deal with custom types.
@@ -17,7 +15,7 @@ The *Argument* class wraps a single value into a binding.
 
 [source,java,indent=0]
 -------------------------------------------
-include::ArgumentsTest.java[tags=uuidArgument]
+include::{exampledir}/ArgumentsTest.java[tags=uuidArgument]
 -------------------------------------------
 
 <1> Since Argument usually directly calls into JDBC directly,
@@ -31,7 +29,7 @@ easily here.
 
 [source,java,indent=0]
 -------------------------------------------
-include::ArgumentsTest.java[tags=uuidArgumentFactory]
+include::{exampledir}/ArgumentsTest.java[tags=uuidArgumentFactory]
 -------------------------------------------
 
 You can also register *ArgumentFactory* instances which can inspect

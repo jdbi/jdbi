@@ -139,9 +139,12 @@
 
                 <configuration>
                     <sourceDirectory>src/adoc</sourceDirectory>
+                    <sourceDocumentName>index.adoc</sourceDocumentName>
                     <backend>html</backend>
-                    <baseDir>src/test/java/jdbi/doc</baseDir>
                     <sourceHighlighter>coderay</sourceHighlighter>
+                    <attributes>
+                        <project_version>${project.version}</project_version>
+                    </attributes>
                 </configuration>
             </plugin>
             <plugin>

@@ -1,5 +1,3 @@
-= SqlObject
-
 The Fluent API is very nice to use for full control over
 the evaluation of your statements, but sometimes a simpler
 declarative approach makes for terse and elegant code.
@@ -9,7 +7,7 @@ methods.  *jdbi* then synthesizes an implementation.
 
 [source,java,indent=0]
 -------------------------------------------
-include::SqlObjectTest.java[tags=defn]
+include::{exampledir}/SqlObjectTest.java[tags=defn]
 -------------------------------------------
 
 Given a type *Something* that has *int id* and *String name* 
@@ -28,7 +26,7 @@ same as `Query.mapTo`.
 
 [source,java,indent=0]
 -------------------------------------------
-include::SqlObjectTest.java[tags=find-by-id]
+include::{exampledir}/SqlObjectTest.java[tags=find-by-id]
 -------------------------------------------
 
 There are also `@SqlBatch` and `@SqlCall` annotations.
@@ -43,3 +41,7 @@ ambiguously mean either "a single SQL int[]" or
 used in normalized schema, jdbi assumes that you are collecting
 a ResultSet into a container object.  You can annotate a return
 type as `@SingleValue` to override this.
+
+== Sql Locators
+
+TODO
