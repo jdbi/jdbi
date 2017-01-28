@@ -1,5 +1,3 @@
-= Results
-
 After executing a database query, you need to interpret the results.
 JDBC provides the *ResultSet* class which can do simple mapping to
 Java primitives and built in classes, but the API is often cumbersome
@@ -19,10 +17,10 @@ to you in a container such as a *List*, *Stream*, *Optional*, or *Iterator*.
 
 [source,java,indent=0]
 -------------------------------------------
-include::ResultsTest.java[tags=headlineExample]
+include::{exampledir}/ResultsTest.java[tags=headlineExample]
 -------------------------------------------
 
-== Row Mapper
+=== Row Mapper
 
 The row mapper is called once for every row as *jdbi* iterates
 through the result set.
@@ -32,7 +30,7 @@ can be registered to handle a type:
 
 [source,java,indent=0]
 -------------------------------------------
-include::ResultsTest.java[tags=rowMapper]
+include::{exampledir}/ResultsTest.java[tags=rowMapper]
 -------------------------------------------
 
 This *RowMapper* is equivalent to the lambda mapper above but more explicit.
@@ -41,7 +39,7 @@ We also introduce the *Query.list()* method which collects all rows into a
 
 [source,java,indent=0]
 -------------------------------------------
-include::ResultsTest.java[tags=rowMapperFactory]
+include::{exampledir}/ResultsTest.java[tags=rowMapperFactory]
 -------------------------------------------
 
 The Factory is allowed to consider whether it can handle any given *Type*
@@ -53,7 +51,7 @@ results (for example, PostgreSQL will do it as long as you are in a transaction
 and set a fetch size), the stream will lazily fetch rows from the database as
 necessary.
 
-== Constructor Mapper
+==== Constructor Mapper
 
 *jdbi* provides a simple constructor mapper which uses reflection to assign
 columns to constructor parameters by name.  Unfortunately parameter names
@@ -62,13 +60,13 @@ have that enabled the result is quite concise:
 
 [source,java,indent=0]
 -------------------------------------------
-include::ResultsTest.java[tags=constructorMapper]
+include::{exampledir}/ResultsTest.java[tags=constructorMapper]
 -------------------------------------------
 
 The parameter names "id", "name" match the database column names
 and as such no custom mapper code is required at all.
 
-== Column Mapper
+=== Column Mapper
 
 Sometimes you only wish to fetch a single value, or need
 to build a larger object out of multiple individually mappable
@@ -77,23 +75,23 @@ by row:
 
 [source,java,indent=0]
 -------------------------------------------
-include::ResultsTest.java[tags=columnMapper]
+include::{exampledir}/ResultsTest.java[tags=columnMapper]
 -------------------------------------------
 
 Notice how the ConstructorMapper, which usually would not know
 what to do with a custom *UserName* object, now automatically
 uses the column mapper to fill in the constructor parameter.
 
-== Bean Mapper
+=== Bean Mapper
 
 We also provide basic support for beans:
 
 [source,java,indent=0]
 -------------------------------------------
-include::ResultsTest.java[tags=beanMapper]
+include::{exampledir}/ResultsTest.java[tags=beanMapper]
 -------------------------------------------
 
-== Annotations
+=== Annotations
 
 You can register mappers declaratively on SqlObjects using e.g.
 `@RegisterRowMapper`, `@RegisterColumnMapper`, `@RegisterConstructorMapper`,
@@ -101,7 +99,7 @@ and so on.
 
 
 
-== ResultBearing
+=== ResultBearing
 
 The *ResultBearing* interface determines how the statement results
 are gathered and returned to you.  The methods are designed to
@@ -109,14 +107,14 @@ interact well with the new Java 8 *@FunctionalInterface*s and
 *Stream* library.  Given a type T that can be mapped by the registered
 mappers,
 
-== Find a Single Result
+==== Find a Single Result
 
 *ResultBearing#findOnly* returns the only row in the result set.  If zero
 or multiple rows are encountered, it will throw *IllegalStateException*.
 
 *#findFirst* returns an *Optional<T>* with the first row, if any.
 
-== Stream
+==== Stream
 
 *#stream* returns a *Stream<T>*.  You should then process the stream and
 produce a result.  This stream must be closed to release any database
@@ -127,7 +125,7 @@ ensure that no resources are leaked.
 provide a *StreamCallback* that produces a result or a *StreamConsumer*
 that produces no result, respectively.
 
-== Collections
+==== Collections
 
 *#list* emits a *List<T>*.  This necessarily buffers all results in memory.
 
@@ -135,7 +133,7 @@ that produces no result, respectively.
 *R<T>*.  The *java.util.stream.Collectors* class has a number of interesting
 *Collector*s to start with.
 
-== Reduction
+==== Reduction
 
 *#reduce* provides a simplified *Stream#reduce*.  Given an identity
 starting value and a *BiFunction<U, T, U>* it will repeatedly combine

@@ -1,5 +1,3 @@
-= Batch Updates
-
 Normally, every statement executed requires a round-trip to the database server.
 When inserting or updating a large number of records, this can add unacceptable
 amounts of latency.  JDBC provides support for batching independent statements via
@@ -12,21 +10,21 @@ Their use is straightforward.  To execute many separate statements as a single b
 
 [source,java,indent=0]
 -------------------------------------------
-include::BatchTest.java[tags=simpleBatch]
+include::{exampledir}/BatchTest.java[tags=simpleBatch]
 -------------------------------------------
 
 If you have a single statement but want to bind many groups of parameters:
 
 [source,java,indent=0]
 -------------------------------------------
-include::BatchTest.java[tags=preparedBatch]
+include::{exampledir}/BatchTest.java[tags=preparedBatch]
 -------------------------------------------
 
 We also support SqlObject batch inserts:
 
 [source,java,indent=0]
 -------------------------------------------
-include::BatchTest.java[tags=sqlObjectBatch]
+include::{exampledir}/BatchTest.java[tags=sqlObjectBatch]
 -------------------------------------------
 
 == Exception Rewriting

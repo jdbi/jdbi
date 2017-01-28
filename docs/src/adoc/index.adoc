@@ -1,63 +1,101 @@
-= jdbi3 documentation
+= JDBI 3 Developer Guide
+:doctype: book
+:toc: left
+:toclevels: 2
+:sectanchors:
+:sectlinks:
+:sectnums:
+:linkattrs:
+:icons: font
+:source-highlighter: coderay
+:source-language: asciidoc
+:exampledir: ../test/java/jdbi/doc
 
-*jdbi* is a thin wrapper around the Java database
-API, JDBC.  It provides helpful abstractions around
-accessing your database tables in a way that respects
-the relational model.
+= Introduction to JDBI
 
-Unlike an ORM, *jdbi* does not pretend to seamlessly
-convert your Java object model into the relational
-model -- instead, it provides easy mapping between
-SQL _you_ write and simple tabular data structures.
+include::introduction.adoc[]
 
-[source,java,indent=0]
--------------------------------------------
-include::HelloWorldTest.java[tags=frontPage]
--------------------------------------------
+== Five Minute Tour
 
-*jdbi* is easy to include in your Java project - with an
-link:https://groups.google.com/group/jdbi[Apache 2.0] license,
-few external dependencies, and JARs distributed through
-link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jdbi%22[Maven Central],
-you can just include the relevant artifacts in your POM:
+include::tour.adoc[]
 
-[source,xml]
--------------------------------------------
-<dependency>
-  <groupId>org.jdbi</groupId>
-  <artifactId>jdbi3</artifactId>
-  <version>${jdbi3.version}</version>
-</dependency>
--------------------------------------------
+= Core JDBI
 
-*jdbi3* is an update which sports a cleaned up API,
-a stronger resource ownership model, and leverages
-the power of new Java 8 features.
+== Getting Started
 
-WARNING: *jdbi3* is currently under active development.
-http://www.jdbi.org[jdbi2] is still the stable release.
-*jdbi3* should generously be considered alpha quality.
-We love feedback and early testing, but be prepared to
-find a few bugs!
+(adding JDBI dependencies to your project)
 
-Read about the core APIs:
+== Jdbi
 
-* <<tour#,5-Minute Tour>>
-* <<core#,Jdbi and Handle>>
-* <<statements#,Statements>>
-* <<arguments#,Arguments and Binding>>
-* <<results#,Result Mapping>>
-** <<joins#,Join Mapping>>
-** <<generatedkeys#,Generated Keys>>
-* <<transaction#,Transactions>>
-* <<sqlobject#,SqlObject>>
-* <<batch#,Batch Updates>>
-* <<spring#,Spring Integration>>
-* link:apidocs/index.html[Javadoc]
+include::jdbi.adoc[]
+
+== Handle
+
+include::handle.adoc[]
+
+== Statements
+
+include::statements.adoc[]
+
+== Arguments
+
+include::arguments.adoc[]
+
+== Results
+
+include::results.adoc[]
+
+=== Joins
+
+include::joins.adoc[]
+
+=== Generated Keys
+
+include::generatedkeys.adoc[]
+
+== Transactions
+
+include::transaction.adoc[]
+
+== Batch Updates
+
+include::batch.adoc[]
+
+= SqlObject
+
+include::sqlobject.adoc[]
+
+= Third Party Integration
+
+== Spring
+
+include::spring.adoc[]
+
+== Google Guava
+
+include::guava.adoc[]
+
+== PostgreSQL
+
+include::postgresql.adoc[]
+
+== Oracle
+
+include::oracle.adoc[]
+
+= Appendix
+
+== API Reference
+
+link:apidocs/index.html[Javadoc]
+
+== Contributing
 
 *jdbi* uses GitHub for collaboration.  Please check out the
 link:https://github.com/jdbi/jdbi[project page] for more
-information.  If you have a question, we have a
+information.
+
+If you have a question, we have a
 link:https://groups.google.com/group/jdbi[Google Group mailing list]
-and users sometimes hang out on
-link:irc://irc.freenode.net/#jdbi[IRC in #jdbi on Freenode].
+
+Users sometimes hang out on link:irc://irc.freenode.net/#jdbi[IRC in #jdbi on Freenode].

@@ -1,8 +1,6 @@
-= Transactions
-
 *jdbi* provides full support for JDBC transactions.
 
-== Transactions in the Fluent API
+=== Transactions in the Fluent API
 
 *Handle* objects provide two ways to open a transaction -- *inTransaction* allows
 you to return a result, and *useTransaction* has no return value.
@@ -11,26 +9,26 @@ Both optionally allow you to specify the transaction isolation level.
 
 [source,java,indent=0]
 -------------------------------------------
-include::TransactionTest.java[tags=simpleTransaction]
+include::{exampledir}/TransactionTest.java[tags=simpleTransaction]
 -------------------------------------------
 
 Here, we (probably unnecessarily) guard a simple _SELECT_ statement with a
 transaction.
 
-== Transactions in SqlObject API
+=== Transactions in SqlObject API
 
 Similarly, you may declare transactions with SqlObject annotations:
 
 [source,java,indent=0]
 -------------------------------------------
-include::TransactionTest.java[tags=sqlObjectTransaction]
+include::{exampledir}/TransactionTest.java[tags=sqlObjectTransaction]
 -------------------------------------------
 
 SQL methods with a `@Transaction` annotation may optionally specify a transaction isolation level:
 
 [source,java,indent=0]
 -------------------------------------------
-include::TransactionTest.java[tags=sqlObjectTransactionIsolation]
+include::{exampledir}/TransactionTest.java[tags=sqlObjectTransactionIsolation]
 -------------------------------------------
 
 If a `@Transaction` method calls another `@Transaction` method, they must specify the same isolation level, or the
@@ -38,10 +36,10 @@ inner method must not specify anything, in which case the isolation level of the
 
 [source,java,indent=0]
 -------------------------------------------
-include::TransactionTest.java[tags=sqlObjectNestedTransaction]
+include::{exampledir}/TransactionTest.java[tags=sqlObjectNestedTransaction]
 -------------------------------------------
 
-== Serializable Transactions
+=== Serializable Transactions
 
 For more advanced queries, sometimes serializable transactions are required.
 *jdbi* includes a transaction runner that is able to retry transactions that
@@ -50,7 +48,7 @@ does not have side effects as it may be executed multiple times.
 
 [source,java,indent=0]
 -------------------------------------------
-include::TransactionTest.java[tags=serializable]
+include::{exampledir}/TransactionTest.java[tags=serializable]
 -------------------------------------------
 
 The above test is designed to run two transactions in lock step.

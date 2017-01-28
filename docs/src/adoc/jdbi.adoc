@@ -1,5 +1,3 @@
-= Jdbi and Handles
-
 A *Jdbi* object is the main entry point into the library.
 It is roughly analogous to a
 link:https://docs.oracle.com/javase/8/docs/api/javax/sql/DataSource.html[javax.sql.DataSource]
@@ -22,16 +20,3 @@ final Optional<MyUser> foundUser = userDatabase.withHandle(h ->
         .findFirst()
 );
 ----
-
-*Handle* provides a fluent <<statements#,Statement>> API that can map
-<<arguments#,arguments>> and <<results#,result sets>>
-to and from regular Java objects.
-You may register mappings for arguments
-<<arguments#argument-factory,manually>> or use 
-<<arguments#bean-argument,Java Bean conventions>>.
-
-For result sets you can map
-<<results#row-mapper,one row at a time>>,
-<<results#column-mapper,by the type of each column>>, as
-<<results#bean-mapper,beans>>, or invoking
-<<results#constructor-mapper,annotated constructors>>.

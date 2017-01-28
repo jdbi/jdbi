@@ -1,4 +1,5 @@
-= Join Mapping
+:coreexampledir: {exampledir}/../../../../../../core/src/test/java/org/jdbi/v3/core/mapper
+:sqlobjectexampledir: {exampledir}/../../../../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
 
 Joining multiple tables together is a very common database
 task.  It is also where the mismatch between the relational
@@ -7,7 +8,7 @@ model and Java's object model starts to rear its ugly head.
 Here we present a couple of strategies for retrieving
 results from more complicated rows.
 
-== JoinRowMapper
+==== JoinRowMapper
 
 The JoinRowMapper takes a set of types to extract from each row.
 It uses the mapping registry to determine how to map each given
@@ -21,7 +22,7 @@ Assuming we have mappers already registered:
 
 [source,java,indent=0]
 -------------------------------------------
-include::../../../../../../core/src/test/java/org/jdbi/v3/core/mapper/JoinRowMapperTest.java[tags=mapperSetup]
+include::{coreexampledir}/JoinRowMapperTest.java[tags=mapperSetup]
 -------------------------------------------
 
 we can then easily populate a Multimap with the mapping
@@ -29,7 +30,7 @@ from the database:
 
 [source,java,indent=0]
 -------------------------------------------
-include::../../../../../../core/src/test/java/org/jdbi/v3/core/mapper/JoinRowMapperTest.java[tags=multimap]
+include::{coreexampledir}/JoinRowMapperTest.java[tags=multimap]
 -------------------------------------------
 
 NOTE: While this approach is easy to read and write, it
@@ -42,5 +43,5 @@ You can also use it with SqlObject:
 
 [source,java,indent=0]
 -------------------------------------------
-include::../../../../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject/TestRegisterJoinRowMapper.java[tags=joinrow]
+include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrow]
 -------------------------------------------

@@ -1,5 +1,3 @@
-= Generated Keys
-
 Inserts and related queries may automatically generate keys.  These keys are
 treated separately from normal results.  Depending on your database and configuration,
 the entire inserted row may be available.
@@ -15,19 +13,19 @@ Consider the following table:
 
 [source,java,indent=0]
 -------------------------------------------
-include::GeneratedKeysTest.java[tags=setup]
+include::{exampledir}/GeneratedKeysTest.java[tags=setup]
 -------------------------------------------
 
 You can get generated keys in the fluent style:
 
 [source,java,indent=0]
 -------------------------------------------
-include::GeneratedKeysTest.java[tags=fluent]
+include::{exampledir}/GeneratedKeysTest.java[tags=fluent]
 -------------------------------------------
 
 SqlObject style works just as well:
 
 [source,java,indent=0]
 -------------------------------------------
-include::GeneratedKeysTest.java[tags=sqlObject]
+include::{exampledir}/GeneratedKeysTest.java[tags=sqlObject]
 -------------------------------------------
