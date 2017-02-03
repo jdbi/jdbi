@@ -32,8 +32,6 @@ you can just include the relevant artifacts in your POM:
 a stronger resource ownership model, and leverages
 the power of new Java 8 features.
 
-WARNING: *jdbi3* is currently under active development.
-http://www.jdbi.org[jdbi2] is still the stable release.
-*jdbi3* should generously be considered alpha quality.
-We love feedback and early testing, but be prepared to
-find a few bugs!
+WARNING: *jdbi3* is currently in beta. While we are reasonably confident in its
+quality, we recommend thoroughly testing your code with JDBI 3 before using it in
+a production environment. http://www.jdbi.org[jdbi2] is still the stable release.
