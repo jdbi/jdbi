@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -34,7 +33,6 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.SqlObjects;
-import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
@@ -72,28 +70,40 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     private static Stream<BoundCustomizer> parameterCustomizers(Class<?> type, Method method) {
         final Parameter[] parameters = method.getParameters();
 
-        final Function<Integer, Stream<BoundCustomizer>> customizeForParameter =
-                i -> defaultBinding(annotationsFor(parameters[i]))
-                        .map(a -> instantiateFactory(a).createForParameter(a, type, method, parameters[i], i))
-                        .map(c -> (stmt, args) -> c.apply(stmt, args[i]));
-
         return IntStream.range(0, parameters.length)
                 .mapToObj(Integer::valueOf)
-                .flatMap(customizeForParameter);
+                .flatMap(i -> eachParameterCustomizers(type, method, parameters[i], i));
     }
 
-    /** Add a {@code @Bind} annotation to any parameter with no annotations. */
-    private static Stream<Annotation> defaultBinding(Stream<Annotation> annotations) {
-        final List<Annotation> a = annotations.collect(Collectors.toList());
-        if (!a.isEmpty()) {
-            return a.stream();
+    private static Stream<BoundCustomizer> eachParameterCustomizers(Class<?> type, Method method, Parameter parameter, Integer i) {
+
+        List<BoundCustomizer> customizers = annotationsFor(parameter)
+                .map(a -> instantiateFactory(a).createForParameter(a, type, method, parameter, i))
+                .<BoundCustomizer>map(c -> (stmt, args) -> c.apply(stmt, args[i])).collect(Collectors.toList());
+
+        if (!customizers.isEmpty()) {
+            return customizers.stream();
         }
-        return Stream.of(Bind.DEFAULT);
+
+        return Stream.of(defaultParameterCustomizer(type, method, parameter, i));
+    }
+
+    /**
+     * Default parameter customizer for parameters with no annotations.
+     */
+    private static BoundCustomizer defaultParameterCustomizer(Class<?> type, Method method, Parameter parameter, Integer i) {
+        return (stmt, args) -> getDefaultParameterCustomizerFactory(stmt)
+                .createForParameter(null, type, method, parameter, i)
+                .apply(stmt, args[i]);
+    }
+
+    private static SqlStatementCustomizerFactory getDefaultParameterCustomizerFactory(SqlStatement<?> stmt) {
+        return stmt.getConfig(SqlObjectStatementCustomizerConfiguration.class).getDefaultParameterCustomizerFactory();
     }
 
     private static SqlStatementCustomizerFactory instantiateFactory(Annotation annotation) {
         SqlStatementCustomizingAnnotation sca = annotation.annotationType()
-                                                          .getAnnotation(SqlStatementCustomizingAnnotation.class);
+                .getAnnotation(SqlStatementCustomizingAnnotation.class);
         try {
             return sca.value().getConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
