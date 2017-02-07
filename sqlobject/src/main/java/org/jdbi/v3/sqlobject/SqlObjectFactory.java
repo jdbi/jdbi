@@ -80,12 +80,12 @@ public class SqlObjectFactory implements ExtensionFactory {
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-        Map<Method, Handler> handlers = methodHandlersFor(extensionType);
 
         ConfigRegistry instanceConfig = handle.getConfig().createCopy();
         forEachConfigurer(extensionType, (configurer, annotation) ->
                 configurer.configureForType(instanceConfig, annotation, extensionType));
 
+        Map<Method, Handler> handlers = methodHandlersFor(extensionType, instanceConfig);
         InvocationHandler invocationHandler = createInvocationHandler(extensionType, instanceConfig, handlers, handle);
         return extensionType.cast(
                 Proxy.newProxyInstance(
@@ -94,7 +94,7 @@ public class SqlObjectFactory implements ExtensionFactory {
                         invocationHandler));
     }
 
-    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType) {
+    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType, ConfigRegistry instanceConfig) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
             final Map<Method, Handler> handlers = new HashMap<>();
 
@@ -109,19 +109,19 @@ public class SqlObjectFactory implements ExtensionFactory {
             } catch (IllegalStateException expected) { } // optional implementation
 
             for (Method method : sqlObjectType.getMethods()) {
-                handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m));
+                handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m, instanceConfig));
             }
 
             return handlers;
         });
     }
 
-    private Handler buildMethodHandler(Class<?> sqlObjectType, Method method) {
-        Handler handler = buildBaseHandler(sqlObjectType, method);
+    private Handler buildMethodHandler(Class<?> sqlObjectType, Method method, ConfigRegistry instanceConfig) {
+        Handler handler = buildBaseHandler(sqlObjectType, method, instanceConfig);
         return addDecorators(handler, sqlObjectType, method);
     }
 
-    private Handler buildBaseHandler(Class<?> sqlObjectType, Method method) {
+    private Handler buildBaseHandler(Class<?> sqlObjectType, Method method, ConfigRegistry instanceConfig) {
         List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
                 .map(Annotation::annotationType)
                 .filter(type -> type.isAnnotationPresent(SqlMethodAnnotation.class))
@@ -135,7 +135,11 @@ public class SqlObjectFactory implements ExtensionFactory {
                             sqlMethodAnnotations));
         }
 
-        if (method.isDefault()) {
+        DefaultHandlerFactory defaultHandlerFactory = instanceConfig
+                .get(DefaultHandlerFactoryConfiguration.class)
+                .getDefaultHandlerFactory();
+
+        if (defaultHandlerFactory.accepts(sqlObjectType, method)) {
             if (!sqlMethodAnnotations.isEmpty()) {
                 throw new IllegalStateException(String.format(
                         "Default method %s.%s has @%s annotation. " +
@@ -173,7 +177,7 @@ public class SqlObjectFactory implements ExtensionFactory {
                         });
             }
 
-            return new DefaultMethodHandler(method);
+            return defaultHandlerFactory.buildHandler(sqlObjectType, method);
         }
 
         return sqlMethodAnnotations.stream()
