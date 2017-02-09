@@ -18,7 +18,6 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rewriter.HashPrefixStatementRewriter;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.*;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -70,7 +69,7 @@ public class TestDefaultHandlerFactoryConfiguration
     }
 
     @Test
-    public void testFoo() throws Exception
+    public void shouldUseConfiguredDefaultHandler() throws Exception
     {
         SomethingDao h = handle.attach(SomethingDao.class);
         Something s = h.insertAndFind(new Something(1, "Joy"));
@@ -79,14 +78,13 @@ public class TestDefaultHandlerFactoryConfiguration
     }
 
 
-    @UseStatementRewriter(HashPrefixStatementRewriter.class)
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingDao
     {
-        @SqlUpdate("insert into something (id, name) values (#id, #name)")
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something s);
 
-        @SqlQuery("select id, name from something where id = #id")
+        @SqlQuery("select id, name from something where id = :id")
         Something findById(@Bind("id") int id);
 
         @Transaction
