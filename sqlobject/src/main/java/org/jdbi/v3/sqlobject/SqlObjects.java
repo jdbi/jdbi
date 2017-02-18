@@ -24,13 +24,16 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
  */
 public class SqlObjects implements JdbiConfig<SqlObjects> {
     private SqlLocator sqlLocator;
+    private DefaultHandlerFactory defaultHandlerFactory;
 
     public SqlObjects() {
         sqlLocator = new AnnotationSqlLocator();
+        defaultHandlerFactory = new DefaultMethodHandlerFactory();
     }
 
     private SqlObjects(SqlObjects that) {
         sqlLocator = that.sqlLocator;
+        defaultHandlerFactory = that.defaultHandlerFactory;
     }
 
     /**
@@ -50,6 +53,29 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
      */
     public SqlObjects setSqlLocator(SqlLocator sqlLocator) {
         this.sqlLocator = Objects.requireNonNull(sqlLocator);
+        return this;
+    }
+
+    /**
+     * Returns the configured {@link DefaultHandlerFactory}. The default is {@link DefaultMethodHandlerFactory}.
+     *
+     * @return the configured {@link DefaultHandlerFactory}.
+     */
+    public DefaultHandlerFactory getDefaultHandlerFactory() {
+        return defaultHandlerFactory;
+    }
+
+    /**
+     * Configures SqlObject to use the given {@link DefaultHandlerFactory}.
+     * This setting is locked in for an sql object type the first time it is instantiated
+     * (or invoked, for on-demand). This setting must be set on {@link org.jdbi.v3.core.Jdbi} level,
+     * before the first sql object is created.
+     *
+     * @param defaultHandlerFactory the new default handler factory.
+     * @return this {@link SqlObjects}.
+     */
+    public SqlObjects setDefaultHandlerFactory(DefaultHandlerFactory defaultHandlerFactory) {
+        this.defaultHandlerFactory = Objects.requireNonNull(defaultHandlerFactory);
         return this;
     }
 
