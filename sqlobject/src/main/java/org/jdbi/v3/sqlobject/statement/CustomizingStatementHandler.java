@@ -93,12 +93,12 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
      */
     private static BoundCustomizer defaultParameterCustomizer(Class<?> type, Method method, Parameter parameter, Integer i) {
         return (stmt, args) -> getDefaultParameterCustomizerFactory(stmt)
-                .createForParameter(null, type, method, parameter, i)
+                .createForParameter(type, method, parameter, i)
                 .apply(stmt, args[i]);
     }
 
-    private static SqlStatementCustomizerFactory getDefaultParameterCustomizerFactory(SqlStatement<?> stmt) {
-        return stmt.getConfig(SqlObjectStatementCustomizerConfiguration.class).getDefaultParameterCustomizerFactory();
+    private static DefaultParameterCustomizerFactory getDefaultParameterCustomizerFactory(SqlStatement<?> stmt) {
+        return stmt.getConfig(SqlObjects.class).getDefaultParameterCustomizerFactory();
     }
 
     private static SqlStatementCustomizerFactory instantiateFactory(Annotation annotation) {

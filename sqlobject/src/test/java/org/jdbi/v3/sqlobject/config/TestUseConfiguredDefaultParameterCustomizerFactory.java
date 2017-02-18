@@ -20,30 +20,24 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
-import org.jdbi.v3.sqlobject.statement.SqlObjectStatementCustomizerConfiguration;
+import org.jdbi.v3.sqlobject.statement.DefaultParameterCustomizerFactory;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestSqlObjectStatementCustomizer
+public class TestUseConfiguredDefaultParameterCustomizerFactory
 {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
-
-    private SqlStatementCustomizerFactory sqlStatementParameterCustomizer;
 
     private AtomicInteger invocationCounter = new AtomicInteger(0);
 
@@ -52,52 +46,45 @@ public class TestSqlObjectStatementCustomizer
     {
         Jdbi db = dbRule.getJdbi();
 
-        sqlStatementParameterCustomizer = new SqlStatementCustomizerFactory()
+        DefaultParameterCustomizerFactory defaultParameterCustomizerFactory = (sqlObjectType, method, param, index) ->
         {
-            SqlStatementCustomizerFactory defaultFactory = new Bind.Factory();
-
-            @Override
-            public SqlStatementParameterCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index)
-            {
-                invocationCounter.incrementAndGet();
-                return defaultFactory.createForParameter(annotation, sqlObjectType, method, param, index);
-            }
+            invocationCounter.incrementAndGet();
+            return (stmt, arg) -> stmt.bind("mybind" + index, arg);
         };
 
 
-        db.configure(SqlObjectStatementCustomizerConfiguration.class, c -> c.setDefaultParameterCustomizerFactory(sqlStatementParameterCustomizer));
+        db.configure(SqlObjects.class, c -> c.setDefaultParameterCustomizerFactory(defaultParameterCustomizerFactory));
         handle = db.open();
     }
 
     @Test
-    public void shouldUseConfiguredSqlParameterCustomizer() throws Exception
+    public void shouldUseConfiguredSqlParameterCustomizer()
     {
         SomethingDao h = handle.attach(SomethingDao.class);
-        h.findByIdNoBindAnnotation(1);
+        h.findByNameAndIdNoBindAnnotation(1, "Joy");
 
-        assertThat(invocationCounter.get()).isEqualTo(1);
-
+        assertThat(invocationCounter.get()).isEqualTo(2);
     }
 
     @Test
-    public void shouldUseSqlParameterCustomizerFromAnnotation() throws Exception
+    public void shouldUseSqlParameterCustomizerFromAnnotation()
     {
         SomethingDao h = handle.attach(SomethingDao.class);
-        h.findByIdWithBindAnnotation(1);
+        h.findByNameAndIdWithBindAnnotation(1, "Joy");
 
         assertThat(invocationCounter.get()).isEqualTo(0);
-
     }
 
 
     @RegisterRowMapper(SomethingMapper.class)
     public interface SomethingDao
     {
-        @SqlQuery("select id, name from something where id = :id")
-        Something findByIdNoBindAnnotation(int id);
 
-        @SqlQuery("select id, name from something where id = :id")
-        Something findByIdWithBindAnnotation(@Bind("id") int id);
+        @SqlQuery("select id, name from something where name = :mybind1 and id = :mybind0")
+        Something findByNameAndIdNoBindAnnotation(int id, String name);
+
+        @SqlQuery("select id, name from something where name = :mybind1 and id = :mybind0")
+        Something findByNameAndIdWithBindAnnotation(@Bind("mybind0") int id, @Bind("mybind1") String name);
 
     }
 
