@@ -30,57 +30,53 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestDefaultHandlerFactoryConfiguration
-{
+public class TestUseConfiguredDefaultHandlerFactory {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 
-    private AtomicInteger invocationCounter = new AtomicInteger(0);
-
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         Jdbi db = dbRule.getJdbi();
 
         DefaultHandlerFactory defaultHandlerFactory = new DefaultHandlerFactory() {
 
-            DefaultHandlerFactory delegate = new DefaultMethodHandlerFactory();
             @Override
-            public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-                invocationCounter.incrementAndGet();
-                return delegate.buildHandler(sqlObjectType, method);
+            public Optional<Handler> build(Class<?> sqlObjectType, Method method) {
+                return getImplementation(sqlObjectType, method).map(m ->
+                        (Handler) (target, args, handle) -> m.invoke(null, Stream.concat(Stream.of(target), Stream.of(args)).toArray())
+                );
             }
 
-            @Override
-            public boolean accepts(Class<?> sqlObjectType, Method method) {
-                return delegate.accepts(sqlObjectType, method);
+            private Optional<Method> getImplementation(Class<?> type, Method method) {
+                return Stream.of(type.getClasses())
+                        .filter(c -> c.getSimpleName().equals("DefaultImpls"))
+                        .flatMap(c -> Stream.of(c.getMethods()).filter(m -> m.getName().equals(method.getName())))
+                        .findAny();
             }
         };
 
-        // this is the default, but be explicit for sake of clarity in test
-        db.configure(DefaultHandlerFactoryConfiguration.class, c -> c.setDefaultHandlerFactory(defaultHandlerFactory));
+
+        db.configure(SqlObjects.class, c -> c.setDefaultHandlerFactory(defaultHandlerFactory));
         handle = db.open();
     }
 
     @Test
-    public void shouldUseConfiguredDefaultHandler() throws Exception
-    {
+    public void shouldUseConfiguredDefaultHandler() throws Exception {
         SomethingDao h = handle.attach(SomethingDao.class);
         Something s = h.insertAndFind(new Something(1, "Joy"));
         assertThat(s.getName()).isEqualTo("Joy");
-        assertThat(invocationCounter.get()).isEqualTo(1);
     }
 
 
     @RegisterRowMapper(SomethingMapper.class)
-    public interface SomethingDao
-    {
+    public interface SomethingDao {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something s);
 
@@ -88,11 +84,14 @@ public class TestDefaultHandlerFactoryConfiguration
         Something findById(@Bind("id") int id);
 
         @Transaction
-        default Something insertAndFind(Something s) {
-            insert(s);
-            return findById(s.getId());
-        }
+        Something insertAndFind(Something s);
 
+        class DefaultImpls {
+            public static Something insertAndFind(SomethingDao dao, Something s) {
+                dao.insert(s);
+                return dao.findById(s.getId());
+            }
+        }
     }
 
 }

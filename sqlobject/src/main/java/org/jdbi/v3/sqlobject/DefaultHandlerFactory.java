@@ -14,9 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 public interface DefaultHandlerFactory {
-    Handler buildHandler(Class<?> sqlObjectType, Method method);
-
-    boolean accepts(Class<?> sqlObjectType, Method method);
+    Optional<Handler> build(Class<?> sqlObjectType, Method method);
 }

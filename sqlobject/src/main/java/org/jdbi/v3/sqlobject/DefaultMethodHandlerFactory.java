@@ -14,15 +14,14 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 public class DefaultMethodHandlerFactory implements DefaultHandlerFactory {
     @Override
-    public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-        return new DefaultMethodHandler(method);
-    }
-
-    @Override
-    public boolean accepts(Class<?> sqlObjectType, Method method) {
-        return method.isDefault();
+    public Optional<Handler> build(Class<?> sqlObjectType, Method method) {
+        if (method.isDefault()) {
+            return Optional.of(new DefaultMethodHandler(method));
+        }
+        return Optional.empty();
     }
 }
