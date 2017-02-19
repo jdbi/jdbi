@@ -31,14 +31,11 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
-import org.jdbi.v3.sqlobject.Handler;
-import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
 import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
@@ -59,7 +56,7 @@ import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlBatch.Factory.class)
+@SqlMethodAnnotation(SqlBatch.Impl.class)
 public @interface SqlBatch {
     /**
      * @return the SQL string (or name)
@@ -72,20 +69,13 @@ public @interface SqlBatch {
      */
     boolean transactional() default true;
 
-    class Factory implements HandlerFactory {
-        @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new BatchHandler(sqlObjectType, method);
-        }
-    }
-
-    class BatchHandler extends CustomizingStatementHandler<PreparedBatch> {
+    class Impl extends CustomizingStatementHandler<PreparedBatch> {
         private final SqlBatch sqlBatch;
         private final ChunkSizeFunction batchChunkSize;
         private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
         private final ResultReturner magic;
 
-        BatchHandler(Class<?> sqlObjectType, Method method) {
+        public Impl(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
 
             this.sqlBatch = method.getAnnotation(SqlBatch.class);

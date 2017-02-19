@@ -24,8 +24,6 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.sqlobject.Handler;
-import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
 
 /**
@@ -33,7 +31,7 @@ import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlQuery.Factory.class)
+@SqlMethodAnnotation(SqlQuery.Impl.class)
 public @interface SqlQuery {
     /**
      * The query (or query name if using a statement locator) to be executed. The default value will use
@@ -44,17 +42,10 @@ public @interface SqlQuery {
      */
     String value() default "";
 
-    class Factory implements HandlerFactory {
-        @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new QueryHandler(sqlObjectType, method);
-        }
-    }
-
-    class QueryHandler extends CustomizingStatementHandler<Query> {
+    class Impl extends CustomizingStatementHandler<Query> {
         private final ResultReturner magic;
 
-        QueryHandler(Class<?> sqlObjectType, Method method) {
+        public Impl(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
             this.magic = ResultReturner.forMethod(sqlObjectType, method);
         }

@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.junit.Before;
@@ -182,15 +183,13 @@ public class TestSqlMethodDecoratingAnnotations {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @SqlMethodAnnotation(CustomSqlMethod.Factory.class)
+    @SqlMethodAnnotation(CustomSqlMethod.Impl.class)
     public @interface CustomSqlMethod {
-        class Factory implements HandlerFactory {
+        class Impl implements Handler {
             @Override
-            public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-                return (obj, args, handle) -> {
-                    invoked("method");
-                    return null;
-                };
+            public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
+                invoked("method");
+                return null;
             }
         }
     }

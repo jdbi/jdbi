@@ -26,8 +26,6 @@ import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Update;
-import org.jdbi.v3.sqlobject.Handler;
-import org.jdbi.v3.sqlobject.HandlerFactory;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
 import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 
@@ -36,7 +34,7 @@ import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlUpdate.Factory.class)
+@SqlMethodAnnotation(SqlUpdate.Impl.class)
 public @interface SqlUpdate {
     /**
      * The sql (or statement name if using a statement locator) to be executed. The default value will use
@@ -47,17 +45,10 @@ public @interface SqlUpdate {
      */
     String value() default "";
 
-    class Factory implements HandlerFactory {
-        @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return new UpdateHandler(sqlObjectType, method);
-        }
-    }
-
-    class UpdateHandler extends CustomizingStatementHandler<Update> {
+    class Impl extends CustomizingStatementHandler<Update> {
         private final Function<Update, Object> returner;
 
-        UpdateHandler(Class<?> sqlObjectType, Method method) {
+        public Impl(Class<?> sqlObjectType, Method method) {
             super(sqlObjectType, method);
 
             boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
