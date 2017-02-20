@@ -55,7 +55,7 @@ public class SqlMethodHandlerFactory implements HandlerFactory {
                 .map(type -> type.getAnnotation(SqlMethodAnnotation.class))
                 .map(a -> buildHandler(a.value(), sqlObjectType, method))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(String.format(
+                .<IllegalStateException>orElseThrow(() -> new IllegalStateException(String.format(
                         "Method %s.%s must be default or be annotated with a SQL method annotation.",
                         sqlObjectType.getSimpleName(),
                         method.getName()))));
