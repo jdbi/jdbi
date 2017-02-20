@@ -20,6 +20,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.extension.Extensions;
+import org.jdbi.v3.core.extension.HandleSupplier;
 
 /**
  * Use this annotation on a sql object method to create a new sql object with the same underlying handle as the sql
@@ -27,13 +28,19 @@ import org.jdbi.v3.core.extension.Extensions;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@SqlMethodAnnotation(CreateSqlObject.Factory.class)
+@SqlMethodAnnotation(CreateSqlObject.Impl.class)
 public @interface CreateSqlObject
 {
-    class Factory implements HandlerFactory {
+    class Impl implements Handler {
+        private final Method method;
+
+        public Impl(Method method) {
+            this.method = method;
+        }
+
         @Override
-        public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-            return (target, args, handle) -> handle.getConfig(Extensions.class)
+        public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
+            return handle.getConfig(Extensions.class)
                     .findFactory(SqlObjectFactory.class)
                     .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
                     .attach(method.getReturnType(), handle);

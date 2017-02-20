@@ -36,7 +36,8 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 @SqlStatementCustomizingAnnotation(Bind.Factory.class)
 public @interface Bind
 {
-    static final String NO_VALUE = "";
+    String NO_VALUE = "";
+
     /**
      * The name to bind the argument to. If omitted, the name of the annotated parameter is used. It is an
      * error to omit the name when there is no parameter naming information in your class files.
@@ -53,7 +54,7 @@ public @interface Bind
                                                                   Parameter param,
                                                                   int index) {
             Bind b = (Bind) annotation;
-            String nameFromAnnotation = b == null ? "" : b.value();
+            String nameFromAnnotation = b == null ? NO_VALUE : b.value();
             final String name = ParameterUtil.getParameterName(b, nameFromAnnotation, param);
 
             return (stmt, arg) -> {

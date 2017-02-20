@@ -16,10 +16,9 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Method;
-
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
@@ -66,12 +65,12 @@ public class TestSqlMethodAnnotations
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @SqlMethodAnnotation(Foo.Factory.class)
+    @SqlMethodAnnotation(Foo.Impl.class)
     public @interface Foo {
-        class Factory implements HandlerFactory {
+        class Impl implements Handler {
             @Override
-            public Handler buildHandler(Class<?> sqlObjectType, Method method) {
-                return (obj, args, handle) -> "foo";
+            public Object invoke(Object target, Object[] args, HandleSupplier handle) throws Exception {
+                return "foo";
             }
         }
     }

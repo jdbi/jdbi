@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * Creates Handler objects for methods annotated with a specific SQL method annotation, which satisfy the contract of
@@ -28,5 +29,5 @@ public interface HandlerFactory {
      * @param sqlObjectType the SQL Object type
      * @param method        the method
      */
-    Handler buildHandler(Class<?> sqlObjectType, Method method);
+    Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method);
 }

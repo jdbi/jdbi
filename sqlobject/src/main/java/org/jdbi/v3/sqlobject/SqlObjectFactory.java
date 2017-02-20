@@ -21,7 +21,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,7 +40,6 @@ import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
-import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
 public class SqlObjectFactory implements ExtensionFactory {
     private static final Object[] NO_ARGS = new Object[0];
@@ -80,7 +78,7 @@ public class SqlObjectFactory implements ExtensionFactory {
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-        Map<Method, Handler> handlers = methodHandlersFor(extensionType);
+        Map<Method, Handler> handlers = methodHandlersFor(extensionType, handle.getConfig(Handlers.class));
 
         ConfigRegistry instanceConfig = handle.getConfig().createCopy();
         forEachConfigurer(extensionType, (configurer, annotation) ->
@@ -94,7 +92,7 @@ public class SqlObjectFactory implements ExtensionFactory {
                         invocationHandler));
     }
 
-    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType) {
+    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType, Handlers registry) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
             final Map<Method, Handler> handlers = new HashMap<>();
 
@@ -109,82 +107,21 @@ public class SqlObjectFactory implements ExtensionFactory {
             } catch (IllegalStateException expected) { } // optional implementation
 
             for (Method method : sqlObjectType.getMethods()) {
-                handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m));
+                handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m, registry));
             }
 
             return handlers;
         });
     }
 
-    private Handler buildMethodHandler(Class<?> sqlObjectType, Method method) {
-        Handler handler = buildBaseHandler(sqlObjectType, method);
-        return addDecorators(handler, sqlObjectType, method);
-    }
-
-    private Handler buildBaseHandler(Class<?> sqlObjectType, Method method) {
-        List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
-                .map(Annotation::annotationType)
-                .filter(type -> type.isAnnotationPresent(SqlMethodAnnotation.class))
-                .collect(toList());
-
-        if (sqlMethodAnnotations.size() > 1) {
-            throw new IllegalStateException(
-                    String.format("Mutually exclusive annotations on method %s.%s: %s",
-                            sqlObjectType.getName(),
-                            method.getName(),
-                            sqlMethodAnnotations));
-        }
-
-        if (method.isDefault()) {
-            if (!sqlMethodAnnotations.isEmpty()) {
-                throw new IllegalStateException(String.format(
-                        "Default method %s.%s has @%s annotation. " +
-                                "SQL object methods may be default, or have a SQL method annotation, but not both.",
-                        sqlObjectType.getSimpleName(),
-                        method.getName(),
-                        sqlMethodAnnotations.get(0).getSimpleName()));
-            }
-
-            Stream.of(method.getAnnotations()).map(Annotation::annotationType)
-                    .filter(type -> type.isAnnotationPresent(SqlStatementCustomizingAnnotation.class))
-                    .findFirst()
-                    .ifPresent(type -> {
-                        throw new IllegalStateException(String.format(
-                                "Default method %s.%s has @%s annotation. Statement customizing annotations don't " +
-                                        "work on default methods.",
-                                sqlObjectType.getSimpleName(),
-                                method.getName(),
-                                type.getSimpleName()));
-                    });
-
-            for (Parameter parameter : method.getParameters()) {
-                Stream.of(parameter.getAnnotations())
-                        .map(Annotation::annotationType)
-                        .filter(type -> type.isAnnotationPresent(SqlStatementCustomizingAnnotation.class))
-                        .findFirst()
-                        .ifPresent(type -> {
-                            throw new IllegalStateException(String.format(
-                                    "Default method %s.%s parameter %s has @%s annotation. Statement customizing " +
-                                            "annotations don't work on default methods.",
-                                    sqlObjectType.getSimpleName(),
-                                    method.getName(),
-                                    parameter.getName(),
-                                    type.getSimpleName()));
-                        });
-            }
-
-            return new DefaultMethodHandler(method);
-        }
-
-        return sqlMethodAnnotations.stream()
-                .map(type -> type.getAnnotation(SqlMethodAnnotation.class))
-                .map(a -> buildFactory(a.value()))
-                .map(factory -> factory.buildHandler(sqlObjectType, method))
-                .findFirst()
+    private Handler buildMethodHandler(Class<?> sqlObjectType, Method method, Handlers handlers) {
+        Handler handler = handlers.findFor(sqlObjectType, method)
                 .orElseThrow(() -> new IllegalStateException(String.format(
                         "Method %s.%s must be default or be annotated with a SQL method annotation.",
                         sqlObjectType.getSimpleName(),
                         method.getName())));
+
+        return addDecorators(handler, sqlObjectType, method);
     }
 
     private Handler addDecorators(Handler handler, Class<?> sqlObjectType, Method method) {
@@ -221,17 +158,7 @@ public class SqlObjectFactory implements ExtensionFactory {
             return index == -1 ? ordering.size() : index;
         };
 
-        return (l, r) -> indexOf.applyAsInt(l) - indexOf.applyAsInt(r);
-    }
-
-    private static HandlerFactory buildFactory(Class<? extends HandlerFactory> factoryClazz) {
-        HandlerFactory factory;
-        try {
-            factory = factoryClazz.getConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Factory class " + factoryClazz + "cannot be instantiated", e);
-        }
-        return factory;
+        return Comparator.comparingInt(indexOf::applyAsInt);
     }
 
     private static HandlerDecorator buildDecorator(Class<? extends HandlerDecorator> decoratorClass) {

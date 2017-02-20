@@ -25,8 +25,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface SqlMethodAnnotation {
     /**
-     * Factory class that produces {@link Handler} instances for methods annotated with the associated annotation.
-     * Must have a zero-argument constructor.
+     * Handler class for methods annotated with the associated annotation.
+     * Must have a public no-arg, {@code (Method method)}, or
+     * {@code (Class<?> sqlObjectType, Method method)} constructor.
      */
-    Class<? extends HandlerFactory> value();
+    Class<? extends Handler> value();
 }
