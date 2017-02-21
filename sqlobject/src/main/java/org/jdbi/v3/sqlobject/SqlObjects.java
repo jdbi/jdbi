@@ -16,21 +16,27 @@ package org.jdbi.v3.sqlobject;
 import java.util.Objects;
 
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
+import org.jdbi.v3.sqlobject.statement.BindParameterCustomizerFactory;
+import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 
 /**
  * Configuration class for SQL objects
  */
 public class SqlObjects implements JdbiConfig<SqlObjects> {
     private SqlLocator sqlLocator;
+    private ParameterCustomizerFactory defaultParameterCustomizerFactory;
 
     public SqlObjects() {
         sqlLocator = new AnnotationSqlLocator();
+        defaultParameterCustomizerFactory = new BindParameterCustomizerFactory();
     }
 
     private SqlObjects(SqlObjects that) {
         sqlLocator = that.sqlLocator;
+        defaultParameterCustomizerFactory = that.defaultParameterCustomizerFactory;
     }
 
     /**
@@ -50,6 +56,27 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
      */
     public SqlObjects setSqlLocator(SqlLocator sqlLocator) {
         this.sqlLocator = Objects.requireNonNull(sqlLocator);
+        return this;
+    }
+
+    /**
+     * Returns the configured {@link ParameterCustomizerFactory} used to bind sql statement parameters
+     * when parameter is not explicitly annotated. By default it is configured as an instance of {@link BindParameterCustomizerFactory}.
+     *
+     * @return the configured {@link SqlStatementCustomizerFactory}.
+     */
+    public ParameterCustomizerFactory getDefaultParameterCustomizerFactory() {
+        return defaultParameterCustomizerFactory;
+    }
+
+    /**
+     * Configures SqlObject to use the given default parameter customizer factory.
+     *
+     * @param defaultParameterCustomizerFactory the new default parameter customizer factory.
+     * @return this {@link SqlObjects}.
+     */
+    public SqlObjects setDefaultParameterCustomizerFactory(ParameterCustomizerFactory defaultParameterCustomizerFactory) {
+        this.defaultParameterCustomizerFactory = defaultParameterCustomizerFactory;
         return this;
     }
 
