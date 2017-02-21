@@ -19,19 +19,19 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
-import org.jdbi.v3.sqlobject.statement.BindFactoryDefaultParameterCustomizerFactory;
-import org.jdbi.v3.sqlobject.statement.DefaultParameterCustomizerFactory;
+import org.jdbi.v3.sqlobject.statement.BindParameterCustomizerFactory;
+import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 
 /**
  * Configuration class for SQL objects
  */
 public class SqlObjects implements JdbiConfig<SqlObjects> {
     private SqlLocator sqlLocator;
-    private DefaultParameterCustomizerFactory defaultParameterCustomizerFactory;
+    private ParameterCustomizerFactory defaultParameterCustomizerFactory;
 
     public SqlObjects() {
         sqlLocator = new AnnotationSqlLocator();
-        defaultParameterCustomizerFactory = new BindFactoryDefaultParameterCustomizerFactory();
+        defaultParameterCustomizerFactory = new BindParameterCustomizerFactory();
     }
 
     private SqlObjects(SqlObjects that) {
@@ -60,12 +60,12 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
     }
 
     /**
-     * Returns the configured {@link DefaultParameterCustomizerFactory} used to bind sql statement parameters
-     * when parameter is not explicitly annotated. By default it is configured as an instance of {@link BindFactoryDefaultParameterCustomizerFactory}.
+     * Returns the configured {@link ParameterCustomizerFactory} used to bind sql statement parameters
+     * when parameter is not explicitly annotated. By default it is configured as an instance of {@link BindParameterCustomizerFactory}.
      *
      * @return the configured {@link SqlStatementCustomizerFactory}.
      */
-    public DefaultParameterCustomizerFactory getDefaultParameterCustomizerFactory() {
+    public ParameterCustomizerFactory getDefaultParameterCustomizerFactory() {
         return defaultParameterCustomizerFactory;
     }
 
@@ -75,7 +75,7 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
      * @param defaultParameterCustomizerFactory the new default parameter customizer factory.
      * @return this {@link SqlObjects}.
      */
-    public SqlObjects setDefaultParameterCustomizerFactory(DefaultParameterCustomizerFactory defaultParameterCustomizerFactory) {
+    public SqlObjects setDefaultParameterCustomizerFactory(ParameterCustomizerFactory defaultParameterCustomizerFactory) {
         this.defaultParameterCustomizerFactory = defaultParameterCustomizerFactory;
         return this;
     }

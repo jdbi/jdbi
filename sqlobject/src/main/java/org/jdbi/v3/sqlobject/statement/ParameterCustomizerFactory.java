@@ -18,7 +18,7 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-public interface DefaultParameterCustomizerFactory {
+public interface ParameterCustomizerFactory {
     /**
      * Creates parameter customizer used to bind sql statement parameters
      * when parameter is not explicitly annotated

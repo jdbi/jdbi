@@ -22,7 +22,7 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.DefaultParameterCustomizerFactory;
+import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,7 +46,7 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory
     {
         Jdbi db = dbRule.getJdbi();
 
-        DefaultParameterCustomizerFactory defaultParameterCustomizerFactory = (sqlObjectType, method, param, index) ->
+        ParameterCustomizerFactory defaultParameterCustomizerFactory = (sqlObjectType, method, param, index) ->
         {
             invocationCounter.incrementAndGet();
             return (stmt, arg) -> stmt.bind("mybind" + index, arg);

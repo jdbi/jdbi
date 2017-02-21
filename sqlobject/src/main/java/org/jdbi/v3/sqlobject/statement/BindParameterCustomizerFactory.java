@@ -22,10 +22,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
- * Standard implementation of {@link DefaultParameterCustomizerFactory} that delegates to
+ * Standard implementation of {@link ParameterCustomizerFactory} that delegates to
  * {@link Bind.Factory#createForParameter(Annotation, Class, Method, Parameter, int)} passing null for Annotation parameter.
  */
-public class BindFactoryDefaultParameterCustomizerFactory implements DefaultParameterCustomizerFactory {
+public class BindParameterCustomizerFactory implements ParameterCustomizerFactory {
 
     private SqlStatementCustomizerFactory bindSqlStatementCustomizerFactory = new Bind.Factory();
 

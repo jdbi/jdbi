@@ -97,7 +97,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                 .apply(stmt, args[i]);
     }
 
-    private static DefaultParameterCustomizerFactory getDefaultParameterCustomizerFactory(SqlStatement<?> stmt) {
+    private static ParameterCustomizerFactory getDefaultParameterCustomizerFactory(SqlStatement<?> stmt) {
         return stmt.getConfig(SqlObjects.class).getDefaultParameterCustomizerFactory();
     }
 
