@@ -57,6 +57,7 @@
         <dep.antlr.version>3.4</dep.antlr.version>
         <dep.spring.version>4.2.4.RELEASE</dep.spring.version>
         <dep.slf4j.version>1.7.21</dep.slf4j.version>
+        <dep.kotlin.version>1.0.6</dep.kotlin.version>
 
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
@@ -207,6 +208,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-kotlin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-sqlobject</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -344,6 +350,37 @@
                 <artifactId>assertj-guava</artifactId>
                 <version>3.1.0</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-runtime</artifactId>
+                <version>${dep.kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
+                <version>${dep.kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-reflect</artifactId>
+                <version>${dep.kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test</artifactId>
+                <version>${dep.kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test-junit</artifactId>
+                <version>${dep.kotlin.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -375,5 +412,7 @@
         <module>postgres</module>
         <module>spring4</module>
         <module>docs</module>
+        <module>kotlin</module>
+        <module>kotlin-sqlobject</module>
     </modules>
 </project>
