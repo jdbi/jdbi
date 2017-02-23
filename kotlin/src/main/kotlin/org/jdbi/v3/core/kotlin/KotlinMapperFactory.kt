@@ -25,9 +25,10 @@ class KotlinMapperFactory : RowMapperFactory {
     override fun build(type: Type, config: ConfigRegistry): Optional<RowMapper<*>> {
         val erasedType = getErasedType(type);
 
-        return when (erasedType.isKotlinClass()) {
-            true -> Optional.of(KotlinMapper(erasedType))
-            false -> Optional.empty()
+        return if (erasedType.isKotlinClass()) {
+            Optional.of(KotlinMapper(erasedType))
+        } else {
+            Optional.empty()
         }
     }
 }

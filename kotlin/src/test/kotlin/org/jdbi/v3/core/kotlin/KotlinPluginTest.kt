@@ -41,19 +41,15 @@ class KotlinPluginTest {
         upd.execute()
 
         val qry = db.sharedHandle.createQuery("select id, name from something where id = :id")
-        val things: List<Thing> = qry.bind("id", brian.id).map(Thing::class).list()
+        val things: List<Thing> = qry.bind("id", brian.id).mapTo<Thing>().list()
         assertEquals(1, things.size)
         assertEquals(brian, things[0])
 
         val qryAll = db.sharedHandle.createQuery("select id, name from something")
-        qryAll.map(Thing::class).useSequence {
+        qryAll.mapTo<Thing>().useSequence {
             assertEquals(keith, it.drop(1).first())
         }
 
-        val qryAll2 = db.sharedHandle.createQuery("select id, name from something")
-        qryAll2.useSequence(Thing::class) {
-            assertEquals(keith, it.drop(1).first())
-        }
     }
 
 

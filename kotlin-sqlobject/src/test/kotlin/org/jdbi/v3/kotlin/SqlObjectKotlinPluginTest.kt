@@ -75,17 +75,17 @@ class SqlObjectKotlinPluginTest {
 
     @Test
     fun testDaoCanAttachViaDbiOnDemand() {
-        commonTest(db.jdbi.onDemand(ThingDao::class))
+        commonTest(db.jdbi.onDemand<ThingDao>())
     }
 
     @Test
     fun testDaoCanAttachViaHandleAttach() {
-        commonTest(db.sharedHandle.attach(ThingDao::class))
+        commonTest(db.sharedHandle.attach<ThingDao>())
     }
 
     @Test
     fun testDefaultMethod() {
-        val dao = db.jdbi.onDemand(ThingDao::class)
+        val dao = db.jdbi.onDemand<ThingDao>()
         val brian = Thing(1, "Brian", null)
 
         val found = dao.insertAndFind(brian)

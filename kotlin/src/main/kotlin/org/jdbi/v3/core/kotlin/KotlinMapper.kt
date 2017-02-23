@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.kotlin
 
+import org.jdbi.v3.core.mapper.NoSuchMapperException
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
 import java.lang.reflect.InvocationTargetException
@@ -24,7 +25,7 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.primaryConstructor
 
-class KotlinMapper<C : Any> internal constructor(private val clazz: Class<C>) : RowMapper<C> {
+class KotlinMapper<C : Any> (private val clazz: Class<C>) : RowMapper<C> {
     private val kclass: KClass<C> = clazz.kotlin
 
     @Throws(SQLException::class)
@@ -59,7 +60,7 @@ class KotlinMapper<C : Any> internal constructor(private val clazz: Class<C>) : 
                 .filterNotNull()
                 .map { param ->
                     val paramType = param.type.javaType
-                    val columnMapper = ctx.findColumnMapperFor(paramType).orElseThrow { NoSuchColumnMapperException("No column mapper for " + paramType) }
+                    val columnMapper = ctx.findColumnMapperFor(paramType).orElseThrow { NoSuchMapperException("No column mapper for " + paramType) }
                     Pair(param, columnMapper.map(rs, param.name, ctx))
                 }
 

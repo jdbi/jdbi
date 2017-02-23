@@ -29,14 +29,3 @@ class KotlinMemberAccessException : JdbiException {
     }
 }
 
-class NoSuchColumnMapperException : JdbiException {
-    constructor(string: String, throwable: Throwable) : super(string, throwable) {}
-
-    constructor(cause: Throwable) : super(cause) {}
-
-    constructor(message: String) : super(message) {}
-
-    companion object {
-        private val serialVersionUID = 1L
-    }
-}
