@@ -24,7 +24,7 @@ fun Class<*>.isKotlinClass(): Boolean {
 }
 
 inline fun <reified T : Any> ResultBearing.mapTo(): ResultIterable<T> {
-    return this.map(KotlinMapper(T::class.java))
+    return this.mapTo(T::class.java)
 }
 
 inline fun <O : Any> ResultIterable<O>.useSequence(block: (Sequence<O>) -> Unit): Unit {
