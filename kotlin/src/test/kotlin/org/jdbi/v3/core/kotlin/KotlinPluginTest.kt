@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.rule.H2DatabaseRule
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -28,22 +29,45 @@ class KotlinPluginTest {
                      val nullableDefaultedNotNull: String? = "not null",
                      val defaulted: String = "default value")
 
+    val brian = Thing(1, "Brian", null)
+    val keith = Thing(2, "Keith", null)
 
-    @Test
-    fun testFluentQuery() {
-        val brian = Thing(1, "Brian", null)
-        val keith = Thing(2, "Keith", null)
-
+    @Before fun setUp() {
         val upd = db.sharedHandle.prepareBatch("insert into something (id, name) values (:id, :name)")
         listOf(brian, keith).forEach {
             upd.bindBean(it).add()
         }
         upd.execute()
+    }
+
+    @Test fun testFindById() {
 
         val qry = db.sharedHandle.createQuery("select id, name from something where id = :id")
         val things: List<Thing> = qry.bind("id", brian.id).mapTo<Thing>().list()
         assertEquals(1, things.size)
         assertEquals(brian, things[0])
+
+    }
+
+    @Test fun testFindByIdWithNulls() {
+
+        val qry = db.sharedHandle.createQuery(
+                "select " +
+                        "id, " +
+                        "name, " +
+                        "null as nullable, " +
+                        "null as nullableDefaultedNull, " +
+                        "null as nullableDefaultedNotNull, " +
+                        "'test' as defaulted " +
+                        "from something where id = :id"
+        )
+        val things: List<Thing> = qry.bind("id", brian.id).mapTo<Thing>().list()
+        assertEquals(1, things.size)
+        assertEquals(brian.copy(nullableDefaultedNotNull = null, defaulted = "test"), things[0])
+
+    }
+
+    @Test fun testFindAll() {
 
         val qryAll = db.sharedHandle.createQuery("select id, name from something")
         qryAll.mapTo<Thing>().useSequence {
@@ -51,6 +75,5 @@ class KotlinPluginTest {
         }
 
     }
-
 
 }
