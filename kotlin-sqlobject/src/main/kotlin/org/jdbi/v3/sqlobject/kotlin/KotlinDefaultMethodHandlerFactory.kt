@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject.kotlin
 import org.jdbi.v3.core.kotlin.isKotlinClass
 import org.jdbi.v3.sqlobject.Handler
 import org.jdbi.v3.sqlobject.HandlerFactory
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
 
@@ -26,7 +27,13 @@ class KotlinDefaultMethodHandlerFactory : HandlerFactory {
     override fun buildHandler(sqlObjectType: Class<*>, method: Method): Optional<Handler> {
         val implementation = getImplementation(sqlObjectType, method) ?: return Optional.empty()
 
-        return Optional.of(Handler { t, a, h -> implementation.invoke(null, *(listOf(t).plus(a).toTypedArray())) })
+        return Optional.of(Handler { t, a, h ->
+            try {
+                implementation.invoke(null, *(listOf(t).plus(a).toTypedArray()))
+            } catch (e: InvocationTargetException) {
+                throw e.targetException
+            }
+        })
 
     }
 

@@ -21,6 +21,7 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 class SqlObjectKotlinPluginTest {
     @Rule @JvmField
@@ -48,6 +49,10 @@ class SqlObjectKotlinPluginTest {
         fun insertAndFind(something: Thing): Thing {
             insert(something)
             return findById(something.id)
+        }
+
+        fun throwsException(e: Exception): Thing {
+            throw e
         }
     }
 
@@ -93,7 +98,14 @@ class SqlObjectKotlinPluginTest {
 
     }
 
+    @Test
+    fun testDefaultMethodShouldPropagateException() {
+        val dao = db.jdbi.onDemand<ThingDao>()
+        val exception = UnsupportedOperationException("Testing exception propagation")
+        val actualException = assertFails { dao.throwsException(exception) }
+        assertEquals(exception, actualException)
 
+    }
 
 
 }
