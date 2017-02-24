@@ -15,6 +15,8 @@ package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.mapper.NoSuchMapperException
 import org.jdbi.v3.core.mapper.RowMapper
+import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
+import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
 import org.jdbi.v3.core.statement.StatementContext
 import java.lang.reflect.InvocationTargetException
 import java.sql.ResultSet
@@ -25,59 +27,72 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.primaryConstructor
 
-class KotlinMapper<C : Any> (private val clazz: Class<C>) : RowMapper<C> {
+class KotlinMapper<C : Any>(private val clazz: Class<C>) : RowMapper<C> {
+
     private val kclass: KClass<C> = clazz.kotlin
 
     @Throws(SQLException::class)
     override fun map(rs: ResultSet, ctx: StatementContext): C {
-        try {
-            return tryMap(rs, ctx)
-        } catch (e: NoSuchMethodException) {
-            throw KotlinMemberAccessException(String.format("Unable to map %s entity", clazz), e)
-        } catch (e: InstantiationException) {
-            throw KotlinMemberAccessException(String.format("Unable to map %s entity", clazz), e)
-        } catch (e: IllegalAccessException) {
-            throw KotlinMemberAccessException(String.format("Unable to map %s entity", clazz), e)
-        } catch (e: InvocationTargetException) {
-            throw KotlinMemberAccessException(String.format("Unable to map %s entity", clazz), e)
-        }
-
+        return specialize(rs, ctx).map(rs, ctx)
     }
 
-    @Throws(NoSuchMethodException::class, InstantiationException::class, IllegalAccessException::class, InvocationTargetException::class, SQLException::class)
-    private fun tryMap(rs: ResultSet, ctx: StatementContext): C {
+    @Throws(SQLException::class)
+    override fun specialize(rs: ResultSet, ctx: StatementContext): RowMapper<C> {
+
+        val metaData = rs.metaData
+        val columnNameMatchers = ctx.getConfig(ReflectionMappers::class.java).columnNameMatchers
+
+
         val constructor = kclass.primaryConstructor!!
         constructor.isAccessible = true
 
         // TODO: best fit for constructors + writeable properties, pay attention to nullables/optionals with default values
         //       for now just call primary constructor using named params and hope
 
-        val validParametersByName = constructor.parameters.filter { it.kind == KParameter.Kind.VALUE && it.name != null }
-                .map { it.name!!.toLowerCase() to it }.toMap()
+        val validConstructorParameters = constructor.parameters.filter { it.kind == KParameter.Kind.VALUE && it.name != null }
 
-        val matchingParms = (rs.metaData.columnCount downTo 1).map { rs.metaData.getColumnLabel(it).toLowerCase() }
-                .map { validParametersByName.get(it) }
+        val matchingConstructorParams = (metaData.columnCount downTo 1)
+                .map { validConstructorParameters.matchColumnName(metaData.getColumnLabel(it), columnNameMatchers) }
                 .filterNotNull()
-                .map { param ->
-                    val paramType = param.type.javaType
-                    val columnMapper = ctx.findColumnMapperFor(paramType).orElseThrow { NoSuchMapperException("No column mapper for " + paramType) }
-                    Pair(param, columnMapper.map(rs, param.name, ctx))
-                }
+                .toSet()
 
-        val parmsThatArePresent = matchingParms.map { it.first }.toSet()
 
         // things missing from the result set that are Nullable and not optional should be set to Null
-        val nullablesThatAreAbsent = constructor.parameters.filter { !it.isOptional && it.type.isMarkedNullable && it !in parmsThatArePresent }.map {
-            Pair(it, null)
+        val nullablesThatAreAbsent = constructor.parameters.filter { !it.isOptional && it.type.isMarkedNullable && it !in matchingConstructorParams }
+
+        val matchingParamsWithColumnMappers = matchingConstructorParams.map { param ->
+            val paramType = param.type.javaType
+            val columnMapper = ctx.findColumnMapperFor(paramType).orElseThrow { NoSuchMapperException("No column mapper for " + paramType) }
+            Pair(param, columnMapper)
         }
 
-        // things that are missing from the result set but are defaultable
-        val defaultableThatAreAbsent = constructor.parameters.filter { it.isOptional && !it.type.isMarkedNullable && it !in parmsThatArePresent }.toSet()
+        val paramsWithColumnMappers = matchingParamsWithColumnMappers + nullablesThatAreAbsent.map { Pair(it, null) }
 
-        val finalParms = (matchingParms + nullablesThatAreAbsent)
-                .filterNot { it.first in defaultableThatAreAbsent }
-                .toMap()
-        return constructor.callBy(finalParms)
+        return RowMapper { r, c ->
+            val matchingParamsWithValue = paramsWithColumnMappers.associateBy({ it.first }, { it.second?.map(r, it.first.name, c) })
+            try {
+                constructor.callBy(matchingParamsWithValue)
+            } catch (e: InvocationTargetException) {
+                throw IllegalArgumentException("A bean, ${clazz.name} was mapped which was not instantiable", e.targetException)
+            } catch (e: ReflectiveOperationException) {
+                throw IllegalArgumentException("A bean, ${clazz.name} was mapped which was not instantiable", e)
+            }
+        }
+
     }
+
+    fun List<KParameter>.matchColumnName(columnName: String,
+                                         columnNameMatchers: List<ColumnNameMatcher>): KParameter? {
+        for (parameter in this) {
+            val paramName = parameter.name
+            for (strategy in columnNameMatchers) {
+                if (strategy.columnNameMatches(columnName, paramName)) {
+                    return parameter
+                }
+            }
+        }
+        return null
+    }
+
 
 }
