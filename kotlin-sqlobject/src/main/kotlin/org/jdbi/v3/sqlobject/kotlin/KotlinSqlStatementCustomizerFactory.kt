@@ -29,7 +29,7 @@ import kotlin.reflect.declaredMemberProperties
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.kotlinFunction
 
-class KotlinSqlStatementCustomiserFactory : ParameterCustomizerFactory {
+class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
 
 
     override fun createForParameter(sqlObjectType: Class<*>, method: Method, parameter: Parameter, paramIdx: Int): SqlStatementParameterCustomizer {
