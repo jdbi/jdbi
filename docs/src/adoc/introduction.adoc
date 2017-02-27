@@ -1,19 +1,31 @@
-*JDBI* is a thin wrapper around the Java database
-API, JDBC.  It provides helpful abstractions around
-accessing your database tables in a way that respects
-the relational model.
+*JDBI* is a Java library providing convenient, idiomatic access to relational
+data.
 
-Unlike an ORM, *jdbi* does not pretend to seamlessly
-convert your Java object model into the relational
-model -- instead, it provides easy mapping between
-SQL _you_ write and simple tabular data structures.
+JDBI is built on top of JDBC. If your database has a JDBC driver, you can use
+JDBI with it.
+
+JDBI's API comes in two flavors:
+
+- The Core API provides a fluent, imperative interface.
 
 [source,java,indent=0]
 -------------------------------------------
-include::{exampledir}/HelloWorldTest.java[tags=frontPage]
+include::{exampledir}/IntroductionTest.java[tags=core]
 -------------------------------------------
 
-*jdbi* is easy to include in your Java project - with an
+- The SQL Object API sits atop Core, and provides a declarative interface.
+
+[source,java,indent=0]
+-------------------------------------------
+include::{exampledir}/IntroductionTest.java[tags=sqlobject-declaration]
+-------------------------------------------
+
+[source,java,indent=0]
+-------------------------------------------
+include::{exampledir}/IntroductionTest.java[tags=sqlobject-usage]
+-------------------------------------------
+
+JDBI is easy to include in your Java project - with an
 link:https://groups.google.com/group/jdbi[Apache 2.0] license,
 few external dependencies, and JARs distributed through
 link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jdbi%22[Maven Central],
@@ -26,12 +38,24 @@ you can just include the relevant artifacts in your POM:
   <artifactId>jdbi3</artifactId>
   <version>{project_version}</version>
 </dependency>
+
+<dependency>
+  <groupId>org.jdbi</groupId>
+  <artifactId>jdbi3-sqlobject</artifactId>
+  <version>{project_version}</version>
+</dependency>
 -------------------------------------------
 
-*jdbi3* is an update which sports a cleaned up API,
-a stronger resource ownership model, and leverages
-the power of new Java 8 features.
+JDBI has a flexible plugin architecture which makes it easy to fold in support
+for your favorite libraries (Guava, JodaTime, Spring) or database vendor (Oracle,
+Postgres).
 
-WARNING: *jdbi3* is currently in beta. While we are reasonably confident in its
+JDBI is not an ORM. Bring your own SQL.
+
+Unlike an ORM, JDBI does not pretend to seamlessly convert your Java
+object model into the relational model -- instead, it provides easy mapping
+between SQL _you_ write and simple tabular data structures.
+
+NOTE: JDBI 3 is currently in beta. While we are reasonably confident in its
 quality, we recommend thoroughly testing your code with JDBI 3 before using it in
 a production environment. http://www.jdbi.org[jdbi2] is still the stable release.
