@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.generic.GenericTypes
-import org.jdbi.v3.core.kotlin.isKotlinClass
 import org.jdbi.v3.core.statement.PreparedBatch
 import org.jdbi.v3.core.statement.SqlStatement
 import org.jdbi.v3.sqlobject.SingleValue
@@ -23,10 +22,7 @@ import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory
 import java.lang.reflect.Method
 import java.lang.reflect.Parameter
 import java.lang.reflect.Type
-import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
-import kotlin.reflect.declaredMemberProperties
-import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.kotlinFunction
 
 class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
@@ -42,20 +38,15 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
                 "${parameter.declaringExecutable} :: $parameter")
 
 
-        fun bind(q: SqlStatement<*>, bindToParm: String, type: Type, value: Any?, prefix: String = "") {
+        fun bind(q: SqlStatement<*>, bindToParm: String, type: Type, value: Any?) {
 
-            val erasedType = GenericTypes.getErasedType(type)
-            if (erasedType.isKotlinClass()) {
-                @Suppress("UNCHECKED_CAST")
-                (erasedType.kotlin as KClass<Any>).declaredMemberProperties.forEach { subProp ->
-                    bind(q, subProp.name, subProp.returnType.javaType, if (value == null) null else subProp.get(value), "$prefix$bindToParm.")
-                }
+            val maybeArgument = q.getContext().findArgumentFor(type, value)
+            if (!maybeArgument.isPresent) {
+                q.bindBean(bindToParm, value)
             } else {
-                q.bindByType("$prefix$bindToParm", value, type)
-                if (prefix.isBlank()) {
-                    // we can't really bind sub items by order
-                    q.bindByType(paramIdx, value, type)
-                }
+                val argument = maybeArgument.get()
+                q.bind(bindToParm, argument)
+                q.bind(paramIdx, argument)
             }
         }
         return SqlStatementParameterCustomizer { stmt, arg ->
