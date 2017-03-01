@@ -50,6 +50,7 @@ public class PostgresPlugin implements JdbiPlugin {
         db.registerArgument(new PeriodArgumentFactory());
         db.registerArgument(new InetArgumentFactory());
         db.registerArgument(new HStoreArgumentFactory());
+        db.registerArgument(new UUIDArgumentFactory());
 
         db.registerArrayType(int.class, "integer");
         db.registerArrayType(Integer.class, "integer");
