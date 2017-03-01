@@ -34,5 +34,5 @@ public interface Argument
      * @param ctx the statement context
      * @throws SQLException if anything goes wrong
      */
-    void apply(final int position, PreparedStatement statement, StatementContext ctx) throws SQLException;
+    void apply(int position, PreparedStatement statement, StatementContext ctx) throws SQLException;
 }

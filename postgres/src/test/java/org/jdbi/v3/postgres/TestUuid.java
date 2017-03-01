@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.After;
@@ -38,7 +39,7 @@ public class TestUuid {
         h = db.getJdbi().open();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS foo");
-            th.execute("CREATE TABLE foo (bar UUID)");
+            th.execute("CREATE TABLE foo (bar UUID, ary UUID[])");
         });
     }
 
@@ -75,11 +76,41 @@ public class TestUuid {
         assertThat(uo.getUuids()).containsOnly(u, u1);
     }
 
+    @Test
+    public void testNull() throws Exception {
+        final UuidObject uo = h.attach(UuidObject.class);
+
+        uo.insert(null);
+
+        assertThat(uo.getUuid()).isEqualTo(null);
+    }
+
+    @Test
+    public void testUuidArray() throws Exception {
+        final UuidObject uo = h.attach(UuidObject.class);
+
+        UUID[] ary = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
+
+        uo.insertArray(ary);
+
+        assertThat(uo.getArray()).containsExactly(ary);
+    }
+
     public interface UuidObject {
-        @SqlUpdate("INSERT INTO foo VALUES(:uuid)")
+        @SqlUpdate("INSERT INTO foo (bar) VALUES(:uuid)")
         void insert(UUID uuid);
 
-        @SqlQuery("SELECT * FROM foo")
+        @SqlQuery("SELECT bar FROM foo")
         Set<UUID> getUuids();
+
+        @SqlQuery("select bar from foo")
+        UUID getUuid();
+
+        @SqlUpdate("insert into foo (ary) values (:uuids)")
+        void insertArray(UUID... uuids);
+
+        @SqlQuery("select ary from foo")
+        @SingleValue
+        UUID[] getArray();
     }
 }
