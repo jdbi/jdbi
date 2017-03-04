@@ -18,7 +18,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin
 import org.jdbi.v3.sqlobject.Handlers
 import org.jdbi.v3.sqlobject.SqlObjects
 
-class SqlObjectKotlinPlugin : JdbiPlugin {
+class KotlinSqlObjectPlugin : JdbiPlugin {
 
     override fun customizeJdbi(dbi: Jdbi) {
         dbi.configure(SqlObjects::class.java, { c -> c.defaultParameterCustomizerFactory = KotlinSqlStatementCustomizerFactory() })

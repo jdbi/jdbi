@@ -54,7 +54,7 @@ Parameter binding supports individual primitive types as well as Kotlin or JavaB
 
 If you load all DBI plugins via
 `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
-Otherwise, you can attach the plugin via:  `Jdbi.installPlugin(SqlObjectKotlinPlugin())`.
+Otherwise, you can attach the plugin via:  `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
 
 An example from the test class:
 

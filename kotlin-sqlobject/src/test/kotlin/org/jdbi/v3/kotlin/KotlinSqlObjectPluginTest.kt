@@ -23,7 +23,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
-class SqlObjectKotlinPluginTest {
+class KotlinSqlObjectPluginTest {
     @Rule @JvmField
     val db = H2DatabaseRule().withPlugins()
 
