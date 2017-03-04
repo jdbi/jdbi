@@ -83,6 +83,10 @@ include::postgresql.adoc[]
 
 include::oracle.adoc[]
 
+== Kotlin
+
+include::kotlin.adoc[]
+
 = Appendix
 
 == API Reference

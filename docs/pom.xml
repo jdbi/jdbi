@@ -84,6 +84,20 @@
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-stringtemplate4</artifactId>
       </dependency>
+      <dependency>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-runtime</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-stdlib</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.jdbi</groupId>
+          <artifactId>jdbi3-kotlin-sqlobject</artifactId>
+      </dependency>
 
       <dependency>
         <groupId>com.opentable.components</groupId>
@@ -106,6 +120,20 @@
         <artifactId>h2</artifactId>
         <scope>test</scope>
       </dependency>
+
+      <dependency>
+         <groupId>org.jetbrains.kotlin</groupId>
+         <artifactId>kotlin-test</artifactId>
+         <scope>test</scope>
+      </dependency>
+      
+      <dependency>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-test-junit</artifactId>
+          <scope>test</scope>
+      </dependency>
+
+
     </dependencies>
 
     <build>
@@ -123,6 +151,27 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <version>${dep.kotlin.version}</version>
+
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
