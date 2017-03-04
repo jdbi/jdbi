@@ -27,7 +27,7 @@ class KotlinDefaultMethodHandlerFactory : HandlerFactory {
     override fun buildHandler(sqlObjectType: Class<*>, method: Method): Optional<Handler> {
         val implementation = getImplementation(sqlObjectType, method) ?: return Optional.empty()
 
-        return Optional.of(Handler { t, a, h ->
+        return Optional.of(Handler { t, a, _ ->
             try {
                 implementation.invoke(null, *(listOf(t).plus(a).toTypedArray()))
             } catch (e: InvocationTargetException) {
@@ -58,7 +58,3 @@ class KotlinDefaultMethodHandlerFactory : HandlerFactory {
 }
 
 data class MethodKey(val name: String, val paramTypes: List<Class<*>>, val returnType: Class<*>)
-
-@Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-private inline fun <K, V> MutableMap<K, V>.computeIfAbsent(key: K, crossinline mappingFunction: (K) -> V?): V?
-        = (this as java.util.Map<K, V>).computeIfAbsent(key, java.util.function.Function { mappingFunction(it) })

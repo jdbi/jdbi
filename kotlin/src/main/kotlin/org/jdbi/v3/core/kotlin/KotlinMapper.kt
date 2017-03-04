@@ -25,7 +25,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaType
-import kotlin.reflect.primaryConstructor
+import kotlin.reflect.full.primaryConstructor
 
 class KotlinMapper<C : Any>(private val clazz: Class<C>) : RowMapper<C> {
 

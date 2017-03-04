@@ -85,8 +85,8 @@
         <artifactId>jdbi3-stringtemplate4</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-runtime</artifactId>
+          <groupId>org.jetbrains</groupId>
+          <artifactId>annotations</artifactId>
       </dependency>
 
       <dependency>
