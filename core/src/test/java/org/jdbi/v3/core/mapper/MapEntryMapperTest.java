@@ -49,8 +49,7 @@ public class MapEntryMapperTest {
 
         Map<String, String> map = h.createQuery("select key, value from config")
                 .configure(MapEntryMapper.Config.class, cfg -> cfg.setKeyColumn("key").setValueColumn("value"))
-                .mapTo(new GenericType<Map.Entry<String, String>>() {})
-                .collect(intoContainer(new GenericType<Map<String, String>>() {}));
+                .collectInto(new GenericType<Map<String, String>>() {});
 
         assertThat(map).containsOnly(
                 entry("foo", "123"),
@@ -70,8 +69,7 @@ public class MapEntryMapperTest {
         Map<Integer, User> map = h.createQuery("select * from user")
                 .configure(MapEntryMapper.Config.class, cfg -> cfg.setKeyColumn("id"))
                 .registerRowMapper(ConstructorMapper.of(User.class))
-                .mapTo(new GenericType<Map.Entry<Integer, User>>() {})
-                .collect(intoContainer(new GenericType<Map<Integer, User>>() {}));
+                .collectInto(new GenericType<Map<Integer, User>>() {});
 
         assertThat(map).containsOnly(
                 entry(1, new User(1, "alice")),
@@ -100,8 +98,7 @@ public class MapEntryMapperTest {
         Map<User, Phone> map = h.createQuery(sql)
                 .registerRowMapper(ConstructorMapper.of(User.class, "u"))
                 .registerRowMapper(ConstructorMapper.of(Phone.class, "p"))
-                .mapTo(new GenericType<Map.Entry<User, Phone>>() {})
-                .collect(intoContainer(new GenericType<Map<User, Phone>>() {}));
+                .collectInto(new GenericType<Map<User, Phone>>() {});
 
         assertThat(map).containsOnly(
                 entry(new User(1, "alice"), new Phone(10, "555-0001")),

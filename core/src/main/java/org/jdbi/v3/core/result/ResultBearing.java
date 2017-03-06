@@ -19,8 +19,11 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-
+import java.util.stream.Collector;
+import org.jdbi.v3.core.collector.ElementTypeNotFoundException;
+import org.jdbi.v3.core.collector.NoSuchCollectorException;
 import org.jdbi.v3.core.config.Configurable;
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.MapMapper;
@@ -28,7 +31,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
-import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -207,6 +209,71 @@ public interface ResultBearing {
             finally {
                 ctx.close();
             }
+        });
+    }
+
+    /**
+     * Collect the results into a container of the given type. A collector
+     * must be registered for the container type, which knows the element type
+     * for the container. A mapper must be registered for the element type.
+     * <p>
+     * This method is equivalent to {@code ResultBearing.mapTo(elementType).collect(containerCollector)}.
+     * </p>
+     * @param containerType the container type into which results will be collected
+     * @param <R>           the result container type
+     * @return a container into which result rows have been collected
+     */
+    @SuppressWarnings("unchecked")
+    default <R> R collectInto(Class<R> containerType) {
+        return (R) collectInto((Type) containerType);
+    }
+
+    /**
+     * Collect the results into a container of the given generic type. A collector
+     * must be registered for the container type, which knows the element type
+     * for the container. A mapper must be registered for the element type.
+     * <p>
+     * This method is equivalent to {@code ResultBearing.mapTo(elementType).collect(containerCollector)}.
+     * </p>
+     * <p>
+     * Example:
+     * </p>
+     * <pre>
+     * Map&lt;Long, User&gt; usersById = handle.createQuery("select * from user")
+     *     .configure(MapEntryMapper.Config.class, cfg -&gt; cfg.setKeyColumn("id"))
+     *     .collectInto(new GenericType&lt;Map&lt;Long, User&gt;&gt;() {});
+     * </pre>
+     *
+     * @param containerType the container type into which results will be collected
+     * @param <R>           the result container type
+     * @return a container into which result rows have been collected
+     */
+    @SuppressWarnings("unchecked")
+    default <R> R collectInto(GenericType<R> containerType) {
+        return (R) collectInto(containerType.getType());
+    }
+
+    /**
+     * Collect the results into a container of the given type. A collector
+     * must be registered for the container type, which knows the element type
+     * for the container. A mapper must be registered for the element type.
+     * <p>
+     * This method is equivalent to {@code ResultBearing.mapTo(elementType).collect(containerCollector)}.
+     * </p>
+     *
+     * @param containerType the container type into which results will be collected
+     * @return a container into which result rows have been collected
+     */
+    @SuppressWarnings("unchecked")
+    default Object collectInto(Type containerType) {
+        return mapResultSet((rs, ctx) -> {
+            Collector collector = ctx.findCollectorFor(containerType)
+                    .orElseThrow(() -> new NoSuchCollectorException("No collector registered for container type " + containerType));
+            Type elementType = ctx.findElementTypeFor(containerType)
+                    .orElseThrow(() -> new ElementTypeNotFoundException("Unknown element type for container type " + containerType));
+            RowMapper<?> mapper = ctx.findRowMapperFor(elementType)
+                    .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for element type " + elementType));
+            return ResultIterable.of(rs, mapper, ctx).collect(collector);
         });
     }
 }
