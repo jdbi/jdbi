@@ -30,6 +30,14 @@ import java.util.stream.Collectors;
 
 /**
  * CollectorFactories for built in JDK and jdbi types.
+ * <p>Supported Collection types:</p>
+ * <ul>
+ *     <li>java.util.Optional&lt;T&gt; (throws an exception if more than one row in result)</li>
+ *     <li>java.util.List&lt;T&gt;</li>
+ *     <li>java.util.Set&lt;T&gt;</li>
+ *     <li>java.util.SortedSet&lt;T&gt;</li>
+ *     <li>java.util.Map&lt;K, V&gt; - for row type Map.Entry&lt;K, V&gt;</li>
+ * </ul>
  */
 public class BuiltInCollectorFactories
 {
@@ -43,6 +51,7 @@ public class BuiltInCollectorFactories
                 fromSupplier(List.class, Collectors::toList),
                 fromSupplier(Set.class, Collectors::toSet),
                 fromSupplier(SortedSet.class, () -> Collectors.toCollection(TreeSet::new)),
+                new MapCollectorFactory(),
                 new ArrayCollectorFactory(),
                 new OptionalCollectorFactory()
             );

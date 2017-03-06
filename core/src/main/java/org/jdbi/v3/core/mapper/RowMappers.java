@@ -32,16 +32,18 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     private final ConcurrentHashMap<Type, RowMapper<?>> cache = new ConcurrentHashMap<>();
     private ConfigRegistry registry;
 
-    public RowMappers() { }
-
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
+    public RowMappers() {
+        register(MapEntryMapper.factory());
     }
 
     private RowMappers(RowMappers that) {
         factories.addAll(that.factories);
         cache.putAll(that.cache);
+    }
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     /**

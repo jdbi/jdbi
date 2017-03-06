@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindMap;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -133,6 +134,7 @@ public class TestHStore {
     public interface CampaignDao {
 
         @SqlQuery("select caps from campaigns where id=:id")
+        @SingleValue
         Map<String, String> getCampaignsCaps(@Bind("id") long campaignsId);
 
         @SqlUpdate("insert into campaigns(id, caps) values (:id, :caps)")

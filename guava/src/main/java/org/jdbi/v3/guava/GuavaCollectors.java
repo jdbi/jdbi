@@ -13,27 +13,76 @@
  */
 package org.jdbi.v3.guava;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.TreeMultimap;
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import org.jdbi.v3.core.collector.CollectorFactory;
+
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
-import java.lang.reflect.Type;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.stream.Collector;
-
-import org.jdbi.v3.core.collector.CollectorFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-
 /**
- * Provide Collector instances that create Guava collection types, especially immutable
- * versions of the base Java collections.
+ * Provides Collectors for Guava collection types.
+ * <p>Supported Collection types:</p>
+ * <ul>
+ *     <li>com.google.common.base.Optional&lt;T&gt; (throws an exception if more than one row in result)</li>
+ *     <li>com.google.common.collect.ImmutableList&lt;T&gt;</li>
+ *     <li>com.google.common.collect.ImmutableSet&lt;T&gt;</li>
+ *     <li>com.google.common.collect.ImmutableSortedSet&lt;T extends Comparable&gt;</li>
+ * </ul>
+ * <p>Supported Maps and Multimaps types - for row type Map.Entry&lt;K, V&gt;:</p>
+ * <ul>
+ *     <li>com.google.common.collect.ArrayListMultimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.BiMap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.HashMultimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.ImmutableListMultimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.ImmutableMap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.ImmutableMultimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.ImmutableSetMultimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.LinkedListMultimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.ListMultimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.Multimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.SetMultimap&lt;K, V&gt;</li>
+ *     <li>com.google.common.collect.TreeMultimap&lt;K, V&gt;</li>
+ * </ul>
  */
 public class GuavaCollectors {
+    private static final TypeVariable<Class<Map>> MAP_KEY;
+    private static final TypeVariable<Class<Map>> MAP_VALUE;
+    private static final TypeVariable<Class<Multimap>> MULTIMAP_KEY;
+    private static final TypeVariable<Class<Multimap>> MULTIMAP_VALUE;
+
+    static {
+        TypeVariable<Class<Map>>[] mapParams = Map.class.getTypeParameters();
+        MAP_KEY = mapParams[0];
+        MAP_VALUE = mapParams[1];
+
+        TypeVariable<Class<Multimap>>[] multimapParams = Multimap.class.getTypeParameters();
+        MULTIMAP_KEY = multimapParams[0];
+        MULTIMAP_VALUE = multimapParams[1];
+    }
 
     /**
      * @return a {@code CollectorFactory} which knows how to create all supported Guava types
@@ -44,7 +93,6 @@ public class GuavaCollectors {
 
     /**
      * @param <T> the element type collected.
-     *
      * @return a collector into Guava's {@code Optional<T>}
      */
     public static <T> Collector<T, ?, Optional<T>> toOptional() {
@@ -77,26 +125,158 @@ public class GuavaCollectors {
     public static class Factory implements CollectorFactory {
 
         private static final Map<Class<?>, Collector<?, ?, ?>> collectors =
-            ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
-                .put(ImmutableList.class, ImmutableList.toImmutableList())
-                .put(ImmutableSet.class, ImmutableSet.toImmutableSet())
-                .put(ImmutableSortedSet.class, ImmutableSortedSet.toImmutableSortedSet(Comparator.naturalOrder()))
-                .put(Optional.class, toOptional())
-                .build();
+                ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
+                        .put(ImmutableList.class, ImmutableList.toImmutableList())
+                        .put(ImmutableSet.class, ImmutableSet.toImmutableSet())
+                        .put(ImmutableSortedSet.class, ImmutableSortedSet.toImmutableSortedSet(Comparator.naturalOrder()))
+                        .put(Optional.class, toOptional())
+                        .build();
+
+        private static final Map<Class<?>, Collector<?, ?, ?>> mapCollectors =
+                ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
+                        .put(ImmutableMap.class, toImmutableMap())
+                        .put(BiMap.class, toHashBiMap())
+                        .build();
+
+        private static final Map<Class<?>, Collector<?, ?, ?>> multimapCollectors =
+                ImmutableMap.<Class<?>, Collector<?, ?, ?>>builder()
+                        .put(ImmutableMultimap.class, toImmutableListMultimap())
+                        .put(ImmutableListMultimap.class, toImmutableListMultimap())
+                        .put(ImmutableSetMultimap.class, toImmutableSetMultimap())
+                        .put(Multimap.class, toImmutableListMultimap())
+                        .put(ListMultimap.class, toImmutableListMultimap())
+                        .put(ArrayListMultimap.class, toArrayListMultimap())
+                        .put(LinkedListMultimap.class, toLinkedListMultimap())
+                        .put(SetMultimap.class, toImmutableSetMultimap())
+                        .put(HashMultimap.class, toHashMultimap())
+                        .put(TreeMultimap.class, toTreeMultimap())
+                        .build();
 
         @Override
         public boolean accepts(Type containerType) {
-            return collectors.containsKey(getErasedType(containerType));
+            Class<?> erasedType = getErasedType(containerType);
+            return collectors.containsKey(erasedType)
+                    || mapCollectors.containsKey(erasedType)
+                    || multimapCollectors.containsKey(erasedType);
         }
 
         @Override
         public java.util.Optional<Type> elementType(Type containerType) {
-            return findGenericParameter(containerType, getErasedType(containerType));
+            Class<?> erasedType = getErasedType(containerType);
+
+            if (collectors.containsKey(erasedType)) {
+                return findGenericParameter(containerType, erasedType);
+            } else if (mapCollectors.containsKey(erasedType)) {
+                TypeToken<?> keyType = TypeToken.of(containerType).resolveType(MAP_KEY);
+                TypeToken<?> valueType = TypeToken.of(containerType).resolveType(MAP_VALUE);
+                return java.util.Optional.of(entryType(keyType, valueType));
+            } else if (multimapCollectors.containsKey(erasedType)) {
+                TypeToken<?> keyType = TypeToken.of(containerType).resolveType(MULTIMAP_KEY);
+                TypeToken<?> valueType = TypeToken.of(containerType).resolveType(MULTIMAP_VALUE);
+                return java.util.Optional.of(entryType(keyType, valueType));
+            }
+
+            return java.util.Optional.empty();
+        }
+
+        private <K, V> Type entryType(TypeToken<K> keyType, TypeToken<V> valueType) {
+            return new TypeToken<Map.Entry<K, V>>() {}
+                    .where(new TypeParameter<K>() {}, keyType)
+                    .where(new TypeParameter<V>() {}, valueType)
+                    .getType();
         }
 
         @Override
         public Collector<?, ?, ?> build(Type containerType) {
-            return collectors.get(getErasedType(containerType));
+            Class<?> erasedType = getErasedType(containerType);
+            if (collectors.containsKey(erasedType)) {
+                return collectors.get(erasedType);
+            }
+            if (mapCollectors.containsKey(erasedType)) {
+                return mapCollectors.get(erasedType);
+            }
+            return multimapCollectors.get(erasedType);
         }
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, ImmutableMap<K, V>> toImmutableMap() {
+        return ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue);
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, BiMap<K, V>> toHashBiMap() {
+        return Collector.of(
+                HashBiMap::create,
+                GuavaCollectors::putEntry,
+                GuavaCollectors::combine);
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, ImmutableListMultimap<K, V>> toImmutableListMultimap() {
+        return Collector.of(
+                (Supplier<ImmutableListMultimap.Builder<K, V>>) ImmutableListMultimap::builder,
+                ImmutableListMultimap.Builder::put,
+                GuavaCollectors::combine,
+                ImmutableListMultimap.Builder::build);
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, ImmutableSetMultimap<K, V>> toImmutableSetMultimap() {
+        return Collector.of(
+                (Supplier<ImmutableSetMultimap.Builder<K, V>>) ImmutableSetMultimap::builder,
+                ImmutableSetMultimap.Builder::put,
+                GuavaCollectors::combine,
+                ImmutableSetMultimap.Builder::build);
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, ArrayListMultimap<K, V>> toArrayListMultimap() {
+        return Collector.of(
+                ArrayListMultimap::create,
+                GuavaCollectors::putEntry,
+                GuavaCollectors::combine);
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, LinkedListMultimap<K, V>> toLinkedListMultimap() {
+        return Collector.of(
+                LinkedListMultimap::create,
+                GuavaCollectors::putEntry,
+                GuavaCollectors::combine);
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, HashMultimap<K, V>> toHashMultimap() {
+        return Collector.of(
+                HashMultimap::create,
+                GuavaCollectors::putEntry,
+                GuavaCollectors::combine);
+    }
+
+    public static <K extends Comparable, V extends Comparable> Collector<Map.Entry<K, V>, ?, TreeMultimap<K, V>> toTreeMultimap() {
+        return Collector.of(
+                TreeMultimap::create,
+                GuavaCollectors::putEntry,
+                GuavaCollectors::combine);
+    }
+
+    private static <K, V, M extends Map<K, V>> void putEntry(M map, Map.Entry<K, V> entry) {
+        // FIXME throw exception on duplicate entry?
+        map.put(entry.getKey(), entry.getValue());
+    }
+
+    private static <K, V, M extends Multimap<K, V>> void putEntry(M map, Map.Entry<K, V> entry) {
+        map.put(entry.getKey(), entry.getValue());
+    }
+
+    private static <K, V, M extends Map<K, V>> M combine(M a, M b) {
+        // FIXME throw exception on duplicate entries?
+        a.putAll(b);
+        return a;
+    }
+
+    private static <K, V, MB extends ImmutableMultimap.Builder<K, V>> MB combine(MB a, MB b) {
+        a.putAll(b.build());
+        return a;
+    }
+
+    private static <K, V, M extends Multimap<K, V>> M combine(M a, M b) {
+        // FIXME throw exception on duplicate entries? e.g. SetMultimap.put() would return false
+        a.putAll(b);
+        return a;
     }
 }
