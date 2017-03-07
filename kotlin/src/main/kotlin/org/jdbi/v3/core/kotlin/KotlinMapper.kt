@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException
 import java.sql.ResultSet
 import java.sql.SQLException
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaType
@@ -29,7 +30,7 @@ import kotlin.reflect.full.primaryConstructor
 
 class KotlinMapper<C : Any>(private val clazz: Class<C>) : RowMapper<C> {
 
-    private val kclass: KClass<C> = clazz.kotlin
+    private val kClass: KClass<C> = clazz.kotlin
 
     @Throws(SQLException::class)
     override fun map(rs: ResultSet, ctx: StatementContext): C {
@@ -39,18 +40,14 @@ class KotlinMapper<C : Any>(private val clazz: Class<C>) : RowMapper<C> {
     @Throws(SQLException::class)
     override fun specialize(rs: ResultSet, ctx: StatementContext): RowMapper<C> {
 
-        val metaData = rs.metaData
-        val columnNameMatchers = ctx.getConfig(ReflectionMappers::class.java).columnNameMatchers
-
-
-        val constructor = kclass.primaryConstructor!!
-        constructor.isAccessible = true
-
+        val constructor = findConstructor(kClass)
         // TODO: best fit for constructors + writeable properties, pay attention to nullables/optionals with default values
         //       for now just call primary constructor using named params and hope
 
         val validConstructorParameters = constructor.parameters.filter { it.kind == KParameter.Kind.VALUE && it.name != null }
 
+        val metaData = rs.metaData
+        val columnNameMatchers = ctx.getConfig(ReflectionMappers::class.java).columnNameMatchers
         val matchingConstructorParams = (metaData.columnCount downTo 1)
                 .map { validConstructorParameters.matchColumnName(metaData.getColumnLabel(it), columnNameMatchers) }
                 .filterNotNull()
@@ -71,6 +68,7 @@ class KotlinMapper<C : Any>(private val clazz: Class<C>) : RowMapper<C> {
         return RowMapper { r, c ->
             val matchingParamsWithValue = paramsWithColumnMappers.associateBy({ it.first }, { it.second?.map(r, it.first.name, c) })
             try {
+                constructor.isAccessible = true
                 constructor.callBy(matchingParamsWithValue)
             } catch (e: InvocationTargetException) {
                 throw IllegalArgumentException("A bean, ${clazz.name} was mapped which was not instantiable", e.targetException)
@@ -79,6 +77,18 @@ class KotlinMapper<C : Any>(private val clazz: Class<C>) : RowMapper<C> {
             }
         }
 
+    }
+
+    private fun findConstructor(kClass: KClass<C>): KFunction<C> {
+        return kClass.primaryConstructor ?: findSecondaryConstructor(this.kClass)
+    }
+
+    private fun findSecondaryConstructor(kClass: KClass<C>): KFunction<C> {
+        if (kClass.constructors.size == 1) {
+            return kClass.constructors.first();
+        } else {
+            throw IllegalArgumentException("A bean, ${kClass.simpleName} was mapped which was not instantiable (cannot find appropriate constructor)")
+        }
     }
 
     fun List<KParameter>.matchColumnName(columnName: String,
