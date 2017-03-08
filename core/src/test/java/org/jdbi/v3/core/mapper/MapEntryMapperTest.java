@@ -15,9 +15,7 @@ package org.jdbi.v3.core.mapper;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collector;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
@@ -104,12 +102,6 @@ public class MapEntryMapperTest {
                 entry(new User(1, "alice"), new Phone(10, "555-0001")),
                 entry(new User(2, "bob"),   new Phone(20, "555-0002")),
                 entry(new User(3, "cathy"), new Phone(30, "555-0003")));
-    }
-
-    @SuppressWarnings("unchecked")
-    private <K, V, T> Collector<Map.Entry<K, V>, ?, T> intoContainer(GenericType<T> containerType) {
-        return (Collector<Map.Entry<K, V>, ?, T>) h.getConfig(JdbiCollectors.class).findFor(containerType.getType())
-                .orElseThrow(() -> new IllegalStateException("no collector for container type " + containerType.getType()));
     }
 
     public static class User {

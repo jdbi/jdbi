@@ -78,17 +78,17 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
         }
     }
 
-    private static RowMapper<?> getValueMapper(Type keyType, ConfigRegistry config) {
+    private static RowMapper<?> getValueMapper(Type valueType, ConfigRegistry config) {
         String column = config.get(Config.class).getValueColumn();
         if (column == null) {
             return config.get(RowMappers.class)
-                    .findFor(keyType)
-                    .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for map value " + keyType));
+                    .findFor(valueType)
+                    .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for map value " + valueType));
         } else {
             return config.get(ColumnMappers.class)
-                    .findFor(keyType)
+                    .findFor(valueType)
                     .map(mapper -> new SingleColumnMapper<>(mapper, column))
-                    .orElseThrow(() -> new NoSuchMapperException("No column mapper registered for map value " + keyType + " in column " + column));
+                    .orElseThrow(() -> new NoSuchMapperException("No column mapper registered for map value " + valueType + " in column " + column));
         }
     }
 

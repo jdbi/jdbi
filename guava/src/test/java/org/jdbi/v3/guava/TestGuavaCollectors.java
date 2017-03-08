@@ -176,7 +176,7 @@ public class TestGuavaCollectors {
                 .orElseThrow(() -> new IllegalStateException("Missing collector for " + genericType));
 
         M map = Stream.of(entry(1L, "foo"), entry(2L, "bar")).collect(collector);
-        Assertions.assertThat(map)
+        assertThat(map)
                 .isInstanceOf(erasedType)
                 .containsAllEntriesOf(ImmutableMultimap.of(1L, "foo", 2L, "bar"));
     }
