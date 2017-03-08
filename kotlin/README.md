@@ -8,6 +8,8 @@ writable properties. Any fields not present in the constructor will be set after
 The mapper supports nullable types.  It also uses default parameter values in 
 the constructor if the parameter type is not nullable and the value absent in the result set.
 
+Result set mapper also supports `@ColumnName` annotation that allows to specify name for a property or parameter explicitly.
+
 
 ### Usage:
 

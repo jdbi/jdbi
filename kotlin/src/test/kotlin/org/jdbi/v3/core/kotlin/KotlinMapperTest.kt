@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.HandleAccess
+import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.statement.StatementContextAccess
 import org.junit.Before
 import org.junit.Test
@@ -38,6 +39,24 @@ class KotlinMapperTest {
         assertThat(thing).isEqualToComparingFieldByField(DataClassWithOnlyPrimaryConstructor(1, "one"))
 
     }
+
+    private data class DataClassWithAnnotatedParameter(val id: Int, @ColumnName("name") val n: String)
+
+    @Test fun testDataClassWithAnnotatedParameter() {
+
+        val mapper = KotlinMapper(DataClassWithAnnotatedParameter::class.java)
+        mockColumns("id", "name")
+
+        whenever(resultSet.getInt(1)).thenReturn(1)
+        whenever(resultSet.getString(2)).thenReturn("one")
+        whenever(resultSet.wasNull()).thenReturn(false)
+
+        val thing = mapper.map(resultSet, ctx)
+
+        assertThat(thing).isEqualToComparingFieldByField(DataClassWithAnnotatedParameter(1, "one"))
+
+    }
+
 
     private class ClassWithOnlyPrimaryConstructor(val id: Int, val name: String)
 
@@ -99,6 +118,27 @@ class KotlinMapperTest {
         val thing = mapper.map(resultSet, ctx)
 
         assertThat(thing).isEqualToComparingFieldByField(ClassWithWritableProperty(1, "one").apply { foo = "bar" })
+
+    }
+
+    private class ClassWithAnnotatedWritableProperty(val id: Int, val name: String) {
+        @ColumnName("description")
+        var foo: String = "foo"
+    }
+
+    @Test fun testClassWithAnnotatedWritableProperty() {
+
+        val mapper = KotlinMapper(ClassWithAnnotatedWritableProperty::class.java)
+        mockColumns("id", "name", "description")
+
+        whenever(resultSet.getInt(1)).thenReturn(1)
+        whenever(resultSet.getString(2)).thenReturn("one")
+        whenever(resultSet.getString(3)).thenReturn("bar")
+        whenever(resultSet.wasNull()).thenReturn(false)
+
+        val thing = mapper.map(resultSet, ctx)
+
+        assertThat(thing).isEqualToComparingFieldByField(ClassWithAnnotatedWritableProperty(1, "one").apply { foo = "bar" })
 
     }
 

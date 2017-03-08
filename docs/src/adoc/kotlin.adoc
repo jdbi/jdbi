@@ -8,6 +8,9 @@ fields are present in the constructor as well as classes with writable propertie
 constructor will be set after the constructor call. The mapper supports nullable types. It also uses default
 parameter values in the constructor if the parameter type is not nullable and the value absent in the result set.
 
+Result set mapper also supports `@ColumnName` annotation that allows to specify name for a property or parameter explicitly.
+
+
 If you load all DBI plugins via
 `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
 Otherwise, you can attach it using `Jdbi.installPlugin(KotlinPlugin())`.

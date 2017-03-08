@@ -15,6 +15,7 @@ package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.mapper.ColumnMapper
 import org.jdbi.v3.core.mapper.RowMapper
+import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
 import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
 import org.jdbi.v3.core.statement.StatementContext
@@ -24,9 +25,11 @@ import java.sql.SQLException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.*
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaType
 
 private typealias ValueProvider = (r: ResultSet, c: StatementContext) -> Any?
@@ -66,7 +69,7 @@ class KotlinMapper<C : Any>(clazz: Class<C>) : RowMapper<C> {
         for ((columnNumber, columnName) in columns) {
 
             val parameter = parameterByColumnCache.computeIfAbsent(columnName, {
-                Optional.ofNullable(constructorParameters.find { columnNameMatchers.matches(columnName, it.name) })
+                Optional.ofNullable(constructorParameters.find { columnNameMatchers.matches(columnName, it.paramName()) })
             }).orElse(null)
 
             if (parameter != null) {
@@ -75,7 +78,7 @@ class KotlinMapper<C : Any>(clazz: Class<C>) : RowMapper<C> {
             }
 
             val property = propertyByColumnCache.computeIfAbsent(columnName, {
-                Optional.ofNullable(mutableProperties.find { columnNameMatchers.matches(columnName, it.name) })
+                Optional.ofNullable(mutableProperties.find { columnNameMatchers.matches(columnName, it.propName()) })
             }).orElse(null)
 
             if (property != null) {
@@ -128,4 +131,13 @@ private fun List<ColumnNameMatcher>.matches(columnName: String, paramName: Strin
 private fun valueProvider(paramType: KType, columnNumber: Int, ctx: StatementContext): ValueProvider {
     val columnMapper = ctx.findColumnMapperFor(paramType.javaType).orElse(ColumnMapper { r, n, _ -> r.getObject(n) })
     return { r, c -> columnMapper.map(r, columnNumber, c) }
+}
+
+private fun KParameter.paramName(): String? {
+    return findAnnotation<ColumnName>()?.value ?: name
+}
+
+private fun <C> KMutableProperty1<C, *>.propName(): String {
+    val annotation = this.javaField?.getAnnotation(ColumnName::class.java)
+    return annotation?.value ?: name
 }
