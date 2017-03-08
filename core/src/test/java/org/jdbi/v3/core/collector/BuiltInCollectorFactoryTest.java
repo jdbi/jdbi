@@ -108,5 +108,8 @@ public class BuiltInCollectorFactoryTest {
         assertThat(Stream.of(entry(1L, "foo"), entry(2L, "bar"), entry(3L, "baz")).collect(collector))
                 .isInstanceOf(erasedType)
                 .containsOnly(entry(1L, "foo"), entry(2L, "bar"), entry(3L, "baz"));
+        assertThatThrownBy(() -> Stream.of(entry(1L, "foo"), entry(1L, "bar")).collect(collector))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Multiple values");
     }
 }
