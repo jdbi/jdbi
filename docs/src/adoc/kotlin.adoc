@@ -4,9 +4,9 @@ http://kotlinlang.org/[Kotlin] support is provided by *jdbi3-kotlin* and *jdbi3-
 === ResultSet mapping
 
 The *jdbi3-kotlin* plugin adds ResultSet mapping to Kotlin data classes. It supports data classes where all
-fields are present in the constructor. The mapper supports nullable types.  It also uses default parameter values in
-the constructor if the parameter type is not nullable and the value absent in the result set. If you have a default
-constructor and desire fields to be set after, use a normal JavaBean style ResultSet mapper.
+fields are present in the constructor as well as classes with writable properties. Any fields not present in the
+constructor will be set after the constructor call. The mapper supports nullable types. It also uses default
+parameter values in the constructor if the parameter type is not nullable and the value absent in the result set.
 
 If you load all DBI plugins via
 `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
