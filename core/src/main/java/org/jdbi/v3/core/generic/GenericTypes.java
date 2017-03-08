@@ -15,11 +15,23 @@ package org.jdbi.v3.core.generic;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 public class GenericTypes {
+    private static final TypeVariable<Class<Map>> KEY;
+    private static final TypeVariable<Class<Map>> VALUE;
+
+    static {
+        TypeVariable<Class<Map>>[] mapParams = Map.class.getTypeParameters();
+        KEY = mapParams[0];
+        VALUE = mapParams[1];
+    }
+
     /**
      * Returns the erased class for the given type.
      *
@@ -87,5 +99,33 @@ public class GenericTypes {
      */
     public static boolean isArray(Type type) {
         return type instanceof Class<?> && ((Class<?>) type).isArray();
+    }
+
+    /**
+     * Given a subtype of {@code Map<K,V>}, returns the corresponding map entry type {@code Map.Entry<K,V>}.
+     * @param mapType the map subtype
+     * @return the map entry type
+     */
+    public static Type resolveMapEntryType(Type mapType) {
+        Type keyType = resolveType(KEY, mapType);
+        Type valueType = resolveType(VALUE, mapType);
+        return resolveMapEntryType(keyType, valueType);
+    }
+
+    /**
+     * Given a key and value type, returns the map entry type {@code Map.Entry<keyType,valueType>}.
+     * @param keyType the key type
+     * @param valueType the value type
+     * @return the map entry type
+     */
+    public static Type resolveMapEntryType(Type keyType, Type valueType) {
+        return resolveMapEntryType(TypeToken.of(keyType), TypeToken.of(valueType));
+    }
+
+    private static <K, V> Type resolveMapEntryType(TypeToken<K> keyType, TypeToken<V> valueType) {
+        return new TypeToken<Map.Entry<K, V>>() {}
+                .where(new TypeParameter<K>() {}, keyType)
+                .where(new TypeParameter<V>() {}, valueType)
+                .getType();
     }
 }

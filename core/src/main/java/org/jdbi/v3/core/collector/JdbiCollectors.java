@@ -29,7 +29,8 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
 
     public JdbiCollectors() {
-        factories.addAll(BuiltInCollectorFactories.get());
+        register(new BuiltInCollectorFactory());
+        register(new ArrayCollectorFactory());
     }
 
     private JdbiCollectors(JdbiCollectors that) {
