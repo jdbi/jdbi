@@ -5,7 +5,6 @@ import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.HandleAccess
 import org.jdbi.v3.core.statement.StatementContextAccess
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.sql.ResultSet
@@ -23,11 +22,6 @@ class KotlinMapperTest {
     @Before
     fun setUpMocks() {
         whenever(resultSet.metaData).thenReturn(resultSetMetaData)
-    }
-
-    @After
-    fun debug() {
-        org.mockito.internal.debugging.MockitoDebuggerImpl().printInvocations(resultSet)
     }
 
     @Test fun testDataClassWithOnlyPrimaryConstructor() {
