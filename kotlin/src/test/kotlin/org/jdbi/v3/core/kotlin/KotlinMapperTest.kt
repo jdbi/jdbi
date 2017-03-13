@@ -40,6 +40,22 @@ class KotlinMapperTest {
 
     }
 
+    @Test fun shouldUseSecondOccurrenceOfColumnWhenMultipleColumnsWithSameNameArePresent() {
+
+        val mapper = KotlinMapper(DataClassWithOnlyPrimaryConstructor::class.java)
+        mockColumns("id", "name", "name")
+
+        whenever(resultSet.getInt(1)).thenReturn(1)
+        whenever(resultSet.getString(2)).thenReturn("one")
+        whenever(resultSet.getString(3)).thenReturn("two")
+        whenever(resultSet.wasNull()).thenReturn(false)
+
+        val thing = mapper.map(resultSet, ctx)
+
+        assertThat(thing).isEqualToComparingFieldByField(DataClassWithOnlyPrimaryConstructor(1, "two"))
+
+    }
+
     private data class DataClassWithAnnotatedParameter(val id: Int, @ColumnName("name") val n: String)
 
     @Test fun testDataClassWithAnnotatedParameter() {
