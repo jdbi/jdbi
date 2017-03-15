@@ -16,6 +16,7 @@ package org.jdbi.v3.core.argument;
 import static org.jdbi.v3.core.internal.JdbiStreams.toStream;
 
 import java.lang.reflect.Type;
+import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,6 +28,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<ArgumentFactory> argumentFactories = new CopyOnWriteArrayList<>();
     private ConfigRegistry registry;
+    private Argument untypedNullArgument = new NullArgument(Types.OTHER);
 
     public Arguments() {
         register(BuiltInArgumentFactory.INSTANCE);
@@ -40,6 +42,7 @@ public class Arguments implements JdbiConfig<Arguments> {
 
     private Arguments(Arguments that) {
         argumentFactories.addAll(that.argumentFactories);
+        untypedNullArgument = that.untypedNullArgument;
     }
 
     public Arguments register(ArgumentFactory factory) {
@@ -58,6 +61,25 @@ public class Arguments implements JdbiConfig<Arguments> {
         return argumentFactories.stream()
                 .flatMap(factory -> toStream(factory.build(type, value, registry)))
                 .findFirst();
+    }
+
+    /**
+     * Configure the {@link Argument} to use when binding a null
+     * we don't have a type for.
+     * @param untypedNullArgument the argument to bind
+     */
+    public void setUntypedNullArgument(Argument untypedNullArgument) {
+        if (untypedNullArgument == null) {
+            throw new IllegalArgumentException("the Argument itself may not be null");
+        }
+        this.untypedNullArgument = untypedNullArgument;
+    }
+
+    /**
+     * @return the untyped null argument
+     */
+    public Argument getUntypedNullArgument() {
+        return untypedNullArgument;
     }
 
     @Override

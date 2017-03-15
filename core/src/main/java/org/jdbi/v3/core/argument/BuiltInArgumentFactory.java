@@ -146,7 +146,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory {
         }
 
         return value == null
-                ? Optional.of(new NullArgument(Types.NULL))
+                ? Optional.of(config.get(Arguments.class).getUntypedNullArgument())
                 : Optional.empty();
     }
 

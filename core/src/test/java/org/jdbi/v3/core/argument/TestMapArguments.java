@@ -21,7 +21,6 @@ import java.sql.Types;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jdbi.v3.core.argument.MapArguments;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.Rule;
@@ -55,6 +54,6 @@ public class TestMapArguments
         Map<String, Object> args = Collections.singletonMap("foo", null);
         new MapArguments(args, ctx).find("foo").get().apply(3, stmt, null);
 
-        verify(stmt).setNull(3, Types.NULL);
+        verify(stmt).setNull(3, Types.OTHER);
     }
 }
