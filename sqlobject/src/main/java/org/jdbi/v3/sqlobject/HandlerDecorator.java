@@ -16,19 +16,20 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 
 /**
- * Creates Handler decorator objects for methods annotated with a specific SQL method <em>decorating</em> annotation,
- * which satisfy the contract of that annotation.
+ * Decorates Handler objects with additional behavior.
  *
  * @see SqlMethodDecoratingAnnotation
+ * @see HandlerDecorators
  */
 public interface HandlerDecorator {
     /**
-     * Decorates a {@link Handler} to add or substitute behavior on the given SQL Object method.
+     * Decorates the {@link Handler} to add or substitute behavior on the given SQL Object method. Implementations may
+     * alternatively return the base handler, e.g. if the conditions for applying a particular decoration are not met.
      *
      * @param base          the base handler to decorate
      * @param sqlObjectType the SQL Object type
-     * @param method        the decorated method
-     * @return the decorated handler.
+     * @param method        the method to be decorated
+     * @return the base handle, or a decorated handler (depending on the decorator implementation).
      */
     Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method);
 }
