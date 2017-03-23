@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static java.util.stream.Collectors.toList;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 public class SqlMethodHandlerFactory implements HandlerFactory {
     @Override
@@ -42,7 +42,7 @@ public class SqlMethodHandlerFactory implements HandlerFactory {
                             sqlMethodAnnotations));
         }
 
-        if (method.isDefault()) {
+        if (method.isDefault() && !method.isSynthetic()) {
             throw new IllegalStateException(String.format(
                     "Default method %s.%s has @%s annotation. " +
                             "SQL object methods may be default, or have a SQL method annotation, but not both.",
