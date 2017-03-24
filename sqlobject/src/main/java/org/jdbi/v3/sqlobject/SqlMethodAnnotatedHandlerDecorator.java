@@ -46,9 +46,7 @@ public class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
                 .map(e -> e.getAnnotation(DecoratorOrder.class))
                 .filter(Objects::nonNull)
                 .findFirst()
-                .ifPresent(order -> {
-                    annotationTypes.sort(createDecoratorComparator(order).reversed());
-                });
+                .ifPresent(order -> annotationTypes.sort(createDecoratorComparator(order).reversed()));
 
         List<HandlerDecorator> decorators = annotationTypes.stream()
                 .map(type -> type.getAnnotation(SqlMethodDecoratingAnnotation.class))
@@ -65,22 +63,18 @@ public class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
     private Comparator<Class<? extends Annotation>> createDecoratorComparator(DecoratorOrder order) {
         List<Class<? extends Annotation>> ordering = Arrays.asList(order.value());
 
-        ToIntFunction<Class<? extends Annotation>> indexOf = type -> {
+        return Comparator.comparingInt(type -> {
             int index = ordering.indexOf(type);
             return index == -1 ? ordering.size() : index;
-        };
-
-        return Comparator.comparingInt(indexOf::applyAsInt);
+        });
     }
 
     private static HandlerDecorator buildDecorator(Class<? extends HandlerDecorator> decoratorClass) {
-        HandlerDecorator decorator;
         try {
-            decorator = decoratorClass.getConstructor().newInstance();
+            return decoratorClass.getConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Decorator class " + decoratorClass + "cannot be instantiated", e);
         }
-        return decorator;
     }
 
 }
