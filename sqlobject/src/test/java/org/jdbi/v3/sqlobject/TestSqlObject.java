@@ -28,8 +28,10 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.transaction.TransactionException;
+import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.customizer.MaxRows;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -196,6 +198,13 @@ public class TestSqlObject
         assertThat(dao.update(2, "b")).isFalse();
     }
 
+    @Test
+    public void testSubInterfaceOverridesSuperMethods() {
+        SubclassDao dao = handle.attach(SubclassDao.class);
+        dao.insert(new Something(1, "foo"));
+        assertThat(dao.get(1)).isEqualTo(new Something(1, "foo"));
+    }
+
     @RegisterRowMapper(SomethingMapper.class)
     public interface Dao extends SqlObject
     {
@@ -282,5 +291,21 @@ public class TestSqlObject
         default String broken(@Bind int wat) {
             return "foo";
         }
+    }
+
+    public interface BaseDao<T> {
+        void insert(T obj);
+        T get(long id);
+    }
+
+    public interface SubclassDao extends BaseDao<Something> {
+        @Override
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@BindBean Something something);
+
+        @Override
+        @SqlQuery("select * from something where id = :id")
+        @RegisterBeanMapper(Something.class)
+        Something get(long id);
     }
 }
