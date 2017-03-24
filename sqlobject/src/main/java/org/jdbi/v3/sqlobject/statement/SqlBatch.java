@@ -26,7 +26,6 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.IterableLike;
@@ -86,7 +85,10 @@ public @interface SqlBatch {
                 if (!returnTypeIsValid(method.getReturnType())) {
                     throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method));
                 }
-                batchIntermediate = PreparedBatch::executeAndGetModCount;
+                Function<PreparedBatch,ResultIterator<?>> modCounts = PreparedBatch::executeAndGetModCount;
+                batchIntermediate = method.getReturnType().equals(boolean[].class)
+                        ? mapToBoolean(modCounts)
+                        : modCounts;
                 magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
             } else {
                 String[] columnNames = getGeneratedKeys.value();
@@ -104,6 +106,30 @@ public @interface SqlBatch {
                             .iterator();
                 }
             }
+        }
+
+        private Function<PreparedBatch, ResultIterator<?>> mapToBoolean(Function<PreparedBatch, ResultIterator<?>> modCounts) {
+            return modCounts.andThen(iterator -> new ResultIterator<Boolean>() {
+                @Override
+                public boolean hasNext() {
+                    return iterator.hasNext();
+                }
+
+                @Override
+                public Boolean next() {
+                    return ((Integer) iterator.next()) > 0;
+                }
+
+                @Override
+                public void close() {
+                    iterator.close();
+                }
+
+                @Override
+                public StatementContext getContext() {
+                    return iterator.getContext();
+                }
+            });
         }
 
         private ChunkSizeFunction determineBatchChunkSize(Class<?> sqlObjectType, Method method) {
@@ -325,14 +351,21 @@ public @interface SqlBatch {
         }
 
         private static boolean returnTypeIsValid(Class<?> type) {
-            return type.equals(Void.TYPE)
-                    || type.isArray() && type.getComponentType().equals(Integer.TYPE);
+            if (type.equals(Void.TYPE)) {
+                return true;
+            }
 
+            if (type.isArray()) {
+                Class<?> componentType = type.getComponentType();
+                return componentType.equals(Integer.TYPE) || componentType.equals(Boolean.TYPE);
+            }
+
+            return false;
         }
 
         private static String invalidReturnTypeMessage(Method method) {
             return method.getDeclaringClass() + "." + method.getName() +
-                    " method is annotated with @SqlBatch so should return void or int[] but is returning: " +
+                    " method is annotated with @SqlBatch so should return void, int[], or boolean[] but is returning: " +
                     method.getReturnType();
         }
     }
