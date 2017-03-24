@@ -130,7 +130,7 @@ public class TestCreateSqlObjectAnnotation
     public void testMeaningfulExceptionWhenWrongReturnTypeOfSqlBatch() throws Exception {
         expectedException.expect(UnableToCreateSqlObjectException.class);
         expectedException.expectMessage("BogusSqlBatchDao.getNames method is annotated with @SqlBatch " +
-                "so should return void or int[] but is returning: int");
+                "so should return void, int[], or boolean[] but is returning: int");
 
         dbRule.getJdbi().open().attach(BogusSqlBatchDao.class);
     }

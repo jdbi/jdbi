@@ -167,6 +167,14 @@ public class TestBatching
         assertThat(b.insertBeans(emptySet())).isEmpty();
     }
 
+    @Test
+    public void testBooleanReturn() throws Exception
+    {
+        BooleanBatchDao dao = handle.attach(BooleanBatchDao.class);
+        assertThat(dao.insert(new Something(1, "foo"), new Something(2, "bar"))).containsExactly(true, true);
+        assertThat(dao.update(new Something(1, "baz"), new Something(3, "buz"))).containsExactly(true, false);
+    }
+
     @BatchChunkSize(4)
     @RegisterRowMapper(SomethingMapper.class)
     public interface UsesBatching
@@ -207,5 +215,13 @@ public class TestBatching
 
         @SqlBatch("insert into something (id, name) values (0, '')")
         int[] insertBeans(); // whoops, no parameters at all!
+    }
+
+    public interface BooleanBatchDao {
+        @SqlBatch("insert into something (id, name) values (:id, :name)")
+        boolean[] insert(@BindBean Something... values);
+
+        @SqlBatch("update something set name = :name where id = :id")
+        boolean[] update(@BindBean Something... values);
     }
 }
