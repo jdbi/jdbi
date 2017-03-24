@@ -105,7 +105,7 @@ public class TestSqlMethodDecorators {
 
         handle.attach(Dao.class).orderedFooBar();
 
-        assertThat(invocations.get()).contains("custom", "foo", "bar");
+        assertThat(invocations.get()).containsExactly("custom", "foo", "bar", "method");
     }
 
     @Test
@@ -114,7 +114,7 @@ public class TestSqlMethodDecorators {
 
         handle.attach(Dao.class).orderedFooBar();
 
-        assertThat(invocations.get()).contains("foo", "bar");
+        assertThat(invocations.get()).containsExactly("foo", "bar", "method");
     }
 
     static void invoked(String value) {
