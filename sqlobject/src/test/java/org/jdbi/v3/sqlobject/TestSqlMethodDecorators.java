@@ -21,16 +21,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
-import org.jdbi.v3.core.Handle;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestSqlMethodDecoratingAnnotations {
+public class TestSqlMethodDecorators {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -93,6 +92,29 @@ public class TestSqlMethodDecoratingAnnotations {
         dao.abortingDecorator();
 
         assertThat(invocations.get()).containsExactly("foo", "abort");
+    }
+
+    @Test
+    public void testRegisteredDecorator() {
+        handle.getConfig(HandlerDecorators.class).register(
+                (base, sqlObjectType, method) ->
+                        (obj, args, handle) -> {
+                            invoked("custom");
+                            return base.invoke(obj, args, handle);
+                        });
+
+        handle.attach(Dao.class).orderedFooBar();
+
+        assertThat(invocations.get()).containsExactly("custom", "foo", "bar", "method");
+    }
+
+    @Test
+    public void testRegisteredDecoratorReturnsBase() {
+        handle.getConfig(HandlerDecorators.class).register((base, sqlObjectType, method) -> base);
+
+        handle.attach(Dao.class).orderedFooBar();
+
+        assertThat(invocations.get()).containsExactly("foo", "bar", "method");
     }
 
     static void invoked(String value) {

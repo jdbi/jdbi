@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import static java.util.Collections.synchronizedMap;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionMethod;
@@ -28,18 +30,12 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
-import static java.util.Collections.synchronizedMap;
-import static java.util.stream.Collectors.toList;
 
 public class SqlObjectFactory implements ExtensionFactory {
     private static final Object[] NO_ARGS = new Object[0];
@@ -86,7 +82,10 @@ public class SqlObjectFactory implements ExtensionFactory {
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handle) {
-        Map<Method, Handler> handlers = methodHandlersFor(extensionType, handle.getConfig(Handlers.class));
+        Map<Method, Handler> handlers = methodHandlersFor(
+                extensionType,
+                handle.getConfig(Handlers.class),
+                handle.getConfig(HandlerDecorators.class));
 
         ConfigRegistry instanceConfig = handle.getConfig().createCopy();
         forEachConfigurer(extensionType, (configurer, annotation) ->
@@ -100,7 +99,7 @@ public class SqlObjectFactory implements ExtensionFactory {
                         invocationHandler));
     }
 
-    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType, Handlers registry) {
+    private Map<Method, Handler> methodHandlersFor(Class<?> sqlObjectType, Handlers registry, HandlerDecorators decorators) {
         return handlersCache.computeIfAbsent(sqlObjectType, type -> {
             final Map<Method, Handler> handlers = new HashMap<>();
 
@@ -115,68 +114,21 @@ public class SqlObjectFactory implements ExtensionFactory {
             } catch (IllegalStateException expected) { } // optional implementation
 
             for (Method method : sqlObjectType.getMethods()) {
-                handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m, registry));
+                handlers.computeIfAbsent(method, m -> buildMethodHandler(sqlObjectType, m, registry, decorators));
             }
 
             return handlers;
         });
     }
 
-    private Handler buildMethodHandler(Class<?> sqlObjectType, Method method, Handlers handlers) {
+    private Handler buildMethodHandler(Class<?> sqlObjectType, Method method, Handlers handlers, HandlerDecorators decorators) {
         Handler handler = handlers.findFor(sqlObjectType, method)
                 .orElseThrow(() -> new IllegalStateException(String.format(
                         "Method %s.%s must be default or be annotated with a SQL method annotation.",
                         sqlObjectType.getSimpleName(),
                         method.getName())));
 
-        return addDecorators(handler, sqlObjectType, method);
-    }
-
-    private Handler addDecorators(Handler handler, Class<?> sqlObjectType, Method method) {
-        List<Class<? extends Annotation>> annotationTypes = Stream.of(method.getAnnotations())
-                .map(Annotation::annotationType)
-                .filter(type -> type.isAnnotationPresent(SqlMethodDecoratingAnnotation.class))
-                .collect(toList());
-
-        Stream.of(method, sqlObjectType)
-                .map(e -> e.getAnnotation(DecoratorOrder.class))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .ifPresent(order -> {
-                    annotationTypes.sort(createDecoratorComparator(order).reversed());
-                });
-
-        List<HandlerDecorator> decorators = annotationTypes.stream()
-                .map(type -> type.getAnnotation(SqlMethodDecoratingAnnotation.class))
-                .map(a -> buildDecorator(a.value()))
-                .collect(toList());
-
-        for (HandlerDecorator decorator : decorators) {
-            handler = decorator.decorateHandler(handler, sqlObjectType, method);
-        }
-
-        return handler;
-    }
-
-    private Comparator<Class<? extends Annotation>> createDecoratorComparator(DecoratorOrder order) {
-        List<Class<? extends Annotation>> ordering = Arrays.asList(order.value());
-
-        ToIntFunction<Class<? extends Annotation>> indexOf = type -> {
-            int index = ordering.indexOf(type);
-            return index == -1 ? ordering.size() : index;
-        };
-
-        return Comparator.comparingInt(indexOf::applyAsInt);
-    }
-
-    private static HandlerDecorator buildDecorator(Class<? extends HandlerDecorator> decoratorClass) {
-        HandlerDecorator decorator;
-        try {
-            decorator = decoratorClass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Decorator class " + decoratorClass + "cannot be instantiated", e);
-        }
-        return decorator;
+        return decorators.applyDecorators(handler, sqlObjectType, method);
     }
 
     private static Map<Method, Handler> handlerEntry(Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
