@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
  * @see SqlMethodDecoratingAnnotation
  * @see HandlerDecorators
  */
+@FunctionalInterface
 public interface HandlerDecorator {
     /**
      * Decorates the {@link Handler} to add or substitute behavior on the given SQL Object method. Implementations may
