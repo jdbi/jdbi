@@ -43,21 +43,21 @@ public class ConstructorMapper<T> implements RowMapper<T>
     /**
      * Use the only declared constructor to map a class.
      */
-    public static RowMapperFactory of(Class<?> clazz) {
+    public static RowMapperFactory factory(Class<?> clazz) {
         return RowMapperFactory.of(clazz, new ConstructorMapper<>(clazz));
     }
 
     /**
      * Use the only declared constructor to map a class.
      */
-    public static RowMapperFactory of(Class<?> clazz, String prefix) {
+    public static RowMapperFactory factory(Class<?> clazz, String prefix) {
         return RowMapperFactory.of(clazz, new ConstructorMapper<>(clazz, prefix));
     }
 
     /**
      * Use a {@code Constructor<T>} to map its declaring type.
      */
-    public static RowMapperFactory of(Constructor<?> constructor) {
+    public static RowMapperFactory factory(Constructor<?> constructor) {
         final Class<?> type = constructor.getDeclaringClass();
         return RowMapperFactory.of(type, new ConstructorMapper<>(constructor));
     }
@@ -65,42 +65,37 @@ public class ConstructorMapper<T> implements RowMapper<T>
     /**
      * Use a {@code Constructor<T>} to map its declaring type.
      */
-    public static RowMapperFactory of(Constructor<?> constructor, String prefix) {
+    public static RowMapperFactory factory(Constructor<?> constructor, String prefix) {
         final Class<?> type = constructor.getDeclaringClass();
         return RowMapperFactory.of(type, new ConstructorMapper<>(constructor, prefix));
     }
 
-    static final String DEFAULT_PREFIX = "";
-
-    private final Constructor<T> constructor;
-    private final String prefix;
-
     /**
-     * Instantiate a ConstructorMapper for the given type.
+     * Return a ConstructorMapper for the given type.
      *
      * @param type the mapped type
      */
-    public ConstructorMapper(Class<T> type) {
-        this(findConstructorFor(type), DEFAULT_PREFIX);
+    public static <T> RowMapper<T> of(Class<T> type) {
+        return new ConstructorMapper<>(type);
     }
 
     /**
-     * Instantiate a ConstructorMapper for the given type and prefix
+     * Return a ConstructorMapper for the given type and prefix
      *
      * @param type   the mapped type
      * @param prefix the column name prefix
      */
-    public ConstructorMapper(Class<T> type, String prefix) {
-        this(findConstructorFor(type), prefix);
+    public static <T> RowMapper<T> of(Class<T> type, String prefix) {
+        return new ConstructorMapper<>(type, prefix);
     }
 
     /**
-     * Instantiate a ConstructorMapper using the given constructor
+     * Return a ConstructorMapper using the given constructor
      *
      * @param constructor the constructor to be used in mapping
      */
-    public ConstructorMapper(Constructor<T> constructor) {
-        this(constructor, DEFAULT_PREFIX);
+    public static <T> RowMapper<T> of(Constructor<T> constructor) {
+        return new ConstructorMapper<>(constructor);
     }
 
     /**
@@ -109,7 +104,28 @@ public class ConstructorMapper<T> implements RowMapper<T>
      * @param constructor the constructor to be used in mapping
      * @param prefix      the column name prefix
      */
-    public ConstructorMapper(Constructor<T> constructor, String prefix) {
+    public static <T> RowMapper<T> of(Constructor<T> constructor, String prefix) {
+        return new ConstructorMapper<>(constructor, prefix);
+    }
+
+    static final String DEFAULT_PREFIX = "";
+
+    private final Constructor<T> constructor;
+    private final String prefix;
+
+    private ConstructorMapper(Class<T> type) {
+        this(findConstructorFor(type), DEFAULT_PREFIX);
+    }
+
+    private ConstructorMapper(Class<T> type, String prefix) {
+        this(findConstructorFor(type), prefix);
+    }
+
+    private ConstructorMapper(Constructor<T> constructor) {
+        this(constructor, DEFAULT_PREFIX);
+    }
+
+    private ConstructorMapper(Constructor<T> constructor, String prefix) {
         this.constructor = constructor;
         this.prefix = prefix;
     }

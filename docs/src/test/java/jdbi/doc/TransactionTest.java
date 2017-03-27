@@ -58,7 +58,7 @@ public class TransactionTest {
     public void getHandle() {
         db = dbRule.getJdbi();
         handle = dbRule.getSharedHandle();
-        handle.registerRowMapper(ConstructorMapper.of(User.class));
+        handle.registerRowMapper(ConstructorMapper.factory(User.class));
     }
 
     @Before

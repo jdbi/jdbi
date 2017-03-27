@@ -65,8 +65,8 @@ public class JoinRowMapperTest
             .execute();
 
         // tag::mapperSetup[]
-        h.registerRowMapper(ConstructorMapper.of(User.class));
-        h.registerRowMapper(ConstructorMapper.of(Article.class));
+        h.registerRowMapper(ConstructorMapper.factory(User.class));
+        h.registerRowMapper(ConstructorMapper.factory(Article.class));
         // end::mapperSetup[]
     }
 

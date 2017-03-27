@@ -124,7 +124,7 @@ public interface ResultBearing {
      * @return a {@link ResultIterable} of the given type.
      */
     default <T> ResultIterable<T> mapToBean(Class<T> type) {
-        return map(new BeanMapper<>(type));
+        return map(BeanMapper.of(type));
     }
 
     /**

@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
@@ -54,7 +55,7 @@ public class BeanMapperTest {
     Handle handle = HandleAccess.createHandle();
     StatementContext ctx = StatementContextAccess.createContext(handle);
 
-    BeanMapper<SampleBean> mapper = new BeanMapper<>(SampleBean.class);
+    RowMapper<SampleBean> mapper = BeanMapper.of(SampleBean.class);
 
     @Before
     public void setUpMocks() throws SQLException {
@@ -205,7 +206,7 @@ public class BeanMapperTest {
         when(resultSet.getLong(2)).thenReturn(bLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        BeanMapper<DerivedBean> mapper = new BeanMapper<>(DerivedBean.class);
+        RowMapper<DerivedBean> mapper = BeanMapper.of(DerivedBean.class);
 
         DerivedBean derivedBean = mapper.map(resultSet, ctx);
 
@@ -287,7 +288,7 @@ public class BeanMapperTest {
     @Test
     public void testColumnNameAnnotation() {
         Handle handle = dbRule.getSharedHandle();
-        handle.registerRowMapper(BeanMapper.of(ColumnNameBean.class));
+        handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
