@@ -45,7 +45,7 @@ public class FieldMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory factory(Class<?> type) {
-        return RowMapperFactory.of(type, new FieldMapper<>(type));
+        return RowMapperFactory.of(type, FieldMapper.of(type));
     }
 
     /**
@@ -56,7 +56,7 @@ public class FieldMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory factory(Class<?> type, String prefix) {
-        return RowMapperFactory.of(type, new FieldMapper<>(type, prefix));
+        return RowMapperFactory.of(type, FieldMapper.of(type, prefix));
     }
 
     /**
@@ -66,7 +66,7 @@ public class FieldMapper<T> implements RowMapper<T>
      * @return a mapper for the given bean class
      */
     public static <T> RowMapper<T> of(Class<T> type) {
-        return new FieldMapper<>(type);
+        return FieldMapper.of(type, DEFAULT_PREFIX);
     }
 
     /**
@@ -85,11 +85,6 @@ public class FieldMapper<T> implements RowMapper<T>
     private final Class<T> type;
     private final String prefix;
     private final ConcurrentMap<String, Optional<Field>> fieldByNameCache = new ConcurrentHashMap<>();
-
-    private FieldMapper(Class<T> type)
-    {
-        this(type, DEFAULT_PREFIX);
-    }
 
     private FieldMapper(Class<T> type, String prefix)
     {

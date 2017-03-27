@@ -53,7 +53,7 @@ public class BeanMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory factory(Class<?> type) {
-        return RowMapperFactory.of(type, new BeanMapper<>(type));
+        return RowMapperFactory.of(type, BeanMapper.of(type));
     }
 
     /**
@@ -64,7 +64,7 @@ public class BeanMapper<T> implements RowMapper<T>
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory factory(Class<?> type, String prefix) {
-        return RowMapperFactory.of(type, new BeanMapper<>(type, prefix));
+        return RowMapperFactory.of(type, BeanMapper.of(type, prefix));
     }
 
     /**
@@ -74,7 +74,7 @@ public class BeanMapper<T> implements RowMapper<T>
      * @return a mapper for the given bean class
      */
     public static <T> RowMapper<T> of(Class<T> type) {
-        return new BeanMapper<>(type);
+        return BeanMapper.of(type, DEFAULT_PREFIX);
     }
 
     /**
@@ -94,11 +94,6 @@ public class BeanMapper<T> implements RowMapper<T>
     private final String prefix;
     private final BeanInfo info;
     private final ConcurrentMap<String, Optional<PropertyDescriptor>> descriptorByColumnCache = new ConcurrentHashMap<>();
-
-    private BeanMapper(Class<T> type)
-    {
-        this(type, DEFAULT_PREFIX);
-    }
 
     private BeanMapper(Class<T> type, String prefix)
     {
