@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import java.lang.reflect.Type;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
@@ -48,7 +49,8 @@ public @interface Define
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index)
+                                                                  int index,
+                                                                  Type type)
         {
             Define define = (Define) annotation;
 

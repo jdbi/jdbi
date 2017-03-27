@@ -46,7 +46,7 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory
     {
         Jdbi db = dbRule.getJdbi();
 
-        ParameterCustomizerFactory defaultParameterCustomizerFactory = (sqlObjectType, method, param, index) ->
+        ParameterCustomizerFactory defaultParameterCustomizerFactory = (sqlObjectType, method, param, index, type) ->
         {
             invocationCounter.incrementAndGet();
             return (stmt, arg) -> stmt.bind("mybind" + index, arg);

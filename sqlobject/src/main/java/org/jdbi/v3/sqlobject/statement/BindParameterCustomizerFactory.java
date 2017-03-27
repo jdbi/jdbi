@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.statement;
 
+import java.lang.reflect.Type;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
@@ -23,14 +24,18 @@ import java.lang.reflect.Parameter;
 
 /**
  * Standard implementation of {@link ParameterCustomizerFactory} that delegates to
- * {@link Bind.Factory#createForParameter(Annotation, Class, Method, Parameter, int)} passing null for Annotation parameter.
+ * {@link Bind.Factory#createForParameter(Annotation, Class, Method, Parameter, int, Type)} passing null for Annotation parameter.
  */
 public class BindParameterCustomizerFactory implements ParameterCustomizerFactory {
 
     private SqlStatementCustomizerFactory bindSqlStatementCustomizerFactory = new Bind.Factory();
 
     @Override
-    public SqlStatementParameterCustomizer createForParameter(Class<?> sqlObjectType, Method method, Parameter param, int index) {
-        return bindSqlStatementCustomizerFactory.createForParameter(null, sqlObjectType, method, param, index);
+    public SqlStatementParameterCustomizer createForParameter(Class<?> sqlObjectType,
+                                                              Method method,
+                                                              Parameter param,
+                                                              int index,
+                                                              Type type) {
+        return bindSqlStatementCustomizerFactory.createForParameter(null, sqlObjectType, method, param, index, type);
     }
 }

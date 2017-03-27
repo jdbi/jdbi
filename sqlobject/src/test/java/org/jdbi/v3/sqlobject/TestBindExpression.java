@@ -20,6 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.apache.commons.jexl2.Expression;
@@ -77,7 +78,8 @@ public class TestBindExpression
                                                                       Class<?> sqlObjectType,
                                                                       Method method,
                                                                       Parameter param,
-                                                                      int index)
+                                                                      int index,
+                                                                      Type type)
             {
                 final String rootName = ((BindRoot) annotation).value();
                 final JexlEngine engine = new JexlEngine();

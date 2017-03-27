@@ -20,6 +20,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 /**
  * Binds the properties of a JavaBean to a SQL statement.
@@ -41,7 +42,8 @@ public @interface BindBean
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index) {
+                                                                  int index,
+                                                                  Type type) {
             BindBean bind = (BindBean) annotation;
             return (stmt, bean) -> {
                 String prefix = bind.value();

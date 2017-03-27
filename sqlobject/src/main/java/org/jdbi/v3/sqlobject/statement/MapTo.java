@@ -38,19 +38,24 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 public @interface MapTo {
     class Factory implements SqlStatementCustomizerFactory {
         @Override
-        public SqlStatementParameterCustomizer createForParameter(Annotation annotation, Class<?> sqlObjectType, Method method, Parameter param, int index) {
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index,
+                                                                  Type type) {
             return (stmt, arg) -> {
-                final Type type;
+                final Type typeArg;
                 if (arg instanceof GenericType) {
-                    type = ((GenericType<?>) arg).getType();
+                    typeArg = ((GenericType<?>) arg).getType();
                 } else if (! (arg instanceof Type)) {
                     throw new UnsupportedOperationException("@MapTo must take a Type, got a " + arg.getClass().getName());
                 } else {
-                    type = (Type) arg;
+                    typeArg = (Type) arg;
                 }
                 ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
                 stmt.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                        () -> returner.result(((ResultBearing) stmt).mapTo(type), stmt.getContext()));
+                        () -> returner.result(((ResultBearing) stmt).mapTo(typeArg), stmt.getContext()));
             };
         }
     }

@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.statement;
 
+import java.lang.reflect.Type;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 import java.lang.reflect.Method;
@@ -27,10 +28,12 @@ public interface ParameterCustomizerFactory {
      * @param method the method which was identified as an SQL method
      * @param param the parameter to bind
      * @param index the method parameter index
+     * @param type the method parameter type
      * @return the customizer which will be applied to the generated statement
      */
     SqlStatementParameterCustomizer createForParameter(Class<?> sqlObjectType,
                                                        Method method,
                                                        Parameter param,
-                                                       int index);
+                                                       int index,
+                                                       Type type);
 }

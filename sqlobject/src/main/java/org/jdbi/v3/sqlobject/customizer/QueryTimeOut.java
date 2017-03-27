@@ -20,6 +20,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 /**
  * Specify the query timeout in seconds. May be used on a method or parameter, the parameter must be of an int type.
@@ -51,7 +52,8 @@ public @interface QueryTimeOut
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index)
+                                                                  int index,
+                                                                  Type type)
         {
             return (stmt, queryTimeout) -> stmt.setQueryTimeout((Integer) queryTimeout);
         }
