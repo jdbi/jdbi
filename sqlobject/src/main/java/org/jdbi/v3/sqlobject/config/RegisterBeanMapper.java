@@ -54,12 +54,12 @@ public @interface RegisterBeanMapper
             RowMappers mappers = registry.get(RowMappers.class);
             if (prefixes.length == 0) {
                 for (Class<?> beanClass : beanClasses) {
-                    mappers.register(BeanMapper.of(beanClass));
+                    mappers.register(BeanMapper.factory(beanClass));
                 }
             }
             else if (prefixes.length == beanClasses.length) {
                 for (int i = 0; i < beanClasses.length; i++) {
-                    mappers.register(BeanMapper.of(beanClasses[i], prefixes[i]));
+                    mappers.register(BeanMapper.factory(beanClasses[i], prefixes[i]));
                 }
             }
             else {

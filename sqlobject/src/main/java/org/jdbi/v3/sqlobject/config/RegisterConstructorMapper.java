@@ -65,12 +65,12 @@ public @interface RegisterConstructorMapper
             String[] prefixes = registerConstructorMapper.prefix();
             if (prefixes.length == 0) {
                 for (Class<?> type : types) {
-                    mappers.register(ConstructorMapper.of(type));
+                    mappers.register(ConstructorMapper.factory(type));
                 }
             }
             else if (prefixes.length == types.length) {
                 for (int i = 0; i < types.length; i++) {
-                    mappers.register(ConstructorMapper.of(types[i], prefixes[i]));
+                    mappers.register(ConstructorMapper.factory(types[i], prefixes[i]));
                 }
             }
             else {

@@ -54,12 +54,12 @@ public @interface RegisterFieldMapper
             RowMappers mappers = registry.get(RowMappers.class);
             if (prefixes.length == 0) {
                 for (Class<?> type : types) {
-                    mappers.register(FieldMapper.of(type));
+                    mappers.register(FieldMapper.factory(type));
                 }
             }
             else if (prefixes.length == types.length) {
                 for (int i = 0; i < types.length; i++) {
-                    mappers.register(FieldMapper.of(types[i], prefixes[i]));
+                    mappers.register(FieldMapper.factory(types[i], prefixes[i]));
                 }
             }
             else {

@@ -66,7 +66,7 @@ public class MapEntryMapperTest {
 
         Map<Integer, User> map = h.createQuery("select * from user")
                 .configure(MapEntryMapper.Config.class, cfg -> cfg.setKeyColumn("id"))
-                .registerRowMapper(ConstructorMapper.of(User.class))
+                .registerRowMapper(ConstructorMapper.factory(User.class))
                 .collectInto(new GenericType<Map<Integer, User>>() {});
 
         assertThat(map).containsOnly(
@@ -94,8 +94,8 @@ public class MapEntryMapperTest {
         String sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
                 "from user u left join phone p on u.id = p.user_id";
         Map<User, Phone> map = h.createQuery(sql)
-                .registerRowMapper(ConstructorMapper.of(User.class, "u"))
-                .registerRowMapper(ConstructorMapper.of(Phone.class, "p"))
+                .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
+                .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
                 .collectInto(new GenericType<Map<User, Phone>>() {});
 
         assertThat(map).containsOnly(

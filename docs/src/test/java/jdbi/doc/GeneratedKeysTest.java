@@ -54,7 +54,7 @@ public class GeneratedKeysTest {
     @Before
     public void setUp() throws Exception {
         db.useHandle(h -> h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)"));
-        db.registerRowMapper(ConstructorMapper.of(User.class));
+        db.registerRowMapper(ConstructorMapper.factory(User.class));
     }
     // end::setup[]
 

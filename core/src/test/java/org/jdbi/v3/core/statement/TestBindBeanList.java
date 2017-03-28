@@ -36,7 +36,7 @@ public class TestBindBeanList {
     @Before
     public void setUp() {
         handle = dbRule.getSharedHandle();
-        handle.registerRowMapper(FieldMapper.of(Thing.class));
+        handle.registerRowMapper(FieldMapper.factory(Thing.class));
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 1, "foo1", "bar1", "baz1");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 2, "foo2", "bar2", "baz2");

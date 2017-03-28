@@ -52,8 +52,8 @@ public class BeanMapper<T> implements RowMapper<T>
      * @param type the mapped class
      * @return a mapper factory that maps to the given bean class
      */
-    public static RowMapperFactory of(Class<?> type) {
-        return RowMapperFactory.of(type, new BeanMapper<>(type));
+    public static RowMapperFactory factory(Class<?> type) {
+        return RowMapperFactory.of(type, BeanMapper.of(type));
     }
 
     /**
@@ -63,8 +63,29 @@ public class BeanMapper<T> implements RowMapper<T>
      * @param prefix the column name prefix for each mapped bean property
      * @return a mapper factory that maps to the given bean class
      */
-    public static RowMapperFactory of(Class<?> type, String prefix) {
-        return RowMapperFactory.of(type, new BeanMapper<>(type, prefix));
+    public static RowMapperFactory factory(Class<?> type, String prefix) {
+        return RowMapperFactory.of(type, BeanMapper.of(type, prefix));
+    }
+
+    /**
+     * Returns a mapper for the given bean class
+     *
+     * @param type the mapped class
+     * @return a mapper for the given bean class
+     */
+    public static <T> RowMapper<T> of(Class<T> type) {
+        return BeanMapper.of(type, DEFAULT_PREFIX);
+    }
+
+    /**
+     * Returns a mapper for the given bean class
+     *
+     * @param type the mapped class
+     * @param prefix the column name prefix for each mapped bean property
+     * @return a mapper for the given bean class
+     */
+    public static <T> RowMapper<T> of(Class<T> type, String prefix) {
+        return new BeanMapper<>(type, prefix);
     }
 
     static final String DEFAULT_PREFIX = "";
@@ -74,12 +95,7 @@ public class BeanMapper<T> implements RowMapper<T>
     private final BeanInfo info;
     private final ConcurrentMap<String, Optional<PropertyDescriptor>> descriptorByColumnCache = new ConcurrentHashMap<>();
 
-    public BeanMapper(Class<T> type)
-    {
-        this(type, DEFAULT_PREFIX);
-    }
-
-    public BeanMapper(Class<T> type, String prefix)
+    private BeanMapper(Class<T> type, String prefix)
     {
         this.type = type;
         this.prefix = prefix;

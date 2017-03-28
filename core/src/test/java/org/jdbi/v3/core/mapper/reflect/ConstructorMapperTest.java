@@ -28,8 +28,8 @@ public class ConstructorMapperTest {
     @Before
     public void setUp() throws Exception {
         dbRule.getSharedHandle()
-                .registerRowMapper(ConstructorMapper.of(ConstructorBean.class))
-                .registerRowMapper(ConstructorMapper.of(NamedParameterBean.class));
+                .registerRowMapper(ConstructorMapper.factory(ConstructorBean.class))
+                .registerRowMapper(ConstructorMapper.factory(NamedParameterBean.class));
         dbRule.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
 
         dbRule.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");

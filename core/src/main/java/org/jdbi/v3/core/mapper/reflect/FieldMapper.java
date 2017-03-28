@@ -44,8 +44,8 @@ public class FieldMapper<T> implements RowMapper<T>
      * @param type the mapped class
      * @return a mapper factory that maps to the given bean class
      */
-    public static RowMapperFactory of(Class<?> type) {
-        return RowMapperFactory.of(type, new FieldMapper<>(type));
+    public static RowMapperFactory factory(Class<?> type) {
+        return RowMapperFactory.of(type, FieldMapper.of(type));
     }
 
     /**
@@ -55,8 +55,29 @@ public class FieldMapper<T> implements RowMapper<T>
      * @param prefix the column name prefix for each mapped field
      * @return a mapper factory that maps to the given bean class
      */
-    public static RowMapperFactory of(Class<?> type, String prefix) {
-        return RowMapperFactory.of(type, new FieldMapper<>(type, prefix));
+    public static RowMapperFactory factory(Class<?> type, String prefix) {
+        return RowMapperFactory.of(type, FieldMapper.of(type, prefix));
+    }
+
+    /**
+     * Returns a mapper for the given bean class
+     *
+     * @param type the mapped class
+     * @return a mapper for the given bean class
+     */
+    public static <T> RowMapper<T> of(Class<T> type) {
+        return FieldMapper.of(type, DEFAULT_PREFIX);
+    }
+
+    /**
+     * Returns a mapper for the given bean class
+     *
+     * @param type the mapped class
+     * @param prefix the column name prefix for each mapped field
+     * @return a mapper for the given bean class
+     */
+    public static <T> RowMapper<T> of(Class<T> type, String prefix) {
+        return new FieldMapper<>(type, prefix);
     }
 
     static final String DEFAULT_PREFIX = "";
@@ -65,12 +86,7 @@ public class FieldMapper<T> implements RowMapper<T>
     private final String prefix;
     private final ConcurrentMap<String, Optional<Field>> fieldByNameCache = new ConcurrentHashMap<>();
 
-    public FieldMapper(Class<T> type)
-    {
-        this(type, DEFAULT_PREFIX);
-    }
-
-    public FieldMapper(Class<T> type, String prefix)
+    private FieldMapper(Class<T> type, String prefix)
     {
         this.type = type;
         this.prefix = prefix;

@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleAccess;
@@ -54,7 +55,7 @@ public class FieldMapperTest {
     Handle handle = HandleAccess.createHandle();
     StatementContext ctx = StatementContextAccess.createContext(handle);
 
-    FieldMapper<SampleBean> mapper = new FieldMapper<>(SampleBean.class);
+    RowMapper<SampleBean> mapper = FieldMapper.of(SampleBean.class);
 
     @Before
     public void setUpMocks() throws SQLException {
@@ -155,7 +156,7 @@ public class FieldMapperTest {
         when(resultSet.getLong(2)).thenReturn(bLongVal);
         when(resultSet.wasNull()).thenReturn(false);
 
-        FieldMapper<DerivedBean> mapper = new FieldMapper<>(DerivedBean.class);
+        RowMapper<DerivedBean> mapper = FieldMapper.of(DerivedBean.class);
 
         DerivedBean derivedBean = mapper.map(resultSet, ctx);
 
@@ -225,7 +226,7 @@ public class FieldMapperTest {
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
         ColumnNameThing thing = handle.createQuery("select * from something")
-                .map(new FieldMapper<>(ColumnNameThing.class))
+                .map(FieldMapper.of(ColumnNameThing.class))
                 .findOnly();
 
         assertThat(thing.i).isEqualTo(1);
