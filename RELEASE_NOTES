@@ -1,5 +1,6 @@
 2.79
   - various SqlObject methods like hashCode and equals no longer open connections
+  - Fixed @SqlBatch with @GetGeneratedKeys throwing exception on an empty batch
 
 2.78
   - @BindIn: fix handling of empty lists on Postgres
