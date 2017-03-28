@@ -133,6 +133,18 @@ public class TestSqlArrays {
         assertThat(ao.fetchIntList()).containsExactlyElementsOf(testIntList);
     }
 
+    @Test
+    public void testNullArray() throws Exception {
+        ao.insertUuidArray(null);
+        assertThat(ao.fetchUuidArray()).isNull();
+    }
+
+    @Test
+    public void testNullList() throws Exception {
+        ao.insertUuidList(null);
+        assertThat(ao.fetchUuidLinkedList()).isNull();
+    }
+
     public interface ArrayObject {
         @SqlQuery(U_SELECT)
         @SingleValue
