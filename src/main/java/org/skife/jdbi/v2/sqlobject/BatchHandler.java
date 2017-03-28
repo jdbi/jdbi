@@ -201,7 +201,9 @@ class BatchHandler extends CustomizingStatementHandler
         }
 
         //execute the rest
-        rs_parts.add(executeBatch(handle, batch));
+        if (batch.getSize() > 0) {
+            rs_parts.add(executeBatch(handle, batch));
+        }
 
         // combine results
         int end_size = 0;

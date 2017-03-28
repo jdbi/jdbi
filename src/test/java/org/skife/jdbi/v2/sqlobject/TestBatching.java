@@ -13,6 +13,7 @@
  */
 package org.skife.jdbi.v2.sqlobject;
 
+import java.util.Collections;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class TestBatching
@@ -166,6 +168,13 @@ public class TestBatching
         b.invalidInsertString("bob");
     }
 
+    @Test
+    public void testEmptyBatchWithGeneratedKeys() {
+        UsesBatching b = handle.attach(UsesBatching.class);
+        int[] updateCounts = b.insertChunkedGetKeys();
+        assertEquals(0, updateCounts.length);
+    }
+
     @BatchChunkSize(4)
     @UseStringTemplate3StatementLocator
     public static interface UsesBatching
@@ -188,6 +197,10 @@ public class TestBatching
 
         @SqlBatch
         public int[] insertChunked(@BatchChunkSize int size, @BindBean("it") Iterable<Something> its);
+
+        @SqlBatch("insert into something (id, name) values (:id, :name)")
+        @GetGeneratedKeys(columnName = "id")
+        public int[] insertChunkedGetKeys(Something... values);
 
         @SqlQuery("select count(*) from something")
         public int size();
