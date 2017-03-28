@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import java.lang.reflect.Type;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
@@ -38,7 +39,8 @@ public @interface BindJpa {
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index) {
+                                                                  int index,
+                                                                  Type type) {
             BindJpa bind = (BindJpa) annotation;
             final String prefix;
             if (bind.value().isEmpty()) {

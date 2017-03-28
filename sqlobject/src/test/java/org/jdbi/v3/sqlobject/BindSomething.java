@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import java.lang.reflect.Type;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
@@ -39,7 +40,8 @@ public @interface BindSomething
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index) {
+                                                                  int index,
+                                                                  Type type) {
             BindSomething bind = (BindSomething) annotation;
             return (stmt, arg) -> {
                 Something it = (Something) arg;

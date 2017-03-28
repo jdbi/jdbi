@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,7 +68,8 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                 .filter(a -> a.annotationType().isAnnotationPresent(SqlStatementCustomizingAnnotation.class));
     }
 
-    private static Stream<BoundCustomizer> parameterCustomizers(Class<?> type, Method method) {
+    private Stream<BoundCustomizer> parameterCustomizers(Class<?> type,
+                                                         Method method) {
         final Parameter[] parameters = method.getParameters();
 
         return IntStream.range(0, parameters.length)
@@ -75,10 +77,13 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                 .flatMap(i -> eachParameterCustomizers(type, method, parameters[i], i));
     }
 
-    private static Stream<BoundCustomizer> eachParameterCustomizers(Class<?> type, Method method, Parameter parameter, Integer i) {
+    private Stream<BoundCustomizer> eachParameterCustomizers(Class<?> type,
+                                                             Method method,
+                                                             Parameter parameter,
+                                                             Integer i) {
 
         List<BoundCustomizer> customizers = annotationsFor(parameter)
-                .map(a -> instantiateFactory(a).createForParameter(a, type, method, parameter, i))
+                .map(a -> instantiateFactory(a).createForParameter(a, type, method, parameter, i, getParameterType(parameter)))
                 .<BoundCustomizer>map(c -> (stmt, args) -> c.apply(stmt, args[i])).collect(Collectors.toList());
 
         if (!customizers.isEmpty()) {
@@ -91,10 +96,17 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     /**
      * Default parameter customizer for parameters with no annotations.
      */
-    private static BoundCustomizer defaultParameterCustomizer(Class<?> type, Method method, Parameter parameter, Integer i) {
+    private BoundCustomizer defaultParameterCustomizer(Class<?> type,
+                                                       Method method,
+                                                       Parameter parameter,
+                                                       Integer i) {
         return (stmt, args) -> getDefaultParameterCustomizerFactory(stmt)
-                .createForParameter(type, method, parameter, i)
+                .createForParameter(type, method, parameter, i, getParameterType(parameter))
                 .apply(stmt, args[i]);
+    }
+
+    Type getParameterType(Parameter parameter) {
+        return parameter.getParameterizedType();
     }
 
     private static ParameterCustomizerFactory getDefaultParameterCustomizerFactory(SqlStatement<?> stmt) {

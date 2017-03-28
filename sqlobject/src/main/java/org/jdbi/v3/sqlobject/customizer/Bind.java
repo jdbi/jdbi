@@ -21,11 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.Iterator;
 
-import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.statement.PreparedBatch;
-import org.jdbi.v3.sqlobject.SingleValue;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 /**
@@ -52,42 +48,16 @@ public @interface Bind
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index) {
+                                                                  int index,
+                                                                  Type type) {
             Bind b = (Bind) annotation;
             String nameFromAnnotation = b == null ? NO_VALUE : b.value();
             final String name = ParameterUtil.getParameterName(b, nameFromAnnotation, param);
 
             return (stmt, arg) -> {
-                Type type = param.getParameterizedType();
-
-                if (stmt instanceof PreparedBatch && !param.isAnnotationPresent(SingleValue.class)) {
-                    Class<?> erasedType = GenericTypes.getErasedType(type);
-                    if (Iterable.class.isAssignableFrom(erasedType)) {
-                        type = GenericTypes.findGenericParameter(type, Iterable.class).get();
-                    }
-                    else if (Iterator.class.isAssignableFrom(erasedType)) {
-                        type = GenericTypes.findGenericParameter(type, Iterator.class).get();
-                    }
-                    else if (GenericTypes.isArray(type)) {
-                        type = ((Class<?>) type).getComponentType();
-                    }
-                }
-
                 stmt.bindByType(index, arg, type);
                 stmt.bindByType(name, arg, type);
             };
         }
     }
-
-    public static final Bind DEFAULT = new Bind() {
-        @Override
-        public Class<? extends Annotation> annotationType() {
-            return Bind.class;
-        }
-
-        @Override
-        public String value() {
-            return NO_VALUE;
-        }
-    };
 }

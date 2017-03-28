@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.sqlobject.kotlin
 
-import org.jdbi.v3.core.generic.GenericTypes
-import org.jdbi.v3.core.statement.PreparedBatch
-import org.jdbi.v3.core.statement.SqlStatement
-import org.jdbi.v3.sqlobject.SingleValue
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer
 import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory
 import java.lang.reflect.Method
@@ -27,49 +23,33 @@ import kotlin.reflect.jvm.kotlinFunction
 
 class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
 
-
-    override fun createForParameter(sqlObjectType: Class<*>, method: Method, parameter: Parameter, paramIdx: Int): SqlStatementParameterCustomizer {
+    override fun createForParameter(sqlObjectType: Class<*>,
+                                    method: Method,
+                                    parameter: Parameter,
+                                    paramIdx: Int,
+                                    type: Type): SqlStatementParameterCustomizer {
 
         val bindName = if (parameter.isNamePresent) {
             parameter.name
         } else {
-            method.kotlinFunction?.parameters?.dropWhile { it.kind != KParameter.Kind.VALUE }?.toList()?.get(paramIdx)?.name
-        } ?: throw UnsupportedOperationException("A parameter was not given a name, and parameter name data is not present in the class file, for: " +
+            method.kotlinFunction
+                    ?.parameters
+                    ?.dropWhile { it.kind != KParameter.Kind.VALUE }
+                    ?.toList()
+                    ?.get(paramIdx)?.name
+        } ?: throw UnsupportedOperationException(
+                "A parameter was not given a name, and parameter name data is not present in the class file, for: " +
                 "${parameter.declaringExecutable} :: $parameter")
 
-
-        fun bind(q: SqlStatement<*>, bindToParm: String, type: Type, value: Any?) {
-
-            val maybeArgument = q.getContext().findArgumentFor(type, value)
+        return SqlStatementParameterCustomizer { stmt, arg ->
+            val maybeArgument = stmt.getContext().findArgumentFor(type, arg)
             if (!maybeArgument.isPresent) {
-                q.bindBean(bindToParm, value)
+                stmt.bindBean(bindName, arg)
             } else {
                 val argument = maybeArgument.get()
-                q.bind(bindToParm, argument)
-                q.bind(paramIdx, argument)
+                stmt.bind(bindName, argument)
+                stmt.bind(paramIdx, argument)
             }
-        }
-        return SqlStatementParameterCustomizer { stmt, arg ->
-            val paramType = parameter.parameterizedType
-
-            val type = if (stmt is PreparedBatch && !parameter.isAnnotationPresent(SingleValue::class.java)) {
-                // FIXME BatchHandler should extract the iterable/iterator element type and pass it to the binder
-                val erasedType = GenericTypes.getErasedType(paramType)
-                if (Iterable::class.java.isAssignableFrom(erasedType)) {
-                    GenericTypes.findGenericParameter(paramType, Iterable::class.java).get()
-                } else if (Iterator::class.java.isAssignableFrom(erasedType)) {
-                    GenericTypes.findGenericParameter(paramType, Iterator::class.java).get()
-                } else if (GenericTypes.isArray(paramType)) {
-                    (paramType as Class<*>).componentType
-                } else {
-                    paramType
-                }
-            } else {
-                paramType
-            }
-
-            bind(stmt, bindName, type, arg)
-
         }
     }
 }

@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -75,7 +76,8 @@ public @interface DefineList
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index)
+                                                                  int index,
+                                                                  Type type)
         {
             final DefineList d = (DefineList) annotation;
             final String name = ParameterUtil.getParameterName(d, d.value(), param);

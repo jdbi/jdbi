@@ -20,6 +20,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 /**
  * Used to specify the fetch direction, per JDBC, of a result set.
@@ -55,7 +56,8 @@ public @interface FetchDirection
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index)
+                                                                  int index,
+                                                                  Type type)
         {
             return (stmt, fetchDirection) -> stmt.setFetchDirection((Integer) fetchDirection);
         }

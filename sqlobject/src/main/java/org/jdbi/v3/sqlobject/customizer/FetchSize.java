@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import java.lang.reflect.Type;
 import org.jdbi.v3.core.statement.Query;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -50,7 +51,8 @@ public @interface FetchSize
                                                                   Class<?> sqlObjectType,
                                                                   Method method,
                                                                   Parameter param,
-                                                                  int index)
+                                                                  int index,
+                                                                  Type type)
         {
             return (stmt, fetchSize) -> ((Query) stmt).setFetchSize((Integer) fetchSize);
         }

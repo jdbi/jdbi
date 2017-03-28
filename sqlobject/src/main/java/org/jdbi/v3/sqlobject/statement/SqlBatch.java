@@ -19,6 +19,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
@@ -169,6 +172,26 @@ public @interface SqlBatch {
 
         @Override
         void configureReturner(PreparedBatch stmt, SqlObjectStatementConfiguration cfg) {
+        }
+
+        @Override
+        Type getParameterType(Parameter parameter) {
+            Type type = super.getParameterType(parameter);
+
+            if (!parameter.isAnnotationPresent(SingleValue.class)) {
+                Class<?> erasedType = GenericTypes.getErasedType(type);
+                if (Iterable.class.isAssignableFrom(erasedType)) {
+                    return GenericTypes.findGenericParameter(type, Iterable.class).get();
+                }
+                else if (Iterator.class.isAssignableFrom(erasedType)) {
+                    return GenericTypes.findGenericParameter(type, Iterator.class).get();
+                }
+                else if (GenericTypes.isArray(type)) {
+                    return ((Class<?>) type).getComponentType();
+                }
+            }
+
+            return type;
         }
 
         @Override

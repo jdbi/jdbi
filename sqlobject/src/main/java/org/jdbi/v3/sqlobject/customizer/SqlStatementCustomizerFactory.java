@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject.customizer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 
 /**
  * Interface used in conjunction with {@link SqlStatementCustomizingAnnotation} to generate
@@ -62,7 +63,8 @@ public interface SqlStatementCustomizerFactory
                                                                Class<?> sqlObjectType,
                                                                Method method,
                                                                Parameter param,
-                                                               int index)
+                                                               int index,
+                                                               Type paramType)
     {
         throw new UnsupportedOperationException("Not supported for parameter");
     }
