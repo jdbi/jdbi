@@ -39,6 +39,11 @@ class ArrayColumnMapper implements ColumnMapper<Object> {
     @Override
     public Object map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         java.sql.Array array = r.getArray(columnNumber);
+
+        if (array == null) {
+            return null;
+        }
+
         try {
             return buildArray(array, ctx);
         }

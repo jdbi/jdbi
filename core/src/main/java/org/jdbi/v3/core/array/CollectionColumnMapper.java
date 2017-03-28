@@ -34,6 +34,11 @@ class CollectionColumnMapper<T, C extends Collection<T>> implements ColumnMapper
     @Override
     public C map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         java.sql.Array array = r.getArray(columnNumber);
+
+        if (array == null) {
+            return null;
+        }
+
         try {
             return buildFromResultSet(array, ctx);
         }
