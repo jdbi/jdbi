@@ -155,7 +155,7 @@ public class TestQueries
                         .mapToBean(Something.class)
                         .list())
                 .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches \"name\"");
+                .hasMessageContaining("no named parameter matches 'name'");
     }
 
     @Test
@@ -171,7 +171,7 @@ public class TestQueries
                         .mapToBean(Something.class)
                         .list())
                 .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasMessageContaining("no named parameter matches \"name\"");
+                .hasMessageContaining("no named parameter matches 'name'");
     }
 
     @Test(expected = UnableToExecuteStatementException.class)

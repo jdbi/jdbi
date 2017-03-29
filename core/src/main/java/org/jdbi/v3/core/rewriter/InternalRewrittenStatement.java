@@ -15,12 +15,10 @@ package org.jdbi.v3.core.rewriter;
 
 import static org.jdbi.v3.core.rewriter.ParsedStatement.POSITIONAL_PARAM;
 
+import com.google.common.base.Joiner;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-
-import com.google.common.base.Joiner;
-import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -45,21 +43,17 @@ class InternalRewrittenStatement implements RewrittenStatement {
     }
 
     private void bindPositional(Binding params, PreparedStatement statement) {
-        int paramCount = stmt.getParams().size();
-        for (int i = 0; i < paramCount; i++) {
+        for (int i = 0; i < stmt.getParams().size(); i++) {
             int index = i;
-            Argument a = params.findForPosition(i)
-                    .orElseThrow(() -> {
-                        String msg = String.format("Unable to execute, no positional parameter bound at position %s",
-                                index);
-                        return new UnableToExecuteStatementException(msg, context);
-                    });
             try {
-                a.apply(i + 1, statement, this.context);
+                params.findForPosition(i)
+                        .orElseThrow(() -> new UnableToExecuteStatementException(
+                                "Unable to execute, no positional parameter bound at position " + index,
+                                context))
+                        .apply(i + 1, statement, context);
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(
-                        String.format("Exception while binding positional param at (0 based) position %d",
-                                i), e, context);
+                        "Exception while binding positional param at (0 based) position " + i, e, context);
             }
         }
     }
@@ -68,24 +62,23 @@ class InternalRewrittenStatement implements RewrittenStatement {
         List<String> paramList = stmt.getParams();
 
         if (paramList.contains(POSITIONAL_PARAM)) {
-            String msg = "Cannot mix named and positional parameters in a SQL statement: "
-                    + Joiner.on(", ").join(paramList);
-            throw new UnableToExecuteStatementException(msg, context);
+            throw new UnableToExecuteStatementException(
+                    "Cannot mix named and positional parameters in a SQL statement: " + Joiner.on(", ").join(paramList),
+                    context);
         }
 
         for (int i = 0; i < paramList.size(); i++) {
             String param = paramList.get(i);
-            Argument a = params.findForName(param)
-                    .orElseThrow(() -> {
-                        String msg = String.format("Unable to execute, no named parameter matches \"%s\".", param);
-                        return new UnableToExecuteStatementException(msg, context);
-                    });
 
             try {
-                a.apply(i + 1, statement, this.context);
+                params.findForName(param)
+                        .orElseThrow(() -> new UnableToExecuteStatementException(
+                                String.format("Unable to execute, no named parameter matches '%s'.", param),
+                                context))
+                        .apply(i + 1, statement, context);
             } catch (SQLException e) {
-                throw new UnableToCreateStatementException(String.format("Exception while binding '%s'",
-                        param), e, context);
+                throw new UnableToCreateStatementException(
+                        String.format("Exception while binding named parameter '%s'", param), e, context);
             }
         }
     }
