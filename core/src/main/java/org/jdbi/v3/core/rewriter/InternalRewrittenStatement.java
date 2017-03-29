@@ -13,15 +13,14 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import static org.jdbi.v3.core.internal.JdbiOptionals.findFirstPresent;
+import static org.jdbi.v3.core.rewriter.ParsedStatement.POSITIONAL_PARAM;
 
+import com.google.common.base.Joiner;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Optional;
-
+import java.util.List;
 import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 
@@ -36,49 +35,50 @@ class InternalRewrittenStatement implements RewrittenStatement {
 
     @Override
     public void bind(Binding params, PreparedStatement statement) throws SQLException {
-        if (stmt.positionalOnly) {
-            // no named params, is easy
-            boolean finished = false;
-            for (int i = 0; !finished; ++i) {
-                final Optional<Argument> a = params.findForPosition(i);
-                if (a.isPresent()) {
-                    try {
-                        a.get().apply(i + 1, statement, this.context);
-                    } catch (SQLException e) {
-                        throw new UnableToExecuteStatementException(
-                                String.format("Exception while binding positional param at (0 based) position %d",
-                                        i), e, context);
-                    }
-                } else {
-                    finished = true;
-                }
-            }
+        if (stmt.isPositional()) {
+            bindPositional(params, statement);
         } else {
-            //List<String> named_params = stmt.params;
-            int i = 0;
-            for (String named_param : stmt.params) {
-                if ("*".equals(named_param)) {
-                    continue;
-                }
-                final int index = i;
-                Argument a = findFirstPresent(
-                        () -> params.findForName(named_param),
-                        () -> params.findForPosition(index))
-                        .orElseThrow(() -> {
-                            String msg = String.format("Unable to execute, no named parameter matches " +
-                                            "\"%s\" and no positional param for place %d (which is %d in " +
-                                            "the JDBC 'start at 1' scheme) has been set.",
-                                    named_param, index, index + 1);
-                            return new UnableToExecuteStatementException(msg, context);
-                        });
+            bindNamed(params, statement);
+        }
+    }
 
-                try {
-                    a.apply(i + 1, statement, this.context);
-                } catch (SQLException e) {
-                    throw new UnableToCreateStatementException(String.format("Exception while binding '%s'",
-                            named_param), e, context);
-                }
-                i++;
+    private void bindPositional(Binding params, PreparedStatement statement) {
+        for (int i = 0; i < stmt.getParams().size(); i++) {
+            int index = i;
+            try {
+                params.findForPosition(i)
+                        .orElseThrow(() -> new UnableToExecuteStatementException(
+                                "Unable to execute, no positional parameter bound at position " + index,
+                                context))
+                        .apply(i + 1, statement, context);
+            } catch (SQLException e) {
+                throw new UnableToExecuteStatementException(
+                        "Exception while binding positional param at (0 based) position " + i, e, context);
+            }
+        }
+    }
+
+    private void bindNamed(Binding params, PreparedStatement statement) {
+        List<String> paramList = stmt.getParams();
+
+        if (paramList.contains(POSITIONAL_PARAM)) {
+            throw new UnableToExecuteStatementException(
+                    "Cannot mix named and positional parameters in a SQL statement: " + Joiner.on(", ").join(paramList),
+                    context);
+        }
+
+        for (int i = 0; i < paramList.size(); i++) {
+            String param = paramList.get(i);
+
+            try {
+                params.findForName(param)
+                        .orElseThrow(() -> new UnableToExecuteStatementException(
+                                String.format("Unable to execute, no named parameter matches '%s'.", param),
+                                context))
+                        .apply(i + 1, statement, context);
+            } catch (SQLException e) {
+                throw new UnableToCreateStatementException(
+                        String.format("Exception while binding named parameter '%s'", param), e, context);
             }
         }
     }

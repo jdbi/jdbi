@@ -48,9 +48,9 @@ public class TestClasspathSqlLocator {
     }
 
     @Test
-    public void testNamedPositionalNamedParamsInPrepared() throws Exception {
+    public void testPositionalParamsInPrepared() throws Exception {
         Handle h = dbRule.openHandle();
-        h.insert(findSqlOnClasspath("insert-id-name"), 3, "Tip");
+        h.insert(findSqlOnClasspath("insert-id-name-positional"), 3, "Tip");
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 

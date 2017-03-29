@@ -14,15 +14,16 @@
 package org.jdbi.v3.sqlobject;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
@@ -78,18 +79,29 @@ public class TestPositionalBinder {
                 ImmutableMap.of("something_id", 19, "name", "Greg", "code", 21)));
     }
 
+    @Test
+    public void testInsertWithMixedPositionalAndNamedParams() {
+        assertThatThrownBy(() ->
+                somethingDao.insertWithMixedPositionalAndNamedParams("Jenny", 867_5309))
+                .isInstanceOf(UnableToExecuteStatementException.class)
+                .hasMessageContaining("Cannot mix named and positional parameters in a SQL statement");
+    }
+
     public interface SomethingDao {
 
-        @SqlQuery("select name from something where something_id=:0")
+        @SqlQuery("select name from something where something_id=?")
         String findNameById(int i);
 
-        @SqlQuery("select something_id from something where name=:0 and code=:1")
+        @SqlQuery("select something_id from something where name=? and code=?")
         Integer getIdByNameAndCode(String name, int code);
 
-        @SqlUpdate("insert into something(something_id, name, code) values (:0, :1, :2)")
-        void insertSomething(int id, @Bind String name, int code);
+        @SqlUpdate("insert into something(something_id, name, code) values (?, ?, ?)")
+        void insertSomething(int id, String name, int code);
 
-        @SqlUpdate("insert into something(something_id,name, code) values (19, :0, :code)")
-        void insertWithDefaultParams(String name, @Bind("code") int code);
+        @SqlUpdate("insert into something(something_id,name, code) values (19, ?, ?)")
+        void insertWithDefaultParams(String name, int code);
+
+        @SqlUpdate("insert into something(something_id,name,code) values (19, :name, ?)")
+        void insertWithMixedPositionalAndNamedParams(String name, int code);
     }
 }

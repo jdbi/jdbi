@@ -66,7 +66,7 @@ public class TestBatchingSingleValue
     public interface SingleValueBatching
     {
         @SqlBatch("insert into batching (id, values) values (:id, :values)")
-        int[] insertValues(int[] ids, @SingleValue int[] values);
+        int[] insertValues(int[] id, @SingleValue int[] values);
 
         @SqlQuery("select id, values from batching order by id asc")
         List<BatchingRow> select();
