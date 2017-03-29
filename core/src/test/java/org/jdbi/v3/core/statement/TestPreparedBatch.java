@@ -118,7 +118,7 @@ public class TestPreparedBatch
     public void testPositionalBinding() throws Exception
     {
         Handle h = dbRule.openHandle();
-        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (?, ?)");
 
         b.bind(0, 0).bind(1, "Keith").add().execute();
 

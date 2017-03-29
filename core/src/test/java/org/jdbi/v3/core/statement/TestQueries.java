@@ -16,6 +16,7 @@ package org.jdbi.v3.core.statement;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import com.google.common.collect.Maps;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.result.NoResultsException;
@@ -35,8 +37,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import com.google.common.collect.Maps;
 
 public class TestQueries
 {
@@ -149,12 +149,13 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        List<Something> r = h.createQuery("select * from something where name = :name")
-                             .bind(0, "eric")
-                             .mapToBean(Something.class)
-                             .list();
-
-        assertThat(r).extracting(Something::getName).containsExactly("eric");
+        assertThatThrownBy(() ->
+                h.createQuery("select * from something where name = :name")
+                        .bind(0, "eric")
+                        .mapToBean(Something.class)
+                        .list())
+                .isInstanceOf(UnableToExecuteStatementException.class)
+                .hasMessageContaining("no named parameter matches \"name\"");
     }
 
     @Test
@@ -163,13 +164,14 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'brian')");
 
-        List<Something> r = h.createQuery("select * from something where name = :name and id = :id")
-                             .bind(0, "eric")
-                             .bind("id", 1)
-                             .mapToBean(Something.class)
-                             .list();
-
-        assertThat(r).extracting(Something::getName).containsExactly("eric");
+        assertThatThrownBy(() ->
+                h.createQuery("select * from something where name = :name and id = :id")
+                        .bind(0, "eric")
+                        .bind("id", 1)
+                        .mapToBean(Something.class)
+                        .list())
+                .isInstanceOf(UnableToExecuteStatementException.class)
+                .hasMessageContaining("no named parameter matches \"name\"");
     }
 
     @Test(expected = UnableToExecuteStatementException.class)
@@ -296,7 +298,7 @@ public class TestQueries
     @Test
     public void testListWithMaxRows() throws Exception
     {
-        h.prepareBatch("insert into something (id, name) values (:id, :name)")
+        h.prepareBatch("insert into something (id, name) values (?, ?)")
          .add(1, "Brian")
          .add(2, "Keith")
          .add(3, "Eric")
@@ -317,7 +319,7 @@ public class TestQueries
     @Test
     public void testFold() throws Exception
     {
-        h.prepareBatch("insert into something (id, name) values (:id, :name)")
+        h.prepareBatch("insert into something (id, name) values (?, ?)")
          .add(1, "Brian")
          .add(2, "Keith")
          .execute();
@@ -332,7 +334,7 @@ public class TestQueries
     @Test
     public void testCollectList() throws Exception
     {
-        h.prepareBatch("insert into something (id, name) values (:id, :name)")
+        h.prepareBatch("insert into something (id, name) values (?, ?)")
          .add(1, "Brian")
          .add(2, "Keith")
          .execute();

@@ -70,12 +70,12 @@ public class ColonPrefixStatementRewriter implements StatementRewriter {
                     b.append(t.getText());
                     break;
                 case NAMED_PARAM:
-                    stmt.addNamedParamAt(t.getText().substring(1));
+                    stmt.addNamedParam(t.getText().substring(1));
                     b.append("?");
                     break;
                 case POSITIONAL_PARAM:
                     b.append("?");
-                    stmt.addPositionalParamAt();
+                    stmt.addPositionalParam();
                     break;
                 case ESCAPED_TEXT:
                     b.append(t.getText().substring(1));
@@ -85,7 +85,7 @@ public class ColonPrefixStatementRewriter implements StatementRewriter {
             }
             t = lexer.nextToken();
         }
-        stmt.sql = b.toString();
+        stmt.setParsedSql(b.toString());
         return stmt;
     }
 }

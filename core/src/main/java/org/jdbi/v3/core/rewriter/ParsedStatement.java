@@ -17,20 +17,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 class ParsedStatement {
-    String sql;
-    boolean positionalOnly = true;
+    static final String POSITIONAL_PARAM = "?";
+
+    private String parsedSql;
+    private boolean positional = true;
     List<String> params = new ArrayList<>();
 
-    void addNamedParamAt(String name) {
-        positionalOnly = false;
+    String getParsedSql() {
+        return parsedSql;
+    }
+
+    void setParsedSql(String parsedSql) {
+        this.parsedSql = parsedSql;
+    }
+
+    boolean isPositional() {
+        return positional;
+    }
+
+    void addNamedParam(String name) {
+        positional = false;
         params.add(name);
     }
 
-    void addPositionalParamAt() {
-        params.add("*");
+    void addPositionalParam() {
+        params.add(POSITIONAL_PARAM);
     }
 
-    String getParsedSql() {
-        return sql;
+    List<String> getParams() {
+        return params;
     }
 }

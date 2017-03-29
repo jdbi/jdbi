@@ -170,7 +170,7 @@ public class TestSqlArrays {
         CopyOnWriteArrayList<UUID> fetchUuidCopyOnWriteArrayList();
 
         @SqlUpdate(U_INSERT)
-        void insertUuidList(List<UUID> u);
+        void insertUuidList(List<UUID> uuids);
 
         @SqlQuery(I_SELECT)
         @SingleValue
@@ -195,7 +195,7 @@ public class TestSqlArrays {
         List<Integer> fetchIntList();
 
         @SqlUpdate(I_INSERT)
-        void insertIntList(List<Integer> u);
+        void insertIntList(List<Integer> ints);
     }
 
     @Test

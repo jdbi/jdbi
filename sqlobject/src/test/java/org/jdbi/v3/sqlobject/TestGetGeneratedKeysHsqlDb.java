@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -43,14 +42,14 @@ public class TestGetGeneratedKeysHsqlDb {
     public interface DAO {
         @SqlUpdate("insert into something (name) values (:name)")
         @GetGeneratedKeys
-        long insert(@Bind String name);
+        long insert(String name);
 
-        @SqlBatch("insert into something (name) values(:name)")
+        @SqlBatch("insert into something (name) values(:names)")
         @GetGeneratedKeys
-        int[] insert(@Bind List<String> names);
+        int[] insert(List<String> names);
 
         @SqlQuery("select name from something where id = :id")
-        String findNameById(@Bind long id);
+        String findNameById(long id);
     }
 
     @Test

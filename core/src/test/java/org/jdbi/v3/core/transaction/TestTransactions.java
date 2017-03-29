@@ -15,6 +15,7 @@ package org.jdbi.v3.core.transaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.util.List;
@@ -103,11 +104,12 @@ public class TestTransactions
     @Test
     public void testExceptionAbortsTransaction() throws Exception
     {
-        assertThatExceptionOfType(IOException.class).isThrownBy(() ->
+        assertThatThrownBy(() ->
                 h.inTransaction(handle -> {
-                    handle.insert("insert into something (id, name) values (:id, :name)", 0, "Keith");
+                    handle.insert("insert into something (id, name) values (?, ?)", 0, "Keith");
                     throw new IOException();
-                }));
+                }))
+                .isInstanceOf(IOException.class);
 
         List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
         assertThat(r).isEmpty();
@@ -131,9 +133,9 @@ public class TestTransactions
     {
         h.begin();
 
-        h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
+        h.insert("insert into something (id, name) values (?, ?)", 1, "Tom");
         h.savepoint("first");
-        h.insert("insert into something (id, name) values (:id, :name)", 2, "Martin");
+        h.insert("insert into something (id, name) values (?, ?)", 2, "Martin");
         assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
                 .isEqualTo(Integer.valueOf(2));
         h.rollbackToSavepoint("first");
@@ -149,7 +151,7 @@ public class TestTransactions
     {
         h.begin();
         h.savepoint("first");
-        h.insert("insert into something (id, name) values (:id, :name)", 1, "Martin");
+        h.insert("insert into something (id, name) values (?, ?)", 1, "Martin");
 
         h.release("first");
 
