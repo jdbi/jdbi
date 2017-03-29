@@ -166,4 +166,10 @@ public class TestColonStatementRewriter
         String sql = "select 1 /* ' \" <foo> */";
         assertThat(rewrite(sql).getSql()).isEqualTo(sql);
     }
+
+    @Test
+    public void testColonInComment() throws Exception {
+        String sql = "/* comment with : colons :: inside it */ select 1";
+        assertThat(rewrite(sql).getSql()).isEqualTo(sql);
+    }
 }
