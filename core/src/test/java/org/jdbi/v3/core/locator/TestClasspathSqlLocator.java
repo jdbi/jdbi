@@ -115,4 +115,11 @@ public class TestClasspathSqlLocator {
         assertThat(findSqlOnClasspath(getClass(), "test-locate-by-custom-name"))
                 .contains("select 1");
     }
+
+    @Test
+    public void testColonInComment() throws Exception {
+        // Used to throw exception in SQL statement lexer
+        // see https://github.com/jdbi/jdbi/issues/748
+        findSqlOnClasspath(getClass(), "test-colon-in-comment");
+    }
 }
