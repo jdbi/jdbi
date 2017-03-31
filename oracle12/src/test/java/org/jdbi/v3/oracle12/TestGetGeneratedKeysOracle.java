@@ -57,7 +57,7 @@ public class TestGetGeneratedKeysOracle {
         @GetGeneratedKeys("id")
         long insert(@Bind("name") String name);
 
-        @SqlQuery("select name from something where id = :it")
+        @SqlQuery("select name from something where id = :id")
         String findNameById(@Bind long id);
     }
 
