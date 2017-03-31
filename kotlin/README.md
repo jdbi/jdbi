@@ -3,10 +3,12 @@ Kotlin ResultSet mapper for jDBI
 
 This plugin adds ResultSet mapping to Kotlin classes anywhere a ResultSet is used.
 
-ResultSet mapping supports data classes where all fields are present in the constructor, 
-if you have a default constructor and desire fields to be set after, use a normal JavaBean style 
-ResultSet mapper. The mapper supports nullable types.  It also uses default parameter values in 
+ResultSet mapping supports data classes where all fields are present in the constructor as well as classes with 
+writable properties. Any fields not present in the constructor will be set after the constructor call.
+The mapper supports nullable types.  It also uses default parameter values in 
 the constructor if the parameter type is not nullable and the value absent in the result set.
+
+Result set mapper also supports `@ColumnName` annotation that allows to specify name for a property or parameter explicitly.
 
 
 ### Usage:

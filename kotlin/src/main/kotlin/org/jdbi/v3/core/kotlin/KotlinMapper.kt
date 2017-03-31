@@ -13,86 +13,131 @@
  */
 package org.jdbi.v3.core.kotlin
 
-import org.jdbi.v3.core.mapper.NoSuchMapperException
+import org.jdbi.v3.core.mapper.ColumnMapper
 import org.jdbi.v3.core.mapper.RowMapper
+import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher
 import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
 import org.jdbi.v3.core.statement.StatementContext
 import java.lang.reflect.InvocationTargetException
 import java.sql.ResultSet
 import java.sql.SQLException
-import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.jvm.isAccessible
-import kotlin.reflect.jvm.javaType
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.*
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaType
 
-class KotlinMapper<C : Any>(private val clazz: Class<C>) : RowMapper<C> {
+private typealias ValueProvider = (r: ResultSet, c: StatementContext) -> Any?
+private val NULL_VALUE_PROVIDER: ValueProvider = { _, _ -> null }
 
-    private val kclass: KClass<C> = clazz.kotlin
+
+class KotlinMapper<C : Any>(clazz: Class<C>) : RowMapper<C> {
+
+    private val kClass: KClass<C> = clazz.kotlin
+
+    private val constructor = findConstructor(kClass)
+    private val constructorParameters = constructor.parameters
+    private val nullableMandatoryParameters = constructorParameters.filter { !it.isOptional && it.type.isMarkedNullable }
+    private val mutableProperties = kClass.memberProperties.map { it as? KMutableProperty1 }.filterNotNull()
+
+    private val propertyByColumnCache = ConcurrentHashMap<String, Optional<KMutableProperty1<C, *>>>()
+    private val parameterByColumnCache = ConcurrentHashMap<String, Optional<KParameter>>()
+
 
     @Throws(SQLException::class)
     override fun map(rs: ResultSet, ctx: StatementContext): C {
         return specialize(rs, ctx).map(rs, ctx)
     }
 
+
     @Throws(SQLException::class)
     override fun specialize(rs: ResultSet, ctx: StatementContext): RowMapper<C> {
 
-        val metaData = rs.metaData
+        val parameters = mutableMapOf<KParameter, ValueProvider>()
+        val properties = mutableListOf<Pair<KMutableProperty1<C, *>, ValueProvider>>()
+
+        val metadata = rs.metaData
+        val columns = (metadata.columnCount downTo 1).map { Pair(it, metadata.getColumnLabel(it)) }.distinctBy { (_, name) -> name.toLowerCase() }
+
         val columnNameMatchers = ctx.getConfig(ReflectionMappers::class.java).columnNameMatchers
 
+        for ((columnNumber, columnName) in columns) {
 
-        val constructor = kclass.primaryConstructor!!
-        constructor.isAccessible = true
+            val parameter = parameterByColumnCache.computeIfAbsent(columnName, {
+                Optional.ofNullable(constructorParameters.find { columnNameMatchers.matches(columnName, it.paramName()) })
+            }).orElse(null)
 
-        // TODO: best fit for constructors + writeable properties, pay attention to nullables/optionals with default values
-        //       for now just call primary constructor using named params and hope
+            if (parameter != null) {
+                parameters.put(parameter, valueProvider(parameter.type, columnNumber, ctx))
+                continue
+            }
 
-        val validConstructorParameters = constructor.parameters.filter { it.kind == KParameter.Kind.VALUE && it.name != null }
+            val property = propertyByColumnCache.computeIfAbsent(columnName, {
+                Optional.ofNullable(mutableProperties.find { columnNameMatchers.matches(columnName, it.propName()) })
+            }).orElse(null)
 
-        val matchingConstructorParams = (metaData.columnCount downTo 1)
-                .map { validConstructorParameters.matchColumnName(metaData.getColumnLabel(it), columnNameMatchers) }
-                .filterNotNull()
-                .toSet()
-
+            if (property != null) {
+                properties.add(Pair(property, valueProvider(property.returnType, columnNumber, ctx)))
+            }
+        }
 
         // things missing from the result set that are Nullable and not optional should be set to Null
-        val nullablesThatAreAbsent = constructor.parameters.filter { !it.isOptional && it.type.isMarkedNullable && it !in matchingConstructorParams }
-
-        val matchingParamsWithColumnMappers = matchingConstructorParams.map { param ->
-            val paramType = param.type.javaType
-            val columnMapper = ctx.findColumnMapperFor(paramType).orElseThrow { NoSuchMapperException("No column mapper for " + paramType) }
-            Pair(param, columnMapper)
-        }
-
-        val paramsWithColumnMappers = matchingParamsWithColumnMappers + nullablesThatAreAbsent.map { Pair(it, null) }
+        nullableMandatoryParameters.forEach { parameters.putIfAbsent(it, NULL_VALUE_PROVIDER) }
 
         return RowMapper { r, c ->
-            val matchingParamsWithValue = paramsWithColumnMappers.associateBy({ it.first }, { it.second?.map(r, it.first.name, c) })
+            val parametersWithValue = parameters.mapValues { (_, valueProvider) -> valueProvider(r, c) }
+            val propertiesWithValue = properties.map { (property, valueProvider) -> Pair(property, valueProvider(r, c)) }
+
             try {
-                constructor.callBy(matchingParamsWithValue)
-            } catch (e: InvocationTargetException) {
-                throw IllegalArgumentException("A bean, ${clazz.name} was mapped which was not instantiable", e.targetException)
-            } catch (e: ReflectiveOperationException) {
-                throw IllegalArgumentException("A bean, ${clazz.name} was mapped which was not instantiable", e)
-            }
-        }
+                constructor.isAccessible = true
+                val instance = constructor.callBy(parametersWithValue)
 
-    }
-
-    fun List<KParameter>.matchColumnName(columnName: String,
-                                         columnNameMatchers: List<ColumnNameMatcher>): KParameter? {
-        for (parameter in this) {
-            val paramName = parameter.name
-            for (strategy in columnNameMatchers) {
-                if (strategy.columnNameMatches(columnName, paramName)) {
-                    return parameter
+                propertiesWithValue.forEach { (prop, value) ->
+                    prop.isAccessible = true
+                    prop.setter.call(instance, value)
                 }
+
+                instance
+            } catch (e: InvocationTargetException) {
+                throw IllegalArgumentException("A bean, ${kClass.simpleName} was mapped which was not instantiable", e.targetException)
+            } catch (e: ReflectiveOperationException) {
+                throw IllegalArgumentException("A bean, ${kClass.simpleName} was mapped which was not instantiable", e)
             }
         }
-        return null
+
     }
 
 
+}
+
+private fun <C : Any> findConstructor(kClass: KClass<C>) = kClass.primaryConstructor ?: findSecondaryConstructor(kClass)
+
+private fun <C : Any> findSecondaryConstructor(kClass: KClass<C>): KFunction<C> {
+    if (kClass.constructors.size == 1) {
+        return kClass.constructors.first()
+    } else {
+        throw IllegalArgumentException("A bean, ${kClass.simpleName} was mapped which was not instantiable (cannot find appropriate constructor)")
+    }
+}
+
+private fun List<ColumnNameMatcher>.matches(columnName: String, paramName: String?) = this.any { it.columnNameMatches(columnName, paramName) }
+
+
+private fun valueProvider(paramType: KType, columnNumber: Int, ctx: StatementContext): ValueProvider {
+    val columnMapper = ctx.findColumnMapperFor(paramType.javaType).orElse(ColumnMapper { r, n, _ -> r.getObject(n) })
+    return { r, c -> columnMapper.map(r, columnNumber, c) }
+}
+
+private fun KParameter.paramName(): String? {
+    return findAnnotation<ColumnName>()?.value ?: name
+}
+
+private fun <C> KMutableProperty1<C, *>.propName(): String {
+    val annotation = this.javaField?.getAnnotation(ColumnName::class.java)
+    return annotation?.value ?: name
 }
