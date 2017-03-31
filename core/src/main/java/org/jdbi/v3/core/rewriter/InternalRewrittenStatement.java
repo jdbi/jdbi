@@ -19,6 +19,8 @@ import com.google.common.base.Joiner;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
+import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -44,13 +46,12 @@ class InternalRewrittenStatement implements RewrittenStatement {
 
     private void bindPositional(Binding params, PreparedStatement statement) {
         for (int i = 0; i < stmt.getParams().size(); i++) {
-            int index = i;
             try {
-                params.findForPosition(i)
-                        .orElseThrow(() -> new UnableToExecuteStatementException(
-                                "Unable to execute, no positional parameter bound at position " + index,
-                                context))
-                        .apply(i + 1, statement, context);
+                Optional<Argument> argument = params.findForPosition(i);
+                if (argument.isPresent()) {
+                    argument.get().apply(i + 1, statement, context);
+                }
+                // any missing positional parameters could be return parameters
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException(
                         "Exception while binding positional param at (0 based) position " + i, e, context);
