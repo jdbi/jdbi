@@ -24,7 +24,7 @@
     <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-parent</artifactId>
     <name>jdbi Parent</name>
-    <version>3.0.0-beta1-SNAPSHOT</version>
+    <version>3.0.0-beta2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>
         jDBI is designed to provide convenient tabular data access in
@@ -43,6 +43,14 @@
         </license>
     </licenses>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter</id>
+            <name>JCenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <scm>
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
@@ -60,6 +68,7 @@
         <dep.slf4j.version>1.7.21</dep.slf4j.version>
         <dep.kotlin.version>1.1.0</dep.kotlin.version>
         <dep.jetbrainsAnnotations.version>13.0</dep.jetbrainsAnnotations.version>
+        <dep.dokka.version>0.9.13</dep.dokka.version>
 
         <basepom.check.fail-all>true</basepom.check.fail-all>
 
@@ -157,6 +166,14 @@
               <excludes>
                 <exclude>src/build/*</exclude>
               </excludes>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.jetbrains.dokka</groupId>
+            <artifactId>dokka-maven-plugin</artifactId>
+            <version>${dep.dokka.version}</version>
+            <configuration>
+              <jdkVersion>8</jdkVersion>
             </configuration>
           </plugin>
         </plugins>
