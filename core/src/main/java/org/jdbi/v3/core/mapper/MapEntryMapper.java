@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import static java.util.Objects.requireNonNull;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -20,14 +24,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Optional;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.ImmutableEntry;
 import org.jdbi.v3.core.statement.StatementContext;
-
-import static com.google.common.collect.Maps.immutableEntry;
-import static java.util.Objects.requireNonNull;
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
-import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
 
 /**
  * Maps rows to {@link Map.Entry Map.Entry&lt;K, V&gt;}, provided there are mappers registered for types K and V. This mapper is registered out of the box.
@@ -99,7 +100,7 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
 
     @Override
     public Map.Entry<K, V> map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return immutableEntry(keyMapper.map(rs, ctx), valueMapper.map(rs, ctx));
+        return ImmutableEntry.of(keyMapper.map(rs, ctx), valueMapper.map(rs, ctx));
     }
 
     @Override
