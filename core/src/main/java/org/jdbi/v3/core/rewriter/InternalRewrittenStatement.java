@@ -15,11 +15,11 @@ package org.jdbi.v3.core.rewriter;
 
 import static org.jdbi.v3.core.rewriter.ParsedStatement.POSITIONAL_PARAM;
 
-import com.google.common.base.Joiner;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -64,7 +64,7 @@ class InternalRewrittenStatement implements RewrittenStatement {
 
         if (paramList.contains(POSITIONAL_PARAM)) {
             throw new UnableToExecuteStatementException(
-                    "Cannot mix named and positional parameters in a SQL statement: " + Joiner.on(", ").join(paramList),
+                    "Cannot mix named and positional parameters in a SQL statement: " + paramList,
                     context);
         }
 

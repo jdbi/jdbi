@@ -19,8 +19,8 @@ import java.lang.reflect.TypeVariable;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.common.reflect.TypeParameter;
-import com.google.common.reflect.TypeToken;
+import org.jdbi.v3.core.generic.internal.TypeParameter;
+import org.jdbi.v3.core.generic.internal.TypeToken;
 
 public class GenericTypes {
     private static final TypeVariable<Class<Map>> KEY;
