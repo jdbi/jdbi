@@ -15,8 +15,4 @@
     <Match>
         <Package name="~org\.jdbi\.v3\.core\.internal\.lexer\.*" />
     </Match>
-    <Match>
-        <!-- lifted from Google Guava -->
-        <Package name="~org\.jdbi\.v3\.core\.generic\.internal\.*" />
-    </Match>
 </FindBugsFilter>

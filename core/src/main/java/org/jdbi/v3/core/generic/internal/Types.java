@@ -47,6 +47,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class Types {
 
     private static final Function<Type, String> TYPE_NAME = JavaVersion.CURRENT::typeName;
@@ -73,7 +75,7 @@ public class Types {
             return newParameterizedType(rawType, arguments);
         }
         // ParameterizedTypeImpl constructor already checks, but we want to throw NPE before IAE
-        checkNotNull(arguments);
+        checkNotNull(arguments, "arguments");
         checkArgument(rawType.getEnclosingClass() != null, "Owner type for unenclosed %s", rawType);
         return new ParameterizedTypeImpl(ownerType, rawType, arguments);
     }
@@ -108,6 +110,7 @@ public class Types {
 
         static final ClassOwnership JVM_BEHAVIOR = detectJvmBehavior();
 
+        @SuppressFBWarnings
         private static ClassOwnership detectJvmBehavior() {
             class LocalClass<T> {
             }
@@ -136,7 +139,7 @@ public class Types {
 
     @Nullable
     static Type getComponentType(Type type) {
-        checkNotNull(type);
+        checkNotNull(type, "type");
         final AtomicReference<Type> result = new AtomicReference<Type>();
         new TypeVisitor() {
             @Override
@@ -244,8 +247,8 @@ public class Types {
 
         TypeVariableImpl(D genericDeclaration, String name, Type[] bounds) {
             disallowPrimitiveType(bounds, "bound for type variable");
-            this.genericDeclaration = checkNotNull(genericDeclaration);
-            this.name = checkNotNull(name);
+            this.genericDeclaration = checkNotNull(genericDeclaration, "genericDeclaration");
+            this.name = checkNotNull(name, "name");
             this.bounds = unmodifiableList(new ArrayList<>(Arrays.asList(bounds)));
         }
 
@@ -276,6 +279,7 @@ public class Types {
         }
 
         @Override
+        @SuppressFBWarnings
         public boolean equals(Object obj) {
             if (NativeTypeVariableEquals.NATIVE_TYPE_VARIABLE_ONLY) {
                 // equal only to our TypeVariable implementation with identical bounds
@@ -396,8 +400,9 @@ public class Types {
         private final Class<?> rawType;
 
         ParameterizedTypeImpl(@Nullable Type ownerType, Class<?> rawType, Type[] typeArguments) {
-            checkNotNull(rawType);
-            checkArgument(typeArguments.length == rawType.getTypeParameters().length);
+            checkNotNull(rawType, "rawType");
+            checkArgument(typeArguments.length == rawType.getTypeParameters().length,
+                    "Expected %s type parameters but got %s", rawType.getTypeParameters().length, typeArguments.length);
             disallowPrimitiveType(typeArguments, "type parameter");
             this.ownerType = ownerType;
             this.rawType = rawType;
@@ -492,7 +497,7 @@ public class Types {
 
             @Override
             Type usedInGenericType(Type type) {
-                checkNotNull(type);
+                checkNotNull(type, "type");
                 if (type instanceof Class) {
                     Class<?> cls = (Class<?>) type;
                     if (cls.isArray()) {
@@ -514,7 +519,7 @@ public class Types {
 
             @Override
             Type usedInGenericType(Type type) {
-                return checkNotNull(type);
+                return checkNotNull(type, "type");
             }
         },
         JAVA8 {

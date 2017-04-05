@@ -46,11 +46,11 @@ public class TypeToken<T> extends TypeCapture<T> {
     }
 
     private TypeToken(Type type) {
-        this.runtimeType = checkNotNull(type);
+        this.runtimeType = checkNotNull(type, "type");
     }
 
     public static TypeToken<?> of(Type type) {
-        return new SimpleTypeToken<Object>(type);
+        return new SimpleTypeToken<>(type);
     }
 
     private static final class SimpleTypeToken<T> extends TypeToken<T> {
@@ -67,7 +67,7 @@ public class TypeToken<T> extends TypeCapture<T> {
     }
 
     public final TypeToken<?> resolveType(Type type) {
-        checkNotNull(type);
+        checkNotNull(type, "type");
         TypeResolver resolver = typeResolver;
         if (resolver == null) {
             resolver = (typeResolver = TypeResolver.accordingTo(runtimeType));

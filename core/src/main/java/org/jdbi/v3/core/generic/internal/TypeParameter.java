@@ -20,6 +20,8 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public abstract class TypeParameter<T> extends TypeCapture<T> {
 
   final TypeVariable<?> typeVariable;
@@ -36,6 +38,7 @@ public abstract class TypeParameter<T> extends TypeCapture<T> {
   }
 
   @Override
+  @SuppressFBWarnings
   public final boolean equals(@Nullable Object o) {
     if (o instanceof TypeParameter) {
       TypeParameter<?> that = (TypeParameter<?>) o;

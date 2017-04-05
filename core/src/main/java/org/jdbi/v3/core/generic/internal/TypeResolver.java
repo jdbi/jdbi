@@ -53,7 +53,7 @@ public final class TypeResolver {
 
   public TypeResolver where(Type formal, Type actual) {
     Map<TypeVariableKey, Type> mappings = new HashMap<>();
-    populateTypeMappings(mappings, checkNotNull(formal), checkNotNull(actual));
+    populateTypeMappings(mappings, checkNotNull(formal, "formal"), checkNotNull(actual, "actual"));
     return where(mappings);
   }
 
@@ -148,7 +148,7 @@ public final class TypeResolver {
   }
 
   public Type resolveType(Type type) {
-    checkNotNull(type);
+    checkNotNull(type, "type");
     if (type instanceof TypeVariable) {
       return typeTable.resolve((TypeVariable<?>) type);
     } else if (type instanceof ParameterizedType) {
@@ -285,7 +285,8 @@ public final class TypeResolver {
       Class<?> rawClass = (Class<?>) parameterizedType.getRawType();
       TypeVariable<?>[] vars = rawClass.getTypeParameters();
       Type[] typeArgs = parameterizedType.getActualTypeArguments();
-      checkState(vars.length == typeArgs.length);
+      checkState(vars.length == typeArgs.length,
+              "Expected %s type variables, but got %s", typeArgs.length, vars.length);
       for (int i = 0; i < vars.length; i++) {
         map(new TypeVariableKey(vars[i]), typeArgs[i]);
       }
@@ -322,7 +323,7 @@ public final class TypeResolver {
     private final AtomicInteger id = new AtomicInteger();
 
     Type capture(Type type) {
-      checkNotNull(type);
+      checkNotNull(type, "type");
       if (type instanceof Class) {
         return type;
       }
@@ -380,7 +381,7 @@ public final class TypeResolver {
     private final TypeVariable<?> var;
 
     TypeVariableKey(TypeVariable<?> var) {
-      this.var = checkNotNull(var);
+      this.var = checkNotNull(var, "var");
     }
 
     @Override

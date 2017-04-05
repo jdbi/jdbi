@@ -22,7 +22,7 @@ import java.lang.reflect.Proxy;
 
 public class Reflection {
     public static <T> T newProxy(Class<T> interfaceType, InvocationHandler handler) {
-        checkNotNull(handler);
+        checkNotNull(handler, "handler");
         checkArgument(interfaceType.isInterface(), "%s is not an interface", interfaceType);
         Object object =
                 Proxy.newProxyInstance(
