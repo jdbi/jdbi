@@ -23,11 +23,11 @@
 <pre>
     public interface TheBasics
     {
-        {@literal @}SqlUpdate("insert into something (id, name) values (:id, :name)")
-        int insert({@literal @}BindBean Something something);
+        &#64;SqlUpdate("insert into something (id, name) values (:id, :name)")
+        int insert(&#64;BindBean Something something);
 
-        {@literal @}SqlQuery("select id, name from something where id = :id")
-        Something findById({@literal @}Bind("id") long id);
+        &#64;SqlQuery("select id, name from something where id = :id")
+        Something findById(&#64;Bind("id") long id);
     }
 </pre>
 <p>
@@ -97,10 +97,10 @@
 <pre>
     public interface DefaultMethods
     {
-        {@literal @}SqlQuery("select * from folders where id = :id")
+        &#64;SqlQuery("select * from folders where id = :id")
         Folder getFolderById(int id);
 
-        {@literal @}SqlQuery("select * from documents where folder_id = :folderId")
+        &#64;SqlQuery("select * from documents where folder_id = :folderId")
         List&lt;Document&gt; getDocuments(int folderId);
 
         default Node getFolderByIdWithDocuments(int id)
@@ -121,7 +121,7 @@
 <pre>
     public interface UsingMixins extends SqlObject
     {
-        {@literal @}RegisterBeanMapper(value={Folder.class, Document.class}, prefix={"f", "d"})
+        &#64;RegisterBeanMapper(value={Folder.class, Document.class}, prefix={"f", "d"})
         default Folder getFolder(int id)
         {
             return getHandle().createQuery(
@@ -143,25 +143,25 @@
 </pre>
 <p>
     Any interface that extends <code>SqlObject</code> can be used as a SQL Object mixin, provided all of its methods
-    have a SQL method annotation (e.g. <code>{@literal @}SqlQuery</code>, or are interface default methods.
+    have a SQL method annotation (e.g. <code>&#64;SqlQuery</code>, or are interface default methods.
 </p>
 
 <h1>Transactions</h1>
 <p>
-    Any SQL Object method annotation with <code>{@literal @}Transaction</code> will be executed within a transaction.
+    Any SQL Object method annotation with <code>&#64;Transaction</code> will be executed within a transaction.
     This is most commonly used on interface default methods to roll up multiple method calls:
 </p>
 <pre>
     public interface TransactionAnnotation
     {
-        {@literal @}SqlUpdate("insert into folders (id, name) values (:id, :name)")
-        void insertFolder({@literal @}BindBean Folder folder)
+        &#64;SqlUpdate("insert into folders (id, name) values (:id, :name)")
+        void insertFolder(&#64;BindBean Folder folder)
 
-        {@literal @}SqlBatch("insert into documents (id, folder_id, name, content) " +
+        &#64;SqlBatch("insert into documents (id, folder_id, name, content) " +
             "values (:id, :folderId, :name, :content)")
-        void insertDocuments(int folderId, {@literal @}BindBean List&lt;Document&gt; documents);
+        void insertDocuments(int folderId, &#64;BindBean List&lt;Document&gt; documents);
 
-        {@literal @}Transaction
+        &#64;Transaction
         default void insertFolderWithDocuments(Folder folder)
         {
             insertFolder(folder);
@@ -176,12 +176,12 @@
 <pre>
     public interface TransactionalWithDefaultMethods extends Transactional
     {
-        {@literal @}SqlUpdate("insert into folders (id, name) values (:id, :name)")
-        void insertFolder({@literal @}BindBean Folder folder)
+        &#64;SqlUpdate("insert into folders (id, name) values (:id, :name)")
+        void insertFolder(&#64;BindBean Folder folder)
 
-        {@literal @}SqlBatch("insert into documents (id, folder_id, name, content) " +
+        &#64;SqlBatch("insert into documents (id, folder_id, name, content) " +
             "values (:id, :folderId, :name, :content)")
-        void insertDocuments(int folderId, {@literal @}BindBean List&lt;Document&gt; documents);
+        void insertDocuments(int folderId, &#64;BindBean List&lt;Document&gt; documents);
     }
 </pre>
 <p>
