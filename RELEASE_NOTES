@@ -36,7 +36,7 @@
   - Support for java.time (JSR-310) types like LocalDate and OffsetDateTime
   - Better support for custom collection types, using Java 8 Collector
   - SQL array support -- finally!
-  - BeanMapper and other reflection-based mappers now recognize snak_case
+  - BeanMapper and other reflection-based mappers now recognize snake_case
     column names, and match them up to Java properties
   - Plugin architecture that makes it easy to share configuration
   - Plugins to support types from 3rd party libraries: JodaTime, Guava,

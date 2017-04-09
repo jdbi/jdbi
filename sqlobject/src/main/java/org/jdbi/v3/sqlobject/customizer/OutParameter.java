@@ -19,7 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 import org.jdbi.v3.core.statement.Call;
 
@@ -33,8 +32,8 @@ import org.jdbi.v3.core.statement.Call;
  * <pre>
  *   handle.execute("CREATE FUNCTION set100(OUT outparam INT) AS $$ BEGIN outparam := 100; END; $$ LANGUAGE plpgsql");
  *
- *   {@literal @}SqlCall("{call myStoredProc(:outparam)}")
- *   {@literal @}OutParameter(name="outparam", sqlType = Types.INTEGER)
+ *   &#64;SqlCall("{call myStoredProc(:outparam)}")
+ *   &#64;OutParameter(name="outparam", sqlType = Types.INTEGER)
  *   OutParameters callStoredProc();
  * </pre>
  */
