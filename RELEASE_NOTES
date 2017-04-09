@@ -1,3 +1,50 @@
+3.0.0-beta2-SNAPSHOT (in progress)
+  - Removed core dependency on Guava.
+
+3.0.0-beta1
+  - [breaking] Refactored SqlStatementCustomizerFactory.createForParameter(...)
+    - Now returns new SqlStatementParameterCustomizer type, so parameter customizers
+      can be cached and reused for performance.
+    - Now accepts a `Type` parameter, so parameter binders no longer have to check
+      whether the statement is a PreparedBatch.
+  - [breaking] Handlers config class, refactored HandlerFactory permit alternative
+    method handler mapping strategies.
+  - [breaking] Renamed BeanMapper, FieldMapper, and ConstructorMapper's `of(...)`
+    methods to `factory(...)`. Added `of` methods in their place which return
+    RowMappers, whereas the `factory` methods from before return `RowMapperFactory`s.
+  - [breaking] Mixing named and positional parameters in SQL statements will now
+    throw an exception. See https://github.com/jdbi/jdbi/pull/787
+  - Handlers registry allows users to use custom SQL Object method handlers
+    without a SQL method annotation.
+  - HandlerDecorators registry allows adding custom behavior to any SQL Object
+    method, with or without an annotation.
+  - jdbi3-kotlin plugin adds support for mapping Kotlin data classes.
+  - jdbi3-kotlin-sqlobject plugin adds support for Kotlin SQL Objects,
+    including Kotlin default methods, and default parameter values.
+  - Support for collecting results into Map, and Guava's Multimap.
+  - Configuration option to control how "untyped null" arguments are bound.
+    Useful for some database vendors (e.g. Derby, Sybase) that expect a different
+    SQL type constant for null values.
+  - Support boolean[] return type from @SqlBatch methods
+  - Bug fixes:
+    - NullPointerException in Postgres plugin when binding null UUID
+    - IllegalArgumentException with @SqlBatch when the batch is empty
+    - NullPointerException when `null` is bound to an array column.
+
+3.0.0-beta0
+  - Redesigned for Java 8 - lambdas, streams, optionals, exception transparency
+  - Support for java.time (JSR-310) types like LocalDate and OffsetDateTime
+  - Better support for custom collection types, using Java 8 Collector
+  - SQL array support -- finally!
+  - BeanMapper and other reflection-based mappers now recognize snak_case
+    column names, and match them up to Java properties
+  - Plugin architecture that makes it easy to share configuration
+  - Plugins to support types from 3rd party libraries: JodaTime, Guava,
+    StringTemplate, Spring
+  - Plugins to support specific database vendors: H2, Oracle, Postgres
+  - Migration-friendly: Jdbi v2 and v3 will happily coexist within the same
+    project, so you can migrate at your own pace.
+
 2.78
   - @BindIn: fix handling of empty lists on Postgres
   - clear SqlObject ThreadLocals on close, fixes leak on e.g. webapp reload

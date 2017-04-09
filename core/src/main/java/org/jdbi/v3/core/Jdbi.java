@@ -14,6 +14,7 @@
 package org.jdbi.v3.core;
 
 
+import javax.sql.DataSource;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,8 +24,6 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.sql.DataSource;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
@@ -44,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class  provides the access point for jDBI. Use it to obtain Handle instances
+ * This class provides the access point for Jdbi. Use it to obtain Handle instances
  * and provide "global" configuration for all handles obtained from it.
  */
 public class Jdbi implements Configurable<Jdbi>
@@ -68,7 +67,7 @@ public class Jdbi implements Configurable<Jdbi>
     /**
      * @param dataSource the data source.
      *
-     * @return a DBI which uses the given data source as a connection factory.
+     * @return a Jdbi which uses the given data source as a connection factory.
      */
     public static Jdbi create(DataSource dataSource)
     {
@@ -85,7 +84,7 @@ public class Jdbi implements Configurable<Jdbi>
      *
      * @param connectionFactory Provides JDBC connections to Handle instances
      *
-     * @return a DBI which uses the given connection factory.
+     * @return a Jdbi which uses the given connection factory.
      */
     public static Jdbi create(ConnectionFactory connectionFactory) {
         return new Jdbi(connectionFactory);
@@ -94,7 +93,7 @@ public class Jdbi implements Configurable<Jdbi>
     /**
      * @param url JDBC URL for connections
      *
-     * @return a DBI which uses {@link DriverManager} as a connection factory.
+     * @return a Jdbi which uses {@link DriverManager} as a connection factory.
      */
     public static Jdbi create(final String url)
     {
@@ -106,7 +105,7 @@ public class Jdbi implements Configurable<Jdbi>
      * @param url   JDBC URL for connections
      * @param properties Properties to pass to DriverManager.getConnection(url, props) for each new handle
      *
-     * @return a DBI which uses {@link DriverManager} as a connection factory.
+     * @return a Jdbi which uses {@link DriverManager} as a connection factory.
      */
     public static Jdbi create(final String url, final Properties properties)
     {
@@ -120,7 +119,7 @@ public class Jdbi implements Configurable<Jdbi>
      * @param username User name for connection authentication
      * @param password Password for connection authentication
      *
-     * @return a DBI which uses {@link DriverManager} as a connection factory.
+     * @return a Jdbi which uses {@link DriverManager} as a connection factory.
      */
     public static Jdbi create(final String url, final String username, final String password)
     {
@@ -210,7 +209,7 @@ public class Jdbi implements Configurable<Jdbi>
 
     /**
      * Allows customization of how prepared statements are created. When a Handle is created
-     * against this DBI instance the factory will be used to create a StatementBuilder for
+     * against this Jdbi instance the factory will be used to create a StatementBuilder for
      * that specific handle. When the handle is closed, the StatementBuilder's close method
      * will be invoked.
      *
@@ -243,7 +242,7 @@ public class Jdbi implements Configurable<Jdbi>
      * </p>
      *
      * @param handler The TransactionHandler to use for all Handle instances obtained
-     *                from this DBI
+     *                from this Jdbi
      * @return this
      */
     public Jdbi setTransactionHandler(TransactionHandler handler)
@@ -259,7 +258,7 @@ public class Jdbi implements Configurable<Jdbi>
     }
 
     /**
-     * Obtain a Handle to the data source wrapped by this DBI instance
+     * Obtain a Handle to the data source wrapped by this Jdbi instance
      *
      * @return an open Handle instance
      */
@@ -279,7 +278,7 @@ public class Jdbi implements Configurable<Jdbi>
             for (JdbiPlugin p : plugins) {
                 h = p.customizeHandle(h);
             }
-            LOG.trace("DBI [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
+            LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, (stop - start) / 1000000L);
             return h;
         }
         catch (SQLException e) {

@@ -69,7 +69,7 @@ public class TestTransactional
     public void testOnDemandBeginTransaction() throws Exception {
         // Calling methods like begin() on an on-demand Transactional SQL object makes no sense--the transaction would
         // begin and the connection would just close.
-        // JDBI should identify this scenario and throw an exception informing the user that they're not managing their
+        // Jdbi should identify this scenario and throw an exception informing the user that they're not managing their
         // transactions correctly.
         db.onDemand(Transactional.class).begin();
     }

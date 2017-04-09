@@ -22,7 +22,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
- * Utility for working with jDBI and Spring transaction bound resources
+ * Utility for working with Jdbi and Spring transaction bound resources
  */
 public class JdbiUtil
 {

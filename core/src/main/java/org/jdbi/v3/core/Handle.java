@@ -128,7 +128,7 @@ public class Handle implements Closeable, Configurable<Handle>
                         throw new TransactionException("Improper transaction handling detected: A Handle with an open " +
                                 "transaction was closed. Transactions must be explicitly committed or rolled back " +
                                 "before closing the Handle. " +
-                                "JDBI has rolled back this transaction automatically.");
+                                "Jdbi has rolled back this transaction automatically.");
                     }
                 }
                 catch (SQLException e) {
@@ -505,7 +505,7 @@ public class Handle implements Closeable, Configurable<Handle>
     }
 
     /**
-     * Create a JDBI extension object of the specified type bound to this handle. The returned extension's lifecycle is
+     * Create a Jdbi extension object of the specified type bound to this handle. The returned extension's lifecycle is
      * coupled to the lifecycle of this handle. Closing the handle will render the extension unusable.
      *
      * @param extensionType the extension class

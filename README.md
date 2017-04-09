@@ -1,4 +1,4 @@
-jDBI provides a convenience interface for SQL operations in Java. It is not
+Jdbi provides a convenience interface for SQL operations in Java. It is not
 intended as an abstraction layer, but rather a library which makes the common
 things easy and the hard things possible, to paraphrase Larry Wall.
 

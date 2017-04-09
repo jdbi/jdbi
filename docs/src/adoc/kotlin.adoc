@@ -11,7 +11,7 @@ parameter values in the constructor if the parameter type is not nullable and th
 Result set mapper also supports `@ColumnName` annotation that allows to specify name for a property or parameter explicitly.
 
 
-If you load all DBI plugins via
+If you load all Jdbi plugins via
 `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
 Otherwise, you can attach it using `Jdbi.installPlugin(KotlinPlugin())`.
 
@@ -55,7 +55,7 @@ for Kotlin default methods.
 Parameter binding supports individual primitive types as well as Kotlin or JavaBean style objects as a parameter
 (referenced in binding as `:paramName.propertyName`).  No annotations are needed.
 
-If you load all DBI plugins via
+If you load all Jdbi plugins via
 `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
 Otherwise, you can attach the plugin via:  `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
 

@@ -27,7 +27,7 @@ public interface StatementCustomizer
      *
      * @param stmt Prepared statement being customized
      * @param ctx Statement context associated with the statement being customized
-     * @throws SQLException go ahead and percolate it for jDBI to handle
+     * @throws SQLException go ahead and percolate it for Jdbi to handle
      */
     default void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException { }
 
@@ -37,7 +37,7 @@ public interface StatementCustomizer
      *
      * @param stmt Prepared statement being customized
      * @param ctx Statement context associated with the statement being customized
-     * @throws SQLException go ahead and percolate it for jDBI to handle
+     * @throws SQLException go ahead and percolate it for Jdbi to handle
      */
     default void afterExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException { }
 }

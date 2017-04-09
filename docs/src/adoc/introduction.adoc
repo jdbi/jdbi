@@ -1,10 +1,10 @@
-*JDBI* is a Java library providing convenient, idiomatic access to relational
+*Jdbi* is a Java library providing convenient, idiomatic access to relational
 data.
 
-JDBI is built on top of JDBC. If your database has a JDBC driver, you can use
-JDBI with it.
+Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use
+Jdbi with it.
 
-JDBI's API comes in two flavors:
+Jdbi's API comes in two flavors:
 
 - The Core API provides a fluent, imperative interface.
 
@@ -25,7 +25,7 @@ include::{exampledir}/IntroductionTest.java[tags=sqlobject-declaration]
 include::{exampledir}/IntroductionTest.java[tags=sqlobject-usage]
 -------------------------------------------
 
-JDBI is easy to include in your Java project - with an
+Jdbi is easy to include in your Java project - with an
 link:https://groups.google.com/group/jdbi[Apache 2.0] license,
 few external dependencies, and JARs distributed through
 link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jdbi%22[Maven Central],
@@ -46,16 +46,16 @@ you can just include the relevant artifacts in your POM:
 </dependency>
 -------------------------------------------
 
-JDBI has a flexible plugin architecture which makes it easy to fold in support
+Jdbi has a flexible plugin architecture which makes it easy to fold in support
 for your favorite libraries (Guava, JodaTime, Spring) or database vendor (Oracle,
 Postgres).
 
-JDBI is not an ORM. Bring your own SQL.
+Jdbi is not an ORM. Bring your own SQL.
 
-Unlike an ORM, JDBI does not pretend to seamlessly convert your Java
+Unlike an ORM, Jdbi does not pretend to seamlessly convert your Java
 object model into the relational model -- instead, it provides easy mapping
 between SQL _you_ write and simple tabular data structures.
 
-NOTE: JDBI 3 is currently in beta. While we are reasonably confident in its
-quality, we recommend thoroughly testing your code with JDBI 3 before using it in
+NOTE: Jdbi 3 is currently in beta. While we are reasonably confident in its
+quality, we recommend thoroughly testing your code with Jdbi 3 before using it in
 a production environment. http://www.jdbi.org[jdbi2] is still the stable release.

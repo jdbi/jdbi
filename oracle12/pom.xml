@@ -24,7 +24,7 @@
     <artifactId>jdbi3-oracle12</artifactId>
     <name>jdbi Oracle 12</name>
     <description>
-        JDBI Oracle-specific features
+        Jdbi Oracle-specific features
     </description>
     <url>http://jdbi.org/</url>
 

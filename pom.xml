@@ -27,7 +27,7 @@
     <version>3.0.0-beta2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>
-        jDBI is designed to provide convenient tabular data access in
+        Jdbi is designed to provide convenient tabular data access in
         Java(tm). It uses the Java collections framework for query
         results, provides a convenient means of externalizing sql
         statements, and provides named parameter support for any database

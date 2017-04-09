@@ -61,7 +61,7 @@ public class TestSqlObjectMethodBehavior
 
     /**
      * Sometimes the GC will call {@link #finalize()} on a SqlObject from
-     * extremely sensitive places from within the GC machinery.  JDBI should not
+     * extremely sensitive places from within the GC machinery.  Jdbi should not
      * open a {@link Connection} just to satisfy a (no-op) finalizer.
      * <a href="https://github.com/brianm/jdbi/issues/82">Issue #82</a>.
      */

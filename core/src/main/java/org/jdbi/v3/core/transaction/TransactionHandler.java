@@ -18,8 +18,8 @@ import org.jdbi.v3.core.HandleCallback;
 
 /**
  * Interface which defines callbacks to be used when transaction methods are called on a handle.
- * Used by specifying on a <code>DBI</code> instance. All <code>Handle</code> instances
- * opened from that <code>DBI</code> will use the handler specified.
+ * Used by specifying on a <code>Jdbi</code> instance. All <code>Handle</code> instances
+ * opened from that <code>Jdbi</code> will use the handler specified.
  *
  * <p>
  * The default implementation, <code>ConnectionTransactionHandler</code>, explicitly manages
