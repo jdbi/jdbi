@@ -33,19 +33,19 @@ import org.jdbi.v3.core.statement.StatementContext;
 public interface RowMapper<T> {
     /**
      * Map the row the result set is at when passed in. This method should not cause the result
-     * set to advance, allow jDBI to do that, please.
+     * set to advance; allow Jdbi to do that, please.
      *
      * @param rs  the result set being iterated
      * @param ctx the statement context
      * @return the value to return for this row
-     * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
+     * @throws SQLException if anything goes wrong go ahead and let this percolate; Jdbi will handle it
      */
     T map(ResultSet rs, StatementContext ctx) throws SQLException;
 
     /**
      * Returns a specialized row mapper, optimized for the given result set.
      * <p>
-     * Before mapping the result set from a SQL statement, JDBI will first call this method to obtain a specialized
+     * Before mapping the result set from a SQL statement; Jdbi will first call this method to obtain a specialized
      * instance. The returned mapper will then be used to map the result set rows, and discarded.
      * <p>
      * Implementing this method is optional; the default implementation returns {@code this}. Implementors might choose
@@ -55,7 +55,7 @@ public interface RowMapper<T> {
      * @param rs  the result set to specialize over
      * @param ctx the statement context to specialize over
      * @return a row mapper equivalent to this one, possibly specialized.
-     * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
+     * @throws SQLException if anything goes wrong go ahead and let this percolate; Jdbi will handle it
      * @see org.jdbi.v3.core.mapper.reflect.BeanMapper for an example of specialization.
      */
     default RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {

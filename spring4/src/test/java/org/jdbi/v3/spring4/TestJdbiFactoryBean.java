@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.spring4;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import javax.sql.DataSource;
 
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +27,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/org/jdbi/v3/spring4/test-context.xml")
@@ -58,8 +58,8 @@ public class TestJdbiFactoryBean {
     public void testFailsViaException() throws Exception
     {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
-            service.inPropagationRequired(dbi -> {
-                Handle h = JdbiUtil.getHandle(dbi);
+            service.inPropagationRequired(jdbi -> {
+                Handle h = JdbiUtil.getHandle(jdbi);
                 final int count = h.insert("insert into something (id, name) values (7, 'ignored')");
                 if (count == 1) {
                     throw new ForceRollback();
@@ -99,8 +99,8 @@ public class TestJdbiFactoryBean {
                 throw new ForceRollback();
             });
         });
-        service.inPropagationRequired(dbi -> {
-            final Handle h = JdbiUtil.getHandle(dbi);
+        service.inPropagationRequired(jdbi -> {
+            final Handle h = JdbiUtil.getHandle(jdbi);
             int count = h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
             assertThat(count).isEqualTo(0);
         });

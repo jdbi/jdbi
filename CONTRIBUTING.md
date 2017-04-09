@@ -1,4 +1,4 @@
-Hi! Welcome to JDBI.
+Hi! Welcome to Jdbi.
 
 We're glad you're thinking about contributing to the project.
 
@@ -116,7 +116,7 @@ If you already had a `settings.xml` file, make sure to leave the existing settin
 
 Be sure to replace `address@domain.com` with the email address you used to create your Oracle Single Sign-On account, and the `<password>...</password>` with the encrypted password generated in the previous step.
 
-## Run JDBI Maven builds with the `oracle` profile enabled
+## Run Jdbi Maven builds with the `oracle` profile enabled
 
 ```bash
 cd /path/to/jdbi/project

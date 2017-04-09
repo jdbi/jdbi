@@ -29,7 +29,7 @@ public interface TimingCollector
     void collect(long elapsedTime, StatementContext ctx);
 
     /**
-     * A No Operation Timing Collector. It can be used to "plug" into DBI if more sophisticated
+     * A No Operation Timing Collector. It can be used to "plug" into Jdbi if more sophisticated
      * collection is not needed.
      */
     TimingCollector NOP_TIMING_COLLECTOR = new NopTimingCollector();

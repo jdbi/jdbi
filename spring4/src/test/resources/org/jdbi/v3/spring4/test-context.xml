@@ -28,12 +28,12 @@
         <property name="url" value="jdbc:h2:mem:testing;INIT=create table if not exists something ( id integer, name varchar(50), integerValue integer, intValue integer )" />
     </bean>
 
-    <bean id="dbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
+    <bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean">
         <property name="dataSource" ref="db"/>
     </bean>
 
     <!--suppress SpringBeanConstructorArgInspection -->
     <bean id="service" class="org.jdbi.v3.spring4.DummyService">
-        <constructor-arg ref="dbi"/>
+        <constructor-arg ref="jdbi"/>
     </bean>
 </beans>

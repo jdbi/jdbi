@@ -33,7 +33,7 @@ public class TestArgumentFactory
     public H2DatabaseRule dbRule = new H2DatabaseRule();
 
     @Test
-    public void testRegisterOnDBI() throws Exception
+    public void testRegisterOnJdbi() throws Exception
     {
         final Jdbi db = dbRule.getJdbi();
         db.registerArgument(new NameAF());

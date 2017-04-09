@@ -39,7 +39,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Define an attribute for {@link StatementContext} for statements executed by JDBI.
+     * Define an attribute for {@link StatementContext} for statements executed by Jdbi.
      *
      * @param key   the key for the attribute
      * @param value the value for the attribute
@@ -74,7 +74,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Returns the attributes which will be applied to {@link SqlStatement SQL statements} created by JDBI.
+     * Returns the attributes which will be applied to {@link SqlStatement SQL statements} created by Jdbi.
      *
      * @return the defined attributes.
      */
@@ -88,7 +88,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     /**
      * Sets the {@link StatementRewriter} used to transform SQL for all {@link SqlStatement SQL satements} executed by
-     * JDBI. The default statement rewriter handles named parameter interpolation.
+     * Jdbi. The default statement rewriter handles named parameter interpolation.
      *
      * @param rewriter the new statement rewriter.
      * @return this
@@ -104,7 +104,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     /**
      * Sets the {@link TimingCollector} used to collect timing about the {@link SqlStatement SQL statements} executed
-     * by JDBI. The default collector does nothing.
+     * by Jdbi. The default collector does nothing.
      *
      * @param timingCollector the new timing collector
      * @return this

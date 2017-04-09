@@ -34,25 +34,25 @@ import org.jdbi.v3.core.statement.StatementContext;
 public interface ColumnMapper<T> {
     /**
      * Map the given column of the current row of the result set to an Object. This method should not cause the result
-     * set to advance, allow jDBI to do that, please.
+     * set to advance; allow Jdbi to do that, please.
      *
      * @param r            the result set being iterated
      * @param columnNumber the column number to map (starts at 1)
      * @param ctx          the statement context
      * @return the value to return for this column
-     * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
+     * @throws SQLException if anything goes wrong go ahead and let this percolate; Jdbi will handle it
      */
     T map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException;
 
     /**
      * Map the given column of the current row of the result set to an Object. This method should not cause the result
-     * set to advance, allow jDBI to do that, please.
+     * set to advance; allow Jdbi to do that, please.
      *
      * @param r           the result set being iterated
      * @param columnLabel the column label to map
      * @param ctx         the statement context
      * @return the value to return for this column
-     * @throws SQLException if anything goes wrong go ahead and let this percolate, jDBI will handle it
+     * @throws SQLException if anything goes wrong go ahead and let this percolate; Jdbi will handle it
      */
     default T map(ResultSet r, String columnLabel, StatementContext ctx) throws SQLException {
         return map(r, r.findColumn(columnLabel), ctx);

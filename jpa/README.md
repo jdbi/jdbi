@@ -1,12 +1,27 @@
-JPA annotation extension for jDBI
+JPA annotation extension for Jdbi
 ===============
 
-Extension for [JDBI](https://github.com/jdbi/jdbi/) to use JPA annotations for mapping/binding instead of JavaBeans
+Extension for [Jdbi](https://github.com/jdbi/jdbi/) to use JPA annotations for mapping/binding instead of JavaBeans
 conventions.
 
 Special thanks to [@shakiba](https://github.com/shakiba) for donating the original code for this artifact.
 
 ### Usage
+
+#### Maven
+
+```xml
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-jpa</artifactId>
+    <version>${jdbi.version}</version>
+</dependency>
+```
+#### Configure Jdbi to use the JPA plugin:
+
+```java
+jdbi.installPlugin(new JpaPlugin()));
+```
 
 #### Annotate
 
@@ -23,18 +38,19 @@ public class Something {
 }
 ```
 
+Note that `@Entity` and `@Column` are the only annotations supported by this plugin.
+
 #### Map
 
-Use `JpaMapper` to create `RowMapper`:
+Your entity type will be automatically mapped:
 
 ```java
-RowMapper<Something> mapper = JpaMapper.get(Something.class);
+Something result = handle.select("select * from Something where id = ?", id)
+    .mapTo(Something.class)
+    .findOnly();
 ```
 
-Or register `JpaMapperFactory` as a `RowMapperFactory`:
-
 ```java
-@RegisterRowMapperFactory(JpaMapperFactory.class)
 public interface SomethingDAO {
 
     @SqlQuery("select * from Something where id = :id")
@@ -42,6 +58,7 @@ public interface SomethingDAO {
 
 }
 ```
+
 #### Bind
 
 Use `@BindJpa` instead of `@BindBean` to bind annotated classes.
@@ -53,14 +70,4 @@ public interface SomethingDAO {
     void update(@BindJpa("s") Something something);
 
 }
-```
-
-### Maven
-
-```xml
-<dependency>
-    <groupId>org.jdbi</groupId>
-    <artifactId>jdbi-jpa</artifactId>
-    <version>${jdbi.version}</version>
-</dependency>
 ```

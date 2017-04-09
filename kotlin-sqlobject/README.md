@@ -1,4 +1,4 @@
-Kotlin support for jDBI SqlObject
+Kotlin support for Jdbi SqlObject
 =================================
 
 This plugin adds both automatic parameter binding by name for Kotlin methods and
@@ -9,7 +9,7 @@ Parameter binding supports individual primitive types, and also Kotlin or JavaBe
 
 ### Usage:
 
-If you load all DBI plugins via 
+If you load all Jdbi plugins via 
 `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
 Otherwise, you can attach the plugin via:  `Jdbi.installPlugin(KotlinSqlObjectPlugin())`. 
 This plugin works together with core jDbi Kotlin plugin, `KotlinPlugin`, that adds ResultSet mapping to Kotlin classes.

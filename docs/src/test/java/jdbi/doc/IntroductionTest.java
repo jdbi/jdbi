@@ -13,6 +13,11 @@
  */
 package jdbi.doc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
+import java.util.List;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -22,11 +27,6 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 public class IntroductionTest {
 
@@ -95,7 +95,7 @@ public class IntroductionTest {
         Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test");
         jdbi.installPlugin(new SqlObjectPlugin());
 
-        // JDBI implements your interface based on annotations
+        // Jdbi implements your interface based on annotations
         List<User> users = jdbi.withExtension(UserDao.class, dao -> {
             dao.createTable();
 

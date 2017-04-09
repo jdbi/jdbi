@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.extension;
 
 /**
- * Factory interface used to produce JDBI extension objects.
+ * Factory interface used to produce Jdbi extension objects.
  */
 public interface ExtensionFactory {
     /**

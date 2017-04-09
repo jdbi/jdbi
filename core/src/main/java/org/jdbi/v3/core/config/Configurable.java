@@ -37,7 +37,7 @@ import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.core.statement.SqlStatements;
 
 /**
- * A type with access to access and modify arbitrary JDBI configuration.
+ * A type with access to access and modify arbitrary Jdbi configuration.
  *
  * @param <This> The subtype that implements this interface.
  */

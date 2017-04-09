@@ -17,11 +17,11 @@
 <body>
 <p>
     Classes here provide integration hooks for working with the Spring framework.
-    DBI instances may be obtained which will
+    Jdbi instances may be obtained which will
     behave correctly with Spring managed transactions.
 </p>
 <p>
-    Using the Spring facilities entails configuring jDBI via the <code>DBIFactoryBean</code> class,
+    Using the Spring facilities entails configuring Jdbi via the <code>JdbiFactoryBean</code> class,
     and providing a DataSource with an associated transaction manager to that bean, such as:
 </p>
 <pre>
@@ -44,12 +44,12 @@
         &lt;property name="databaseName" value="testing"/&gt;
     &lt;/bean&gt;
 
-    &lt;bean id="dbi" class="org.skife.jdbi.v2.spring.DBIFactoryBean"&gt;
+    &lt;bean id="jdbi" class="org.jdbi.v3.spring4.JdbiFactoryBean"&gt;
         &lt;property name="dataSource" ref="derby"/&gt;
     &lt;/bean&gt;
 
     &lt;bean id="service" class="org.skife.jdbi.v2.spring.DummyService"&gt;
-        &lt;constructor-arg ref="dbi"/&gt;
+        &lt;constructor-arg ref="jdbi"/&gt;
     &lt;/bean&gt;
 &lt;/beans&gt;
 </pre>

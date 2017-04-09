@@ -1,4 +1,4 @@
-= JDBI 3 Developer Guide
+= Jdbi 3 Developer Guide
 :doctype: book
 :toc: left
 :toclevels: 2
@@ -11,7 +11,7 @@
 :source-language: asciidoc
 :exampledir: ../test/java/jdbi/doc
 
-= Introduction to JDBI
+= Introduction to Jdbi
 
 include::introduction.adoc[]
 
@@ -19,11 +19,11 @@ include::introduction.adoc[]
 
 include::tour.adoc[]
 
-= Core JDBI
+= Core Jdbi
 
 == Getting Started
 
-(adding JDBI dependencies to your project)
+(adding Jdbi dependencies to your project)
 
 == Jdbi
 

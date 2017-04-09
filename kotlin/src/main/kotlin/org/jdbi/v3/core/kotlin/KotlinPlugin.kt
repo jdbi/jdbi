@@ -18,7 +18,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin
 
 class KotlinPlugin : JdbiPlugin {
 
-    override fun customizeJdbi(dbi: Jdbi) {
-        dbi.registerRowMapper(KotlinMapperFactory())
+    override fun customizeJdbi(jdbi: Jdbi) {
+        jdbi.registerRowMapper(KotlinMapperFactory())
     }
 }

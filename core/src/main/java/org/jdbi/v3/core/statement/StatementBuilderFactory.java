@@ -16,8 +16,8 @@ package org.jdbi.v3.core.statement;
 import java.sql.Connection;
 
 /**
- * Used to specify how prepared statements are built. A factory is attached to a DBI instance, and
- * whenever the DBI instance is used to create a Handle the factory will be used to create a
+ * Used to specify how prepared statements are built. A factory is attached to a Jdbi instance, and
+ * whenever the Jdbi instance is used to create a Handle the factory will be used to create a
  * StatementBuilder for that specific handle.
  */
 public interface StatementBuilderFactory

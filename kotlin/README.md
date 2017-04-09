@@ -1,4 +1,4 @@
-Kotlin ResultSet mapper for jDBI
+Kotlin ResultSet mapper for Jdbi
 ================================
 
 This plugin adds ResultSet mapping to Kotlin classes anywhere a ResultSet is used.
@@ -13,7 +13,7 @@ Result set mapper also supports `@ColumnName` annotation that allows to specify 
 
 ### Usage:
 
-If you load all DBI plugins via
+If you load all Jdbi plugins via
 `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
 Otherwise, you can attach the plugin using `Jdbi.installPlugin(KotlinPlugin())`.
 

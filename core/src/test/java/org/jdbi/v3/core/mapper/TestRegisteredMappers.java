@@ -35,7 +35,7 @@ public class TestRegisteredMappers
     }
 
     @Test
-    public void testRegisterInferredOnDBI() throws Exception
+    public void testRegisterInferredOnJdbi() throws Exception
     {
         db.registerRowMapper(new SomethingMapper());
         Something sam = db.withHandle(handle1 -> {

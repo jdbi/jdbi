@@ -22,7 +22,7 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestDBI
+public class TestJdbi
 {
     @Rule
     public H2DatabaseRule dbRule = new H2DatabaseRule();
