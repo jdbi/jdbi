@@ -36,7 +36,7 @@ public class TestOracleReturning {
         Handle h = dbRule.getSharedHandle();
 
         List<Integer> ids = h.createUpdate("insert into something(id, name) values (17, 'Brian') returning id into ?")
-                .addCustomizer(returnParameters().register(1, OracleTypes.INTEGER))
+                .addCustomizer(returnParameters().register(0, OracleTypes.INTEGER))
                 .execute(returningDml())
                 .mapTo(int.class)
                 .list();

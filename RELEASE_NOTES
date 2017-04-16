@@ -1,5 +1,6 @@
 3.0.0-beta2-SNAPSHOT (in progress)
   - Removed core dependency on Guava.
+  - [breaking] Switch from 1- to 0-based indices in OracleReturning.returnParameters()
 
 3.0.0-beta1
   - [breaking] Refactored SqlStatementCustomizerFactory.createForParameter(...)
