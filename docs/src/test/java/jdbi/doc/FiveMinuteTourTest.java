@@ -22,39 +22,42 @@ import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class FiveMinuteTourTest {
-    private Jdbi db;
+    private Jdbi jdbi;
     private Handle handle;
 
     @Before
     public void setUp() {
         // tag::createJdbi[]
         // H2 in-memory database
-        Jdbi db = Jdbi.create("jdbc:h2:mem:test");
+        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test");
         // end::createJdbi[]
 
         // shared handle to keep database open
-        this.db = db;
-        this.handle = db.open();
+        this.jdbi = jdbi;
+        this.handle = jdbi.open();
 
         // tag::useHandle[]
-        db.useHandle(handle -> {
-            handle.execute("create table something (id int primary key, name varchar(100))");
-            handle.execute("insert into something (id, name) values (?, ?)", 1, "Alice");
-            handle.execute("insert into something (id, name) values (?, ?)", 2, "Bob");
-
-            List<String> names = handle.createQuery("select name from something")
-                                       .mapTo(String.class)
-                                       .list();
-            assertThat(names).contains("Alice", "Bob");
+        jdbi.useHandle(handle -> {
+            handle.execute("create table contacts (id int primary key, name varchar(100))");
+            handle.execute("insert into contacts (id, name) values (?, ?)", 1, "Alice");
+            handle.execute("insert into contacts (id, name) values (?, ?)", 2, "Bob");
         });
         // end::useHandle[]
+
+        // tag::withHandle[]
+        List<String> names = jdbi.withHandle(handle ->
+            handle.createQuery("select name from contacts")
+                  .mapTo(String.class)
+                  .list());
+        assertThat(names).contains("Alice", "Bob");
+        // end::withHandle[]
     }
 
     @After
@@ -65,27 +68,27 @@ public class FiveMinuteTourTest {
     @Test
     public void tryWithResources() {
         // tag::openHandle[]
-        try (Handle handle = db.open()) {
-            // do stuff
+        try (Handle handle = jdbi.open()) {
+            handle.execute("insert into contacts (id, name) values (?, ?)", 3, "Chuck");
         }
         // end::openHandle[]
     }
 
     // tag::defineCustomMapper[]
-    public final class Something {
+    public final class Contact {
         final int id;
         final String name;
 
-        Something(int id, String name) {
+        Contact(int id, String name) {
             this.id = id;
             this.name = name;
         }
     }
 
-    public class SomethingMapper implements RowMapper<Something> {
+    public class ContactMapper implements RowMapper<Contact> {
         @Override
-        public Something map(ResultSet r, StatementContext ctx) throws SQLException {
-            return new Something(r.getInt("id"), r.getString("name"));
+        public Contact map(ResultSet r, StatementContext ctx) throws SQLException {
+            return new Contact(r.getInt("id"), r.getString("name"));
         }
     }
     // end::defineCustomMapper[]
@@ -93,39 +96,60 @@ public class FiveMinuteTourTest {
     @Test
     public void useCustomMapper() {
         // tag::useCustomMapper[]
-        List<Something> things = handle.createQuery("select * from something")
-                                       .map(new SomethingMapper())
+        List<Contact> contacts = handle.createQuery("select * from contacts")
+                                       .map(new ContactMapper())
                                        .list();
-        assertThat(things).extracting("id", "name")
-                          .contains(tuple(1, "Alice"),
-                                    tuple(2, "Bob"));
+        assertThat(contacts).extracting("id", "name")
+                            .contains(tuple(1, "Alice"),
+                                      tuple(2, "Bob"));
         // end::useCustomMapper[]
     }
 
     @Test
     public void registerCustomMapper() {
         // tag::registerCustomMapper[]
-        handle.registerRowMapper(new SomethingMapper());
+        handle.registerRowMapper(new ContactMapper());
 
-        List<Something> things = handle.createQuery("select * from something")
-                                       .mapTo(Something.class)
+        List<Contact> contacts = handle.createQuery("select * from contacts")
+                                       .mapTo(Contact.class)
                                        .list();
-        assertThat(things).extracting("id", "name")
-                          .contains(tuple(1, "Alice"),
-                                    tuple(2, "Bob"));
+        assertThat(contacts).extracting("id", "name")
+                            .contains(tuple(1, "Alice"),
+                                      tuple(2, "Bob"));
         // end::registerCustomMapper[]
     }
 
     @Test
+    public void positionalParameters() {
+        handle.registerRowMapper(new ContactMapper());
+        // tag::positionalParameters[]
+        handle.createUpdate("insert into contacts (id, name) values (?, ?)")
+              .bind(0, 3)
+              .bind(1, "Chuck")
+              .execute();
+
+        String name = handle.createQuery("select name from contacts where id = ?")
+                            .bind(0, 3)
+                            .mapTo(String.class)
+                            .findOnly();
+        // end::positionalParameters[]
+        assertThat(name).isEqualTo("Chuck");
+    }
+
+    @Test
     public void namedParameters() {
-        handle.registerRowMapper(new SomethingMapper());
+        handle.registerRowMapper(new ContactMapper());
         // tag::namedParameters[]
-        Something thing = handle.createQuery("select * from something where id = :id")
-                                .bind("id", 1)
-                                .mapTo(Something.class)
-                                .findOnly();
-        assertThat(thing).extracting("id", "name")
-                         .contains(1, "Alice");
+        handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
+              .bind("id", 3)
+              .bind("name", "Chuck")
+              .execute();
+
+        String name = handle.createQuery("select name from contacts where id = :id")
+                            .bind("id", 3)
+                            .mapTo(String.class)
+                            .findOnly();
         // end::namedParameters[]
+        assertThat(name).isEqualTo("Chuck");
     }
 }

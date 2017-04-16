@@ -18,9 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -79,12 +81,14 @@ public class ArgumentsTest {
     // end::uuidArgument[]
 
     // tag::uuidArgumentFactory[]
-    static class UUIDArgumentFactory implements ArgumentFactory {
+    static class UUIDArgumentFactory extends AbstractArgumentFactory<UUID> {
+        public UUIDArgumentFactory() {
+            super(Types.VARCHAR); // <1>
+        }
+
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-            return type == UUID.class ?
-                    Optional.of(new UUIDArgument((UUID) value)) :
-                        Optional.empty();
+        protected Argument build(UUID value, ConfigRegistry config) {
+            return (position, statement, ctx) -> statement.setString(position, value.toString()); // <2>
         }
     }
 
