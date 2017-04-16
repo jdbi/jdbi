@@ -42,7 +42,7 @@ public class TestBindBean {
 
     @Test
     public void testBindBean() {
-        handle.insert("insert into something (id, name) values (1, 'Alice')");
+        handle.execute("insert into something (id, name) values (1, 'Alice')");
         assertThat(dao.getName(1)).isEqualTo("Alice");
 
         dao.update(new Something(1, "Alicia"));
@@ -51,7 +51,7 @@ public class TestBindBean {
 
     @Test
     public void testBindBeanPrefix() {
-        handle.insert("insert into something (id, name) values (2, 'Bob')");
+        handle.execute("insert into something (id, name) values (2, 'Bob')");
         assertThat(dao.getName(2)).isEqualTo("Bob");
 
         dao.updatePrefix(new Something(2, "Rob"));

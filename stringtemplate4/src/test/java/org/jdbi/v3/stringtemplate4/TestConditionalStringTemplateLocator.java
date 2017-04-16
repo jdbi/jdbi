@@ -34,9 +34,9 @@ public class TestConditionalStringTemplateLocator {
     @Before
     public void setUp() throws Exception {
         Handle handle = dbRule.getSharedHandle();
-        handle.insert("insert into something (id, name) values (1, 'Martin')");
-        handle.insert("insert into something (id, name) values (3, 'David')");
-        handle.insert("insert into something (id, name) values (2, 'Joe')");
+        handle.execute("insert into something (id, name) values (1, 'Martin')");
+        handle.execute("insert into something (id, name) values (3, 'David')");
+        handle.execute("insert into something (id, name) values (2, 'Joe')");
     }
 
     @Test

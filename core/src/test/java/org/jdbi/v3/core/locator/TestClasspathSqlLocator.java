@@ -36,21 +36,21 @@ public class TestClasspathSqlLocator {
     @Test
     public void testLocateNamed() throws Exception {
         Handle h = dbRule.openHandle();
-        h.insert(findSqlOnClasspath("insert-keith"));
+        h.execute(findSqlOnClasspath("insert-keith"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testCommentsInExternalSql() throws Exception {
         Handle h = dbRule.openHandle();
-        h.insert(findSqlOnClasspath("insert-eric-with-comments"));
+        h.execute(findSqlOnClasspath("insert-eric-with-comments"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testPositionalParamsInPrepared() throws Exception {
         Handle h = dbRule.openHandle();
-        h.insert(findSqlOnClasspath("insert-id-name-positional"), 3, "Tip");
+        h.execute(findSqlOnClasspath("insert-id-name-positional"), 3, "Tip");
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 

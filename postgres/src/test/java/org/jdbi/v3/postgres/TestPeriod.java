@@ -62,7 +62,7 @@ public class TestPeriod {
 
     @Test
     public void testTrivialPeriod() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)", 4, Period.of(0, 0, 0));
+        handle.execute("insert into intervals(id, foo) values(?, ?)", 4, Period.of(0, 0, 0));
         Period p = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 4)
                 .mapTo(Period.class)
@@ -72,7 +72,7 @@ public class TestPeriod {
 
     @Test
     public void testHandlesNulls() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)", 5, null);
+        handle.execute("insert into intervals(id, foo) values(?, ?)", 5, null);
         final Period p = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 5)
                 .mapTo(Period.class)
@@ -82,7 +82,7 @@ public class TestPeriod {
 
     @Test
     public void testWritesViaFluentApi() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)", 6, testPeriod);
+        handle.execute("insert into intervals(id, foo) values(?, ?)", 6, testPeriod);
         final Period p = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 6)
                 .mapTo(Period.class)
@@ -100,7 +100,7 @@ public class TestPeriod {
 
     @Test
     public void testNegativePeriod() {
-        handle.insert("insert into intervals(id, foo) values(?, interval '-3 years -1 month 2 days')", 7);
+        handle.execute("insert into intervals(id, foo) values(?, interval '-3 years -1 month 2 days')", 7);
         final Period p = handle.createQuery("select foo from intervals where id=?")
             .bind(0, 7)
                 .mapTo(Period.class)

@@ -57,7 +57,7 @@ public class TestBindMap {
 
     @Test
     public void testBindMap() throws Exception {
-        handle.insert("insert into something (id, name) values (1, 'Alice')");
+        handle.execute("insert into something (id, name) values (1, 'Alice')");
 
         dao.update(1, singletonMap("name", "Alicia"));
 
@@ -66,7 +66,7 @@ public class TestBindMap {
 
     @Test
     public void testBindMap_Prefixed() throws Exception {
-        handle.insert("insert into something (id, name) values (1, 'Alice')");
+        handle.execute("insert into something (id, name) values (1, 'Alice')");
 
         dao.updatePrefix(1, singletonMap("name", "Alicia"));
 
@@ -75,7 +75,7 @@ public class TestBindMap {
 
     @Test
     public void testBindMap_KeyInKeysAndMap() throws Exception {
-        handle.insert("insert into something (id, name) values (2, 'Bob')");
+        handle.execute("insert into something (id, name) values (2, 'Bob')");
 
         dao.updateNameKey(2, singletonMap("name", "Rob"));
 
@@ -84,7 +84,7 @@ public class TestBindMap {
 
     @Test
     public void testBindMap_KeyInKeysNotInMap() throws Exception {
-        handle.insert("insert into something(id, name) values (2, 'Bob')");
+        handle.execute("insert into something(id, name) values (2, 'Bob')");
 
         dao.updateNameKey(2, emptyMap());
 
@@ -93,7 +93,7 @@ public class TestBindMap {
 
     @Test
     public void testBindMap_KeyInMapNotInKeys() throws Exception {
-        handle.insert("insert into something(id, name) values (3, 'Carol')");
+        handle.execute("insert into something(id, name) values (3, 'Carol')");
 
         dao.updateNameKey(3, ImmutableMap.of("name", "Cheryl", "integerValue", 3));
 
@@ -104,7 +104,7 @@ public class TestBindMap {
     @Test
     @Ignore("Pending fix for https://github.com/jdbi/jdbi/issues/500")
     public void testBindMap_KeyNotInMapOrKeys() throws Exception {
-        handle.insert("insert into something(id, name) values (3, 'Carol')");
+        handle.execute("insert into something(id, name) values (3, 'Carol')");
         exception.expect(UnableToExecuteStatementException.class);
 
         dao.update(3, emptyMap());
@@ -112,7 +112,7 @@ public class TestBindMap {
 
     @Test
     public void testBindMap_ConvertKeys_StringKeys() throws Exception {
-        handle.insert("insert into something(id, name) values (4, 'Dave')");
+        handle.execute("insert into something(id, name) values (4, 'Dave')");
 
         dao.updateConvertKeys(4, singletonMap("name", "David"));
 
@@ -121,7 +121,7 @@ public class TestBindMap {
 
     @Test
     public void testBindMap_ConvertKeys_NonStringKeys() throws Exception {
-        handle.insert("insert into something(id, name) values (4, 'Dave')");
+        handle.execute("insert into something(id, name) values (4, 'Dave')");
 
         dao.updateConvertKeys(4, singletonMap(new MapKey("name"), "David"));
 
@@ -130,7 +130,7 @@ public class TestBindMap {
 
     @Test
     public void testBindMap_NonStringKeys() throws Exception {
-        handle.insert("insert into something(id, name) values (5, 'Edward')");
+        handle.execute("insert into something(id, name) values (5, 'Edward')");
         exception.expect(IllegalArgumentException.class);
 
         dao.update(5, singletonMap(new MapKey("name"), "Jacob"));

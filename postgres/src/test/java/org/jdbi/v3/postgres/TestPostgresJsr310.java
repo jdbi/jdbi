@@ -45,28 +45,28 @@ public class TestPostgresJsr310 {
     @Test
     public void localDate() {
         LocalDate d = LocalDate.now();
-        h.insert("insert into stuff(d) values (?)", d);
+        h.execute("insert into stuff(d) values (?)", d);
         assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).findOnly()).isEqualTo(d);
     }
 
     @Test
     public void localDateTime() {
         LocalDateTime d = LocalDateTime.now();
-        h.insert("insert into stuff(ts) values (?)", d);
+        h.execute("insert into stuff(ts) values (?)", d);
         assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).findOnly()).isEqualTo(d);
     }
 
     @Test
     public void offsetDateTime() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC);
-        h.insert("insert into stuff(ts) values (?)", dt);
+        h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly()).isEqualTo(dt);
     }
 
     @Test
     public void offsetDateTimeLosesOffset() {
         OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.ofHours(-7));
-        h.insert("insert into stuff(ts) values (?)", dt);
+        h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(dt.isEqual(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).findOnly())).isTrue();
     }
 
@@ -75,7 +75,7 @@ public class TestPostgresJsr310 {
         h.execute("create table schedule (start time, stop time)");
         LocalTime start = LocalTime.of(8, 30, 0);
         LocalTime stop = LocalTime.of(10, 30, 0);
-        h.insert("insert into schedule (start, stop) values (?,?)", start, stop);
+        h.execute("insert into schedule (start, stop) values (?,?)", start, stop);
         assertThat(h.createQuery("select start from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(start);
         assertThat(h.createQuery("select stop from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(stop);
     }

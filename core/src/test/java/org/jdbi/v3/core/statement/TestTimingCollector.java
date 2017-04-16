@@ -68,7 +68,7 @@ public class TestTimingCollector
     public void testSimpleInsert() throws Exception
     {
         String statement = "insert into something (id, name) values (1, 'eric')";
-        int c = h.insert(statement);
+        int c = h.execute(statement);
         assertThat(c).isEqualTo(1);
 
         final List<String> statements = tc.getStatements();
@@ -82,7 +82,7 @@ public class TestTimingCollector
         String stmt2 = "update something set name = 'ERIC' where id = 1";
         String stmt3 = "select * from something where id = 1";
 
-        h.insert(stmt1);
+        h.execute(stmt1);
         h.createUpdate(stmt2).execute();
         Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
         assertThat(eric.getName()).isEqualTo("ERIC");
@@ -98,8 +98,8 @@ public class TestTimingCollector
         String stmt2 = "update something set name = 'cire' where id = 1";
         String stmt3 = "select * from something where id = 1";
 
-        h.insert(stmt1);
-        h.update(stmt2);
+        h.execute(stmt1);
+        h.execute(stmt2);
         Something eric = h.createQuery(stmt3).mapToBean(Something.class).list().get(0);
         assertThat(eric.getName()).isEqualTo("cire");
 

@@ -60,8 +60,8 @@ public class TestHStore {
         handle.useTransaction(h -> {
             h.execute("drop table if exists campaigns");
             h.execute("create table campaigns(id int not null, caps hstore)");
-            h.insert("insert into campaigns(id, caps) values (1, 'yearly=>10000, monthly=>5000, daily=>200'::hstore)");
-            h.insert("insert into campaigns(id, caps) values (2, 'yearly=>1000, monthly=>200, daily=>20'::hstore)");
+            h.execute("insert into campaigns(id, caps) values (1, 'yearly=>10000, monthly=>5000, daily=>200'::hstore)");
+            h.execute("insert into campaigns(id, caps) values (2, 'yearly=>1000, monthly=>200, daily=>20'::hstore)");
         });
     }
 
@@ -78,7 +78,7 @@ public class TestHStore {
 
     @Test
     public void testHandlesEmptyMap() {
-        handle.insert("insert into campaigns(id, caps) values (?,?)", 4, ImmutableMap.of());
+        handle.execute("insert into campaigns(id, caps) values (?,?)", 4, ImmutableMap.of());
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 4)
                 .mapTo(STRING_MAP)
@@ -88,7 +88,7 @@ public class TestHStore {
 
     @Test
     public void testHandlesNulls() {
-        handle.insert("insert into campaigns(id, caps) values (?,?)", 4, null);
+        handle.execute("insert into campaigns(id, caps) values (?,?)", 4, null);
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 4)
                 .mapTo(STRING_MAP)
@@ -108,7 +108,7 @@ public class TestHStore {
 
     @Test
     public void testWritesViaFluentApi() {
-        handle.insert("insert into campaigns(id, caps) values (?,?)", 3, caps);
+        handle.execute("insert into campaigns(id, caps) values (?,?)", 3, caps);
         Map<String, String> newCaps = handle.createQuery("select caps from campaigns where id=?")
                 .bind(0, 3)
                 .mapTo(STRING_MAP)

@@ -60,7 +60,7 @@ public class TestJdbiFactoryBean {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
             service.inPropagationRequired(jdbi -> {
                 Handle h = JdbiUtil.getHandle(jdbi);
-                final int count = h.insert("insert into something (id, name) values (7, 'ignored')");
+                final int count = h.execute("insert into something (id, name) values (7, 'ignored')");
                 if (count == 1) {
                     throw new ForceRollback();
                 }
@@ -82,12 +82,12 @@ public class TestJdbiFactoryBean {
         assertThatExceptionOfType(ForceRollback.class).isThrownBy(()->{
             service.inPropagationRequired(outer -> {
                 final Handle h = JdbiUtil.getHandle(outer);
-                h.insert("insert into something (id, name) values (7, 'ignored')");
+                h.execute("insert into something (id, name) values (7, 'ignored')");
 
                 assertThatExceptionOfType(ForceRollback.class).isThrownBy(()-> {
                     service.inNested(inner -> {
                         final Handle h1 = JdbiUtil.getHandle(inner);
-                        h1.insert("insert into something (id, name) values (8, 'ignored again')");
+                        h1.execute("insert into something (id, name) values (8, 'ignored again')");
 
                         int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
                         assertThat(count).isEqualTo(2);
@@ -112,14 +112,14 @@ public class TestJdbiFactoryBean {
 
         service.inPropagationRequired(outer -> {
             final Handle h = JdbiUtil.getHandle(outer);
-            h.insert("insert into something (id, name) values (7, 'ignored')");
+            h.execute("insert into something (id, name) values (7, 'ignored')");
 
             assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> {
                 service.inRequiresNewReadUncommitted(inner -> {
                     final Handle h1 = JdbiUtil.getHandle(inner);
                     int count = h1.createQuery("select count(*) from something").mapTo(Integer.class).findOnly();
                     assertThat(count).isEqualTo(1);
-                    h1.insert("insert into something (id, name) values (8, 'ignored again')");
+                    h1.execute("insert into something (id, name) values (8, 'ignored again')");
                     throw new ForceRollback();
                 });
             });

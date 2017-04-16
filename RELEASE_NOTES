@@ -1,5 +1,9 @@
 3.0.0-beta2-SNAPSHOT (in progress)
+  - [breaking] Removed Handle.update() and Handle.insert(), in favor of
+    Handle.execute(), which does the same thing. Handle.execute() now returns
+    the update count.
   - Removed core dependency on Guava.
+
 
 3.0.0-beta1
   - [breaking] Refactored SqlStatementCustomizerFactory.createForParameter(...)

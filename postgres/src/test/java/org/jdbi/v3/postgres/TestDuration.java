@@ -62,7 +62,7 @@ public class TestDuration {
 
     @Test
     public void testTrivialDuration() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)",4, Duration.ZERO);
+        handle.execute("insert into intervals(id, foo) values(?, ?)", 4, Duration.ZERO);
         Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 4)
                 .mapTo(Duration.class)
@@ -72,7 +72,7 @@ public class TestDuration {
 
     @Test
     public void testHandlesNulls() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)", 5, null);
+        handle.execute("insert into intervals(id, foo) values(?, ?)", 5, null);
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 5)
                 .mapTo(Duration.class)
@@ -82,7 +82,7 @@ public class TestDuration {
 
     @Test
     public void testWritesViaFluentApi() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)", 6, testDuration);
+        handle.execute("insert into intervals(id, foo) values(?, ?)", 6, testDuration);
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 6)
                 .mapTo(Duration.class)
@@ -100,7 +100,7 @@ public class TestDuration {
 
     @Test
     public void testReadNegativeDuration() {
-        handle.insert("insert into intervals(id, foo) values(?, interval '-2 days -3 hours')", 7);
+        handle.execute("insert into intervals(id, foo) values(?, interval '-2 days -3 hours')", 7);
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 7)
                 .mapTo(Duration.class)
@@ -110,7 +110,7 @@ public class TestDuration {
 
     @Test
     public void testWriteReadNegativeDuration() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)",
+        handle.execute("insert into intervals(id, foo) values(?, ?)",
                 8, Duration.ofDays(-3).plusMinutes(2));
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 8)
@@ -121,7 +121,7 @@ public class TestDuration {
 
     @Test(expected = IllegalArgumentException.class)
     public void testWriteDurationTooBig() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)",
+        handle.execute("insert into intervals(id, foo) values(?, ?)",
                 9, Duration.ofDays((long)Integer.MAX_VALUE + 1));
     }
 
@@ -131,13 +131,13 @@ public class TestDuration {
      */
     @Test(expected = ArithmeticException.class)
     public void testWriteDurationTooSmall() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)",
+        handle.execute("insert into intervals(id, foo) values(?, ?)",
                 10, Duration.ofSeconds(Long.MIN_VALUE));
     }
 
     @Test
     public void testTinyDuration() {
-        handle.insert("insert into intervals(id, foo) values(?, interval '13us')", 11);
+        handle.execute("insert into intervals(id, foo) values(?, interval '13us')", 11);
         final Duration d = handle.createQuery("select foo from intervals where id=?")
                 .bind(0, 11)
                 .mapTo(Duration.class)
@@ -147,7 +147,7 @@ public class TestDuration {
 
     @Test(expected = IllegalArgumentException.class)
     public void testDurationTooPrecise() {
-        handle.insert("insert into intervals(id, foo) values(?, ?)",
+        handle.execute("insert into intervals(id, foo) values(?, ?)",
                 12, Duration.ofNanos(100));
     }
 

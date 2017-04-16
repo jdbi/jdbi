@@ -46,8 +46,8 @@ public class FiveMinuteTourTest {
         // tag::useHandle[]
         db.useHandle(handle -> {
             handle.execute("create table something (id int primary key, name varchar(100))");
-            handle.insert("insert into something (id, name) values (?, ?)", 1, "Alice");
-            handle.insert("insert into something (id, name) values (?, ?)", 2, "Bob");
+            handle.execute("insert into something (id, name) values (?, ?)", 1, "Alice");
+            handle.execute("insert into something (id, name) values (?, ?)", 2, "Bob");
 
             List<String> names = handle.createQuery("select name from something")
                                        .mapTo(String.class)

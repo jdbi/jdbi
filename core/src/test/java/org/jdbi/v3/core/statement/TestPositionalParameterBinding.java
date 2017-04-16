@@ -38,8 +38,8 @@ public class TestPositionalParameterBinding
     @Test
     public void testSetPositionalString() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         Something eric = h.createQuery("select * from something where name = ?")
                 .bind(0, "eric")
@@ -52,8 +52,8 @@ public class TestPositionalParameterBinding
     @Test
     public void testSetPositionalInteger() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         Something eric = h.createQuery("select * from something where id = ?")
                 .bind(0, 1)
@@ -94,7 +94,7 @@ public class TestPositionalParameterBinding
     @Test
     public void testPositionalConvenienceInsert() throws Exception
     {
-        int count = h.insert("insert into something (id, name) values (?, ?)", 1, "eric");
+        int count = h.execute("insert into something (id, name) values (?, ?)", 1, "eric");
 
         assertThat(count).isEqualTo(1);
     }

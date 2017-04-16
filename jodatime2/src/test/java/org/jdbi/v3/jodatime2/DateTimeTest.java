@@ -31,7 +31,7 @@ public class DateTimeTest {
         h.execute("create table stuff(ts timestamp)");
 
         DateTime dt = new DateTime();
-        h.insert("insert into stuff(ts) values (?)", dt);
+        h.execute("insert into stuff(ts) values (?)", dt);
 
         assertThat(h.createQuery("select ts from stuff").mapTo(DateTime.class).findOnly()).isEqualTo(dt);
     }

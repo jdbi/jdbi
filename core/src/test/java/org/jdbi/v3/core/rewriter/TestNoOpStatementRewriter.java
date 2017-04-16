@@ -41,7 +41,7 @@ public class TestNoOpStatementRewriter
     public void testFoo() throws Exception
     {
         Handle h = db.open();
-        h.insert("insert into something (id, name) values (1, 'Keith')");
+        h.execute("insert into something (id, name) values (1, 'Keith')");
 
         String name = h.createQuery("select name from something where id = ?")
                 .bind(0, 1)
@@ -55,7 +55,7 @@ public class TestNoOpStatementRewriter
     public void testBar() throws Exception
     {
         Handle h = db.open();
-        h.insert("insert into something (id, name) values (1, 'Keith')");
+        h.execute("insert into something (id, name) values (1, 'Keith')");
 
         String name = h.createQuery("select name from something where id = ? and name = ?")
                 .bind(0, 1)
@@ -70,6 +70,6 @@ public class TestNoOpStatementRewriter
     public void testBaz() throws Exception
     {
         Handle h = db.open();
-        h.insert("insert into something (id, name) values (1, 'Keith')");
+        h.execute("insert into something (id, name) values (1, 'Keith')");
     }
 }

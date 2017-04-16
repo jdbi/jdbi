@@ -149,27 +149,6 @@ public class Handle implements Closeable, Configurable<Handle>
     }
 
     /**
-     * Execute some SQL with no return value
-     * @param sql the sql to execute
-     * @param args arguments to bind to the sql
-     */
-    public void execute(String sql, Object... args) {
-        this.update(sql, args);
-    }
-
-    /**
-     * Execute a simple insert statement.
-     *
-     * @param sql the insert SQL
-     * @param args positional arguments
-     *
-     * @return the number of rows inserted
-     */
-    public int insert(String sql, Object... args) {
-        return update(sql, args);
-    }
-
-    /**
      * Convenience method which creates a query with the given positional arguments
      * @param sql SQL or named statement
      * @param args arguments to bind positionally
@@ -185,14 +164,14 @@ public class Handle implements Closeable, Configurable<Handle>
     }
 
     /**
-     * Execute a simple update statement
+     * Execute a SQL statement, and return the number of rows affected by the statement.
      *
-     * @param sql the update SQL
+     * @param sql the SQL statement to execute, using positional parameters (if any)
      * @param args positional arguments
      *
-     * @return the number of updated inserted
+     * @return the number of rows affected
      */
-    public int update(String sql, Object... args) {
+    public int execute(String sql, Object... args) {
         Update stmt = createUpdate(sql);
         int position = 0;
         for (Object arg : args) {

@@ -39,7 +39,7 @@ public class TestRegisteredMappers
     {
         db.registerRowMapper(new SomethingMapper());
         Something sam = db.withHandle(handle1 -> {
-            handle1.insert("insert into something (id, name) values (18, 'Sam')");
+            handle1.execute("insert into something (id, name) values (18, 'Sam')");
 
             return handle1.createQuery("select id, name from something where id = :id")
                 .bind("id", 18)

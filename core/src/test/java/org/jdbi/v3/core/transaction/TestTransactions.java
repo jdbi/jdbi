@@ -85,7 +85,7 @@ public class TestTransactions
     @Test
     public void testRollbackOutsideTx() throws Exception
     {
-        h.insert("insert into something (id, name) values (?, ?)", 7, "Tom");
+        h.execute("insert into something (id, name) values (?, ?)", 7, "Tom");
         h.rollback();
     }
 
@@ -106,7 +106,7 @@ public class TestTransactions
     {
         assertThatThrownBy(() ->
                 h.inTransaction(handle -> {
-                    handle.insert("insert into something (id, name) values (?, ?)", 0, "Keith");
+                    handle.execute("insert into something (id, name) values (?, ?)", 0, "Keith");
                     throw new IOException();
                 }))
                 .isInstanceOf(IOException.class);
@@ -133,9 +133,9 @@ public class TestTransactions
     {
         h.begin();
 
-        h.insert("insert into something (id, name) values (?, ?)", 1, "Tom");
+        h.execute("insert into something (id, name) values (?, ?)", 1, "Tom");
         h.savepoint("first");
-        h.insert("insert into something (id, name) values (?, ?)", 2, "Martin");
+        h.execute("insert into something (id, name) values (?, ?)", 2, "Martin");
         assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
                 .isEqualTo(Integer.valueOf(2));
         h.rollbackToSavepoint("first");
@@ -151,7 +151,7 @@ public class TestTransactions
     {
         h.begin();
         h.savepoint("first");
-        h.insert("insert into something (id, name) values (?, ?)", 1, "Martin");
+        h.execute("insert into something (id, name) values (?, ?)", 1, "Martin");
 
         h.release("first");
 
