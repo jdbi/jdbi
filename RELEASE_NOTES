@@ -3,6 +3,7 @@
     Handle.execute(), which does the same thing. Handle.execute() now returns
     the update count.
   - Removed core dependency on Guava.
+  - [breaking] Switch from 1- to 0-based indices in OracleReturning.returnParameters()
 
 
 3.0.0-beta1

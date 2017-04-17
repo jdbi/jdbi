@@ -37,7 +37,8 @@ import oracle.jdbc.OraclePreparedStatement;
  * List&lt;Integer&gt; ids = handle.createUpdate("insert into something (id, name) values (17, 'Brian') returning id into ?")
  *     .addCustomizer(OracleReturning.returnParameters().register(1, OracleTypes.INTEGER))
  *     .execute(OracleReturning.returningDml())
- *     .list(int.class);
+ *     .mapTo(int.class)
+ *     .list();
  *
  * assertThat(ids).containsExactly(17);
  * </pre>
@@ -73,12 +74,12 @@ public class OracleReturning {
         /**
          * Registers a return parameter on the Oracle prepared statement.
          *
-         * @param position   1-based position of the return parameter
+         * @param index      0-based index of the return parameter
          * @param oracleType one of the values from {@link oracle.jdbc.OracleTypes}
          * @return The same instance, for method chaning
          */
-        public ReturnParameters register(int position, int oracleType) {
-            binds.add(new int[]{position, oracleType});
+        public ReturnParameters register(int index, int oracleType) {
+            binds.add(new int[]{index+1, oracleType});
             return this;
         }
     }
