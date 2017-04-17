@@ -74,8 +74,8 @@ public class TestQueries
     @Test
     public void testMappedQueryObject() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
@@ -86,7 +86,7 @@ public class TestQueries
     @Test
     public void testMappedQueryObjectWithNulls() throws Exception
     {
-        h.insert("insert into something (id, name, integerValue) values (1, 'eric', null)");
+        h.execute("insert into something (id, name, integerValue) values (1, 'eric', null)");
 
         ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
@@ -99,7 +99,7 @@ public class TestQueries
     @Test
     public void testMappedQueryObjectWithNullForPrimitiveIntField() throws Exception
     {
-        h.insert("insert into something (id, name, intValue) values (1, 'eric', null)");
+        h.execute("insert into something (id, name, intValue) values (1, 'eric', null)");
 
         ResultIterable<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
@@ -112,8 +112,8 @@ public class TestQueries
     @Test
     public void testMapper() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         ResultIterable<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
 
@@ -124,8 +124,8 @@ public class TestQueries
     @Test
     public void testConvenienceMethod() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         List<Map<String, Object>> r = h.select("select * from something order by id").mapToMap().list();
         assertThat(r).hasSize(2);
@@ -135,8 +135,8 @@ public class TestQueries
     @Test
     public void testConvenienceMethodWithParam() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         List<Map<String, Object>> r = h.select("select * from something where id = ?", 1).mapToMap().list();
         assertThat(r).hasSize(1);
@@ -146,8 +146,8 @@ public class TestQueries
     @Test
     public void testPositionalArgWithNamedParam() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         assertThatThrownBy(() ->
                 h.createQuery("select * from something where name = :name")
@@ -161,8 +161,8 @@ public class TestQueries
     @Test
     public void testMixedSetting() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         assertThatThrownBy(() ->
                 h.createQuery("select * from something where name = :name and id = :id")
@@ -183,8 +183,8 @@ public class TestQueries
     @Test
     public void testFirstResult() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         Something r = h.createQuery("select * from something order by id")
                        .mapToBean(Something.class)
@@ -197,8 +197,8 @@ public class TestQueries
     @Test
     public void testIteratedResult() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
                                        .mapToBean(Something.class)
@@ -216,8 +216,8 @@ public class TestQueries
     @Test
     public void testIteratorBehavior() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
                                        .mapToBean(Something.class)
@@ -235,8 +235,8 @@ public class TestQueries
     @Test
     public void testIteratorBehavior2() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'brian')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
 
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
                                        .mapToBean(Something.class)
@@ -253,8 +253,8 @@ public class TestQueries
     @Test
     public void testIteratorBehavior3() throws Exception
     {
-        h.insert("insert into something (id, name) values (1, 'eric')");
-        h.insert("insert into something (id, name) values (2, 'eric')");
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'eric')");
 
         assertThat(h.createQuery("select * from something order by id").mapToBean(Something.class))
                 .extracting(Something::getName)
@@ -290,7 +290,7 @@ public class TestQueries
     @Test
     public void testNullValueInColumn() throws Exception
     {
-        h.insert("insert into something (id, name) values (?, ?)", 1, null);
+        h.execute("insert into something (id, name) values (?, ?)", 1, null);
         Optional<String> s = h.createQuery("select name from something where id=1").mapTo(String.class).findFirst();
         assertThat(s.isPresent()).isFalse();
     }
@@ -362,8 +362,8 @@ public class TestQueries
     @Test
     public void testStatementCustomizersPersistAfterMap() throws Exception
     {
-        h.insert("insert into something (id, name) values (?, ?)", 1, "hello");
-        h.insert("insert into something (id, name) values (?, ?)", 2, "world");
+        h.execute("insert into something (id, name) values (?, ?)", 1, "hello");
+        h.execute("insert into something (id, name) values (?, ?)", 2, "world");
 
         List<Something> rs = h.createQuery("select id, name from something")
                               .setMaxRows(1)

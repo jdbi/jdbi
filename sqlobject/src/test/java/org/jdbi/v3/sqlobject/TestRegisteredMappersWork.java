@@ -176,7 +176,7 @@ public class TestRegisteredMappersWork
     public void testNoRootRegistrations() throws Exception
     {
         try (Handle h = dbRule.openHandle()) {
-            h.insert("insert into something (id, name) values (1, 'Henning')");
+            h.execute("insert into something (id, name) values (1, 'Henning')");
             h.createQuery("select id, name from something where id = 1")
                                  .mapTo(Something.class)
                                  .findFirst();

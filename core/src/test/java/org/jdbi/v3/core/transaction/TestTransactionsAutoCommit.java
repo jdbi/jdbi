@@ -53,7 +53,7 @@ public class TestTransactionsAutoCommit
 
         h.begin();
         assertThatExceptionOfType(Exception.class).isThrownBy(()->{
-            h.insert(SAMPLE_SQL, 1L, "Tom");
+            h.execute(SAMPLE_SQL, 1L, "Tom");
 
             // throws exception on commit
             h.commit();

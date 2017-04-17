@@ -55,7 +55,7 @@ public class TestBeanBinder
     public void testRead() throws Exception
     {
         Spiffy s = handle.attach(Spiffy.class);
-        handle.insert("insert into something (id, name) values (17, 'Phil')");
+        handle.execute("insert into something (id, name) values (17, 'Phil')");
         Something phil = s.findByEqualsOnBothFields(new Something(17, "Phil"));
         assertThat(phil.getName()).isEqualTo("Phil");
     }

@@ -50,8 +50,8 @@ public class TestNamedParams
                 .bind("id", 1)
                 .bind("name", "Brian")
                 .execute();
-        h.insert("insert into something (id, name) values (?, ?)", 2, "Eric");
-        h.insert("insert into something (id, name) values (?, ?)", 3, "Erin");
+        h.execute("insert into something (id, name) values (?, ?)", 2, "Eric");
+        h.execute("insert into something (id, name) values (?, ?)", 3, "Erin");
 
         List<Something> r = h.createQuery("select id, name from something " +
                                           "where name like :name " +

@@ -69,7 +69,7 @@ public class TestJdbi
     {
         Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
         String value = db.withHandle(handle -> {
-            handle.insert("insert into something (id, name) values (1, 'Brian')");
+            handle.execute("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
         });
         assertThat(value).isEqualTo("Brian");
@@ -80,7 +80,7 @@ public class TestJdbi
     {
         Jdbi db = Jdbi.create(this.dbRule.getConnectionString());
         db.useHandle(handle -> {
-            handle.insert("insert into something (id, name) values (1, 'Brian')");
+            handle.execute("insert into something (id, name) values (1, 'Brian')");
             String value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
             assertThat(value).isEqualTo("Brian");
         });

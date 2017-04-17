@@ -50,7 +50,7 @@ public class TestGuavaMappers {
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()
         };
 
-        h.insert("INSERT INTO arrays (u) VALUES(?)", (Object) testUuids);
+        h.execute("INSERT INTO arrays (u) VALUES(?)", (Object) testUuids);
         ImmutableList<UUID> list = h.createQuery("SELECT u FROM arrays")
                 .mapTo(new GenericType<ImmutableList<UUID>>() {})
                 .findOnly();
@@ -63,7 +63,7 @@ public class TestGuavaMappers {
                 5, 4, -6, 1, 9, Integer.MAX_VALUE, Integer.MIN_VALUE
         };
 
-        h.insert("INSERT INTO arrays (i) VALUES(?)", (Object) testInts);
+        h.execute("INSERT INTO arrays (i) VALUES(?)", (Object) testInts);
         ImmutableList<Integer> list = h.createQuery("SELECT i FROM arrays")
                 .mapTo(new GenericType<ImmutableList<Integer>>() {})
                 .findOnly();

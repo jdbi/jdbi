@@ -28,7 +28,7 @@ public class TestStatementExceptionContext {
     public void testFoo() throws Exception {
 
         assertThatExceptionOfType(StatementException.class)
-                .isThrownBy(()-> dbRule.openHandle().insert("WOOF", 7, "Tom"))
+                .isThrownBy(() -> dbRule.openHandle().execute("WOOF", 7, "Tom"))
                 .satisfies(e -> assertThat(e.getStatementContext().getRawSql()).isEqualTo("WOOF"));
     }
 }

@@ -30,7 +30,7 @@ public class TestHandle
         Handle h = dbRule.openHandle();
 
         String value = h.inTransaction(handle -> {
-            handle.insert("insert into something (id, name) values (1, 'Brian')");
+            handle.execute("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).findOnly().getName();
         });
         assertThat(value).isEqualTo("Brian");
@@ -40,7 +40,7 @@ public class TestHandle
     public void testSillyNumberOfCallbacks() throws Exception
     {
         try (Handle h = dbRule.openHandle()) {
-            h.insert("insert into something (id, name) values (1, 'Keith')");
+            h.execute("insert into something (id, name) values (1, 'Keith')");
         }
 
         String value = dbRule.getJdbi().withHandle(handle ->
