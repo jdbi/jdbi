@@ -16,7 +16,7 @@ package org.skife.jdbi.v2;
 public interface Transaction<ReturnType, ConnectionType>
 {
     /**
-     * Execute in a transaction. Will be committed afterwards, or rolled back if a transaction
+     * Execute in a transaction. Will be committed afterwards, or rolled back if an exception
      * is thrown.
      * <p>
      * If the transaction fails a {@link org.skife.jdbi.v2.exceptions.TransactionFailedException}
