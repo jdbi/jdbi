@@ -19,7 +19,7 @@ import org.jdbi.v3.core.statement.SqlStatement;
 
 /**
  * Used with {@link SqlStatementCustomizerFactory} to
- * customize sql statements via annotations
+ * customize sql statements via annotations.
  */
 public interface SqlStatementCustomizer
 {

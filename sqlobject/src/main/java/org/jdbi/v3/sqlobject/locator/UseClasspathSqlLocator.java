@@ -17,17 +17,12 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
-import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
-import org.jdbi.v3.sqlobject.SqlObjects;
-import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.locator.internal.UseClasspathSqlLocatorImpl;
 
 /**
  * Configures SQL Object to locate SQL using the {@link ClasspathSqlLocator#findSqlOnClasspath(Class, String)} method.
@@ -46,24 +41,8 @@ import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
  *     }
  * </pre>
  */
-@ConfiguringAnnotation(UseClasspathSqlLocator.Impl.class)
+@ConfiguringAnnotation(UseClasspathSqlLocatorImpl.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface UseClasspathSqlLocator {
-    class Impl implements Configurer {
-        private static final SqlLocator SQL_LOCATOR = (sqlObjectType, method) -> {
-            String name = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-            return ClasspathSqlLocator.findSqlOnClasspath(sqlObjectType, name);
-        };
-
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-            registry.get(SqlObjects.class).setSqlLocator(SQL_LOCATOR);
-        }
-
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-    }
 }

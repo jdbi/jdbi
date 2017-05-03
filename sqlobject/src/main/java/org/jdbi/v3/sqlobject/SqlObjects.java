@@ -23,7 +23,7 @@ import org.jdbi.v3.sqlobject.statement.BindParameterCustomizerFactory;
 import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
 
 /**
- * Configuration class for SQL objects
+ * Configuration class for SQL objects.
  */
 public class SqlObjects implements JdbiConfig<SqlObjects> {
     private SqlLocator sqlLocator;

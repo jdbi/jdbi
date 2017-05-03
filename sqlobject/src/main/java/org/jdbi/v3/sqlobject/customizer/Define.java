@@ -13,23 +13,19 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
-import java.lang.reflect.Type;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.sqlobject.internal.ParameterUtil;
+import org.jdbi.v3.sqlobject.customizer.internal.DefineFactory;
 
 /**
  * Defines a named attribute as the argument passed to the annotated parameter. Attributes are stored on the
  * {@link StatementContext}, and may be used by statement customizers such as the statement rewriter.
  */
-@SqlStatementCustomizingAnnotation(Define.Factory.class)
+@SqlStatementCustomizingAnnotation(DefineFactory.class)
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Define
@@ -41,21 +37,4 @@ public @interface Define
      * @return the attribute name.
      */
     String value() default "";
-
-    class Factory implements SqlStatementCustomizerFactory
-    {
-        @Override
-        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                                  Class<?> sqlObjectType,
-                                                                  Method method,
-                                                                  Parameter param,
-                                                                  int index,
-                                                                  Type type)
-        {
-            Define define = (Define) annotation;
-
-            final String name = ParameterUtil.getParameterName(define, define.value(), param);
-            return (stmt, arg) -> stmt.define(name, arg);
-        }
-    }
 }

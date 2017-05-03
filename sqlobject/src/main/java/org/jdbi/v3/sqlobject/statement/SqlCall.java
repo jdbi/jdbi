@@ -17,56 +17,16 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.statement.Call;
-import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
+import org.jdbi.v3.sqlobject.statement.internal.SqlCallHandler;
 
 /**
  * Support for stored proc invocation. Return value must be either null or OutParameters at present.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlCall.Impl.class)
+@SqlMethodAnnotation(SqlCallHandler.class)
 public @interface SqlCall {
     String value() default "";
-
-    class Impl extends CustomizingStatementHandler<Call> {
-        private final boolean returnOutParams;
-
-        public Impl(Class<?> sqlObjectType, Method method) {
-            super(sqlObjectType, method);
-
-            Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
-            Class<?> returnClass = GenericTypes.getErasedType(returnType);
-            if (Void.TYPE.equals(returnClass)) {
-                returnOutParams = false;
-            } else if (OutParameters.class.isAssignableFrom(returnClass)) {
-                returnOutParams = true;
-            } else {
-                throw new IllegalArgumentException("@SqlCall methods may only return null or OutParameters at present");
-            }
-        }
-
-        @Override
-        Call createStatement(Handle handle, String locatedSql) {
-            return handle.createCall(locatedSql);
-        }
-
-        @Override
-        void configureReturner(Call c, SqlObjectStatementConfiguration cfg) {
-            cfg.setReturner(() -> {
-                OutParameters ou = c.invoke();
-                if (returnOutParams) {
-                    return ou;
-                } else {
-                    return null;
-                }
-            });
-        }
-    }
 }

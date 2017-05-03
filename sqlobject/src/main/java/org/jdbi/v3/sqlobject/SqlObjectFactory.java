@@ -15,13 +15,6 @@ package org.jdbi.v3.sqlobject;
 
 import static java.util.Collections.synchronizedMap;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionFactory;
-import org.jdbi.v3.core.extension.ExtensionMethod;
-import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
@@ -36,7 +29,16 @@ import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.ExtensionMethod;
+import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 
+/**
+ * Creates implementations for SqlObject interfaces.
+ */
 public class SqlObjectFactory implements ExtensionFactory {
     private static final Object[] NO_ARGS = new Object[0];
 
@@ -95,7 +97,7 @@ public class SqlObjectFactory implements ExtensionFactory {
         return extensionType.cast(
                 Proxy.newProxyInstance(
                         extensionType.getClassLoader(),
-                        new Class[]{extensionType},
+                        new Class[] {extensionType},
                         invocationHandler));
     }
 

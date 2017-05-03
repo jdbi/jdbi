@@ -17,55 +17,23 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.result.ResultIterable;
-import org.jdbi.v3.core.statement.Query;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
+import org.jdbi.v3.sqlobject.statement.internal.SqlQueryHandler;
 
 /**
  * Used to indicate that a method should execute a query.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlQuery.Impl.class)
+@SqlMethodAnnotation(SqlQueryHandler.class)
 public @interface SqlQuery {
     /**
-     * The query (or query name if using a statement locator) to be executed. The default value will use
-     * the method name of the method being annotated. This default behavior is only useful in conjunction
-     * with a statement locator.
+     * The query (or query name if using a statement locator) to be executed. If no value is specified,
+     * the value will be the method name of the method being annotated. This is only useful
+     * in conjunction with a statement locator.
      *
      * @return the SQL string (or name)
      */
     String value() default "";
-
-    class Impl extends CustomizingStatementHandler<Query> {
-        private final ResultReturner magic;
-
-        public Impl(Class<?> sqlObjectType, Method method) {
-            super(sqlObjectType, method);
-            this.magic = ResultReturner.forMethod(sqlObjectType, method);
-        }
-
-        @Override
-        void configureReturner(Query q, SqlObjectStatementConfiguration cfg) {
-            cfg.setReturner(() -> {
-                StatementContext ctx = q.getContext();
-                Type elementType = magic.elementType(ctx);
-                UseRowMapper useRowMapper = getMethod().getAnnotation(UseRowMapper.class);
-                ResultIterable<?> iterable = useRowMapper == null
-                        ? q.mapTo(elementType)
-                        : q.map(rowMapperFor(useRowMapper));
-                return magic.result(iterable, ctx);
-            });
-        }
-
-        @Override
-        Query createStatement(Handle handle, String locatedSql) {
-            return handle.createQuery(locatedSql);
-        }
-    }
 }

@@ -13,46 +13,23 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.collector.JdbiCollectors;
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.collector.CollectorFactory;
+import org.jdbi.v3.sqlobject.config.internal.RegisterCollectorFactoryImpl;
 
 /**
  * Used to register collector factories on the current
  * {@link org.jdbi.v3.core.statement.SqlStatement} either for a sql object type
  * or for a method.
  */
-@ConfiguringAnnotation(RegisterCollectorFactory.Impl.class)
+@ConfiguringAnnotation(RegisterCollectorFactoryImpl.class)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterCollectorFactory {
 
     Class<? extends CollectorFactory>[] value();
-
-    class Impl implements Configurer {
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-            RegisterCollectorFactory registerCollectorFactory = (RegisterCollectorFactory) annotation;
-            JdbiCollectors collectors = registry.get(JdbiCollectors.class);
-            for (Class<? extends CollectorFactory> type : registerCollectorFactory.value()) {
-                try {
-                    collectors.register(type.newInstance());
-                } catch (InstantiationException | IllegalAccessException e) {
-                    throw new IllegalStateException("Unable to instantiate container factory", e);
-                }
-            }
-        }
-    }
 }

@@ -13,18 +13,12 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.util.Arrays;
 
-import org.jdbi.v3.core.internal.IterableLike;
-import org.jdbi.v3.sqlobject.internal.ParameterUtil;
+import org.jdbi.v3.sqlobject.customizer.internal.BindBeanListFactory;
 
 /**
  * Binds each property for each value in the annotated {@link Iterable} or array/varargs argument,
@@ -45,7 +39,7 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@SqlStatementCustomizingAnnotation(BindBeanList.Factory.class)
+@SqlStatementCustomizingAnnotation(BindBeanListFactory.class)
 public @interface BindBeanList {
     /**
      * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
@@ -61,26 +55,4 @@ public @interface BindBeanList {
      * @return the property names
      */
     String[] propertyNames();
-
-    final class Factory implements SqlStatementCustomizerFactory {
-        @Override
-        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                                  Class<?> sqlObjectType,
-                                                                  Method method,
-                                                                  Parameter param,
-                                                                  int index,
-                                                                  Type type) {
-            final BindBeanList bindBeanList = (BindBeanList) annotation;
-            final String name = ParameterUtil.getParameterName(bindBeanList, bindBeanList.value(), param);
-
-            return (stmt, arg) -> {
-                if (arg == null) {
-                    throw new IllegalArgumentException("argument is null; null was explicitly forbidden on BindBeanList");
-                }
-
-                stmt.bindBeanList(name, IterableLike.toList(arg), Arrays.asList(bindBeanList.propertyNames()));
-            };
-        }
-
-    }
 }

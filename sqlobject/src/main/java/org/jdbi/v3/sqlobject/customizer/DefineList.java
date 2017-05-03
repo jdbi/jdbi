@@ -15,19 +15,14 @@
 package org.jdbi.v3.sqlobject.customizer;
 
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.List;
 
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.sqlobject.internal.ParameterUtil;
+import org.jdbi.v3.sqlobject.customizer.internal.DefineListFactory;
 
 /**
  * Defines a named attribute as a comma-separated {@link String} from the elements of the annotated array or
@@ -57,7 +52,7 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-@SqlStatementCustomizingAnnotation(DefineList.Factory.class)
+@SqlStatementCustomizingAnnotation(DefineListFactory.class)
 public @interface DefineList
 {
     /**
@@ -67,44 +62,4 @@ public @interface DefineList
      * @return the attribute key
      */
     String value() default "";
-
-    final class Factory implements SqlStatementCustomizerFactory
-    {
-
-        @Override
-        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                                  Class<?> sqlObjectType,
-                                                                  Method method,
-                                                                  Parameter param,
-                                                                  int index,
-                                                                  Type type)
-        {
-            final DefineList d = (DefineList) annotation;
-            final String name = ParameterUtil.getParameterName(d, d.value(), param);
-
-            return (stmt, arg) -> {
-                List<?> argsList;
-                if (arg instanceof List) {
-                    argsList = (List<?>) arg;
-                } else if (arg instanceof Object[]) {
-                    argsList = Arrays.asList((Object[]) arg);
-                } else if (arg == null) {
-                    throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. " +
-                            "@DefineList is only supported on List and array arguments");
-                } else {
-                    throw new IllegalArgumentException("A " + arg.getClass() + " object was passed as a @DefineList " +
-                            "parameter. @DefineList is only supported on List and array arguments");
-                }
-                if (argsList.isEmpty()) {
-                    throw new IllegalArgumentException("An empty list was passed as a @DefineList parameter. Can't define " +
-                            "an empty attribute.");
-                }
-                if (argsList.contains(null)) {
-                    throw new IllegalArgumentException("A @DefineList parameter was passed a list with null values in it.");
-                }
-
-                stmt.defineList(name, argsList);
-            };
-        }
-    }
 }

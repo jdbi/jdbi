@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.annotation.Target;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.reflect.Method;
+import java.lang.annotation.Target;
 import java.time.OffsetDateTime;
+
+import org.jdbi.v3.sqlobject.customizer.internal.TimestampedFactory;
 
 /**
  * Binds the named parameter <code>:now</code> or a custom named parameter with
@@ -43,24 +43,14 @@ import java.time.OffsetDateTime;
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@SqlStatementCustomizingAnnotation(Timestamped.Factory.class)
+@SqlStatementCustomizingAnnotation(TimestampedFactory.class)
 @Documented
 public @interface Timestamped {
     /**
      * The parameter to bind in the SQL query. If omitted, defaults to <code>now</code>
-     * and can be changed to customize the parameter bound to the current DateTime
+     * and can be changed to customize the parameter bound to the current DateTime.
      *
      * @return the parameter name
      */
     String value() default "now";
-
-    class Factory implements SqlStatementCustomizerFactory {
-
-        @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            final String parameterName = ((Timestamped) annotation).value();
-
-            return stmt -> stmt.bind(parameterName, OffsetDateTime.now());
-        }
-    }
 }

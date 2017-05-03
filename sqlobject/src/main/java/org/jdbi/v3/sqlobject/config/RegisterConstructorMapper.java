@@ -13,21 +13,17 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.v3.sqlobject.config.internal.RegisterConstructorMapperImpl;
 
 /**
  * Registers a constructor mapper factory for the given type(s).
  */
-@ConfiguringAnnotation(RegisterConstructorMapper.Impl.class)
+@ConfiguringAnnotation(RegisterConstructorMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterConstructorMapper
@@ -46,36 +42,4 @@ public @interface RegisterConstructorMapper
      * @return Column name prefixes corresponding pairwise to the elements in {@link #value()}.
      */
     String[] prefix() default {};
-
-    class Impl implements Configurer
-    {
-
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-        {
-            RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
-            RowMappers mappers = registry.get(RowMappers.class);
-            Class<?>[] types = registerConstructorMapper.value();
-            String[] prefixes = registerConstructorMapper.prefix();
-            if (prefixes.length == 0) {
-                for (Class<?> type : types) {
-                    mappers.register(ConstructorMapper.factory(type));
-                }
-            }
-            else if (prefixes.length == types.length) {
-                for (int i = 0; i < types.length; i++) {
-                    mappers.register(ConstructorMapper.factory(types[i], prefixes[i]));
-                }
-            }
-            else {
-                throw new IllegalStateException("RegisterConstructorMapper.prefix() must have the same number of elements as value()");
-            }
-        }
-    }
 }

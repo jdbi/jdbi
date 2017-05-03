@@ -13,22 +13,19 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.JoinRowMapper;
+import org.jdbi.v3.sqlobject.config.internal.RegisterJoinRowMapperImpl;
 
 /**
  * Used to register a {@link JoinRowMapper} factory.  Will attempt to map all
  * types given in the annotation declaration.
  */
-@ConfiguringAnnotation(RegisterJoinRowMapper.Impl.class)
+@ConfiguringAnnotation(RegisterJoinRowMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterJoinRowMapper
@@ -37,21 +34,4 @@ public @interface RegisterJoinRowMapper
      * @return the types that will be available on the JoinRows returned.
      */
     Class<?>[] value();
-
-    class Impl implements Configurer
-    {
-
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-        {
-            RegisterJoinRowMapper registerJoinRowMapper = (RegisterJoinRowMapper) annotation;
-            registry.get(RowMappers.class).register(JoinRowMapper.forTypes(registerJoinRowMapper.value()));
-        }
-    }
 }

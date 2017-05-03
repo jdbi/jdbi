@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.statement;
+package org.jdbi.v3.sqlobject.statement.internal;
 
 import static java.util.stream.Stream.concat;
 
@@ -38,7 +38,12 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
+import org.jdbi.v3.sqlobject.statement.ParameterCustomizerFactory;
+import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 
+/**
+ * Base handler for annotations' implementation classes.
+ */
 abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler
 {
     private final List<BoundCustomizer> statementCustomizers;

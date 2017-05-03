@@ -13,6 +13,13 @@
  */
 package org.jdbi.v3.sqlobject.transaction;
 
+/**
+ * Callback that expects an open transation and produces a result.
+ *
+ * @param <R> the result type produced
+ * @param <T> the SqlObject type to provide
+ * @param <X> exception thrown
+ */
 public interface TransactionalCallback<R, T extends Transactional<T>, X extends Exception>
 {
     /**

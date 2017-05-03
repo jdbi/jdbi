@@ -13,14 +13,12 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.statement.Call;
+import org.jdbi.v3.sqlobject.customizer.internal.OutParameterFactory;
 
 /**
  * Declare a named out parameter on an {@code @SqlCall} annotated method.
@@ -37,18 +35,10 @@ import org.jdbi.v3.core.statement.Call;
  *   OutParameters callStoredProc();
  * </pre>
  */
-@SqlStatementCustomizingAnnotation(OutParameter.Factory.class)
+@SqlStatementCustomizingAnnotation(OutParameterFactory.class)
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OutParameter {
     String name();
     int sqlType();
-
-    class Factory implements SqlStatementCustomizerFactory {
-        @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
-            final OutParameter outParam = (OutParameter) annotation;
-            return stmt -> ((Call) stmt).registerOutParameter(outParam.name(), outParam.sqlType());
-        }
-    }
 }

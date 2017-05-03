@@ -13,21 +13,18 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperImpl;
 
 /**
  * Used to register a column mapper with either a sql object type or for a specific method.
  */
-@ConfiguringAnnotation(RegisterColumnMapper.Impl.class)
+@ConfiguringAnnotation(RegisterColumnMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterColumnMapper
@@ -37,29 +34,4 @@ public @interface RegisterColumnMapper
      * @return one or more column mapper classes
      */
     Class<? extends ColumnMapper<?>>[] value();
-
-    class Impl implements Configurer
-    {
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-        {
-            RegisterColumnMapper registerColumnMapper = (RegisterColumnMapper) annotation;
-            ColumnMappers mappers = registry.get(ColumnMappers.class);
-            try {
-                Class<? extends ColumnMapper<?>>[] columnMapperTypes = registerColumnMapper.value();
-                for (int i = 0; i < columnMapperTypes.length; i++) {
-                    mappers.register(columnMapperTypes[i].newInstance());
-                }
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified column mapper", e);
-            }
-        }
-    }
 }

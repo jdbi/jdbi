@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class SqlMethodHandlerFactory implements HandlerFactory {
+class SqlMethodHandlerFactory implements HandlerFactory {
     @Override
     public Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method) {
         List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())

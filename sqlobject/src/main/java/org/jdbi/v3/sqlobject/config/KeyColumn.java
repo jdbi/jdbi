@@ -13,14 +13,12 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.MapEntryMapper;
+
+import org.jdbi.v3.sqlobject.config.internal.KeyColumnImpl;
 
 /**
  * Configures the column to use for map keys, for SQL methods that return {@link java.util.Map}, or Guava's Multimap.
@@ -31,7 +29,7 @@ import org.jdbi.v3.core.mapper.MapEntryMapper;
  * Map&lt;Long, User&gt; getUsersById();
  * </pre>
  */
-@ConfiguringAnnotation(KeyColumn.Impl.class)
+@ConfiguringAnnotation(KeyColumnImpl.class)
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface KeyColumn {
@@ -39,12 +37,4 @@ public @interface KeyColumn {
      * The column name to use for map keys.
      */
     String value();
-
-    class Impl implements Configurer {
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-            KeyColumn keyColumn = (KeyColumn) annotation;
-            registry.get(MapEntryMapper.Config.class).setKeyColumn(keyColumn.value());
-        }
-    }
 }

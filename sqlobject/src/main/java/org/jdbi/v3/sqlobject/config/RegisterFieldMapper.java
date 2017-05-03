@@ -13,19 +13,15 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.FieldMapper;
+import org.jdbi.v3.sqlobject.config.internal.RegisterFieldMapperImpl;
 
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(RegisterFieldMapper.Impl.class)
+@ConfiguringAnnotation(RegisterFieldMapperImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterFieldMapper
 {
@@ -43,34 +39,4 @@ public @interface RegisterFieldMapper
      * @return Column name prefixes corresponding pairwise to the elements in {@link #value()}.
      */
     String[] prefix() default {};
-
-    class Impl implements Configurer
-    {
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-            RegisterFieldMapper registerFieldMapper = (RegisterFieldMapper) annotation;
-            Class<?>[] types = registerFieldMapper.value();
-            String[] prefixes = registerFieldMapper.prefix();
-            RowMappers mappers = registry.get(RowMappers.class);
-            if (prefixes.length == 0) {
-                for (Class<?> type : types) {
-                    mappers.register(FieldMapper.factory(type));
-                }
-            }
-            else if (prefixes.length == types.length) {
-                for (int i = 0; i < types.length; i++) {
-                    mappers.register(FieldMapper.factory(types[i], prefixes[i]));
-                }
-            }
-            else {
-                throw new IllegalStateException("RegisterFieldMapper.prefix() must have the same number of elements as value()");
-            }
-        }
-
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-    }
 }

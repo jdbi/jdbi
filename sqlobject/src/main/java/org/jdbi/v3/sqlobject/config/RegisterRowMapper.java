@@ -13,21 +13,18 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.sqlobject.config.internal.RegisterRowMapperImpl;
 
 /**
  * Used to register a row mapper with either a sql object type or for a specific method.
  */
-@ConfiguringAnnotation(RegisterRowMapper.Impl.class)
+@ConfiguringAnnotation(RegisterRowMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterRowMapper
@@ -37,29 +34,4 @@ public @interface RegisterRowMapper
      * @return one or more row mapper classes
      */
     Class<? extends RowMapper<?>>[] value();
-
-    class Impl implements Configurer
-    {
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-        {
-            RegisterRowMapper registerRowMapper = (RegisterRowMapper) annotation;
-            RowMappers mappers = registry.get(RowMappers.class);
-            try {
-                Class<? extends RowMapper<?>>[] rowMapperTypes = registerRowMapper.value();
-                for (int i = 0; i < rowMapperTypes.length; i++) {
-                    mappers.register(rowMapperTypes[i].newInstance());
-                }
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified row mapper", e);
-            }
-        }
-    }
 }

@@ -17,24 +17,16 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.function.Function;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.result.ResultBearing;
-import org.jdbi.v3.core.result.ResultIterable;
-import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.sqlobject.SqlMethodAnnotation;
-import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
+import org.jdbi.v3.sqlobject.statement.internal.SqlUpdateHandler;
 
 /**
- * Used to indicate that a method should execute a non-query sql statement
+ * Used to indicate that a method should execute a non-query sql statement.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlMethodAnnotation(SqlUpdate.Impl.class)
+@SqlMethodAnnotation(SqlUpdateHandler.class)
 public @interface SqlUpdate {
     /**
      * The sql (or statement name if using a statement locator) to be executed. The default value will use
@@ -44,66 +36,4 @@ public @interface SqlUpdate {
      * @return the SQL string (or name)
      */
     String value() default "";
-
-    class Impl extends CustomizingStatementHandler<Update> {
-        private final Function<Update, Object> returner;
-
-        public Impl(Class<?> sqlObjectType, Method method) {
-            super(sqlObjectType, method);
-
-            boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
-
-            Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
-            if (isGetGeneratedKeys) {
-                ResultReturner magic = ResultReturner.forMethod(sqlObjectType, method);
-
-                String[] columnNames = method.getAnnotation(GetGeneratedKeys.class).value();
-
-                this.returner = update -> {
-                    ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(columnNames);
-
-                    UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
-                    ResultIterable<?> iterable = useRowMapper == null
-                            ? resultBearing.mapTo(returnType)
-                            : resultBearing.map(rowMapperFor(useRowMapper));
-
-                    return magic.result(iterable, update.getContext());
-                };
-            } else if (isNumeric(method.getReturnType())) {
-                this.returner = update -> update.execute();
-            } else if (isBoolean(method.getReturnType())) {
-                this.returner = update -> update.execute() > 0;
-            } else {
-                throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
-            }
-        }
-
-        @Override
-        Update createStatement(Handle handle, String locatedSql) {
-            return handle.createUpdate(locatedSql);
-        }
-
-        @Override
-        void configureReturner(Update u, SqlObjectStatementConfiguration cfg) {
-            cfg.setReturner(() -> returner.apply(u));
-        }
-
-        private boolean isNumeric(Class<?> type) {
-            return Number.class.isAssignableFrom(type) ||
-                    type.equals(int.class) ||
-                    type.equals(long.class) ||
-                    type.equals(void.class);
-        }
-
-        private boolean isBoolean(Class<?> type) {
-            return type.equals(boolean.class) ||
-                    type.equals(Boolean.class);
-        }
-
-        private String invalidReturnTypeMessage(Method method, Type returnType) {
-            return method.getDeclaringClass().getSimpleName() + "." + method.getName() +
-                    " method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: " +
-                    returnType;
-        }
-    }
 }

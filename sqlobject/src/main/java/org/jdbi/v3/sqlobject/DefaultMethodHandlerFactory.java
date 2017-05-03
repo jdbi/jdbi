@@ -18,9 +18,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Optional;
 import java.util.stream.Stream;
+
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 
-public class DefaultMethodHandlerFactory implements HandlerFactory {
+class DefaultMethodHandlerFactory implements HandlerFactory {
     @Override
     public Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method) {
         if (!method.isDefault()) {

@@ -11,7 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.statement;
+package org.jdbi.v3.sqlobject.statement.internal;
+
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -23,8 +25,6 @@ import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
-
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Helper class used by the {@link CustomizingStatementHandler}s to assemble

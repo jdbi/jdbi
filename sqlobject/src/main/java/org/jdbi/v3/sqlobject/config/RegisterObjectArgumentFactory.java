@@ -13,23 +13,19 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 import java.sql.Types;
 
-import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.argument.ObjectArgumentFactory;
+import org.jdbi.v3.sqlobject.config.internal.RegisterObjectArgumentFactoryImpl;
 
 /**
  * Used to register argument factories for types which are compatible with
  * {@link java.sql.PreparedStatement#setObject(int, Object)}.
  */
-@ConfiguringAnnotation(RegisterObjectArgumentFactory.Impl.class)
+@ConfiguringAnnotation(RegisterObjectArgumentFactoryImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterObjectArgumentFactory
@@ -47,34 +43,4 @@ public @interface RegisterObjectArgumentFactory
      * @return SQL types corresponding pairwise to the elements in {@link #value()}.
      */
     int[] sqlType() default {};
-
-    class Impl implements Configurer
-    {
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-        {
-            RegisterObjectArgumentFactory registerObjectArgumentFactory = (RegisterObjectArgumentFactory) annotation;
-            Arguments arguments = registry.get(Arguments.class);
-
-            Class<?>[] classes = registerObjectArgumentFactory.value();
-            int[] sqlTypes = registerObjectArgumentFactory.sqlType();
-
-            if (sqlTypes.length != 0 && sqlTypes.length != classes.length) {
-                throw new IllegalStateException("RegisterObjectArgumentFactory.sqlTypes() must have the same number of elements as value()");
-            }
-
-            for (int i = 0; i < classes.length; i++) {
-                Class<?> clazz = classes[i];
-                Integer sqlType = sqlTypes.length == 0 ? null : sqlTypes[i];
-
-                arguments.register(ObjectArgumentFactory.create(clazz, sqlType));
-            }
-        }
-
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-    }
 }

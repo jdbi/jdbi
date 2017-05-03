@@ -13,50 +13,21 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.sqlobject.config.internal.RegisterRowMapperFactoryImpl;
 
 /**
  * Used to register a row mapper factory with either a sql object type or for a specific method.
  */
-@ConfiguringAnnotation(RegisterRowMapperFactory.Impl.class)
+@ConfiguringAnnotation(RegisterRowMapperFactoryImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterRowMapperFactory
 {
     Class<? extends RowMapperFactory>[] value();
-
-    class Impl implements Configurer
-    {
-
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-        {
-            RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
-            RowMappers mappers = registry.get(RowMappers.class);
-            try {
-                Class<? extends RowMapperFactory>[] factoryTypes = registerRowMapperFactory.value();
-                for (int i = 0; i < factoryTypes.length; i++) {
-                    mappers.register(factoryTypes[i].newInstance());
-                }
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to create a specified row mapper factory", e);
-            }
-        }
-    }
 }

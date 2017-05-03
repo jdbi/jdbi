@@ -17,32 +17,17 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.SqlObjects;
-import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.sqlobject.locator.internal.UseAnnotationSqlLocatorImpl;
 
 /**
  * Configures SQL Object to use AnnotationSqlLocator (the default SqlLocator).
  */
-@ConfiguringAnnotation(UseAnnotationSqlLocator.Impl.class)
+@ConfiguringAnnotation(UseAnnotationSqlLocatorImpl.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface UseAnnotationSqlLocator {
-    class Impl implements Configurer {
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-            registry.get(SqlObjects.class).setSqlLocator(new AnnotationSqlLocator());
-        }
-
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-    }
 }

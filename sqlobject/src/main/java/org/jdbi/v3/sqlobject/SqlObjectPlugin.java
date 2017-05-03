@@ -16,6 +16,9 @@ package org.jdbi.v3.sqlobject;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
+/**
+ * Plugin that registers the SqlObject factory.
+ */
 public class SqlObjectPlugin implements JdbiPlugin {
     @Override
     public void customizeJdbi(Jdbi db) {

@@ -13,17 +13,12 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
-import java.lang.reflect.Type;
-import org.jdbi.v3.core.internal.IterableLike;
-import org.jdbi.v3.sqlobject.internal.ParameterUtil;
+import org.jdbi.v3.sqlobject.customizer.internal.BindListFactory;
 
 /**
  * Binds each value in the annotated {@link Iterable} or array/varargs argument, and defines a named attribute as a
@@ -43,7 +38,7 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@SqlStatementCustomizingAnnotation(BindList.Factory.class)
+@SqlStatementCustomizingAnnotation(BindListFactory.class)
 public @interface BindList {
     /**
      * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
@@ -57,40 +52,6 @@ public @interface BindList {
      * what to do when the argument is null or empty
      */
     EmptyHandling onEmpty() default EmptyHandling.THROW;
-
-    final class Factory implements SqlStatementCustomizerFactory {
-        @Override
-        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                                  Class<?> sqlObjectType,
-                                                                  Method method,
-                                                                  Parameter param,
-                                                                  int index,
-                                                                  Type type) {
-            final BindList bindList = (BindList) annotation;
-            final String name = ParameterUtil.getParameterName(bindList, bindList.value(), param);
-
-            return (stmt, arg) -> {
-                if (arg == null || IterableLike.isEmpty(arg)) {
-                    switch (bindList.onEmpty()) {
-                    case VOID:
-                        stmt.define(name, "");
-                        return;
-                    case NULL:
-                        stmt.define(name, "null");
-                        return;
-                    case THROW:
-                        throw new IllegalArgumentException(arg == null
-                        ? "argument is null; null was explicitly forbidden on this instance of BindList"
-                                : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
-                    default:
-                        throw new IllegalStateException(EmptyHandling.valueNotHandledMessage);
-                    }
-                }
-
-                stmt.bindList(name, IterableLike.toList(arg));
-            };
-        }
-    }
 
     /**
      * describes what needs to be done if the passed argument is null or empty
@@ -113,6 +74,6 @@ public @interface BindList {
          */
         THROW;
 
-        static final String valueNotHandledMessage = "EmptyHandling type on BindList not handled. Please report this to the jdbi developers.";
+        public static final String valueNotHandledMessage = "EmptyHandling type on BindList not handled. Please report this to the jdbi developers.";
     }
 }

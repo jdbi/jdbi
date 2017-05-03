@@ -13,19 +13,15 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.sqlobject.config.internal.RegisterBeanMapperImpl;
 
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(RegisterBeanMapper.Impl.class)
+@ConfiguringAnnotation(RegisterBeanMapperImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterBeanMapper
 {
@@ -43,34 +39,4 @@ public @interface RegisterBeanMapper
      * @return Column name prefixes corresponding pairwise to the elements in {@link #value()}.
      */
     String[] prefix() default {};
-
-    class Impl implements Configurer
-    {
-        @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-            RegisterBeanMapper registerBeanMapper = (RegisterBeanMapper) annotation;
-            Class<?>[] beanClasses = registerBeanMapper.value();
-            String[] prefixes = registerBeanMapper.prefix();
-            RowMappers mappers = registry.get(RowMappers.class);
-            if (prefixes.length == 0) {
-                for (Class<?> beanClass : beanClasses) {
-                    mappers.register(BeanMapper.factory(beanClass));
-                }
-            }
-            else if (prefixes.length == beanClasses.length) {
-                for (int i = 0; i < beanClasses.length; i++) {
-                    mappers.register(BeanMapper.factory(beanClasses[i], prefixes[i]));
-                }
-            }
-            else {
-                throw new IllegalStateException("RegisterBeanMapper.prefix() must have the same number of elements as value()");
-            }
-        }
-
-        @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            configureForType(registry, annotation, sqlObjectType);
-        }
-    }
 }

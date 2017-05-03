@@ -13,49 +13,20 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
+
+import org.jdbi.v3.sqlobject.customizer.internal.QueryTimeOutFactory;
 
 /**
  * Specify the query timeout in seconds. May be used on a method or parameter, the parameter must be of an int type.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER})
-@SqlStatementCustomizingAnnotation(QueryTimeOut.Factory.class)
+@SqlStatementCustomizingAnnotation(QueryTimeOutFactory.class)
 public @interface QueryTimeOut
 {
     int value() default Integer.MAX_VALUE;
-
-    class Factory implements SqlStatementCustomizerFactory
-    {
-        @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            int queryTimeout = ((QueryTimeOut) annotation).value();
-            return stmt -> stmt.setQueryTimeout(queryTimeout);
-        }
-
-        @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            return createForType(annotation, sqlObjectType);
-        }
-
-        @Override
-        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                                  Class<?> sqlObjectType,
-                                                                  Method method,
-                                                                  Parameter param,
-                                                                  int index,
-                                                                  Type type)
-        {
-            return (stmt, queryTimeout) -> stmt.setQueryTimeout((Integer) queryTimeout);
-        }
-    }
 }

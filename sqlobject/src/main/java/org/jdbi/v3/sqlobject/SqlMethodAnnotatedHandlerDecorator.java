@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 /**
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
  * This decorator is registered out of the box.
  * </p>
  */
-public class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
+class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
     @Override
     public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
         Handler handler = base;

@@ -13,21 +13,19 @@
  */
 package org.jdbi.v3.sqlobject.customizer;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
+
+import org.jdbi.v3.sqlobject.customizer.internal.FetchDirectionFactory;
 
 /**
  * Used to specify the fetch direction, per JDBC, of a result set.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
-@SqlStatementCustomizingAnnotation(FetchDirection.Factory.class)
+@SqlStatementCustomizingAnnotation(FetchDirectionFactory.class)
 public @interface FetchDirection
 {
     /**
@@ -35,32 +33,4 @@ public @interface FetchDirection
      * @return the fetch direction
      */
     int value();
-
-    class Factory implements SqlStatementCustomizerFactory
-    {
-        @Override
-        public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType)
-        {
-            int fetchDirection = ((FetchDirection) annotation).value();
-            return stmt -> stmt.setFetchDirection(fetchDirection);
-        }
-
-        @Override
-        public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method)
-        {
-            return createForType(annotation, sqlObjectType);
-        }
-
-        @Override
-        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                                  Class<?> sqlObjectType,
-                                                                  Method method,
-                                                                  Parameter param,
-                                                                  int index,
-                                                                  Type type)
-        {
-            return (stmt, fetchDirection) -> stmt.setFetchDirection((Integer) fetchDirection);
-        }
-
-    }
 }
