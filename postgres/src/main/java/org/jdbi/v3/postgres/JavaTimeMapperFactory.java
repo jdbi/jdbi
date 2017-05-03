@@ -24,6 +24,10 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
+/**
+ * Provide mappers corresponding to java time types.
+ * @see JavaTimeArgumentFactory for the list of types
+ */
 public class JavaTimeMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {

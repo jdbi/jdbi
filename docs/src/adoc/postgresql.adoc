@@ -1,1 +1,15 @@
-TODO
+*jdbi3-postgres* provides enhanced integration with the 
+link:https://jdbc.postgresql.org/[PostgreSQL JDBC Driver].
+
+[source,java,indent=0]
+-------------------------------------------
+Jdbi jdbi = Jdbi.create("jdbc:postgresql://host:port/database")
+                .installPlugin(new PostgresPlugin());
+-------------------------------------------
+
+The plugin configures mappings for the Java 8 *java.time* types like
+*Instant* or *Duration*, *UUID*, typed enums, and *hstore*.
+
+See the
+link:https://jdbi.github.io/apidocs/org/jdbi/v3/postgres/package-summary.html[javadoc]
+for an exhaustive list.
