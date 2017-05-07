@@ -21,11 +21,15 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.ObjectArgument;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
+/**
+ * Maps {@link LocalDate}, {@link LocalTime}, {@link LocalDateTime}, {@link OffsetDateTime}.
+ * Note that no {@link java.time.Instant} override is needed.
+ */
 public class JavaTimeArgumentFactory implements ArgumentFactory {
 
     @Override

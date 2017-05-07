@@ -15,6 +15,7 @@ package org.jdbi.v3.postgres;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -26,7 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class TestPostgresJsr310 {
+public class TestJavaTime {
 
     @ClassRule
     public static PostgresDbRule db = new PostgresDbRule();
@@ -71,12 +72,19 @@ public class TestPostgresJsr310 {
     }
 
     @Test
-    public void localTime(){
+    public void localTime() {
         h.execute("create table schedule (start time, stop time)");
         LocalTime start = LocalTime.of(8, 30, 0);
         LocalTime stop = LocalTime.of(10, 30, 0);
         h.execute("insert into schedule (start, stop) values (?,?)", start, stop);
         assertThat(h.createQuery("select start from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(start);
         assertThat(h.createQuery("select stop from schedule").mapTo(LocalTime.class).findOnly()).isEqualTo(stop);
+    }
+
+    @Test
+    public void instant() {
+        final Instant leap = Instant.ofEpochMilli(-14159025000L);
+        h.execute("insert into stuff values(?)", leap);
+        assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).findOnly()).isEqualTo(leap);
     }
 }
