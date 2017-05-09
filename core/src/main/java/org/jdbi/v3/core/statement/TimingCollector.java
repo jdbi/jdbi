@@ -14,32 +14,17 @@
 package org.jdbi.v3.core.statement;
 
 /**
- * This class collects timing information for every database operation.
+ * This class collects timing information for statement execution.
  */
-public interface TimingCollector
-{
+@FunctionalInterface
+public interface TimingCollector {
     /**
-     * This method is executed every time there is information to collect. Grouping of the
-     * timing information is up to the implementation of this interface.
+     * Called after a statement completes with how long it took to execute.
      *
-     * @param ctx The Statement Context, which contains additional information about the
-     * statement that just ran.
-     * @param elapsedTime The elapsed time in nanoseconds.
+     * @param ctx the context of the just completed statement
+     * @param elapsedTime the elapsed time in nanoseconds.
      */
-    void collect(long elapsedTime, StatementContext ctx);
+    void collect(long elapsedNs, StatementContext ctx);
 
-    /**
-     * A No Operation Timing Collector. It can be used to "plug" into Jdbi if more sophisticated
-     * collection is not needed.
-     */
-    TimingCollector NOP_TIMING_COLLECTOR = new NopTimingCollector();
-
-    class NopTimingCollector implements TimingCollector
-    {
-        @Override
-        public void collect(final long elapsedTime, final StatementContext ctx)
-        {
-            // GNDN
-        }
-    }
+    TimingCollector NOP_TIMING_COLLECTOR = (ns, ctx) -> {};
 }
