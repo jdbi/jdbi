@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.vendor;
+package org.jdbi.v3.core.h2;
 
 import java.util.UUID;
 

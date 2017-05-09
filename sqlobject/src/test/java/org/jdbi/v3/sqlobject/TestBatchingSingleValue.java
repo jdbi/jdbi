@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.vendor.H2DatabasePlugin;
+import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.sqlobject.statement.BatchChunkSize;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
