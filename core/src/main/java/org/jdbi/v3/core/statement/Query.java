@@ -20,9 +20,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetMapper;
-import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 /**
@@ -73,7 +73,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      */
     public Query setFetchSize(final int fetchSize)
     {
-        return addCustomizer(new StatementCustomizers.FetchSizeCustomizer(fetchSize));
+        return addCustomizer(StatementCustomizers.fetchSize(fetchSize));
     }
 
     /**
@@ -86,7 +86,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      */
     public Query setMaxRows(final int maxRows)
     {
-        return addCustomizer(new StatementCustomizers.MaxRowsCustomizer(maxRows));
+        return addCustomizer(StatementCustomizers.maxRows(maxRows));
     }
 
     /**
@@ -99,7 +99,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
      */
     public Query setMaxFieldSize(final int maxFields)
     {
-        return addCustomizer(new StatementCustomizers.MaxFieldSizeCustomizer(maxFields));
+        return addCustomizer(StatementCustomizers.maxFieldSize(maxFields));
     }
 
     /**

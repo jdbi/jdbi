@@ -14,10 +14,10 @@
 package org.jdbi.v3.sqlobject;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.JdbiPlugin;
+import org.jdbi.v3.core.spi.JdbiPlugin;
 
 /**
- * Plugin that registers the SqlObject factory.
+ * Plugin that installs the SqlObject extension.
  */
 public class SqlObjectPlugin implements JdbiPlugin {
     @Override

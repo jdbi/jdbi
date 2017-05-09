@@ -14,7 +14,7 @@
 package org.jdbi.v3.sqlobject.transaction;
 
 /**
- * Callback that expects an open transation and produces a result.
+ * Callback that expects an open transaction and produces a result.
  *
  * @param <R> the result type produced
  * @param <T> the SqlObject type to provide

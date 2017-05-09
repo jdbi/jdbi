@@ -86,7 +86,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     public This setFetchDirection(final int value)
     {
-        addCustomizer(new StatementCustomizers.FetchDirectionStatementCustomizer(value));
+        addCustomizer(StatementCustomizers.fetchDirection(value));
         return typedThis;
     }
 
@@ -107,7 +107,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This setQueryTimeout(final int seconds)
     {
-        return addCustomizer(new StatementCustomizers.QueryTimeoutCustomizer(seconds));
+        return addCustomizer(StatementCustomizers.statementTimeout(seconds));
     }
 
     /**

@@ -73,7 +73,5 @@ public @interface BindList {
          * throw IllegalArgumentException
          */
         THROW;
-
-        public static final String valueNotHandledMessage = "EmptyHandling type on BindList not handled. Please report this to the jdbi developers.";
     }
 }

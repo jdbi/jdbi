@@ -17,7 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Some simple {@link StatementCustomizers} you might find handy.
+ * Some simple {@link StatementCustomizer}s you might find handy.
  */
 public final class StatementCustomizers
 {

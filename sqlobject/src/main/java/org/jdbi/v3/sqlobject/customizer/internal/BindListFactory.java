@@ -20,12 +20,13 @@ import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.internal.IterableLike;
 import org.jdbi.v3.sqlobject.customizer.BindList;
-import org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 public final class BindListFactory implements SqlStatementCustomizerFactory {
+    private static final String valueNotHandledMessage = "EmptyHandling type on BindList not handled. Please report this to the jdbi developers.";
+
     @Override
     public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
                                                               Class<?> sqlObjectType,
@@ -50,7 +51,7 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
                     ? "argument is null; null was explicitly forbidden on this instance of BindList"
                             : "argument is empty; emptiness was explicitly forbidden on this instance of BindList");
                 default:
-                    throw new IllegalStateException(EmptyHandling.valueNotHandledMessage);
+                    throw new IllegalStateException(valueNotHandledMessage);
                 }
             }
 

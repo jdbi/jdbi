@@ -22,11 +22,11 @@ import java.util.SortedSet;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.guava.GuavaCollectors;
-import org.jdbi.v3.sqlobject.config.RegisterCollectorFactory;
+import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -37,7 +37,7 @@ import org.junit.Test;
 public class TestCollectorFactory {
 
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
 
     @Test
     public void testExists() throws Exception {
@@ -115,7 +115,6 @@ public class TestCollectorFactory {
         assertThat(rs).containsExactly("Brian", "Coda");
     }
 
-    @RegisterCollectorFactory(GuavaCollectors.Factory.class)
     public interface Dao extends Base<String> {
         @SqlQuery("select name from something order by id")
         ImmutableList<String> findAll();

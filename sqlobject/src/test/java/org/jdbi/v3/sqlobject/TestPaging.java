@@ -17,13 +17,14 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+
 import com.google.common.collect.ImmutableList;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.guava.GuavaCollectors;
-import org.jdbi.v3.sqlobject.config.RegisterCollectorFactory;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
@@ -35,7 +36,7 @@ import org.junit.Test;
 public class TestPaging
 {
     @Rule
-    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseRule dbRule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin()).withPlugin(new GuavaPlugin());
 
     private Handle handle;
 
@@ -73,7 +74,6 @@ public class TestPaging
     }
 
     @RegisterRowMapper(SomethingMapper.class)
-    @RegisterCollectorFactory(GuavaCollectors.Factory.class)
     public interface Sql
     {
         @SqlBatch("insert into something (id, name) values (:id, :name)")

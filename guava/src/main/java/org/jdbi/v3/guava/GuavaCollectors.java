@@ -79,7 +79,7 @@ public class GuavaCollectors {
         return new Factory();
     }
 
-    public static class Factory implements CollectorFactory {
+    private static class Factory implements CollectorFactory {
         private final TypeVariable<Class<Multimap>> multimapKey;
         private final TypeVariable<Class<Multimap>> multimapValue;
 
