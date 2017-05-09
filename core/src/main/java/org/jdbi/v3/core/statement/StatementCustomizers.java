@@ -16,97 +16,78 @@ package org.jdbi.v3.core.statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Some simple {@link StatementCustomizers} you might find handy.
+ */
 public final class StatementCustomizers
 {
-    private StatementCustomizers()
-    {
+    private StatementCustomizers() { }
+
+    /**
+     * Sets the fetch direction on a query.
+     */
+    public static StatementCustomizer fetchDirection(final Integer direction) {
+        return new StatementCustomizer() {
+            @Override
+            public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException {
+                stmt.setFetchDirection(direction);
+            }
+        };
     }
 
     /**
-     * Sets the fetch direction on a query. Can be used as a Statement customizer or a SqlStatementCustomizer.
+     * Set a timeout on the statement.
+     * @param seconds timeout in seconds
      */
-    public static class FetchDirectionStatementCustomizer implements StatementCustomizer
-    {
-        private final Integer direction;
-
-        public FetchDirectionStatementCustomizer(final Integer direction)
-        {
-            this.direction = direction;
-        }
-
-        @Override
-        public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException
-        {
-            stmt.setFetchDirection(direction);
-        }
-
-        public void apply(SqlStatement<?> q) throws SQLException
-        {
-            q.setFetchDirection(direction);
-        }
+    public static StatementCustomizer statementTimeout(final int seconds) {
+        return new StatementCustomizer() {
+            @Override
+            public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException {
+                stmt.setQueryTimeout(seconds);
+            }
+        };
     }
 
-    public static final class QueryTimeoutCustomizer implements StatementCustomizer
-    {
-        private final int seconds;
-
-        public QueryTimeoutCustomizer(final int seconds)
-        {
-            this.seconds = seconds;
-        }
-
-        @Override
-        public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException
-        {
-            stmt.setQueryTimeout(seconds);
-        }
+    /**
+     * Set the number of rows to fetch from the database in a single batch.
+     * In a transaction, may enable streaming result sets instead of buffering in memory.
+     * @param fetchSize number of rows to fetch at a time
+     */
+    public static StatementCustomizer fetchSize(final int fetchSize) {
+        return new StatementCustomizer() {
+            @Override
+            public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException {
+                stmt.setFetchSize(fetchSize);
+            }
+        };
     }
 
-    public static final class FetchSizeCustomizer implements StatementCustomizer
-    {
-        private final int fetchSize;
-
-        public FetchSizeCustomizer(final int fetchSize)
-        {
-            this.fetchSize = fetchSize;
-        }
-
-        @Override
-        public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException
-        {
-            stmt.setFetchSize(fetchSize);
-        }
+    /**
+     * Limit number of rows returned.  Note that this may be significantly
+     * less efficient than doing it in the SQL with a {@code LIMIT} clause
+     * and is not recommended unless you understand why you need it specifically.
+     * @param maxRows number of rows to return
+     */
+    public static StatementCustomizer maxRows(final int maxRows) {
+        return new StatementCustomizer() {
+            @Override
+            public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException {
+                stmt.setMaxRows(maxRows);
+            }
+        };
     }
 
-    public static final class MaxRowsCustomizer implements StatementCustomizer
-    {
-        private final int maxRows;
-
-        public MaxRowsCustomizer(final int maxRows)
-        {
-            this.maxRows = maxRows;
-        }
-
-        @Override
-        public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException
-        {
-            stmt.setMaxRows(maxRows);
-        }
-    }
-
-    public static final class MaxFieldSizeCustomizer implements StatementCustomizer
-    {
-        private final int maxFieldSize;
-
-        public MaxFieldSizeCustomizer(final int maxFieldSize)
-        {
-            this.maxFieldSize = maxFieldSize;
-        }
-
-        @Override
-        public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException
-        {
-            stmt.setMaxFieldSize(maxFieldSize);
-        }
+    /**
+     * Sets the limit of large variable size types like {@code VARCHAR}.
+     * Limited data is silently discarded, so be careful!
+     * @param maxFieldSize the maximum field size to return
+     */
+    public static StatementCustomizer maxFieldSize(final int maxFieldSize) {
+        return new StatementCustomizer() {
+            @Override
+            public void beforeExecution(final PreparedStatement stmt, final StatementContext ctx) throws SQLException {
+                stmt.setMaxFieldSize(maxFieldSize);
+            }
+        };
     }
 }
