@@ -16,7 +16,7 @@ package org.jdbi.v3.postgres;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.JdbiPlugin;
 
 /**
  * Postgres plugin.

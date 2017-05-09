@@ -16,8 +16,8 @@ package org.jdbi.v3.core.vendor;
 import java.util.UUID;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.JdbiPlugin;
 import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
-import org.jdbi.v3.core.spi.JdbiPlugin;
 
 public class H2DatabasePlugin implements JdbiPlugin {
     @Override

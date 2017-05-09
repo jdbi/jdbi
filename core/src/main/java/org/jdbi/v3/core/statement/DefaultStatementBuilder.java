@@ -21,10 +21,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * A StatementBuilder which will always create a new PreparedStatement
+ * A StatementBuilder which will always create a new PreparedStatement.
  */
 public class DefaultStatementBuilder implements StatementBuilder
 {
+    public static final StatementBuilderFactory FACTORY = DefaultStatementBuilder::new;
+
+    public DefaultStatementBuilder() { }
+    public DefaultStatementBuilder(Connection ignored) { }
+
     @Override
     public Statement create(Connection conn, StatementContext ctx) throws SQLException
     {

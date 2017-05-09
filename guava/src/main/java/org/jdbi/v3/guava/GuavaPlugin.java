@@ -14,7 +14,7 @@
 package org.jdbi.v3.guava;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.JdbiPlugin;
 
 public class GuavaPlugin implements JdbiPlugin {
     @Override

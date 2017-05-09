@@ -14,7 +14,7 @@
 package org.jdbi.v3.jodatime2;
 
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.JdbiPlugin;
 
 public class JodaTimePlugin implements JdbiPlugin {
     @Override

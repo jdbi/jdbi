@@ -24,7 +24,7 @@ import java.util.UUID;
 import org.jdbi.v3.core.ConnectionFactory;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.JdbiPlugin;
 import org.junit.rules.ExternalResource;
 
 public class H2DatabaseRule extends ExternalResource implements DatabaseRule

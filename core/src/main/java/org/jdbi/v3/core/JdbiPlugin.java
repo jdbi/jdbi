@@ -11,12 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.spi;
+package org.jdbi.v3.core;
 
 import java.sql.Connection;
-
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.Handle;
 
 public interface JdbiPlugin {
     default void customizeJdbi(Jdbi db) {}

@@ -18,8 +18,8 @@ import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.JdbiPlugin;
 import org.jdbi.v3.core.JdbiPreparer;
-import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;

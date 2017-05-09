@@ -32,8 +32,7 @@ import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
-import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.jdbi.v3.core.statement.DefaultStatementBuilderFactory;
+import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementBuilderFactory;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
@@ -54,7 +53,7 @@ public class Jdbi implements Configurable<Jdbi>
 
     private final ConnectionFactory connectionFactory;
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(new LocalTransactionHandler());
-    private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(new DefaultStatementBuilderFactory());
+    private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(DefaultStatementBuilder.FACTORY);
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
