@@ -93,7 +93,7 @@ public class ResultsTest {
     @Test
     public void rowMapper() {
         // tag::rowMapper[]
-        List<User> users = handle.createQuery("SELECT * FROM user ORDER BY id ASC")
+        List<User> users = handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
             .map(new UserMapper())
             .list();
         // end::rowMapper[]
@@ -105,7 +105,7 @@ public class ResultsTest {
     @Test
     public void inlineRowMapper() {
         // tag::inlineRowMapper[]
-        List<User> users = handle.createQuery("SELECT * FROM user ORDER BY id ASC")
+        List<User> users = handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
                 .map((rs, ctx) -> new User(rs.getInt("id"), rs.getString("name")))
                 .list();
         // end::inlineRowMapper[]
@@ -119,7 +119,7 @@ public class ResultsTest {
         // tag::rowMapperFactory[]
         handle.registerRowMapper(User.class, new UserMapper());
 
-        handle.createQuery("SELECT * FROM user ORDER BY id ASC")
+        handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
               .mapTo(User.class)
               .useStream(stream -> {
                   Optional<String> first = stream
