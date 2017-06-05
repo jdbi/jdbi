@@ -15,7 +15,6 @@ package jdbi.doc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -23,16 +22,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.v3.core.rule.H2DatabaseRule;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,10 +48,12 @@ public class ResultsTest {
         final int id;
         final String name;
 
+        // tag::userConstructor[]
         public User(int id, String name) {
             this.id = id;
             this.name = name;
         }
+        // end::userConstructor[]
     }
 
     @Before
@@ -83,61 +81,67 @@ public class ResultsTest {
     }
     // end::headlineExample[]
 
-    // tag::rowMapper[]
-    static final String SELECT_ALL_USERS = "SELECT * FROM user ORDER BY id ASC";
-
-    static final class UserMapper implements RowMapper<User> {
+    // tag::userMapper[]
+    class UserMapper implements RowMapper<User> {
         @Override
-        public User map(ResultSet r, StatementContext ctx) throws SQLException {
-            return new User(r.getInt("id"), r.getString("name"));
+        public User map(ResultSet rs, StatementContext ctx) throws SQLException {
+            return new User(rs.getInt("id"), rs.getString("name"));
         }
     }
+    // end::userMapper[]
 
     @Test
     public void rowMapper() {
-        List<User> users = handle.createQuery(SELECT_ALL_USERS)
+        // tag::rowMapper[]
+        List<User> users = handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
             .map(new UserMapper())
             .list();
+        // end::rowMapper[]
 
         assertThat(users).hasSize(4);
         assertThat(users.get(3).name).isEqualTo("Data");
     }
-    // end::rowMapper[]
 
-    // tag::rowMapperFactory[]
+    @Test
+    public void inlineRowMapper() {
+        // tag::inlineRowMapper[]
+        List<User> users = handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
+                .map((rs, ctx) -> new User(rs.getInt("id"), rs.getString("name")))
+                .list();
+        // end::inlineRowMapper[]
+
+        assertThat(users).hasSize(4);
+        assertThat(users.get(3).name).isEqualTo("Data");
+    }
+
     @Test
     public void rowMapperFactory() {
-        handle.registerRowMapper(new RowMapperFactory() {
-            @Override
-            public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
-                return type == User.class ?
-                        Optional.of(new UserMapper()) :
-                            Optional.empty();
-            }
-        });
+        // tag::rowMapperFactory[]
+        handle.registerRowMapper(User.class, new UserMapper());
 
-        try (Stream<User> s = handle.createQuery(SELECT_ALL_USERS)
-            .mapTo(User.class)
-            .stream())
-        {
-            assertThat(s.filter(u -> u.id > 2)
-                .map(u -> u.name)
-                .findFirst()).contains("Charlie");
-        }
+        handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
+              .mapTo(User.class)
+              .useStream(stream -> {
+                  Optional<String> first = stream
+                          .filter(u -> u.id > 2)
+                          .map(u -> u.name)
+                          .findFirst();
+                  assertThat(first).contains("Charlie");
+              });
+        // end::rowMapperFactory[]
     }
-    // end::rowMapperFactory[]
 
-    // tag::constructorMapper[]
     @Test
     public void constructorMapper() {
+        // tag::constructorMapper[]
         handle.registerRowMapper(ConstructorMapper.factory(User.class));
-        Set<User> userSet = handle.createQuery(SELECT_ALL_USERS)
+        Set<User> userSet = handle.createQuery("SELECT * FROM user ORDER BY id ASC")
             .mapTo(User.class)
             .collect(Collectors.toSet());
 
         assertThat(userSet).hasSize(4);
+        // end::constructorMapper[]
     }
-    // end::constructorMapper[]
 
     // tag::columnMapper[]
     public static class UserName {
