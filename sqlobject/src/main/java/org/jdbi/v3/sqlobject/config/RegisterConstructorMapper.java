@@ -25,7 +25,7 @@ import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 
 /**
- * Used to register a constructor mapper factory for the only constructor of a type.
+ * Registers a constructor mapper factory for the given type(s).
  */
 @ConfiguringAnnotation(RegisterConstructorMapper.Impl.class)
 @Retention(RetentionPolicy.RUNTIME)
