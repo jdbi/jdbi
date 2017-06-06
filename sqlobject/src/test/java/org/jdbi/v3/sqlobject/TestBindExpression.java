@@ -83,7 +83,7 @@ public class TestBindExpression
             {
                 final String rootName = ((BindRoot) annotation).value();
                 final JexlEngine engine = new JexlEngine();
-                return (q, root) -> q.bindNamedArgumentFinder(name -> {
+                return (q, root) -> q.bindNamedArgumentFinder((name, context) -> {
                     Expression e = engine.createExpression(name);
                     final Object it = e.evaluate(new MapContext(ImmutableMap.of(rootName, root)));
                     return it == null

@@ -182,7 +182,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bindBean(Object bean)
     {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(null, bean, getContext()));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(null, bean));
     }
 
     /**
@@ -197,7 +197,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bindBean(String prefix, Object bean)
     {
-        return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean, getContext()));
+        return bindNamedArgumentFinder(new BeanPropertyArguments(prefix, bean));
     }
 
     /**
@@ -210,7 +210,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     public This bindMap(Map<String, ?> map)
     {
-        return map == null ? typedThis : bindNamedArgumentFinder(new MapArguments(map, getContext()));
+        return map == null ? typedThis : bindNamedArgumentFinder(new MapArguments(map));
     }
 
     /**
@@ -1252,13 +1252,14 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         StringBuilder names = new StringBuilder();
 
+        StatementContext ctx = getContext();
         for (int valueIndex = 0; valueIndex < values.size(); valueIndex++) {
             if (valueIndex > 0) {
                 names.append(',');
             }
 
             Object bean = values.get(valueIndex);
-            BeanPropertyArguments beanProperties = new BeanPropertyArguments(null, bean, getContext());
+            BeanPropertyArguments beanProperties = new BeanPropertyArguments(null, bean);
 
             names.append("(");
             for (int propertyIndex = 0; propertyIndex < propertyNames.size(); propertyIndex++) {
@@ -1268,8 +1269,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                 String propertyName = propertyNames.get(propertyIndex);
                 String name = "__" + key + "_" + valueIndex + "_" + propertyName;
                 names.append(':').append(name);
-                Argument argument = beanProperties.find(propertyName)
-                        .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + propertyName + " argument for " + bean, getContext()));
+                Argument argument = beanProperties.find(propertyName, ctx)
+                        .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + propertyName + " argument for " + bean, ctx));
                 bind(name, argument);
             }
             names.append(")");

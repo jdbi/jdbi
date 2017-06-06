@@ -26,6 +26,11 @@ public abstract class StatementException extends JdbiException
         this.statementContext = ctx;
     }
 
+    public StatementException(String string, Throwable throwable) {
+        super(string, throwable);
+        this.statementContext = null;
+    }
+
     public StatementException(Throwable cause, StatementContext ctx) {
         super(cause);
         this.statementContext = ctx;
