@@ -22,12 +22,12 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.collector.CollectorFactory;
 
 /**
- * Used to register container mappers on the current {@link Query}
- * either for a sql object type or for a method.
+ * Used to register collector factories on the current
+ * {@link org.jdbi.v3.core.statement.SqlStatement} either for a sql object type
+ * or for a method.
  */
 @ConfiguringAnnotation(RegisterCollectorFactory.Impl.class)
 @Target({ElementType.METHOD, ElementType.TYPE})
