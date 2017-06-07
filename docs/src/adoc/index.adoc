@@ -840,6 +840,178 @@ to rear its ugly head.
 Here we present a couple of strategies for retrieving results from more
 complicated rows.
 
+Consider a contact list app as an example. The contact list contains any
+number of contacts. Contacts have a name, and any number of phone numbers.
+Phone numbers have a type (e.g. home, work) and a phone number:
+
+[source,java]
+----
+class Contact {
+  Long id;
+  String name;
+  List<Phone> phones = new ArrayList<>();
+
+  void addPhone(Phone phone) {
+    phones.add(phone);
+  }
+}
+
+class Phone {
+  Long id;
+  String type;
+  String phone;
+}
+----
+
+We've left out getters, setters, and access modifiers for brevity.
+
+Since we'll be reusing the same queries, we'll define them as constants now:
+
+----
+static final String SELECT_ALL = "select contacts.id c_id, name c_name, "
+    + "phones.id p_id, type p_type, phones.phone p_phone "
+    + "from contacts left join phones on contacts.id = phones.contact_id "
+    + "order by c_name, p_type ";
+
+static final String SELECT_ONE = SELECT_ALL + "where phones.id = :id";
+----
+
+Note that we've given aliases (e.g. `c_id`, `p_id`) to distinguish columns of
+the same name (`id`) from different tables.
+
+Jdbi provides a few different APIs for dealing with joined data.
+
+===== ResultBearing.reduceRows()
+
+The
+link:{jdbidocs}/core/result/ResultBearing.html#reduceRows-U-java.util.function.BiFunction-[ResultBearing.reduceRows()^]
+method accepts an accumulator seed value and a lambda function. For each row in
+the result set, Jdbi calls the lambda with the current accumulator value and a
+link:{jdbidocs}/core/result/RowView.html[RowView^] over the current row of the
+result set. The value returned for each row becomes the input accumulator
+passed in for the next row. After the last row has been processed,
+`reducedRows()` returns the last value returned from the lambda.
+
+[source,java]
+----
+List<Contact> contacts = handle.createQuery(SELECT_ALL)
+    .registerRowMapper(BeanMapper.factory(Contact.class, "c"))
+    .registerRowMapper(BeanMapper.factory(Phone.class, "p")) <1>
+    .reduceRows(new LinkedHashMap<Long, Contact>(), // <2>
+                (acc, rowView) -> {
+      Contact contact = acc.computeIfAbsent( // <3>
+          rowView.getColumn("c_id", Long.class),
+          id -> rowView.getRow(Contact.class));
+
+      if (rowView.getColumn("p_id", Long.class) != null) { // <4>
+        contact.addPhone(rowView.getRow(Phone.class));
+      }
+
+      return acc; // <5>
+    })
+    .values() // <6>
+    .stream()
+    .collect(toList()); // <7>
+----
+
+<1> Register row mappers for `Contact` and `Phone`. Note the `"c"` and `"p"`
+    arguments used--these are column name prefixes. By registering mappers with
+    prefixes, the `Contact` mapper will only map the `c_id` and `c_name`
+    columns, whereas the `Phone` mapper will only map `p_id`, `p_type`, and
+    `p_phone`.
+<2> Use an empty link:{jdkdocs}/java/util/LinkedHashMap.html[LinkedHashMap^]
+    as the accumulator seed, mapped by contact ID. `LinkedHashMap` is a good
+    accumulator when selecting multiple master records, since it has fast
+    storage and lookup while preserving insertion order (which helps honor
+    `ORDER BY` clauses). If ordering is unimportant, a `HashMap` would also
+    suffice.
+<3> Load the `Contact` from the accumulator if we already have it; otherwise,
+    initialize it through the `RowView`.
+<4> If `p_id` column is not null, load the phone number from the current row
+    and add it to the current contact.
+<5> Return the input map (now sporting an additional contact and/or phone) as
+    the accumulator for the next row.
+<6> At this point, all rows have been read into memory, and we don't need the
+    contact ID keys. So we call `Map.values()` to get a `Collection<Contact>`.
+<7> Collect the contacts into a `List<Contact>`.
+
+You may be wondering about the `getRow()` and `getColumn()` calls to `rowView`.
+When you call `rowView.getRow(SomeType.class)`, `RowView` looks up the
+registered row mapper for `SomeType`, and uses it to map the current row to a
+`SomeType` object.
+
+Likewise, when you call `rowView.getColumn("my_value", MyValueType.class)`,
+`RowView` looks up the registered column mapper for `MyValueType`, and uses it
+to map the `my_value` column of the current row to a `MyValueType` object.
+
+Now let's do the same thing, but for a single contact:
+
+[source,java]
+----
+Optional<Contact> contact = handle.createQuery(SELECT_ONE)
+    .bind("id", contactId)
+    .registerRowMapper(BeanMapper.factory(Contact.class, "c"))
+    .registerRowMapper(BeanMapper.factory(Phone.class, "p"))
+    .reduceRows(Optional.<Contact>empty(), // <1>
+                (acc, rowView) -> {
+      Contact contact = acc.orElseGet(() -> rowView.getRow(Contact.class));
+
+      if (rowView.getColumn("p_id", Long.class) != null) {
+        contact.addPhone(rowView.getRow(Phone.class));
+      }
+
+      return Optional.of(contact); // <4>
+    });
+----
+
+<1> Use an empty link:{jdkdocs}/java/util/Optional.html[Optional<Contact>^]
+    as the accumulator seed. After the first row, the accumulator will be a
+    non-empty `Optional<Contact>`.
+<2> Load the `Contact` from the accumulator if we already have it; otherwise,
+    initialize it through the `RowView`.
+<4> Rewrap the `Contact` in an `Optional<Contact>`, to use for the accumulator
+    on the following rows.
+
+===== ResultBearing.reduceResultSet()
+
+link:{jdbidocs}/core/result/ResultBearing.html#reduceResultSet-U-org.jdbi.v3.core.result.ResultSetAccumulator-[ResultBearing.reduceResultSet()^]
+is a low-level API similar to `reduceRows()`, except it provides direct access
+to the JDBC `ResultSet` instead of a `RowView` for each row.
+
+This method can provide superior performance compared to `reduceRows()`, at the
+expense of verbosity:
+
+[source,java]
+----
+List<Contact> contacts = handle.createQuery(SELECT_ALL)
+    .reduceResultSet(new LinkedHashMap<Long, Contact>(),
+                     (acc, resultSet, ctx) -> {
+      long contactId = resultSet.getLong("c_id");
+      Contact contact;
+      if (acc.containsKey(contactId)) {
+        contact = acc.get(contactId);
+      } else {
+        contact = new Contact();
+        contact.setId(contactId);
+        contact.setName(resultSet.getString("c_name");
+      }
+
+      long phoneId = resultSet.getLong("p_id");
+      if (!resultSet.wasNull()) {
+        Phone phone = new Phone();
+        phone.setId(phoneId);
+        phone.setType(resultSet.getString("p_type");
+        phone.setPhone(resultSet.getString("p_phone");
+        contact.addPhone(phone);
+      }
+
+      return acc;
+    })
+    .values()
+    .stream()
+    .collect(toList());
+----
+
 ===== JoinRowMapper
 
 The JoinRowMapper takes a set of types to extract from each row. It uses the
@@ -2018,6 +2190,10 @@ TODO:
 * Use the `-parameters` compiler flag to avoid all those
   `@Bind("foo") String foo` redundant qualifiers in SQL Object method
   parameters.
+* Use a profiler! The true root cause of performance problems can often be a
+  surprise. Measure first, _then_ tune for performance. And then measure again
+  to be sure it made a difference.
+* Don't forget to bring a towel!
 
 === API Reference
 
