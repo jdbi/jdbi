@@ -54,9 +54,8 @@ public class TestTimestamped {
     @Test
     public void shouldInsertCreatedAndModifiedFields() {
         // This is one way we can get the binding information of the executed query
-        dbRule.getJdbi().setTimingCollector((l, statementContext) -> {
-            assertThat(statementContext.getBinding().findForName("now")).isPresent();
-        });
+        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
+                assertThat(ctx.getBinding().findForName("now", ctx)).isPresent());
 
         Person p = new Person("John", "Phiri");
         p.setId(1);
@@ -77,9 +76,8 @@ public class TestTimestamped {
 
         Person p = new Person("John", "Phiri");
         p.setId(1);
-        dbRule.getJdbi().setTimingCollector((l, statementContext) -> {
-            assertThat(statementContext.getBinding().findForName("createdAt")).isPresent();
-        });
+        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
+                assertThat(ctx.getBinding().findForName("createdAt", ctx)).isPresent());
 
 
         personDAO.insertWithCustomTimestampFields(p);
@@ -104,9 +102,8 @@ public class TestTimestamped {
 
         p.setId(3);
 
-        dbRule.getJdbi().setTimingCollector((l, statementContext) -> {
-            assertThat(statementContext.getBinding().findForName("now")).isPresent();
-        });
+        dbRule.getJdbi().setTimingCollector((elapsed, ctx) ->
+                assertThat(ctx.getBinding().findForName("now", ctx)).isPresent());
 
         personDAO.insert(p);
 

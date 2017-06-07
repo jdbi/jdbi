@@ -25,16 +25,14 @@ import org.jdbi.v3.core.statement.StatementContext;
 public class MapArguments implements NamedArgumentFinder
 {
     private final Map<String, ?> args;
-    private final StatementContext ctx;
 
-    public MapArguments(Map<String, ?> args, StatementContext ctx)
+    public MapArguments(Map<String, ?> args)
     {
-        this.ctx = ctx;
         this.args = args;
     }
 
     @Override
-    public Optional<Argument> find(String name)
+    public Optional<Argument> find(String name, StatementContext ctx)
     {
         if (args.containsKey(name))
         {

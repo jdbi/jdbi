@@ -14,9 +14,9 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 /**
- * Matches column names with identical java names, ignoring case.
+ * Matches snake case column names to java camel case names, ignoring case.
  * <p>
- * Example: column names {@code firstname} or {@code FIRSTNAME} would match java name {@code firstName}.
+ * Example: column names {@code first_name} or {@code FIRST_NAME} would match java name {@code firstName}.
  */
 public class SnakeCaseColumnNameMatcher implements ColumnNameMatcher {
     @Override

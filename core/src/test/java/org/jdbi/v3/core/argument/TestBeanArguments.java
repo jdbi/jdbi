@@ -52,7 +52,7 @@ public class TestBeanArguments
             }
         };
 
-        new BeanPropertyArguments("", bean, ctx).find("foo").get().apply(5, stmt, null);
+        new BeanPropertyArguments("", bean).find("foo", ctx).get().apply(5, stmt, null);
 
         verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
@@ -67,7 +67,7 @@ public class TestBeanArguments
             }
         };
 
-        new BeanPropertyArguments("", bean, ctx).find("foo").get().apply(3, stmt, null);
+        new BeanPropertyArguments("", bean).find("foo", ctx).get().apply(3, stmt, null);
 
         verify(stmt).setNull(3, Types.NUMERIC);
     }
@@ -82,7 +82,7 @@ public class TestBeanArguments
             }
         };
 
-        new BeanPropertyArguments("foo", bean, ctx).find("foo.bar").get().apply(3, stmt, null);
+        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx).get().apply(3, stmt, null);
 
         verify(stmt).setString(3, "baz");
     }
@@ -98,7 +98,7 @@ public class TestBeanArguments
         };
 
         exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean, ctx).find("foo.bar");
+        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class TestBeanArguments
         };
 
         exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean, ctx).find("foo.bar");
+        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
     }
 
     @Test
@@ -129,6 +129,6 @@ public class TestBeanArguments
         };
 
         exception.expect(UnableToCreateStatementException.class);
-        new BeanPropertyArguments("foo", bean, ctx).find("foo.bar");
+        new BeanPropertyArguments("foo", bean).find("foo.bar", ctx);
     }
 }

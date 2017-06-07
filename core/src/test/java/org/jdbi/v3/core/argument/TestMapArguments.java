@@ -43,7 +43,7 @@ public class TestMapArguments
     public void testBind() throws Exception
     {
         Map<String, Object> args = Collections.singletonMap("foo", BigDecimal.ONE);
-        new MapArguments(args, ctx).find("foo").get().apply(5, stmt, null);
+        new MapArguments(args).find("foo", ctx).get().apply(5, stmt, null);
 
         verify(stmt).setBigDecimal(5, BigDecimal.ONE);
     }
@@ -52,7 +52,7 @@ public class TestMapArguments
     public void testNullBinding() throws Exception
     {
         Map<String, Object> args = Collections.singletonMap("foo", null);
-        new MapArguments(args, ctx).find("foo").get().apply(3, stmt, null);
+        new MapArguments(args).find("foo", ctx).get().apply(3, stmt, null);
 
         verify(stmt).setNull(3, Types.OTHER);
     }

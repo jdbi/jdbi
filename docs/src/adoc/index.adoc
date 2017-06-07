@@ -736,7 +736,7 @@ A *RowMapper* converts a row of a *ResultSet* into a result object.
 
 A *ColumnMapper* converts a single column's value into a Java object. It can be
 used as a *RowMapper* if there is only one column present, or it can be used to
-build more complex *RowMapper*s.
+build more complex *RowMapper* types.
 
 The mapper is selected based on the declared result type of your query.
 
@@ -1997,8 +1997,7 @@ extracting and binding each argument individually.
 [source,java]
 ----
 Cache cache = ... // e.g. Guava Cache
-StatementContext ctx = stmt.getContext();
-NamedArgumentFinder cacheFinder = name ->
+NamedArgumentFinder cacheFinder = (name, ctx) ->
     Optional.ofNullable(cache.getIfPresent(name))
             .map(value -> ctx.findArgumentFor(Object.class, value));
 

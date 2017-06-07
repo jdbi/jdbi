@@ -28,14 +28,12 @@ public class BeanPropertyArguments implements NamedArgumentFinder
 {
     private final String prefix;
     private final Object bean;
-    private final StatementContext ctx;
     private BeanInfo info;
 
-    public BeanPropertyArguments(String prefix, Object bean, StatementContext ctx)
+    public BeanPropertyArguments(String prefix, Object bean)
     {
         this.prefix = (prefix == null || prefix.isEmpty()) ? "" : prefix + ".";
         this.bean = bean;
-        this.ctx = ctx;
         try
         {
             this.info = Introspector.getBeanInfo(bean.getClass());
@@ -43,12 +41,12 @@ public class BeanPropertyArguments implements NamedArgumentFinder
         catch (IntrospectionException e)
         {
             throw new UnableToCreateStatementException("Failed to introspect object which is supposed to be used to " +
-                                                       "set named args for a statement via JavaBean properties", e, ctx);
+                                                       "set named args for a statement via JavaBean properties", e);
         }
     }
 
     @Override
-    public Optional<Argument> find(String name)
+    public Optional<Argument> find(String name, StatementContext ctx)
     {
         if (name.startsWith(prefix)) {
             String propertyName = name.substring(prefix.length());

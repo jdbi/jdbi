@@ -72,7 +72,7 @@ class InternalRewrittenStatement implements RewrittenStatement {
             String param = paramList.get(i);
 
             try {
-                params.findForName(param)
+                params.findForName(param, context)
                         .orElseThrow(() -> new UnableToExecuteStatementException(
                                 String.format("Unable to execute, no named parameter matches '%s'.", param),
                                 context))
