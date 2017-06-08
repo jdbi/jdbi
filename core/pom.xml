@@ -46,7 +46,7 @@
     </licenses>
 
     <dependencies>
-        <dependency>
+        <dependency> <!-- shaded -->
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
         </dependency>
@@ -67,13 +67,13 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
+        <dependency> <!-- shaded -->
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
+        <dependency> <!-- shaded -->
             <groupId>net.jodah</groupId>
             <artifactId>expiringmap</artifactId>
         </dependency>
@@ -185,7 +185,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- XXX: disable shading because it doesn't do Java 8 yet...
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -198,26 +197,54 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>org.antlr:antlr-runtime</include>
+                                    <include>antlr:*</include>
+                                    <include>org.antlr:*</include>
                                     <include>com.google.guava:guava</include>
+                                    <include>net.jodah:expiringmap</include>
                                 </includes>
                             </artifactSet>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <minimizeJar>true</minimizeJar>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.antlr.runtime</pattern>
-                                    <shadedPattern>org.jdbi.v3.org.antlr.runtime</shadedPattern>
+                                    <pattern>org.antlr</pattern>
+                                    <shadedPattern>org.jdbi.v3.core.shaded.org.antlr</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>antlr</pattern>
+                                    <shadedPattern>org.jdbi.v3.core.shaded.antlr</shadedPattern>
                                 </relocation>
 
                                 <relocation>
-                                    <pattern>com.google.guava</pattern>
-                                    <shadedPattern>org.jdbi.v3.com.google.guava</shadedPattern>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>org.jdbi.v3.core.shaded.guava</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.thirdparty</pattern> <!-- packaged with guava -->
+                                    <shadedPattern>org.jdbi.v3.core.shaded.guava.thirdparty</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.jodah.expiringmap</pattern>
+                                    <shadedPattern>org.jdbi.v3.core.shaded.expiringmap</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadeSourcesContent>true</shadeSourcesContent>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
+            <plugin>
+                <groupId>com.hubspot.maven.plugins</groupId>
+                <artifactId>dependency-management-maven-plugin</artifactId>
+                <configuration>
+                    <requireManagement> <!-- can't control these in dependency-reduced pom produced by shade plugin -->
+                        <allowVersions>true</allowVersions>
+                        <allowExclusions>true</allowExclusions>
+                    </requireManagement>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
