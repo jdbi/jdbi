@@ -62,6 +62,7 @@ public class FieldMapper<T> implements RowMapper<T>
     /**
      * Returns a mapper for the given bean class
      *
+     * @param <T> the type to map
      * @param type the mapped class
      * @return a mapper for the given bean class
      */
@@ -72,6 +73,7 @@ public class FieldMapper<T> implements RowMapper<T>
     /**
      * Returns a mapper for the given bean class
      *
+     * @param <T> the type to map
      * @param type the mapped class
      * @param prefix the column name prefix for each mapped field
      * @return a mapper for the given bean class

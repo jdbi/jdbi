@@ -150,7 +150,7 @@ public class StatementContext implements Closeable
     }
 
     /**
-     * Returns the strategy used to bind array-type arguments to SQL statements.
+     * @return the strategy used to bind array-type arguments to SQL statements
      */
     public SqlArrayArgumentStrategy getSqlArrayArgumentStrategy() {
         return getConfig(SqlArrayTypes.class).getArgumentStrategy();
@@ -169,6 +169,7 @@ public class StatementContext implements Closeable
     /**
      * Obtain a column mapper for the given type in this context.
      *
+     * @param <T> the type to map
      * @param type the target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
@@ -179,6 +180,7 @@ public class StatementContext implements Closeable
     /**
      * Obtain a column mapper for the given type in this context.
      *
+     * @param <T> the type to map
      * @param type the target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
@@ -209,6 +211,7 @@ public class StatementContext implements Closeable
     /**
      * Obtain a row mapper for the given type in this context.
      *
+     * @param <T> the type to map
      * @param type the target type to map to
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
@@ -219,6 +222,7 @@ public class StatementContext implements Closeable
     /**
      * Obtain a row mapper for the given type in this context.
      *
+     * @param <T> the type to map
      * @param type the target type to map to
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
@@ -400,6 +404,8 @@ public class StatementContext implements Closeable
      * <p>
      * Resources cleaned up by Jdbi include {@link ResultSet}, {@link Statement}, {@link Handle},
      * {@link java.sql.Array}, and {@link StatementBuilder}.
+     *
+     * @param cleanable the Cleanable to clean on close
      */
     public void addCleanable(Cleanable cleanable) {
         cleanables.add(cleanable);

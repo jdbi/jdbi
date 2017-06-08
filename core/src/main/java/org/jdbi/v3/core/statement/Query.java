@@ -38,6 +38,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing
     /**
      * Executes the query, returning the result obtained from the given {@link ResultProducer}.
      *
+     * @param <R> the type of the result
      * @param producer the result producer.
      * @return value returned by the result producer.
      */

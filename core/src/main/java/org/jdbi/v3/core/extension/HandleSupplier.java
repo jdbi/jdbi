@@ -26,6 +26,8 @@ public interface HandleSupplier extends Configurable<HandleSupplier> {
     /**
      * Returns a handle, possibly creating it lazily. A Handle holds a database connection, so extensions should only
      * call this method in order to interact with the database.
+     *
+     * @return an open Handle
      */
     Handle getHandle();
 

@@ -290,6 +290,7 @@ public class GuavaCollectors {
      *
      * @param <K>             the type of map keys
      * @param <V>             the type of map values
+     * @param <M>             a supplier of your multimap type
      * @param multimapFactory a {@code Supplier} which return a new, empty {@code Multimap} of the appropriate type.
      * @return a {@code Collector} which collects map entry elements into a {@code Multiamp}, in encounter order.
      */

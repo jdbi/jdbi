@@ -27,6 +27,7 @@ public @interface SqlMethodDecoratingAnnotation {
     /**
      * Factory class that decorates {@link Handler} instances for methods annotated with the associated annotation.
      * Must have a zero-argument constructor.
+     * @return the handler decorator class
      */
     Class<? extends HandlerDecorator> value();
 }

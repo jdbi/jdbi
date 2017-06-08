@@ -31,6 +31,8 @@ public @interface BindBean
     /**
      * Prefix to apply to each bean property name. If specified, properties will be bound as
      * {@code prefix.propertyName}.
+     *
+     * @return the prefix
      */
     String value() default "";
 }

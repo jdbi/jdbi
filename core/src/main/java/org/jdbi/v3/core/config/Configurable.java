@@ -179,9 +179,9 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
      *
-     * @param type
-     * @param mapper
-     * @return
+     * @param type the type to register
+     * @param mapper the mapper to use on that type
+     * @return this
      */
     default This registerColumnMapper(Type type, ColumnMapper<?> mapper) {
         return configure(ColumnMappers.class, c -> c.register(type, mapper));

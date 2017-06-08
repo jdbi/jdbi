@@ -25,7 +25,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * An {@link ArgumentFactory} base class for arguments of type {@code T}. For values of type {@code T}, factories
  * produces arguments from the {@link #build(Object, ConfigRegistry)} method. For null values with a known expected type
  * of {@code T}, produces null arguments for the {@code sqlType} passed to the constructor.
- * <p>
  * <pre>
  * class ValueType {
  *     String value;

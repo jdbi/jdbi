@@ -23,7 +23,6 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindListFactory;
 /**
  * Binds each value in the annotated {@link Iterable} or array/varargs argument, and defines a named attribute as a
  * comma-separated list of each bound parameter name. Common use cases:
- * <p>
  * <pre>
  * &#64;SqlQuery("select * from things where id in (&lt;ids&gt;)")
  * List&lt;Thing&gt; getThings(@BindList int... ids)
@@ -32,9 +31,7 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindListFactory;
  * void insertThings(@DefineList List&lt;String&gt; columnNames, @BindList List&lt;Object&gt; values)
  * </pre>
  * <p>
- * <p>
  * Throws IllegalArgumentException if the argument is not an array or Iterable. How null and empty collections are handled can be configured with onEmpty:EmptyHandling - throws IllegalArgumentException by default.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
@@ -49,7 +46,7 @@ public @interface BindList {
     String value() default "";
 
     /**
-     * what to do when the argument is null or empty
+     * @return what to do when the argument is null or empty
      */
     EmptyHandling onEmpty() default EmptyHandling.THROW;
 

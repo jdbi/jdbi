@@ -44,6 +44,7 @@ public class Update extends SqlStatement<Update> {
     /**
      * Executes the update, returning the result obtained from the given {@link ResultProducer}.
      *
+     * @param <R> the result type
      * @param producer the result producer.
      * @return value returned by the result producer.
      */

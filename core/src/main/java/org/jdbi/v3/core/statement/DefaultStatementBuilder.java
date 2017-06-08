@@ -25,10 +25,9 @@ import java.sql.Statement;
  */
 public class DefaultStatementBuilder implements StatementBuilder
 {
-    public static final StatementBuilderFactory FACTORY = DefaultStatementBuilder::new;
+    public static final StatementBuilderFactory FACTORY = c -> new DefaultStatementBuilder();
 
     public DefaultStatementBuilder() { }
-    public DefaultStatementBuilder(Connection ignored) { }
 
     @Override
     public Statement create(Connection conn, StatementContext ctx) throws SQLException

@@ -344,6 +344,7 @@ public class Handle implements Closeable, Configurable<Handle>
      *
      * @see Connection#setReadOnly(boolean)
      * @param readOnly whether the Handle is readOnly
+     * @return this Handle
      */
     public Handle setReadOnly(boolean readOnly) {
         try {

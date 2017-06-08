@@ -50,6 +50,9 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     /**
      * Throw an IllegalArgumentException if a the set of fields doesn't
      * match to columns exactly.
+     *
+     * @param strictMatching whether to enable strict matching
+     * @return this
      */
     public ReflectionMappers setStrictMatching(boolean strictMatching) {
         this.strictMatching = strictMatching;

@@ -21,8 +21,8 @@ public interface TimingCollector {
     /**
      * Called after a statement completes with how long it took to execute.
      *
+     * @param elapsedNs the elapsed time in nanoseconds.
      * @param ctx the context of the just completed statement
-     * @param elapsedTime the elapsed time in nanoseconds.
      */
     void collect(long elapsedNs, StatementContext ctx);
 

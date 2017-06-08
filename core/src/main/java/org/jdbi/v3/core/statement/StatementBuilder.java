@@ -21,7 +21,7 @@ import java.sql.Statement;
 
 /**
  * Used to convert translated SQL into a prepared statement. The default implementation
- * created by {@link DefaultStatementBuilderFactory} creates a new statement on every call.
+ * created by {@link DefaultStatementBuilder#FACTORY} creates a new statement on every call.
  *
  * A StatementBuilder is always associated with exactly one Handle instance
  *

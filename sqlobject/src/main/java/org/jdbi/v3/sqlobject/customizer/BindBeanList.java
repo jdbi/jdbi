@@ -27,15 +27,12 @@ import org.jdbi.v3.sqlobject.customizer.internal.BindBeanListFactory;
  * Used to create query similar to:
  * select * from things where (id, name) in ((1,'abc'),(2,'def'),(3,'ghi'))
  *
- * <p>
  * <pre>
  * &#64;SqlQuery("select * from things where (id, name) in (&lt;keys&gt;)")
  * List&lt;Thing&gt; getThings(@BindBeanList(value = "keys", propertyNames = {"id", "name"}) ThingKey... thingKeys)
  * </pre>
  * <p>
- * <p>
  * Throws IllegalArgumentException if the argument is not an array or Iterable.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})

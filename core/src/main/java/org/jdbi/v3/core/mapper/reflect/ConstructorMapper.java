@@ -42,6 +42,9 @@ public class ConstructorMapper<T> implements RowMapper<T>
 {
     /**
      * Use the only declared constructor to map a class.
+     *
+     * @param clazz the class to find a constructor of
+     * @return the factory
      */
     public static RowMapperFactory factory(Class<?> clazz) {
         return RowMapperFactory.of(clazz, ConstructorMapper.of(clazz));
@@ -49,6 +52,10 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
     /**
      * Use the only declared constructor to map a class.
+     *
+     * @param clazz the class to find a constructor of
+     * @param prefix a prefix for the parameter names
+     * @return the factory
      */
     public static RowMapperFactory factory(Class<?> clazz, String prefix) {
         return RowMapperFactory.of(clazz, ConstructorMapper.of(clazz, prefix));
@@ -56,6 +63,9 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
     /**
      * Use a {@code Constructor<T>} to map its declaring type.
+     *
+     * @param constructor the constructor to invoke
+     * @return the factory
      */
     public static RowMapperFactory factory(Constructor<?> constructor) {
         return RowMapperFactory.of(constructor.getDeclaringClass(), ConstructorMapper.of(constructor));
@@ -63,6 +73,10 @@ public class ConstructorMapper<T> implements RowMapper<T>
 
     /**
      * Use a {@code Constructor<T>} to map its declaring type.
+     *
+     * @param constructor the constructor to invoke
+     * @param prefix a prefix to the constructor parameter names
+     * @return the factory
      */
     public static RowMapperFactory factory(Constructor<?> constructor, String prefix) {
         return RowMapperFactory.of(constructor.getDeclaringClass(), ConstructorMapper.of(constructor, prefix));
@@ -71,17 +85,21 @@ public class ConstructorMapper<T> implements RowMapper<T>
     /**
      * Return a ConstructorMapper for the given type.
      *
+     * @param <T>  the type to map
      * @param type the mapped type
+     * @return the mapper
      */
     public static <T> RowMapper<T> of(Class<T> type) {
         return ConstructorMapper.of(findConstructorFor(type));
     }
 
     /**
-     * Return a ConstructorMapper for the given type and prefix
+     * Return a ConstructorMapper for the given type and prefix.
      *
+     * @param <T>    the type to map
      * @param type   the mapped type
      * @param prefix the column name prefix
+     * @return the mapper
      */
     public static <T> RowMapper<T> of(Class<T> type, String prefix) {
         return ConstructorMapper.of(findConstructorFor(type), prefix);
@@ -90,7 +108,9 @@ public class ConstructorMapper<T> implements RowMapper<T>
     /**
      * Return a ConstructorMapper using the given constructor
      *
+     * @param <T> the type to map
      * @param constructor the constructor to be used in mapping
+     * @return the mapper
      */
     public static <T> RowMapper<T> of(Constructor<T> constructor) {
         return ConstructorMapper.of(constructor, DEFAULT_PREFIX);
@@ -99,8 +119,10 @@ public class ConstructorMapper<T> implements RowMapper<T>
     /**
      * Instantiate a ConstructorMapper using the given constructor and prefix
      *
+     * @param <T> the type to map
      * @param constructor the constructor to be used in mapping
      * @param prefix      the column name prefix
+     * @return the mapper
      */
     public static <T> RowMapper<T> of(Constructor<T> constructor, String prefix) {
         return new ConstructorMapper<>(constructor, prefix);

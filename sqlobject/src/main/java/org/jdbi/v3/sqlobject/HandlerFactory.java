@@ -28,6 +28,7 @@ public interface HandlerFactory {
      *
      * @param sqlObjectType the SQL Object type
      * @param method        the method
+     * @return a handler, if applicable
      */
     Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method);
 }

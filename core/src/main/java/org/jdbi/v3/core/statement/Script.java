@@ -57,6 +57,7 @@ public class Script
 
     /**
      * Locate the Script and split it into statements.
+     * @return the split statements
      */
     public List<String> getStatements() {
         return splitToStatements(sql);

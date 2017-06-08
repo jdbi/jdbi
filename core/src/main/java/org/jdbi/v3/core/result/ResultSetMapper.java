@@ -50,7 +50,7 @@ public interface ResultSetMapper<T> {
      * @param resultSetSupplier supplies a ResultSet.
      * @param ctx               the statement context.
      * @return the mapped result
-     * @throws SQLException
+     * @throws SQLException if anything goes wrong
      */
     T mapResultSet(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) throws SQLException;
 }

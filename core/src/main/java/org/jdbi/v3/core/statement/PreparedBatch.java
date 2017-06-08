@@ -108,6 +108,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     /**
      * Executes the batch, returning the result obtained from the given {@link ResultProducer}.
      *
+     * @param <R> the type of the result
      * @param producer the result producer.
      * @return value returned by the result producer.
      */
@@ -194,6 +195,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
     /**
      * Add the current binding as a saved batch and clear the binding.
+     * @return this
      */
     public PreparedBatch add()
     {

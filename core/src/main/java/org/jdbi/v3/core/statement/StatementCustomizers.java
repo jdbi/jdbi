@@ -25,6 +25,8 @@ public final class StatementCustomizers
 
     /**
      * Sets the fetch direction on a query.
+     * @param direction the direction, per {@link java.sql.Statement#setFetchDirection(int)}
+     * @return the customizer
      */
     public static StatementCustomizer fetchDirection(final Integer direction) {
         return new StatementCustomizer() {
@@ -38,6 +40,7 @@ public final class StatementCustomizers
     /**
      * Set a timeout on the statement.
      * @param seconds timeout in seconds
+     * @return the customizer
      */
     public static StatementCustomizer statementTimeout(final int seconds) {
         return new StatementCustomizer() {
@@ -52,6 +55,7 @@ public final class StatementCustomizers
      * Set the number of rows to fetch from the database in a single batch.
      * In a transaction, may enable streaming result sets instead of buffering in memory.
      * @param fetchSize number of rows to fetch at a time
+     * @return the customizer
      */
     public static StatementCustomizer fetchSize(final int fetchSize) {
         return new StatementCustomizer() {
@@ -67,6 +71,7 @@ public final class StatementCustomizers
      * less efficient than doing it in the SQL with a {@code LIMIT} clause
      * and is not recommended unless you understand why you need it specifically.
      * @param maxRows number of rows to return
+     * @return the customizer
      */
     public static StatementCustomizer maxRows(final int maxRows) {
         return new StatementCustomizer() {
@@ -81,6 +86,7 @@ public final class StatementCustomizers
      * Sets the limit of large variable size types like {@code VARCHAR}.
      * Limited data is silently discarded, so be careful!
      * @param maxFieldSize the maximum field size to return
+     * @return the customizer
      */
     public static StatementCustomizer maxFieldSize(final int maxFieldSize) {
         return new StatementCustomizer() {

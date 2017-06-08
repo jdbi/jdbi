@@ -47,6 +47,9 @@ public class RowView
 
     /**
      * Use a row mapper to extract a type from the current ResultSet row.
+     * @param <T> the type to map
+     * @param rowType the Class of the type
+     * @return the materialized T
      */
     public <T> T getRow(Class<T> rowType)
     {
@@ -55,6 +58,9 @@ public class RowView
 
     /**
      * Use a row mapper to extract a type from the current ResultSet row.
+     * @param <T> the type to map
+     * @param rowType the GenericType of the type
+     * @return the materialized T
      */
     @SuppressWarnings("unchecked")
     public <T> T getRow(GenericType<T> rowType)
@@ -64,6 +70,8 @@ public class RowView
 
     /**
      * Use a row mapper to extract a type from the current ResultSet row.
+     * @param type the type to map
+     * @return the materialized object
      */
     public Object getRow(Type type)
     {
@@ -89,6 +97,10 @@ public class RowView
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
+     * @param <T> the type to map
+     * @param column the column name
+     * @param type the Class of the type
+     * @return the materialized T
      */
     public <T> T getColumn(String column, Class<T> type)
     {
@@ -97,6 +109,10 @@ public class RowView
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
+     * @param <T> the type to map
+     * @param column the column index
+     * @param type the Class of the type
+     * @return the materialized T
      */
     public <T> T getColumn(int column, Class<T> type)
     {
@@ -105,6 +121,10 @@ public class RowView
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
+     * @param <T> the type to map
+     * @param column the column name
+     * @param type the GenericType of the type
+     * @return the materialized T
      */
     @SuppressWarnings("unchecked")
     public <T> T getColumn(String column, GenericType<T> type)
@@ -114,6 +134,10 @@ public class RowView
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
+     * @param <T> the type to map
+     * @param column the column index
+     * @param type the GenericType of the type
+     * @return the materialized T
      */
     @SuppressWarnings("unchecked")
     public <T> T getColumn(int column, GenericType<T> type)
@@ -123,6 +147,9 @@ public class RowView
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
+     * @param column the column name
+     * @param type the Type of the type
+     * @return the materialized object
      */
     public Object getColumn(String column, Type type)
     {
@@ -135,6 +162,9 @@ public class RowView
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.
+     * @param column the column name
+     * @param type the Class of the type
+     * @return the materialized object
      */
     public Object getColumn(int column, Type type)
     {

@@ -30,6 +30,7 @@ public @interface BindMap
 {
     /**
      * Prefix to apply to each map key. If specified, map keys will be bound as {@code prefix.key}.
+     * @return the prefix
      */
     String value() default "";
 

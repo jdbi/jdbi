@@ -163,6 +163,7 @@ public interface ResultBearing {
      * Reduce the results.  Using a {@code BiFunction<U, RowView, U>}, repeatedly
      * combine query results until only a single value remains.
      *
+     * @param <U>         the type of the accumulator
      * @param seed        the {@code U} to combine with the first result
      * @param accumulator the function to apply repeatedly
      * @return the final {@code U}
@@ -190,6 +191,7 @@ public interface ResultBearing {
      * Reduce the results.  Using a {@code ResultSetAccumulator}, repeatedly
      * combine query results until only a single value remains.
      *
+     * @param <U>         the accumulator type
      * @param seed        the {@code U} to combine with the first result
      * @param accumulator the function to apply repeatedly
      * @return the final {@code U}

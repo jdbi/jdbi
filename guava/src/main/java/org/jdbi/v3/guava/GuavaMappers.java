@@ -39,7 +39,7 @@ public class GuavaMappers {
      * <ul>
      *     <li>{@link ImmutableList}</li>
      * </ul>
-     * @return
+     * @return the factory
      */
     public static ColumnMapperFactory columnFactory() {
         return new ColumnFactory();

@@ -45,7 +45,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @param mapper   row mapper
      * @param ctx      statement context
      * @param <T>      the mapped type
-     * @return
+     * @return the result set iterator
      */
     static <T> ResultIterable<T> of(Supplier<ResultSet> supplier, RowMapper<T> mapper, StatementContext ctx) {
         return () -> {
@@ -203,6 +203,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * Reduce the results.  Using a {@code BiFunction<U, T, U>}, repeatedly
      * combine query results until only a single value remains.
      *
+     * @param <U> the accumulator type
      * @param identity the {@code U} to combine with the first result
      * @param accumulator the function to apply repeatedly
      * @return the final {@code U}

@@ -57,6 +57,7 @@ public interface SqlStatementCustomizerFactory
      * @param method the method which was annotated
      * @param param the parameter which was annotated
      * @param index the method parameter index
+     * @param paramType the type of the parameter
      * @return the customizer which will be applied to the generated statement
      */
     default SqlStatementParameterCustomizer createForParameter(Annotation annotation,

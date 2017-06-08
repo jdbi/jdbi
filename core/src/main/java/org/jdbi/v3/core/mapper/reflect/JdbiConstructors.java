@@ -25,8 +25,10 @@ public class JdbiConstructors {
     /**
      * Find an invokable constructor.  Prefer an {@link JdbiConstructor} annotated
      * one if present.  Throws if multiple or zero candidates are found.
-     * @param type
-     * @return
+     *
+     * @param <T>  the type to inspect
+     * @param type the type to inspect
+     * @return the preferred constructor
      */
     public static <T> Constructor<T> findConstructorFor(Class<T> type) {
         @SuppressWarnings("unchecked")

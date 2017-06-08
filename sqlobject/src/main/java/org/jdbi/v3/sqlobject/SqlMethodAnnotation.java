@@ -28,6 +28,7 @@ public @interface SqlMethodAnnotation {
      * Handler class for methods annotated with the associated annotation.
      * Must have a public no-arg, {@code (Method method)}, or
      * {@code (Class<?> sqlObjectType, Method method)} constructor.
+     * @return a handler class
      */
     Class<? extends Handler> value();
 }

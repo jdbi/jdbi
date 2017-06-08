@@ -95,7 +95,8 @@ public class GenericTypes {
     }
 
     /**
-     * @return whether a {@code Type} is an Array type.
+     * @param type a type
+     * @return whether the given {@code Type} is an Array type.
      */
     public static boolean isArray(Type type) {
         return type instanceof Class<?> && ((Class<?>) type).isArray();

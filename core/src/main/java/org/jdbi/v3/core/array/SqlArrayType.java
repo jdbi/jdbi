@@ -22,6 +22,8 @@ public interface SqlArrayType<T> {
     /**
      * Returns the vendor-specific SQL type name {@code String} for the element type {@code T}. This value will be
      * passed to {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
+     *
+     * @return the type name
      */
     String getTypeName();
 

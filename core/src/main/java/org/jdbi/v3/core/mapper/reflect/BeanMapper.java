@@ -70,6 +70,7 @@ public class BeanMapper<T> implements RowMapper<T>
     /**
      * Returns a mapper for the given bean class
      *
+     * @param <T> the type to find the mapper for
      * @param type the mapped class
      * @return a mapper for the given bean class
      */
@@ -80,6 +81,7 @@ public class BeanMapper<T> implements RowMapper<T>
     /**
      * Returns a mapper for the given bean class
      *
+     * @param <T> the type to find the mapper for
      * @param type the mapped class
      * @param prefix the column name prefix for each mapped bean property
      * @return a mapper for the given bean class

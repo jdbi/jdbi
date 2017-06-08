@@ -42,6 +42,8 @@ public class JoinRowMapper implements RowMapper<JoinRowMapper.JoinRow>
 
         /**
          * Return the value mapped for a given class.
+         *
+         * @param <T> the type to map
          * @param klass the type that was mapped
          * @return the value for that type
          */

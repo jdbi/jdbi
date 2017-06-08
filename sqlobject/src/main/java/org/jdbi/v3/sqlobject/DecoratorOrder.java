@@ -29,6 +29,7 @@ public @interface DecoratorOrder {
     /**
      * The order that decorator annotations will be applied, from outermost to innermost. Decorator order is undefined
      * for any decorating annotation present on the SQL method but not on this annotation.
+     * @return the annotations in the order you like
      */
     Class<? extends Annotation>[] value();
 }

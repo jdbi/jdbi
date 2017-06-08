@@ -46,7 +46,7 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     }
 
     /**
-     * Returns the strategy used to bind array-type arguments to SQL statements.
+     * @return the strategy used to bind array-type arguments to SQL statements
      */
     public SqlArrayArgumentStrategy getArgumentStrategy() {
         return argumentStrategy;

@@ -89,6 +89,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     /**
      * Obtain a row mapper for the given type in the given context.
      *
+     * @param <T> the type of the mapper to find
      * @param type the target type to map to
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
@@ -101,6 +102,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     /**
      * Obtain a row mapper for the given type in the given context.
      *
+     * @param <T> the type of the mapper to find
      * @param type the target type to map to
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */

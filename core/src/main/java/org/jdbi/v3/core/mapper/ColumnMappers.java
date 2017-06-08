@@ -90,6 +90,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     /**
      * Obtain a column mapper for the given type.
      *
+     * @param <T> the type to map
      * @param type the target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
@@ -102,6 +103,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     /**
      * Obtain a column mapper for the given type.
      *
+     * @param <T> the type to map
      * @param type the target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
