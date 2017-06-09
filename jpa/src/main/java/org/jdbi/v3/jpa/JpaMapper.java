@@ -24,6 +24,8 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.jpa.internal.JpaClass;
+import org.jdbi.v3.jpa.internal.JpaMember;
 
 public class JpaMapper<C> implements RowMapper<C> {
 

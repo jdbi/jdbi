@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jpa;
+package org.jdbi.v3.jpa.internal;
 
 import static java.util.Collections.synchronizedMap;
 import static java.util.Collections.unmodifiableList;
@@ -36,7 +36,7 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.stream.Stream;
 
-class JpaClass<C> {
+public class JpaClass<C> {
 
     private static final Map<Class<?>, JpaClass<?>> cache = synchronizedMap(new WeakHashMap<>());
 

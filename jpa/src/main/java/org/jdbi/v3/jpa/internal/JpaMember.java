@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jpa;
+package org.jdbi.v3.jpa.internal;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,10 +24,11 @@ import java.util.Optional;
 
 import javax.persistence.Column;
 
+import org.jdbi.v3.jpa.EntityMemberAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class JpaMember {
+public class JpaMember {
 
     interface Getter {
         Object get(Object obj) throws IllegalAccessException, InvocationTargetException;
