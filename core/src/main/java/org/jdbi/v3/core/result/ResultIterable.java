@@ -45,7 +45,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @param mapper   row mapper
      * @param ctx      statement context
      * @param <T>      the mapped type
-     * @return the result set iterator
+     * @return the result iterable
      */
     static <T> ResultIterable<T> of(Supplier<ResultSet> supplier, RowMapper<T> mapper, StatementContext ctx) {
         return () -> {
