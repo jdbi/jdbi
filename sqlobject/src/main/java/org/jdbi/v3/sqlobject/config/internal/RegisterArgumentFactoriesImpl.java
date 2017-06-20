@@ -15,32 +15,21 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
-import org.jdbi.v3.core.argument.ArgumentFactory;
-import org.jdbi.v3.core.argument.Arguments;
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
+import org.jdbi.v3.sqlobject.config.RegisterArgumentFactories;
 
-public class RegisterArgumentFactoryImpl implements Configurer
-{
+public class RegisterArgumentFactoriesImpl implements Configurer {
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
-    {
-        RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;
-        Arguments arguments = registry.get(Arguments.class);
-
-        try {
-            arguments.register(raf.value().newInstance());
-        }
-        catch (Exception e) {
-            throw new IllegalStateException("unable to instantiate specified argument factory", e);
-        }
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+        RegisterArgumentFactoryImpl delegate = new RegisterArgumentFactoryImpl();
+        RegisterArgumentFactories factories = (RegisterArgumentFactories) annotation;
+        Stream.of(factories.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 }
