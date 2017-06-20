@@ -27,43 +27,8 @@ import org.jdbi.v3.core.statement.StatementContext;
  * for retrieving multiple tables' Java representations from a
  * joined row.
  */
-public class JoinRowMapper implements RowMapper<JoinRowMapper.JoinRow>
+public class JoinRowMapper implements RowMapper<JoinRow>
 {
-    /**
-     * Holder for a single joined row.
-     */
-    public static class JoinRow
-    {
-        private final Map<Type, Object> entries;
-
-        private JoinRow(Map<Type, Object> entries) {
-            this.entries = entries;
-        }
-
-        /**
-         * Return the value mapped for a given class.
-         *
-         * @param <T> the type to map
-         * @param klass the type that was mapped
-         * @return the value for that type
-         */
-        public <T> T get(Class<T> klass) {
-            return klass.cast(get((Type)klass));
-        }
-
-        /**
-         * Return the value mapped for a given type.
-         * @param type the type that was mapped
-         * @return the value for that type
-         */
-        public Object get(Type type) {
-            Object result = entries.get(type);
-            if (result == null && !entries.containsKey(type)) {
-                throw new IllegalArgumentException("no result stored for " + type);
-            }
-            return result;
-        }
-    }
 
     private final Type[] types;
 
@@ -109,7 +74,7 @@ public class JoinRowMapper implements RowMapper<JoinRowMapper.JoinRow>
 
     /**
      * Create a JoinRowMapper that maps each of the given types and returns a
-     * {@link JoinRowMapper.JoinRow} with the resulting values.
+     * {@link JoinRow} with the resulting values.
      * @param classes the types to extract
      * @return a JoinRowMapper that extracts the given types
      */
