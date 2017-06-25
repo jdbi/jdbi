@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestRegisterConstructorMapper {
+public class TestRegisterFieldMapper {
     @Rule
     public H2DatabaseRule rule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -56,12 +56,12 @@ public class TestRegisterConstructorMapper {
     }
 
     @Test
-    public void registerConstructorMappers() {
+    public void registerBeanMappers() {
         BlogDao dao = handle.attach(BlogDao.class);
 
-        assertThat(dao.listArticles()).containsExactly(
-                newArticle(1, "title 1", "content 1"),
-                newArticle(2, "title 2", "content 2"));
+        assertThat(dao.listArticleSummaries()).containsExactly(
+                newArticle(1, "title 1"),
+                newArticle(2, "title 2"));
 
         assertThat(dao.getArticleWithComments(0)).isEmpty();
         assertThat(dao.getArticleWithComments(1)).contains(
@@ -71,12 +71,12 @@ public class TestRegisterConstructorMapper {
     }
 
     public interface BlogDao extends SqlObject {
-        @SqlQuery("select * from articles order by id")
-        @RegisterConstructorMapper(Article.class)
-        List<Article> listArticles();
+        @SqlQuery("select id, title from articles order by id")
+        @RegisterFieldMapper(Article.class)
+        List<Article> listArticleSummaries();
 
-        @RegisterConstructorMapper(value = Article.class, prefix = "a")
-        @RegisterConstructorMapper(value = Comment.class, prefix = "c")
+        @RegisterFieldMapper(value = Article.class, prefix = "a")
+        @RegisterFieldMapper(value = Comment.class, prefix = "c")
         default Optional<Article> getArticleWithComments(long id) {
             return getHandle().select(
                     "select " +

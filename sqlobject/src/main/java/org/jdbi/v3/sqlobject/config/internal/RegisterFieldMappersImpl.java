@@ -15,27 +15,22 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterFieldMapper;
+import org.jdbi.v3.sqlobject.config.RegisterFieldMappers;
 
-public class RegisterFieldMapperImpl implements Configurer
+public class RegisterFieldMappersImpl implements Configurer
 {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterFieldMapper registerFieldMapper = (RegisterFieldMapper) annotation;
-        Class<?> type = registerFieldMapper.value();
-        String prefix = registerFieldMapper.prefix();
-        RowMappers mappers = registry.get(RowMappers.class);
-        if (prefix.isEmpty()) {
-            mappers.register(FieldMapper.factory(type));
-        }
-        else {
-            mappers.register(FieldMapper.factory(type, prefix));
-        }
+        RegisterFieldMapperImpl delegate = new RegisterFieldMapperImpl();
+
+        RegisterFieldMappers registerFieldMappers = (RegisterFieldMappers) annotation;
+        Stream.of(registerFieldMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 
     @Override

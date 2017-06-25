@@ -23,9 +23,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,48 +46,31 @@ public class TestRegisterBeanMapper {
                 "id         integer not null, " +
                 "article_id integer not null, " +
                 "content    varchar not null)");
+
+        handle.execute("insert into articles (id, title, content) values (?, ?, ?)", 1, "title 1", "content 1");
+        handle.execute("insert into articles (id, title, content) values (?, ?, ?)", 2, "title 2", "content 2");
+
+        handle.execute("insert into comments (id, article_id, content) values (?, ?, ?)", 10, 1, "comment 10");
+        handle.execute("insert into comments (id, article_id, content) values (?, ?, ?)", 11, 1, "comment 11");
+        handle.execute("insert into comments (id, article_id, content) values (?, ?, ?)", 20, 2, "comment 20");
     }
 
     @Test
     public void registerBeanMappers() {
         BlogDao dao = handle.attach(BlogDao.class);
 
-        Article a1 = newArticle(1, "title 1", "content 1");
-        Comment c10 = newComment(10, "comment 10");
-        Comment c11 = newComment(11, "comment 11");
-
-        Article a2 = newArticle(2, "title 2", "content 2");
-        Comment c20 = newComment(20, "comment 20");
-
-        dao.createArticle(a1);
-        dao.createComment(a1, c10);
-        dao.createComment(a1, c11);
-
-        dao.createArticle(a2);
-        dao.createComment(a2, c20);
-
         assertThat(dao.listArticleSummaries()).containsExactly(
                 newArticle(1, "title 1"),
                 newArticle(2, "title 2"));
 
-        assertThat(dao.getArticleWithComments(0))
-                .isEmpty();
-        assertThat(dao.getArticleWithComments(1))
-                .contains(newArticle(1, "title 1", "content 1", c10, c11));
-        assertThat(dao.getArticleWithComments(2))
-                .contains(newArticle(2, "title 2", "content 2", c20));
+        assertThat(dao.getArticleWithComments(0)).isEmpty();
+        assertThat(dao.getArticleWithComments(1)).contains(
+                newArticle(1, "title 1", "content 1", newComment(10, "comment 10"), newComment(11, "comment 11")));
+        assertThat(dao.getArticleWithComments(2)).contains(
+                newArticle(2, "title 2", "content 2", newComment(20, "comment 20")));
     }
 
     public interface BlogDao extends SqlObject {
-        @SqlUpdate("insert into articles (id, title, content) " +
-                "values (:id, :title, :content)")
-        void createArticle(@BindBean Article article);
-
-        @SqlUpdate("insert into comments (id, article_id, content) " +
-                "values (:c.id, :a.id, :c.content)")
-        void createComment(@BindBean("a") Article article,
-                           @BindBean("c") Comment comment);
-
         @SqlQuery("select id, title from articles order by id")
         @RegisterBeanMapper(Article.class)
         List<Article> listArticleSummaries();
@@ -99,16 +80,16 @@ public class TestRegisterBeanMapper {
         default Optional<Article> getArticleWithComments(long id) {
             return getHandle().select(
                     "select " +
-                        "  a.id      a_id, " +
-                        "  a.title   a_title, " +
-                        "  a.content a_content, " +
-                        "  c.id      c_id, " +
-                        "  c.content c_content " +
-                        "from articles a " +
-                        "left join comments c " +
-                        "  on a.id = c.article_id " +
-                        "where a.id = ? " +
-                        "order by c.id",
+                            "  a.id      a_id, " +
+                            "  a.title   a_title, " +
+                            "  a.content a_content, " +
+                            "  c.id      c_id, " +
+                            "  c.content c_content " +
+                            "from articles a " +
+                            "left join comments c " +
+                            "  on a.id = c.article_id " +
+                            "where a.id = ? " +
+                            "order by c.id",
                     id)
                     .reduceRows(Optional.<Article>empty(),
                             (acc, rv) -> {
