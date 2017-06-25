@@ -32,7 +32,7 @@ public class RegisterConstructorMappersImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
-        RegisterConstructorMapperImpl delegate = new RegisterConstructorMapperImpl();
+        Configurer delegate = new RegisterConstructorMapperImpl();
 
         RegisterConstructorMappers registerConstructorMappers = (RegisterConstructorMappers) annotation;
         Stream.of(registerConstructorMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));

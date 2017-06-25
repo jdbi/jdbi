@@ -31,7 +31,7 @@ public class RegisterColumnMappersImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
-        RegisterColumnMapperImpl delegate = new RegisterColumnMapperImpl();
+        Configurer delegate = new RegisterColumnMapperImpl();
 
         RegisterColumnMappers registerColumnMappers = (RegisterColumnMappers) annotation;
         Stream.of(registerColumnMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));

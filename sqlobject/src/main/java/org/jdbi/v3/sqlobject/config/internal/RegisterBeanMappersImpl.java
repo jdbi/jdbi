@@ -24,7 +24,7 @@ public class RegisterBeanMappersImpl implements Configurer
 {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterBeanMapperImpl delegate = new RegisterBeanMapperImpl();
+        Configurer delegate = new RegisterBeanMapperImpl();
 
         RegisterBeanMappers registerBeanMappers = (RegisterBeanMappers) annotation;
         Stream.of(registerBeanMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));

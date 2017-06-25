@@ -27,7 +27,7 @@ public class RegisterFieldMappersImpl implements Configurer
 {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterFieldMapperImpl delegate = new RegisterFieldMapperImpl();
+        Configurer delegate = new RegisterFieldMapperImpl();
 
         RegisterFieldMappers registerFieldMappers = (RegisterFieldMappers) annotation;
         Stream.of(registerFieldMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));

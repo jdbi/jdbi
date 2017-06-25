@@ -23,7 +23,7 @@ import org.jdbi.v3.sqlobject.config.RegisterArgumentFactories;
 public class RegisterArgumentFactoriesImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterArgumentFactoryImpl delegate = new RegisterArgumentFactoryImpl();
+        Configurer delegate = new RegisterArgumentFactoryImpl();
         RegisterArgumentFactories factories = (RegisterArgumentFactories) annotation;
         Stream.of(factories.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
