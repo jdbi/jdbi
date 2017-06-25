@@ -30,17 +30,12 @@ public class RegisterObjectArgumentFactoryImpl implements Configurer
         RegisterObjectArgumentFactory registerObjectArgumentFactory = (RegisterObjectArgumentFactory) annotation;
         Arguments arguments = registry.get(Arguments.class);
 
-        Class<?>[] classes = registerObjectArgumentFactory.value();
-        int[] sqlTypes = registerObjectArgumentFactory.sqlType();
+        Class<?> clazz = registerObjectArgumentFactory.value();
+        int sqlType = registerObjectArgumentFactory.sqlType();
 
-        if (sqlTypes.length != 0 && sqlTypes.length != classes.length) {
-            throw new IllegalStateException("RegisterObjectArgumentFactory.sqlTypes() must have the same number of elements as value()");
-        }
-
-        for (int i = 0; i < classes.length; i++) {
-            Class<?> clazz = classes[i];
-            Integer sqlType = sqlTypes.length == 0 ? null : sqlTypes[i];
-
+        if (sqlType == Integer.MIN_VALUE) {
+            arguments.register(ObjectArgumentFactory.create(clazz));
+        } else {
             arguments.register(ObjectArgumentFactory.create(clazz, sqlType));
         }
     }
