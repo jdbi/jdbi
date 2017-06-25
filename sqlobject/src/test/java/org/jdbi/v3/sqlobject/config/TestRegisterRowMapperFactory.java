@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestRegisterRowMapper {
+public class TestRegisterRowMapperFactory {
     @Rule
     public H2DatabaseRule rule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -56,16 +56,16 @@ public class TestRegisterRowMapper {
 
     public interface TestDao {
         @SqlQuery("select string_value from column_mappers")
-        @RegisterRowMapper(StringValueRowMapper.class)
+        @RegisterRowMapperFactory(StringValueRowMapperFactory.class)
         List<StringValue> listX();
 
         @SqlQuery("select long_value from column_mappers")
-        @RegisterRowMapper(LongValueRowMapper.class)
+        @RegisterRowMapperFactory(LongValueRowMapperFactory.class)
         List<LongValue> listY();
 
         @SqlQuery("select * from column_mappers")
-        @RegisterRowMapper(StringValueRowMapper.class)
-        @RegisterRowMapper(LongValueRowMapper.class)
+        @RegisterRowMapperFactory(StringValueRowMapperFactory.class)
+        @RegisterRowMapperFactory(LongValueRowMapperFactory.class)
         @RegisterJoinRowMapper({StringValue.class, LongValue.class})
         List<JoinRow> list();
     }

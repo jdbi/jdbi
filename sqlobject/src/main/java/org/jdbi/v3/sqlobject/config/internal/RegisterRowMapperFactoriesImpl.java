@@ -15,13 +15,12 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactories;
 
-public class RegisterRowMapperFactoryImpl implements Configurer
+public class RegisterRowMapperFactoriesImpl implements Configurer
 {
 
     @Override
@@ -33,13 +32,9 @@ public class RegisterRowMapperFactoryImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
-        RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
-        RowMappers mappers = registry.get(RowMappers.class);
-        try {
-            mappers.register(registerRowMapperFactory.value().newInstance());
-        }
-        catch (Exception e) {
-            throw new IllegalStateException("unable to create a specified row mapper factory", e);
-        }
+        Configurer delegate = new RegisterRowMapperFactoryImpl();
+
+        RegisterRowMapperFactories registerRowMapperFactories = (RegisterRowMapperFactories) annotation;
+        Stream.of(registerRowMapperFactories.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 }

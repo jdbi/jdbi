@@ -16,7 +16,6 @@ package org.jdbi.v3.sqlobject.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Objects;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
@@ -52,16 +51,16 @@ public class TestRegisterColumnMapper {
 
     public interface TestDao {
         @SqlQuery("select string_value from column_mappers")
-        @RegisterColumnMapper(StringValueMapper.class)
+        @RegisterColumnMapper(StringValueColumnMapper.class)
         List<StringValue> listX();
 
         @SqlQuery("select long_value from column_mappers")
-        @RegisterColumnMapper(LongValueMapper.class)
+        @RegisterColumnMapper(LongValueColumnMapper.class)
         List<LongValue> listY();
 
         @SqlQuery("select * from column_mappers")
-        @RegisterColumnMapper(StringValueMapper.class)
-        @RegisterColumnMapper(LongValueMapper.class)
+        @RegisterColumnMapper(StringValueColumnMapper.class)
+        @RegisterColumnMapper(LongValueColumnMapper.class)
         @RegisterConstructorMapper(ValueTypeEntity.class)
         List<ValueTypeEntity> list();
     }

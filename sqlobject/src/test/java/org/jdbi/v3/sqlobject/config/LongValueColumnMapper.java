@@ -13,17 +13,15 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.reflect.Type;
-import java.util.Optional;
-import org.jdbi.v3.core.config.ConfigRegistry;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.statement.StatementContext;
 
-public class StringValueMapperFactory implements ColumnMapperFactory {
+public class LongValueColumnMapper implements ColumnMapper<LongValue> {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        return StringValue.class.equals(type)
-                ? Optional.of(new StringValueMapper())
-                : Optional.empty();
+    public LongValue map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        long value = r.getLong(columnNumber);
+        return r.wasNull() ? null : LongValue.of(value);
     }
 }

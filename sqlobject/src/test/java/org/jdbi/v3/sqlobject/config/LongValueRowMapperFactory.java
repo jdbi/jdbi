@@ -16,14 +16,14 @@ package org.jdbi.v3.sqlobject.config;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 
-public class LongValueMapperFactory implements ColumnMapperFactory {
+public class LongValueRowMapperFactory implements RowMapperFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
         return LongValue.class.equals(type)
-                ? Optional.of(new LongValueMapper())
+                ? Optional.of(new LongValueRowMapper())
                 : Optional.empty();
     }
 }

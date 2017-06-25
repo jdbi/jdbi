@@ -16,17 +16,11 @@ package org.jdbi.v3.sqlobject.config;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class StringValueMapper implements ColumnMapper<StringValue>, RowMapper<StringValue> {
+public class StringValueColumnMapper implements ColumnMapper<StringValue> {
     @Override
     public StringValue map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         return StringValue.of(r.getString(columnNumber));
-    }
-
-    @Override
-    public StringValue map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return map(rs, "string_value", ctx);
     }
 }

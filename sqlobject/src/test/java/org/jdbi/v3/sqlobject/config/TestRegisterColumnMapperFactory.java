@@ -51,16 +51,16 @@ public class TestRegisterColumnMapperFactory {
 
     public interface TestDao {
         @SqlQuery("select string_value from column_mappers")
-        @RegisterColumnMapperFactory(StringValueMapperFactory.class)
+        @RegisterColumnMapperFactory(StringValueColumnMapperFactory.class)
         List<StringValue> listStringValues();
 
         @SqlQuery("select long_value from column_mappers")
-        @RegisterColumnMapperFactory(LongValueMapperFactory.class)
+        @RegisterColumnMapperFactory(LongValueColumnMapperFactory.class)
         List<LongValue> listLongValues();
 
         @SqlQuery("select * from column_mappers")
-        @RegisterColumnMapperFactory(StringValueMapperFactory.class)
-        @RegisterColumnMapperFactory(LongValueMapperFactory.class)
+        @RegisterColumnMapperFactory(StringValueColumnMapperFactory.class)
+        @RegisterColumnMapperFactory(LongValueColumnMapperFactory.class)
         @RegisterConstructorMapper(ValueTypeEntity.class)
         List<ValueTypeEntity> list();
     }
