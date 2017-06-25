@@ -15,13 +15,12 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.config.RegisterRowMappers;
 
-public class RegisterRowMapperImpl implements Configurer
+public class RegisterRowMappersImpl implements Configurer
 {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
@@ -32,12 +31,9 @@ public class RegisterRowMapperImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
-        RegisterRowMapper registerRowMapper = (RegisterRowMapper) annotation;
-        try {
-            registry.get(RowMappers.class).register(registerRowMapper.value().newInstance());
-        }
-        catch (Exception e) {
-            throw new IllegalStateException("unable to create a specified row mapper", e);
-        }
+        Configurer delegate = new RegisterRowMapperImpl();
+
+        RegisterRowMappers registerRowMappers = (RegisterRowMappers) annotation;
+        Stream.of(registerRowMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 }

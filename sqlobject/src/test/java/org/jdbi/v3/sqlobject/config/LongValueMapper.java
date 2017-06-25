@@ -16,12 +16,18 @@ package org.jdbi.v3.sqlobject.config;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
-public class LongValueMapper implements ColumnMapper<LongValue> {
+public class LongValueMapper implements ColumnMapper<LongValue>, RowMapper<LongValue> {
     @Override
     public LongValue map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         long value = r.getLong(columnNumber);
         return r.wasNull() ? null : LongValue.of(value);
+    }
+
+    @Override
+    public LongValue map(ResultSet rs, StatementContext ctx) throws SQLException {
+        return map(rs, "long_value", ctx);
     }
 }

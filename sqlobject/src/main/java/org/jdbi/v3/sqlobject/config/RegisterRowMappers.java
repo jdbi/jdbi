@@ -14,26 +14,15 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.jdbi.v3.sqlobject.config.internal.RegisterRowMappersImpl;
 
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.sqlobject.config.internal.RegisterRowMapperImpl;
-
-/**
- * Register a row mapper in the context of a SQL Object type or method.
- */
-@ConfiguringAnnotation(RegisterRowMapperImpl.class)
+@ConfiguringAnnotation(RegisterRowMappersImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-@Repeatable(RegisterRowMappers.class)
-public @interface RegisterRowMapper
+public @interface RegisterRowMappers
 {
-    /**
-     * The row mapper class to register
-     * @return the row mapper class
-     */
-    Class<? extends RowMapper<?>> value();
+    RegisterRowMapper[] value();
 }
