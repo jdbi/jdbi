@@ -16,7 +16,6 @@ package org.jdbi.v3.sqlobject.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Objects;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
@@ -25,7 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestRegisterColumnMapper {
+public class TestRegisterColumnMapperFactory {
     @Rule
     public H2DatabaseRule rule = new H2DatabaseRule().withPlugin(new SqlObjectPlugin());
 
@@ -41,28 +40,29 @@ public class TestRegisterColumnMapper {
     }
 
     @Test
-    public void registerColumnMappers() {
+    public void registerColumnMapperFactories() {
         TestDao dao = handle.attach(TestDao.class);
-        assertThat(dao.listX()).containsExactly(StringValue.of("foo"), StringValue.of("bar"));
-        assertThat(dao.listY()).containsExactly(LongValue.of(1L), LongValue.of(2L));
+        assertThat(dao.listStringValues()).containsExactly(StringValue.of("foo"), StringValue.of("bar"));
+        assertThat(dao.listLongValues()).containsExactly(LongValue.of(1L), LongValue.of(2L));
         assertThat(dao.list()).containsExactly(
-                ValueTypeEntity.of(StringValue.of("foo"), LongValue.of(1L)),
-                ValueTypeEntity.of(StringValue.of("bar"), LongValue.of(2L)));
+                new ValueTypeEntity(StringValue.of("foo"), LongValue.of(1L)),
+                new ValueTypeEntity(StringValue.of("bar"), LongValue.of(2L)));
     }
 
     public interface TestDao {
         @SqlQuery("select string_value from column_mappers")
-        @RegisterColumnMapper(StringValueMapper.class)
-        List<StringValue> listX();
+        @RegisterColumnMapperFactory(StringValueMapperFactory.class)
+        List<StringValue> listStringValues();
 
         @SqlQuery("select long_value from column_mappers")
-        @RegisterColumnMapper(LongValueMapper.class)
-        List<LongValue> listY();
+        @RegisterColumnMapperFactory(LongValueMapperFactory.class)
+        List<LongValue> listLongValues();
 
         @SqlQuery("select * from column_mappers")
-        @RegisterColumnMapper(StringValueMapper.class)
-        @RegisterColumnMapper(LongValueMapper.class)
+        @RegisterColumnMapperFactory(StringValueMapperFactory.class)
+        @RegisterColumnMapperFactory(LongValueMapperFactory.class)
         @RegisterConstructorMapper(ValueTypeEntity.class)
         List<ValueTypeEntity> list();
     }
+
 }

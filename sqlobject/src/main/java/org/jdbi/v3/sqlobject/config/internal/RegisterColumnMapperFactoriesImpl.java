@@ -15,14 +15,15 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactories;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
 
-public class RegisterColumnMapperFactoryImpl implements Configurer
+public class RegisterColumnMapperFactoriesImpl implements Configurer
 {
 
     @Override
@@ -34,13 +35,9 @@ public class RegisterColumnMapperFactoryImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
-        RegisterColumnMapperFactory registerColumnMapperFactory = (RegisterColumnMapperFactory) annotation;
-        try {
-            ColumnMapperFactory factory = registerColumnMapperFactory.value().newInstance();
-            registry.get(ColumnMappers.class).register(factory);
-        }
-        catch (Exception e) {
-            throw new IllegalStateException("unable to create a specified column mapper factory", e);
-        }
+        RegisterColumnMapperFactoryImpl delegate = new RegisterColumnMapperFactoryImpl();
+
+        RegisterColumnMapperFactories registerColumnMapperFactories = (RegisterColumnMapperFactories) annotation;
+        Stream.of(registerColumnMapperFactories.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 }
