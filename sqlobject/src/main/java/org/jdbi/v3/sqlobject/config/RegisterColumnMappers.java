@@ -14,26 +14,15 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMappersImpl;
 
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperImpl;
-
-/**
- * Registers a column mapper in the scope of a SQL Object type or method.
- */
-@ConfiguringAnnotation(RegisterColumnMapperImpl.class)
+@ConfiguringAnnotation(RegisterColumnMappersImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-@Repeatable(RegisterColumnMappers.class)
-public @interface RegisterColumnMapper
+public @interface RegisterColumnMappers
 {
-    /**
-     * The column mapper class to register
-     * @return the column mapper class
-     */
-    Class<? extends ColumnMapper<?>> value();
+    RegisterColumnMapper[] value();
 }
