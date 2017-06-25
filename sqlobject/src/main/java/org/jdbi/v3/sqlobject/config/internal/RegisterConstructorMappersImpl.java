@@ -15,14 +15,12 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
+import org.jdbi.v3.sqlobject.config.RegisterConstructorMappers;
 
-public class RegisterConstructorMapperImpl implements Configurer
+public class RegisterConstructorMappersImpl implements Configurer
 {
 
     @Override
@@ -34,15 +32,9 @@ public class RegisterConstructorMapperImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
-        RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
-        RowMappers mappers = registry.get(RowMappers.class);
-        Class<?> type = registerConstructorMapper.value();
-        String prefix = registerConstructorMapper.prefix();
-        if (prefix.isEmpty()) {
-            mappers.register(ConstructorMapper.factory(type));
-        }
-        else {
-            mappers.register(ConstructorMapper.factory(type, prefix));
-        }
+        RegisterConstructorMapperImpl delegate = new RegisterConstructorMapperImpl();
+
+        RegisterConstructorMappers registerConstructorMappers = (RegisterConstructorMappers) annotation;
+        Stream.of(registerConstructorMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 }

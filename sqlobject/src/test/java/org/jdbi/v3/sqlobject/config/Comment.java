@@ -14,19 +14,23 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.util.Objects;
+import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
 public class Comment {
     static Comment newComment(long id, String content) {
-        Comment comment = new Comment();
-
-        comment.setId(id);
-        comment.setContent(content);
-
-        return comment;
+        return new Comment(id, content);
     }
 
     private long id;
     private String content;
+
+    public Comment() {}
+
+    @JdbiConstructor
+    public Comment(long id, String content) {
+        setId(id);
+        setContent(content);
+    }
 
     public long getId() {
         return id;

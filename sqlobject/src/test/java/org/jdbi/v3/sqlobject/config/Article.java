@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
 public class Article {
 
@@ -25,11 +26,8 @@ public class Article {
     }
 
     public static Article newArticle(long id, String title, String content, Comment... comments) {
-        Article article = new Article();
+        Article article = new Article(id, title, content);
 
-        article.setId(id);
-        article.setTitle(title);
-        article.setContent(content);
         article.getComments().addAll(Arrays.asList(comments));
 
         return article;
@@ -39,6 +37,15 @@ public class Article {
     private String title;
     private String content;
     private List<Comment> comments = new ArrayList<>();
+
+    public Article() {}
+
+    @JdbiConstructor
+    public Article(long id, String title, String content) {
+        setId(id);
+        setTitle(title);
+        setContent(content);
+    }
 
     public long getId() {
         return id;
