@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class LongValue {
+public class LongValue implements Serializable {
+    private static final long serialVersionUID = 0L;
+
     public static final LongValue of(long value) {
         return new LongValue(value);
     }

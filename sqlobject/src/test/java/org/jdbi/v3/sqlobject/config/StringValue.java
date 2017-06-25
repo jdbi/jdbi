@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class StringValue {
+public class StringValue implements Serializable {
+    private static final long serialVersionUID = 0L;
+
     public static StringValue of(String value) {
         return value == null ? null : new StringValue(value);
     }
