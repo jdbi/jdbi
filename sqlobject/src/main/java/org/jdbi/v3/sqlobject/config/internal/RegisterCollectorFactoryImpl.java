@@ -15,7 +15,6 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -32,12 +31,11 @@ public class RegisterCollectorFactoryImpl implements Configurer {
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterCollectorFactory registerCollectorFactory = (RegisterCollectorFactory) annotation;
         JdbiCollectors collectors = registry.get(JdbiCollectors.class);
-        for (Class<? extends CollectorFactory> type : registerCollectorFactory.value()) {
-            try {
-                collectors.register(type.newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new IllegalStateException("Unable to instantiate container factory", e);
-            }
+        Class<? extends CollectorFactory> type = registerCollectorFactory.value();
+        try {
+            collectors.register(type.newInstance());
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new IllegalStateException("Unable to instantiate container factory", e);
         }
     }
 }
