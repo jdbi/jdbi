@@ -954,13 +954,13 @@ Optional<Contact> contact = handle.createQuery(SELECT_ONE)
     .registerRowMapper(BeanMapper.factory(Phone.class, "p"))
     .reduceRows(Optional.<Contact>empty(), // <1>
                 (acc, rowView) -> {
-      Contact contact = acc.orElseGet(() -> rowView.getRow(Contact.class));
+      Contact contact = acc.orElseGet(() -> rowView.getRow(Contact.class)); // <2>
 
       if (rowView.getColumn("p_id", Long.class) != null) {
         contact.addPhone(rowView.getRow(Phone.class));
       }
 
-      return Optional.of(contact); // <4>
+      return Optional.of(contact); // <3>
     });
 ----
 
@@ -969,7 +969,7 @@ Optional<Contact> contact = handle.createQuery(SELECT_ONE)
     non-empty `Optional<Contact>`.
 <2> Load the `Contact` from the accumulator if we already have it; otherwise,
     initialize it through the `RowView`.
-<4> Rewrap the `Contact` in an `Optional<Contact>`, to use for the accumulator
+<3> Rewrap the `Contact` in an `Optional<Contact>`, to use for the accumulator
     on the following rows.
 
 ===== ResultBearing.reduceResultSet()
@@ -1971,20 +1971,105 @@ To use module plugin, add a Maven dependency:
 </dependency>
 ----
 
-When using core APIs, use the `StringTemplateSqlLocator` to load ST templates
-from the classpath.
+To use StringTemplate format in SQL statements, set the statement rewriter
+to `StringTemplateStatementRewriter`.
 
-TODO: usage example
+Defined attributes are provided to the StringTemplate engine to render the SQL:
 
-In SQL Objects, using the `@UseStringTemplateStatementRewriter` to switch the
-SQL in annotations to be parsed by the StringTemplate engine.
+[source,java]
+----
+String sortColumn = "name";
+String sql = "select id, name " +
+             "from account " +
+             "order by <if(sort)> <sortBy>, <endif> id";
 
-TODO: usage example
+List<Account> accounts = handle.createQuery(sql)
+      .setStatementRewriter(new StringTemplateStatementRewriter())
+      .define("sort", true)
+      .define("sortBy", sortColumn)
+      .mapTo(Account.class)
+      .list();
+----
 
-Or, use the `@UseStringTemplateSqlLocator` annotation to switch template
-engines, and cause templates to be loaded from `.stg` files on the classpath:
+Alternatively, SQL templates can be loaded from StringTemplate group files on
+the classpath:
 
-TODO: usage example
+[source,stringtemplate]
+.com/foo/AccountDao.sql.stg
+----
+group AccountDao;
+
+selectAll(sort,sortBy) ::= <<
+  select id, name
+  from account
+  order by <if(sort)> <sortBy>, <endif> id
+>>
+----
+
+[source,java]
+----
+ST template = StringTemplateSqlLocator.findStringTemplate(
+                  "com/foo/AccountDao.sql.stg", "selectAll");
+
+String sql = template.add("sort", true)
+                     .add("sortBy", sortColumn)
+                     .render();
+----
+
+In SQL Objects, the `@UseStringTemplateStatementRewriter` annotation sets the
+statement locator, similar to first example above.
+
+[source,java]
+----
+package com.foo;
+
+public interface AccountDao {
+  @SqlQuery("select id, name " +
+            "from account " +
+            "order by <if(sort)> <sortBy>, <endif> id")
+  @UseStringTemplateStatementRewriter
+  List<Account> selectAll(@Define boolean sort,
+                          @Define String sortBy);
+}
+----
+
+Alternatively, the `@UseStringTemplateSqlLocator` annotation sets the statement
+locator, and loads SQL from a StringTemplate group file on the classpath:
+
+[source,java]
+----
+package com.foo;
+
+public interface AccountDao {
+  @SqlQuery
+  @UseStringTemplateSqlLocator
+  List<Account> selectAll(@Define boolean sort,
+                          @Define String sortBy);
+}
+----
+
+In this example, since the fully qualified class name is `com.foo.AccountDao`,
+SQL will be loaded from the file `com/foo/AccountDao.sql.stg` on the
+classpath.
+
+By default, the template in the group with the same name as the method will be
+used. This can be overridden on the `@Sql___` annotation:
+
+[source,java]
+----
+package com.foo;
+
+public interface AccountDao {
+  @SqlQuery("listSorted")
+  @UseStringTemplateSqlLocator
+  List<Account> selectAll(@Define boolean sort,
+                          @Define String sortBy);
+}
+----
+
+In this example, the SQL template will still be loaded from the file
+`com/foo/AccountDao.sql.stg` on the classpath, however the `listSorted`
+template will be used, regardless of the method name.
 
 == Advanced Topics
 

@@ -4,7 +4,7 @@
     the update count.
   - Removed core dependency on Guava.
   - [breaking] Switch from 1- to 0-based indices in OracleReturning.returnParameters()
-
+  - [breaking] Moved JoinRowMapper.JoinRow class to top-level class
 
 3.0.0-beta1
   - [breaking] Refactored SqlStatementCustomizerFactory.createForParameter(...)
