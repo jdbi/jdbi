@@ -15,27 +15,19 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.config.RegisterBeanMappers;
 
-public class RegisterBeanMapperImpl implements Configurer
+public class RegisterBeanMappersImpl implements Configurer
 {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterBeanMapper registerBeanMapper = (RegisterBeanMapper) annotation;
-        Class<?> beanClass = registerBeanMapper.value();
-        String prefix = registerBeanMapper.prefix();
-        RowMappers mappers = registry.get(RowMappers.class);
-        if (prefix.isEmpty()) {
-            mappers.register(BeanMapper.factory(beanClass));
-        }
-        else {
-            mappers.register(BeanMapper.factory(beanClass, prefix));
-        }
+        RegisterBeanMapperImpl delegate = new RegisterBeanMapperImpl();
+
+        RegisterBeanMappers registerBeanMappers = (RegisterBeanMappers) annotation;
+        Stream.of(registerBeanMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 
     @Override

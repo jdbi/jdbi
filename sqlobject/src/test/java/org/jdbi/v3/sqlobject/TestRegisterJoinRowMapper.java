@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.mapper.JoinRowMapper.JoinRow;
 import org.jdbi.v3.core.mapper.JoinRowMapperTest;
@@ -43,22 +44,28 @@ public class TestRegisterJoinRowMapper
         t.setUp();
     }
 
-    // tag::joinrow[]
     @Test
     public void testSqlObjectJoinRow()
     {
-        UserArticleDao dao = dbRule.getSharedHandle().attach(UserArticleDao.class);
+        Handle handle = dbRule.getSharedHandle();
+
+        // tag::joinrowusage[]
         Multimap<User, Article> joined = HashMultimap.create();
-        dao.getAuthorship()
-            .forEach(jr -> joined.put(jr.get(User.class), jr.get(Article.class)));
+
+        handle.attach(UserArticleDao.class)
+                .getAuthorship()
+                .forEach(jr -> joined.put(jr.get(User.class), jr.get(Article.class)));
+
         assertThat(joined).isEqualTo(JoinRowMapperTest.getExpected());
+        // end::joinrowusage[]
     }
 
+    // tag::joinrowdao[]
     public interface UserArticleDao
     {
         @RegisterJoinRowMapper({User.class, Article.class})
         @SqlQuery("SELECT * FROM user NATURAL JOIN author NATURAL JOIN article")
         Stream<JoinRow> getAuthorship();
     }
-    // end::joinrow[]
+    // end::joinrowdao[]
 }
