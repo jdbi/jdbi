@@ -27,21 +27,14 @@ public class RegisterBeanMapperImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterBeanMapper registerBeanMapper = (RegisterBeanMapper) annotation;
-        Class<?>[] beanClasses = registerBeanMapper.value();
-        String[] prefixes = registerBeanMapper.prefix();
+        Class<?> beanClass = registerBeanMapper.value();
+        String prefix = registerBeanMapper.prefix();
         RowMappers mappers = registry.get(RowMappers.class);
-        if (prefixes.length == 0) {
-            for (Class<?> beanClass : beanClasses) {
-                mappers.register(BeanMapper.factory(beanClass));
-            }
-        }
-        else if (prefixes.length == beanClasses.length) {
-            for (int i = 0; i < beanClasses.length; i++) {
-                mappers.register(BeanMapper.factory(beanClasses[i], prefixes[i]));
-            }
+        if (prefix.isEmpty()) {
+            mappers.register(BeanMapper.factory(beanClass));
         }
         else {
-            throw new IllegalStateException("RegisterBeanMapper.prefix() must have the same number of elements as value()");
+            mappers.register(BeanMapper.factory(beanClass, prefix));
         }
     }
 

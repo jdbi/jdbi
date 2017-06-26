@@ -15,32 +15,22 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.RegisterFieldMapper;
+import org.jdbi.v3.sqlobject.config.RegisterObjectArgumentFactories;
 
-public class RegisterFieldMapperImpl implements Configurer
-{
+public class RegisterObjectArgumentFactoriesImpl implements Configurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterFieldMapper registerFieldMapper = (RegisterFieldMapper) annotation;
-        Class<?> type = registerFieldMapper.value();
-        String prefix = registerFieldMapper.prefix();
-        RowMappers mappers = registry.get(RowMappers.class);
-        if (prefix.isEmpty()) {
-            mappers.register(FieldMapper.factory(type));
-        }
-        else {
-            mappers.register(FieldMapper.factory(type, prefix));
-        }
+        Configurer delegate = new RegisterObjectArgumentFactoryImpl();
+
+        RegisterObjectArgumentFactories registerObjectArgumentFactories = (RegisterObjectArgumentFactories) annotation;
+        Stream.of(registerObjectArgumentFactories.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
-    {
+    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
     }
 }

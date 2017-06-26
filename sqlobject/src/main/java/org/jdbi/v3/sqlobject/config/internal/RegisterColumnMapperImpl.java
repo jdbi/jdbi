@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
@@ -36,10 +35,7 @@ public class RegisterColumnMapperImpl implements Configurer
         RegisterColumnMapper registerColumnMapper = (RegisterColumnMapper) annotation;
         ColumnMappers mappers = registry.get(ColumnMappers.class);
         try {
-            Class<? extends ColumnMapper<?>>[] columnMapperTypes = registerColumnMapper.value();
-            for (int i = 0; i < columnMapperTypes.length; i++) {
-                mappers.register(columnMapperTypes[i].newInstance());
-            }
+            mappers.register(registerColumnMapper.value().newInstance());
         }
         catch (Exception e) {
             throw new IllegalStateException("unable to create a specified column mapper", e);

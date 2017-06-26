@@ -160,12 +160,14 @@ public class TestReturningMap {
 
         @SqlQuery("select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
                 "from user u left join phone p on u.id = p.user_id")
-        @RegisterConstructorMapper(value = {User.class, Phone.class}, prefix = {"u", "p"})
+        @RegisterConstructorMapper(value = User.class, prefix = "u")
+        @RegisterConstructorMapper(value = Phone.class, prefix = "p")
         Map<User, Phone> getMap();
 
         @SqlQuery("select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone " +
                 "from user u left join phone p on u.id = p.user_id")
-        @RegisterConstructorMapper(value = {User.class, Phone.class}, prefix = {"u", "p"})
+        @RegisterConstructorMapper(value = User.class, prefix = "u")
+        @RegisterConstructorMapper(value = Phone.class, prefix = "p")
         Multimap<User, Phone> getMultimap();
 
     }

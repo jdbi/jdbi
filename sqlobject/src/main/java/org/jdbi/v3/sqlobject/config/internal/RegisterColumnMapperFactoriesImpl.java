@@ -15,32 +15,29 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
+import java.util.stream.Stream;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.FieldMapper;
+import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.RegisterFieldMapper;
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactories;
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
 
-public class RegisterFieldMapperImpl implements Configurer
+public class RegisterColumnMapperFactoriesImpl implements Configurer
 {
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterFieldMapper registerFieldMapper = (RegisterFieldMapper) annotation;
-        Class<?> type = registerFieldMapper.value();
-        String prefix = registerFieldMapper.prefix();
-        RowMappers mappers = registry.get(RowMappers.class);
-        if (prefix.isEmpty()) {
-            mappers.register(FieldMapper.factory(type));
-        }
-        else {
-            mappers.register(FieldMapper.factory(type, prefix));
-        }
-    }
 
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method)
     {
         configureForType(registry, annotation, sqlObjectType);
+    }
+
+    @Override
+    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
+    {
+        Configurer delegate = new RegisterColumnMapperFactoryImpl();
+
+        RegisterColumnMapperFactories registerColumnMapperFactories = (RegisterColumnMapperFactories) annotation;
+        Stream.of(registerColumnMapperFactories.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }
 }

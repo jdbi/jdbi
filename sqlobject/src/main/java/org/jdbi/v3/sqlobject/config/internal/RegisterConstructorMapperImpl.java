@@ -36,20 +36,13 @@ public class RegisterConstructorMapperImpl implements Configurer
     {
         RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
         RowMappers mappers = registry.get(RowMappers.class);
-        Class<?>[] types = registerConstructorMapper.value();
-        String[] prefixes = registerConstructorMapper.prefix();
-        if (prefixes.length == 0) {
-            for (Class<?> type : types) {
-                mappers.register(ConstructorMapper.factory(type));
-            }
-        }
-        else if (prefixes.length == types.length) {
-            for (int i = 0; i < types.length; i++) {
-                mappers.register(ConstructorMapper.factory(types[i], prefixes[i]));
-            }
+        Class<?> type = registerConstructorMapper.value();
+        String prefix = registerConstructorMapper.prefix();
+        if (prefix.isEmpty()) {
+            mappers.register(ConstructorMapper.factory(type));
         }
         else {
-            throw new IllegalStateException("RegisterConstructorMapper.prefix() must have the same number of elements as value()");
+            mappers.register(ConstructorMapper.factory(type, prefix));
         }
     }
 }

@@ -13,23 +13,17 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
+import java.lang.reflect.Type;
+import java.util.Optional;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
-import org.jdbi.v3.sqlobject.config.internal.RegisterRowMapperFactoryImpl;
 
-/**
- * Registers a row mapper factory in the scope of a SQL Object type or method.
- */
-@ConfiguringAnnotation(RegisterRowMapperFactoryImpl.class)
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Repeatable(RegisterRowMapperFactories.class)
-public @interface RegisterRowMapperFactory
-{
-    Class<? extends RowMapperFactory> value();
+public class StringValueRowMapperFactory implements RowMapperFactory {
+    @Override
+    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+        return StringValue.class.equals(type)
+                ? Optional.of(new StringValueRowMapper())
+                : Optional.empty();
+    }
 }

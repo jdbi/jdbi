@@ -45,7 +45,7 @@ public class TestRegisterArgumentFactory
     }
 
     @Test
-    public void testFoo() throws Exception
+    public void testSingleAnnotation() throws Exception
     {
         db.useExtension(Waffle.class, w -> {
             w.insert(1, new Name("Brian", "McCallister"));
@@ -54,6 +54,15 @@ public class TestRegisterArgumentFactory
         });
     }
 
+    @Test
+    public void testMultipleAnnotations() throws Exception
+    {
+        db.useExtension(ShortStack.class, s -> {
+            s.insert(1, new Name("George", "Takei"));
+
+            assertThat(s.findName(1)).isEqualTo("George Takei");
+        });
+    }
 
     @RegisterArgumentFactory(NameAF.class)
     public interface Waffle
@@ -63,6 +72,24 @@ public class TestRegisterArgumentFactory
 
         @SqlQuery("select name from something where id = :id")
         String findName(@Bind("id") int id);
+    }
+
+    @RegisterArgumentFactory(NameAF.class)
+    @RegisterArgumentFactory(LazyAF.class)
+    public interface ShortStack
+    {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        void insert(@Bind("id") int id, @Bind("name") Name name);
+
+        @SqlQuery("select name from something where id = :id")
+        String findName(@Bind("id") int id);
+    }
+
+    public static class LazyAF implements ArgumentFactory {
+        @Override
+        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+            return Optional.empty();
+        }
     }
 
     public static class NameAF implements ArgumentFactory

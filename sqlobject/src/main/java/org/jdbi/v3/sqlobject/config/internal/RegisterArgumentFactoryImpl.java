@@ -29,13 +29,12 @@ public class RegisterArgumentFactoryImpl implements Configurer
     {
         RegisterArgumentFactory raf = (RegisterArgumentFactory) annotation;
         Arguments arguments = registry.get(Arguments.class);
-        for (Class<? extends ArgumentFactory> aClass : raf.value()) {
-            try {
-                arguments.register(aClass.newInstance());
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("unable to instantiate specified argument factory", e);
-            }
+
+        try {
+            arguments.register(raf.value().newInstance());
+        }
+        catch (Exception e) {
+            throw new IllegalStateException("unable to instantiate specified argument factory", e);
         }
     }
 

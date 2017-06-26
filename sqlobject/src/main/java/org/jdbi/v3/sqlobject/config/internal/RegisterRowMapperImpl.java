@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
@@ -34,12 +33,8 @@ public class RegisterRowMapperImpl implements Configurer
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
         RegisterRowMapper registerRowMapper = (RegisterRowMapper) annotation;
-        RowMappers mappers = registry.get(RowMappers.class);
         try {
-            Class<? extends RowMapper<?>>[] rowMapperTypes = registerRowMapper.value();
-            for (int i = 0; i < rowMapperTypes.length; i++) {
-                mappers.register(rowMapperTypes[i].newInstance());
-            }
+            registry.get(RowMappers.class).register(registerRowMapper.value().newInstance());
         }
         catch (Exception e) {
             throw new IllegalStateException("unable to create a specified row mapper", e);

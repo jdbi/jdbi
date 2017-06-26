@@ -22,7 +22,7 @@ import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.sqlobject.config.internal.RegisterCollectorFactoryImpl;
 
 /**
- * Used to register collector factories on the current
+ * Used to register a collector factory on the current
  * {@link org.jdbi.v3.core.statement.SqlStatement} either for a sql object type
  * or for a method.
  */
@@ -31,5 +31,5 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterCollectorFactoryImpl;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterCollectorFactory {
 
-    Class<? extends CollectorFactory>[] value();
+    Class<? extends CollectorFactory> value();
 }
