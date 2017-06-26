@@ -17,7 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.MapEntryMapper;
+import org.jdbi.v3.core.mapper.MapEntryMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.KeyColumn;
 
@@ -25,6 +25,6 @@ public class KeyColumnImpl implements Configurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         KeyColumn keyColumn = (KeyColumn) annotation;
-        registry.get(MapEntryMapper.Config.class).setKeyColumn(keyColumn.value());
+        registry.get(MapEntryMappers.class).setKeyColumn(keyColumn.value());
     }
 }

@@ -46,7 +46,7 @@ public class MapEntryMapperTest {
                 .execute();
 
         Map<String, String> map = h.createQuery("select key, value from config")
-                .configure(MapEntryMapper.Config.class, cfg -> cfg.setKeyColumn("key").setValueColumn("value"))
+                .configure(MapEntryMappers.class, cfg -> cfg.setKeyColumn("key").setValueColumn("value"))
                 .collectInto(new GenericType<Map<String, String>>() {});
 
         assertThat(map).containsOnly(
@@ -65,7 +65,7 @@ public class MapEntryMapperTest {
                 .execute();
 
         Map<Integer, User> map = h.createQuery("select * from user")
-                .configure(MapEntryMapper.Config.class, cfg -> cfg.setKeyColumn("id"))
+                .configure(MapEntryMappers.class, cfg -> cfg.setKeyColumn("id"))
                 .registerRowMapper(ConstructorMapper.factory(User.class))
                 .collectInto(new GenericType<Map<Integer, User>>() {});
 
