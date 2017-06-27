@@ -7,6 +7,7 @@
   - [breaking] Moved JoinRowMapper.JoinRow class to top-level class
   - [breaking] Modified @Register* annotations to be repeatable, instead of using
     array attributes.
+  - array binder now guesses type based on first element of untyped collections, rather than passing
 
 3.0.0-beta1
   - [breaking] Refactored SqlStatementCustomizerFactory.createForParameter(...)

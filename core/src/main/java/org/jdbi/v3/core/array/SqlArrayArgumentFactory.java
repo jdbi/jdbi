@@ -47,8 +47,12 @@ public class SqlArrayArgumentFactory implements ArgumentFactory {
                     .map(arrayType -> new SqlArrayArgument<>(arrayType, value));
         }
 
-        return GenericTypes.findGenericParameter(type, Collection.class)
-                .flatMap(lookup)
+        final Collection<?> collection = (Collection<?>) value;
+        // If there's no static type, guess based on the first element
+        final Type eltType = GenericTypes.findGenericParameter(type, Collection.class)
+            .orElse(collection.isEmpty() ? String.class : collection.iterator().next().getClass());
+
+        return lookup.apply(eltType)
                 .map(arrayType -> new SqlArrayArgument<>(arrayType, (Collection<?>) value));
     }
 }
