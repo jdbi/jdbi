@@ -27,21 +27,14 @@ public class RegisterFieldMapperImpl implements Configurer
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterFieldMapper registerFieldMapper = (RegisterFieldMapper) annotation;
-        Class<?>[] types = registerFieldMapper.value();
-        String[] prefixes = registerFieldMapper.prefix();
+        Class<?> type = registerFieldMapper.value();
+        String prefix = registerFieldMapper.prefix();
         RowMappers mappers = registry.get(RowMappers.class);
-        if (prefixes.length == 0) {
-            for (Class<?> type : types) {
-                mappers.register(FieldMapper.factory(type));
-            }
-        }
-        else if (prefixes.length == types.length) {
-            for (int i = 0; i < types.length; i++) {
-                mappers.register(FieldMapper.factory(types[i], prefixes[i]));
-            }
+        if (prefix.isEmpty()) {
+            mappers.register(FieldMapper.factory(type));
         }
         else {
-            throw new IllegalStateException("RegisterFieldMapper.prefix() must have the same number of elements as value()");
+            mappers.register(FieldMapper.factory(type, prefix));
         }
     }
 

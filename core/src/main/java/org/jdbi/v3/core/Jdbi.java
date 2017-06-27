@@ -142,6 +142,18 @@ public class Jdbi implements Configurable<Jdbi>
     }
 
     /**
+     * Convenience method used to obtain a handle from a {@link ConnectionFactory}.
+     *
+     * @param connectionFactory the connection factory
+     *
+     * @return Handle using a Connection obtained from the provided connection factory
+     */
+    public static Handle open(ConnectionFactory connectionFactory)
+    {
+        return create(connectionFactory).open();
+    }
+
+    /**
      * Create a Handle wrapping a particular JDBC Connection
      *
      * @param connection the JDBC connection

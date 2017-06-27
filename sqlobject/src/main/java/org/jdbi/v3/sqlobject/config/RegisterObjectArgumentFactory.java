@@ -14,33 +14,33 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Types;
-
 import org.jdbi.v3.sqlobject.config.internal.RegisterObjectArgumentFactoryImpl;
 
 /**
- * Used to register argument factories for types which are compatible with
+ * Registers an argument factory for a type compatible with
  * {@link java.sql.PreparedStatement#setObject(int, Object)}.
  */
 @ConfiguringAnnotation(RegisterObjectArgumentFactoryImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RegisterObjectArgumentFactory
-{
+@Repeatable(RegisterObjectArgumentFactories.class)
+public @interface RegisterObjectArgumentFactory {
     /**
-     * The argument type(s) which are compatible with {@link java.sql.PreparedStatement#setObject(int, Object)}.
-     * @return the argument types
+     * The argument type which is compatible with {@link java.sql.PreparedStatement#setObject(int, Object)}.
+     *
+     * @return the argument type
      */
-    Class<?>[] value();
+    Class<?> value();
 
     /**
-     * SQL type constant(s) from {@link Types}. If omitted, defaults to not setting a type. If specified, must have the
-     * same number of elements as {@link #value()}. Each <code>sqlType</code> element is applied to the
-     * <code>value</code> element at the same index.
-     * @return SQL types corresponding pairwise to the elements in {@link #value()}.
+     * SQL type constant from {@link Types}. If omitted, defaults to not setting a type.
+     *
+     * @return SQL type constant from {@link Types}.
      */
-    int[] sqlType() default {};
+    int sqlType() default Integer.MIN_VALUE;
 }

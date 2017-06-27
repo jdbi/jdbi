@@ -35,12 +35,9 @@ public class RegisterColumnMapperFactoryImpl implements Configurer
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType)
     {
         RegisterColumnMapperFactory registerColumnMapperFactory = (RegisterColumnMapperFactory) annotation;
-        ColumnMappers mappers = registry.get(ColumnMappers.class);
         try {
-            Class<? extends ColumnMapperFactory>[] mcs = registerColumnMapperFactory.value();
-            for (int i = 0; i < mcs.length; i++) {
-                mappers.register(mcs[i].newInstance());
-            }
+            ColumnMapperFactory factory = registerColumnMapperFactory.value().newInstance();
+            registry.get(ColumnMappers.class).register(factory);
         }
         catch (Exception e) {
             throw new IllegalStateException("unable to create a specified column mapper factory", e);

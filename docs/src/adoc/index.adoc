@@ -1045,7 +1045,12 @@ You can also use it with SqlObject:
 
 [source,java,indent=0]
 ----
-include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrow]
+include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowdao]
+----
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowusage]
 ----
 
 === Updates

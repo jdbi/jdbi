@@ -6,6 +6,8 @@
   - [breaking] Switch from 1- to 0-based indices in OracleReturning.returnParameters()
   - [breaking] Added StatementContext parameter to NamedArgumentFinder.find() method
   - [breaking] Moved JoinRowMapper.JoinRow class to top-level class
+  - [breaking] Modified @Register* annotations to be repeatable, instead of using
+    array attributes.
   - [breaking] Moved and renamed MapEntryMapper.Config to top-level class
     MapEntryMappers
 

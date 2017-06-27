@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -22,16 +23,17 @@ import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperFactoryImpl;
 
 /**
- * Used to register a column mapper with either a sql object type or for a specific method.
+ * Registers a column mapper factory in the scope of a SQL Object type or method.
  */
 @ConfiguringAnnotation(RegisterColumnMapperFactoryImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
+@Repeatable(RegisterColumnMapperFactories.class)
 public @interface RegisterColumnMapperFactory
 {
     /**
-     * The column mapper factory classes to register
-     * @return one or more column mapper factory classes.
+     * The column mapper factory class to register
+     * @return the column mapper factory class
      */
-    Class<? extends ColumnMapperFactory>[] value();
+    Class<? extends ColumnMapperFactory> value();
 }

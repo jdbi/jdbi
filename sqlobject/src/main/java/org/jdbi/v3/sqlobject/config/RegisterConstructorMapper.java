@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -26,20 +27,19 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterConstructorMapperImpl;
 @ConfiguringAnnotation(RegisterConstructorMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
+@Repeatable(RegisterConstructorMappers.class)
 public @interface RegisterConstructorMapper
 {
     /**
-     * The type to map with ConstructorMapper.
-     * @return one or more mapped types.
+     * The mapped type.
+     * @return the mapped type.
      */
-    Class<?>[] value();
+    Class<?> value();
 
     /**
-     * Column name prefix for each mapped type. If omitted, defaults to no prefix. If specified, must have the same
-     * number of elements as {@link #value()}. Each <code>prefix</code> element is applied to the <code>value</code>
-     * element at the same index.
+     * Column name prefix for the mapped type. If omitted, defaults to no prefix.
      *
-     * @return Column name prefixes corresponding pairwise to the elements in {@link #value()}.
+     * @return Column name prefix for the mapped type.
      */
-    String[] prefix() default {};
+    String prefix() default "";
 }

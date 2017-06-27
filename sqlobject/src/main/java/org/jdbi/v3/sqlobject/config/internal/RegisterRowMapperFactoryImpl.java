@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
@@ -37,10 +36,7 @@ public class RegisterRowMapperFactoryImpl implements Configurer
         RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
         RowMappers mappers = registry.get(RowMappers.class);
         try {
-            Class<? extends RowMapperFactory>[] factoryTypes = registerRowMapperFactory.value();
-            for (int i = 0; i < factoryTypes.length; i++) {
-                mappers.register(factoryTypes[i].newInstance());
-            }
+            mappers.register(registerRowMapperFactory.value().newInstance());
         }
         catch (Exception e) {
             throw new IllegalStateException("unable to create a specified row mapper factory", e);

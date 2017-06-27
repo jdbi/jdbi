@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.config;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -23,15 +24,17 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterArgumentFactoryImpl;
 
 /**
  * Used to register an argument factory with either a sql object type or for a specific method.
+ * This annotation may be repeated to register multiple argument factories.
  */
 @ConfiguringAnnotation(RegisterArgumentFactoryImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@Repeatable(RegisterArgumentFactories.class)
 public @interface RegisterArgumentFactory
 {
     /**
      * The argument factory classes to register
      * @return one or more argument factory classes.
      */
-    Class<? extends ArgumentFactory>[] value();
+    Class<? extends ArgumentFactory> value();
 }
