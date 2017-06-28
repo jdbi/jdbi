@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -66,7 +65,7 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
     }
 
     private static RowMapper<?> getKeyMapper(Type keyType, ConfigRegistry config) {
-        String column = config.get(Config.class).getKeyColumn();
+        String column = config.get(MapEntryMappers.class).getKeyColumn();
         if (column == null) {
             return config.get(RowMappers.class)
                     .findFor(keyType)
@@ -80,7 +79,7 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
     }
 
     private static RowMapper<?> getValueMapper(Type valueType, ConfigRegistry config) {
-        String column = config.get(Config.class).getValueColumn();
+        String column = config.get(MapEntryMappers.class).getValueColumn();
         if (column == null) {
             return config.get(RowMappers.class)
                     .findFor(valueType)
@@ -108,58 +107,4 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
         return new MapEntryMapper<>(keyMapper.specialize(rs, ctx), valueMapper.specialize(rs, ctx));
     }
 
-    /**
-     * Configuration class for MapEntryMapper.
-     */
-    public static class Config implements JdbiConfig<Config> {
-        public Config() {
-        }
-
-        private Config(Config that) {
-            this.keyColumn = that.keyColumn;
-            this.valueColumn = that.valueColumn;
-        }
-
-        private String keyColumn;
-        private String valueColumn;
-
-        String getKeyColumn() {
-            return keyColumn;
-        }
-
-        /**
-         * Sets the column that map entry keys are loaded from. If set, keys will be loaded from the given column, using the {@link ColumnMapper} registered
-         * for the key type. If unset, keys will be loaded using the {@link RowMapper} registered for the key type, from whichever columns that row mapper
-         * uses.
-         *
-         * @param keyColumn the key column name.
-         * @return this config object, for call chaining
-         */
-        public Config setKeyColumn(String keyColumn) {
-            this.keyColumn = requireNonNull(keyColumn);
-            return this;
-        }
-
-        String getValueColumn() {
-            return valueColumn;
-        }
-
-        /**
-         * Sets the column that map entry values are loaded from. If set, values will be loaded from the given column, using the {@link ColumnMapper}
-         * registered for the value type. If unset, values will be loaded using the {@link RowMapper} registered for the value type, from whichever columns
-         * that row mapper uses.
-         *
-         * @param valueColumn the value column name.
-         * @return this config object, for call chaining
-         */
-        public Config setValueColumn(String valueColumn) {
-            this.valueColumn = requireNonNull(valueColumn);
-            return this;
-        }
-
-        @Override
-        public Config createCopy() {
-            return new Config(this);
-        }
-    }
 }

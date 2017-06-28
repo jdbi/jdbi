@@ -242,7 +242,7 @@ public interface ResultBearing {
      * </p>
      * <pre>
      * Map&lt;Long, User&gt; usersById = handle.createQuery("select * from user")
-     *     .configure(MapEntryMapper.Config.class, cfg -&gt; cfg.setKeyColumn("id"))
+     *     .configure(MapEntryMappers.class, cfg -&gt; cfg.setKeyColumn("id"))
      *     .collectInto(new GenericType&lt;Map&lt;Long, User&gt;&gt;() {});
      * </pre>
      *
