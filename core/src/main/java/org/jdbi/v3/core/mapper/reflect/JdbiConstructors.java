@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,6 +41,16 @@ public class JdbiConstructors {
 
         if (annotatedConstructors.size() > 1) {
             throw new IllegalArgumentException(type + " must have at most one constructor annotated @JdbiConstructor");
+        } else if (annotatedConstructors.size() == 1) {
+            return annotatedConstructors.get(0);
+        }
+
+        annotatedConstructors = Stream.of(constructors)
+                .filter(c -> c.isAnnotationPresent(ConstructorProperties.class))
+                .collect(Collectors.toList());
+
+        if (annotatedConstructors.size() > 1) {
+            throw new IllegalArgumentException(type + " must have at most one constructor annotated @ConstructorProperties");
         } else if (annotatedConstructors.size() == 1) {
             return annotatedConstructors.get(0);
         }

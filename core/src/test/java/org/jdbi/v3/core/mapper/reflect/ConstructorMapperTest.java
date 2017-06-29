@@ -119,6 +119,11 @@ public class ConstructorMapperTest {
         final String s;
         final int i;
 
+        ConstructorPropertiesBean() {
+            this.s = null;
+            this.i = 0;
+        }
+
         @ConstructorProperties({"s", "i"})
         ConstructorPropertiesBean(String x, int y) {
             this.s = x;
