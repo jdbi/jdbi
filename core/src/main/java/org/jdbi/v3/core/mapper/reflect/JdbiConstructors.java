@@ -56,7 +56,7 @@ public class JdbiConstructors {
         }
 
         if (constructors.length != 1) {
-            throw new IllegalArgumentException(type + " must have exactly one constructor, or specify it with @JdbiConstructor");
+            throw new IllegalArgumentException(type + " must have exactly one constructor, or specify it with @JdbiConstructor or @ConstructorProperties");
         }
         return constructors[0];
     }
