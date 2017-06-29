@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.beans.ConstructorProperties;
+
 public class ConstructorMapperTest {
 
     @Rule
@@ -29,7 +31,8 @@ public class ConstructorMapperTest {
     public void setUp() throws Exception {
         dbRule.getSharedHandle()
                 .registerRowMapper(ConstructorMapper.factory(ConstructorBean.class))
-                .registerRowMapper(ConstructorMapper.factory(NamedParameterBean.class));
+                .registerRowMapper(ConstructorMapper.factory(NamedParameterBean.class))
+                .registerRowMapper(ConstructorMapper.factory(ConstructorPropertiesBean.class));
         dbRule.getSharedHandle().execute("CREATE TABLE bean (s varchar, i integer)");
 
         dbRule.getSharedHandle().execute("INSERT INTO bean VALUES('3', 2)");
@@ -80,6 +83,16 @@ public class ConstructorMapperTest {
         assertThat(nb.i).isEqualTo(3);
     }
 
+    @Test
+    public void testConstructorProperties() throws Exception {
+        final ConstructorPropertiesBean cpi = dbRule.getSharedHandle()
+                .createQuery("SELECT * FROM bean")
+                .mapTo(ConstructorPropertiesBean.class)
+                .findOnly();
+        assertThat(cpi.s).isEqualTo("3");
+        assertThat(cpi.i).isEqualTo(2);
+    }
+
     static class ConstructorBean {
         private final String s;
         private final int i;
@@ -99,6 +112,17 @@ public class ConstructorMapperTest {
         final int i;
         NamedParameterBean(@ColumnName("xyz") int i) {
             this.i = i;
+        }
+    }
+
+    static class ConstructorPropertiesBean {
+        final String s;
+        final int i;
+
+        @ConstructorProperties({"s", "i"})
+        ConstructorPropertiesBean(String x, int y) {
+            this.s = x;
+            this.i = y;
         }
     }
 }
