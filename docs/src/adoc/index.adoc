@@ -1916,7 +1916,7 @@ To use this feature, add a Maven dependency:
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
-  <artifactId>jdbi3-oracle12</artifactId>
+  <artifactId>jdbi3-postgres</artifactId>
 </dependency>
 ----
 
