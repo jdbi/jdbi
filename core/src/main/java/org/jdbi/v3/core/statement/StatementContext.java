@@ -67,6 +67,7 @@ public class StatementContext implements Closeable
 
     private String            rawSql;
     private String            rewrittenSql;
+    private String            parsedSql;
     private PreparedStatement statement;
     private Connection        connection;
     private Binding           binding = new Binding();
@@ -272,12 +273,32 @@ public class StatementContext implements Closeable
     }
 
     /**
-     * Obtain the located and rewritten sql
+     * Obtain the parsed SQL statement
      * <p>
      * Not available until until statement execution time
      * </p>
      *
-     * @return the sql as it will be executed against the database
+     * @return the sql statement as it will be executed against the database
+     */
+    void setParsedSql(String parsedSql) {
+        this.parsedSql = parsedSql;
+    }
+
+    /**
+     * Obtain the
+     * @return
+     */
+    public String getParsedSql() {
+        return parsedSql;
+    }
+
+    /**
+     * Obtain the rewritten SQL statement
+     * <p>
+     * Not available until until statement execution time
+     * </p>
+     *
+     * @return the sql statement after processing template directives.
      */
     public String getRewrittenSql()
     {

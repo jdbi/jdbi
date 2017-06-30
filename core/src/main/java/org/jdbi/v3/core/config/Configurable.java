@@ -16,6 +16,7 @@ package org.jdbi.v3.core.config;
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
 
+import org.jdbi.v3.core.rewriter.StatementParser;
 import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
@@ -82,6 +83,16 @@ public interface Configurable<This> {
      */
     default This setStatementRewriter(StatementRewriter rewriter) {
         return configure(SqlStatements.class, c -> c.setStatementRewriter(rewriter));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(SqlStatements.class).setStatementParser(rewriter)}
+     *
+     * @param parser statement rewriter
+     * @return this
+     */
+    default This setStatementParser(StatementParser parser) {
+        return configure(SqlStatements.class, c -> c.setStatementParser(parser));
     }
 
     /**

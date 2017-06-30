@@ -18,8 +18,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
-import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateSqlLocatorImpl;
 
@@ -44,5 +42,4 @@ import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateSqlLocatorImpl;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseStringTemplateSqlLocator {
-    Class<? extends StatementRewriter> value() default ColonPrefixStatementRewriter.class;
 }

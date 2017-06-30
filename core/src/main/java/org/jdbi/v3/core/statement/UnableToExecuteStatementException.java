@@ -21,13 +21,18 @@ public class UnableToExecuteStatementException extends StatementException
         super(e, ctx);
     }
 
+    public UnableToExecuteStatementException(String message)
+    {
+        super(message);
+    }
+
     public UnableToExecuteStatementException(String message, StatementContext ctx)
     {
         super(message, ctx);
     }
 
-    public UnableToExecuteStatementException(String string, Throwable throwable, StatementContext ctx)
+    public UnableToExecuteStatementException(String message, Throwable throwable, StatementContext ctx)
     {
-        super(string, throwable, ctx);
+        super(message, throwable, ctx);
     }
 }

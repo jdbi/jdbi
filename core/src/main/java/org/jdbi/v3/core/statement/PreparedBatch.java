@@ -30,7 +30,8 @@ import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.ResultSetMapper;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
-import org.jdbi.v3.core.rewriter.RewrittenStatement;
+import org.jdbi.v3.core.rewriter.ParsedParameters;
+import org.jdbi.v3.core.rewriter.ParsedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,18 +144,23 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             throw new IllegalStateException("No batch parts to execute");
         }
 
-        RewrittenStatement rewritten = getConfig(SqlStatements.class)
+        String rewrittenSql = getConfig(SqlStatements.class)
                 .getStatementRewriter()
-                .rewrite(getSql(), bindings.get(0), getContext());
+                .rewrite(getSql(), getContext());
+
+        ParsedStatement parsedStatement = getConfig(SqlStatements.class)
+                .getStatementParser()
+                .parse(rewrittenSql);
+        String parsedSql = parsedStatement.getSql();
+        ParsedParameters parsedParameters = parsedStatement.getParameters();
 
         try {
             final PreparedStatement stmt;
-            String sql = rewritten.getSql();
             try {
                 StatementBuilder statementBuilder = getHandle().getStatementBuilder();
                 Connection connection = getHandle().getConnection();
-                stmt = statementBuilder.create(connection, sql, getContext());
-                addCleanable(() -> statementBuilder.close(connection, sql, stmt));
+                stmt = statementBuilder.create(connection, parsedSql, getContext());
+                addCleanable(() -> statementBuilder.close(connection, parsedSql, stmt));
             }
             catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
@@ -163,7 +169,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
             try {
                 for (Binding binding : bindings) {
-                    rewritten.bind(binding, stmt);
+                    ArgumentBinder.bind(parsedParameters, binding, stmt, getContext());
                     stmt.addBatch();
                 }
             }
@@ -177,7 +183,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 final long start = System.nanoTime();
                 final int[] rs =  stmt.executeBatch();
                 final long elapsedTime = System.nanoTime() - start;
-                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, sql);
+                LOG.trace("Prepared batch of {} parts executed in {}ms", bindings.size(), elapsedTime / 1000000L, parsedSql);
                 getConfig(SqlStatements.class).getTimingCollector().collect(elapsedTime, getContext());
 
                 afterExecution(stmt);

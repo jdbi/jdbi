@@ -13,14 +13,16 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import org.jdbi.v3.core.statement.StatementContext;
-
 /**
- * A statement rewriter which does not, in fact, rewrite anything.
+ * Use to provide arbitrary statement rewriting.
  */
-public class NoOpStatementRewriter implements StatementRewriter {
-    @Override
-    public String rewrite(String sql, StatementContext ctx) {
-        return sql;
-    }
+public interface StatementParser
+{
+    /**
+     * Munge up the SQL as desired. Responsible for figuring out how to bind any
+     * arguments in to the resultant prepared statement.
+     *
+     * @param sql The SQL statement to parse
+     */
+    ParsedStatement parse(String sql);
 }

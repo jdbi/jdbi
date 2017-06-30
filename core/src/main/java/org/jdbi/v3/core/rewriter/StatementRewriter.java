@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.rewriter;
 
-import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -26,10 +25,9 @@ public interface StatementRewriter
      * arguments in to the resultant prepared statement.
      *
      * @param sql The SQL to rewrite
-     * @param params contains the arguments which have been bound to this statement.
      * @param ctx The statement context for the statement being executed
      * @return something which can provide the actual SQL to prepare a statement from
      *         and which can bind the correct arguments to that prepared statement
      */
-    RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx);
+    String rewrite(String sql, StatementContext ctx);
 }

@@ -41,6 +41,11 @@ public abstract class StatementException extends JdbiException
         this.statementContext = ctx;
     }
 
+    public StatementException(String string) {
+        super(string);
+        this.statementContext = null;
+    }
+
     public StatementContext getStatementContext() {
         return statementContext;
     }
@@ -53,10 +58,11 @@ public abstract class StatementException extends JdbiException
             return base;
         }
         else {
-            return String.format("%s [statement:\"%s\", rewritten:\"%s\", arguments:%s]",
+            return String.format("%s [statement:\"%s\", rewritten:\"%s\", parsed:\"%s\", arguments:%s]",
                                  base,
                                  ctx.getRawSql(),
                                  ctx.getRewrittenSql(),
+                                 ctx.getParsedSql(),
                                  ctx.getBinding());
         }
     }

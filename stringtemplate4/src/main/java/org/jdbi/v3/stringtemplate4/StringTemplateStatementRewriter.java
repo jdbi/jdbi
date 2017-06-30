@@ -13,12 +13,7 @@
  */
 package org.jdbi.v3.stringtemplate4;
 
-import static java.util.Objects.requireNonNull;
-
-import org.jdbi.v3.core.statement.Binding;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
-import org.jdbi.v3.core.rewriter.RewrittenStatement;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 import org.stringtemplate.v4.ST;
 
@@ -26,31 +21,12 @@ import org.stringtemplate.v4.ST;
  * Rewrites a StringTemplate template, using the attributes on the {@link StatementContext} as template parameters.
  */
 public class StringTemplateStatementRewriter implements StatementRewriter {
-    private final StatementRewriter delegate;
-
-    /**
-     * Constructs a rewriter which uses colon-prefixed parameter names.
-     */
-    public StringTemplateStatementRewriter() {
-        this(new ColonPrefixStatementRewriter());
-    }
-
-    /**
-     * Constructs a rewriter which uses the specified delegate rewriter, after parsing out any StringTemplate
-     * expressions.
-     *
-     * @param delegate the delegate rewriter.
-     */
-    public StringTemplateStatementRewriter(StatementRewriter delegate) {
-        this.delegate = requireNonNull(delegate);
-    }
-
     @Override
-    public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx) {
+    public String rewrite(String sql, StatementContext ctx) {
         ST template = new ST(sql);
 
         ctx.getAttributes().forEach(template::add);
 
-        return delegate.rewrite(template.render(), params, ctx);
+        return template.render();
     }
 }

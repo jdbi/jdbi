@@ -60,7 +60,6 @@ public class Batch extends BaseStatement<Batch>
             return new int[] {};
         }
 
-        Binding empty = new Binding();
         Statement stmt;
         try
         {
@@ -80,7 +79,7 @@ public class Batch extends BaseStatement<Batch>
             {
                 for (String part : parts)
                 {
-                    final String sql = getConfig(SqlStatements.class).getStatementRewriter().rewrite(part, empty, getContext()).getSql();
+                    final String sql = getConfig(SqlStatements.class).getStatementRewriter().rewrite(part, getContext());
                     LOG.trace("  {}", sql);
                     stmt.addBatch(sql);
                 }

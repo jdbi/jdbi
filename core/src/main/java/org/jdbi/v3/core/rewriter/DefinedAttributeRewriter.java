@@ -25,37 +25,44 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
-class DefinedAttributeRewriter {
-    static String rewriteDefines(String sql, StatementContext ctx) {
+public class DefinedAttributeRewriter implements StatementRewriter {
+    @Override
+    public String rewrite(String sql, StatementContext ctx) {
         StringBuilder b = new StringBuilder();
         DefineStatementLexer lexer = new DefineStatementLexer(new ANTLRStringStream(sql));
-        Token t = lexer.nextToken();
-        while (t.getType() != EOF) {
-            switch (t.getType()) {
-                case COMMENT:
-                case LITERAL:
-                case QUOTED_TEXT:
-                case DOUBLE_QUOTED_TEXT:
-                    b.append(t.getText());
-                    break;
-                case DEFINE:
-                    String text = t.getText();
-                    String key = text.substring(1, text.length() - 1);
-                    Object value = ctx.getAttribute(key);
-                    if (value == null) {
-                        throw new IllegalArgumentException("Undefined attribute for token '" + text + "'");
-                    }
-                    b.append(value);
-                    break;
-                case ESCAPED_TEXT:
-                    b.append(t.getText().substring(1));
-                    break;
-                default:
-                    break;
+        try {
+            Token t = lexer.nextToken();
+            while (t.getType() != EOF) {
+                switch (t.getType()) {
+                    case COMMENT:
+                    case LITERAL:
+                    case QUOTED_TEXT:
+                    case DOUBLE_QUOTED_TEXT:
+                        b.append(t.getText());
+                        break;
+                    case DEFINE:
+                        String text = t.getText();
+                        String key = text.substring(1, text.length() - 1);
+                        Object value = ctx.getAttribute(key);
+                        if (value == null) {
+                            throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'", ctx);
+                        }
+                        b.append(value);
+                        break;
+                    case ESCAPED_TEXT:
+                        b.append(t.getText().substring(1));
+                        break;
+                    default:
+                        break;
+                }
+                t = lexer.nextToken();
             }
-            t = lexer.nextToken();
+            return b.toString();
         }
-        return b.toString();
+        catch (RuntimeException e) {
+            throw new UnableToCreateStatementException("Error parsing SQL template: '" + sql + "'", e, ctx);
+        }
     }
 }

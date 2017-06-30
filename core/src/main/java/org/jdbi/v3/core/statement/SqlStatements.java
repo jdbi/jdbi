@@ -17,24 +17,29 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
+import org.jdbi.v3.core.rewriter.ColonPrefixStatementParser;
+import org.jdbi.v3.core.rewriter.DefinedAttributeRewriter;
+import org.jdbi.v3.core.rewriter.StatementParser;
 import org.jdbi.v3.core.rewriter.StatementRewriter;
 
 public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
     private StatementRewriter statementRewriter;
+    private StatementParser statementParser;
     private TimingCollector timingCollector;
 
     public SqlStatements() {
         attributes = new ConcurrentHashMap<>();
-        statementRewriter = new ColonPrefixStatementRewriter();
+        statementRewriter = new DefinedAttributeRewriter();
+        statementParser = new ColonPrefixStatementParser();
         timingCollector = TimingCollector.NOP_TIMING_COLLECTOR;
     }
 
     private SqlStatements(SqlStatements that) {
         this.attributes = new ConcurrentHashMap<>(that.attributes);
         this.statementRewriter = that.statementRewriter;
+        this.statementParser = that.statementParser;
         this.timingCollector = that.timingCollector;
     }
 
@@ -87,14 +92,34 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Sets the {@link StatementRewriter} used to transform SQL for all {@link SqlStatement SQL satements} executed by
-     * Jdbi. The default statement rewriter handles named parameter interpolation.
+     * Sets the {@link StatementRewriter} used to rewrite SQL for all
+     * {@link SqlStatement SQL statements} executed by Jdbi. The default
+     * statement rewriter replaces <code>&lt;name&gt;</code>-style tokens
+     * with attributes {@link StatementContext#define(String, Object) defined}
+     * on the statement context.
      *
      * @param rewriter the new statement rewriter.
      * @return this
      */
     public SqlStatements setStatementRewriter(StatementRewriter rewriter) {
         this.statementRewriter = rewriter;
+        return this;
+    }
+
+    public StatementParser getStatementParser() {
+        return statementParser;
+    }
+
+    /**
+     * Sets the {@link StatementParser} used to parse parameters in SQL
+     * statements executed by Jdbi. The default parser colon prefixed named
+     * parameter tokens, e.g. <code>:name</code>.
+     *
+     * @param statementParser the new statement parser.
+     * @return this
+     */
+    public SqlStatements setStatementParser(StatementParser statementParser) {
+        this.statementParser = statementParser;
         return this;
     }
 

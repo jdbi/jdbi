@@ -15,36 +15,93 @@ package org.jdbi.v3.core.rewriter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 
-class ParsedStatement {
-    static final String POSITIONAL_PARAM = "?";
+public class ParsedStatement {
+    private static final String POSITIONAL_PARAM = "?";
 
-    private String parsedSql;
-    private boolean positional = true;
-    List<String> params = new ArrayList<>();
+    private final String sql;
+    private final ParsedParameters parameters;
 
-    String getParsedSql() {
-        return parsedSql;
+    private ParsedStatement(String sql, ParsedParameters parameters) {
+        this.sql = sql;
+        this.parameters = parameters;
     }
 
-    void setParsedSql(String parsedSql) {
-        this.parsedSql = parsedSql;
+    public String getSql() {
+        return sql;
     }
 
-    boolean isPositional() {
-        return positional;
+    public ParsedParameters getParameters() {
+        return parameters;
     }
 
-    void addNamedParam(String name) {
-        positional = false;
-        params.add(name);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ParsedStatement that = (ParsedStatement) o;
+        return Objects.equals(sql, that.sql) &&
+                Objects.equals(parameters, that.parameters);
     }
 
-    void addPositionalParam() {
-        params.add(POSITIONAL_PARAM);
+    @Override
+    public int hashCode() {
+        return Objects.hash(sql, parameters);
     }
 
-    List<String> getParams() {
-        return params;
+    @Override
+    public String toString() {
+        return "ParsedStatement{" +
+                "sql='" + sql + '\'' +
+                ", parameters=" + parameters +
+                '}';
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private Builder() {
+        }
+
+        private final StringBuilder sql = new StringBuilder();
+        private boolean positional = false;
+        private boolean named = false;
+        private final List<String> parameterNames = new ArrayList<>();
+
+        public Builder append(String sqlFragment) {
+            sql.append(sqlFragment);
+            return this;
+        }
+
+        public Builder appendPositionalParameter() {
+            positional = true;
+            parameterNames.add(POSITIONAL_PARAM);
+            return append("?");
+        }
+
+        public Builder appendNamedParameter(String name) {
+            named = true;
+            parameterNames.add(name);
+            return append("?");
+        }
+
+        public ParsedStatement build() {
+            if (positional && named) {
+                throw new UnableToExecuteStatementException(
+                        "Cannot mix named and positional parameters in a SQL statement: " + parameterNames);
+            }
+
+            ParsedParameters parameters = new ParsedParameters(positional, parameterNames);
+
+            return new ParsedStatement(sql.toString(), parameters);
+        }
     }
 }

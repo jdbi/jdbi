@@ -19,18 +19,16 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jdbi.v3.core.statement.Binding;
+import org.jdbi.v3.core.rewriter.ParsedStatement;
+import org.jdbi.v3.core.rewriter.StatementParser;
 import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
-import org.jdbi.v3.core.rewriter.RewrittenStatement;
+import org.jdbi.v3.core.rewriter.ColonPrefixStatementParser;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.stringtemplate4.UseStringTemplateStatementRewriter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -100,7 +98,7 @@ public class BindListNullTest
     public void testSomethingByIterableHandleVoidWithNull()
     {
         final List<String> log = new ArrayList<>();
-        handle.define(SPY, log);
+        handle.setStatementParser(new LoggingParser(log));
         final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
         final List<Something> out = s.get(null);
@@ -113,31 +111,32 @@ public class BindListNullTest
     public void testSomethingByIterableHandleVoidWithEmptyList()
     {
         final List<String> log = new ArrayList<>();
-        handle.define(SPY, log);
+        handle.setStatementParser(new LoggingParser(log));
         final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
-        final List<Something> out = s.get(new ArrayList<Object>());
+        final List<Something> out = s.get(new ArrayList<>());
 
         assertThat(out).isEmpty();
         assertThat(log).hasSize(1).allMatch(e -> e.contains(" where id in ();"));
     }
 
-    @UseStringTemplateStatementRewriter(SpyingRewriter.class)
     public interface SomethingByIterableHandleVoid
     {
         @SqlQuery("select id, name from something where id in (<ids>);")
         List<Something> get(@BindList(onEmpty = VOID) Iterable<Object> ids);
     }
 
-    public static class SpyingRewriter extends ColonPrefixStatementRewriter
-    {
-        @SuppressWarnings("unchecked")
+    public static class LoggingParser implements StatementParser {
+        private final List<String> log;
+
+        public LoggingParser(List<String> log) {
+            this.log = log;
+        }
+
         @Override
-        public RewrittenStatement rewrite(String sql, Binding params,
-                StatementContext ctx)
-        {
-            ((List<String>)ctx.getAttribute(SPY)).add(sql);
-            return super.rewrite(sql, params, ctx);
+        public ParsedStatement parse(String sql) {
+            log.add(sql);
+            return new ColonPrefixStatementParser().parse(sql);
         }
     }
 }

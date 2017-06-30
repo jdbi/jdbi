@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.rewriter;
 
 import static org.jdbi.v3.core.internal.lexer.ColonStatementLexer.*; // SUPPRESS CHECKSTYLE WARNING
-import static org.jdbi.v3.core.rewriter.DefinedAttributeRewriter.rewriteDefines;
 
 import java.util.Collections;
 import java.util.Map;
@@ -22,18 +21,16 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.jdbi.v3.core.statement.Binding;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 
 /**
- * Statement rewriter which replaces named parameter tokens of the form <code>:tokenName</code>
+ * Statement parser which replaces named parameter tokens of the form <code>:tokenName</code>
  * <p>
- * This is the default statement rewriter
+ * This is the default statement parser
  * </p>
  */
-public class ColonPrefixStatementRewriter implements StatementRewriter {
+public class ColonPrefixStatementParser implements StatementParser {
     private final Map<String, ParsedStatement> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
     /**
@@ -41,24 +38,20 @@ public class ColonPrefixStatementRewriter implements StatementRewriter {
      * arguments in to the resultant prepared statement.
      *
      * @param sql    The SQL to rewrite
-     * @param params contains the arguments which have been bound to this statement.
-     * @param ctx    The statement context for the statement being executed
      * @return something which can provide the actual SQL to prepare a statement from
      * and which can bind the correct arguments to that prepared statement
      */
     @Override
-    public RewrittenStatement rewrite(String sql, Binding params, StatementContext ctx) {
+    public ParsedStatement parse(String sql) {
         try {
-            ParsedStatement stmt = cache.computeIfAbsent(rewriteDefines(sql, ctx), this::rewriteNamedParameters);
-            return new InternalRewrittenStatement(stmt, ctx);
+            return cache.computeIfAbsent(sql, this::internalParse);
         } catch (IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e, ctx);
+            throw new UnableToCreateStatementException("Exception parsing for named parameter replacement", e);
         }
     }
 
-    ParsedStatement rewriteNamedParameters(String sql) throws IllegalArgumentException {
-        ParsedStatement stmt = new ParsedStatement();
-        StringBuilder b = new StringBuilder(sql.length());
+    ParsedStatement internalParse(String sql) throws IllegalArgumentException {
+        ParsedStatement.Builder stmt = ParsedStatement.builder();
         ColonStatementLexer lexer = new ColonStatementLexer(new ANTLRStringStream(sql));
         Token t = lexer.nextToken();
         while (t.getType() != EOF) {
@@ -67,25 +60,22 @@ public class ColonPrefixStatementRewriter implements StatementRewriter {
                 case LITERAL:
                 case QUOTED_TEXT:
                 case DOUBLE_QUOTED_TEXT:
-                    b.append(t.getText());
+                    stmt.append(t.getText());
                     break;
                 case NAMED_PARAM:
-                    stmt.addNamedParam(t.getText().substring(1));
-                    b.append("?");
+                    stmt.appendNamedParameter(t.getText().substring(1));
                     break;
                 case POSITIONAL_PARAM:
-                    b.append("?");
-                    stmt.addPositionalParam();
+                    stmt.appendPositionalParameter();
                     break;
                 case ESCAPED_TEXT:
-                    b.append(t.getText().substring(1));
+                    stmt.append(t.getText().substring(1));
                     break;
                 default:
                     break;
             }
             t = lexer.nextToken();
         }
-        stmt.setParsedSql(b.toString());
-        return stmt;
+        return stmt.build();
     }
 }

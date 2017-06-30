@@ -21,8 +21,8 @@ import org.jdbi.v3.core.rule.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.core.rewriter.ColonPrefixStatementRewriter;
-import org.jdbi.v3.core.rewriter.HashPrefixStatementRewriter;
+import org.jdbi.v3.core.rewriter.ColonPrefixStatementParser;
+import org.jdbi.v3.core.rewriter.HashPrefixStatementParser;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
@@ -45,7 +45,7 @@ public class TestUseStatementRewriter
         Jdbi db = dbRule.getJdbi();
 
         // this is the default, but be explicit for sake of clarity in test
-        db.setStatementRewriter(new ColonPrefixStatementRewriter());
+        db.setStatementParser(new ColonPrefixStatementParser());
         handle = db.open();
     }
 
@@ -61,7 +61,7 @@ public class TestUseStatementRewriter
     }
 
 
-    @UseStatementRewriter(HashPrefixStatementRewriter.class)
+    @UseStatementParser(HashPrefixStatementParser.class)
     @RegisterRowMapper(SomethingMapper.class)
     public interface Hashed
     {
